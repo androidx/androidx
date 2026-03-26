@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
-
-    <issue
-        id="CheckResult"
-        message="The result of `assertThat` is not used"
-        errorLine1="            assertThat(texts.isEmpty())"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
-    </issue>
+<issues format="6" by="lint 9.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (9.1.0-alpha06)" variant="all" version="9.1.0-alpha06">
 
     <issue
         id="NewApi"

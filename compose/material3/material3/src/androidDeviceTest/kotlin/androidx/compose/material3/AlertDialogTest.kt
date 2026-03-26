@@ -16,20 +16,24 @@
 
 package androidx.compose.material3
 
+import android.hardware.input.InputManager
 import android.os.Build
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
@@ -43,10 +47,13 @@ import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.base.Joiner.on
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
@@ -55,6 +62,8 @@ import kotlinx.coroutines.withTimeout
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -266,7 +275,7 @@ class AlertDialogTest {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = null,
-                        modifier = Modifier.testTag(IconTestTag),
+                        modifier = Modifier.size(AlertDialogDefaults.IconSize).testTag(IconTestTag),
                     )
                 },
                 title = { Text(text = "Title", modifier = Modifier.testTag(TitleTestTag)) },
@@ -296,6 +305,11 @@ class AlertDialogTest {
         val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
         val confirmBtBounds = rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot()
         val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
+
+        // Title line height should be 32dp.
+        titleBounds.height.assertIsEqualTo(32.dp, "title line height")
+        // Text line height should be 20dp.
+        textBounds.height.assertIsEqualTo(20.dp, "text line height")
 
         rule
             .onNodeWithTag(IconTestTag)
@@ -364,6 +378,11 @@ class AlertDialogTest {
         val titleBounds = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot()
         val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
         val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
+
+        // Title line height should be 32dp.
+        titleBounds.height.assertIsEqualTo(32.dp, "title line height")
+        // Text line height should be 20dp.
+        textBounds.height.assertIsEqualTo(20.dp, "text line height")
 
         rule
             .onNodeWithTag(TitleTestTag)
@@ -476,6 +495,210 @@ class AlertDialogTest {
         (dismissBtBounds.top - textBounds.bottom).assertIsEqualTo(
             24.dp,
             "padding between the text and the button",
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun alertDialog_withIcon_precisionPointer_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    AlertDialog(
+                        onDismissRequest = {},
+                        icon = {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = null,
+                                modifier =
+                                    Modifier.size(AlertDialogDefaults.IconSize).testTag(IconTestTag),
+                            )
+                        },
+                        title = { Text(text = "Title", modifier = Modifier.testTag(TitleTestTag)) },
+                        text = { Text("Text", modifier = Modifier.testTag(TextTestTag)) },
+                        confirmButton = {
+                            TextButton(
+                                onClick = { /* doSomething() */ },
+                                Modifier.testTag(ConfirmButtonTestTag).semantics(
+                                    mergeDescendants = true
+                                ) {},
+                            ) {
+                                Text("Confirm")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { /* doSomething() */ },
+                                Modifier.testTag(DismissButtonTestTag).semantics(
+                                    mergeDescendants = true
+                                ) {},
+                            ) {
+                                Text("Dismiss")
+                            }
+                        },
+                    )
+                }
+            }
+        }
+
+        val dialogBounds = rule.onNode(isDialog()).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val titleBounds = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val confirmBtBounds = rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot()
+        val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
+
+        // Title line height should be 26dp.
+        titleBounds.height.assertIsEqualTo(26.dp, "title line height")
+        // Text line height should be 20dp.
+        textBounds.height.assertIsEqualTo(20.dp, "text line height")
+
+        rule
+            .onNodeWithTag(IconTestTag)
+            // Dialog's icon should be centered (icon size is 28dp)
+            .assertLeftPositionInRootIsEqualTo((dialogBounds.width - 28.dp) / 2)
+            // Dialog's icon should be 20dp from the top
+            .assertTopPositionInRootIsEqualTo(20.dp)
+
+        rule
+            .onNodeWithTag(TitleTestTag)
+            // Title should be centered (default alignment when an icon presence)
+            .assertLeftPositionInRootIsEqualTo((dialogBounds.width - titleBounds.width) / 2)
+            // Title should be 16dp below the icon.
+            .assertTopPositionInRootIsEqualTo(iconBounds.bottom + 16.dp)
+
+        rule
+            .onNodeWithTag(TextTestTag)
+            // Text should be 20dp from the start.
+            .assertLeftPositionInRootIsEqualTo(20.dp)
+            // Text should be 16dp below the title.
+            .assertTopPositionInRootIsEqualTo(titleBounds.bottom + 16.dp)
+
+        rule
+            .onNodeWithTag(ConfirmButtonTestTag)
+            // Confirm button should be 20dp from the right.
+            .assertLeftPositionInRootIsEqualTo(dialogBounds.right - 20.dp - confirmBtBounds.width)
+            // Buttons should be 20dp from the bottom (test button default height is 48dp).
+            .assertTopPositionInRootIsEqualTo(dialogBounds.bottom - 20.dp - 48.dp)
+
+        // Check the measurements between the components.
+        (confirmBtBounds.top - textBounds.bottom).assertIsEqualTo(
+            16.dp,
+            "padding between the text and the button",
+        )
+        (confirmBtBounds.top).assertIsEqualTo(dismissBtBounds.top, "dialog buttons top alignment")
+        (confirmBtBounds.bottom).assertIsEqualTo(
+            dismissBtBounds.bottom,
+            "dialog buttons bottom alignment",
+        )
+        (confirmBtBounds.left - 8.dp).assertIsEqualTo(
+            dismissBtBounds.right,
+            "horizontal padding between the dialog buttons",
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun alertDialog_precisionPointer_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    AlertDialog(
+                        onDismissRequest = {},
+                        title = { Text(text = "Title", modifier = Modifier.testTag(TitleTestTag)) },
+                        text = { Text("Text", modifier = Modifier.testTag(TextTestTag)) },
+                        confirmButton = {
+                            TextButton(
+                                onClick = { /* doSomething() */ },
+                                Modifier.testTag(ConfirmButtonTestTag).semantics(
+                                    mergeDescendants = true
+                                ) {},
+                            ) {
+                                Text("Confirm")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { /* doSomething() */ },
+                                Modifier.testTag(DismissButtonTestTag).semantics(
+                                    mergeDescendants = true
+                                ) {},
+                            ) {
+                                Text("Dismiss")
+                            }
+                        },
+                    )
+                }
+            }
+        }
+
+        val dialogBounds = rule.onNode(isDialog()).getUnclippedBoundsInRoot()
+        val titleBounds = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val confirmBtBounds = rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot()
+        val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
+
+        // Title line height should be 26dp.
+        titleBounds.height.assertIsEqualTo(26.dp, "title line height")
+        // Text line height should be 20dp.
+        textBounds.height.assertIsEqualTo(20.dp, "text line height")
+
+        rule
+            .onNodeWithTag(TitleTestTag)
+            // Title should 20dp from the left.
+            .assertLeftPositionInRootIsEqualTo(20.dp)
+            // Title should be 20dp from the top.
+            .assertTopPositionInRootIsEqualTo(20.dp)
+
+        rule
+            .onNodeWithTag(TextTestTag)
+            // Text should be 20dp from the start.
+            .assertLeftPositionInRootIsEqualTo(20.dp)
+            // Text should be 16dp below the title.
+            .assertTopPositionInRootIsEqualTo(titleBounds.bottom + 16.dp)
+
+        rule
+            .onNodeWithTag(ConfirmButtonTestTag)
+            // Confirm button should be 20dp from the right.
+            .assertLeftPositionInRootIsEqualTo(dialogBounds.right - 20.dp - confirmBtBounds.width)
+            // Buttons should be 20dp from the bottom (test button default height is 48dp).
+            .assertTopPositionInRootIsEqualTo(dialogBounds.bottom - 20.dp - 48.dp)
+
+        // Check the measurements between the components.
+        (confirmBtBounds.top - textBounds.bottom).assertIsEqualTo(
+            16.dp,
+            "padding between the text and the button",
+        )
+        (confirmBtBounds.top).assertIsEqualTo(dismissBtBounds.top, "dialog buttons top alignment")
+        (confirmBtBounds.bottom).assertIsEqualTo(
+            dismissBtBounds.bottom,
+            "dialog buttons bottom alignment",
+        )
+        (confirmBtBounds.left - 8.dp).assertIsEqualTo(
+            dismissBtBounds.right,
+            "horizontal padding between the dialog buttons",
         )
     }
 }

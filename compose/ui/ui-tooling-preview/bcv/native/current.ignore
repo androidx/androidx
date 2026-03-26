@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+[linuxX64]: modality changed from OPEN to ABSTRACT for androidx.compose.ui.tooling.preview/PreviewWrapperProvider
+[linuxX64]: kind changed from ANNOTATION_CLASS to INTERFACE for androidx.compose.ui.tooling.preview/PreviewWrapperProvider
+[linuxX64]: Removed superType kotlin/Annotation from androidx.compose.ui.tooling.preview/PreviewWrapperProvider
+[linuxX64]: Removed declaration <init>(kotlin.reflect/KClass<out androidx.compose.ui.tooling.preview/PreviewWrapper>) from androidx.compose.ui.tooling.preview/PreviewWrapperProvider
+[linuxX64]: Removed declaration wrapper from androidx.compose.ui.tooling.preview/PreviewWrapperProvider
+[linuxX64]: Added declaration Wrap(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) to androidx.compose.ui.tooling.preview/PreviewWrapperProvider
+[linuxX64]: kind changed from INTERFACE to ANNOTATION_CLASS for androidx.compose.ui.tooling.preview/PreviewWrapper
+[linuxX64]: Removed declaration Wrap(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) from androidx.compose.ui.tooling.preview/PreviewWrapper

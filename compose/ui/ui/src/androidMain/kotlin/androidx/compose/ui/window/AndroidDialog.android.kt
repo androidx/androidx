@@ -103,15 +103,29 @@ import kotlin.math.roundToInt
  *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING] on [Build.VERSION_CODES.S] and above.
  *   [Window.isFloating] will be `false` when `decorFitsSystemWindows` is `false`.
  * @property windowTitle Title to be set on the dialog's window.
- * @property windowType The specific window type to apply to the dialog's underlying [Window]. This
- *   directly sets [WindowManager.LayoutParams.type]. The default value is
- *   [WindowManager.LayoutParams.TYPE_APPLICATION], which is the platform's standard dialog window
- *   type. Setting a custom window type is particularly useful when displaying a dialog from a
- *   [android.app.Service] or outside the scope of an Activity context (e.g.,
- *   [WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY]).
- * @property windowToken An optional [android.os.IBinder] for [WindowManager.LayoutParams.token] for
- *   the dialog window. If null, the dialog will automatically use the token from the parent Compose
- *   view.
+ * @property windowType An optional [android.view.WindowManager.LayoutParams.type] to apply to the
+ *   dialog's underlying [android.view.Window]. The default value is
+ *   [android.view.WindowManager.LayoutParams.TYPE_APPLICATION], which is the platform's standard
+ *   dialog window type. Overriding this allows you to change the layer or behavior of the dialog.
+ *   For example, setting it to [android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY]
+ *   allows the dialog to draw on top of other applications (requires the
+ *   [android.Manifest.permission.SYSTEM_ALERT_WINDOW] permission). Note: If you are displaying a
+ *   dialog from a non-Activity context (such as an [android.app.Service]) but still want it to be
+ *   anchored to an existing application window, you should leave this as the default type and
+ *   instead provide the [windowToken] of the target application window.
+ * @property windowToken An optional [android.os.IBinder] to be used as the window token for the
+ *   dialog window. If null, the dialog will typically derive the token from the context. This
+ *   parameter is crucial for scenarios where the dialog is shown from a context without a suitable
+ *   default token, such as a Service running in a separate process from the main application. In
+ *   such cross-process cases, the token from the main application's window should be provided. The
+ *   provided token must be a valid [android.os.IBinder] from an existing window and must have the
+ *   necessary permissions to add windows of the specified [windowType]. Providing an invalid,
+ *   stale, or permission-denied token will typically result in a
+ *   [android.view.WindowManager.BadTokenException] when the dialog attempts to show.
+ *
+ *   Example usage:
+ *
+ * @sample androidx.compose.ui.samples.DialogFromServiceSample
  */
 @Immutable
 actual class DialogProperties(

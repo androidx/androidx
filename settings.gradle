@@ -513,6 +513,7 @@ includeProject(":compose:ui:ui-text:ui-text-samples", "compose/ui/ui-text/sample
 includeProject(":compose:ui:ui-tooling")
 includeProject(":compose:ui:ui-tooling-data")
 includeProject(":compose:ui:ui-tooling-preview")
+includeProject(":compose:ui:ui-tooling-preview:ui-tooling-preview-samples", "compose/ui/ui-tooling-preview/samples")
 includeProject(":compose:ui:ui-unit")
 includeProject(":compose:ui:ui-unit:ui-unit-samples", "compose/ui/ui-unit/samples")
 includeProject(":compose:ui:ui-util")

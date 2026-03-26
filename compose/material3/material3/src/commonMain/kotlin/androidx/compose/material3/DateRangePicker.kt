@@ -1001,8 +1001,8 @@ internal class SelectedRangeInfo(
 /**
  * Draws the range selection background.
  *
- * This function is called during a [Modifier.drawWithContent] call when a [Month] is composed with
- * an `rangeSelectionEnabled` flag.
+ * This function is called during a [androidx.compose.ui.draw.drawWithContent] call when a [Month]
+ * is composed with an `rangeSelectionEnabled` flag.
  */
 internal fun ContentDrawScope.drawRangeBackground(
     selectedRangeInfo: SelectedRangeInfo,

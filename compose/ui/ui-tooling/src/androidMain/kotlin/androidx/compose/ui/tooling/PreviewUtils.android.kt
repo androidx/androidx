@@ -19,7 +19,7 @@ package androidx.compose.ui.tooling
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.tooling.preview.PreviewWrapper
+import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 import kotlin.collections.removeLast as removeLastKt
 
 /** Tries to find the [Class] of the [PreviewParameterProvider] corresponding to the given FQN. */
@@ -33,13 +33,13 @@ internal fun String.asPreviewProviderClass(): Class<out PreviewParameterProvider
     }
 }
 
-/** Tries to find the [Class] of the [PreviewWrapper] corresponding to the given FQN. */
-internal fun String.asPreviewWrapperClass(): Class<out PreviewWrapper>? {
+/** Tries to find the [Class] of the [PreviewWrapperProvider] corresponding to the given FQN. */
+internal fun String.asPreviewWrapperProviderClass(): Class<out PreviewWrapperProvider>? {
     try {
         @Suppress("UNCHECKED_CAST")
-        return Class.forName(this) as? Class<out PreviewWrapper>
+        return Class.forName(this) as? Class<out PreviewWrapperProvider>
     } catch (e: ClassNotFoundException) {
-        PreviewLogger.logError("Unable to find PreviewWrapper '$this'", e)
+        PreviewLogger.logError("Unable to find PreviewWrapperProvider '$this'", e)
         return null
     }
 }
@@ -87,25 +87,27 @@ internal fun getPreviewProviderParameters(
 }
 
 /**
- * Instantiates a [PreviewWrapper] from the provided [Class].
+ * Instantiates a [PreviewWrapperProvider] from the provided [Class].
  *
  * This method attempts to find a no-argument constructor on the given class and use it to creates a
  * new instance.
  *
- * @param previewWrapper The [Class] of the [PreviewWrapper] to instantiate.
- * @return A new instance of the [PreviewWrapper].
+ * @param previewWrapperProvider The [Class] of the [PreviewWrapperProvider] to instantiate.
+ * @return A new instance of the [PreviewWrapperProvider].
  * @throws IllegalArgumentException If the class does not have a public, no-argument constructor.
  */
-internal fun instantiatePreviewWrapper(previewWrapper: Class<out PreviewWrapper>?): PreviewWrapper {
+internal fun instantiatePreviewWrapperProvider(
+    previewWrapperProvider: Class<out PreviewWrapperProvider>?
+): PreviewWrapperProvider {
     val constructor =
-        previewWrapper
+        previewWrapperProvider
             ?.constructors
             ?.singleOrNull { it.parameterTypes.isEmpty() }
             ?.apply { isAccessible = true }
             ?: throw IllegalArgumentException(
-                "PreviewWrapper constructor can not" + " have parameters"
+                "PreviewWrapperProvider constructor can not" + " have parameters"
             )
-    return constructor.newInstance() as PreviewWrapper
+    return constructor.newInstance() as PreviewWrapperProvider
 }
 
 /**

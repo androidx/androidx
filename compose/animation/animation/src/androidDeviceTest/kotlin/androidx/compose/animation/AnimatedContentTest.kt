@@ -102,6 +102,83 @@ class AnimatedContentTest {
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(rule)
 
     @Test
+    fun testInterruptionAfterExitFinishedRecoversExitState() {
+        // This test specifically verifies that when an exit transition finishes and its layout
+        // is temporarily removed from the composition, an interruption (reversing back to the
+        // exiting state) correctly recovers the exit state and animates back from the interrupted
+        // position instead of snapping.
+        var target by mutableStateOf(1)
+        var offset1: Offset? = null
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            AnimatedContent(
+                targetState = target,
+                transitionSpec = {
+                    if (targetState == 2) {
+                        // 1 exits fast (100ms) to -100, 2 enters slow (500ms)
+                        ContentTransform(
+                            targetContentEnter = slideInHorizontally(tween(500)) { it },
+                            initialContentExit = slideOutHorizontally(tween(100)) { -it },
+                        )
+                    } else {
+                        // Interrupted to 1: 1 enters slow (500ms), 2 exits fast (100ms)
+                        ContentTransform(
+                            targetContentEnter = slideInHorizontally(tween(500)) { -it },
+                            initialContentExit = slideOutHorizontally(tween(100)) { it },
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxSize(),
+            ) { state ->
+                Box(
+                    Modifier.size(100.dp).onGloballyPositioned {
+                        if (state == 1) {
+                            offset1 = it.positionInRoot()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        val initialOffset1 = offset1!!
+        assertEquals(0f, initialOffset1.x)
+
+        // Change to B
+        target = 2
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        // A exits in 100ms. Advance clock by 150ms. A's exit finishes. A's layout is disposed,
+        // but its child transition remains alive because B's enter animation takes 500ms.
+        rule.mainClock.advanceTimeBy(150)
+        rule.waitForIdle()
+
+        // Interrupt back to A.
+        target = 1
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Advance slightly. A should be animating back in.
+        rule.mainClock.advanceTimeBy(50)
+        rule.waitForIdle()
+
+        // Since A was at -100 when its exit finished, and we interrupted,
+        // it should resume from -100 and start moving towards 0.
+        // It should NOT instantly snap to 0.
+        assertTrue(
+            "offset1 x (${offset1?.x}) should be less than 0, indicating an ongoing animation from -100",
+            offset1!!.x < -10f,
+        )
+    }
+
+    @Test
     fun AnimatedContentSizeTransformTest() {
         val size1 = 40
         val size2 = 200

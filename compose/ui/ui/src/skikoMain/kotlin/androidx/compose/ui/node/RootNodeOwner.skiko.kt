@@ -92,7 +92,6 @@ import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.TextInputService
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -192,6 +191,7 @@ internal class RootNodeOwner(
         platformContext.rootForTestListener?.onRootForTestDisposed(rootForTest)
         snapshotObserver.stopObserving()
         graphicsContext.dispose()
+        _owner.dispose()
         // we don't need to call root.detach() because root will be garbage collected
         isDisposed = true
     }
@@ -721,6 +721,14 @@ internal class RootNodeOwner(
 
         override fun invalidateRootLayer() {
             ownedLayerManager.invalidate()
+        }
+
+        fun dispose() {
+            // Unlike AndroidComposeView.onDetachedFromWindow, we only remove callbacks, without
+            // dispatching them because here we are already in the middle of disposing the
+            // `RootNodeOwner`, so dispatching callbacks can end up calling already-disposed
+            // objects.
+            rectManager.removeScheduledCallback()
         }
     }
 

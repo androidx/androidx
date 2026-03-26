@@ -273,6 +273,8 @@ constructor(
     internal val density: Density
         get() = layoutInfoState.value.density
 
+    internal var skipItemPlacementAnimation: Boolean = false
+
     /**
      * The ScrollableController instance. We keep it as we need to call stopAnimation on it once we
      * reached the end of the list.
@@ -578,9 +580,14 @@ constructor(
      *   scroll the item further upward (taking it partly offscreen).
      */
     suspend fun animateScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
-        scroll {
-            LazyLayoutScrollScope(this@LazyListState, this)
-                .animateScrollToItem(index, scrollOffset, NumberOfItemsToTeleport, density)
+        try {
+            skipItemPlacementAnimation = true
+            scroll {
+                LazyLayoutScrollScope(this@LazyListState, this)
+                    .animateScrollToItem(index, scrollOffset, NumberOfItemsToTeleport, density)
+            }
+        } finally {
+            skipItemPlacementAnimation = false
         }
     }
 

@@ -556,7 +556,12 @@ internal fun CoreTextField(
                     // line
                     // TextFields
                     .heightIn(min = state.minHeightForSingleLineField)
-                    .heightInLines(textStyle = textStyle, minLines = minLines, maxLines = maxLines)
+                    .heightInLines(
+                        textStyle = textStyle,
+                        minLines = minLines,
+                        maxLines = maxLines,
+                        softWrap = softWrap,
+                    )
                     .overscroll(overscrollEffect)
                     .textFieldScroll(
                         scrollerPosition = scrollerPosition,

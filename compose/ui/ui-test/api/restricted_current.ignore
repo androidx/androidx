@@ -1,3 +1,17 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.test.MultiModalInjectionScope#trackpad(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TrackpadInjectionScope,kotlin.Unit>):
-    Binary breaking change: Added method androidx.compose.ui.test.MultiModalInjectionScope.trackpad(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TrackpadInjectionScope,kotlin.Unit>)
+AddedAbstractMethod: androidx.compose.ui.test.TrackpadInjectionScope#panEnd(long):
+    Binary breaking change: Added method androidx.compose.ui.test.TrackpadInjectionScope.panEnd(long)
+AddedAbstractMethod: androidx.compose.ui.test.TrackpadInjectionScope#scaleEnd(long):
+    Binary breaking change: Added method androidx.compose.ui.test.TrackpadInjectionScope.scaleEnd(long)
+
+
+AddedMethod: androidx.compose.ui.test.TrackpadInjectionScope#panEnd$default(androidx.compose.ui.test.TrackpadInjectionScope, long, int, Object):
+    Added method androidx.compose.ui.test.TrackpadInjectionScope.panEnd$default(androidx.compose.ui.test.TrackpadInjectionScope,long,int,Object)
+AddedMethod: androidx.compose.ui.test.TrackpadInjectionScope#scaleEnd$default(androidx.compose.ui.test.TrackpadInjectionScope, long, int, Object):
+    Added method androidx.compose.ui.test.TrackpadInjectionScope.scaleEnd$default(androidx.compose.ui.test.TrackpadInjectionScope,long,int,Object)
+
+
+RemovedMethod: androidx.compose.ui.test.TrackpadInjectionScope#panEnd():
+    Binary breaking change: Removed method androidx.compose.ui.test.TrackpadInjectionScope.panEnd()
+RemovedMethod: androidx.compose.ui.test.TrackpadInjectionScope#scaleEnd():
+    Binary breaking change: Removed method androidx.compose.ui.test.TrackpadInjectionScope.scaleEnd()

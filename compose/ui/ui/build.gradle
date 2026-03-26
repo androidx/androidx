@@ -26,6 +26,7 @@ import androidx.build.PlatformIdentifier
 import androidx.build.ProjectLayoutType
 import org.jetbrains.androidx.build.UpdateTranslationsTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.target.Family
 
@@ -330,12 +331,10 @@ if (!ProjectLayoutType.isPlayground(project)) {
 }
 
 // TODO(b/407725586): Remove this block when AndroidAssistTest passes on API Level 21
-tasks.withType(KotlinCompile).configureEach {
-    if (it.name != "compileAndroidMain") return
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xlambdas=class"
-        ]
+tasks.withType(KotlinCompile).configureEach { task ->
+    if (task.name != "compileAndroidMain") return
+    task.compilerOptions {
+        it.freeCompilerArgs.addAll("-Xlambdas=class")
     }
 }
 
@@ -478,4 +477,5 @@ tasks.desktopTest {
     useJUnit {
         excludeCategories("androidx.compose.ui.HeadlessTest")
     }
+    jvmArgs("--add-opens=java.desktop/javax.swing=ALL-UNNAMED")
 }

@@ -367,6 +367,24 @@ class CommonTextFieldKeyEventTest {
             expectedSelection = TextRange(DEFAULT_TEST_STRING.length - 1),
         )
 
+    @Test
+    fun textField_shiftEnter_insertsNewline() =
+        singleKeyStrokeTest(
+            initText = "helloworld",
+            initSelection = TextRange(5),
+            keys = Key.ShiftLeft + Key.Enter,
+            expectedText = "hello\nworld",
+        )
+
+    @Test
+    fun textField_ctrlEnter_insertsNewline() =
+        singleKeyStrokeTest(
+            initText = "helloworld",
+            initSelection = TextRange(5),
+            keys = Key.CtrlLeft + Key.Enter,
+            expectedText = "hello\nworld",
+        )
+
     private class SequenceScope(
         private val state: TextFieldState,
         private val clipboard: FakeClipboard,

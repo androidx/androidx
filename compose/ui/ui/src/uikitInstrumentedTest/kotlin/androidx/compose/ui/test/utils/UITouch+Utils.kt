@@ -23,7 +23,9 @@ import androidx.compose.test.utils.send
 import androidx.compose.test.utils.setLocationInWindow
 import androidx.compose.test.utils.setPhase
 import androidx.compose.test.utils.touchAtPoint
+import androidx.compose.ui.test.UIKitInstrumentedTest
 import androidx.compose.ui.unit.DpOffset
+import kotlin.time.Duration
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.UIEvent
 import platform.UIKit.UITouch
@@ -73,6 +75,11 @@ internal fun UITouch.moveToLocationOnWindow(location: DpOffset) {
     setLocationInWindow(location.toCGPoint())
     setPhase(UITouchPhase.UITouchPhaseMoved)
     send()
+}
+
+internal fun UITouch.wait(duration: Duration): UITouch {
+    UIKitInstrumentedTest.delay(duration.inWholeMilliseconds)
+    return this
 }
 
 @OptIn(ExperimentalForeignApi::class)

@@ -29,7 +29,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItem
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
@@ -57,7 +57,7 @@ fun NavigationSuiteScaffoldSample() {
     var selectedItem by remember { mutableIntStateOf(0) }
     val navItems = listOf("Songs", "Artists", "Playlists")
     val navSuiteType =
-        NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfo())
+        NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
     val state = rememberNavigationSuiteScaffoldState()
     val scope = rememberCoroutineScope()
 
@@ -110,7 +110,7 @@ fun NavigationSuiteScaffoldCustomConfigSample() {
     // expanded wide navigation rail in expanded width screens, and a short navigation bar in small
     // height screens.
     val navSuiteType =
-        with(currentWindowAdaptiveInfo()) {
+        with(currentWindowAdaptiveInfoV2()) {
             if (
                 windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT ||
                     windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM
@@ -121,7 +121,7 @@ fun NavigationSuiteScaffoldCustomConfigSample() {
             } else if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
                 NavigationSuiteType.WideNavigationRailExpanded
             } else {
-                NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfo())
+                NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
             }
         }
     val state = rememberNavigationSuiteScaffoldState()

@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -79,6 +81,26 @@ class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
         for (pageIndex in 5 until pagerState.layoutInfo.visiblePagesInfo.size + 4) {
             confirmPageIsInCorrectPosition(5, pageIndex)
         }
+    }
+
+    @Test
+    fun pageSize_0dp_doesNotMoveOnScroll() {
+        var exception: Throwable? = null
+        createPager(
+            initialPage = 5,
+            modifier = Modifier.fillMaxCrossAxis().mainAxisSize(0.dp),
+            additionalContent = {
+                LaunchedEffect(Unit) {
+                    try {
+                        pagerState.animateScrollToPage(0)
+                    } catch (e: IllegalStateException) {
+                        exception = e
+                    }
+                }
+            },
+        )
+
+        rule.runOnIdle { assertThat(exception).isNull() }
     }
 
     companion object {

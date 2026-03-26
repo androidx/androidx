@@ -653,6 +653,8 @@ internal fun OutlinedTextFieldLayout(
     singleLine: Boolean,
     labelPosition: TextFieldLabelPosition,
     labelProgress: FloatProducer,
+    placeholderAlpha: FloatProducer,
+    affixAlpha: FloatProducer,
     onLabelMeasured: (Size) -> Unit,
     container: @Composable () -> Unit,
     supporting: @Composable (() -> Unit)?,
@@ -665,6 +667,8 @@ internal fun OutlinedTextFieldLayout(
             singleLine,
             labelPosition,
             labelProgress,
+            placeholderAlpha,
+            affixAlpha,
             paddingValues,
             horizontalIconPadding,
         ) {
@@ -673,6 +677,8 @@ internal fun OutlinedTextFieldLayout(
                 singleLine = singleLine,
                 labelPosition = labelPosition,
                 labelProgress = labelProgress,
+                placeholderAlpha = placeholderAlpha,
+                affixAlpha = affixAlpha,
                 paddingValues = paddingValues,
                 horizontalIconPadding = horizontalIconPadding,
             )
@@ -800,6 +806,8 @@ private class OutlinedTextFieldMeasurePolicy(
     private val singleLine: Boolean,
     private val labelPosition: TextFieldLabelPosition,
     private val labelProgress: FloatProducer,
+    private val placeholderAlpha: FloatProducer,
+    private val affixAlpha: FloatProducer,
     private val paddingValues: PaddingValues,
     private val horizontalIconPadding: Dp,
 ) : MeasurePolicy {
@@ -993,6 +1001,8 @@ private class OutlinedTextFieldMeasurePolicy(
                 placeholderPlaceable = placeholderPlaceable,
                 containerPlaceable = containerPlaceable,
                 supportingPlaceable = supportingPlaceable,
+                placeholderAlpha = placeholderAlpha,
+                affixAlpha = affixAlpha,
                 density = density,
                 layoutDirection = layoutDirection,
                 isLabelAbove = isLabelAbove,
@@ -1260,6 +1270,8 @@ private class OutlinedTextFieldMeasurePolicy(
         placeholderPlaceable: Placeable?,
         containerPlaceable: Placeable,
         supportingPlaceable: Placeable?,
+        placeholderAlpha: FloatProducer,
+        affixAlpha: FloatProducer,
         density: Float,
         layoutDirection: LayoutDirection,
         isLabelAbove: Boolean,
@@ -1369,10 +1381,12 @@ private class OutlinedTextFieldMeasurePolicy(
             }
         }
 
-        prefixPlaceable?.placeRelative(
+        prefixPlaceable?.placeRelativeWithLayer(
             leadingPlaceable.widthOrZero,
             calculateVerticalPosition(prefixPlaceable),
-        )
+        ) {
+            alpha = affixAlpha()
+        }
 
         val textHorizontalPosition = leadingPlaceable.widthOrZero + prefixPlaceable.widthOrZero
 
@@ -1382,15 +1396,19 @@ private class OutlinedTextFieldMeasurePolicy(
         )
 
         // placed similar to the input text above
-        placeholderPlaceable?.placeRelative(
+        placeholderPlaceable?.placeRelativeWithLayer(
             textHorizontalPosition,
             calculateVerticalPosition(placeholderPlaceable),
-        )
+        ) {
+            alpha = placeholderAlpha()
+        }
 
-        suffixPlaceable?.placeRelative(
+        suffixPlaceable?.placeRelativeWithLayer(
             width - trailingPlaceable.widthOrZero - suffixPlaceable.width,
             calculateVerticalPosition(suffixPlaceable),
-        )
+        ) {
+            alpha = affixAlpha()
+        }
 
         // placed center vertically and to the end edge horizontally
         trailingPlaceable?.placeRelative(
@@ -1398,7 +1416,6 @@ private class OutlinedTextFieldMeasurePolicy(
             yOffset + Alignment.CenterVertically.align(trailingPlaceable.height, height),
         )
 
-        // place supporting text
         supportingPlaceable?.placeRelative(0, yOffset + height)
     }
 }

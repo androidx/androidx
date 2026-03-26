@@ -147,7 +147,7 @@ internal class FocusTargetNode(
             }
         }
 
-    var previouslyFocusedChildHash: Int = 0
+    var previouslyFocusedChildHash: Int? = null
 
     val beyondBoundsLayoutParent: BeyondBoundsLayout?
         get() = findNearestBeyondBoundsLayoutAncestor()
@@ -222,6 +222,7 @@ internal class FocusTargetNode(
         }
         // This node might be reused, so we reset its state.
         committedFocusState = null
+        previouslyFocusedChildHash = null
     }
 
     override fun onPlaced(coordinates: LayoutCoordinates) {

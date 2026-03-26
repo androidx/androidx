@@ -83,9 +83,9 @@ import kotlinx.coroutines.launch
 // TODO link to an image when available
 /**
  * A layout composable that places its children in a horizontal sequence. When a child uses
- * [Modifier.animateWidth] with a relevant [MutableInteractionSource], this button group can listen
- * to the interactions and expand the width of the pressed child element as well as compress the
- * neighboring child elements.
+ * [ButtonGroupScope.animateWidth] with a relevant [MutableInteractionSource], this button group can
+ * listen to the interactions and expand the width of the pressed child element as well as compress
+ * the neighboring child elements.
  *
  * @sample androidx.compose.material3.samples.ButtonGroupSample
  *
@@ -146,10 +146,10 @@ fun ButtonGroup(
 // TODO link to an image when available
 /**
  * A layout composable that places its children in a horizontal sequence. When a child uses
- * [Modifier.animateWidth] with a relevant [MutableInteractionSource], this button group can listen
- * to the interactions and expand the width of the pressed child element as well as compress the
- * neighboring child elements. Additionally, items will overflow into a dropdown menu if there are
- * too many items or the items are too wide to all fit onto the screen.
+ * [ButtonGroupScope.animateWidth] with a relevant [MutableInteractionSource], this button group can
+ * listen to the interactions and expand the width of the pressed child element as well as compress
+ * the neighboring child elements. Additionally, items will overflow into a dropdown menu if there
+ * are too many items or the items are too wide to all fit onto the screen.
  *
  * @sample androidx.compose.material3.samples.ButtonGroupSample
  *
@@ -173,7 +173,7 @@ fun ButtonGroup(
  *   interacted child element will expand to 200% of its default width when pressed.
  * @param horizontalArrangement The horizontal arrangement of the button group's children.
  * @param content the content displayed in the button group, expected to use a composable that i s
- *   tagged with [Modifier.animateWidth].
+ *   tagged with [ButtonGroupScope.animateWidth].
  */
 @Deprecated(
     message = "Use overload with `verticalAlignment` parameter",
@@ -206,10 +206,10 @@ fun ButtonGroup(
 // TODO link to an image when available
 /**
  * A layout composable that places its children in a horizontal sequence. When a child uses
- * [Modifier.animateWidth] with a relevant [MutableInteractionSource], this button group can listen
- * to the interactions and expand the width of the pressed child element as well as compress the
- * neighboring child elements. Additionally, items will overflow into a dropdown menu if there are
- * too many items or the items are too wide to all fit onto the screen.
+ * [ButtonGroupScope.animateWidth] with a relevant [MutableInteractionSource], this button group can
+ * listen to the interactions and expand the width of the pressed child element as well as compress
+ * the neighboring child elements. Additionally, items will overflow into a dropdown menu if there
+ * are too many items or the items are too wide to all fit onto the screen.
  *
  * @sample androidx.compose.material3.samples.ButtonGroupSample
  *
@@ -234,7 +234,7 @@ fun ButtonGroup(
  * @param horizontalArrangement The horizontal arrangement of the button group's children.
  * @param verticalAlignment The vertical alignment of the button group's children.
  * @param content the content displayed in the button group, expected to use a composable that i s
- *   tagged with [Modifier.animateWidth].
+ *   tagged with [ButtonGroupScope.animateWidth].
  */
 @Composable
 @ExperimentalMaterial3ExpressiveApi
@@ -400,9 +400,9 @@ object ButtonGroupDefaults {
      * @param colors [IconButtonColors] that will be used to resolve the colors used for this icon
      *   button in different states. See [IconButtonDefaults.filledIconButtonColors].
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
-     *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
-     *   appearance or preview the icon button in different states. Note that if `null` is provided,
-     *   interactions will still happen internally.
+     *   emitting [androidx.compose.foundation.interaction.Interaction]s for this icon button. You
+     *   can use this to change the icon button's appearance or preview the icon button in different
+     *   states. Note that if `null` is provided, interactions will still happen internally.
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable

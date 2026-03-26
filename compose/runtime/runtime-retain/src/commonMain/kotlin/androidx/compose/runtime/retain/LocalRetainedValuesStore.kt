@@ -43,7 +43,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * to the new store and will follow the new store's retention lifecycle.
  *
  * Always prefer [LocalRetainedValuesStoreProvider] to setting this local directly. This local is
- * local is exposed providable as an escape hatch for installing a platform- or library-specific
+ * exposed providable as an escape hatch for installing a platform- or library-specific
  * [LocalRetainedValuesStore] at the root of the hierarchy and for testing custom
  * [RetainedValuesStore] implementations. Stores installed through this local directly will NOT
  * receive the default calls into [RetainedValuesStore.onContentEnteredComposition] and

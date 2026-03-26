@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
@@ -1112,7 +1113,10 @@ private fun Indicator(
 ) {
     Box(
         Modifier.layoutId(IndicatorLayoutIdTag)
-            .graphicsLayer { alpha = indicatorAnimationProgress() }
+            .graphicsLayer {
+                compositingStrategy = CompositingStrategy.ModulateAlpha
+                alpha = indicatorAnimationProgress()
+            }
             .background(color = indicatorColor, shape = indicatorShape)
     )
 }

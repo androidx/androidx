@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -725,6 +726,15 @@ internal fun <T> AnimatedEnterExitImpl(
                 transition.targetEnterExit(visible, it)
             }
 
+        // Hoist the active enter/exit tracking to this scope to survive the temporary disposal
+        // of the Layout and its modifiers when an exit transition finishes. If an interruption
+        // occurs (e.g. A -> B -> A) after the layout for A has been removed, the hoisted
+        // tracking preserves the original exit boundaries. Without this, the tracking would
+        // re-initialize with the new parameters (which could be ExitTransition.None in
+        // AnimatedContent), causing the animation to lose its start/end values and snap.
+        val activeEnter = childTransition.trackActiveEnter(enter)
+        val activeExit = childTransition.trackActiveExit(exit)
+
         val shouldDisposeBlockUpdated by rememberUpdatedState(shouldDisposeBlock)
 
         val shouldDisposeAfterExit by
@@ -753,7 +763,12 @@ internal fun <T> AnimatedEnterExitImpl(
                 modifier =
                     modifier.then(
                         childTransition
-                            .createModifier(enter, exit, label = "Built-in")
+                            .createModifier(
+                                activeEnter,
+                                activeExit,
+                                trackActiveEnterExit = false,
+                                label = "Built-in",
+                            )
                             .then(
                                 if (onLookaheadMeasured != null) {
                                     Modifier.layout { measurable, constraints ->

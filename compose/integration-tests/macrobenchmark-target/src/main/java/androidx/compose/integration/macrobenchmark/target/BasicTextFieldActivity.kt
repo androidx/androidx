@@ -28,10 +28,14 @@ import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.semantics.contentDataType
+import androidx.compose.ui.semantics.semantics
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
@@ -62,7 +66,12 @@ class BasicTextFieldActivity : ComponentActivity() {
                 val textFieldState = rememberTextFieldState()
                 BasicTextField(
                     state = textFieldState,
-                    modifier = Modifier.focusRequester(focusRequester),
+                    modifier =
+                        Modifier.focusRequester(focusRequester).semantics {
+                            if (intent.getStringExtra("CONTENT_TYPE") == "NONE") {
+                                contentDataType = ContentDataType.None
+                            }
+                        },
                 )
             }
 

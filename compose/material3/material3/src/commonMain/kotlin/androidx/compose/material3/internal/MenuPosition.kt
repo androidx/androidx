@@ -285,7 +285,7 @@ internal object WindowAlignmentMarginPosition {
     }
 }
 
-/** Calculates the position of a Material [DropdownMenu]. */
+/** Calculates the position of a Material [androidx.compose.material3.DropdownMenu]. */
 @Immutable
 internal data class DropdownMenuPositionProvider(
     val contentOffset: DpOffset,

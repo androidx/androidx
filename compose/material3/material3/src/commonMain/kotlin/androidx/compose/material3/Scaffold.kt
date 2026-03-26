@@ -75,9 +75,10 @@ import androidx.compose.ui.unit.offset
  *   instead. Any insets consumed by other insets padding modifiers or [consumeWindowInsets] on a
  *   parent layout will be excluded from [contentWindowInsets].
  * @param content content of the screen. The lambda receives a [PaddingValues] that should be
- *   applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
- *   properly offset top and bottom bars. If using [Modifier.verticalScroll], apply this modifier to
- *   the child of the scroll, and not on the scroll itself.
+ *   applied to the content root via [androidx.compose.foundation.layout.padding] and
+ *   [androidx.compose.foundation.layout.consumeWindowInsets] to properly offset top and bottom
+ *   bars. If using [androidx.compose.foundation.verticalScroll], apply this modifier to the child
+ *   of the scroll, and not on the scroll itself.
  */
 @Composable
 fun Scaffold(

@@ -299,7 +299,7 @@ class LazyColumnMultiTextRegressionTest {
         }
 
         fun resetClipboard() {
-            clipboardManager.setText(AnnotatedString(initialText))
+            rule.runOnUiThread { clipboardManager.setText(AnnotatedString(initialText)) }
         }
 
         fun assertClipboardTextEquals(text: String) {

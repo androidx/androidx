@@ -1,7 +1,7 @@
 # this YML is to be used as a template with %@PLACEHOLDER_VALUES@% replaced with actual ones within regenerate_xcode_project.sh
 name: %@PROJECT_NAME@%
 options:
-  bundleIdPrefix: org.jetbrains
+  bundleIdPrefix: org.jetbrains.%@COMPOSE_DEMO_APPLE_TEAM_ID@%
 settings:
   DEVELOPMENT_TEAM: %@COMPOSE_DEMO_APPLE_TEAM_ID@%
   CODE_SIGN_IDENTITY: "iPhone Developer"
@@ -23,6 +23,10 @@ targets:
           echo "OUT_DIR: $OUT_DIR"
           ../../../gradlew -i --no-daemon -p . packForXCode
         name: GradleCompile
+        basedOnDependencyAnalysis: true
+        outputFiles:
+          - $(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)
+          - $(DWARF_DSYM_FOLDER_PATH)/$(DWARF_DSYM_FILE_NAME)
     info:
       path: plists/Ios/Info.plist
       properties:

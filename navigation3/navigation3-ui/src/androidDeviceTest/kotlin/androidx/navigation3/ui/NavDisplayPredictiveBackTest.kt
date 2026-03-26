@@ -20,15 +20,22 @@ import android.window.BackEvent
 import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigationevent.DirectNavigationEventInput
@@ -37,6 +44,7 @@ import androidx.navigationevent.NavigationEventDispatcher
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
@@ -219,6 +227,89 @@ class NavDisplayPredictiveBackTest {
         }
 
         assertThat(composeTestRule.onNodeWithText("numberOnScreen1: 2").isDisplayed()).isTrue()
+    }
+
+    @Test
+    fun verifyZIndexAfterInterruptedBackNavigation() {
+        var clicksOnA = 0
+        var clicksOnB = 0
+        lateinit var backStack: MutableList<Any>
+
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first) }
+            NavDisplay(
+                backStack = backStack,
+                onBack = { backStack.removeAt(backStack.lastIndex) },
+            ) { key ->
+                when (key) {
+                    first ->
+                        NavEntry(first) {
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxSize().background(Color.Red).clickable {
+                                        clicksOnA++
+                                    }
+                            ) {
+                                Text(first)
+                            }
+                        }
+                    second ->
+                        NavEntry(second) {
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxSize().background(Color.Blue).clickable {
+                                        clicksOnB++
+                                    }
+                            ) {
+                                Text(second)
+                            }
+                        }
+                    else -> error("Unknown key")
+                }
+            }
+        }
+
+        // 1. Start at A.
+        composeTestRule.onNodeWithText(first).assertExists()
+
+        // 2. Navigate A -> B.
+        composeTestRule.runOnIdle { backStack.add(second) }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(second).assertExists()
+
+        // 3. Navigate B -> A (Back).
+        // We need to interrupt this.
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.runOnIdle { backStack.removeAt(backStack.lastIndex) }
+
+        // Advance slightly to start transition (B exiting, A entering)
+        composeTestRule.mainClock.advanceTimeBy(100)
+
+        // 4. Interrupt: Navigate A -> B (Forward) AGAIN.
+        // We are effectively cancelling the back nav and going back to B.
+        composeTestRule.runOnIdle { backStack.add(second) }
+
+        // Let the transition to B finish.
+        composeTestRule.mainClock.autoAdvance = true
+        composeTestRule.waitForIdle()
+
+        // Now we are at B.
+        composeTestRule.onNodeWithText(second).assertExists()
+
+        // 5. Navigate B -> A (Back) again.
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.runOnIdle { backStack.removeAt(backStack.lastIndex) }
+
+        // Advance slightly to be in the middle of B -> A.
+        // B should be exiting (on top), A should be entering (below).
+        composeTestRule.mainClock.advanceTimeBy(100)
+
+        // Click on the center of the screen.
+        // If B is on top (correct), B gets the click.
+        composeTestRule.onNodeWithText(second).performClick()
+        Truth.assertThat(clicksOnA).isEqualTo(0)
+        Truth.assertThat(clicksOnB).isGreaterThan(0)
+        composeTestRule.mainClock.autoAdvance = true
     }
 }
 

@@ -21,6 +21,7 @@ package androidx.compose.foundation.style
 
 import androidx.collection.MutableObjectList
 import androidx.collection.mutableObjectListOf
+import androidx.compose.foundation.border.BorderLogic
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.internal.identityHashCode
 import androidx.compose.foundation.text.modifiers.StylePhase
@@ -29,26 +30,20 @@ import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalAccessorScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.isSimple
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Outline.Rounded
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.shadow.DropShadowPainter
 import androidx.compose.ui.graphics.shadow.InnerShadowPainter
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -267,6 +262,11 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
     // create one if it ends up being needed.
     internal var animations: StyleAnimations? = null
 
+    private var borderLayer: GraphicsLayer? = null
+    private var borderLayerProvider: (() -> GraphicsLayer)? = null
+
+    private val borderLogic = BorderLogic()
+
     private var _state: StyleState = styleState ?: MutableStyleState(null)
     private var currentInteractionSource: InteractionSource? = null
 
@@ -442,24 +442,6 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
         return outline
     }
 
-    // Stroke caching
-    private var lastStrokeWidth: Float = Float.NaN
-    private var lastStroke: Stroke? = null
-
-    // Border path caching
-    private var lastBorderPathWidth: Float = Float.NaN
-    private var lastBorderPathOutline: Outline? = null
-    private var cachedBorderPath: Path? = null
-    private var lastBrush: Brush? = null
-
-    private fun getStroke(strokeWidth: Float): Stroke {
-        if (lastStrokeWidth != strokeWidth) {
-            lastStrokeWidth = strokeWidth
-            lastStroke = Stroke(strokeWidth)
-        }
-        return lastStroke!!
-    }
-
     override fun ContentDrawScope.draw() {
         val resolved = resolveAnimatedStyleFor(DrawFlag)
 
@@ -477,35 +459,19 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
         val hasForeground = foregroundColor.isSpecified || foregroundBrush != null
         drawDropShadow(resolved)
 
-        // draw background
-        if (shape === RectangleShape) {
-            drawForRectShape(
-                hasBackground = hasBackground,
-                hasBorder = hasBorder,
-                hasForeground = hasForeground,
-                bgColor = bgColor,
-                bgBrush = bgBrush,
-                borderColor = borderColor,
-                borderBrush = borderBrush,
-                foregroundColor = foregroundColor,
-                foregroundBrush = foregroundBrush,
-                borderWidth = borderWidth,
-            )
-        } else {
-            drawForShape(
-                shape = shape,
-                hasBackground = hasBackground,
-                hasBorder = hasBorder,
-                hasForeground = hasForeground,
-                bgColor = bgColor,
-                bgBrush = bgBrush,
-                borderColor = borderColor,
-                borderBrush = resolved.borderBrush,
-                foregroundColor = foregroundColor,
-                foregroundBrush = resolved.foregroundBrush,
-                borderWidth = borderWidth,
-            )
-        }
+        drawForShape(
+            shape = shape,
+            hasBackground = hasBackground,
+            hasBorder = hasBorder,
+            hasForeground = hasForeground,
+            bgColor = bgColor,
+            bgBrush = bgBrush,
+            borderColor = borderColor,
+            borderBrush = borderBrush,
+            foregroundColor = foregroundColor,
+            foregroundBrush = foregroundBrush,
+            borderWidth = borderWidth,
+        )
         drawInnerShadow(resolved)
         // since we use shape as a cache key in multiple places, we set "lastShape" here at the
         // end of the full draw function body
@@ -613,53 +579,6 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
         }
     }
 
-    fun ContentDrawScope.drawForRectShape(
-        hasBackground: Boolean,
-        hasBorder: Boolean,
-        hasForeground: Boolean,
-        bgColor: Color,
-        bgBrush: Brush?,
-        borderColor: Color,
-        borderBrush: Brush?,
-        foregroundColor: Color,
-        foregroundBrush: Brush?,
-        borderWidth: Float,
-    ) {
-        val needsBorder =
-            hasBorder &&
-                (hasBackground && bgColor != borderColor || borderBrush != null || !hasBackground)
-
-        val halfStrokeWidth = borderWidth / 2f
-        val topLeft = Offset.Zero + if (needsBorder) halfStrokeWidth else 0f
-        val outerSize = size - if (needsBorder) borderWidth else 0f
-        val innerTopLeft = if (needsBorder) topLeft + (halfStrokeWidth - eps) else topLeft
-        val innerSize = if (needsBorder) outerSize - (borderWidth - 2 * eps) else outerSize
-
-        // background
-        if (hasBackground && bgBrush == null)
-            drawRect(bgColor, topLeft = innerTopLeft, size = innerSize)
-        if (hasBackground && bgBrush != null)
-            drawRect(bgBrush, topLeft = innerTopLeft, size = innerSize)
-
-        drawContent()
-
-        // Foreground
-        if (hasForeground && foregroundBrush == null)
-            drawRect(foregroundColor, topLeft = topLeft, size = outerSize)
-        if (hasForeground && foregroundBrush != null)
-            drawRect(foregroundBrush, topLeft = topLeft, size = outerSize)
-
-        // border
-        if (needsBorder) {
-            val stroke = getStroke(borderWidth)
-            if (borderBrush == null) {
-                drawRect(borderColor, topLeft = topLeft, size = outerSize, style = stroke)
-            } else {
-                drawRect(borderBrush, topLeft = topLeft, size = outerSize, style = stroke)
-            }
-        }
-    }
-
     fun ContentDrawScope.drawForShape(
         shape: Shape,
         hasBackground: Boolean,
@@ -673,279 +592,53 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
         foregroundBrush: Brush?,
         borderWidth: Float,
     ) {
-        val outlineSize = size - borderWidth
-        val outline = getOutline(outlineSize, shape)
-
-        when (outline) {
-            is Outline.Rectangle ->
-                drawForRectShape(
-                    hasBackground,
-                    hasBorder,
-                    hasForeground,
-                    bgColor,
-                    bgBrush,
-                    borderColor,
-                    borderBrush,
-                    foregroundColor,
-                    foregroundBrush,
-                    borderWidth,
-                )
-            is Outline.Rounded ->
-                if (outline.roundRect.isSimple)
-                    drawForSimpleRoundedShape(
-                        outline,
-                        outlineSize,
-                        hasBackground,
-                        hasBorder,
-                        hasForeground,
-                        bgColor,
-                        bgBrush,
-                        borderColor,
-                        borderBrush,
-                        foregroundColor,
-                        foregroundBrush,
-                        borderWidth,
-                    )
-                else
-                    drawForRoundedShape(
-                        outline,
-                        hasBackground,
-                        hasBorder,
-                        hasForeground,
-                        bgColor,
-                        bgBrush,
-                        borderColor,
-                        borderBrush,
-                        foregroundColor,
-                        foregroundBrush,
-                        borderWidth,
-                    )
-            is Outline.Generic ->
-                drawForGenericShape(
-                    outline,
-                    outlineSize,
-                    hasBackground,
-                    hasBorder,
-                    hasForeground,
-                    bgColor,
-                    bgBrush,
-                    borderColor,
-                    borderBrush,
-                    foregroundColor,
-                    foregroundBrush,
-                    borderWidth,
-                )
-        }
-    }
-
-    fun ContentDrawScope.drawForSimpleRoundedShape(
-        outline: Outline.Rounded,
-        outlineSize: Size,
-        hasBackground: Boolean,
-        hasBorder: Boolean,
-        hasForeground: Boolean,
-        bgColor: Color,
-        bgBrush: Brush?,
-        borderColor: Color,
-        borderBrush: Brush?,
-        foregroundColor: Color,
-        foregroundBrush: Brush?,
-        borderWidth: Float,
-    ) {
-        val halfStrokeWidth = borderWidth / 2f
-        val outerTopLeft = Offset.Zero + halfStrokeWidth
-        val innerTopLeft = if (hasBorder) outerTopLeft + halfStrokeWidth - eps else outerTopLeft
-        val innerSize = if (hasBorder) outlineSize - (borderWidth + 2 * eps) else outlineSize
-        val cornerRadius = outline.roundRect.topLeftCornerRadius
-        val innerRadius = cornerRadius - halfStrokeWidth
+        val outline = getOutline(size, shape)
 
         // background
         if (hasBackground) {
-            // if we have no border then we can just draw the outline.
-            if (hasBorder) {
-                // If we have a background and border, we want to make sure that the
-                // background "fills" the shape left by the border, and that there are no
-                // gaps. The easiest way to do this is to draw the background with the same
-                // extents that the border uses
-                if (bgBrush != null)
-                    drawRoundRect(
-                        brush = bgBrush,
-                        topLeft = outerTopLeft,
-                        size = outlineSize,
-                        cornerRadius = cornerRadius,
-                        style = Fill,
-                    )
-                else
-                    drawRoundRect(
-                        color = bgColor,
-                        topLeft = outerTopLeft,
-                        size = outlineSize,
-                        cornerRadius = cornerRadius,
-                        style = Fill,
-                    )
+            if (bgBrush != null) {
+                drawOutline(outline, brush = bgBrush)
             } else {
-                if (bgBrush != null) {
-                    drawOutline(outline, bgBrush)
-                } else {
-                    drawOutline(outline, bgColor)
-                }
+                drawOutline(outline, color = bgColor)
             }
         }
 
         drawContent()
 
-        if (hasForeground && foregroundColor.isSpecified) {
-            drawRoundRect(
-                color = foregroundColor,
-                topLeft = innerTopLeft,
-                size = innerSize,
-                cornerRadius = innerRadius,
-                style = Fill,
-            )
-        }
-
-        if (hasForeground && foregroundBrush != null) {
-            drawRoundRect(
-                brush = foregroundBrush,
-                topLeft = innerTopLeft,
-                size = innerSize,
-                cornerRadius = innerRadius,
-                style = Fill,
-            )
-        }
-
-        if (hasBorder) {
-            val halfStroke = borderWidth / 2f
-            val fillArea = (borderWidth * 2) >= size.minDimension
-            when {
-                fillArea -> {
-                    if (borderBrush != null)
-                        drawRoundRect(brush = borderBrush, cornerRadius = cornerRadius)
-                    else drawRoundRect(color = borderColor, cornerRadius = cornerRadius)
-                }
-                cornerRadius.x < halfStroke -> {
-                    clipRect(
-                        borderWidth,
-                        borderWidth,
-                        size.width - borderWidth,
-                        size.height - borderWidth,
-                        clipOp = ClipOp.Difference,
-                    ) {
-                        if (borderBrush != null)
-                            drawRoundRect(brush = borderBrush, cornerRadius = cornerRadius)
-                        else drawRoundRect(color = borderColor, cornerRadius = cornerRadius)
-                    }
-                }
-                else -> {
-                    val stroke = getStroke(borderWidth)
-                    if (borderBrush != null)
-                        drawRoundRect(
-                            brush = borderBrush,
-                            topLeft = outerTopLeft,
-                            size = outlineSize,
-                            cornerRadius = cornerRadius.shrink(halfStroke),
-                            style = stroke,
-                        )
-                    else
-                        drawRoundRect(
-                            color = borderColor,
-                            topLeft = outerTopLeft,
-                            size = outlineSize,
-                            cornerRadius = cornerRadius.shrink(halfStroke),
-                            style = stroke,
-                        )
-                }
-            }
-        }
-    }
-
-    fun ContentDrawScope.drawForRoundedShape(
-        outline: Outline.Rounded,
-        hasBackground: Boolean,
-        hasBorder: Boolean,
-        hasForeground: Boolean,
-        bgColor: Color,
-        bgBrush: Brush?,
-        borderColor: Color,
-        borderBrush: Brush?,
-        foregroundColor: Color,
-        foregroundBrush: Brush?,
-        borderWidth: Float,
-    ) {
-        val halfStrokeWidth = borderWidth / 2f
-        val innerOutline =
-            if (hasBorder)
-            // TODO: consider caching
-            outline.inset(halfStrokeWidth)
-            else outline
-
-        // background
-        if (hasBackground) {
-            // if we have no border then we can just draw the outline.
-            if (hasBorder) {
-                if (bgBrush != null)
-                    drawOutline(outline = innerOutline, brush = bgBrush, style = Fill)
-                else drawOutline(outline = innerOutline, color = bgColor, style = Fill)
+        // foreground
+        if (hasForeground) {
+            if (foregroundBrush != null) {
+                drawOutline(outline, brush = foregroundBrush)
             } else {
-                drawOutline(outline, bgColor)
+                drawOutline(outline, color = foregroundColor)
             }
-        }
-
-        drawContent()
-
-        if (hasForeground && foregroundColor.isSpecified) {
-            drawOutline(outline = innerOutline, color = foregroundColor, style = Fill)
-        }
-        if (hasForeground && foregroundBrush != null) {
-            drawOutline(outline = innerOutline, brush = foregroundBrush, style = Fill)
         }
 
         // border
         if (hasBorder) {
-            val fillArea = (borderWidth * 2) > size.minDimension
-            if (lastBorderPathWidth != borderWidth || lastBorderPathOutline != outline) {
-                val path = cachedBorderPath ?: Path().also { cachedBorderPath = it }
-                val outerRoundRect =
-                    RoundRect(
-                        left = 0f,
-                        top = 0f,
-                        right = size.width,
-                        bottom = size.height,
-                        topLeftCornerRadius = outline.roundRect.topLeftCornerRadius,
-                        topRightCornerRadius = outline.roundRect.topRightCornerRadius,
-                        bottomRightCornerRadius = outline.roundRect.bottomRightCornerRadius,
-                        bottomLeftCornerRadius = outline.roundRect.bottomLeftCornerRadius,
-                    )
-                createRoundRectPath(path, outerRoundRect, borderWidth, fillArea)
-                lastBorderPathWidth = borderWidth
-                lastBorderPathOutline = outline
-            }
-            if (borderBrush != null) drawPath(cachedBorderPath!!, brush = borderBrush)
-            else drawPath(cachedBorderPath!!, color = borderColor)
+            val brush = borderBrush ?: SolidColor(borderColor)
+            borderLogic.drawBorder(
+                drawScope = this,
+                width = { borderWidth },
+                brush = brush,
+                borderLayerProvider
+                    ?: {
+                            borderLayer
+                                ?: requireGraphicsContext().createGraphicsLayer().also {
+                                    borderLayer = it
+                                }
+                        }
+                        .also { borderLayerProvider = it },
+                outline = outline,
+            )
         }
-    }
-
-    fun ContentDrawScope.drawForGenericShape(
-        outline: Outline.Generic,
-        outlineSize: Size,
-        hasBackground: Boolean,
-        hasBorder: Boolean,
-        hasForeground: Boolean,
-        bgColor: Color,
-        bgBrush: Brush?,
-        borderColor: Color,
-        borderBrush: Brush?,
-        foregroundColor: Color,
-        foregroundBrush: Brush?,
-        borderWidth: Float,
-    ) {
-        // TODO: Implement generic shape support
     }
 
     override val traverseKey: Any
         get() = OuterNodeKey
 
     fun resolveStyleAndInvalidate(initial: Boolean = false) {
+        if (!isAttached) return
         val prev = if (initial) null else _resolved
         val next = if (initial) _resolved else bufferNonNull
         val density = requireDensity()
@@ -1164,6 +857,15 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
         inheritedStyleDirty = true
         invalidateDrawForSubtree()
     }
+
+    override fun onDetach() {
+        super.onDetach()
+        borderLayer?.let {
+            requireGraphicsContext().releaseGraphicsLayer(it)
+            borderLayer = null
+        }
+        borderLayerProvider = null
+    }
 }
 
 /**
@@ -1223,10 +925,9 @@ internal class StyleInnerNode() : Modifier.Node(), LayoutModifierNode {
     }
 }
 
-private const val eps = 0.5f
-
 private inline val Float.isSpecified: Boolean
     get() = !isNaN()
+
 private inline val Float.isUnspecified: Boolean
     get() = isNaN()
 
@@ -1235,50 +936,12 @@ private inline fun Float.addIfSpecified(abs: Float): Float = if (abs.isNaN()) th
 private inline fun Float.takeRoundedOrElse(fallback: Int): Int =
     if (isNaN()) fallback else fastRoundToInt()
 
-private inline operator fun Size.plus(other: Float): Size = Size(width + other, height + other)
-
-private inline operator fun Size.minus(other: Float): Size = this + -other
-
-private inline operator fun Offset.plus(other: Float): Offset = Offset(x + other, y + other)
-
-private inline operator fun Offset.minus(other: Float): Offset = Offset(x - other, y - other)
-
 private inline fun addMaxWithMinimum(max: Int, value: Int): Int {
     return if (max == Constraints.Infinity) {
         max
     } else {
         (max + value).fastCoerceAtLeast(0)
     }
-}
-
-private fun RoundRect.insetBy(inset: Float): RoundRect {
-    return RoundRect(
-        left = left + inset + inset - 0.5f,
-        top = top + inset + inset - 0.5f,
-        right = right + 1f,
-        bottom = bottom + 1f,
-        topLeftCornerRadius = topLeftCornerRadius - inset,
-        topRightCornerRadius = topRightCornerRadius - inset,
-        bottomRightCornerRadius = bottomRightCornerRadius - inset,
-        bottomLeftCornerRadius = bottomLeftCornerRadius - inset,
-    )
-}
-
-private fun RoundRect.offsetBy(offset: Offset): RoundRect {
-    return RoundRect(
-        left = left + offset.x,
-        top = top + offset.y,
-        right = right + offset.x,
-        bottom = bottom + offset.y,
-        topLeftCornerRadius = topLeftCornerRadius,
-        topRightCornerRadius = topRightCornerRadius,
-        bottomRightCornerRadius = bottomRightCornerRadius,
-        bottomLeftCornerRadius = bottomLeftCornerRadius,
-    )
-}
-
-private fun Rounded.inset(inset: Float): Rounded {
-    return Rounded(roundRect.insetBy(inset))
 }
 
 private operator fun CornerRadius.minus(value: Float): CornerRadius =

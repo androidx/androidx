@@ -23,6 +23,8 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.foundation.ComposeFoundationFlags.isReverseLayoutNestedScrollConnectionInPagerFixEnabled
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -481,6 +483,7 @@ private class DefaultPagerNestedScrollConnection(
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         return if (
             // rounding error and drag only
@@ -490,8 +493,9 @@ private class DefaultPagerNestedScrollConnection(
                 available.toFloat().absoluteValue > 0f
         ) {
             // find the current and next page (in the direction of dragging)
+            val layoutInfo = state.layoutInfo
             val currentPageOffset = state.currentPageOffsetFraction * state.pageSize
-            val pageAvailableSpace = state.layoutInfo.pageSize + state.layoutInfo.pageSpacing
+            val pageAvailableSpace = layoutInfo.pageSize + layoutInfo.pageSpacing
             val nextClosestPageOffset =
                 currentPageOffset + pageAvailableSpace * -sign(state.currentPageOffsetFraction)
 
@@ -508,8 +512,19 @@ private class DefaultPagerNestedScrollConnection(
 
             val delta = available.toFloat()
             val coerced = delta.coerceIn(minBound, maxBound)
-            // dispatch and return reversed as usual
-            val consumed = -state.dispatchRawDelta(-coerced)
+            // dispatch and return reversed as usual.
+            // we need to be mindful of reverseLayout which flips the sign for horizontal layouts
+            // see [ScrollableDefaults.reverseDirection] for context.
+            val consumed =
+                if (
+                    orientation == Orientation.Horizontal &&
+                        layoutInfo.reverseLayout &&
+                        isReverseLayoutNestedScrollConnectionInPagerFixEnabled
+                ) {
+                    state.dispatchRawDelta(coerced)
+                } else {
+                    -state.dispatchRawDelta(-coerced)
+                }
             available.copy(
                 x = if (orientation == Orientation.Horizontal) consumed else available.x,
                 y = if (orientation == Orientation.Vertical) consumed else available.y,

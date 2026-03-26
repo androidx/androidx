@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.content.pm.ActivityInfo
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
@@ -559,10 +558,10 @@ class ScaffoldTest {
         var fabSize: IntSize? = null
         var fabPosition: Offset? = null
         var density: Density? = null
-        rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Box(Modifier.requiredSize(100.dp, 100.dp)) {
+                // We emulate Landscape by forcing a container into a width > height aspect ratio
+                Box(Modifier.requiredSize(160.dp, 100.dp)) {
                     density = LocalDensity.current
                     Scaffold(
                         contentWindowInsets =
@@ -586,6 +585,7 @@ class ScaffoldTest {
                 }
             }
         }
+        rule.waitForIdle()
         val fabOffsetDp =
             with(density!!) { (fabPosition!!.x.roundToInt() + fabSize!!.width).toDp() + fabSpacing }
         assertDpIsWithinThreshold(

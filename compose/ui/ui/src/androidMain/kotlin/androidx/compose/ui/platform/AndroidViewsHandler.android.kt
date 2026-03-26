@@ -72,7 +72,7 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
     @SuppressLint("MissingSuperCall")
     override fun onDescendantInvalidated(child: View, target: View) {}
 
-    @Suppress("OVERRIDE_DEPRECATION") // b/407491706
+    @Deprecated("Super method is deprecated")
     override fun invalidateChildInParent(location: IntArray?, dirty: Rect?) = null
 
     fun drawView(view: AndroidViewHolder, canvas: Canvas) {

@@ -20,8 +20,8 @@ import com.google.common.truth.Truth.assertThat
 import java.io.File
 import kotlin.test.Ignore
 import kotlin.test.assertFailsWith
-import org.jetbrains.kotlin.abi.tools.AbiToolsFactory
-import org.jetbrains.kotlin.abi.tools.api.v2.KlibTarget
+import org.jetbrains.kotlin.abi.tools.AbiTools
+import org.jetbrains.kotlin.abi.tools.KlibTarget
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 import org.jetbrains.kotlin.library.abi.LibraryAbiReader
 import org.junit.Test
@@ -41,7 +41,7 @@ class BinaryCompatibilityCheckerTest {
         File(klibDir)
     }
 
-    val abiTools = AbiToolsFactory().get().v2
+    val abiTools = AbiTools.getInstance()
 
     @Test
     fun klibDumpIsCompatibleWithItself() {

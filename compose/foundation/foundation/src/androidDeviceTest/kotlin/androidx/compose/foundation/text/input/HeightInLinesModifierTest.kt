@@ -18,20 +18,27 @@ package androidx.compose.foundation.text.input
 
 import android.content.Context
 import android.graphics.Typeface
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT
+import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -45,12 +52,15 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
@@ -61,6 +71,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * This test tests [BasicTextField] (BasicTextField2). When updating or adding tests, check if you
+ * also need to modify [androidx.compose.foundation.textfield.HeightInLinesModifierTest] for the
+ * legacy text field.
+ */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class HeightInLinesModifierTest {
@@ -140,14 +155,28 @@ class HeightInLinesModifierTest {
     @Test(expected = IllegalArgumentException::class)
     fun minLines_invalidValue() {
         rule.setContent {
-            Box(modifier = Modifier.heightInLines(textStyle = TextStyle.Default, minLines = 0))
+            Box(
+                modifier =
+                    Modifier.heightInLines(
+                        textStyle = TextStyle.Default,
+                        minLines = 0,
+                        softWrap = true,
+                    )
+            )
         }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun maxLines_invalidValue() {
         rule.setContent {
-            Box(modifier = Modifier.heightInLines(textStyle = TextStyle.Default, maxLines = 0))
+            Box(
+                modifier =
+                    Modifier.heightInLines(
+                        textStyle = TextStyle.Default,
+                        maxLines = 0,
+                        softWrap = true,
+                    )
+            )
         }
     }
 
@@ -160,6 +189,7 @@ class HeightInLinesModifierTest {
                         textStyle = TextStyle.Default,
                         minLines = 2,
                         maxLines = 1,
+                        softWrap = true,
                     )
             )
         }
@@ -274,8 +304,12 @@ class HeightInLinesModifierTest {
         isDebugInspectorInfoEnabled = true
 
         val modifier =
-            Modifier.heightInLines(textStyle = TextStyle.Default, minLines = 5, maxLines = 10)
-                as InspectableValue
+            Modifier.heightInLines(
+                textStyle = TextStyle.Default,
+                minLines = 5,
+                maxLines = 10,
+                softWrap = true,
+            ) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("heightInLines")
         assertThat(modifier.inspectableElements.asIterable())
             .containsExactly(
@@ -285,6 +319,129 @@ class HeightInLinesModifierTest {
             )
 
         isDebugInspectorInfoEnabled = false
+    }
+
+    @Test
+    fun minLines_densityChange() {
+        var subjectHeight: Int? = null
+        var density by mutableStateOf(Density(1.0f))
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides density) {
+                HeightObservingText(
+                    onGlobalHeightPositioned = { subjectHeight = it },
+                    onTextLayoutResult = {},
+                    text = "abc",
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY),
+                    lineLimits = MultiLine(minHeightInLines = 2),
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        val heightAtDensity1 = subjectHeight!!
+
+        density = Density(2.0f)
+        rule.waitForIdle()
+        val heightAtDensity2 = subjectHeight
+
+        assertWithMessage("Expected height to be doubled")
+            .that(heightAtDensity2)
+            .isEqualTo(
+                heightAtDensity1 * 2,
+                // Allow for rounding errors
+                tolerance = 1,
+            )
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun minLines_layoutDirectionChange() {
+        var subjectSize: IntSize? = null
+        var textLayoutResult: TextLayoutResult? = null
+        var layoutDirection by mutableStateOf(LayoutDirection.Ltr)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                HeightObservingText(
+                    onGloballyPositioned = { coordinates -> subjectSize = coordinates.size },
+                    onTextLayoutResult = { textLayoutResult = it() },
+                    text = "aaaaa ".repeat(5),
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY),
+                    lineLimits = MultiLine(minHeightInLines = 2),
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        val sizeAtLtr = requireNotNull(subjectSize) { "Expected height to be set after setContent" }
+        val textLayoutResultAtLtr =
+            requireNotNull(textLayoutResult) {
+                "Expected textLayoutResult to be set after setContent"
+            }
+        assertWithMessage("Line count should be >= 2")
+            .that(textLayoutResultAtLtr.lineCount)
+            .isAtLeast(2)
+        for (line in 0 until textLayoutResultAtLtr.lineCount) {
+            assertWithMessage("Expected line $line to start at 0 in LTR")
+                .that(textLayoutResultAtLtr.getLineLeft(line))
+                .isEqualTo(0)
+        }
+
+        // Reset the stored results to verify the new results
+        subjectSize = null
+        textLayoutResult = null
+
+        layoutDirection = LayoutDirection.Rtl
+        rule.waitForIdle()
+
+        val sizeAtRtl =
+            requireNotNull(subjectSize) {
+                "Expected height to be set after updating layoutDirection"
+            }
+        val textLayoutResultAtRtl =
+            requireNotNull(textLayoutResult) {
+                "Expected textLayoutResult to be set after updating layoutDirection"
+            }
+
+        assertWithMessage("Expected height to be equal in RTL and LTR")
+            .that(sizeAtRtl.height)
+            .isEqualTo(sizeAtLtr.height)
+        assertWithMessage("Line count should be >= 2")
+            .that(textLayoutResultAtRtl.lineCount)
+            .isAtLeast(2)
+        for (line in 0 until textLayoutResultAtRtl.lineCount) {
+            assertWithMessage("Expected line $line be aligned to the right edge in RTL")
+                .that(textLayoutResultAtRtl.getLineRight(line))
+                .isWithin(1f)
+                .of(sizeAtRtl.width.toFloat())
+        }
+    }
+
+    @Test
+    fun heightInLines_returnsOriginalModifier_whenSingleLine() {
+        val style = TextStyle.Default
+        val modifier = Modifier
+        val result =
+            modifier.heightInLines(textStyle = style, minLines = 1, maxLines = 1, softWrap = false)
+        assertThat(result).isSameInstanceAs(modifier)
+    }
+
+    @Test
+    fun heightInLines_returnsOriginalModifier_multiLine_whenMinLinesAndMaxLinesAreOne() {
+        val style = TextStyle.Default
+        val modifier = Modifier
+        val result =
+            modifier.heightInLines(textStyle = style, minLines = 1, maxLines = 1, softWrap = true)
+        assertThat(result).isNotSameInstanceAs(modifier)
+    }
+
+    @Test
+    fun heightInLines_returnsOriginalModifier_whenDefaults() {
+        val style = TextStyle.Default
+        val modifier = Modifier
+        val result = modifier.heightInLines(textStyle = style, softWrap = true)
+        assertThat(result).isSameInstanceAs(modifier)
     }
 
     private fun setTextFieldWithMaxLines(
@@ -313,13 +470,19 @@ class HeightInLinesModifierTest {
 
     @Composable
     private fun HeightObservingText(
-        onGlobalHeightPositioned: (Int) -> Unit,
+        onGlobalHeightPositioned: (Int) -> Unit = {},
+        onGloballyPositioned: (LayoutCoordinates) -> Unit = {},
         onTextLayoutResult: Density.(getResult: () -> TextLayoutResult?) -> Unit,
         text: String,
-        lineLimits: MultiLine,
+        lineLimits: TextFieldLineLimits,
         textStyle: TextStyle = TextStyle.Default,
     ) {
-        Box(Modifier.onGloballyPositioned { onGlobalHeightPositioned(it.size.height) }) {
+        Box(
+            Modifier.onGloballyPositioned {
+                onGlobalHeightPositioned(it.size.height)
+                onGloballyPositioned(it)
+            }
+        ) {
             BasicTextField(
                 state = remember { TextFieldState(text) },
                 textStyle = textStyle,

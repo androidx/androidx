@@ -97,5 +97,6 @@ androidx {
     description = "Compose tooling library API. This library provides the API required to declare" +
             " @Preview composables in user apps."
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-tooling-preview:ui-tooling-preview-samples"))
 }
 

@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: 31.0.11
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 import androidx.compose.material3.internal.defaultPlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.LineHeightStyle
 
-internal object TypographyTokens {
+internal class TypographyTokens(val fontFamily: FontFamily? = null) {
     val BodyLarge =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.BodyLargeFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.BodyLargeFont,
             fontWeight = TypeScaleTokens.BodyLargeWeight,
             fontSize = TypeScaleTokens.BodyLargeSize,
             lineHeight = TypeScaleTokens.BodyLargeLineHeight,
@@ -33,7 +34,7 @@ internal object TypographyTokens {
         )
     val BodyMedium =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.BodyMediumFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.BodyMediumFont,
             fontWeight = TypeScaleTokens.BodyMediumWeight,
             fontSize = TypeScaleTokens.BodyMediumSize,
             lineHeight = TypeScaleTokens.BodyMediumLineHeight,
@@ -41,7 +42,7 @@ internal object TypographyTokens {
         )
     val BodySmall =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.BodySmallFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.BodySmallFont,
             fontWeight = TypeScaleTokens.BodySmallWeight,
             fontSize = TypeScaleTokens.BodySmallSize,
             lineHeight = TypeScaleTokens.BodySmallLineHeight,
@@ -49,7 +50,7 @@ internal object TypographyTokens {
         )
     val DisplayLarge =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.DisplayLargeFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.DisplayLargeFont,
             fontWeight = TypeScaleTokens.DisplayLargeWeight,
             fontSize = TypeScaleTokens.DisplayLargeSize,
             lineHeight = TypeScaleTokens.DisplayLargeLineHeight,
@@ -57,7 +58,7 @@ internal object TypographyTokens {
         )
     val DisplayMedium =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.DisplayMediumFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.DisplayMediumFont,
             fontWeight = TypeScaleTokens.DisplayMediumWeight,
             fontSize = TypeScaleTokens.DisplayMediumSize,
             lineHeight = TypeScaleTokens.DisplayMediumLineHeight,
@@ -65,7 +66,7 @@ internal object TypographyTokens {
         )
     val DisplaySmall =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.DisplaySmallFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.DisplaySmallFont,
             fontWeight = TypeScaleTokens.DisplaySmallWeight,
             fontSize = TypeScaleTokens.DisplaySmallSize,
             lineHeight = TypeScaleTokens.DisplaySmallLineHeight,
@@ -73,7 +74,7 @@ internal object TypographyTokens {
         )
     val HeadlineLarge =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.HeadlineLargeFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.HeadlineLargeFont,
             fontWeight = TypeScaleTokens.HeadlineLargeWeight,
             fontSize = TypeScaleTokens.HeadlineLargeSize,
             lineHeight = TypeScaleTokens.HeadlineLargeLineHeight,
@@ -81,7 +82,7 @@ internal object TypographyTokens {
         )
     val HeadlineMedium =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.HeadlineMediumFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.HeadlineMediumFont,
             fontWeight = TypeScaleTokens.HeadlineMediumWeight,
             fontSize = TypeScaleTokens.HeadlineMediumSize,
             lineHeight = TypeScaleTokens.HeadlineMediumLineHeight,
@@ -89,7 +90,7 @@ internal object TypographyTokens {
         )
     val HeadlineSmall =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.HeadlineSmallFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.HeadlineSmallFont,
             fontWeight = TypeScaleTokens.HeadlineSmallWeight,
             fontSize = TypeScaleTokens.HeadlineSmallSize,
             lineHeight = TypeScaleTokens.HeadlineSmallLineHeight,
@@ -97,7 +98,7 @@ internal object TypographyTokens {
         )
     val LabelLarge =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.LabelLargeFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.LabelLargeFont,
             fontWeight = TypeScaleTokens.LabelLargeWeight,
             fontSize = TypeScaleTokens.LabelLargeSize,
             lineHeight = TypeScaleTokens.LabelLargeLineHeight,
@@ -105,7 +106,7 @@ internal object TypographyTokens {
         )
     val LabelMedium =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.LabelMediumFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.LabelMediumFont,
             fontWeight = TypeScaleTokens.LabelMediumWeight,
             fontSize = TypeScaleTokens.LabelMediumSize,
             lineHeight = TypeScaleTokens.LabelMediumLineHeight,
@@ -113,7 +114,7 @@ internal object TypographyTokens {
         )
     val LabelSmall =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.LabelSmallFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.LabelSmallFont,
             fontWeight = TypeScaleTokens.LabelSmallWeight,
             fontSize = TypeScaleTokens.LabelSmallSize,
             lineHeight = TypeScaleTokens.LabelSmallLineHeight,
@@ -121,7 +122,7 @@ internal object TypographyTokens {
         )
     val TitleLarge =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.TitleLargeFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.TitleLargeFont,
             fontWeight = TypeScaleTokens.TitleLargeWeight,
             fontSize = TypeScaleTokens.TitleLargeSize,
             lineHeight = TypeScaleTokens.TitleLargeLineHeight,
@@ -129,7 +130,7 @@ internal object TypographyTokens {
         )
     val TitleMedium =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.TitleMediumFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.TitleMediumFont,
             fontWeight = TypeScaleTokens.TitleMediumWeight,
             fontSize = TypeScaleTokens.TitleMediumSize,
             lineHeight = TypeScaleTokens.TitleMediumLineHeight,
@@ -137,7 +138,7 @@ internal object TypographyTokens {
         )
     val TitleSmall =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.TitleSmallFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.TitleSmallFont,
             fontWeight = TypeScaleTokens.TitleSmallWeight,
             fontSize = TypeScaleTokens.TitleSmallSize,
             lineHeight = TypeScaleTokens.TitleSmallLineHeight,
@@ -146,7 +147,7 @@ internal object TypographyTokens {
     // TODO update with the generated tokens once available
     val BodyLargeEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.BodyLargeEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.BodyLargeEmphasizedFont,
             fontWeight = TypeScaleTokens.BodyLargeEmphasizedWeight,
             fontSize = TypeScaleTokens.BodyLargeEmphasizedSize,
             lineHeight = TypeScaleTokens.BodyLargeEmphasizedLineHeight,
@@ -154,7 +155,7 @@ internal object TypographyTokens {
         )
     val BodyMediumEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.BodyMediumEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.BodyMediumEmphasizedFont,
             fontWeight = TypeScaleTokens.BodyMediumEmphasizedWeight,
             fontSize = TypeScaleTokens.BodyMediumEmphasizedSize,
             lineHeight = TypeScaleTokens.BodyMediumEmphasizedLineHeight,
@@ -162,7 +163,7 @@ internal object TypographyTokens {
         )
     val BodySmallEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.BodySmallEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.BodySmallEmphasizedFont,
             fontWeight = TypeScaleTokens.BodySmallEmphasizedWeight,
             fontSize = TypeScaleTokens.BodySmallEmphasizedSize,
             lineHeight = TypeScaleTokens.BodySmallEmphasizedLineHeight,
@@ -170,7 +171,7 @@ internal object TypographyTokens {
         )
     val DisplayLargeEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.DisplayLargeEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.DisplayLargeEmphasizedFont,
             fontWeight = TypeScaleTokens.DisplayLargeEmphasizedWeight,
             fontSize = TypeScaleTokens.DisplayLargeEmphasizedSize,
             lineHeight = TypeScaleTokens.DisplayLargeEmphasizedLineHeight,
@@ -178,7 +179,7 @@ internal object TypographyTokens {
         )
     val DisplayMediumEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.DisplayMediumEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.DisplayMediumEmphasizedFont,
             fontWeight = TypeScaleTokens.DisplayMediumEmphasizedWeight,
             fontSize = TypeScaleTokens.DisplayMediumEmphasizedSize,
             lineHeight = TypeScaleTokens.DisplayMediumEmphasizedLineHeight,
@@ -186,7 +187,7 @@ internal object TypographyTokens {
         )
     val DisplaySmallEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.DisplaySmallEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.DisplaySmallEmphasizedFont,
             fontWeight = TypeScaleTokens.DisplaySmallEmphasizedWeight,
             fontSize = TypeScaleTokens.DisplaySmallEmphasizedSize,
             lineHeight = TypeScaleTokens.DisplaySmallEmphasizedLineHeight,
@@ -194,7 +195,7 @@ internal object TypographyTokens {
         )
     val HeadlineLargeEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.HeadlineLargeEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.HeadlineLargeEmphasizedFont,
             fontWeight = TypeScaleTokens.HeadlineLargeEmphasizedWeight,
             fontSize = TypeScaleTokens.HeadlineLargeEmphasizedSize,
             lineHeight = TypeScaleTokens.HeadlineLargeEmphasizedLineHeight,
@@ -202,7 +203,7 @@ internal object TypographyTokens {
         )
     val HeadlineMediumEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.HeadlineMediumEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.HeadlineMediumEmphasizedFont,
             fontWeight = TypeScaleTokens.HeadlineMediumEmphasizedWeight,
             fontSize = TypeScaleTokens.HeadlineMediumEmphasizedSize,
             lineHeight = TypeScaleTokens.HeadlineMediumEmphasizedLineHeight,
@@ -210,7 +211,7 @@ internal object TypographyTokens {
         )
     val HeadlineSmallEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.HeadlineSmallEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.HeadlineSmallEmphasizedFont,
             fontWeight = TypeScaleTokens.HeadlineSmallEmphasizedWeight,
             fontSize = TypeScaleTokens.HeadlineSmallEmphasizedSize,
             lineHeight = TypeScaleTokens.HeadlineSmallEmphasizedLineHeight,
@@ -218,7 +219,7 @@ internal object TypographyTokens {
         )
     val LabelLargeEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.LabelLargeEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.LabelLargeEmphasizedFont,
             fontWeight = TypeScaleTokens.LabelLargeEmphasizedWeight,
             fontSize = TypeScaleTokens.LabelLargeEmphasizedSize,
             lineHeight = TypeScaleTokens.LabelLargeEmphasizedLineHeight,
@@ -226,7 +227,7 @@ internal object TypographyTokens {
         )
     val LabelMediumEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.LabelMediumEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.LabelMediumEmphasizedFont,
             fontWeight = TypeScaleTokens.LabelMediumEmphasizedWeight,
             fontSize = TypeScaleTokens.LabelMediumEmphasizedSize,
             lineHeight = TypeScaleTokens.LabelMediumEmphasizedLineHeight,
@@ -234,7 +235,7 @@ internal object TypographyTokens {
         )
     val LabelSmallEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.LabelSmallEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.LabelSmallEmphasizedFont,
             fontWeight = TypeScaleTokens.LabelSmallEmphasizedWeight,
             fontSize = TypeScaleTokens.LabelSmallEmphasizedSize,
             lineHeight = TypeScaleTokens.LabelSmallEmphasizedLineHeight,
@@ -242,7 +243,7 @@ internal object TypographyTokens {
         )
     val TitleLargeEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.TitleLargeEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.TitleLargeEmphasizedFont,
             fontWeight = TypeScaleTokens.TitleLargeEmphasizedWeight,
             fontSize = TypeScaleTokens.TitleLargeEmphasizedSize,
             lineHeight = TypeScaleTokens.TitleLargeEmphasizedLineHeight,
@@ -250,7 +251,7 @@ internal object TypographyTokens {
         )
     val TitleMediumEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.TitleMediumEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.TitleMediumEmphasizedFont,
             fontWeight = TypeScaleTokens.TitleMediumEmphasizedWeight,
             fontSize = TypeScaleTokens.TitleMediumEmphasizedSize,
             lineHeight = TypeScaleTokens.TitleMediumEmphasizedLineHeight,
@@ -258,7 +259,7 @@ internal object TypographyTokens {
         )
     val TitleSmallEmphasized =
         DefaultTextStyle.copy(
-            fontFamily = TypeScaleTokens.TitleSmallEmphasizedFont,
+            fontFamily = fontFamily ?: TypeScaleTokens.TitleSmallEmphasizedFont,
             fontWeight = TypeScaleTokens.TitleSmallEmphasizedWeight,
             fontSize = TypeScaleTokens.TitleSmallEmphasizedSize,
             lineHeight = TypeScaleTokens.TitleSmallEmphasizedLineHeight,

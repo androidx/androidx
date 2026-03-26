@@ -1,49 +1,35 @@
 // Baseline format: 1.0
-RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_LARGE_ROUND():
-    Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_LARGE_ROUND()
-RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_RECT():
-    Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_RECT()
-RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_SMALL_ROUND():
-    Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_SMALL_ROUND()
-RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_SQUARE():
-    Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_SQUARE()
+AddedAbstractMethod: androidx.compose.ui.tooling.preview.PreviewWrapper#wrapper():
+    Binary breaking change: Added method androidx.compose.ui.tooling.preview.PreviewWrapper.wrapper()
+AddedAbstractMethod: androidx.compose.ui.tooling.preview.PreviewWrapperProvider#Wrap(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Source breaking change: Added method androidx.compose.ui.tooling.preview.PreviewWrapperProvider.Wrap(kotlin.jvm.functions.Function0<kotlin.Unit>)
+AddedAbstractMethod: androidx.compose.ui.tooling.preview.PreviewWrapperProvider#Wrap(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
+    Binary breaking change: Added method androidx.compose.ui.tooling.preview.PreviewWrapperProvider.Wrap(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
 
 
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#apiLevel():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.apiLevel() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#backgroundColor():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.backgroundColor() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#device():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.device() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#fontScale():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.fontScale() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#group():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.group() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#heightDp():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.heightDp() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#locale():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.locale() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#name():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.name() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#showBackground():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.showBackground() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#showSystemUi():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.showSystemUi() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#uiMode():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.uiMode() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#wallpaper():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.wallpaper() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#widthDp():
-    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.widthDp() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.PreviewParameter#limit():
-    Source breaking change: method androidx.compose.ui.tooling.preview.PreviewParameter.limit() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.PreviewParameter#provider():
-    Source breaking change: method androidx.compose.ui.tooling.preview.PreviewParameter.provider() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.PreviewParameterProvider#getCount():
-    Source breaking change: method androidx.compose.ui.tooling.preview.PreviewParameterProvider.getCount() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.PreviewParameterProvider#getValues():
-    Source breaking change: method androidx.compose.ui.tooling.preview.PreviewParameterProvider.getValues() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider#getValues():
-    Source breaking change: method androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider.getValues() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.tooling.preview.datasource.LoremIpsum#getValues():
-    Source breaking change: method androidx.compose.ui.tooling.preview.datasource.LoremIpsum.getValues() can no longer be resolved from Kotlin source
+AddedAbstractProperty: androidx.compose.ui.tooling.preview.PreviewWrapper#wrapper:
+    Source breaking change: Added property androidx.compose.ui.tooling.preview.PreviewWrapper#wrapper
+
+
+AddedMethod: androidx.compose.ui.tooling.preview.PreviewWrapper#PreviewWrapper(kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewWrapperProvider>):
+    Added constructor androidx.compose.ui.tooling.preview.PreviewWrapper(kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewWrapperProvider>)
+
+
+ChangedClass: androidx.compose.ui.tooling.preview.PreviewWrapper:
+    Binary breaking change: Class androidx.compose.ui.tooling.preview.PreviewWrapper changed class/interface declaration
+ChangedClass: androidx.compose.ui.tooling.preview.PreviewWrapperProvider:
+    Binary breaking change: Class androidx.compose.ui.tooling.preview.PreviewWrapperProvider changed class/interface declaration
+
+
+RemovedMethod: androidx.compose.ui.tooling.preview.PreviewWrapper#Wrap(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Source breaking change: Removed method androidx.compose.ui.tooling.preview.PreviewWrapper.Wrap(kotlin.jvm.functions.Function0<kotlin.Unit>)
+RemovedMethod: androidx.compose.ui.tooling.preview.PreviewWrapper#Wrap(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
+    Binary breaking change: Removed method androidx.compose.ui.tooling.preview.PreviewWrapper.Wrap(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
+RemovedMethod: androidx.compose.ui.tooling.preview.PreviewWrapperProvider#PreviewWrapperProvider(kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewWrapper>):
+    Source breaking change: Removed constructor androidx.compose.ui.tooling.preview.PreviewWrapperProvider(kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewWrapper>)
+RemovedMethod: androidx.compose.ui.tooling.preview.PreviewWrapperProvider#wrapper():
+    Binary breaking change: Removed method androidx.compose.ui.tooling.preview.PreviewWrapperProvider.wrapper()
+
+
+RemovedProperty: androidx.compose.ui.tooling.preview.PreviewWrapperProvider#wrapper:
+    Source breaking change: Removed property androidx.compose.ui.tooling.preview.PreviewWrapperProvider#wrapper

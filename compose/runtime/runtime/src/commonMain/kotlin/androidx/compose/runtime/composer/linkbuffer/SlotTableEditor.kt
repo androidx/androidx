@@ -95,12 +95,12 @@ internal class SlotTableEditor(val table: SlotTable) {
         val groups = addressSpace.groups
         val slots = addressSpace.slots
         val groupFlags = groups.groupFlags(group)
-        val slotIndex = nodeSlotIndex(groupFlags)
         debugRuntimeCheck(IsNodeFlag in groupFlags) {
             "Cannot update node for group that does not have node slot"
         }
+
         val slotRange = groups.groupSlotRange(group)
-        val slotAddress = slotAddressOf(slotRange + slotIndex)
+        val slotAddress = slotAddressOf(slotRange) + nodeSlotIndex(groupFlags)
         slots[slotAddress] = newValue
     }
 

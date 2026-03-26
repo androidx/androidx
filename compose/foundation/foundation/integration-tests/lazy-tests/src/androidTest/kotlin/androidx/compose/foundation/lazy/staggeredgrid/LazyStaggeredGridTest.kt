@@ -122,7 +122,7 @@ class LazyStaggeredGridTest(
                 isSorted,
             )
 
-            assertThat(state.layoutInfo.orientation == orientation)
+            assertThat(state.layoutInfo.orientation).isEqualTo(orientation)
         }
     }
 

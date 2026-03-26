@@ -324,7 +324,7 @@ class RetainDetector : Detector(), SourceCodeScanner {
             Issue.create(
                 id = "RetainLeaksContext",
                 briefDescription =
-                    "Using `retain { ... }` to store a value that extends from " +
+                    "Using `retain { ... }` to store a value or key that extends from " +
                         "or references `Context` will cause a memory leak.",
                 explanation =
                     "The lifespan of a retained object or one of its keys can extend beyond the " +
@@ -349,7 +349,7 @@ class RetainDetector : Detector(), SourceCodeScanner {
                 id = "RetainingDoNotRetainType",
                 briefDescription =
                     "Types annotated with `@DoNotRetain` should not be returned as the result " +
-                        "of `retain`, either directly or transitively.",
+                        "of or a key to `retain`, either directly or transitively.",
                 explanation =
                     "Objects annotated with `@DoNotRetain` are not intended to be used with " +
                         "retain. Types marked with this annotation are not designed for " +

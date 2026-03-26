@@ -525,6 +525,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
+    @OptIn(ExperimentalComposeViewContextApi::class)
     private fun createNodeInfo(virtualViewId: Int): AccessibilityNodeInfoCompat? {
         if (
             view.composeViewContext.lifecycleOwner.lifecycle.currentState ==

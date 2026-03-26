@@ -69,7 +69,7 @@ internal fun Translations.ca() = mapOf(
     Strings.DateRangeInputTitle to "Introdueix les dates",
     Strings.DateRangeInputInvalidRangeInput to "S\'ha introduït un interval de dates no vàlid",
     Strings.BottomSheetPaneTitle to "Full inferior",
-    Strings.BottomSheetDragHandleDescription to "Ansa per arrossegar",
+    Strings.BottomSheetDragHandleDescription to "Ansa de posicionament",
     Strings.BottomSheetPartialExpandDescription to "Replega el full inferior",
     Strings.BottomSheetDismissDescription to "Ignora el full inferior",
     Strings.BottomSheetExpandDescription to "Desplega el full inferior",

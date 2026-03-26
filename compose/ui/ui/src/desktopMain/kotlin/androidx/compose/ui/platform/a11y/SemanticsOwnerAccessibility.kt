@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.platform.a11y
 
-import androidx.collection.mutableScatterMapOf
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.ui.platform.PlatformComponent
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsConfiguration
@@ -68,7 +68,7 @@ internal class SemanticsOwnerAccessibility(
      * Maps the [ComposeAccessible]s we have created by the [SemanticsNode.id] for which they were
      * created.
      */
-    private var accessibleByNodeId = mutableScatterMapOf<Int, ComposeAccessible>()
+    private var accessibleByNodeId = mutableIntObjectMapOf<ComposeAccessible>()
 
     /**
      * Whether [accessibleByNodeId] is up to date.
@@ -117,7 +117,7 @@ internal class SemanticsOwnerAccessibility(
      * Invoked when a new [ComposeAccessible] is created.
      */
     private fun onNodeAdded(accessible: ComposeAccessible) {
-        for (entry in accessible.semanticsNode.config) {
+        for (entry in accessible.semanticsConfig) {
             when (entry.key) {
                 SemanticsProperties.Focused -> {
                     if (entry.value as Boolean) {
@@ -147,7 +147,7 @@ internal class SemanticsOwnerAccessibility(
     ) = SwingUtilities.invokeLater {
         if (disposed) return@invokeLater
         val accessible = accessibleByNodeId(nodeId) ?: return@invokeLater
-        action(accessible, accessible.semanticsNode.config)
+        action(accessible, accessible.semanticsConfig)
     }
 
     /**
@@ -187,88 +187,88 @@ internal class SemanticsOwnerAccessibility(
      */
     private fun onNodeChanged(
         accessible: ComposeAccessible,
-        previousSemanticsNode: SemanticsNode,
-        newSemanticsNode: SemanticsNode
+        prevConfig: SemanticsConfiguration,
     ) {
         val accessibleContext by lazy { accessible.composeAccessibleContext }
-        for (entry in newSemanticsNode.config) {
-            val prev = previousSemanticsNode.config.getOrNull(entry.key)
-            if (entry.value != prev) {
-                when (entry.key) {
-                    SemanticsProperties.Text -> {
+        for (entry in accessible.semanticsConfig) {
+            val prevValue = prevConfig.getOrNull(entry.key)
+            val newValue = entry.value
+            if (newValue == prevValue) continue
+
+            when (entry.key) {
+                SemanticsProperties.Text -> {
+                    accessibleContext.firePropertyChange(
+                        ACCESSIBLE_TEXT_PROPERTY,
+                        prevValue, newValue
+                    )
+                }
+
+                SemanticsProperties.EditableText -> {
+                    // The docs on ACCESSIBLE_TEXT_PROPERTY say that the value should be
+                    // an AccessibleTextSequence, but in reality, AccessibleJTextComponent
+                    // sends the position of the start of the change
+                    accessibleContext.firePropertyChange(
+                        ACCESSIBLE_TEXT_PROPERTY,
+                        null,
+                        0  // Ideally, we should track the position of the change; 0 means everything changed
+                    )
+                }
+
+                SemanticsProperties.TextSelectionRange -> {
+                    val prevTextSelectionRange = prevValue as? TextRange
+                    val newTextSelectionRange = newValue as TextRange
+
+                    val prevCaretPosition = prevTextSelectionRange?.end
+                    val newCaretPosition = newTextSelectionRange.end
+                    if (prevCaretPosition != newCaretPosition) {
                         accessibleContext.firePropertyChange(
-                            ACCESSIBLE_TEXT_PROPERTY,
-                            prev, entry.value
+                            ACCESSIBLE_CARET_PROPERTY,
+                            prevCaretPosition, newCaretPosition
                         )
                     }
 
-                    SemanticsProperties.EditableText -> {
-                        // The docs on ACCESSIBLE_TEXT_PROPERTY say that the value should be
-                        // an AccessibleTextSequence, but in reality, AccessibleJTextComponent
-                        // sends the position of the start of the change
+                    val text = accessible.semanticsConfig.getOrNull(SemanticsProperties.EditableText)
+                    val prevHasSelection = prevTextSelectionRange?.collapsed == false
+                    val nowHasSelection = !newTextSelectionRange.collapsed
+                    if (prevHasSelection != nowHasSelection) {
                         accessibleContext.firePropertyChange(
-                            ACCESSIBLE_TEXT_PROPERTY,
-                            null,
-                            0  // Ideally, we should track the position of the change; 0 means everything changed
+                            ACCESSIBLE_SELECTION_PROPERTY,
+                            null,  // AccessibleJTextComponent also sends oldValue = null
+                            text?.subSequence(newTextSelectionRange)
                         )
                     }
+                }
 
-                    SemanticsProperties.TextSelectionRange -> {
-                        val prevTextSelectionRange = prev as? TextRange
-                        val newTextSelectionRange = entry.value as TextRange
+                SemanticsProperties.Focused ->
+                    if (newValue as Boolean) {
+                        notifyOnFocusReceived(accessible)
+                    } else {
+                        notifyOnFocusLost(accessible)
+                    }
 
-                        val prevCaretPosition = prevTextSelectionRange?.end
-                        val newCaretPosition = newTextSelectionRange.end
-                        if (prevCaretPosition != newCaretPosition) {
+                SemanticsProperties.ToggleableState -> {
+                    when (newValue as ToggleableState) {
+                        ToggleableState.On ->
                             accessibleContext.firePropertyChange(
-                                ACCESSIBLE_CARET_PROPERTY,
-                                prevCaretPosition, newCaretPosition
+                                ACCESSIBLE_STATE_PROPERTY,
+                                null, AccessibleState.CHECKED
                             )
-                        }
 
-                        val text = newSemanticsNode.config.getOrNull(SemanticsProperties.EditableText)
-                        val prevHasSelection = prevTextSelectionRange?.collapsed == false
-                        val nowHasSelection = !newTextSelectionRange.collapsed
-                        if (prevHasSelection != nowHasSelection) {
+                        ToggleableState.Off, ToggleableState.Indeterminate ->
                             accessibleContext.firePropertyChange(
-                                ACCESSIBLE_SELECTION_PROPERTY,
-                                null,  // AccessibleJTextComponent also sends oldValue = null
-                                text?.subSequence(newTextSelectionRange)
+                                ACCESSIBLE_STATE_PROPERTY,
+                                AccessibleState.CHECKED, null
                             )
-                        }
                     }
+                }
 
-                    SemanticsProperties.Focused ->
-                        if (entry.value as Boolean) {
-                            notifyOnFocusReceived(accessible)
-                        } else {
-                            notifyOnFocusLost(accessible)
-                        }
-
-                    SemanticsProperties.ToggleableState -> {
-                        when (entry.value as ToggleableState) {
-                            ToggleableState.On ->
-                                accessibleContext.firePropertyChange(
-                                    ACCESSIBLE_STATE_PROPERTY,
-                                    null, AccessibleState.CHECKED
-                                )
-
-                            ToggleableState.Off, ToggleableState.Indeterminate ->
-                                accessibleContext.firePropertyChange(
-                                    ACCESSIBLE_STATE_PROPERTY,
-                                    AccessibleState.CHECKED, null
-                                )
-                        }
-                    }
-
-                    SemanticsProperties.ProgressBarRangeInfo -> {
-                        val value = entry.value as ProgressBarRangeInfo
-                        accessibleContext.firePropertyChange(
-                            ACCESSIBLE_VALUE_PROPERTY,
-                            (prev as? ProgressBarRangeInfo)?.current,
-                            value.current
-                        )
-                    }
+                SemanticsProperties.ProgressBarRangeInfo -> {
+                    val value = newValue as ProgressBarRangeInfo
+                    accessibleContext.firePropertyChange(
+                        ACCESSIBLE_VALUE_PROPERTY,
+                        (prevValue as? ProgressBarRangeInfo)?.current,
+                        value.current
+                    )
                 }
             }
         }
@@ -312,7 +312,7 @@ internal class SemanticsOwnerAccessibility(
      * An auxiliary mapping of semantics node ids to [ComposeAccessible]s that is swapped with
      * [accessibleByNodeId] on each sync, to avoid allocating memory on each sync.
      */
-    private var auxAccessibleByNodeId = mutableScatterMapOf<Int, ComposeAccessible>()
+    private var auxAccessibleByNodeId = mutableIntObjectMapOf<ComposeAccessible>()
 
     /**
      * A list of callbacks ([onNodeAdded], [onNodeRemoved], [onNodeChanged]) to be made after
@@ -363,7 +363,9 @@ internal class SemanticsOwnerAccessibility(
      */
     private fun syncNodes() {
         fun SemanticsNode.isValid() = layoutNode.let { it.isPlaced && it.isAttached }
-        fun SemanticsNode.isInvisibleToA11y() = config.let {
+        // `InvisibleToUser` and `HideFromAccessibility` are unmerged properties, so it's ok to get
+        // them from `unmergedConfig`.
+        fun SemanticsNode.isInvisibleToA11y() = unmergedConfig.let {
             @Suppress("DEPRECATION")
             it.contains(SemanticsProperties.InvisibleToUser) ||
                 it.contains(SemanticsProperties.HideFromAccessibility)
@@ -380,10 +382,10 @@ internal class SemanticsOwnerAccessibility(
 
             val existingAccessible = previous[node.id]
             updated[node.id] = if (existingAccessible != null) {
-                val prevSemanticsNode = existingAccessible.semanticsNode
+                val prevSemanticsConfig = existingAccessible.semanticsConfig
                 existingAccessible.semanticsNode = node
                 delayedNodeNotifications.add {
-                    onNodeChanged(existingAccessible, prevSemanticsNode, node)
+                    onNodeChanged(existingAccessible, prevSemanticsConfig)
                 }
                 existingAccessible
             }
@@ -454,7 +456,7 @@ internal class SemanticsOwnerAccessibility(
     private fun focusedAccessible(): ComposeAccessible? {
         syncNodesIfInvalid()
         accessibleByNodeId.forEachValue { accessible ->
-            if (accessible.semanticsNode.config.getOrNull(SemanticsProperties.Focused) == true) {
+            if (accessible.semanticsConfig.getOrNull(SemanticsProperties.Focused) == true) {
                 return accessible
             }
         }
@@ -506,12 +508,13 @@ internal class SemanticsOwnerAccessibility(
         /**
          * The set of "live" [SemanticsOwnerAccessibility]s.
          */
-        private val activeInstances = mutableSetOf<SemanticsOwnerAccessibility>()
+        // Using a list instead of a set because set iterator is expensive (memory wise)
+        private val activeInstances = mutableListOf<SemanticsOwnerAccessibility>()
 
         /**
          * The time of the latest accessibility call from the system.
          */
-        // Set initial value such that accessibilityRecentlyUsed is initially `false`
+        // Set the initial value such that `recentlyUsed` is initially `false`
         private var lastUseTimeNanos: Long = System.nanoTime() - (MaxIdleTimeNanos + 1)
 
         /**

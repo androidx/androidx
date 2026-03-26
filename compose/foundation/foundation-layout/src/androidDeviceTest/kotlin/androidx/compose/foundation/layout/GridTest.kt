@@ -19,6 +19,8 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -2642,6 +2644,267 @@ class GridTest : LayoutTest() {
                 childSize.value,
             )
         }
+
+    @Test
+    fun testGrid_implicitRows_includeGapsInTotalSize() =
+        with(density) {
+            // Scenario:
+            // 1 Explicit Column, NO Explicit Rows.
+            // Gap = 10dp.
+            // 3 items placed vertically in rows 1, 2, and 3 (all implicit).
+            // Expected Total Height = (3 * 50dp) + (2 * 10dp gap) = 170dp.
+
+            val itemSize = 50.dp
+            val gapSize = 10.dp
+            val itemSizePx = itemSize.roundToPx()
+            val gapSizePx = gapSize.roundToPx()
+
+            val expectedHeight = (itemSizePx * 3) + (gapSizePx * 2)
+            val expectedWidth = itemSizePx
+
+            val latch = CountDownLatch(1)
+            val gridSize = Ref<IntSize>()
+
+            show {
+                Grid(
+                    config = {
+                        column(GridTrackSize.Fixed(itemSize))
+                        gap(gapSize)
+                    },
+                    modifier =
+                        Modifier.onGloballyPositioned { coordinates ->
+                            gridSize.value = coordinates.size
+                            latch.countDown()
+                        },
+                ) {
+                    // Item 1: Row 1 (Implicit)
+                    Box(Modifier.gridItem(row = 1, column = 1).size(itemSize))
+
+                    // Item 2: Row 2 (Implicit)
+                    Box(Modifier.gridItem(row = 2, column = 1).size(itemSize))
+
+                    // Item 3: Row 3 (Implicit)
+                    Box(Modifier.gridItem(row = 3, column = 1).size(itemSize))
+                }
+            }
+
+            assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "Grid height should include gaps between implicitly created rows",
+                expectedHeight,
+                gridSize.value?.height,
+            )
+
+            assertEquals(
+                "Grid width should match the single explicit column",
+                expectedWidth,
+                gridSize.value?.width,
+            )
+        }
+
+    @Test
+    fun testGrid_implicitColumns_includeGapsInTotalSize() =
+        with(density) {
+            // Scenario:
+            // 1 Explicit Row, NO Explicit Columns.
+            // Gap = 10dp.
+            // 3 items placed horizontally in cols 1, 2, and 3 (all implicit).
+            // Expected Total Width = (3 * 50dp) + (2 * 10dp gap) = 170dp.
+
+            val itemSize = 50.dp
+            val gapSize = 10.dp
+            val itemSizePx = itemSize.roundToPx()
+            val gapSizePx = gapSize.roundToPx()
+
+            val expectedWidth = (itemSizePx * 3) + (gapSizePx * 2)
+            val expectedHeight = itemSizePx
+
+            val latch = CountDownLatch(1)
+            val gridSize = Ref<IntSize>()
+
+            show {
+                Grid(
+                    config = {
+                        row(GridTrackSize.Fixed(itemSize))
+                        // Notice: NO column() calls here.
+                        gap(gapSize)
+                    },
+                    modifier =
+                        Modifier.onGloballyPositioned { coordinates ->
+                            gridSize.value = coordinates.size
+                            latch.countDown()
+                        },
+                ) {
+                    // Item 1: Col 1 (Implicit)
+                    Box(Modifier.gridItem(row = 1, column = 1).size(itemSize))
+
+                    // Item 2: Col 2 (Implicit)
+                    Box(Modifier.gridItem(row = 1, column = 2).size(itemSize))
+
+                    // Item 3: Col 3 (Implicit)
+                    Box(Modifier.gridItem(row = 1, column = 3).size(itemSize))
+                }
+            }
+
+            assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "Grid width should include gaps between implicitly created columns",
+                expectedWidth,
+                gridSize.value?.width,
+            )
+
+            assertEquals(
+                "Grid height should match the single explicit row",
+                expectedHeight,
+                gridSize.value?.height,
+            )
+        }
+
+    @Test
+    fun testGrid_lazyColumn_inMinMaxTrack_doesNotCrash() =
+        with(density) {
+            val gridHeight = 200.dp
+            val fixedRowHeight = 50.dp
+            val expectedLazyHeight = (gridHeight - fixedRowHeight).roundToPx()
+
+            val latch = CountDownLatch(1)
+            val lazySize = Ref<IntSize>()
+
+            show {
+                Box(Modifier.height(gridHeight)) {
+                    Grid(
+                        config = {
+                            column(GridTrackSize.MinMax(0.dp, 1.fr))
+                            row(GridTrackSize.Fixed(fixedRowHeight))
+                            row(GridTrackSize.MinMax(0.dp, 1.fr))
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        // Row 1
+                        Box(Modifier.gridItem(row = 1, column = 1).fillMaxSize())
+
+                        // Row 2
+                        LazyColumn(
+                            modifier =
+                                Modifier.gridItem(row = 2, column = 1)
+                                    .fillMaxSize()
+                                    .onGloballyPositioned {
+                                        lazySize.value = it.size
+                                        latch.countDown()
+                                    }
+                        ) {
+                            items(10) { Box(Modifier.height(20.dp)) }
+                        }
+                    }
+                }
+            }
+
+            assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "LazyColumn should take the remaining 150dp height",
+                expectedLazyHeight,
+                lazySize.value?.height,
+            )
+        }
+
+    @Test
+    fun testGrid_lazyRow_inMinMaxTrack_doesNotCrash() =
+        with(density) {
+            val gridWidth = 300.dp
+            val fixedColWidth = 100.dp
+            val expectedLazyWidth = (gridWidth - fixedColWidth).roundToPx()
+
+            val latch = CountDownLatch(1)
+            val lazySize = Ref<IntSize>()
+
+            show {
+                Box(Modifier.width(gridWidth)) {
+                    Grid(
+                        config = {
+                            column(GridTrackSize.MinMax(0.dp, 1.fr))
+                            column(GridTrackSize.Fixed(fixedColWidth))
+                            row(GridTrackSize.MinMax(0.dp, 1.fr))
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        // Col 1
+                        LazyRow(
+                            modifier =
+                                Modifier.gridItem(row = 1, column = 1)
+                                    .fillMaxSize()
+                                    .onGloballyPositioned {
+                                        lazySize.value = it.size
+                                        latch.countDown()
+                                    }
+                        ) {
+                            items(10) { Box(Modifier.width(20.dp)) }
+                        }
+
+                        // Col 2
+                        Box(Modifier.gridItem(row = 1, column = 2).fillMaxSize())
+                    }
+                }
+            }
+
+            assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "LazyRow should take the remaining 200dp width",
+                expectedLazyWidth,
+                lazySize.value?.width,
+            )
+        }
+
+    @Test
+    fun testGrid_lazyColumn_inFlexTrack_throwsHelpfulException() {
+        val latch = CountDownLatch(1)
+        var caughtException: Throwable? = null
+
+        show {
+            // We wrap the Grid in a custom Layout so we can catch the exception
+            // directly on the UI thread during the measurement phase.
+            Layout(
+                content = {
+                    Grid(
+                        config = {
+                            // Standard Flex queries intrinsics -> Crashes on SubcomposeLayout
+                            column(GridTrackSize.Flex(1.fr))
+                            row(GridTrackSize.Flex(1.fr))
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(10) { Box(Modifier.height(20.dp)) }
+                        }
+                    }
+                },
+                measurePolicy = { measurables, constraints ->
+                    try {
+                        // Trigger the Grid's measure pass. This is what triggers the
+                        // intrinsic query, and subsequently, our wrapped exception.
+                        measurables.firstOrNull()?.measure(constraints)
+                    } catch (e: Throwable) {
+                        // Catch the exception before it bubbles up and crashes the test runner!
+                        caughtException = e
+                    }
+
+                    latch.countDown()
+                    layout(100, 100) {} // Return dummy layout
+                },
+            )
+        }
+
+        assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+
+        val message = caughtException?.message
+        assertTrue(
+            "Expected helpful error message, but got: $message",
+            message?.contains(SubcomposeLayoutIntrinsicErrorMessage) == true,
+        )
+    }
 
     @Composable
     private fun IntrinsicItem(

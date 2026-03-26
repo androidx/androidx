@@ -237,10 +237,12 @@ interface TrackpadInjectionScope : InjectionScope {
      * The helper function [pan] allows combining these calls into a single call, to pan by a given
      * offset sending the appropriate event in sequence.
      *
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      * @throws [IllegalStateException] if the trackpad is not in a pan gesture started by
      *   [panStart].
      */
-    fun panEnd()
+    fun panEnd(delayMillis: Long = eventPeriodMillis)
 
     /**
      * Starts a scale gesture. The [androidx.compose.ui.input.pointer.PointerEventType.ScaleStart]
@@ -280,10 +282,12 @@ interface TrackpadInjectionScope : InjectionScope {
      * The helper function [scale] allows combining these calls into a single call, to scale by a
      * given factor sending the appropriate events in sequence.
      *
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      * @throws [IllegalStateException] if the trackpad is not in a scale gesture started by
      *   [scaleStart].
      */
-    fun scaleEnd()
+    fun scaleEnd(delayMillis: Long = eventPeriodMillis)
 }
 
 internal class TrackpadInjectionScopeImpl(private val baseScope: MultiModalInjectionScopeImpl) :
@@ -341,7 +345,8 @@ internal class TrackpadInjectionScopeImpl(private val baseScope: MultiModalInjec
         inputDispatcher.enqueueTrackpadPanMove(delta)
     }
 
-    override fun panEnd() {
+    override fun panEnd(delayMillis: Long) {
+        advanceEventTime(delayMillis)
         inputDispatcher.enqueueTrackpadPanEnd()
     }
 
@@ -354,7 +359,8 @@ internal class TrackpadInjectionScopeImpl(private val baseScope: MultiModalInjec
         inputDispatcher.enqueueTrackpadScaleChange(scaleFactor)
     }
 
-    override fun scaleEnd() {
+    override fun scaleEnd(delayMillis: Long) {
+        advanceEventTime(delayMillis)
         inputDispatcher.enqueueTrackpadScaleEnd()
     }
 }
@@ -583,7 +589,6 @@ fun TrackpadInjectionScope.dragAndDrop(
 fun TrackpadInjectionScope.pan(offset: Offset) {
     panStart()
     panMoveBy(offset)
-    advanceEventTime()
     panEnd()
 }
 
@@ -652,7 +657,7 @@ fun TrackpadInjectionScope.pan(
         currTime = tNext
     }
 
-    panEnd()
+    panEnd(delayMillis = 0)
 }
 
 /**
@@ -718,7 +723,6 @@ fun TrackpadInjectionScope.scale(
 ) {
     scaleStart()
     scaleChangeBy(scaleFactor)
-    advanceEventTime()
     scaleEnd()
 }
 

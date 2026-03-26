@@ -40,6 +40,23 @@ class BasicTextFieldBenchmark {
         )
     }
 
+    @Test
+    fun openKeyboardWithBasicTextFieldStartupBenchmark_ContentDataTypeNone() {
+        benchmarkRule.measureStartup(
+            compilationMode = CompilationMode.Full(),
+            startupMode = StartupMode.COLD,
+            packageName = PACKAGE_NAME,
+            setupIntent = {
+                action = ACTION
+                putExtra("CONTENT_TYPE", "NONE")
+            },
+            waitForContent = {
+                device.waitForIdle()
+                onElement { contentDescription == "IME_ANIMATION_DONE" }
+            },
+        )
+    }
+
     companion object {
         private const val PACKAGE_NAME = "androidx.compose.integration.macrobenchmark.target"
         private const val ACTION = "androidx.compose.integration.macrobenchmark.target.BTF_ACTIVITY"

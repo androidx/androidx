@@ -52,35 +52,47 @@ internal class SkiaBackedPath(
     internal var internalSkiaPath = internalSkiaPath
         private set
     private var pathBuilder = PathBuilder(internalSkiaPath)
+    private var materializedGenerationId = internalSkiaPath.generationId
+    private var currentFillMode = internalSkiaPath.fillMode
 
     private inline fun mutatePath(block: PathBuilder.() -> Unit) {
+        synchronizeBuilderIfNeeded()
         pathBuilder.apply(block)
-        internalSkiaPath = pathBuilder.snapshot()
+        replacePath(pathBuilder.snapshot())
+        pathBuilder = PathBuilder(internalSkiaPath)
+    }
+
+    private fun synchronizeBuilderIfNeeded() {
+        // Skia's generationId does not change when only the fill mode changes. Compare both
+        // so a native/external fill type update still rebuilds the cached PathBuilder before
+        // its next snapshot overwrites internalSkiaPath with stale state.
+        if (internalSkiaPath.generationId != materializedGenerationId ||
+            internalSkiaPath.fillMode != currentFillMode
+        ) {
+            pathBuilder = PathBuilder(internalSkiaPath)
+            materializedGenerationId = internalSkiaPath.generationId
+            currentFillMode = internalSkiaPath.fillMode
+        }
     }
 
     private fun replacePath(path: SkPath) {
-        internalSkiaPath = path
-        pathBuilder = PathBuilder(path)
+        // Keep the same SkPath instance alive so native callers can continue mutating it.
+        internalSkiaPath.swap(path)
+        materializedGenerationId = internalSkiaPath.generationId
+        currentFillMode = internalSkiaPath.fillMode
     }
 
     override var fillType: PathFillType
         get() {
-            return if (internalSkiaPath.fillMode == PathFillMode.EVEN_ODD) {
-                PathFillType.EvenOdd
-            } else {
-                PathFillType.NonZero
-            }
+            synchronizeBuilderIfNeeded()
+            return currentFillMode.toComposePathFillType()
         }
 
         set(value) {
-            pathBuilder.setFillType(
-                if (value == PathFillType.EvenOdd) {
-                    PathFillMode.EVEN_ODD
-                } else {
-                    PathFillMode.WINDING
-                }
-            )
-            internalSkiaPath = pathBuilder.snapshot()
+            val fillMode = value.toSkiaPathFillMode()
+            mutatePath {
+                setFillType(fillMode)
+            }
         }
 
     override fun moveTo(x: Float, y: Float) = mutatePath {
@@ -271,22 +283,19 @@ internal class SkiaBackedPath(
     }
 
     override fun reset() {
-        val fillMode = internalSkiaPath.fillMode
-        pathBuilder.reset().setFillType(fillMode)
-        internalSkiaPath = pathBuilder.snapshot()
+        val fillMode = currentFillMode
+        mutatePath {
+            reset()
+            setFillType(fillMode)
+        }
     }
 
-    override fun translate(offset: Offset) {
-        pathBuilder = PathBuilder(internalSkiaPath.fillMode)
-            .addPath(internalSkiaPath, offset.x, offset.y)
-        internalSkiaPath = pathBuilder.snapshot()
+    override fun translate(offset: Offset) = mutatePath {
+        offset(offset.x, offset.y)
     }
 
-    override fun transform(matrix: Matrix) {
-        val skiaMatrix = Matrix33.makeTranslate(0f, 0f).apply { setFrom(matrix) }
-        pathBuilder = PathBuilder(internalSkiaPath.fillMode)
-            .addPath(internalSkiaPath, skiaMatrix)
-        internalSkiaPath = pathBuilder.snapshot()
+    override fun transform(matrix: Matrix) = mutatePath {
+        transform(identityMatrix33().apply { setFrom(matrix) })
     }
 
     override fun getBounds(): Rect {
@@ -303,31 +312,42 @@ internal class SkiaBackedPath(
         path1: Path,
         path2: Path,
         operation: PathOperation
-    ): Boolean {
-        val path = SkPath.makeCombining(
-            path1.asSkiaPath(),
-            path2.asSkiaPath(),
-            operation.toSkiaOperation()
-        )
+    ): Boolean = SkPath.makeCombining(
+        path1.asSkiaPath(),
+        path2.asSkiaPath(),
+        operation.toSkiaOperation()
+    )?.also {
+        replacePath(it)
+        pathBuilder = PathBuilder(internalSkiaPath)
+    } != null
 
-        if (path != null) {
-            replacePath(path)
-        }
-        return path != null
-    }
+    override val isConvex: Boolean
+        get() = internalSkiaPath.isConvex
 
-    private fun PathOperation.toSkiaOperation() = when (this) {
-        PathOperation.Difference -> PathOp.DIFFERENCE
-        PathOperation.Intersect -> PathOp.INTERSECT
-        PathOperation.Union -> PathOp.UNION
-        PathOperation.Xor -> PathOp.XOR
-        PathOperation.ReverseDifference -> PathOp.REVERSE_DIFFERENCE
-        else -> PathOp.XOR
-    }
+    override val isEmpty: Boolean
+        get() = internalSkiaPath.isEmpty
+}
 
-    override val isConvex: Boolean get() = internalSkiaPath.isConvex
+private fun PathOperation.toSkiaOperation() = when (this) {
+    PathOperation.Difference -> PathOp.DIFFERENCE
+    PathOperation.Intersect -> PathOp.INTERSECT
+    PathOperation.Union -> PathOp.UNION
+    PathOperation.Xor -> PathOp.XOR
+    PathOperation.ReverseDifference -> PathOp.REVERSE_DIFFERENCE
+    else -> PathOp.XOR
+}
 
-    override val isEmpty: Boolean get() = internalSkiaPath.isEmpty
+private fun PathFillType.toSkiaPathFillMode(): PathFillMode = when (this) {
+    PathFillType.EvenOdd -> PathFillMode.EVEN_ODD
+    PathFillType.NonZero -> PathFillMode.WINDING
+    else -> error("Unsupported PathFillType: $this")
+}
+
+private fun PathFillMode.toComposePathFillType(): PathFillType = when (this) {
+    PathFillMode.WINDING -> PathFillType.NonZero
+    PathFillMode.EVEN_ODD -> PathFillType.EvenOdd
+    PathFillMode.INVERSE_WINDING -> PathFillType.NonZero
+    PathFillMode.INVERSE_EVEN_ODD -> PathFillType.EvenOdd
 }
 
 private fun Path.Direction.toSkiaPathDirection() = when (this) {
