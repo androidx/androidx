@@ -667,6 +667,8 @@ internal fun TextFieldLayout(
     singleLine: Boolean,
     labelPosition: TextFieldLabelPosition,
     labelProgress: FloatProducer,
+    placeholderAlpha: FloatProducer,
+    affixAlpha: FloatProducer,
     container: @Composable () -> Unit,
     supporting: @Composable (() -> Unit)?,
     paddingValues: PaddingValues,
@@ -677,6 +679,8 @@ internal fun TextFieldLayout(
             singleLine,
             labelPosition,
             labelProgress,
+            placeholderAlpha,
+            affixAlpha,
             paddingValues,
             minimizedLabelHalfHeight,
         ) {
@@ -684,6 +688,8 @@ internal fun TextFieldLayout(
                 singleLine = singleLine,
                 labelPosition = labelPosition,
                 labelProgress = labelProgress,
+                placeholderAlpha = placeholderAlpha,
+                affixAlpha = affixAlpha,
                 paddingValues = paddingValues,
                 minimizedLabelHalfHeight = minimizedLabelHalfHeight,
             )
@@ -813,6 +819,8 @@ private class TextFieldMeasurePolicy(
     private val singleLine: Boolean,
     private val labelPosition: TextFieldLabelPosition,
     private val labelProgress: FloatProducer,
+    private val placeholderAlpha: FloatProducer,
+    private val affixAlpha: FloatProducer,
     private val paddingValues: PaddingValues,
     private val minimizedLabelHalfHeight: Dp,
 ) : MeasurePolicy {
@@ -1003,6 +1011,8 @@ private class TextFieldMeasurePolicy(
                     labelEndY = labelEndY,
                     isLabelAbove = isLabelAbove,
                     labelProgress = labelProgress,
+                    placeholderAlpha = placeholderAlpha,
+                    affixAlpha = affixAlpha,
                     textPosition =
                         topPaddingValue + (if (isLabelAbove) 0 else labelPlaceable.height),
                     layoutDirection = layoutDirection,
@@ -1019,6 +1029,8 @@ private class TextFieldMeasurePolicy(
                     suffixPlaceable = suffixPlaceable,
                     containerPlaceable = containerPlaceable,
                     supportingPlaceable = supportingPlaceable,
+                    placeholderAlpha = placeholderAlpha,
+                    affixAlpha = affixAlpha,
                     density = density,
                 )
             }
@@ -1282,6 +1294,8 @@ private class TextFieldMeasurePolicy(
         labelEndY: Int,
         isLabelAbove: Boolean,
         labelProgress: Float,
+        placeholderAlpha: FloatProducer,
+        affixAlpha: FloatProducer,
         textPosition: Int,
         layoutDirection: LayoutDirection,
     ) {
@@ -1333,16 +1347,28 @@ private class TextFieldMeasurePolicy(
             labelPlaceable.place(labelX, labelY)
         }
 
-        prefixPlaceable?.placeRelative(leadingPlaceable.widthOrZero, yOffset + textPosition)
+        prefixPlaceable?.placeRelativeWithLayer(
+            leadingPlaceable.widthOrZero,
+            yOffset + textPosition,
+        ) {
+            alpha = affixAlpha()
+        }
 
         val textHorizontalPosition = leadingPlaceable.widthOrZero + prefixPlaceable.widthOrZero
         textfieldPlaceable.placeRelative(textHorizontalPosition, yOffset + textPosition)
-        placeholderPlaceable?.placeRelative(textHorizontalPosition, yOffset + textPosition)
+        placeholderPlaceable?.placeRelativeWithLayer(
+            textHorizontalPosition,
+            yOffset + textPosition,
+        ) {
+            alpha = placeholderAlpha()
+        }
 
-        suffixPlaceable?.placeRelative(
+        suffixPlaceable?.placeRelativeWithLayer(
             width - trailingPlaceable.widthOrZero - suffixPlaceable.width,
             yOffset + textPosition,
-        )
+        ) {
+            alpha = affixAlpha()
+        }
 
         trailingPlaceable?.placeRelative(
             width - trailingPlaceable.width,
@@ -1367,6 +1393,8 @@ private class TextFieldMeasurePolicy(
         suffixPlaceable: Placeable?,
         containerPlaceable: Placeable,
         supportingPlaceable: Placeable?,
+        placeholderAlpha: FloatProducer,
+        affixAlpha: FloatProducer,
         density: Float,
     ) {
         // place container
@@ -1392,10 +1420,12 @@ private class TextFieldMeasurePolicy(
             }
         }
 
-        prefixPlaceable?.placeRelative(
+        prefixPlaceable?.placeRelativeWithLayer(
             leadingPlaceable.widthOrZero,
             calculateVerticalPosition(prefixPlaceable),
-        )
+        ) {
+            alpha = affixAlpha()
+        }
 
         val textHorizontalPosition = leadingPlaceable.widthOrZero + prefixPlaceable.widthOrZero
 
@@ -1404,15 +1434,19 @@ private class TextFieldMeasurePolicy(
             calculateVerticalPosition(textPlaceable),
         )
 
-        placeholderPlaceable?.placeRelative(
+        placeholderPlaceable?.placeRelativeWithLayer(
             textHorizontalPosition,
             calculateVerticalPosition(placeholderPlaceable),
-        )
+        ) {
+            alpha = placeholderAlpha()
+        }
 
-        suffixPlaceable?.placeRelative(
+        suffixPlaceable?.placeRelativeWithLayer(
             width - trailingPlaceable.widthOrZero - suffixPlaceable.width,
             calculateVerticalPosition(suffixPlaceable),
-        )
+        ) {
+            alpha = affixAlpha()
+        }
 
         trailingPlaceable?.placeRelative(
             width - trailingPlaceable.width,

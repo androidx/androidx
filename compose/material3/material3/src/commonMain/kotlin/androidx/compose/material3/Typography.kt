@@ -23,6 +23,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 
 /**
  * The Material Design type scale includes a range of contrasting styles that support the needs of
@@ -99,97 +100,281 @@ import androidx.compose.ui.text.TextStyle
  * @property labelSmallEmphasized an emphasized version of [labelSmall].
  */
 @Immutable
-class Typography
-@ExperimentalMaterial3ExpressiveApi
-constructor(
-    val displayLarge: TextStyle = TypographyTokens.DisplayLarge,
-    val displayMedium: TextStyle = TypographyTokens.DisplayMedium,
-    val displaySmall: TextStyle = TypographyTokens.DisplaySmall,
-    val headlineLarge: TextStyle = TypographyTokens.HeadlineLarge,
-    val headlineMedium: TextStyle = TypographyTokens.HeadlineMedium,
-    val headlineSmall: TextStyle = TypographyTokens.HeadlineSmall,
-    val titleLarge: TextStyle = TypographyTokens.TitleLarge,
-    val titleMedium: TextStyle = TypographyTokens.TitleMedium,
-    val titleSmall: TextStyle = TypographyTokens.TitleSmall,
-    val bodyLarge: TextStyle = TypographyTokens.BodyLarge,
-    val bodyMedium: TextStyle = TypographyTokens.BodyMedium,
-    val bodySmall: TextStyle = TypographyTokens.BodySmall,
-    val labelLarge: TextStyle = TypographyTokens.LabelLarge,
-    val labelMedium: TextStyle = TypographyTokens.LabelMedium,
-    val labelSmall: TextStyle = TypographyTokens.LabelSmall,
-    displayLargeEmphasized: TextStyle = TypographyTokens.DisplayLargeEmphasized,
-    displayMediumEmphasized: TextStyle = TypographyTokens.DisplayMediumEmphasized,
-    displaySmallEmphasized: TextStyle = TypographyTokens.DisplaySmallEmphasized,
-    headlineLargeEmphasized: TextStyle = TypographyTokens.HeadlineLargeEmphasized,
-    headlineMediumEmphasized: TextStyle = TypographyTokens.HeadlineMediumEmphasized,
-    headlineSmallEmphasized: TextStyle = TypographyTokens.HeadlineSmallEmphasized,
-    titleLargeEmphasized: TextStyle = TypographyTokens.TitleLargeEmphasized,
-    titleMediumEmphasized: TextStyle = TypographyTokens.TitleMediumEmphasized,
-    titleSmallEmphasized: TextStyle = TypographyTokens.TitleSmallEmphasized,
-    bodyLargeEmphasized: TextStyle = TypographyTokens.BodyLargeEmphasized,
-    bodyMediumEmphasized: TextStyle = TypographyTokens.BodyMediumEmphasized,
-    bodySmallEmphasized: TextStyle = TypographyTokens.BodySmallEmphasized,
-    labelLargeEmphasized: TextStyle = TypographyTokens.LabelLargeEmphasized,
-    labelMediumEmphasized: TextStyle = TypographyTokens.LabelMediumEmphasized,
-    labelSmallEmphasized: TextStyle = TypographyTokens.LabelSmallEmphasized,
+class Typography(
+    val displayLarge: TextStyle = typographyTokens.DisplayLarge,
+    val displayMedium: TextStyle = typographyTokens.DisplayMedium,
+    val displaySmall: TextStyle = typographyTokens.DisplaySmall,
+    val headlineLarge: TextStyle = typographyTokens.HeadlineLarge,
+    val headlineMedium: TextStyle = typographyTokens.HeadlineMedium,
+    val headlineSmall: TextStyle = typographyTokens.HeadlineSmall,
+    val titleLarge: TextStyle = typographyTokens.TitleLarge,
+    val titleMedium: TextStyle = typographyTokens.TitleMedium,
+    val titleSmall: TextStyle = typographyTokens.TitleSmall,
+    val bodyLarge: TextStyle = typographyTokens.BodyLarge,
+    val bodyMedium: TextStyle = typographyTokens.BodyMedium,
+    val bodySmall: TextStyle = typographyTokens.BodySmall,
+    val labelLarge: TextStyle = typographyTokens.LabelLarge,
+    val labelMedium: TextStyle = typographyTokens.LabelMedium,
+    val labelSmall: TextStyle = typographyTokens.LabelSmall,
+    displayLargeEmphasized: TextStyle = typographyTokens.DisplayLargeEmphasized,
+    displayMediumEmphasized: TextStyle = typographyTokens.DisplayMediumEmphasized,
+    displaySmallEmphasized: TextStyle = typographyTokens.DisplaySmallEmphasized,
+    headlineLargeEmphasized: TextStyle = typographyTokens.HeadlineLargeEmphasized,
+    headlineMediumEmphasized: TextStyle = typographyTokens.HeadlineMediumEmphasized,
+    headlineSmallEmphasized: TextStyle = typographyTokens.HeadlineSmallEmphasized,
+    titleLargeEmphasized: TextStyle = typographyTokens.TitleLargeEmphasized,
+    titleMediumEmphasized: TextStyle = typographyTokens.TitleMediumEmphasized,
+    titleSmallEmphasized: TextStyle = typographyTokens.TitleSmallEmphasized,
+    bodyLargeEmphasized: TextStyle = typographyTokens.BodyLargeEmphasized,
+    bodyMediumEmphasized: TextStyle = typographyTokens.BodyMediumEmphasized,
+    bodySmallEmphasized: TextStyle = typographyTokens.BodySmallEmphasized,
+    labelLargeEmphasized: TextStyle = typographyTokens.LabelLargeEmphasized,
+    labelMediumEmphasized: TextStyle = typographyTokens.LabelMediumEmphasized,
+    labelSmallEmphasized: TextStyle = typographyTokens.LabelSmallEmphasized,
 ) {
-    @ExperimentalMaterial3ExpressiveApi
+    /**
+     * The Material Design type scale includes a range of contrasting styles that support the needs
+     * of your product and its content.
+     *
+     * Use typography to make writing legible and beautiful. Material's default type scale includes
+     * contrasting and flexible styles to support a wide range of use cases.
+     *
+     * The type scale is a combination of thirteen styles that are supported by the type system. It
+     * contains reusable categories of text, each with an intended application and meaning.
+     *
+     * To learn more about typography, see
+     * [Material Design typography](https://m3.material.io/styles/typography/overview).
+     *
+     * @param fontFamily the [FontFamily] to be used for the typography.
+     * @param displayLarge displayLarge is the largest display text.
+     * @param displayMedium displayMedium is the second largest display text.
+     * @param displaySmall displaySmall is the smallest display text.
+     * @param headlineLarge headlineLarge is the largest headline, reserved for short, important
+     *   text or numerals. For headlines, you can choose an expressive font, such as a display,
+     *   handwritten, or script style. These unconventional font designs have details and intricacy
+     *   that help attract the eye.
+     * @param headlineMedium headlineMedium is the second largest headline, reserved for short,
+     *   important text or numerals. For headlines, you can choose an expressive font, such as a
+     *   display, handwritten, or script style. These unconventional font designs have details and
+     *   intricacy that help attract the eye.
+     * @param headlineSmall headlineSmall is the smallest headline, reserved for short, important
+     *   text or numerals. For headlines, you can choose an expressive font, such as a display,
+     *   handwritten, or script style. These unconventional font designs have details and intricacy
+     *   that help attract the eye.
+     * @param titleLarge titleLarge is the largest title, and is typically reserved for
+     *   medium-emphasis text that is shorter in length. Serif or sans serif typefaces work well for
+     *   subtitles.
+     * @param titleMedium titleMedium is the second largest title, and is typically reserved for
+     *   medium-emphasis text that is shorter in length. Serif or sans serif typefaces work well for
+     *   subtitles.
+     * @param titleSmall titleSmall is the smallest title, and is typically reserved for
+     *   medium-emphasis text that is shorter in length. Serif or sans serif typefaces work well for
+     *   subtitles.
+     * @param bodyLarge bodyLarge is the largest body, and is typically used for long-form writing
+     *   as it works well for small text sizes. For longer sections of text, a serif or sans serif
+     *   typeface is recommended.
+     * @param bodyMedium bodyMedium is the second largest body, and is typically used for long-form
+     *   writing as it works well for small text sizes. For longer sections of text, a serif or sans
+     *   serif typeface is recommended.
+     * @param bodySmall bodySmall is the smallest body, and is typically used for long-form writing
+     *   as it works well for small text sizes. For longer sections of text, a serif or sans serif
+     *   typeface is recommended.
+     * @param labelLarge labelLarge text is a call to action used in different types of buttons
+     *   (such as text, outlined and contained buttons) and in tabs, dialogs, and cards. Button text
+     *   is typically sans serif, using all caps text.
+     * @param labelMedium labelMedium is one of the smallest font sizes. It is used sparingly to
+     *   annotate imagery or to introduce a headline.
+     * @param labelSmall labelSmall is one of the smallest font sizes. It is used sparingly to
+     *   annotate imagery or to introduce a headline.
+     * @param displayLargeEmphasized an emphasized version of [displayLarge].
+     * @param displayMediumEmphasized an emphasized version of [displayMedium].
+     * @param displaySmallEmphasized an emphasized version of [displaySmall].
+     * @param headlineLargeEmphasized an emphasized version of [headlineLarge].
+     * @param headlineMediumEmphasized an emphasized version of [headlineMedium].
+     * @param headlineSmallEmphasized an emphasized version of [headlineSmall].
+     * @param titleLargeEmphasized an emphasized version of [titleLarge].
+     * @param titleMediumEmphasized an emphasized version of [titleMedium].
+     * @param titleSmallEmphasized an emphasized version of [titleSmall].
+     * @param bodyLargeEmphasized an emphasized version of [bodyLarge].
+     * @param bodyMediumEmphasized an emphasized version of [bodyMedium].
+     * @param bodySmallEmphasized an emphasized version of [bodySmall].
+     * @param labelLargeEmphasized an emphasized version of [labelLarge].
+     * @param labelMediumEmphasized an emphasized version of [labelMedium].
+     * @param labelSmallEmphasized an emphasized version of [labelSmall].
+     */
+    constructor(
+        fontFamily: FontFamily,
+        displayLarge: TextStyle? = null,
+        displayMedium: TextStyle? = null,
+        displaySmall: TextStyle? = null,
+        headlineLarge: TextStyle? = null,
+        headlineMedium: TextStyle? = null,
+        headlineSmall: TextStyle? = null,
+        titleLarge: TextStyle? = null,
+        titleMedium: TextStyle? = null,
+        titleSmall: TextStyle? = null,
+        bodyLarge: TextStyle? = null,
+        bodyMedium: TextStyle? = null,
+        bodySmall: TextStyle? = null,
+        labelLarge: TextStyle? = null,
+        labelMedium: TextStyle? = null,
+        labelSmall: TextStyle? = null,
+        displayLargeEmphasized: TextStyle? = null,
+        displayMediumEmphasized: TextStyle? = null,
+        displaySmallEmphasized: TextStyle? = null,
+        headlineLargeEmphasized: TextStyle? = null,
+        headlineMediumEmphasized: TextStyle? = null,
+        headlineSmallEmphasized: TextStyle? = null,
+        titleLargeEmphasized: TextStyle? = null,
+        titleMediumEmphasized: TextStyle? = null,
+        titleSmallEmphasized: TextStyle? = null,
+        bodyLargeEmphasized: TextStyle? = null,
+        bodyMediumEmphasized: TextStyle? = null,
+        bodySmallEmphasized: TextStyle? = null,
+        labelLargeEmphasized: TextStyle? = null,
+        labelMediumEmphasized: TextStyle? = null,
+        labelSmallEmphasized: TextStyle? = null,
+    ) : this(
+        tokens = TypographyTokens(fontFamily = fontFamily),
+        displayLarge = displayLarge,
+        displayMedium = displayMedium,
+        displaySmall = displaySmall,
+        headlineLarge = headlineLarge,
+        headlineMedium = headlineMedium,
+        headlineSmall = headlineSmall,
+        titleLarge = titleLarge,
+        titleMedium = titleMedium,
+        titleSmall = titleSmall,
+        bodyLarge = bodyLarge,
+        bodyMedium = bodyMedium,
+        bodySmall = bodySmall,
+        labelLarge = labelLarge,
+        labelMedium = labelMedium,
+        labelSmall = labelSmall,
+        displayLargeEmphasized = displayLargeEmphasized,
+        displayMediumEmphasized = displayMediumEmphasized,
+        displaySmallEmphasized = displaySmallEmphasized,
+        headlineLargeEmphasized = headlineLargeEmphasized,
+        headlineMediumEmphasized = headlineMediumEmphasized,
+        headlineSmallEmphasized = headlineSmallEmphasized,
+        titleLargeEmphasized = titleLargeEmphasized,
+        titleMediumEmphasized = titleMediumEmphasized,
+        titleSmallEmphasized = titleSmallEmphasized,
+        bodyLargeEmphasized = bodyLargeEmphasized,
+        bodyMediumEmphasized = bodyMediumEmphasized,
+        bodySmallEmphasized = bodySmallEmphasized,
+        labelLargeEmphasized = labelLargeEmphasized,
+        labelMediumEmphasized = labelMediumEmphasized,
+        labelSmallEmphasized = labelSmallEmphasized,
+    )
+
+    private constructor(
+        tokens: TypographyTokens,
+        displayLarge: TextStyle?,
+        displayMedium: TextStyle?,
+        displaySmall: TextStyle?,
+        headlineLarge: TextStyle?,
+        headlineMedium: TextStyle?,
+        headlineSmall: TextStyle?,
+        titleLarge: TextStyle?,
+        titleMedium: TextStyle?,
+        titleSmall: TextStyle?,
+        bodyLarge: TextStyle?,
+        bodyMedium: TextStyle?,
+        bodySmall: TextStyle?,
+        labelLarge: TextStyle?,
+        labelMedium: TextStyle?,
+        labelSmall: TextStyle?,
+        displayLargeEmphasized: TextStyle?,
+        displayMediumEmphasized: TextStyle?,
+        displaySmallEmphasized: TextStyle?,
+        headlineLargeEmphasized: TextStyle?,
+        headlineMediumEmphasized: TextStyle?,
+        headlineSmallEmphasized: TextStyle?,
+        titleLargeEmphasized: TextStyle?,
+        titleMediumEmphasized: TextStyle?,
+        titleSmallEmphasized: TextStyle?,
+        bodyLargeEmphasized: TextStyle?,
+        bodyMediumEmphasized: TextStyle?,
+        bodySmallEmphasized: TextStyle?,
+        labelLargeEmphasized: TextStyle?,
+        labelMediumEmphasized: TextStyle?,
+        labelSmallEmphasized: TextStyle?,
+    ) : this(
+        displayLarge = displayLarge ?: tokens.DisplayLarge,
+        displayMedium = displayMedium ?: tokens.DisplayMedium,
+        displaySmall = displaySmall ?: tokens.DisplaySmall,
+        headlineLarge = headlineLarge ?: tokens.HeadlineLarge,
+        headlineMedium = headlineMedium ?: tokens.HeadlineMedium,
+        headlineSmall = headlineSmall ?: tokens.HeadlineSmall,
+        titleLarge = titleLarge ?: tokens.TitleLarge,
+        titleMedium = titleMedium ?: tokens.TitleMedium,
+        titleSmall = titleSmall ?: tokens.TitleSmall,
+        bodyLarge = bodyLarge ?: tokens.BodyLarge,
+        bodyMedium = bodyMedium ?: tokens.BodyMedium,
+        bodySmall = bodySmall ?: tokens.BodySmall,
+        labelLarge = labelLarge ?: tokens.LabelLarge,
+        labelMedium = labelMedium ?: tokens.LabelMedium,
+        labelSmall = labelSmall ?: tokens.LabelSmall,
+        displayLargeEmphasized = displayLargeEmphasized ?: tokens.DisplayLargeEmphasized,
+        displayMediumEmphasized = displayMediumEmphasized ?: tokens.DisplayMediumEmphasized,
+        displaySmallEmphasized = displaySmallEmphasized ?: tokens.DisplaySmallEmphasized,
+        headlineLargeEmphasized = headlineLargeEmphasized ?: tokens.HeadlineLargeEmphasized,
+        headlineMediumEmphasized = headlineMediumEmphasized ?: tokens.HeadlineMediumEmphasized,
+        headlineSmallEmphasized = headlineSmallEmphasized ?: tokens.HeadlineSmallEmphasized,
+        titleLargeEmphasized = titleLargeEmphasized ?: tokens.TitleLargeEmphasized,
+        titleMediumEmphasized = titleMediumEmphasized ?: tokens.TitleMediumEmphasized,
+        titleSmallEmphasized = titleSmallEmphasized ?: tokens.TitleSmallEmphasized,
+        bodyLargeEmphasized = bodyLargeEmphasized ?: tokens.BodyLargeEmphasized,
+        bodyMediumEmphasized = bodyMediumEmphasized ?: tokens.BodyMediumEmphasized,
+        bodySmallEmphasized = bodySmallEmphasized ?: tokens.BodySmallEmphasized,
+        labelLargeEmphasized = labelLargeEmphasized ?: tokens.LabelLargeEmphasized,
+        labelMediumEmphasized = labelMediumEmphasized ?: tokens.LabelMediumEmphasized,
+        labelSmallEmphasized = labelSmallEmphasized ?: tokens.LabelSmallEmphasized,
+    )
+
     /** an emphasized version of [displayLarge]. */
     val displayLargeEmphasized = displayLargeEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [displayMedium]. */
     val displayMediumEmphasized = displayMediumEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [displaySmall]. */
     val displaySmallEmphasized = displaySmallEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [headlineLarge]. */
     val headlineLargeEmphasized = headlineLargeEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [headlineMedium]. */
     val headlineMediumEmphasized = headlineMediumEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [headlineSmall]. */
     val headlineSmallEmphasized = headlineSmallEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [titleLarge]. */
     val titleLargeEmphasized = titleLargeEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [titleMedium]. */
     val titleMediumEmphasized = titleMediumEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [titleSmall]. */
     val titleSmallEmphasized = titleSmallEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [bodyLarge]. */
     val bodyLargeEmphasized = bodyLargeEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [bodyMedium]. */
     val bodyMediumEmphasized = bodyMediumEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [bodySmall]. */
     val bodySmallEmphasized = bodySmallEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [labelLarge]. */
     val labelLargeEmphasized = labelLargeEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [labelMedium]. */
     val labelMediumEmphasized = labelMediumEmphasized
 
-    @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [labelSmall]. */
     val labelSmallEmphasized = labelSmallEmphasized
 
@@ -247,23 +432,22 @@ constructor(
      * @param labelSmall labelSmall is one of the smallest font sizes. It is used sparingly to
      *   annotate imagery or to introduce a headline.
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     constructor(
-        displayLarge: TextStyle = TypographyTokens.DisplayLarge,
-        displayMedium: TextStyle = TypographyTokens.DisplayMedium,
-        displaySmall: TextStyle = TypographyTokens.DisplaySmall,
-        headlineLarge: TextStyle = TypographyTokens.HeadlineLarge,
-        headlineMedium: TextStyle = TypographyTokens.HeadlineMedium,
-        headlineSmall: TextStyle = TypographyTokens.HeadlineSmall,
-        titleLarge: TextStyle = TypographyTokens.TitleLarge,
-        titleMedium: TextStyle = TypographyTokens.TitleMedium,
-        titleSmall: TextStyle = TypographyTokens.TitleSmall,
-        bodyLarge: TextStyle = TypographyTokens.BodyLarge,
-        bodyMedium: TextStyle = TypographyTokens.BodyMedium,
-        bodySmall: TextStyle = TypographyTokens.BodySmall,
-        labelLarge: TextStyle = TypographyTokens.LabelLarge,
-        labelMedium: TextStyle = TypographyTokens.LabelMedium,
-        labelSmall: TextStyle = TypographyTokens.LabelSmall,
+        displayLarge: TextStyle = typographyTokens.DisplayLarge,
+        displayMedium: TextStyle = typographyTokens.DisplayMedium,
+        displaySmall: TextStyle = typographyTokens.DisplaySmall,
+        headlineLarge: TextStyle = typographyTokens.HeadlineLarge,
+        headlineMedium: TextStyle = typographyTokens.HeadlineMedium,
+        headlineSmall: TextStyle = typographyTokens.HeadlineSmall,
+        titleLarge: TextStyle = typographyTokens.TitleLarge,
+        titleMedium: TextStyle = typographyTokens.TitleMedium,
+        titleSmall: TextStyle = typographyTokens.TitleSmall,
+        bodyLarge: TextStyle = typographyTokens.BodyLarge,
+        bodyMedium: TextStyle = typographyTokens.BodyMedium,
+        bodySmall: TextStyle = typographyTokens.BodySmall,
+        labelLarge: TextStyle = typographyTokens.LabelLarge,
+        labelMedium: TextStyle = typographyTokens.LabelMedium,
+        labelSmall: TextStyle = typographyTokens.LabelSmall,
     ) : this(
         displayLarge = displayLarge,
         displayMedium = displayMedium,
@@ -298,7 +482,6 @@ constructor(
     )
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
-    @ExperimentalMaterial3ExpressiveApi
     fun copy(
         displayLarge: TextStyle = this.displayLarge,
         displayMedium: TextStyle = this.displayMedium,
@@ -365,7 +548,6 @@ constructor(
         )
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     fun copy(
         displayLarge: TextStyle = this.displayLarge,
         displayMedium: TextStyle = this.displayMedium,
@@ -416,7 +598,6 @@ constructor(
             labelSmallEmphasized = this.labelSmallEmphasized,
         )
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Typography) return false
@@ -454,7 +635,6 @@ constructor(
         return true
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     override fun hashCode(): Int {
         var result = displayLarge.hashCode()
         result = 31 * result + displayMedium.hashCode()
@@ -489,7 +669,6 @@ constructor(
         return result
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     override fun toString(): String {
         return "Typography(displayLarge=$displayLarge, displayMedium=$displayMedium," +
             "displaySmall=$displaySmall, " +
@@ -517,7 +696,6 @@ constructor(
 }
 
 /** Helper function for component typography tokens. */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
     return when (value) {
         TypographyKeyTokens.DisplayLarge -> displayLarge
@@ -557,3 +735,5 @@ internal val TypographyKeyTokens.value: TextStyle
     @Composable @ReadOnlyComposable get() = MaterialTheme.typography.fromToken(this)
 
 internal val LocalTypography = staticCompositionLocalOf { Typography() }
+
+private val typographyTokens: TypographyTokens = TypographyTokens()

@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.takeOrElse
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -222,6 +223,10 @@ object AlertDialogDefaults {
     val shape: Shape
         @Composable get() = DialogTokens.ContainerShape.value
 
+    /** The default icon size for alert dialogs. */
+    val IconSize: Dp =
+        if (shouldUsePrecisionPointerComponentSizing.value) 28.dp else DialogTokens.IconSize
+
     /** The default container color for alert dialogs */
     val containerColor: Color
         @Composable get() = DialogTokens.ContainerColor.value
@@ -330,9 +335,18 @@ internal fun AlertDialogContent(
                 }
             }
             title?.let {
+                val textStyle =
+                    if (shouldUsePrecisionPointerComponentSizing.value) {
+                        MaterialTheme.typography.headlineSmall.copy(
+                            fontSize = 20.sp,
+                            lineHeight = 26.sp,
+                        )
+                    } else {
+                        DialogTokens.HeadlineFont.value
+                    }
                 ProvideContentColorTextStyle(
                     contentColor = titleContentColor,
-                    textStyle = DialogTokens.HeadlineFont.value,
+                    textStyle = textStyle,
                 ) {
                     Box(
                         // Align the title to the center when an icon is present.
@@ -413,11 +427,15 @@ internal val DialogMaxWidth = 560.dp
 private val ButtonsMainAxisSpacing = 8.dp
 private val ButtonsCrossAxisSpacing = 8.dp
 
+private val DialogPaddingValue =
+    if (shouldUsePrecisionPointerComponentSizing.value) 20.dp else 24.dp
+private val TextPaddingValue = if (shouldUsePrecisionPointerComponentSizing.value) 16.dp else 24.dp
+
 // Paddings for each of the dialog's parts.
-private val DialogPadding = PaddingValues(all = 24.dp)
+private val DialogPadding = PaddingValues(all = DialogPaddingValue)
 private val IconPadding = PaddingValues(bottom = 16.dp)
 private val TitlePadding = PaddingValues(bottom = 16.dp)
-private val TextPadding = PaddingValues(bottom = 24.dp)
+private val TextPadding = PaddingValues(bottom = TextPaddingValue)
 
 /**
  * Interface that allows libraries to override the behavior of the [BasicAlertDialog] component.

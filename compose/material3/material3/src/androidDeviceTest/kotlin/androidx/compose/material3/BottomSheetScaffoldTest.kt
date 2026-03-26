@@ -21,6 +21,8 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -430,8 +432,8 @@ class BottomSheetScaffoldTest {
         rule.setContent {
             bottomSheetState =
                 rememberStandardBottomSheetState(
-                    initialValue = SheetValue.PartiallyExpanded,
-                    confirmValueChange = { it != SheetValue.Expanded },
+                    initialValue = PartiallyExpanded,
+                    confirmValueChange = { it != Expanded },
                 )
             BottomSheetScaffold(
                 scaffoldState =
@@ -588,7 +590,6 @@ class BottomSheetScaffoldTest {
                 }
 
                 @Deprecated("deprecated")
-                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override fun onLowMemory() {
                     // NO-OP
                 }
@@ -645,7 +646,6 @@ class BottomSheetScaffoldTest {
                 }
 
                 @Deprecated("deprecated")
-                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override fun onLowMemory() {
                     // NO-OP
                 }
@@ -1382,6 +1382,49 @@ class BottomSheetScaffoldTest {
         assertThat(expandAction!!.label).isEqualTo(expectedLabel)
         assertThat(expandAction.action).isNotNull()
         assertThat(expandAction.action!!()).isTrue()
+    }
+
+    @Test
+    fun bottomSheetScaffold_respectsMaterialThemeMotionScheme() {
+        val customSpatialSpec = tween<Float>(durationMillis = 123)
+        val customEffectsSpec = tween<Float>(durationMillis = 456)
+
+        // Mock a MotionScheme that returns our specific specs
+        val customMotionScheme =
+            object : MotionScheme {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> =
+                    customSpatialSpec as FiniteAnimationSpec<T>
+
+                @Suppress("UNCHECKED_CAST")
+                override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> =
+                    customEffectsSpec as FiniteAnimationSpec<T>
+
+                override fun <T> fastSpatialSpec() = defaultSpatialSpec<T>()
+
+                override fun <T> slowSpatialSpec() = defaultSpatialSpec<T>()
+
+                override fun <T> defaultEffectsSpec() = fastEffectsSpec<T>()
+
+                override fun <T> slowEffectsSpec() = fastEffectsSpec<T>()
+            }
+
+        lateinit var scaffoldState: BottomSheetScaffoldState
+
+        rule.setContent {
+            MaterialTheme(motionScheme = customMotionScheme) {
+                scaffoldState = rememberBottomSheetScaffoldState()
+
+                BottomSheetScaffold(scaffoldState = scaffoldState, sheetContent = {}, content = {})
+            }
+        }
+
+        rule.waitForIdle()
+
+        val sheetState = scaffoldState.bottomSheetState
+        assertThat(sheetState.showMotionSpec).isEqualTo(customSpatialSpec)
+        assertThat(sheetState.anchoredDraggableMotionSpec).isEqualTo(customSpatialSpec)
+        assertThat(sheetState.hideMotionSpec).isEqualTo(customEffectsSpec)
     }
 
     /**
