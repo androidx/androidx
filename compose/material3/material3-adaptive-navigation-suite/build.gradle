@@ -49,8 +49,8 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":compose:material3:material3"))
-                api(project(":compose:material3:adaptive:adaptive"))
-                implementation(project(":window:window-core"))
+                api("org.jetbrains.compose.material3.adaptive:adaptive:1.2.0")
+                implementation("org.jetbrains.androidx.window:window-core:1.4.0")
             }
         }
 
