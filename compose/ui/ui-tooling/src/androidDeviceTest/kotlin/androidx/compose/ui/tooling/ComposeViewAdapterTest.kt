@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
 import androidx.compose.ui.tooling.animation.UnsupportedComposeAnimation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
-import androidx.compose.ui.tooling.preview.PreviewWrapper
+import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 import androidx.compose.ui.tooling.test.R
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
@@ -63,9 +63,9 @@ class ComposeViewAdapterTest {
     private fun assertRendersCorrectly(
         className: String,
         methodName: String,
-        previewWrapper: Class<out PreviewWrapper>? = null,
+        previewWrapperProvider: Class<out PreviewWrapperProvider>? = null,
     ): List<ViewInfo> {
-        initAndWaitForDraw(className, methodName, previewWrapper = previewWrapper)
+        initAndWaitForDraw(className, methodName, previewWrapperProvider = previewWrapperProvider)
         activityTestRule.runOnUiThread { assertTrue(composeViewAdapter.viewInfos.isNotEmpty()) }
 
         return composeViewAdapter.viewInfos
@@ -78,7 +78,7 @@ class ComposeViewAdapterTest {
         className: String,
         methodName: String,
         designInfoProvidersArgument: String? = null,
-        previewWrapper: Class<out PreviewWrapper>? = null,
+        previewWrapperProvider: Class<out PreviewWrapperProvider>? = null,
     ) {
         val committedAndDrawn = CountDownLatch(1)
         val committed = AtomicBoolean(false)
@@ -89,7 +89,7 @@ class ComposeViewAdapterTest {
                 debugViewInfos = true,
                 lookForDesignInfoProviders = true,
                 designInfoProvidersArgument = designInfoProvidersArgument,
-                previewWrapper = previewWrapper,
+                previewWrapperProvider = previewWrapperProvider,
                 onCommit = { committed.set(true) },
                 onDraw = {
                     if (committed.get()) {
@@ -598,7 +598,7 @@ class ComposeViewAdapterTest {
             assertRendersCorrectly(
                 "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
                 "TestWrapperPreview",
-                previewWrapper = TestWrapper::class.java,
+                previewWrapperProvider = TestWrapper::class.java,
             )
 
         activityTestRule.runOnUiThread {

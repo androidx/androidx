@@ -1,4 +1,5 @@
 // Baseline format: 1.0
-[linuxX64]: Added declaration key(kotlin/Function1<androidx.compose.ui.test/KeyInjectionScope, kotlin/Unit>) to androidx.compose.ui.test/MultiModalInjectionScope
-[linuxX64]: Added declaration rotary(kotlin/Function1<androidx.compose.ui.test/RotaryInjectionScope, kotlin/Unit>) to androidx.compose.ui.test/MultiModalInjectionScope
-[linuxX64]: Added declaration trackpad(kotlin/Function1<androidx.compose.ui.test/TrackpadInjectionScope, kotlin/Unit>) to androidx.compose.ui.test/MultiModalInjectionScope
+[linuxX64]: Removed declaration panEnd() from androidx.compose.ui.test/TrackpadInjectionScope
+[linuxX64]: Removed declaration scaleEnd() from androidx.compose.ui.test/TrackpadInjectionScope
+[linuxX64]: Added declaration panEnd(kotlin/Long) to androidx.compose.ui.test/TrackpadInjectionScope
+[linuxX64]: Added declaration scaleEnd(kotlin/Long) to androidx.compose.ui.test/TrackpadInjectionScope

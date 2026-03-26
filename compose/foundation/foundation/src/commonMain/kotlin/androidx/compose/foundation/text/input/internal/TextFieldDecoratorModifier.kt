@@ -50,6 +50,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -72,6 +73,7 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requestAutofill
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -222,6 +224,7 @@ internal class TextFieldDecoratorModifierNode(
             onFocusChange = { isFocused ->
                 val editable = enabled && !readOnly
                 if (isFocused) {
+                    applyCurrentInputMode()
                     if (editable) {
                         startInputSession(fromTap = false)
                     }
@@ -794,6 +797,12 @@ internal class TextFieldDecoratorModifierNode(
         // If the node implements the same interface, it must manually forward calls to
         //  all its delegatable nodes.
         dragAndDropNode.onRemeasured(size)
+    }
+
+    private fun applyCurrentInputMode() {
+        if (currentValueOf(LocalInputModeManager).inputMode != InputMode.Touch) {
+            textFieldSelectionState.isInTouchMode = false
+        }
     }
 
     private fun startInputSession(fromTap: Boolean) {

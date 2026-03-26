@@ -182,12 +182,10 @@ androidx {
 }
 
 // TODO(b/407640608): Task :compose:ui:ui-inspection:connectedCheck fails without this block
-tasks.withType(KotlinCompile).configureEach {
-    if (it.name != "compileAndroidMain") return
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xlambdas=class"
-        ]
+tasks.withType(KotlinCompile).configureEach { task ->
+    if (task.name != "compileAndroidMain") return
+    task.compilerOptions {
+        it.freeCompilerArgs.addAll("-Xlambdas=class")
     }
 }
 

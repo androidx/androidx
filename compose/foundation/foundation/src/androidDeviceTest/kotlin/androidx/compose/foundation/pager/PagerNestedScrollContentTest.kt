@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -26,6 +27,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,6 +53,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -342,6 +345,29 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
         }
 
         rule.onNodeWithTag(TestTag).performTouchInput { up() }
+    }
+
+    @Test
+    fun nestedScrollContent_shouldAllowPageMove_reverseLayout() {
+        // Arrange
+        createPager(pageCount = { 2 }, reverseLayout = true) {
+            BasicText(
+                text = "nested scroll, reverseLayout = true",
+                modifier =
+                    Modifier.fillMaxSize()
+                        .horizontalScroll(rememberScrollState())
+                        .background(if (it == 0) Color.LightGray else Color.White),
+            )
+        }
+
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(0) }
+
+        val forwardDelta = pagerSize * 0.6f * scrollForwardSign.toFloat()
+        onPager().performTouchInput { swipeWithVelocityAcrossMainAxis(100f, -forwardDelta) }
+
+        rule.mainClock.advanceTimeByFrame()
+
+        assertThat(pagerState.currentPageOffsetFraction.absoluteValue).isGreaterThan(0.25f)
     }
 
     @Test

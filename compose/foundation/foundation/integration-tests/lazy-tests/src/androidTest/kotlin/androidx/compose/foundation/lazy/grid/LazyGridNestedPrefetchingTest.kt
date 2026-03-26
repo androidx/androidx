@@ -73,9 +73,7 @@ class LazyGridNestedPrefetchingTest(val config: Config) :
     @OptIn(ExperimentalFoundationApi::class)
     private val strategy =
         object : LazyGridPrefetchStrategy by LazyGridPrefetchStrategy() {
-            @Deprecated("override")
-            @Suppress("OVERRIDE_DEPRECATION") // b/446706247
-            override val prefetchScheduler: PrefetchScheduler = scheduler
+            @Deprecated("override") override val prefetchScheduler: PrefetchScheduler = scheduler
         }
 
     @OptIn(ExperimentalFoundationApi::class)

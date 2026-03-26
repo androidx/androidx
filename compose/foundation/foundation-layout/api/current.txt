@@ -90,7 +90,7 @@ package androidx.compose.foundation.layout {
 
   public final class BoxKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void Box(androidx.compose.ui.Modifier modifier);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Box(androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void Box(androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline void Box(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment contentAlignment, optional boolean propagateMinConstraints, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void Box(androidx.compose.ui.Modifier?, androidx.compose.ui.Alignment?, boolean, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
@@ -509,6 +509,8 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly public default float getFr-9P9H2UQ(double);
     method @BytecodeOnly public default float getFr-9P9H2UQ(float);
     method @BytecodeOnly public default float getFr-9P9H2UQ(int);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default androidx.compose.foundation.layout.GridTrackSize minmax(androidx.compose.ui.unit.Dp min, androidx.compose.foundation.layout.Fr max);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public default long minmax-1z8F7YY(float, float);
     method @KotlinOnly public void row(androidx.compose.foundation.layout.Fr weight);
     method @KotlinOnly public void row(androidx.compose.foundation.layout.GridTrackSize size);
     method @KotlinOnly public void row(androidx.compose.ui.unit.Dp size);
@@ -574,6 +576,8 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @androidx.compose.runtime.Stable public long Fixed-psSkOvk(float);
     method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.GridTrackSize Flex(@FloatRange(from=0.0) androidx.compose.foundation.layout.Fr weight);
     method @BytecodeOnly @androidx.compose.runtime.Stable public long Flex-KGB9zo8(@FloatRange(from=0.0) float);
+    method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.GridTrackSize MinMax(androidx.compose.ui.unit.Dp min, @FloatRange(from=0.0) androidx.compose.foundation.layout.Fr max);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public long MinMax-1z8F7YY(float, @FloatRange(from=0.0) float);
     method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.GridTrackSize Percentage(@FloatRange(from=0.0) float value);
     method @BytecodeOnly @androidx.compose.runtime.Stable public long Percentage-9Tp3RV8(@FloatRange(from=0.0) float);
     method @BytecodeOnly public long getAuto-eyNpfc4();
@@ -763,7 +767,7 @@ package androidx.compose.foundation.layout {
 
   public final class SpacerKt {
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void Spacer(androidx.compose.ui.Modifier modifier);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Spacer(androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void Spacer(androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
   }
 
   public final class VisibleKt {

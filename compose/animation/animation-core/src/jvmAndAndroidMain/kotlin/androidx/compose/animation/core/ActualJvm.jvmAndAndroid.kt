@@ -17,3 +17,5 @@
 package androidx.compose.animation.core
 
 internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
+
+internal actual fun getCurrentThread(): Any = Thread.currentThread()

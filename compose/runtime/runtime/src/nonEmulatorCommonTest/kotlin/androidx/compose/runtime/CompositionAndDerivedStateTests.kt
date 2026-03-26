@@ -631,6 +631,49 @@ class CompositionAndDerivedStateTests {
 
         revalidate()
     }
+
+    @Test // b/481750019
+    fun nestedDerivedStateWithChangingState() = compositionTest {
+        var item by mutableStateOf(NestedItem(10))
+
+        val evenActiveItem: NestedItem? by
+            derivedStateOf(structuralEqualityPolicy()) {
+                item.takeIf { it.active && (it.number % 2 == 0) }
+            }
+
+        val evenActiveNumber: Int? by
+            derivedStateOf(structuralEqualityPolicy()) { evenActiveItem?.number }
+
+        compose { Text("evenActiveNumber = $evenActiveNumber") }
+
+        validate { Text("evenActiveNumber = 10") }
+
+        item.active = false
+        expectChanges()
+        validate { Text("evenActiveNumber = null") }
+
+        item = item.copyWith(9)
+        expectNoChanges()
+        revalidate()
+
+        item = item.copyWith(8)
+        expectNoChanges()
+        revalidate()
+
+        item.active = true
+        expectChanges()
+        validate { Text("evenActiveNumber = 8") }
+    }
+}
+
+private class NestedItem(val number: Int) {
+    var active by mutableStateOf(true)
+
+    fun copyWith(number: Int): NestedItem = NestedItem(number).also { it.active = active }
+
+    override fun toString(): String {
+        return "Item(number=$number, active=$active)"
+    }
 }
 
 @Composable

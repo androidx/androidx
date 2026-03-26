@@ -67,6 +67,11 @@ internal class RobolectricIdlingStrategy(
             // Use Java's clock, Android's clock is mocked
             val start = System.currentTimeMillis()
             var iteration = 0
+            // Draining the Espresso message queue might trigger Compose state changes,
+            // and fast-forwarding Compose might post new tasks back to the Espresso queue.
+            // To ensure the system has truly stabilized, we require two consecutive passes
+            // where absolutely no work is requested or performed.
+            var isIdle = false
             do {
                 // Check if we hit the timeout
                 if (System.currentTimeMillis() - start >= timeoutMillis) {
@@ -96,16 +101,17 @@ internal class RobolectricIdlingStrategy(
                     throw AppNotIdleException.create(emptyList(), errorMessage)
                 }
                 iteration++
+                // Track state from the previous iteration
+                val wasIdle = isIdle
                 // Run Espresso.onIdle() to drain the main message queue
                 runEspressoOnIdle()
                 // Check if we need a measure/layout pass
                 requestLayoutIfNeeded()
-                // Let ComposeIdlingResource fast-forward compositions
-                val isComposeIdle = composeIdlingResource.isIdleNow
-                // Check if user-registered resources are idle
-                val isRegistryIdle = idlingResourceRegistry.isIdleNow
-                // Repeat while not idle
-            } while (!isComposeIdle || !isRegistryIdle)
+                // Evaluate idleness for both compose and registered resources
+                isIdle = composeIdlingResource.isIdleNow && idlingResourceRegistry.isIdleNow
+                // Loop continues if we are currently busy, or if we just became idle
+                // and need one more pass to confirm (wasIdle == false).
+            } while (!isIdle || !wasIdle)
         }
     }
 

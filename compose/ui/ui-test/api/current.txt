@@ -847,7 +847,8 @@ package androidx.compose.ui.test {
     method @KotlinOnly public void moveTo(androidx.compose.ui.geometry.Offset position, optional long delayMillis);
     method @BytecodeOnly public void moveTo-3MmeM6k(long, long);
     method @BytecodeOnly public static void moveTo-3MmeM6k$default(androidx.compose.ui.test.TrackpadInjectionScope!, long, long, int, Object!);
-    method public void panEnd();
+    method public void panEnd(optional long delayMillis);
+    method @BytecodeOnly public static void panEnd$default(androidx.compose.ui.test.TrackpadInjectionScope!, long, int, Object!);
     method @KotlinOnly public void panMoveBy(androidx.compose.ui.geometry.Offset delta, optional long delayMillis);
     method @BytecodeOnly public void panMoveBy-3MmeM6k(long, long);
     method @BytecodeOnly public static void panMoveBy-3MmeM6k$default(androidx.compose.ui.test.TrackpadInjectionScope!, long, long, int, Object!);
@@ -860,7 +861,8 @@ package androidx.compose.ui.test {
     method @BytecodeOnly public static void release-QiXdzRk$default(androidx.compose.ui.test.TrackpadInjectionScope!, int, int, Object!);
     method public void scaleChangeBy(@FloatRange(from=0.0, fromInclusive=false) float scaleFactor, optional long delayMillis);
     method @BytecodeOnly public static void scaleChangeBy$default(androidx.compose.ui.test.TrackpadInjectionScope!, float, long, int, Object!);
-    method public void scaleEnd();
+    method public void scaleEnd(optional long delayMillis);
+    method @BytecodeOnly public static void scaleEnd$default(androidx.compose.ui.test.TrackpadInjectionScope!, long, int, Object!);
     method public void scaleStart();
     method @KotlinOnly public default void updatePointerBy(androidx.compose.ui.geometry.Offset delta);
     method @BytecodeOnly public default void updatePointerBy-k-4lQ0M(long);

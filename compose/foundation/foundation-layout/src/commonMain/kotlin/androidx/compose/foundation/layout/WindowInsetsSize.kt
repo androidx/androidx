@@ -56,14 +56,17 @@ fun Modifier.windowInsetsStartWidth(insets: WindowInsets) =
             startCalc,
         )
 
-private val startCalc: WindowInsets.(LayoutDirection, Density) -> Int =
-    { layoutDirection: LayoutDirection, density: Density ->
-        if (layoutDirection == LayoutDirection.Ltr) {
-            getLeft(density, layoutDirection)
-        } else {
-            getRight(density, layoutDirection)
-        }
+internal fun interface WindowInsetsWidthCalculator {
+    fun calculate(insets: WindowInsets, layoutDirection: LayoutDirection, density: Density): Int
+}
+
+private val startCalc = WindowInsetsWidthCalculator { insets, layoutDirection, density ->
+    if (layoutDirection == LayoutDirection.Ltr) {
+        insets.getLeft(density, layoutDirection)
+    } else {
+        insets.getRight(density, layoutDirection)
     }
+}
 
 /**
  * Sets the width to that of [insets] at the [end][androidx.compose.ui.Alignment.End] of the screen,
@@ -87,11 +90,11 @@ fun Modifier.windowInsetsEndWidth(insets: WindowInsets) =
             endCalc,
         )
 
-private val endCalc: WindowInsets.(LayoutDirection, Density) -> Int = { layoutDirection, density ->
+private val endCalc = WindowInsetsWidthCalculator { insets, layoutDirection, density ->
     if (layoutDirection == LayoutDirection.Rtl) {
-        getLeft(density, layoutDirection)
+        insets.getLeft(density, layoutDirection)
     } else {
-        getRight(density, layoutDirection)
+        insets.getRight(density, layoutDirection)
     }
 }
 
@@ -115,7 +118,11 @@ fun Modifier.windowInsetsTopHeight(insets: WindowInsets) =
             topCalc,
         )
 
-private val topCalc: WindowInsets.(Density) -> Int = { getTop(it) }
+internal fun interface WindowInsetsHeightCalculator {
+    fun calculate(insets: WindowInsets, density: Density): Int
+}
+
+private val topCalc = WindowInsetsHeightCalculator { insets, density -> insets.getTop(density) }
 
 /**
  * Sets the height to that of [insets] at the [bottom][WindowInsets.getBottom] of the screen.
@@ -137,12 +144,14 @@ fun Modifier.windowInsetsBottomHeight(insets: WindowInsets) =
             bottomCalc,
         )
 
-private val bottomCalc: WindowInsets.(Density) -> Int = { getBottom(it) }
+private val bottomCalc = WindowInsetsHeightCalculator { insets, density ->
+    insets.getBottom(density)
+}
 
 private class DerivedWidthModifierElement(
     private val insets: WindowInsets,
     private val inspectorInfo: InspectorInfo.() -> Unit,
-    private val widthCalc: WindowInsets.(LayoutDirection, Density) -> Int,
+    private val widthCalc: WindowInsetsWidthCalculator,
 ) : ModifierNodeElement<DerivedWidthModifierNode>() {
     override fun create(): DerivedWidthModifierNode = DerivedWidthModifierNode(insets, widthCalc)
 
@@ -173,7 +182,7 @@ private class DerivedWidthModifierElement(
  */
 private class DerivedWidthModifierNode(
     private var insets: WindowInsets,
-    private var widthCalc: WindowInsets.(LayoutDirection, Density) -> Int,
+    private var widthCalc: WindowInsetsWidthCalculator,
 ) : InsetsConsumingModifierNode(), LayoutModifierNode {
     private var widthInsets = WindowInsets()
 
@@ -186,7 +195,7 @@ private class DerivedWidthModifierNode(
         invalidateMeasurement()
     }
 
-    fun update(insets: WindowInsets, widthCalc: WindowInsets.(LayoutDirection, Density) -> Int) {
+    fun update(insets: WindowInsets, widthCalc: WindowInsetsWidthCalculator) {
         if (this.insets != insets || widthCalc !== this.widthCalc) {
             this.insets = insets
             this.widthCalc = widthCalc
@@ -199,7 +208,7 @@ private class DerivedWidthModifierNode(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
-        val width = widthInsets.widthCalc(layoutDirection, this)
+        val width = widthCalc.calculate(widthInsets, layoutDirection, this)
         if (width == 0) {
             return layout(0, 0) {}
         }
@@ -213,7 +222,7 @@ private class DerivedWidthModifierNode(
 private class DerivedHeightModifierElement(
     private val insets: WindowInsets,
     private val inspectorInfo: InspectorInfo.() -> Unit,
-    private val heightCalc: WindowInsets.(Density) -> Int,
+    private val heightCalc: WindowInsetsHeightCalculator,
 ) : ModifierNodeElement<DerivedHeightModifierNode>() {
     override fun create(): DerivedHeightModifierNode = DerivedHeightModifierNode(insets, heightCalc)
 
@@ -244,7 +253,7 @@ private class DerivedHeightModifierElement(
  */
 private class DerivedHeightModifierNode(
     private var insets: WindowInsets,
-    private var heightCalc: WindowInsets.(Density) -> Int,
+    private var heightCalc: WindowInsetsHeightCalculator,
 ) : InsetsConsumingModifierNode(), LayoutModifierNode {
     private var heightInsets = WindowInsets()
 
@@ -257,7 +266,7 @@ private class DerivedHeightModifierNode(
         invalidateMeasurement()
     }
 
-    fun update(insets: WindowInsets, heightCalc: WindowInsets.(Density) -> Int) {
+    fun update(insets: WindowInsets, heightCalc: WindowInsetsHeightCalculator) {
         if (this.insets != insets || heightCalc !== this.heightCalc) {
             this.insets = insets
             this.heightCalc = heightCalc
@@ -270,7 +279,7 @@ private class DerivedHeightModifierNode(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
-        val height = heightInsets.heightCalc(this)
+        val height = heightCalc.calculate(heightInsets, this)
         if (height == 0) {
             return layout(0, 0) {}
         }

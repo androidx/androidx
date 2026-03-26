@@ -375,6 +375,7 @@ private fun rememberLazyListMeasurePolicy(
                     placementScopeInvalidator = state.placementScopeInvalidator,
                     graphicsContext = graphicsContext,
                     stickyItemsPlacement = stickyItemsPlacement,
+                    shouldRunItemAnimation = !state.skipItemPlacementAnimation,
                     layout = { width, height, placement ->
                         layout(
                             containerConstraints.constrainWidth(width + totalHorizontalPadding),

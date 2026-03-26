@@ -368,7 +368,6 @@ internal class SlotTableBuilder(
             groups.groupNext(previousSibling, group)
         }
         groups.groupParent(group, parent)
-        groups.groupNext(previousSibling, group)
         groups.groupNext(group, NULL_ADDRESS)
         this.previousSibling = group
         nodeCount += groups.groupNodeCount(group)

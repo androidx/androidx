@@ -377,6 +377,36 @@ class LazyListCacheWindowTest(orientation: Orientation) :
     }
 
     @Test
+    fun datasetChanged_scrollForward_shouldKeepAroundWithinBounds_notCrash() {
+        val numItems = mutableStateOf(40)
+
+        composeList(
+            firstItem = 20,
+            numItems = numItems,
+            cacheWindow = viewportWindow,
+            numberOfItemsInTheList = 5f,
+        )
+
+        rule.runOnIdle { runBlocking { state.scrollBy(-4 * itemsSizePx.toFloat()) } }
+
+        // now the dataset changes
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isNotEqualTo(0)
+            numItems.value = 33
+        }
+
+        // when we forward  and then change the dataset again (simulates PS)
+        rule.runOnIdle {
+            runBlocking { state.scrollBy(4 * itemsSizePx.toFloat()) }
+            numItems.value = 20
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollBy(4 * itemsSizePx.toFloat()) } }
+
+        rule.waitForIdle()
+    }
+
+    @Test
     fun scrollForward_longScroll_shouldOnlyPrefetchItemInWindow() {
         composeList(cacheWindow = viewportWindow)
 

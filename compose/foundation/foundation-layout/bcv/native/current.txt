@@ -105,6 +105,7 @@ abstract interface androidx.compose.foundation.layout/GridConfigurationScope : a
     abstract fun row(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/GridConfigurationScope.row|row(androidx.compose.ui.unit.Dp){}[0]
     abstract fun row(kotlin/Float) // androidx.compose.foundation.layout/GridConfigurationScope.row|row(kotlin.Float){}[0]
     abstract fun rowGap(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/GridConfigurationScope.rowGap|rowGap(androidx.compose.ui.unit.Dp){}[0]
+    open fun minmax(androidx.compose.ui.unit/Dp, androidx.compose.foundation.layout/Fr): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridConfigurationScope.minmax|minmax(androidx.compose.ui.unit.Dp;androidx.compose.foundation.layout.Fr){}[0]
 }
 
 abstract interface androidx.compose.foundation.layout/GridScope { // androidx.compose.foundation.layout/GridScope|null[0]
@@ -392,6 +393,7 @@ final value class androidx.compose.foundation.layout/GridTrackSize : androidx.co
 
         final fun Fixed(androidx.compose.ui.unit/Dp): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.Fixed|Fixed(androidx.compose.ui.unit.Dp){}[0]
         final fun Flex(androidx.compose.foundation.layout/Fr): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.Flex|Flex(androidx.compose.foundation.layout.Fr){}[0]
+        final fun MinMax(androidx.compose.ui.unit/Dp, androidx.compose.foundation.layout/Fr): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.MinMax|MinMax(androidx.compose.ui.unit.Dp;androidx.compose.foundation.layout.Fr){}[0]
         final fun Percentage(kotlin/Float): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.Percentage|Percentage(kotlin.Float){}[0]
     }
 }

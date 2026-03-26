@@ -40,10 +40,12 @@ internal class SemanticsNodeCopy(
     currentSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds>,
 ) {
     val unmergedConfig = semanticsNode.unmergedConfig
-    val children: MutableIntSet = MutableIntSet(semanticsNode.replacedChildren.size)
+    val children: MutableIntSet
 
     init {
-        semanticsNode.replacedChildren.fastForEach { child ->
+        val replacedChildren = semanticsNode.replacedChildren
+        children = MutableIntSet(replacedChildren.size)
+        replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {
                 children.add(child.id)
             }

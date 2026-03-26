@@ -91,6 +91,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -1187,3 +1188,5 @@ private class DragAndDropListState(val targetListState: LazyListState) {
             }
         }
 }
+
+@Immutable private data class ListItem(val name: String)

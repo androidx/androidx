@@ -119,6 +119,10 @@ fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier =
  * Calls [block] with the [WindowInsets] that have been consumed, either by [consumeWindowInsets] or
  * one of the padding Modifiers, such as [imePadding].
  *
+ * [block] can be called before or during measurement and layout. It should not be used to trigger
+ * changes to composition because composition will only be applied on the following frame, leading
+ * to the UI lagging WindowInsets by a frame.
+ *
  * @sample androidx.compose.foundation.layout.samples.withConsumedInsetsSample
  */
 @Stable

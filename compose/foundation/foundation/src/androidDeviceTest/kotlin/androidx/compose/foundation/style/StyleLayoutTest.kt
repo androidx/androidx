@@ -18,6 +18,7 @@
 
 package androidx.compose.foundation.style
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -315,6 +316,36 @@ class StyleLayoutTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun testAnimationCleanup() {
+        val styleState = MutableStyleState(null)
+        var animating = false
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.styleable(styleState) {
+                        size(100.dp)
+                        background(Color.Green)
+                        focused {
+                            animate(tween(100)) {
+                                background(Color.Blue)
+                                animating = true
+                            }
+                        }
+                    }
+            )
+        }
+
+        // Force the content to be discarded while an animation out animation is
+        // running. This would crash before b/484124858 was fixed.
+        rule.waitForIdle()
+        styleState.isFocused = true
+        rule.waitUntil { animating }
+        rule.mainClock.advanceTimeBy(50)
+        styleState.isFocused = false
+        rule.mainClock.advanceTimeByFrame()
     }
 }
 

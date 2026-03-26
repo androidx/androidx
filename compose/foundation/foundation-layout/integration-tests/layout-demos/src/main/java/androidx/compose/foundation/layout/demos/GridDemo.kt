@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Slider
@@ -85,6 +86,8 @@ fun GridDemo() {
         ResponsiveConstraintsDemo()
         Spacer(Modifier.height(32.dp))
         AspectRatioDemo()
+        Spacer(Modifier.height(32.dp))
+        LazyListInGridDemo()
     }
 }
 
@@ -507,6 +510,48 @@ private fun AspectRatioDemo() {
         GridDemoItem("Flex / Fixed", modifier = modifier, row = 1, column = 2, color = Color.Blue)
         GridDemoItem("Fixed / Flex", modifier = modifier, row = 2, column = 1, color = Color.Green)
         GridDemoItem("Flex / Flex", modifier = modifier, row = 2, column = 2, color = Color.Yellow)
+    }
+}
+
+@Composable
+private fun LazyListInGridDemo() {
+    DemoHeader("Lazy List in Flex Track")
+    Text(
+        "Flex tracks (1.fr) allowing SubcomposeLayouts like LazyColumn to be safely placed inside them.",
+        fontSize = 12.sp,
+        fontStyle = FontStyle.Italic,
+        modifier = Modifier.padding(bottom = 8.dp),
+    )
+
+    Grid(
+        config = {
+            column(minmax(0.dp, 1.fr))
+            row(GridTrackSize.Auto)
+            row(minmax(0.dp, 1.fr))
+            gap(8.dp)
+        },
+        // We provide a fixed height so the 1.fr row has a finite boundary
+        // within the vertically scrolling parent Column.
+        modifier = Modifier.height(300.dp).demoContainer(borderColor = Color.Green),
+    ) {
+        // Row 1: Fixed/Auto header
+        GridDemoItem(text = "Header (Auto Row)", color = Color.Yellow)
+
+        // Row 2: LazyColumn in a minmax track
+        LazyColumn(
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(Color.LightGray.copy(alpha = 0.3f))
+                    .border(1.dp, Color.Gray)
+        ) {
+            items(50) { index ->
+                Text(
+                    text = "Lazy Item #${index + 1}",
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    fontSize = 12.sp,
+                )
+            }
+        }
     }
 }
 

@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.ClipboardManager
+import android.content.Context
 import android.net.Uri
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
@@ -190,7 +191,9 @@ class AndroidClipboardTest {
         val clipboardManager = mock<ClipboardManager>()
         whenever(clipboardManager.hasPrimaryClip()).thenReturn(true)
         whenever(clipboardManager.primaryClip).thenReturn(null)
-        val subject = AndroidClipboardManager(clipboardManager)
+        val context = mock<Context>()
+        whenever(context.getSystemService(Context.CLIPBOARD_SERVICE)).thenReturn(clipboardManager)
+        val subject = AndroidClipboardManager(context)
 
         assertThat(subject.getText()).isNull()
     }
@@ -201,7 +204,9 @@ class AndroidClipboardTest {
         val clipDescription = mock<ClipDescription>()
         whenever(clipboardManager.primaryClipDescription).thenReturn(clipDescription)
         whenever(clipDescription.hasMimeType("text/*")).thenReturn(true)
-        val subject = AndroidClipboardManager(clipboardManager)
+        val context = mock<Context>()
+        whenever(context.getSystemService(Context.CLIPBOARD_SERVICE)).thenReturn(clipboardManager)
+        val subject = AndroidClipboardManager(context)
 
         assertThat(subject.hasText()).isTrue()
     }
@@ -212,7 +217,10 @@ class AndroidClipboardTest {
         val clipDescription = mock<ClipDescription>()
         whenever(clipboardManager.primaryClipDescription).thenReturn(clipDescription)
         whenever(clipDescription.hasMimeType("text/*")).thenReturn(false)
-        val subject = AndroidClipboardManager(clipboardManager)
+
+        val context = mock<Context>()
+        whenever(context.getSystemService(Context.CLIPBOARD_SERVICE)).thenReturn(clipboardManager)
+        val subject = AndroidClipboardManager(context)
 
         assertThat(subject.hasText()).isFalse()
     }
@@ -221,7 +229,10 @@ class AndroidClipboardTest {
     fun hasText_whenNoPrimaryClipDescription_returnsFalse() {
         val clipboardManager = mock<ClipboardManager>()
         whenever(clipboardManager.primaryClipDescription).thenReturn(null)
-        val subject = AndroidClipboardManager(clipboardManager)
+
+        val context = mock<Context>()
+        whenever(context.getSystemService(Context.CLIPBOARD_SERVICE)).thenReturn(clipboardManager)
+        val subject = AndroidClipboardManager(context)
 
         assertThat(subject.hasText()).isFalse()
     }
@@ -231,7 +242,10 @@ class AndroidClipboardTest {
         val clipboardManager = mock<ClipboardManager>()
         val clipData = mock<ClipData>()
         whenever(clipboardManager.primaryClip).thenReturn(clipData)
-        val subject = AndroidClipboardManager(clipboardManager)
+
+        val context = mock<Context>()
+        whenever(context.getSystemService(Context.CLIPBOARD_SERVICE)).thenReturn(clipboardManager)
+        val subject = AndroidClipboardManager(context)
 
         assertThat(subject.getClip()?.clipData).isSameInstanceAs(clipData)
     }
@@ -243,7 +257,10 @@ class AndroidClipboardTest {
         val clipDescription = mock<ClipDescription>()
         whenever(clipData.description).thenReturn(clipDescription)
         whenever(clipboardManager.primaryClip).thenReturn(clipData)
-        val subject = AndroidClipboardManager(clipboardManager)
+
+        val context = mock<Context>()
+        whenever(context.getSystemService(Context.CLIPBOARD_SERVICE)).thenReturn(clipboardManager)
+        val subject = AndroidClipboardManager(context)
 
         assertThat(subject.getClip()?.clipMetadata?.clipDescription)
             .isSameInstanceAs(clipDescription)
@@ -253,7 +270,10 @@ class AndroidClipboardTest {
     fun setPrimaryClip_callsSetPrimaryClip() {
         val clipboardManager = mock<ClipboardManager>()
         val clipData = mock<ClipData>()
-        val subject = AndroidClipboardManager(clipboardManager)
+
+        val context = mock<Context>()
+        whenever(context.getSystemService(Context.CLIPBOARD_SERVICE)).thenReturn(clipboardManager)
+        val subject = AndroidClipboardManager(context)
 
         subject.setClip(clipData.toClipEntry())
 
@@ -264,7 +284,10 @@ class AndroidClipboardTest {
     @Test
     fun setPrimaryClip_callsClearPrimaryClip_ifNull_above28() {
         val clipboardManager = mock<ClipboardManager>()
-        val subject = AndroidClipboardManager(clipboardManager)
+
+        val context = mock<Context>()
+        whenever(context.getSystemService(Context.CLIPBOARD_SERVICE)).thenReturn(clipboardManager)
+        val subject = AndroidClipboardManager(context)
 
         subject.setClip(null)
 
@@ -275,7 +298,10 @@ class AndroidClipboardTest {
     @Test
     fun setPrimaryClip_callsClearPrimaryClip_ifNull_below27() {
         val clipboardManager = mock<ClipboardManager>()
-        val subject = AndroidClipboardManager(clipboardManager)
+
+        val context = mock<Context>()
+        whenever(context.getSystemService(Context.CLIPBOARD_SERVICE)).thenReturn(clipboardManager)
+        val subject = AndroidClipboardManager(context)
 
         subject.setClip(null)
 

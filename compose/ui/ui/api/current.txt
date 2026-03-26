@@ -1400,7 +1400,7 @@ package androidx.compose.ui.graphics.vector {
   }
 
   public final class VectorPainterKt {
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.graphics.vector.VectorComposable") public static void RenderVectorGroup(androidx.compose.ui.graphics.vector.VectorGroup, java.util.Map<java.lang.String!,? extends androidx.compose.ui.graphics.vector.VectorConfig!>?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void RenderVectorGroup(androidx.compose.ui.graphics.vector.VectorGroup, java.util.Map<java.lang.String!,? extends androidx.compose.ui.graphics.vector.VectorConfig!>?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void RenderVectorGroup(androidx.compose.ui.graphics.vector.VectorGroup group, optional java.util.Map<java.lang.String,androidx.compose.ui.graphics.vector.VectorConfig> configs);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.vector.VectorPainter rememberVectorPainter(androidx.compose.ui.graphics.vector.ImageVector image);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.vector.VectorPainter rememberVectorPainter(androidx.compose.ui.graphics.vector.ImageVector, androidx.compose.runtime.Composer?, int);
@@ -3445,7 +3445,7 @@ package androidx.compose.ui.layout {
   public final class SubcomposeLayoutKt {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static void SubcomposeLayout(androidx.compose.ui.layout.SubcomposeLayoutState, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeMeasureScope!,? super androidx.compose.ui.unit.Constraints!,? extends androidx.compose.ui.layout.MeasureResult!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static void SubcomposeLayout(androidx.compose.ui.layout.SubcomposeLayoutState state, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function2<androidx.compose.ui.layout.SubcomposeMeasureScope,androidx.compose.ui.unit.Constraints,androidx.compose.ui.layout.MeasureResult> measurePolicy);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void SubcomposeLayout(androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeMeasureScope!,? super androidx.compose.ui.unit.Constraints!,? extends androidx.compose.ui.layout.MeasureResult!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void SubcomposeLayout(androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeMeasureScope!,? super androidx.compose.ui.unit.Constraints!,? extends androidx.compose.ui.layout.MeasureResult!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void SubcomposeLayout(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function2<androidx.compose.ui.layout.SubcomposeMeasureScope,androidx.compose.ui.unit.Constraints,androidx.compose.ui.layout.MeasureResult> measurePolicy);
     method public static androidx.compose.ui.layout.SubcomposeSlotReusePolicy SubcomposeSlotReusePolicy(int maxSlotsToRetainForReuse);
   }
@@ -3936,6 +3936,7 @@ package androidx.compose.ui.platform {
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public abstract void Content();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public abstract void Content(androidx.compose.runtime.Composer?, int);
     method public final void createComposition();
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeViewContextApi public final void createComposition(androidx.compose.ui.platform.ComposeViewContext composeViewContext);
     method public final void disposeComposition();
     method @BytecodeOnly public final int getAutoClearFocusBehavior-4UtRPd4();
     method @InaccessibleFromKotlin public final boolean getHasComposition();
@@ -4098,8 +4099,16 @@ package androidx.compose.ui.platform {
   public static final class ComposeView.Companion {
   }
 
+  @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeViewContextApi public final class ComposeViewContext {
+    ctor public ComposeViewContext(android.view.View view, optional androidx.compose.runtime.CompositionContext compositionContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
+    ctor @BytecodeOnly public ComposeViewContext(android.view.View!, androidx.compose.runtime.CompositionContext!, androidx.lifecycle.LifecycleOwner!, androidx.savedstate.SavedStateRegistryOwner!, androidx.lifecycle.ViewModelStoreOwner!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.compose.ui.platform.ComposeViewContext copy(optional android.view.View view, optional androidx.compose.runtime.CompositionContext compositionContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
+    method @BytecodeOnly public static androidx.compose.ui.platform.ComposeViewContext! copy$default(androidx.compose.ui.platform.ComposeViewContext!, android.view.View!, androidx.compose.runtime.CompositionContext!, androidx.lifecycle.LifecycleOwner!, androidx.savedstate.SavedStateRegistryOwner!, androidx.lifecycle.ViewModelStoreOwner!, int, Object!);
+  }
+
   @SuppressCompatibility public final class ComposeView_androidKt {
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void disableWindowInsetsRulers(androidx.compose.ui.platform.ComposeView.Companion);
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeViewContextApi public static androidx.compose.ui.platform.ComposeViewContext? findViewTreeComposeViewContext(android.view.View);
   }
 
   public final class CompositionLocalsKt {
@@ -4149,6 +4158,9 @@ package androidx.compose.ui.platform {
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> LocalUriHandler;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ViewConfiguration> LocalViewConfiguration;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.WindowInfo> LocalWindowInfo;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose and is likely to change before becoming stable.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExperimentalComposeViewContextApi {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface InfiniteAnimationPolicy extends kotlin.coroutines.CoroutineContext.Element {

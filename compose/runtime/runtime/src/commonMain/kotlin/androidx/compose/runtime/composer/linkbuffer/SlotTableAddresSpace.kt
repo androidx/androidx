@@ -17,6 +17,7 @@
 
 package androidx.compose.runtime.composer.linkbuffer
 
+import androidx.annotation.IntRange as AndroidxIntRange
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableIntIntMap
 import androidx.collection.MutableIntObjectMap
@@ -31,7 +32,6 @@ import androidx.compose.runtime.IntStack
 import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.runtimeCheck
-import androidx.compose.runtime.snapshots.current
 import androidx.compose.runtime.tooling.ComposeStackTraceBuilder
 import androidx.compose.runtime.tooling.ComposeStackTraceFrame
 
@@ -69,13 +69,13 @@ internal const val SLOT_TABLE_SLOT_MAX_SMALL_SIZE = 15
 private const val SLOT_TABLE_SLOT_MOVE_BUFFER_SIZE = 8
 
 /** The initial size of the groups array in the slot table address space. */
-private const val SLOT_TABLE_INITIAL_GROUPS_SIZE = SLOT_TABLE_GROUP_SIZE * 1024
+private const val SLOT_TABLE_INITIAL_GROUPS_SIZE = SLOT_TABLE_GROUP_SIZE * 128
 
-/** The initial siz eof the slots array in the slot table address space. */
-private const val SLOT_TABLE_INITIAL_SLOTS_SIZE = 1024
+/** The initial size of the slots array in the slot table address space. */
+private const val SLOT_TABLE_INITIAL_SLOTS_SIZE = 256
 
 /**
- * An alias use when the a integer value is an index into the groups array of the slot table address
+ * An alias use when an integer value is an index into the groups array of the slot table address
  * space. These are always some multiple of [SLOT_TABLE_GROUP_SIZE] except 0 which is a special
  * group used to track the free list and used size of the groups in the address space. Reserving 0
  * is also a useful debugging aid as it is never a valid group address.
@@ -137,13 +137,10 @@ internal typealias SlotRange = Int
  */
 internal class SlotTableAddressSpace(
     /** The storage location for slot table groups */
-    var groups: IntArray = newArray(SLOT_TABLE_INITIAL_GROUPS_SIZE),
+    var groups: IntArray,
 
     /** The storage location for slot table slots */
-    var slots: Array<Any?> =
-        arrayOfNulls<Any?>(SLOT_TABLE_INITIAL_SLOTS_SIZE).also {
-            it.clearRange(0, SLOT_TABLE_INITIAL_SLOTS_SIZE)
-        },
+    var slots: Array<Any?>,
 ) {
     private var _largeSizes: MutableIntIntMap? = null
     private var unallocatedStart = 0
@@ -160,6 +157,24 @@ internal class SlotTableAddressSpace(
                     _largeSizes = largeSizes
                     largeSizes
                 }
+
+    constructor(
+        @AndroidxIntRange(from = 1) groupsCapacity: Int,
+        @AndroidxIntRange(from = 0) slotsCapacity: Int,
+    ) : this(groups = newGroupsArray(groupsCapacity), slots = newSlotsArray(slotsCapacity))
+
+    constructor() : this(EmptyGroupData, EmptySlotData) {
+        debugRuntimeCheck(
+            groups.groupKey(0) == 0 &&
+                groups.groupNext(0) == NULL_ADDRESS &&
+                groups.groupParent(0) == 0 &&
+                groups.groupChild(0) == SLOT_TABLE_GROUP_SIZE &&
+                groups.groupFlags(0) == 0 &&
+                groups.groupSlotRange(0) == 0
+        ) {
+            "EmptyGroupData array was written to: ${toDebugString()}."
+        }
+    }
 
     /**
      * A map of source marker numbers to their, potentially indirect, parent key. This is recorded
@@ -359,8 +374,6 @@ internal class SlotTableAddressSpace(
         fun copyGroup(parent: GroupAddress, address: GroupAddress): GroupAddress {
             val sourceGroups = sourceSpace.groups
             val sourceSlots = sourceSpace.slots
-            val destGroups = groups
-            val destSlots = slots
             val sourceFlags = sourceGroups.groupFlags(address)
             val newGroupAddress =
                 allocateGroup(
@@ -385,12 +398,12 @@ internal class SlotTableAddressSpace(
                     // the
                     // source and destination
                     sourceSlots.copyInto(
-                        destination = destSlots,
+                        destination = slots,
                         destinationOffset = slotAddressOf(newSlotRange),
                         startIndex = address,
                         endIndex = address + size,
                     )
-                    destGroups.groupSlotRange(newGroupAddress, newSlotRange)
+                    groups.groupSlotRange(newGroupAddress, newSlotRange)
                 }
             }
             var previousSiblingAddress = NULL_ADDRESS
@@ -398,9 +411,9 @@ internal class SlotTableAddressSpace(
             while (currentChildAddress != NULL_ADDRESS) {
                 val newChildAddress = copyGroup(newGroupAddress, currentChildAddress)
                 if (previousSiblingAddress == NULL_ADDRESS) {
-                    destGroups.groupChild(newGroupAddress, newChildAddress)
+                    groups.groupChild(newGroupAddress, newChildAddress)
                 } else {
-                    destGroups.groupNext(previousSiblingAddress, newChildAddress)
+                    groups.groupNext(previousSiblingAddress, newChildAddress)
                 }
                 previousSiblingAddress = newChildAddress
                 currentChildAddress = sourceGroups.groupNext(currentChildAddress)
@@ -714,9 +727,10 @@ internal class SlotTableAddressSpace(
     }
 
     private fun growGroups() {
-        val offset = groups.size
-        groups = groups.copyOf(groups.size * 2)
-        groups.init(offset)
+        val oldSize = groups.size
+        val newSize = (groups.size * 2).coerceAtLeast(SLOT_TABLE_INITIAL_GROUPS_SIZE)
+        groups = groups.copyOf(newSize)
+        groups.initGroups(oldSize)
     }
 
     fun toDebugString(): String = buildString {
@@ -793,7 +807,11 @@ internal class SlotTableAddressSpace(
             }
         debugRuntimeCheck(newSize - unallocatedSize > required)
         val newSlots =
-            if (newSize != currentSize) Array<Any?>(newSize) { Composer.Empty } else slots
+            if (newSize != currentSize) {
+                newSlotsArray(newSize.coerceAtLeast(SLOT_TABLE_INITIAL_SLOTS_SIZE))
+            } else {
+                slots
+            }
         val newLargeSizes = mutableIntIntMapOf()
         var current = 0
         val groupsEnd = groups.groupChild(0)
@@ -864,6 +882,11 @@ internal class SlotTableAddressSpace(
             error("Unexpected freeSlotCount, $freeSlotCount, expected $expectedFreeSlots")
         }
     }
+
+    companion object {
+        private val EmptyGroupData = newGroupsArray(1 * SLOT_TABLE_GROUP_SIZE)
+        private val EmptySlotData = newSlotsArray(0)
+    }
 }
 
 internal class SlotMoveManager(val source: Array<Any?>, var destination: Array<Any?>) {
@@ -893,7 +916,7 @@ internal class SlotMoveManager(val source: Array<Any?>, var destination: Array<A
 
     fun done(): Array<Any?> {
         flush()
-        if (highest < destination.size) {
+        if (highest >= 0 && highest < destination.size) {
             destination.clearRange(highest, destination.size)
         }
         return destination
@@ -978,19 +1001,23 @@ private inline fun Array<Any?>.clearRange(start: SlotAddress, end: SlotAddress) 
 }
 
 @Suppress("SameParameterValue")
-private fun newArray(capacity: Int): IntArray {
+private fun newGroupsArray(capacity: Int): IntArray {
     val array = IntArray(capacity)
     array.groupNext(0, NULL_ADDRESS)
 
     // Reserves the first group for the free list
-    array.init(SLOT_TABLE_GROUP_SIZE)
+    array.initGroups(SLOT_TABLE_GROUP_SIZE)
     return array
 }
 
-private fun IntArray?.init(offset: Int) {
+private fun IntArray?.initGroups(offset: Int) {
     if (this == null) return
     groupNext(0, NULL_ADDRESS)
     groupChild(0, offset)
+}
+
+private fun newSlotsArray(capacity: Int): Array<Any?> {
+    return arrayOfNulls<Any?>(capacity).apply { fill(Unallocated) }
 }
 
 private fun IntArray?.groupAllocate(

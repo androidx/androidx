@@ -140,7 +140,7 @@ internal suspend fun AwaitPointerEventScope.touchSelectionFirstPress(
         val firstDown = downEvent.changes.first()
         val longPress = awaitLongPressOrCancellation(firstDown.id)
         if (longPress != null && distanceIsTolerable(viewConfiguration, firstDown, longPress)) {
-            observer.onStart(longPress.position, SelectionAdjustment.Word)
+            observer.onStart(longPress.position, FirstLongPressSelectionAdjustment)
             val dragCompletedWithUp =
                 drag(longPress.id) {
                     observer.onDrag(it.positionChange())
@@ -354,3 +354,10 @@ private fun distanceIsTolerable(
 }
 
 internal expect fun PointerEvent.isMouseOrTouchPad(): Boolean
+
+/**
+ * Platform-defined selection adjustment during the first long press action.
+ *
+ * @see SelectionAdjustment
+ */
+internal expect val FirstLongPressSelectionAdjustment: SelectionAdjustment

@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
+import androidx.compose.foundation.text.ForceTouchInputMode
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
@@ -553,14 +554,18 @@ class TextFieldScrollTest : FocusedWindowTest {
         val columnScrollState = ScrollState(0)
 
         rule.setContent {
-            Column(Modifier.size(containerSize).padding(8.dp).verticalScroll(columnScrollState)) {
-                Box(Modifier.size(topItemSize))
-                ScrollableContent(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = state,
-                    scrollState = textFieldScrollState,
-                    lineLimits = MultiLine(),
-                )
+            ForceTouchInputMode {
+                Column(
+                    Modifier.size(containerSize).padding(8.dp).verticalScroll(columnScrollState)
+                ) {
+                    Box(Modifier.size(topItemSize))
+                    ScrollableContent(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = state,
+                        scrollState = textFieldScrollState,
+                        lineLimits = MultiLine(),
+                    )
+                }
             }
         }
 
