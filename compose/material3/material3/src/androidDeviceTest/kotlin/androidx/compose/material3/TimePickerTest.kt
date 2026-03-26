@@ -445,7 +445,7 @@ class TimePickerTest {
         }
 
         // only the first 4 is accepted
-        assertThat(state.hour).isEqualTo(4)
+        rule.runOnIdle { assertThat(state.hour).isEqualTo(4) }
     }
 
     @Test
@@ -489,7 +489,7 @@ class TimePickerTest {
 
         rule.onNodeWithText("11").performKeyInput { pressKey(Key.Four) }
 
-        assertThat(state.isPm).isTrue()
+        rule.runOnIdle { assertThat(state.isPm).isTrue() }
     }
 
     @Test
@@ -503,8 +503,10 @@ class TimePickerTest {
             pressKey(Key.Two)
         }
 
-        assertThat(state.isPm).isFalse()
-        assertThat(state.hour).isEqualTo(0)
+        rule.runOnIdle {
+            assertThat(state.isPm).isFalse()
+            assertThat(state.hour).isEqualTo(0)
+        }
     }
 
     @Test
@@ -518,8 +520,10 @@ class TimePickerTest {
             pressKey(Key.Two)
         }
 
-        assertThat(state.isPm).isTrue()
-        assertThat(state.hour).isEqualTo(12)
+        rule.runOnIdle {
+            assertThat(state.isPm).isTrue()
+            assertThat(state.hour).isEqualTo(12)
+        }
     }
 
     @Test

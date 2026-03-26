@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
@@ -32,7 +31,7 @@ import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -43,7 +42,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -80,9 +81,9 @@ import kotlinx.coroutines.launch
  * @param scrimColor Color of the scrim that obscures content when the bottom sheet is open.
  * @param dragHandle Optional visual marker to swipe the bottom sheet.
  * @param contentWindowInsets callback which provides window insets to be passed to the bottom sheet
- *   content via [Modifier.windowInsetsPadding]. [ModalBottomSheet] will pre-emptively consume top
- *   insets based on it's current offset. This keeps content outside of the expected window insets
- *   at any position.
+ *   content via [androidx.compose.foundation.layout.windowInsetsPadding]. [ModalBottomSheet] will
+ *   pre-emptively consume top insets based on it's current offset. This keeps content outside of
+ *   the expected window insets at any position.
  * @param properties [ModalBottomSheetProperties] for further customization of this modal bottom
  *   sheet's window behavior.
  * @param content The content to be displayed inside the bottom sheet.
@@ -105,17 +106,6 @@ fun ModalBottomSheet(
     properties: ModalBottomSheetProperties = ModalBottomSheetProperties(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    // TODO Load the motionScheme tokens from the component tokens file
-    val anchoredDraggableMotion: FiniteAnimationSpec<Float> =
-        MotionSchemeKeyTokens.DefaultSpatial.value()
-    val showMotion: FiniteAnimationSpec<Float> = MotionSchemeKeyTokens.DefaultSpatial.value()
-    val hideMotion: FiniteAnimationSpec<Float> = MotionSchemeKeyTokens.FastEffects.value()
-
-    SideEffect {
-        sheetState.showMotionSpec = showMotion
-        sheetState.hideMotionSpec = hideMotion
-        sheetState.anchoredDraggableMotionSpec = anchoredDraggableMotion
-    }
     val scope = rememberCoroutineScope()
     val animateToDismiss: () -> Unit = {
         if (sheetState.confirmValueChange(Hidden)) {
@@ -146,6 +136,7 @@ fun ModalBottomSheet(
         onDismissRequest = settleToDismiss,
     ) {
         Box(modifier = Modifier.fillMaxSize().imePadding().semantics { isTraversalGroup = true }) {
+            val sheetWindowInsets = remember(sheetState) { SheetWindowInsets(sheetState) }
             val isScrimVisible: Boolean by remember {
                 derivedStateOf { sheetState.targetValue != Hidden }
             }
@@ -162,12 +153,7 @@ fun ModalBottomSheet(
                 color = scrimColor,
             )
             BottomSheet(
-                modifier =
-                    modifier
-                        .align(TopCenter)
-                        .consumeWindowInsets(
-                            WindowInsets(top = sheetState.offset.toInt().coerceAtLeast(0))
-                        ),
+                modifier = modifier.align(TopCenter).consumeWindowInsets(sheetWindowInsets),
                 state = sheetState,
                 onDismissRequest = onDismissRequest,
                 maxWidth = sheetMaxWidth,
@@ -234,6 +220,29 @@ fun rememberModalBottomSheetState(
         confirmValueChange = confirmValueChange,
         initialValue = Hidden,
     )
+
+@Stable
+@OptIn(ExperimentalMaterial3Api::class)
+internal class SheetWindowInsets(private val state: SheetState) : WindowInsets {
+    override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int = 0
+
+    override fun getTop(density: Density): Int {
+        val offset = state.anchoredDraggableState.offset
+        return if (offset.isNaN()) 0 else offset.toInt().coerceAtLeast(0)
+    }
+
+    override fun getRight(density: Density, layoutDirection: LayoutDirection): Int = 0
+
+    override fun getBottom(density: Density): Int = 0
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SheetWindowInsets) return false
+        return state == other.state
+    }
+
+    override fun hashCode(): Int = state.hashCode()
+}
 
 /**
  * [Dialog]-like component providing default window behavior for [BottomSheet]. This implementation

@@ -425,9 +425,9 @@ internal class OverflowMeasurePolicy(
  * @param colors [IconButtonColors] that will be used to resolve the colors used for this icon
  *   button in different states. See [IconButtonDefaults.iconButtonColors].
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
- *   appearance or preview the icon button in different states. Note that if `null` is provided,
- *   interactions will still happen internally.
+ *   emitting [androidx.compose.foundation.interaction.Interaction]s for this icon button. You can
+ *   use this to change the icon button's appearance or preview the icon button in different states.
+ *   Note that if `null` is provided, interactions will still happen internally.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

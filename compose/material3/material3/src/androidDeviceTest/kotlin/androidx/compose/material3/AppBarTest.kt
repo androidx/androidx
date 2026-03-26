@@ -2181,7 +2181,7 @@ class AppBarTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun topAppBar_enterAlways_changeColors_scrolledLazyColumn_setIsAtTop() {
+    fun topAppBar_enterAlways_changeColors_scrolledLazyColumn_setisAtStart() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyListState = rememberLazyListState()
@@ -2234,7 +2234,7 @@ class AppBarTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun topAppBar_enterAlways_changeColors_reverseLayout_scrolledLazyColumn_setIsAtTop() {
+    fun topAppBar_enterAlways_changeColors_reverseLayout_scrolledLazyColumn_setisAtStart() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyListState = rememberLazyListState()
@@ -2394,7 +2394,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState(initialFirstVisibleItemIndex = 30)
-            val isAtTop =
+            val isScrollingContentAtStart =
                 remember(lazyGridState) {
                     derivedStateOf {
                         if (lazyGridState.layoutInfo.reverseLayout) {
@@ -2404,7 +2404,10 @@ class AppBarTest {
                         }
                     }
                 }
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(isAtTop = { isAtTop.value })
+            scrollBehavior =
+                TopAppBarDefaults.pinnedScrollBehavior(
+                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
+                )
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2457,7 +2460,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState()
-            val isAtTop =
+            val isScrollingContentAtStart =
                 remember(lazyGridState) {
                     derivedStateOf {
                         if (lazyGridState.layoutInfo.reverseLayout) {
@@ -2467,7 +2470,10 @@ class AppBarTest {
                         }
                     }
                 }
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(isAtTop = { isAtTop.value })
+            scrollBehavior =
+                TopAppBarDefaults.pinnedScrollBehavior(
+                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
+                )
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
@@ -2519,7 +2525,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState()
-            val isAtTop =
+            val isScrollingContentAtStart =
                 remember(lazyGridState) {
                     derivedStateOf {
                         if (lazyGridState.layoutInfo.reverseLayout) {
@@ -2529,7 +2535,10 @@ class AppBarTest {
                         }
                     }
                 }
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(isAtTop = { isAtTop.value })
+            scrollBehavior =
+                TopAppBarDefaults.pinnedScrollBehavior(
+                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
+                )
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
@@ -2573,7 +2582,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState()
-            val isAtTop =
+            val isScrollingContentAtStart =
                 remember(lazyGridState) {
                     derivedStateOf {
                         if (lazyGridState.layoutInfo.reverseLayout) {
@@ -2584,7 +2593,9 @@ class AppBarTest {
                     }
                 }
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(isAtTop = { isAtTop.value })
+                TopAppBarDefaults.enterAlwaysScrollBehavior(
+                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
+                )
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2635,7 +2646,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState()
-            val isAtTop =
+            val isScrollingContentAtStart =
                 remember(lazyGridState) {
                     derivedStateOf {
                         if (lazyGridState.layoutInfo.reverseLayout) {
@@ -2646,7 +2657,9 @@ class AppBarTest {
                     }
                 }
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(isAtTop = { isAtTop.value })
+                TopAppBarDefaults.enterAlwaysScrollBehavior(
+                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
+                )
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2709,7 +2722,7 @@ class AppBarTest {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyGridState = rememberLazyGridState(initialFirstVisibleItemIndex = 30)
-            val isAtTop =
+            val isScrollingContentAtStart =
                 remember(lazyGridState) {
                     derivedStateOf {
                         if (lazyGridState.layoutInfo.reverseLayout) {
@@ -2720,7 +2733,9 @@ class AppBarTest {
                     }
                 }
             scrollBehavior =
-                TopAppBarDefaults.enterAlwaysScrollBehavior(isAtTop = { isAtTop.value })
+                TopAppBarDefaults.enterAlwaysScrollBehavior(
+                    isScrollingContentAtStart = { isScrollingContentAtStart.value }
+                )
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
@@ -2769,7 +2784,7 @@ class AppBarTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun topAppBar_enterAlways_changeColors_scrolledColumn_setIsAtTop() {
+    fun topAppBar_enterAlways_changeColors_scrolledColumn_setIsAtStart() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val scrollState = rememberScrollState()
@@ -2826,7 +2841,7 @@ class AppBarTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun topAppBar_enterAlways_changeColors_reverseLayout_scrolledColumn_setIsAtTop() {
+    fun topAppBar_enterAlways_changeColors_reverseLayout_scrolledColumn_setIsAtStart() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val scrollState = rememberScrollState()

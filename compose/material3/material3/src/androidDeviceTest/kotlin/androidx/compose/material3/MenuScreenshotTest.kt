@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.hardware.input.InputManager
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -26,10 +27,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Edit
@@ -40,16 +43,15 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -63,10 +65,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlin.jvm.java
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
 /**
  * Screenshot tests for the Material Menus.
@@ -189,6 +194,29 @@ class MenuScreenshotTest {
             }
         }
         assertAgainstGolden(goldenIdentifier = "segmentedDropdownMenu_lightTheme_toggledItems_rtl")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun segmentedDropdownMenu_precisionPointer() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+            val inputManager = FakeInputManager()
+            inputManager.addDevice(MockDevices.physicalKeyboard)
+            inputManager.addDevice(MockDevices.mouse)
+
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme { TestPrecisionPointerSegmentedMenu() }
+            }
+        }
+
+        assertAgainstGolden(goldenIdentifier = "segmentedDropdownMenu_precisionPointer")
     }
 
     @Composable
@@ -362,6 +390,79 @@ class MenuScreenshotTest {
                             )
                         },
                         shapes = MenuDefaults.itemShapes(MenuDefaults.trailingItemShape),
+                    )
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Composable
+    private fun TestPrecisionPointerSegmentedMenu() {
+        Box(Modifier.testTag(testTag).padding(20.dp), contentAlignment = Alignment.Center) {
+            DropdownMenuPopupContent(
+                Modifier,
+                expandedState = MutableTransitionState(initialState = true),
+                transformOriginState = remember { mutableStateOf(TransformOrigin.Center) },
+            ) {
+                DropdownMenuGroup(
+                    shapes = MenuDefaults.groupShapes(shape = MenuDefaults.leadingGroupShape)
+                ) {
+                    DropdownMenuItem(
+                        modifier = Modifier,
+                        onClick = {},
+                        text = { Text(text = "Line item") },
+                        shape = MenuDefaults.leadingItemShape,
+                    )
+                    DropdownMenuItem(
+                        modifier = Modifier,
+                        onClick = {},
+                        text = { Text(text = "Line item") },
+                        shape = MenuDefaults.trailingItemShape,
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Info,
+                                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                contentDescription = "Leading icon",
+                            )
+                        },
+                        trailingIcon = {
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                modifier = Modifier.size(MenuDefaults.TrailingIconSize),
+                                contentDescription = "Trailing icon",
+                            )
+                        },
+                    )
+                }
+                Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+                DropdownMenuGroup(
+                    shapes = MenuDefaults.groupShapes(shape = MenuDefaults.trailingGroupShape)
+                ) {
+                    DropdownMenuItem(
+                        modifier = Modifier,
+                        onClick = {},
+                        text = { Text(text = "Line item") },
+                        shape = MenuDefaults.leadingItemShape,
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Info,
+                                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                contentDescription = "Trailing icon",
+                            )
+                        },
+                        trailingIcon = {
+                            MenuDefaults.DropdownMenuItemTrailingLabel { Text(text = "Ctrl + N") }
+                        },
+                    )
+                    DropdownMenuItem(
+                        modifier = Modifier,
+                        onClick = {},
+                        text = { Text(text = "Line item") },
+                        shape = MenuDefaults.trailingItemShape,
+                        trailingIcon = {
+                            MenuDefaults.DropdownMenuItemTrailingLabel { Text(text = "Ctrl + N") }
+                        },
                     )
                 }
             }

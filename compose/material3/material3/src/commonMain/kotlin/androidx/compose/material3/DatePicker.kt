@@ -1206,7 +1206,10 @@ private class DatePickerStateImpl(
     BaseDatePickerStateImpl(initialDisplayedMonthMillis, yearRange, selectableDates, locale),
     DatePickerState {
 
-    /** A mutable state of [CalendarDate] that represents a selected date. */
+    /**
+     * A mutable state of [androidx.compose.material3.internal.CalendarDate] that represents a
+     * selected date.
+     */
     private var _selectedDate =
         mutableStateOf(
             if (initialSelectedDateMillis != null) {

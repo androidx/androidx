@@ -94,7 +94,7 @@ import kotlinx.coroutines.launch
  * Segmented buttons help people select options, switch views, or sort elements.
  *
  * A default Toggleable Segmented Button. Also known as Outlined Segmented Button. See
- * [Modifier.toggleable].
+ * [androidx.compose.foundation.selection.toggleable].
  *
  * Toggleable segmented buttons should be used for cases where the selection is not mutually
  * exclusive.
@@ -175,7 +175,7 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
  * Segmented buttons help people select options, switch views, or sort elements.
  *
  * A default Toggleable Segmented Button. Also known as Outlined Segmented Button. See
- * [Modifier.selectable].
+ * [androidx.compose.foundation.selection.selectable].
  *
  * Selectable segmented buttons should be used for cases where the selection is mutually exclusive,
  * when only one button can be selected at a time.

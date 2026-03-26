@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.asDpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.KeyboardVisibilityListener
 import androidx.compose.ui.window.MetalRedrawer
 import kotlin.coroutines.cancellation.CancellationException
@@ -85,7 +86,6 @@ import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
 import platform.UIKit.UIWindowScene
 import platform.UIKit.attemptRotationToDeviceOrientation
-import platform.UIKit.childViewControllers
 import platform.UIKit.endEditing
 import platform.UIKit.systemBackgroundColor
 import platform.darwin.NSObject
@@ -321,35 +321,25 @@ internal class UIKitInstrumentedTest(
     /**
      * Simulates a touch-down event at the specified position on the screen.
      *
-     * @param position The position on the root hosting controller.
+     * @param position The position on the window.
      * @param window will be used to handle touches; otherwise,
      * the window hosting the view will be used.
      * @return A UITouch object representing the touch interaction.
      */
     fun touchDown(position: DpOffset, window: UIWindow? = null): UITouch {
-        val positionOnWindow = viewController.view.convertPoint(
-            point = position.toCGPoint(),
-            toView = appDelegate.window()
-        )
-
-        return getTargetWindow(position, window).touchDown(positionOnWindow.asDpOffset())
+        return getTargetWindow(position, window).touchDown(position)
     }
 
     /**
      * Simulates a mouse-down event at the specified position on the screen.
      *
-     * @param position The position on the root hosting controller.
+     * @param position The position on the window.
      * @param window will be used to handle mouse/trackpad click; otherwise,
      * the window hosting the view will be used.
      * @return A UITouch object representing the mouse/trackpad interaction.
      */
     fun mouseDown(position: DpOffset, window: UIWindow? = null): UITouch {
-        val positionOnWindow = viewController.view.convertPoint(
-            point = position.toCGPoint(),
-            toView = appDelegate.window()
-        )
-
-        return getTargetWindow(position, window).mouseDown(positionOnWindow.asDpOffset())
+        return getTargetWindow(position, window).mouseDown(position)
     }
 
     private fun getTargetWindow(position: DpOffset, window: UIWindow? = null): UIWindow {
@@ -420,22 +410,18 @@ internal class UIKitInstrumentedTest(
      * @param duration The duration of the drag gesture, defaulting to 0.5 seconds.
      * @return The same UITouch instance after completing the drag gesture.
      */
-    fun UITouch.dragTo(location: DpOffset, duration: Duration = 0.5.seconds): UITouch {
-        val startLocation = locationInView(appDelegate.window()!!).asDpOffset()
-        val endLocation = viewController.view.convertPoint(
-            point = location.toCGPoint(),
-            toView = appDelegate.window()
-        ).asDpOffset()
+    private fun UITouch.dragTo(location: DpOffset, duration: Duration = 0.5.seconds): UITouch {
+        val startLocation = locationInView(null).asDpOffset()
 
         val startTime = TimeSource.Monotonic.markNow()
         while (TimeSource.Monotonic.markNow() <= startTime + duration) {
             val progress = ((TimeSource.Monotonic.markNow() - startTime) / duration).coerceIn(0.0, 1.0)
-            val touchLocation = lerp(startLocation, endLocation, progress.toFloat())
+            val touchLocation = lerp(startLocation, location, progress.toFloat())
 
             this.moveToLocationOnWindow(touchLocation)
             NSRunLoop.currentRunLoop().runUntilDate(NSDate.dateWithTimeIntervalSinceNow(1.0 / 60))
         }
-        this.moveToLocationOnWindow(endLocation)
+        this.moveToLocationOnWindow(location)
         return this
     }
 
@@ -448,7 +434,7 @@ internal class UIKitInstrumentedTest(
      * @return The same UITouch instance after completing the drag gesture.
      */
     fun UITouch.dragBy(offset: DpOffset, duration: Duration = 0.5.seconds): UITouch {
-        return dragTo(location + offset, duration)
+        return dragTo(locationInView(null).asDpOffset() + offset, duration)
     }
 
     /**
@@ -463,11 +449,6 @@ internal class UIKitInstrumentedTest(
     fun UITouch.dragBy(dx: Dp = 0.dp, dy: Dp = 0.dp, duration: Duration = 0.5.seconds): UITouch {
         return dragBy(DpOffset(dx, dy), duration)
     }
-
-    val UITouch.location: DpOffset
-        get() {
-            return locationInView(viewController.view).asDpOffset()
-        }
 }
 
 @OptIn(ExperimentalForeignApi::class)

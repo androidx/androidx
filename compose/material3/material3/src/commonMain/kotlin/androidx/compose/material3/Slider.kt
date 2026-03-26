@@ -179,7 +179,6 @@ import kotlinx.coroutines.launch
  *   for this slider. You can create and pass in your own `remember`ed instance to observe
  *   [Interaction]s and customize the appearance / behavior of this slider in different states.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Slider(
     value: Float,
@@ -279,7 +278,6 @@ fun Slider(
  *   to this range.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun Slider(
     value: Float,
     onValueChange: (Float) -> Unit,
@@ -370,7 +368,6 @@ fun Slider(
  *   lambda receives a [SliderState] which is used to obtain the current active track.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun Slider(
     state: SliderState,
     modifier: Modifier = Modifier,
@@ -435,7 +432,6 @@ fun Slider(
  * @param track the track to be displayed on the slider, it is placed underneath the thumb. The
  *   lambda receives a [SliderState] which is used to obtain the current active track.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3ExpressiveApi
 @Composable
 fun VerticalSlider(
@@ -511,7 +507,6 @@ fun VerticalSlider(
  * @param colors [SliderColors] that will be used to determine the color of the Range Slider parts
  *   in different state. See [SliderDefaults.colors] to customize.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RangeSlider(
     value: ClosedFloatingPointRange<Float>,
@@ -615,7 +610,6 @@ fun RangeSlider(
  *   coerced to this range.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun RangeSlider(
     value: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
@@ -721,7 +715,6 @@ fun RangeSlider(
  *   The lambda receives a [RangeSliderState] which is used to obtain the current active track.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun RangeSlider(
     state: RangeSliderState,
     modifier: Modifier = Modifier,
@@ -765,7 +758,6 @@ fun RangeSlider(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SliderImpl(
     modifier: Modifier,
@@ -1023,7 +1015,6 @@ private fun Modifier.slideOnKeyEvents(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.rangeSliderOnKeyEvents(
     enabled: Boolean,
     steps: Int,
@@ -1188,7 +1179,6 @@ private fun Modifier.rangeSliderOnKeyEvents(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RangeSliderImpl(
     modifier: Modifier,
@@ -1500,7 +1490,6 @@ object SliderDefaults {
      *   accessibility services.
      * @param thumbSize the size of the thumb.
      */
-    @OptIn(ExperimentalMaterial3Api::class)
     @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun Thumb(
@@ -1608,7 +1597,6 @@ object SliderDefaults {
      * @param thumbTrackGapSize size of the gap between the thumb and the track.
      * @param trackInsideCornerSize size of the corners towards the thumb when a gap is set.
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun Track(
         sliderState: SliderState,
@@ -1663,7 +1651,6 @@ object SliderDefaults {
      * @param thumbTrackGapSize size of the gap between the thumb and the track.
      * @param trackInsideCornerSize size of the corners towards the thumb when a gap is set.
      */
-    @OptIn(ExperimentalMaterial3Api::class)
     @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun Track(
@@ -1719,7 +1706,6 @@ object SliderDefaults {
      * @param trackInsideCornerSize size of the corners towards the thumb when a gap is set.
      * @param trackCornerSize size of the external corners.
      */
-    @OptIn(ExperimentalMaterial3Api::class)
     @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun CenteredTrack(
@@ -1756,7 +1742,6 @@ object SliderDefaults {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun TrackImpl(
         sliderState: SliderState,
@@ -1864,7 +1849,6 @@ object SliderDefaults {
             ),
         level = DeprecationLevel.HIDDEN,
     )
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Track(
         rangeSliderState: RangeSliderState,
@@ -1898,7 +1882,6 @@ object SliderDefaults {
      * @param thumbTrackGapSize size of the gap between the thumbs and the track.
      * @param trackInsideCornerSize size of the corners towards the thumbs when a gap is set.
      */
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Track(
         rangeSliderState: RangeSliderState,
@@ -1948,7 +1931,6 @@ object SliderDefaults {
      * @param thumbTrackGapSize size of the gap between the thumbs and the track.
      * @param trackInsideCornerSize size of the corners towards the thumbs when a gap is set.
      */
-    @OptIn(ExperimentalMaterial3Api::class)
     @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun Track(
@@ -1983,7 +1965,6 @@ object SliderDefaults {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun TrackImpl(
         rangeSliderState: RangeSliderState,
@@ -2450,7 +2431,6 @@ private fun scale(
 private fun calcFraction(a: Float, b: Float, pos: Float) =
     (if (b - a == 0f) 0f else (pos - a) / (b - a)).coerceIn(0f, 1f)
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.sliderSemantics(state: SliderState, enabled: Boolean): Modifier {
     return semantics {
             if (!enabled) disabled()
@@ -2512,7 +2492,6 @@ private fun Modifier.sliderSemantics(state: SliderState, enabled: Boolean): Modi
         )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.rangeSliderStartThumbSemantics(
     state: RangeSliderState,
     enabled: Boolean,
@@ -2570,7 +2549,6 @@ private fun Modifier.rangeSliderStartThumbSemantics(
         .progressSemantics(state.activeRangeStart, valueRange, state.startSteps)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.rangeSliderEndThumbSemantics(
     state: RangeSliderState,
     enabled: Boolean,
@@ -2630,7 +2608,6 @@ private fun Modifier.rangeSliderEndThumbSemantics(
 
 private fun Float.formatForSemantics() = "${(this * 100).roundToInt() / 100f}"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Stable
 private fun Modifier.sliderTapModifier(
     state: SliderState,
@@ -2672,7 +2649,6 @@ private fun Modifier.sliderTapModifier(
         this
     }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Stable
 private fun Modifier.rangeSliderPressDragModifier(
     state: RangeSliderState,
@@ -2811,7 +2787,6 @@ private fun Modifier.rangeSliderPressDragModifier(
         this
     }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private class RangeSliderLogic(
     val state: RangeSliderState,
     val startInteractionSource: MutableInteractionSource,
@@ -3038,7 +3013,6 @@ class SliderPositions(
  * @param valueRange range of values that Slider values can take. [value] will be coerced to this
  *   range.
  */
-@ExperimentalMaterial3Api
 class SliderState(
     value: Float = 0f,
     @IntRange(from = 0) val steps: Int = 0,
@@ -3217,7 +3191,6 @@ class SliderState(
  * @param valueRange range of values that Slider values can take. [value] will be coerced to this
  *   range.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun rememberSliderState(
     value: Float = 0f,
@@ -3252,7 +3225,6 @@ fun rememberSliderState(
  * @param valueRange range of values that Range Slider values can take. [activeRangeStart] and
  *   [activeRangeEnd] will be coerced to this range.
  */
-@ExperimentalMaterial3Api
 class RangeSliderState(
     activeRangeStart: Float = 0f,
     activeRangeEnd: Float = 1f,
@@ -3430,7 +3402,6 @@ class RangeSliderState(
  * @param valueRange range of values that Range Slider values can take. [activeRangeStart] and
  *   [activeRangeEnd] will be coerced to this range.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun rememberRangeSliderState(
     activeRangeStart: Float = 0f,

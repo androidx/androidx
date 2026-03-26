@@ -85,7 +85,7 @@ dependencies {
     friends(libs.kotlinCompiler)
 }
 
-configurations.getByName("jvmMainImplementation").extendsFrom(configurations.getByName("friends"))
+configurations.getByName("jvmMainCompileOnly").extendsFrom(configurations.getByName("friends"))
 
 androidx {
     name = "AndroidX Binary Compatibility Validator"

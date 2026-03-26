@@ -16,11 +16,30 @@
 
 package androidx.navigation3.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.unit.dp
 import androidx.kruth.assertThat
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavMetadataKey
+import androidx.navigation3.runtime.get
+import androidx.navigation3.runtime.metadata
+import androidx.navigation3.scene.DialogSceneStrategy
+import androidx.navigation3.scene.OverlayScene
+import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneStrategy
+import androidx.navigation3.scene.SceneStrategyScope
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import kotlin.test.Test
@@ -140,5 +159,252 @@ class NavDisplayLifecycleTest {
                 "A" to "ON_RESUME",
             )
             .inOrder()
+    }
+
+    @Test
+    fun testNavigateToDialogKeepsSinglePaneEntryAtStarted() {
+        lateinit var backStack: SnapshotStateList<String>
+
+        val actualEvents = mutableListOf<Pair<String, String>>()
+        rule.setContent {
+            backStack = remember { mutableStateListOf("A") }
+            NavDisplay(
+                backStack = backStack,
+                sceneStrategies = listOf(remember { DialogSceneStrategy() }),
+                onBack = { /* no-op */ },
+            ) { key ->
+                when (key) {
+                    "A" ->
+                        NavEntry("A") {
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                    else ->
+                        NavEntry("B", metadata = DialogSceneStrategy.dialog()) {
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                }
+            }
+        }
+        rule.runOnIdle { backStack += "B" }
+        rule.waitForIdle()
+
+        assertThat(actualEvents)
+            .containsExactly("A" to "ON_RESUME", "A" to "ON_PAUSE", "B" to "ON_RESUME")
+            .inOrder()
+    }
+
+    @Test
+    fun testNavigateFromDialogToSinglePaneKeepsDialogAtStarted() {
+        lateinit var backStack: SnapshotStateList<String>
+
+        val actualEvents = mutableListOf<Pair<String, String>>()
+        rule.setContent {
+            backStack = remember { mutableStateListOf("A", "B") }
+            NavDisplay(
+                backStack = backStack,
+                sceneStrategies = listOf(remember { DialogSceneStrategy() }),
+                onBack = { /* no-op */ },
+            ) { key ->
+                when (key) {
+                    "A" ->
+                        NavEntry("A") {
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                    "B" ->
+                        NavEntry("B", metadata = DialogSceneStrategy.dialog()) {
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                    else ->
+                        NavEntry("C") {
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        assertThat(actualEvents)
+            .containsExactly("A" to "ON_RESUME", "A" to "ON_PAUSE", "B" to "ON_RESUME")
+            .inOrder()
+
+        rule.runOnIdle { backStack += "C" }
+        rule.waitForIdle()
+
+        assertThat(actualEvents)
+            .containsExactly(
+                "A" to "ON_RESUME",
+                "A" to "ON_PAUSE",
+                "B" to "ON_RESUME",
+                "B" to "ON_PAUSE",
+                "C" to "ON_RESUME",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testNavigateToSecondDialogKeepsFirstDialogAtStarted() {
+        lateinit var backStack: SnapshotStateList<String>
+
+        val actualEvents = mutableListOf<Pair<String, String>>()
+        rule.setContent {
+            backStack = remember { mutableStateListOf("A", "B") }
+            NavDisplay(
+                backStack = backStack,
+                sceneStrategies = listOf(remember { DialogSceneStrategy() }),
+                onBack = { /* no-op */ },
+            ) { key ->
+                when (key) {
+                    "A" ->
+                        NavEntry("A") {
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                    "B" ->
+                        NavEntry("B", metadata = DialogSceneStrategy.dialog()) {
+                            println("B Lifecycle owner = ${LocalLifecycleOwner.current}")
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                    else ->
+                        NavEntry("C", metadata = DialogSceneStrategy.dialog()) {
+                            println("C Lifecycle owner = ${LocalLifecycleOwner.current}")
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        assertThat(actualEvents)
+            .containsExactly("A" to "ON_RESUME", "A" to "ON_PAUSE", "B" to "ON_RESUME")
+            .inOrder()
+
+        rule.runOnIdle { backStack += "C" }
+        rule.waitForIdle()
+
+        assertThat(actualEvents)
+            .containsExactly(
+                "A" to "ON_RESUME",
+                "A" to "ON_PAUSE",
+                "B" to "ON_RESUME",
+                "B" to "ON_PAUSE",
+                "C" to "ON_RESUME",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testNavigateToSecondOverlayKeepsFirstOverlayAtStarted() {
+        lateinit var backStack: SnapshotStateList<String>
+
+        val actualEvents = mutableListOf<Pair<String, String>>()
+        rule.setContent {
+            backStack = remember { mutableStateListOf("A", "B") }
+            NavDisplay(
+                backStack = backStack,
+                sceneStrategies = listOf(remember { MyCustomOverlaySceneStrategy() }),
+                onBack = { /* no-op */ },
+            ) { key ->
+                when (key) {
+                    "A" ->
+                        NavEntry("A") {
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                    "B" ->
+                        NavEntry("B", metadata = MyCustomOverlaySceneStrategy.overlay()) {
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                    else ->
+                        NavEntry("C", metadata = MyCustomOverlaySceneStrategy.overlay()) {
+                            LifecycleResumeEffect(key1 = Unit) {
+                                actualEvents += key to "ON_RESUME"
+                                onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                            }
+                        }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        assertThat(actualEvents)
+            .containsExactly("A" to "ON_RESUME", "A" to "ON_PAUSE", "B" to "ON_RESUME")
+            .inOrder()
+
+        rule.runOnIdle { backStack += "C" }
+        rule.waitForIdle()
+
+        assertThat(actualEvents)
+            .containsExactly(
+                "A" to "ON_RESUME",
+                "A" to "ON_PAUSE",
+                "B" to "ON_RESUME",
+                "B" to "ON_PAUSE",
+                "C" to "ON_RESUME",
+            )
+            .inOrder()
+    }
+}
+
+class MyCustomOverlayScene<T : Any>(
+    override val key: Any,
+    entry: NavEntry<T>,
+    override val previousEntries: List<NavEntry<T>>,
+    override val overlaidEntries: List<NavEntry<T>>,
+) : OverlayScene<T> {
+    override val entries: List<NavEntry<T>> = listOf(entry)
+    override val content: @Composable (() -> Unit) = {
+        Box(Modifier.height(250.dp).fillMaxWidth().background(Color.Blue)) { entry.Content() }
+    }
+}
+
+internal class MyCustomOverlaySceneStrategy<T : Any> : SceneStrategy<T> {
+
+    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
+        val lastEntry = entries.lastOrNull()
+        if (lastEntry == null || lastEntry.metadata[OverlayKey] != true) return null
+        return MyCustomOverlayScene(
+            key = lastEntry.contentKey,
+            entry = lastEntry,
+            previousEntries = entries.dropLast(1),
+            overlaidEntries = entries.dropLast(1),
+        )
+    }
+
+    companion object {
+
+        object OverlayKey : NavMetadataKey<Boolean>
+
+        fun overlay(): Map<String, Any> = metadata { put(OverlayKey, true) }
     }
 }

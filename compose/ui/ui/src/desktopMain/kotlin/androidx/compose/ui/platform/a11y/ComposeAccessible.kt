@@ -92,23 +92,32 @@ internal class ComposeAccessible(
     var semanticsNode: SemanticsNode = semanticsNode
         set(value) {
             field = value
-            cachedSemanticsConfig = null  // Clear the cache
+            // Clear the cache
+            cachedSemanticsConfig = null
+            cachedTraversalOrderedChildren = null
         }
 
-    /**
-     * The cached [SemanticsNode.config] of [semanticsNode]; `null` if it hasn't been retrieved yet.
-     */
     private var cachedSemanticsConfig: SemanticsConfiguration? = null
 
     /**
-     * The [SemanticsNode.config] of [semanticsNode].
+     * The (cached) [SemanticsNode.config] of [semanticsNode].
      */
-    private val semanticsConfig: SemanticsConfiguration
-        get() {
-            return cachedSemanticsConfig ?: semanticsNode.config.also {
+    val semanticsConfig: SemanticsConfiguration
+        get() =
+            cachedSemanticsConfig ?: semanticsNode.config.also {
                 cachedSemanticsConfig = it
             }
-        }
+
+    private var cachedTraversalOrderedChildren: List<SemanticsNode>? = null
+
+    /**
+     * The (cached) [SemanticsNode.traversalOrderedChildren] of [semanticsNode].
+     */
+    private val traversalOrderedChildren: List<SemanticsNode>
+        get() =
+            cachedTraversalOrderedChildren ?: semanticsNode.traversalOrderedChildren(semanticsConfig).also {
+                cachedTraversalOrderedChildren = it
+            }
 
     val composeAccessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
 
@@ -267,8 +276,12 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleIndexInParent(): Int {
-            val parent = semanticsNode.parent ?: return ownerAccessibility.indexInScene()
-            return parent.traversalOrderedChildren().fastIndexOfFirst { it.id == semanticsNode.id }
+            val parentNode = semanticsNode.parent ?: return ownerAccessibility.indexInScene()
+            val parentAccessible = ownerAccessibility.accessibleByNodeId(parentNode.id)
+            val traversalOrderedSiblings = parentAccessible?.traversalOrderedChildren
+                // Not sure if `parentAccessible` can ever be `null`, but just in case...
+                ?: parentNode.traversalOrderedChildren()
+            return traversalOrderedSiblings.fastIndexOfFirst { it.id == semanticsNode.id }
         }
 
         override fun getAccessibleComponent(): AccessibleComponent? {
@@ -332,16 +345,15 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleChildrenCount(): Int {
-            return semanticsNode.replacedChildren.size + auxiliaryChildren.size
+            return traversalOrderedChildren.size + auxiliaryChildren.size
         }
 
         override fun getAccessibleChild(index: Int): Accessible? {
-            val regularChildren = semanticsNode.traversalOrderedChildren()
-            val childrenSize = regularChildren.size
-            return if (index < childrenSize) {
+            val regularChildren = traversalOrderedChildren
+            return if (index < regularChildren.size) {
                 ownerAccessibility.accessibleByNodeId(regularChildren[index].id)
             } else {
-                auxiliaryChildren[index - childrenSize]
+                auxiliaryChildren[index - regularChildren.size]
             }
         }
 
@@ -377,7 +389,7 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleAt(p: Point): Accessible? {
-            val accessibleChildren = semanticsNode.traversalOrderedChildren()
+            val accessibleChildren = traversalOrderedChildren
             accessibleChildren.fastForEach { child ->
                 val accessible = ownerAccessibility.accessibleByNodeId(child.id) as? Accessible ?: return@fastForEach
                 val accessibleComponent = (accessible.accessibleContext as? AccessibleComponent) ?: return@fastForEach
@@ -952,10 +964,23 @@ private class ProgressBarAccessibleValue(
     }
 }
 
-private fun SemanticsNode.traversalOrderedChildren(): List<SemanticsNode> {
+private fun SemanticsNode.traversalOrderedChildren(
+    cachedConfig: SemanticsConfiguration? = null
+): List<SemanticsNode> {
+    val config = cachedConfig ?: config
     val children = replacedChildren
-    return if (config.getOrNull(SemanticsProperties.IsTraversalGroup) != true) children
-    else children.sortedBy {
-        it.config.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f
+    if (config.getOrNull(SemanticsProperties.IsTraversalGroup) != true) return children
+
+    // Note that the `SemanticsProperties.TraversalIndex` is not merged anyway, so it's ok to get it
+    // from `unmergedConfig`.
+    // `config` is currently very slow (b/184376083) and wrong (b/384549982)?
+
+    val allIndicesAreNull = children.all {
+        it.unmergedConfig.getOrNull(SemanticsProperties.TraversalIndex) == null
+    }
+    if (allIndicesAreNull) return children  // Common case
+
+    return children.sortedBy {
+        it.unmergedConfig.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f
     }
 }
