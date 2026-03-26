@@ -16,18 +16,23 @@
 
 package androidx.lifecycle.viewmodel.navigation3
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.defaultViewModelCreationExtras
+import androidx.lifecycle.defaultViewModelProviderFactory
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
@@ -202,9 +207,8 @@ class ViewModelStoreNavEntryDecoratorTest {
     }
 
     @Test
-    fun testChangeRemoveViewModelStoreOnPop() {
+    fun testViewModelRemovedOnPop() {
         val viewModels = mutableMapOf<Int, MyViewModel>()
-        var removeViewModelStoreOnPop by mutableStateOf(true)
 
         fun createNaveEntry(key: Int) = NavEntry(key) { viewModels[key] = viewModel<MyViewModel>() }
 
@@ -220,14 +224,7 @@ class ViewModelStoreNavEntryDecoratorTest {
                     entryDecorators =
                         listOf(
                             rememberSaveableStateHolderNavEntryDecorator(),
-                            rememberViewModelStoreNavEntryDecorator(
-                                removeViewModelStoreOnPop =
-                                    if (removeViewModelStoreOnPop) {
-                                        { true }
-                                    } else {
-                                        { false }
-                                    }
-                            ),
+                            rememberViewModelStoreNavEntryDecorator(),
                         ),
                 )
 
@@ -242,11 +239,60 @@ class ViewModelStoreNavEntryDecoratorTest {
         assertThat(viewModels.mapValues { (_, viewModel) -> viewModel.isCleared })
             .isEqualTo(mapOf(1 to false, 2 to false, 3 to true))
 
-        removeViewModelStoreOnPop = false
         backStack.removeAt(backStack.lastIndex)
         composeTestRule.waitForIdle()
         assertThat(viewModels.mapValues { (_, viewModel) -> viewModel.isCleared })
-            .isEqualTo(mapOf(1 to false, 2 to false, 3 to true))
+            .isEqualTo(mapOf(1 to false, 2 to true, 3 to true))
+    }
+
+    @Test
+    fun testHasDefaultViewModelProviderFactoryPropagation() {
+        lateinit var actualExtras: CreationExtras
+
+        val expectedKey = CreationExtras.Key<String>()
+        val expectedValue = "customValue"
+        val expectedExtras = CreationExtras { set(expectedKey, expectedValue) }
+        val expectedFactory = viewModelFactory {
+            initializer {
+                actualExtras = this
+                MyViewModel()
+            }
+        }
+        val expectedOwner =
+            ViewModelStoreOwner(
+                viewModelStore = ViewModelStore(),
+                defaultCreationExtras = expectedExtras,
+                defaultFactory = expectedFactory,
+            )
+
+        val entry =
+            NavEntry("key") {
+                // This will trigger the default factory from the LocalViewModelStoreOwner.
+                viewModel<MyViewModel>()
+            }
+
+        composeTestRule.setContent {
+            val decorated =
+                rememberDecoratedNavEntries(
+                    entries = listOf(entry),
+                    entryDecorators =
+                        listOf(
+                            rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator(expectedOwner),
+                        ),
+                )
+
+            decorated.forEach { entry -> entry.Content() }
+        }
+
+        composeTestRule.runOnIdle {
+            val actualOwner = actualExtras[VIEW_MODEL_STORE_OWNER_KEY]
+            assertThat(actualOwner.defaultViewModelProviderFactory).isEqualTo(expectedFactory)
+            assertThat(actualOwner.defaultViewModelCreationExtras[expectedKey])
+                .isEqualTo(expectedValue)
+
+            assertThat(actualExtras[expectedKey]).isEqualTo(expectedValue)
+        }
     }
 }
 

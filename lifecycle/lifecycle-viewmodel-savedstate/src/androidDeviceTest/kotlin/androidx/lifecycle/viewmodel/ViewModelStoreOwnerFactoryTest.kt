@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.read
 import androidx.savedstate.savedState
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -64,7 +65,8 @@ class ViewModelStoreOwnerFactoryTest {
         // without dropping the originally provided extras.
         val generatedExtras = ownerWithFactory.defaultViewModelCreationExtras
         assertThat(generatedExtras[TEST_EXTRA_KEY]).isEqualTo("test_value")
-        assertThat(generatedExtras[DEFAULT_ARGS_KEY]).isSameInstanceAs(defaultArgs)
+        assertThat(generatedExtras[DEFAULT_ARGS_KEY]!!.read { contentDeepEquals(defaultArgs) })
+            .isTrue()
         assertThat(generatedExtras[VIEW_MODEL_STORE_OWNER_KEY]).isSameInstanceAs(owner)
     }
 
@@ -108,6 +110,35 @@ class ViewModelStoreOwnerFactoryTest {
         // enableSavedStateHandles() should have registered the SAVED_STATE_KEY provider.
         assertThat(lifecycleOwner.savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY))
             .isNotNull()
+    }
+
+    @Test
+    @IgnoreAndroidHostTarget
+    fun viewModelStoreOwner_whenBaseExtrasHaveDefaultArgs_mergesWithProvidedDefaultArgs() {
+        val store = ViewModelStore()
+
+        // Provide an initial set of arguments to simulate existing state from an upstream caller.
+        val existingArgs = savedState { putString("existing_key", "existing_value") }
+        val baseExtras = MutableCreationExtras().apply { this[DEFAULT_ARGS_KEY] = existingArgs }
+
+        val factoryArgs = savedState { putString("factory_key", "factory_value") }
+        val factory = object : ViewModelProvider.Factory {}
+
+        val owner =
+            ViewModelStoreOwner(
+                viewModelStore = store,
+                defaultArgs = factoryArgs,
+                defaultCreationExtras = baseExtras,
+                defaultFactory = factory,
+            )
+
+        val ownerWithFactory = owner as HasDefaultViewModelProviderFactory
+        val generatedExtras = ownerWithFactory.defaultViewModelCreationExtras
+        val mergedArgs = generatedExtras[DEFAULT_ARGS_KEY]
+
+        assertThat(mergedArgs).isNotNull()
+        assertThat(mergedArgs?.read { getString("existing_key") }).isEqualTo("existing_value")
+        assertThat(mergedArgs?.read { getString("factory_key") }).isEqualTo("factory_value")
     }
 
     private class FakeSavedStateRegistryOwner : SavedStateRegistryOwner {

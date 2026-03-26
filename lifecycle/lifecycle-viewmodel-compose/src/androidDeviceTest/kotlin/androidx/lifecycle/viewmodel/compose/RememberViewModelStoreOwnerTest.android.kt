@@ -22,9 +22,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.lifecycle.DEFAULT_ARGS_KEY
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.read
+import androidx.savedstate.savedState
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -222,6 +227,21 @@ class RememberViewModelStoreOwnerTest {
 
         // The wrapper must fall back to a simple ViewModelStoreOwner
         assertThat(isSavedStateOwner).isFalse()
+    }
+
+    @Test
+    fun rememberViewModelStoreOwner_withDefaultArgs_propagatesToOwner() {
+        val expectedArgs = savedState { putString("key", "value") }
+        var actualArgs: SavedState? = null
+
+        rule.setContent {
+            val owner = rememberViewModelStoreOwner(defaultArgs = expectedArgs)
+            val ownerAsDefaults = owner as HasDefaultViewModelProviderFactory
+            actualArgs = ownerAsDefaults.defaultViewModelCreationExtras[DEFAULT_ARGS_KEY]
+        }
+        rule.waitForIdle()
+
+        assertThat(actualArgs!!.read { contentDeepEquals(expectedArgs) }).isTrue()
     }
 
     class TestViewModel : ViewModel() {

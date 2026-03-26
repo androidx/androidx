@@ -27,3 +27,15 @@ import kotlin.jvm.JvmName
  * @see ViewModelProvider.get(Class)
  */
 @MainThread public inline fun <reified VM : ViewModel> ViewModelProvider.get(): VM = get(VM::class)
+
+/**
+ * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or an
+ * activity), associated with this `ViewModelProvider` and the given [key].
+ *
+ * @param key The key to use to identify the ViewModel.
+ * @see ViewModelProvider.get(String, Class)
+ */
+@MainThread
+@Suppress("TypeParameterName") // Using 'VM' to match the existing ViewModelProvider API.
+public inline fun <reified VM : ViewModel> ViewModelProvider.get(key: String): VM =
+    get(key, modelClass = VM::class)
