@@ -50,14 +50,14 @@ androidXMultiplatform {
 
         commonMain.dependencies {
             api(project(":navigation:navigation-runtime"))
-            api(project(":lifecycle:lifecycle-runtime-testing"))
+            api("androidx.lifecycle:lifecycle-runtime-testing:2.10.0")
 
             implementation(libs.kotlinCoroutinesCore)
             implementation(libs.kotlinSerializationCore)
             implementation(project(":navigation:navigation-common"))
-            implementation(project(":lifecycle:lifecycle-common"))
-            implementation(project(":lifecycle:lifecycle-viewmodel"))
-            implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+            implementation("androidx.lifecycle:lifecycle-common:2.10.0")
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0")
         }
 
         commonTest.dependencies {
@@ -72,9 +72,9 @@ androidXMultiplatform {
         }
 
         androidMain.dependencies {
-            api(project(":lifecycle:lifecycle-runtime"))
-            api(project(":lifecycle:lifecycle-viewmodel"))
-            api(project(":savedstate:savedstate-ktx"))
+            api("androidx.lifecycle:lifecycle-runtime:2.10.0")
+            api("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
+            api("androidx.savedstate:savedstate-ktx:1.4.0")
             implementation("androidx.core:core-ktx:1.1.0")
             implementation("androidx.profileinstaller:profileinstaller:1.4.0")
         }
