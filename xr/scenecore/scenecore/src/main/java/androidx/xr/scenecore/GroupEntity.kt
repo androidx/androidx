@@ -38,7 +38,8 @@ public class GroupEntity private constructor(rtEntity: RtEntity, entityRegistry:
             parent: Entity? = entityRegistry.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): GroupEntity =
             GroupEntity(
-                sceneRuntime.createEntity(
+                @Suppress("DEPRECATION")
+                sceneRuntime.createGroupEntity(
                     pose,
                     name,
                     if (parent != null && parent !is BaseEntity<*>) {
