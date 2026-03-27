@@ -85,7 +85,6 @@ import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
 import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags.isIndirectPointerNavigationGestureDetectorEnabled
 import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
@@ -990,14 +989,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      *   View to be laid out so that a subsequent requestLayout() call will trigger remeasurement.
      */
     private val layoutChildViewsIfNeeded: () -> Unit = {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (AndroidComposeUiFlags.isForceChildLayoutAfterMeasurementEnabled) {
-            _androidViewsHandler?.let { viewsHandler ->
-                for (i in 0 until viewsHandler.childCount) {
-                    val child = viewsHandler.getChildAt(i) as? AndroidViewHolder ?: continue
-                    if (child.isLayoutRequested) {
-                        child.layout(child.left, child.top, child.right, child.bottom)
-                    }
+        _androidViewsHandler?.let { viewsHandler ->
+            for (i in 0 until viewsHandler.childCount) {
+                val child = viewsHandler.getChildAt(i) as? AndroidViewHolder ?: continue
+                if (child.isLayoutRequested) {
+                    child.layout(child.left, child.top, child.right, child.bottom)
                 }
             }
         }

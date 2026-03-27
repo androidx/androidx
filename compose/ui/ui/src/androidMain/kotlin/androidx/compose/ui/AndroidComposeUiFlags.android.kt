@@ -70,17 +70,6 @@ object AndroidComposeUiFlags {
     // TODO remove me b/486998514
     var isViewBasedSemanticsHandlerEnabled: Boolean = true
 
-    /**
-     * When enabled, forces child views to layout after measurement. Compose allows measurement
-     * without layout, but Views require measurement to be followed by layout in order to clear the
-     * requestLayout() flag. If the layout doesn't happen, and a change in that View happens again,
-     * a requestLayout() will not trigger a remeasurement.
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    // TODO remove me b/491111451
-    var isForceChildLayoutAfterMeasurementEnabled: Boolean = true
-
     /** This flag enables the Android Framework implementation of VelocityTracker. */
     // TODO: b/483449576
     @field:Suppress("MutableBareField")

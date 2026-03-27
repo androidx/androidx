@@ -73,8 +73,6 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AbsoluteAlignment
-import androidx.compose.ui.AndroidComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.background
@@ -2292,8 +2290,6 @@ class AndroidViewTest {
 
     @Test
     fun premeasuredViewCanChangeItsSizeBeforePlacement() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(AndroidComposeUiFlags.isForceChildLayoutAfterMeasurementEnabled)
         val tag = "view"
         lateinit var view: ChangingSizeView
         var shouldSubcompose by mutableStateOf(false)
