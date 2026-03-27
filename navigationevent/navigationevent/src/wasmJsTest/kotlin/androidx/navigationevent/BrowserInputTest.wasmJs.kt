@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-@file:OptIn(
-    ExperimentalCoroutinesApi::class
-    // ExperimentalWasmJsInterop::class
-)
+// ExperimentalWasmJsInterop is only available in Kotlin 2.2 and newer versions.
+@file:Suppress("OPT_IN_USAGE")
 
 package androidx.navigationevent
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.w3c.dom.PopStateEvent
@@ -56,8 +56,8 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0).map { it.toJsNumber() }, window.history.states)
-        assertEquals(0, window.history.index)
+        assertEquals(listOf(0).map { it.toJsNumber() }, window.states)
+        assertEquals(0, window.index)
     }
 
     @Test
@@ -72,8 +72,8 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.history.states)
-        assertEquals(1, window.history.index)
+        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.states)
+        assertEquals(1, window.index)
     }
 
     @Test
@@ -89,8 +89,8 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.history.states)
-        assertEquals(1, window.history.index)
+        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.states)
+        assertEquals(1, window.index)
     }
 
     @Test
@@ -106,8 +106,8 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.history.states)
-        assertEquals(1, window.history.index)
+        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.states)
+        assertEquals(1, window.index)
     }
 
     @Test
@@ -124,8 +124,8 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.history.states)
-        assertEquals(0, window.history.index)
+        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.states)
+        assertEquals(0, window.index)
     }
 
     @Test
@@ -142,8 +142,8 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.history.states)
-        assertEquals(0, window.history.index)
+        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.states)
+        assertEquals(0, window.index)
     }
 
     @Test
@@ -160,8 +160,8 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.history.states)
-        assertEquals(0, window.history.index)
+        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.states)
+        assertEquals(0, window.index)
     }
 
     @Test
@@ -188,12 +188,12 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        window.history.go(-1)
+        window.go(-1)
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.history.states)
-        assertEquals(0, window.history.index)
+        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.states)
+        assertEquals(0, window.index)
 
         assertEquals(listOf(A, B), dispatcher.history.value.mergedHistory)
         assertEquals(0, dispatcher.history.value.currentIndex)
@@ -223,12 +223,12 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        window.history.go(1)
+        window.go(1)
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.history.states)
-        assertEquals(1, window.history.index)
+        assertEquals(listOf(0, 1).map { it.toJsNumber() }, window.states)
+        assertEquals(1, window.index)
 
         assertEquals(listOf(A, B), dispatcher.history.value.mergedHistory)
         assertEquals(1, dispatcher.history.value.currentIndex)
@@ -260,13 +260,13 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        window.history.go(-2)
+        window.go(-2)
 
         advanceUntilIdle()
 
         assertEquals(2, invokedCount)
-        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.history.states)
-        assertEquals(0, window.history.index)
+        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.states)
+        assertEquals(0, window.index)
 
         assertEquals(listOf(A, B, C), dispatcher.history.value.mergedHistory)
         assertEquals(0, dispatcher.history.value.currentIndex)
@@ -298,13 +298,13 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        window.history.go(2)
+        window.go(2)
 
         advanceUntilIdle()
 
         assertEquals(2, invokedCount)
-        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.history.states)
-        assertEquals(2, window.history.index)
+        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.states)
+        assertEquals(2, window.index)
 
         assertEquals(listOf(A, B, C), dispatcher.history.value.mergedHistory)
         assertEquals(2, dispatcher.history.value.currentIndex)
@@ -329,12 +329,12 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        window.history.go(2)
+        window.go(2)
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.history.states)
-        assertEquals(0, window.history.index)
+        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.states)
+        assertEquals(0, window.index)
     }
 
     @Test
@@ -363,8 +363,8 @@ class BrowserInputTest {
 
         advanceUntilIdle()
 
-        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.history.states)
-        assertEquals(2, window.history.index)
+        assertEquals(listOf(0, 1, 2).map { it.toJsNumber() }, window.states)
+        assertEquals(2, window.index)
     }
 
     @Test
@@ -395,8 +395,20 @@ class BrowserInputTest {
         advanceUntilIdle()
 
         // [A, X, Y*, Z]
-        assertEquals(listOf(0, 1, 2, 3).map { it.toJsNumber() }, window.history.states)
-        assertEquals(2, window.history.index)
+        assertEquals(listOf(0, 1, 2, 3).map { it.toJsNumber() }, window.states)
+        assertEquals(2, window.index)
+    }
+
+    @Test
+    fun goTimeoutWorks() = runTest {
+        val window = TestWindow()
+        window.emitPopState = false
+
+        // This should not hang forever; it should complete via timeout
+        window.go(1)
+
+        // The index should still be updated in our mock to reflect the attempt
+        assertEquals(1, window.index)
     }
 }
 
@@ -407,21 +419,8 @@ private fun <T : NavigationEventInfo> NavigationEventHandler<T>.setInfos(
     setInfo(entries[currentIndex], entries.take(currentIndex), entries.drop(currentIndex + 1))
 }
 
-private class TestWindow : BrowserWindow {
-    override val history: TestBrowserHistory = TestBrowserHistory(this)
-    val eventListeners = mutableMapOf<String, MutableList<(Event) -> Unit>>()
-
-    override fun addEventListener(type: String, callback: (Event) -> Unit) {
-        val callbackList = eventListeners.getOrPut(type) { mutableListOf() }
-        callbackList.add(callback)
-    }
-
-    override fun removeEventListener(type: String, callback: (Event) -> Unit) {
-        eventListeners[type]?.remove(callback)
-    }
-}
-
-private class TestBrowserHistory(private val window: TestWindow) : BrowserHistory {
+private class TestWindow : WindowCompat {
+    private val eventListeners = mutableMapOf<String, MutableList<(Event) -> Unit>>()
 
     data class Entry(val state: JsAny?, val url: String?)
 
@@ -433,10 +432,19 @@ private class TestBrowserHistory(private val window: TestWindow) : BrowserHistor
     var index = 0
         private set
 
+    var emitPopState: Boolean = true
+
     override val state: JsAny?
         get() = entries[index].state
 
-    override fun push(data: JsAny?, url: String?) {
+    override val popStateEvents: Flow<PopStateEvent> = callbackFlow {
+        val callback: (Event) -> Unit = { event: Event -> trySend(event as PopStateEvent) }
+        val callbackList = eventListeners.getOrPut(WindowCompat.TYPE_POP_STATE) { mutableListOf() }
+        callbackList.add(callback)
+        awaitClose { eventListeners[WindowCompat.TYPE_POP_STATE]?.remove(callback) }
+    }
+
+    override fun pushState(data: JsAny?, url: String?) {
         // Removing
         for (i in entries.size - 1 downTo index + 1) {
             entries.removeAt(i)
@@ -447,19 +455,23 @@ private class TestBrowserHistory(private val window: TestWindow) : BrowserHistor
         index++
     }
 
-    override fun replace(data: JsAny?, url: String?) {
+    override fun replaceState(data: JsAny?, url: String?) {
         entries[index] = Entry(data, url)
     }
 
     override suspend fun go(delta: Int) {
+        if (delta == 0) return
         index += delta
-        window.eventListeners[BrowserInput.TYPE_POPSTATE]?.forEach {
-            it.invoke(
-                PopStateEvent(
-                    BrowserInput.TYPE_POPSTATE,
-                    PopStateEventInit(entries[index].state, false, false, false),
+
+        if (emitPopState) {
+            eventListeners[WindowCompat.TYPE_POP_STATE]?.forEach { listener ->
+                listener.invoke(
+                    PopStateEvent(
+                        type = WindowCompat.TYPE_POP_STATE,
+                        eventInitDict = PopStateEventInit(entries[index].state),
+                    )
                 )
-            )
+            }
         }
     }
 }

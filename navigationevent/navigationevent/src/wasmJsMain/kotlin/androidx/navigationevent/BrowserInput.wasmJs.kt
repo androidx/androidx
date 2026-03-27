@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// ExperimentalWasmJsInterop is only available in Kotlin 2.2 and newer versions.
+@file:Suppress("OPT_IN_USAGE")
+
 package androidx.navigationevent
 
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,24 +24,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import org.w3c.dom.PopStateEvent
 import org.w3c.dom.Window
-import org.w3c.dom.events.Event
 
-// @OptIn(ExperimentalWasmJsInterop::class)
 internal class BrowserInput(
-    private val browserWindow: BrowserWindow,
+    private val window: WindowCompat,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) : NavigationEventInput() {
 
     private var coroutineScope: CoroutineScope? = null
-
-    internal companion object {
-        const val TYPE_POPSTATE = "popstate"
-    }
 
     private val currentHistory: SessionHistory = SessionHistory()
 
@@ -46,18 +41,16 @@ internal class BrowserInput(
 
     private var processHistoryChange = true
 
-    private val browserHistory = browserWindow.history
-
-    public constructor(window: Window) : this(BrowserWindowImpl(window))
+    constructor(window: Window) : this(WindowCompat(window))
 
     override fun onAdded(dispatcher: NavigationEventDispatcher) {
         // Only start listening to popstate events after the input is connected to a dispatcher.
         val scope = CoroutineScope(Job() + coroutineDispatcher)
-        scope.launch { browserWindow.createPopStateFlow().collect(::onPopState) }
+        scope.launch { window.popStateEvents.collect(::onPopState) }
         coroutineScope = scope
 
         // Initialize the browser history to [entries from other apps or instances, ... , 0*].
-        browserHistory.replace(0.toJsNumber(), null)
+        window.replaceState(0.toJsNumber())
     }
 
     override fun onRemoved() {
@@ -79,7 +72,7 @@ internal class BrowserInput(
         ) {
             // User goes to an invalid entry, so we move them back.
             coroutineScope!!.launch {
-                disableOnPopStateCallback { browserHistory.go(newIndex, currentHistory.index) }
+                disableOnPopStateCallback { window.go(currentHistory.index - newIndex) }
             }
         } else {
             if (newIndex < currentHistory.index) {
@@ -121,21 +114,21 @@ internal class BrowserInput(
     private suspend fun updateBrowserHistory(newHistory: NavigationEventHistory) {
         if (currentHistory.availableSize >= newHistory.mergedHistory.size) {
             // We have enough entries already. Go to the new currentIndex directly.
-            browserHistory.go(currentHistory.index, newHistory.currentIndex)
+            window.go(newHistory.currentIndex - currentHistory.index)
         } else { // newHistory.entries.size > oldHistory.entries.size
             // We don't have enough entries, so we start pushing at the end.
 
             // Move to the last entry
-            browserHistory.go(currentHistory.index, currentHistory.availableSize - 1)
+            window.go(currentHistory.availableSize - 1 - currentHistory.index)
 
             var index = currentHistory.availableSize
             while (index < newHistory.mergedHistory.size) {
-                browserHistory.push(index.toJsNumber(), null)
+                window.pushState(index.toJsNumber())
                 index++
             }
 
             // Go back to currentIndex.
-            browserHistory.go(newHistory.mergedHistory.size - 1, newHistory.currentIndex)
+            window.go(newHistory.currentIndex - (newHistory.mergedHistory.size - 1))
 
             currentHistory.availableSize = newHistory.mergedHistory.size
         }
@@ -189,17 +182,4 @@ internal class BrowserInput(
             return result
         }
     }
-
-    private suspend fun BrowserHistory.go(source: Int, destination: Int) {
-        val delta = destination - source
-        if (delta != 0) {
-            go(delta)
-        }
-    }
-}
-
-private fun BrowserWindow.createPopStateFlow() = callbackFlow {
-    val callback: (Event) -> Unit = { event: Event -> trySend(event as PopStateEvent) }
-    addEventListener(BrowserInput.TYPE_POPSTATE, callback)
-    awaitClose { removeEventListener(BrowserInput.TYPE_POPSTATE, callback) }
 }
