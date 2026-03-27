@@ -101,12 +101,17 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
         private set
 
     /**
-     * The primary [Entity] that acts as a spatial reference for the scene's content.
+     * The primary [Entity] that serves as the spatial reference for the scene's content.
      *
-     * The default behavior on a spatial mode change uses this Entity to maintain a consistent
-     * spatial context for the user. When the scene enters Full Space Mode or is re-centered, the
-     * system provides a recommended pose and scale. This ensures continuity of the user's attention
-     * across spatial mode changes such as during transitions into Full Space Mode.
+     * This entity is used to maintain visual continuity during spatial mode transitions. When
+     * entering Full Space Mode or re-centering the scene, the system provides a recommended pose
+     * and scale. SceneCore's default mode change handler applies those to the entity designated as
+     * [keyEntity] to help preserve the user's spatial context across these mode transitions.
+     *
+     * Starting with Spatial API v2, setting [keyEntity] allows SceneCore to share the entity's pose
+     * with the system as a spatial continuity hint. The system uses this hint to maintain visual
+     * consistency when the current activity transitions to the Home Space or when a new activity is
+     * launched.
      *
      * Unmovable Entities, such as [AnchorEntity] or [ActivitySpace], cannot be set as the
      * [Scene.keyEntity] and will throw [IllegalArgumentException] if set.
