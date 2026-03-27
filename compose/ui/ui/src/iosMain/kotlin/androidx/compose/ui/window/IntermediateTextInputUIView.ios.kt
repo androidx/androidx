@@ -275,7 +275,8 @@ internal class IntermediateTextInputUIView(
      * @return A substring of a document that falls within the specified range.
      */
     override fun textInRange(range: UITextRange): String? {
-        return input?.textInRange(range.toTextRange())
+        val textRange = range.toTextRange() ?: return null
+        return input?.textInRange(textRange)
     }
 
     /**
@@ -285,8 +286,9 @@ internal class IntermediateTextInputUIView(
      * @param withText A string to replace the text in range.
      */
     override fun replaceRange(range: UITextRange, withText: String) {
+        val textRange = range.toTextRange() ?: return
         input?.withBatch {
-            input?.replaceRange(range.toTextRange(), withText)
+            input?.replaceRange(textRange, withText)
         }
     }
 
@@ -482,9 +484,9 @@ internal class IntermediateTextInputUIView(
         withinRange: UITextRange
     ): NSInteger {
         return if (usingNativeTextInput) {
-            if (!withinRange.isValid()) { return 0L }
+            val withinTextRange = withinRange.toTextRange() ?: return 0L
             val intermediatePosition = (position as? IntermediateTextPosition)?.position ?: 0
-            (intermediatePosition - withinRange.toTextRange().start).toLong()
+            (intermediatePosition - withinTextRange.start).toLong()
         } else 0L
     }
 
@@ -492,9 +494,10 @@ internal class IntermediateTextInputUIView(
         range: UITextRange,
         atCharacterOffset: NSInteger
     ): UITextPosition = if (usingNativeTextInput) {
-        val textRange = range.toTextRange()
+        val fallback = IntermediateTextPosition(0)
+        val textRange = range.toTextRange() ?: return fallback
         (textRange.start + atCharacterOffset.toInt()).takeIf { range.isValid() && it in textRange }
-            ?.let { IntermediateTextPosition(it) } ?: IntermediateTextPosition(0)
+            ?.let { IntermediateTextPosition(it) } ?: fallback
     } else {
         IntermediateTextPosition(0)
     }
@@ -503,11 +506,13 @@ internal class IntermediateTextInputUIView(
         range: UITextRange,
         farthestInDirection: UITextLayoutDirection
     ): UITextPosition = if (usingNativeTextInput) {
+        val fallback = IntermediateTextPosition(0)
+        val textRange = range.toTextRange() ?: return fallback
         PlatformTextLayoutDirection(farthestInDirection)?.let { direction ->
-            input?.positionWithinRange(range.toTextRange(), direction)?.let {
+            input?.positionWithinRange(textRange, direction)?.let {
                 IntermediateTextPosition(it)
             }
-        } ?: IntermediateTextPosition(0)
+        } ?: fallback
     } else {
         IntermediateTextPosition(0)
     }
@@ -540,8 +545,10 @@ internal class IntermediateTextInputUIView(
 
     override fun firstRectForRange(range: UITextRange): CValue<CGRect> {
         if (usingNativeTextInput) {
-            return input?.firstSelectionRectForRange(range.toTextRange())?.asCGRect()
-                ?: CGRectZero.readValue()
+            val fallback = CGRectZero.readValue()
+            val textRange = range.toTextRange() ?: return fallback
+            return input?.firstSelectionRectForRange(textRange)?.asCGRect()
+                ?: fallback
         } else {
             return CGRectNull.readValue()
         }
@@ -807,7 +814,7 @@ internal class IntermediateTextInputUIView(
     }
 
     private fun UITextRange.isValid(): Boolean {
-        val range = this.toTextRange()
+        val range = this.toTextRange() ?: return false
         val textEndPos = input?.endOfDocument() ?: 0
         return range.start in 0..range.end && range.end <= textEndPos
     }
@@ -865,9 +872,10 @@ private class IntermediateTextRange(
     }
 }
 
-private fun UITextRange.toTextRange(): TextRange {
-    val start = (start() as IntermediateTextPosition).position
-    val end = (end() as IntermediateTextPosition).position
+// Despite UITextRange being declared as non-null, iOS can still pass null to methods that take a UITextRange parameter.
+private fun UITextRange.toTextRange(): TextRange? {
+    val start = (start() as? IntermediateTextPosition)?.position ?: return null
+    val end = (end() as? IntermediateTextPosition)?.position ?: return null
     return TextRange(start, end)
 }
 
