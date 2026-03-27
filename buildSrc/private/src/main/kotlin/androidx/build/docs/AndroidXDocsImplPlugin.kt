@@ -938,13 +938,24 @@ private val annotationsToHideApis: List<String> =
 
 /** Data class that matches JSON structure of kotlin source set metadata */
 data class ProjectStructureMetadata(var sourceSets: List<SourceSetMetadata>) {
-    /** Computes the source sets which are dependent on [name] (including [name]. */
-    fun sourceSetsDependentOn(name: String): List<String> {
-        return sourceSets
-            .filter { otherSourceSet ->
-                name == otherSourceSet.name || name in otherSourceSet.dependencies
-            }
-            .map { it.name }
+    /**
+     * Mapping from source set name to transitive dependent source sets computed in
+     * [sourceSetsDependentOn], to avoid having to recompute.
+     */
+    private val cachedTransitiveDependentOn: MutableMap<String, Set<String>> = mutableMapOf()
+
+    /** Computes the source sets which are transitively dependent on [name] (including [name]). */
+    fun sourceSetsDependentOn(name: String): Set<String> {
+        // If the dependent source sets have already been found, return that.
+        return cachedTransitiveDependentOn.getOrPut(name) {
+            // Find all source sets which directly depend on this one.
+            val dependentOn =
+                sourceSets
+                    .filter { otherSourceSet -> name in otherSourceSet.dependencies }
+                    .map { it.name }
+            // Find the transitive dependent source sets, and also include [name] in the set.
+            dependentOn.flatMap { sourceSetsDependentOn(it) }.toSet() + name
+        }
     }
 }
 

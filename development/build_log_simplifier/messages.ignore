@@ -965,15 +965,6 @@ protected void finalize\(\) \{
 ^C/C\+\+: ninja: warning: build log version is too old; starting over.*
 ^C/C\+\+: ninja: warning: bad deps log signature or version; starting over.*
 # > Task :docs-public:docs
-WARN: Couldn't resolve link: \[Flow\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedMultiplatformSources/jvmNativeMain/androidx/room/InvalidationTracker\.jvmNative\.kt:[0-9]+:[0-9]+ \(androidx/jvmNativeMain\)
-WARN: Couldn't resolve link: \[IllegalArgumentException\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedMultiplatformSources/jvmNativeMain/androidx/room/InvalidationTracker\.jvmNative\.kt:[0-9]+:[0-9]+ \(androidx/jvmNativeMain\)
-WARN: Couldn't resolve link: \[IllegalArgumentException\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedMultiplatformSources/jvmNativeMain/androidx/room/RoomDatabase\.jvmNative\.kt:[0-9]+:[0-9]+ \(androidx/jvmNativeMain\)
-WARN: Couldn't resolve link: \[NotImplementedError\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedMultiplatformSources/jvmNativeMain/androidx/room/RoomDatabase\.jvmNative\.kt:[0-9]+:[0-9]+ \(androidx/jvmNativeMain\)
-WARN: Couldn't resolve link: \[androidx\.sqlite\.driver\.NativeSQLiteDriver\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedMultiplatformSources/jvmNativeMain/androidx/room/RoomDatabase\.jvmNative\.kt:[0-9]+:[0-9]+ \(androidx/jvmNativeMain\)
-WARN: Couldn't resolve link: \[IllegalStateException\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedMultiplatformSources/jvmNativeMain/androidx/room/RoomDatabase\.jvmNative\.kt:[0-9]+:[0-9]+ \(androidx/jvmNativeMain\)
-WARN: Couldn't resolve link: \[CoroutineContext\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedMultiplatformSources/jvmNativeMain/androidx/room/RoomDatabase\.jvmNative\.kt:[0-9]+:[0-9]+ \(androidx/jvmNativeMain\)
-WARN: Couldn't resolve link: \[CoroutineDispatcher\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedMultiplatformSources/jvmNativeMain/androidx/room/RoomDatabase\.jvmNative\.kt:[0-9]+:[0-9]+ \(androidx/jvmNativeMain\)
-WARN: Couldn't resolve link: \[CoroutineContext\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedMultiplatformSources/jvmNativeMain/androidx/room/util/DBUtil\.jvmNative\.kt:[0-9]+:[0-9]+ \(androidx/jvmNativeMain\)
 In Dokka K[0-9]+ it will be an error\. Also, please consider reporting your user case: https://github\.com/Kotlin/dokka/issues/[0-9]+
 WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/CredentialAuthExtensions\.kt:[0-9]+ Failed to resolve See CredentialAuthPrompt\.authenticate in DFunction authenticate\. Did you mean CredentialAuthPrompt\#authenticate\?
 WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/Class[0-9]+BiometricOrCredentialAuthExtensions\.kt:[0-9]+ Failed to resolve See Class[0-9]+BiometricOrCredentialAuthPrompt\.authenticate in DFunction authenticate\. Did you mean Class[0-9]+BiometricOrCredentialAuthPrompt\#authenticate\?

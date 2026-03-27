@@ -240,7 +240,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                 includes = objects.fileCollection().from(includesFiles(sourceDir)),
                                 classpath =
                                     classpathForSourceSet(
-                                        metadata.sourceSetsDependentOn(sourceSet.name),
+                                        metadata.sourceSetsDependentOn(sourceSet.name).toList(),
                                         analysisPlatform,
                                     ),
                                 externalDocumentationLinks = externalDocs,
