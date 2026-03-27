@@ -908,6 +908,10 @@ internal class UIKitTextInputService(
             }
             val currentTextLayoutResult = textLayoutResult ?: return emptyList()
 
+            // Layout in native text input mode may be outdated, so not checking this may cause OOB error
+            // This workaround should be deleted after https://youtrack.jetbrains.com/issue/CMP-9767/
+            if (range.end > currentTextLayoutResult.multiParagraph.intrinsics.annotatedString.length) return emptyList()
+
             val startSelectionHandleRect = currentTextLayoutResult.getCursorRect(range.start)
             val endSelectionHandleRect = currentTextLayoutResult.getCursorRect(range.end)
 
@@ -995,6 +999,10 @@ internal class UIKitTextInputService(
                 return null
             }
             val currentTextLayoutResult = textLayoutResult ?: return null
+
+            // Layout in native text input mode may be outdated, so not checking this may cause OOB error
+            // This workaround should be deleted after https://youtrack.jetbrains.com/issue/CMP-9767/
+            if (range.end > currentTextLayoutResult.multiParagraph.intrinsics.annotatedString.length) return null
 
             val startHandleLineNumber = currentTextLayoutResult.getLineForOffset(range.start)
             val endHandleLineNumber = currentTextLayoutResult.getLineForOffset(range.end)
