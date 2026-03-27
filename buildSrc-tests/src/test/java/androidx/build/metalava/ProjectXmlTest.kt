@@ -61,9 +61,9 @@ class ProjectXmlTest {
         checkElementXml(
             element,
             """
-                <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]">
-                  <src jar="/fake/path/root/compiledSources.jar"/>
-                </module>
+            <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]">
+              <src jar="/fake/path/root/compiledSources.jar"/>
+            </module>
             """
                 .trimIndent(),
         )
@@ -84,9 +84,9 @@ class ProjectXmlTest {
         checkElementXml(
             element,
             """
-                <module name="commonMain" kotlinPlatforms="JVM [1.8]">
-                  <src jar="/fake/path/root/compiledSources.jar"/>
-                </module>
+            <module name="commonMain" kotlinPlatforms="JVM [1.8]">
+              <src jar="/fake/path/root/compiledSources.jar"/>
+            </module>
             """
                 .trimIndent(),
         )
@@ -115,18 +115,18 @@ class ProjectXmlTest {
         checkElementXml(
             element,
             """
-                <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]">
-                  <dep module="commonMain" kind="dependsOn"/>
-                  <dep module="jvmMain" kind="dependsOn"/>
-                  <src file="/fake/path/root/sources/Foo.kt"/>
-                  <src file="/fake/path/root/sources/Bar.kt"/>
-                  <src file="/fake/path/root/sources/Baz.java"/>
-                  <classpath jar="/fake/path/root/classpath/jarDependency.jar"/>
-                  <classpath aar="/fake/path/root/classpath/androidDependency.aar"/>
-                  <klib file="/fake/path/root/classpath/klibDependency.klib"/>
-                  <classpath dir="/fake/path/root/classpath/directoryDependency"/>
-                  <src jar="/fake/path/root/compiledSources.jar"/>
-                </module>
+            <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]">
+              <dep module="commonMain" kind="dependsOn"/>
+              <dep module="jvmMain" kind="dependsOn"/>
+              <src file="/fake/path/root/sources/Foo.kt"/>
+              <src file="/fake/path/root/sources/Bar.kt"/>
+              <src file="/fake/path/root/sources/Baz.java"/>
+              <classpath jar="/fake/path/root/classpath/jarDependency.jar"/>
+              <classpath aar="/fake/path/root/classpath/androidDependency.aar"/>
+              <klib file="/fake/path/root/classpath/klibDependency.klib"/>
+              <classpath dir="/fake/path/root/classpath/directoryDependency"/>
+              <src jar="/fake/path/root/compiledSources.jar"/>
+            </module>
             """
                 .trimIndent(),
         )
@@ -153,9 +153,9 @@ class ProjectXmlTest {
         checkElementXml(
             element,
             """
-                <module name="commonMain" kotlinPlatforms="JVM [1.8]/Native []/Native [general]/Wasm [general]/JS []">
-                  <src jar="/fake/path/root/compiledSources.jar"/>
-                </module>
+            <module name="commonMain" kotlinPlatforms="JVM [1.8]/Native []/Native [general]/Wasm [general]/JS []">
+              <src jar="/fake/path/root/compiledSources.jar"/>
+            </module>
             """
                 .trimIndent(),
         )
@@ -167,9 +167,9 @@ class ProjectXmlTest {
         checkElementXml(
             element,
             """
-                <project>
-                  <root dir="."/>
-                </project>
+            <project>
+              <root dir="."/>
+            </project>
             """
                 .trimIndent(),
         )
@@ -187,11 +187,11 @@ class ProjectXmlTest {
         checkElementXml(
             element,
             """
-                <project>
-                  <root dir="."/>
-                  <someElement/>
-                  <anotherElement/>
-                </project>
+            <project>
+              <root dir="."/>
+              <someElement/>
+              <anotherElement/>
+            </project>
             """
                 .trimIndent(),
         )
@@ -214,7 +214,7 @@ class ProjectXmlTest {
     @Test
     fun testFilterSourceSets() {
         val project = ProjectBuilder.builder().build()
-        val sourceSets =
+        val initialSourceSets =
             listOf(
                 fakeSourceSetInputs("commonMain", emptyList(), project),
                 fakeSourceSetInputs("jvmAndAndroidMain", listOf("commonMain"), project),
@@ -230,12 +230,33 @@ class ProjectXmlTest {
                 fakeSourceSetInputs("iosMain", listOf("appleMain"), project),
                 fakeSourceSetInputs("watchosMain", listOf("appleMain"), project),
             )
+
+        val updatedSourceSets = ProjectXml.updateDependsOn(initialSourceSets)
+        assertEquals(
+            updatedSourceSets.map { it.sourceSetName to it.dependsOnSourceSets },
+            listOf(
+                "commonMain" to emptyList<String>(),
+                "jvmAndAndroidMain" to listOf("commonMain"),
+                "androidMain" to listOf("jvmAndAndroidMain", "commonMain"),
+                "jvmMain" to listOf("jvmAndAndroidMain", "commonMain"),
+                "nonJvmMain" to listOf("commonMain"),
+                "webMain" to listOf("nonJvmMain", "commonMain"),
+                "jsMain" to listOf("webMain", "nonJvmMain", "commonMain"),
+                "wasmMain" to listOf("webMain", "nonJvmMain", "commonMain"),
+                "nativeMain" to listOf("nonJvmMain", "commonMain"),
+                "linuxMain" to listOf("nativeMain", "nonJvmMain", "commonMain"),
+                "appleMain" to listOf("nativeMain", "nonJvmMain", "commonMain"),
+                "iosMain" to listOf("appleMain", "nativeMain", "nonJvmMain", "commonMain"),
+                "watchosMain" to listOf("appleMain", "nativeMain", "nonJvmMain", "commonMain"),
+            ),
+        )
+
         val filteredSourceSets =
             ProjectXml.filterSourceSets(
-                sourceSets,
+                updatedSourceSets,
                 mapOf(
                     "commonMain" to listOf(File("fake.kt")),
-                    // Empty, but kept because androidMain depends on it
+                    // Will be filtered, needs to be removed from androidMain dependsOn list
                     "jvmAndAndroidMain" to emptyList(),
                     "androidMain" to listOf(File("fake.kt")),
                     // Will be filtered
@@ -257,13 +278,24 @@ class ProjectXmlTest {
             filteredSourceSets.map { it.sourceSetName },
             listOf(
                 "commonMain",
-                "jvmAndAndroidMain",
                 "androidMain",
                 "nonJvmMain",
                 "webMain",
                 "jsMain",
                 "wasmMain",
                 "nativeMain",
+            ),
+        )
+        assertEquals(
+            filteredSourceSets.map { it.sourceSetName to it.dependsOnSourceSets },
+            listOf(
+                "commonMain" to emptyList<String>(),
+                "androidMain" to listOf("commonMain"),
+                "nonJvmMain" to listOf("commonMain"),
+                "webMain" to listOf("nonJvmMain", "commonMain"),
+                "jsMain" to listOf("webMain", "nonJvmMain", "commonMain"),
+                "wasmMain" to listOf("webMain", "nonJvmMain", "commonMain"),
+                "nativeMain" to listOf("nonJvmMain", "commonMain"),
             ),
         )
     }

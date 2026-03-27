@@ -45,9 +45,9 @@ internal object ProjectXml {
             sourceSets.associate { sourceSet ->
                 sourceSet.sourceSetName to sourceFiles(sourceSet.sourcePaths)
             }
-        val filteredSourceSets = filterSourceSets(sourceSets, sourceSetFiles)
+        val updatedSourceSets = filterSourceSets(updateDependsOn(sourceSets), sourceSetFiles)
         val sourceSetElements =
-            filteredSourceSets.map { sourceSet ->
+            updatedSourceSets.map { sourceSet ->
                 val sourceSetDependencies = sourceSet.dependencyClasspath.files
                 // Include Android jars only for JVM and Android source sets (they are needed for
                 // JVM because they provide the java standard libraries).
@@ -74,32 +74,67 @@ internal object ProjectXml {
     }
 
     /**
-     * Returns a filtered list of source sets, removing those that have no source files and are not
-     * depended on by any other source sets.
+     * Update the depends on lists for the [sourceSets] to contain all source sets that are
+     * transitively depended on by the source set.
+     *
+     * For instance, if `androidMain` depends on `jvmAndAndroidMain` while `jvmAndAndroidMain`
+     * depends on `commonMain`, after the source sets are updated `androidMain` will depend on both
+     * `jvmAndAndroidMain` and `commonMain`.
+     */
+    @VisibleForTesting
+    fun updateDependsOn(sourceSets: List<SourceSetInputs>): List<SourceSetInputs> {
+        // Create a map of computed transitive dependencies so they don't need to be recomputed.
+        val transitiveDependsOn = mutableMapOf<String, Set<String>>()
+        val sourceSetNameToSourceSet = sourceSets.associateBy { it.sourceSetName }
+        return sourceSets.map {
+            it.copy(
+                dependsOnSourceSets =
+                    transitiveDependsOn(it, sourceSetNameToSourceSet, transitiveDependsOn).toList()
+            )
+        }
+    }
+
+    /** Compute the transitive source set dependencies of [sourceSet]. See [updateDependsOn]. */
+    private fun transitiveDependsOn(
+        sourceSet: SourceSetInputs,
+        sourceSetNameToSourceSet: Map<String, SourceSetInputs>,
+        sourceSetNameToDependsOn: MutableMap<String, Set<String>>,
+    ): Set<String> {
+        return sourceSetNameToDependsOn.getOrPut(sourceSet.sourceSetName) {
+            sourceSet.dependsOnSourceSets.toSet() +
+                // Compute transitive dependencies for all depends on source sets.
+                sourceSet.dependsOnSourceSets.flatMap {
+                    transitiveDependsOn(
+                        requireNotNull(sourceSetNameToSourceSet[it]),
+                        sourceSetNameToSourceSet,
+                        sourceSetNameToDependsOn,
+                    )
+                }
+        }
+    }
+
+    /**
+     * Returns a filtered list of source sets, removing those that have no source files. The removed
+     * source sets are also removed from the depends on lists of the source sets that remain.
      */
     @VisibleForTesting
     fun filterSourceSets(
         sourceSets: List<SourceSetInputs>,
         sourceSetFiles: Map<String, List<File>>,
     ): List<SourceSetInputs> {
-        val filtered =
-            sourceSets.filter { sourceSet ->
+        val (keep, remove) =
+            sourceSets.partition { sourceSet ->
                 // Include any source sets with source files.
                 sourceSetFiles[sourceSet.sourceSetName]!!.isNotEmpty() ||
-                    // Include any source sets that are depended on by another source set.
-                    sourceSets.any { otherSourceSet ->
-                        sourceSet.sourceSetName in otherSourceSet.dependsOnSourceSets
-                    } ||
                     // Include androidMain, even if it has no source files, to prevent errors that
                     // come from excluding the primary source set for the android compilation.
                     sourceSet.sourceSetName == "androidMain"
             }
-        // If any source sets were filtered, do another pass as there may be source sets which were
-        // previously depended on by filtered source sets which now can also be filtered.
-        return if (filtered.size == sourceSets.size) {
-            filtered
-        } else {
-            filterSourceSets(filtered, sourceSetFiles)
+        val removeNames = remove.map { it.sourceSetName }.toSet()
+
+        return keep.map { sourceSet ->
+            val filteredDependsOn = sourceSet.dependsOnSourceSets.filter { it !in removeNames }
+            sourceSet.copy(dependsOnSourceSets = filteredDependsOn)
         }
     }
 
