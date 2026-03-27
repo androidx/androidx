@@ -225,9 +225,9 @@ val message = when (command) {
 
 #### Non-exhaustive alternatives to `enum class`
 
-Kotlin's `@JvmInline value class` with a `private constructor` can be used to
-create type-safe sets of non-exhaustive constants as of Kotlin 1.5. Compose's
-`BlendMode` uses the following pattern:
+For APIs with no Java clients, Kotlin's `@JvmInline value class` with a `private
+constructor` can be used to create type-safe sets of non-exhaustive constants as
+of Kotlin 1.5. Compose's `BlendMode` uses the following pattern:
 
 ```kotlin {.good}
 @JvmInline
