@@ -1,89 +1,31 @@
 // Baseline format: 1.0
-RemovedFromBytecode: androidx.core.content.ContextKt#getSystemService(android.content.Context):
-    Binary breaking change: method androidx.core.content.ContextKt.getSystemService(android.content.Context) has been removed from bytecode
-RemovedFromBytecode: androidx.core.text.SpannedStringKt#getSpans(android.text.Spanned, int, int):
-    Binary breaking change: method androidx.core.text.SpannedStringKt.getSpans(android.text.Spanned,int,int) has been removed from bytecode
-
-
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getAlpha(int):
-    Source breaking change: method androidx.core.graphics.ColorKt.getAlpha(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getAlpha(long):
-    Source breaking change: method androidx.core.graphics.ColorKt.getAlpha(long) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getBlue(int):
-    Source breaking change: method androidx.core.graphics.ColorKt.getBlue(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getBlue(long):
-    Source breaking change: method androidx.core.graphics.ColorKt.getBlue(long) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getColorSpace(long):
-    Source breaking change: method androidx.core.graphics.ColorKt.getColorSpace(long) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getGreen(int):
-    Source breaking change: method androidx.core.graphics.ColorKt.getGreen(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getGreen(long):
-    Source breaking change: method androidx.core.graphics.ColorKt.getGreen(long) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getLuminance(int):
-    Source breaking change: method androidx.core.graphics.ColorKt.getLuminance(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getLuminance(long):
-    Source breaking change: method androidx.core.graphics.ColorKt.getLuminance(long) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getRed(int):
-    Source breaking change: method androidx.core.graphics.ColorKt.getRed(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#getRed(long):
-    Source breaking change: method androidx.core.graphics.ColorKt.getRed(long) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#isSrgb(long):
-    Source breaking change: method androidx.core.graphics.ColorKt.isSrgb(long) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.graphics.ColorKt#isWideGamut(long):
-    Source breaking change: method androidx.core.graphics.ColorKt.isWideGamut(long) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.text.LocaleKt#getLayoutDirection(java.util.Locale):
-    Source breaking change: method androidx.core.text.LocaleKt.getLayoutDirection(java.util.Locale) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.util.LongSparseArrayKt#getSize(android.util.LongSparseArray<T>):
-    Source breaking change: method androidx.core.util.LongSparseArrayKt.getSize(android.util.LongSparseArray<T>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.util.SparseArrayKt#getSize(android.util.SparseArray<T>):
-    Source breaking change: method androidx.core.util.SparseArrayKt.getSize(android.util.SparseArray<T>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.util.SparseBooleanArrayKt#getSize(android.util.SparseBooleanArray):
-    Source breaking change: method androidx.core.util.SparseBooleanArrayKt.getSize(android.util.SparseBooleanArray) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.util.SparseIntArrayKt#getSize(android.util.SparseIntArray):
-    Source breaking change: method androidx.core.util.SparseIntArrayKt.getSize(android.util.SparseIntArray) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.util.SparseLongArrayKt#getSize(android.util.SparseLongArray):
-    Source breaking change: method androidx.core.util.SparseLongArrayKt.getSize(android.util.SparseLongArray) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.MenuKt#getChildren(android.view.Menu):
-    Source breaking change: method androidx.core.view.MenuKt.getChildren(android.view.Menu) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.MenuKt#getSize(android.view.Menu):
-    Source breaking change: method androidx.core.view.MenuKt.getSize(android.view.Menu) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewGroupKt#getChildren(android.view.ViewGroup):
-    Source breaking change: method androidx.core.view.ViewGroupKt.getChildren(android.view.ViewGroup) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewGroupKt#getDescendants(android.view.ViewGroup):
-    Source breaking change: method androidx.core.view.ViewGroupKt.getDescendants(android.view.ViewGroup) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewGroupKt#getIndices(android.view.ViewGroup):
-    Source breaking change: method androidx.core.view.ViewGroupKt.getIndices(android.view.ViewGroup) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewGroupKt#getSize(android.view.ViewGroup):
-    Source breaking change: method androidx.core.view.ViewGroupKt.getSize(android.view.ViewGroup) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#getAllViews(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.getAllViews(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#getAncestors(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.getAncestors(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#getMarginBottom(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.getMarginBottom(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#getMarginEnd(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.getMarginEnd(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#getMarginLeft(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.getMarginLeft(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#getMarginRight(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.getMarginRight(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#getMarginStart(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.getMarginStart(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#getMarginTop(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.getMarginTop(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#isGone(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.isGone(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#isInvisible(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.isInvisible(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#isVisible(android.view.View):
-    Source breaking change: method androidx.core.view.ViewKt.isVisible(android.view.View) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#setGone(android.view.View, boolean):
-    Source breaking change: method androidx.core.view.ViewKt.setGone(android.view.View,boolean) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#setInvisible(android.view.View, boolean):
-    Source breaking change: method androidx.core.view.ViewKt.setInvisible(android.view.View,boolean) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.core.view.ViewKt#setVisible(android.view.View, boolean):
-    Source breaking change: method androidx.core.view.ViewKt.setVisible(android.view.View,boolean) can no longer be resolved from Kotlin source
-
-
-RemovedMethod: androidx.core.view.ViewKt#updateLayoutParamsTyped(android.view.View, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>):
-    Binary breaking change: Removed method androidx.core.view.ViewKt.updateLayoutParamsTyped(android.view.View,kotlin.jvm.functions.Function1<? super T,kotlin.Unit>)
+RemovedPackage: androidx.core.animation:
+    Binary breaking change: Removed package androidx.core.animation
+RemovedPackage: androidx.core.content:
+    Binary breaking change: Removed package androidx.core.content
+RemovedPackage: androidx.core.content.res:
+    Binary breaking change: Removed package androidx.core.content.res
+RemovedPackage: androidx.core.database:
+    Binary breaking change: Removed package androidx.core.database
+RemovedPackage: androidx.core.database.sqlite:
+    Binary breaking change: Removed package androidx.core.database.sqlite
+RemovedPackage: androidx.core.graphics:
+    Binary breaking change: Removed package androidx.core.graphics
+RemovedPackage: androidx.core.graphics.drawable:
+    Binary breaking change: Removed package androidx.core.graphics.drawable
+RemovedPackage: androidx.core.location:
+    Binary breaking change: Removed package androidx.core.location
+RemovedPackage: androidx.core.net:
+    Binary breaking change: Removed package androidx.core.net
+RemovedPackage: androidx.core.os:
+    Binary breaking change: Removed package androidx.core.os
+RemovedPackage: androidx.core.text:
+    Binary breaking change: Removed package androidx.core.text
+RemovedPackage: androidx.core.transition:
+    Binary breaking change: Removed package androidx.core.transition
+RemovedPackage: androidx.core.util:
+    Binary breaking change: Removed package androidx.core.util
+RemovedPackage: androidx.core.view:
+    Binary breaking change: Removed package androidx.core.view
+RemovedPackage: androidx.core.widget:
+    Binary breaking change: Removed package androidx.core.widget

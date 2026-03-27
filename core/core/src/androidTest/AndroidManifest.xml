@@ -77,6 +77,8 @@
                 android:value="androidx.core.content.pm.TestShortcutInfoChangeListener" />
         </activity>
 
+        <activity android:name="androidx.core.TestActivity" />
+
         <activity
             android:name="androidx.core.app.TestComponentActivity"
             android:exported="true" />
