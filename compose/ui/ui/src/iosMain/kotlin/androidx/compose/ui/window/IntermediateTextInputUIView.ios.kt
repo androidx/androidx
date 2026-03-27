@@ -575,17 +575,6 @@ internal class IntermediateTextInputUIView(
             )
             val rects = input?.selectionDpRectsForRange(textRange) ?: return fallbackList
 
-            // HACK: On iOS 17+, selection changes are not submitted during selection interaction.
-            if (available(OS.Ios to OSVersion(major = 17)) &&
-                touchesTrackerGestureRecognizer.isTrackingTouches
-            ) {
-                shouldPerformSelectionNotifications = false
-                if (input?.getSelectedTextRange() != textRange) {
-                    input?.setSelectedTextRange(textRange)
-                }
-                shouldPerformSelectionNotifications = true
-            }
-
             return rects.fastMap { IntermediateTextSelectionRect(it) }
         } else {
             return listOf<UITextSelectionRect>()
@@ -670,24 +659,18 @@ internal class IntermediateTextInputUIView(
         _inputDelegate?.textDidChange(this)
     }
 
-    private var shouldPerformSelectionNotifications: Boolean = usingNativeTextInput
-
     /**
      * Call when something changes in text data
      */
     fun selectionWillChange() {
-        if (shouldPerformSelectionNotifications) {
-            _inputDelegate?.selectionWillChange(this)
-        }
+        _inputDelegate?.selectionWillChange(this)
     }
 
     /**
      * Call when something changes in text data
      */
     fun selectionDidChange() {
-        if (shouldPerformSelectionNotifications) {
-            _inputDelegate?.selectionDidChange(this)
-        }
+        _inputDelegate?.selectionDidChange(this)
     }
 
     override fun isUserInteractionEnabled(): Boolean = usingNativeTextInput
