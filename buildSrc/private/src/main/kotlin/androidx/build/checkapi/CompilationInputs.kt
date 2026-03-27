@@ -79,20 +79,23 @@ internal sealed interface CompilationInputs {
             )
         }
 
+        private fun requireKmpExtension(project: Project): KotlinMultiplatformExtension {
+            return checkNotNull(project.multiplatformExtension) {
+                """
+                ${project.path} needs to have Kotlin Multiplatform Plugin applied to obtain its
+                source sets.
+                """
+                    .trimIndent()
+            }
+        }
+
         /**
          * Returns the CompilationInputs for the `jvm` target of a KMP project.
          *
          * @param project The project whose main jvm target inputs will be returned.
          */
         fun fromKmpJvmTarget(project: Project): CompilationInputs {
-            val kmpExtension =
-                checkNotNull(project.multiplatformExtension) {
-                    """
-                ${project.path} needs to have Kotlin Multiplatform Plugin applied to obtain its
-                jvm source sets.
-                """
-                        .trimIndent()
-                }
+            val kmpExtension = requireKmpExtension(project)
             val jvmTarget = kmpExtension.targets.requirePlatform(KotlinPlatformType.jvm)
             val jvmCompilation =
                 jvmTarget.findCompilation(compilationName = KotlinCompilation.MAIN_COMPILATION_NAME)
@@ -111,14 +114,7 @@ internal sealed interface CompilationInputs {
          * @param project The project whose main android target inputs will be returned.
          */
         fun fromKmpAndroidTarget(project: Project): CompilationInputs {
-            val kmpExtension =
-                checkNotNull(project.multiplatformExtension) {
-                    """
-                ${project.path} needs to have Kotlin Multiplatform Plugin applied to obtain its
-                android source sets.
-                """
-                        .trimIndent()
-                }
+            val kmpExtension = requireKmpExtension(project)
             val target =
                 kmpExtension.targets
                     .withType(KotlinMultiplatformAndroidLibraryTarget::class.java)
@@ -277,6 +273,20 @@ internal class MultiplatformCompilationInputs(
                     }
                 )
 
+            return MultiplatformCompilationInputs(
+                project,
+                getSourceSets(project, kmpExtension),
+                project.files(compileDependencies),
+                bootClasspath,
+                sourcePaths,
+            )
+        }
+
+        /** Creates [SourceSetInputs] for each main source set from the [kmpExtension]. */
+        private fun getSourceSets(
+            project: Project,
+            kmpExtension: KotlinMultiplatformExtension,
+        ): Provider<List<SourceSetInputs>> {
             // List all main compilations.
             val allCompilations = project.objects.listProperty<KotlinCompilation<*>>()
             kmpExtension.targets.configureEach { target ->
@@ -298,38 +308,28 @@ internal class MultiplatformCompilationInputs(
                 allKotlinSourceSets.add(it)
             }
 
-            val sourceSets =
-                allKotlinSourceSets.zip(allCompilations) { sourceSets, allCompilations ->
-                    sourceSets.map { sourceSet ->
-                        // Find the compilations that this source set is part of.
-                        val allAssociatedCompilations =
-                            allCompilations.filter { it.allKotlinSourceSets.contains(sourceSet) }
-                        // Include dependencies from all compilations which this source set is
-                        // associated with.
-                        val sourceSetDependencies =
-                            allAssociatedCompilations.foldMap(
-                                { it.compileDependencyFiles },
-                                { fc1, fc2 -> fc1 + fc2 },
-                            )
-                        val kotlinPlatforms =
-                            allAssociatedCompilations.map { it.platformType }.toSet()
-                        SourceSetInputs(
-                            sourceSet.name,
-                            sourceSet.dependsOn.map { it.name },
-                            sourceSet.kotlin.sourceDirectories,
-                            sourceSetDependencies,
-                            kotlinPlatforms,
+            return allKotlinSourceSets.zip(allCompilations) { sourceSets, allCompilations ->
+                sourceSets.map { sourceSet ->
+                    // Find the compilations that this source set is part of.
+                    val allAssociatedCompilations =
+                        allCompilations.filter { it.allKotlinSourceSets.contains(sourceSet) }
+                    // Include dependencies from all compilations which this source set is
+                    // associated with.
+                    val sourceSetDependencies =
+                        allAssociatedCompilations.foldMap(
+                            { it.compileDependencyFiles },
+                            { fc1, fc2 -> fc1 + fc2 },
                         )
-                    }
+                    val kotlinPlatforms = allAssociatedCompilations.map { it.platformType }.toSet()
+                    SourceSetInputs(
+                        sourceSet.name,
+                        sourceSet.dependsOn.map { it.name },
+                        sourceSet.kotlin.sourceDirectories,
+                        sourceSetDependencies,
+                        kotlinPlatforms,
+                    )
                 }
-
-            return MultiplatformCompilationInputs(
-                project,
-                sourceSets,
-                project.files(compileDependencies),
-                bootClasspath,
-                sourcePaths,
-            )
+            }
         }
     }
 }
