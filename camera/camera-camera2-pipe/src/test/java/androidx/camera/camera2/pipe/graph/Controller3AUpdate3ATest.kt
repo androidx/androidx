@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
@@ -25,12 +26,11 @@ import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.ControlMode
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
-import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -40,6 +40,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -48,13 +49,27 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(sdk = [Config.ALL_SDKS])
 internal class Controller3AUpdate3ATest {
+    private val graphTestContext = GraphTestContext()
     private val graphState3A = GraphState3A()
-    private val graphProcessor = FakeGraphProcessor()
-    private val fakeCaptureSequenceProcessor = FakeCaptureSequenceProcessor()
+    private val graphProcessor = graphTestContext.graphProcessor
+    private val fakeCaptureSequenceProcessor = graphTestContext.captureSequenceProcessor
     private val fakeGraphRequestProcessor = GraphRequestProcessor.from(fakeCaptureSequenceProcessor)
     private val listener3A = Listener3A()
-    private val controller3A =
-        Controller3A(graphProcessor, FakeCameraMetadata(), graphState3A, listener3A)
+
+    private val fakeMetadata =
+        FakeCameraMetadata(
+            mapOf(
+                CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE),
+                CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE to 0.1f,
+            )
+        )
+    private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
+
+    @After
+    fun teardown() {
+        graphTestContext.close()
+    }
 
     @Test
     fun testUpdate3AFailsImmediatelyWithoutRepeatingRequest() = runTest {
@@ -69,8 +84,6 @@ internal class Controller3AUpdate3ATest {
 
     @Test
     fun testUpdate3AUpdatesState3A() {
-        initGraphProcessor()
-
         val result = controller3A.update3A(afMode = AfMode.OFF)
         assertThat(graphState3A.current.afMode!!.value)
             .isEqualTo(CaptureRequest.CONTROL_AF_MODE_OFF)
@@ -80,8 +93,6 @@ internal class Controller3AUpdate3ATest {
     @ExperimentalCoroutinesApi
     @Test
     fun testUpdate3ACancelsPreviousInProgressUpdate() {
-        initGraphProcessor()
-
         val result = controller3A.update3A(afMode = AfMode.OFF)
         // Invoking update3A before the previous one is complete will cancel the result of the
         // previous call.
@@ -92,8 +103,6 @@ internal class Controller3AUpdate3ATest {
 
     @Test
     fun testAfModeUpdate() = runTest {
-        initGraphProcessor()
-
         val result = controller3A.update3A(afMode = AfMode.OFF)
         launch {
             listener3A.onRequestSequenceCreated(
@@ -116,8 +125,6 @@ internal class Controller3AUpdate3ATest {
 
     @Test
     fun testAeModeUpdate() = runTest {
-        initGraphProcessor()
-
         val result = controller3A.update3A(aeMode = AeMode.ON_ALWAYS_FLASH)
         launch {
             listener3A.onRequestSequenceCreated(
@@ -143,8 +150,6 @@ internal class Controller3AUpdate3ATest {
 
     @Test
     fun testAwbModeUpdate() = runTest {
-        initGraphProcessor()
-
         val result = controller3A.update3A(awbMode = AwbMode.CLOUDY_DAYLIGHT)
         launch {
             listener3A.onRequestSequenceCreated(
@@ -170,8 +175,6 @@ internal class Controller3AUpdate3ATest {
 
     @Test
     fun testControlModeUpdate() = runTest {
-        initGraphProcessor()
-
         val result = controller3A.update3A(controlMode = ControlMode.OFF)
         launch {
             listener3A.onRequestSequenceCreated(
@@ -194,8 +197,6 @@ internal class Controller3AUpdate3ATest {
 
     @Test
     fun testFlashModeUpdate() = runTest {
-        initGraphProcessor()
-
         val result = controller3A.update3A(flashMode = FlashMode.SINGLE)
         launch {
             listener3A.onRequestSequenceCreated(
@@ -218,8 +219,6 @@ internal class Controller3AUpdate3ATest {
 
     @Test
     fun testAfRegionsUpdate() = runTest {
-        initGraphProcessor()
-
         val result = controller3A.update3A(afRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         launch {
             listener3A.onRequestSequenceCreated(
@@ -245,8 +244,6 @@ internal class Controller3AUpdate3ATest {
 
     @Test
     fun testAeRegionsUpdate() = runTest {
-        initGraphProcessor()
-
         val result = controller3A.update3A(aeRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         launch {
             listener3A.onRequestSequenceCreated(
@@ -272,8 +269,6 @@ internal class Controller3AUpdate3ATest {
 
     @Test
     fun testAwbRegionsUpdate() = runTest {
-        initGraphProcessor()
-
         val result =
             controller3A.update3A(awbRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         launch {
@@ -298,8 +293,252 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    private fun initGraphProcessor() {
-        graphProcessor.onGraphStarted(fakeGraphRequestProcessor)
-        graphProcessor.repeatingRequest = Request(streams = listOf(StreamId(1)))
+    @Test
+    fun testRetainLocksTrue_3ALockedAndAfContinuous_retains3ALock() = runTest {
+        val lockResult =
+            controller3A.lock3A(
+                aeLockBehavior = Lock3ABehavior.IMMEDIATE,
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                awbLockBehavior = Lock3ABehavior.IMMEDIATE,
+            )
+        launch {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED,
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_LOCKED,
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                        ),
+                ),
+            )
+        }
+        lockResult.await()
+        fakeCaptureSequenceProcessor.nextEvent() // repeating request event
+        fakeCaptureSequenceProcessor.nextEvent() // lock request event
+        fakeCaptureSequenceProcessor.nextEvent()
+
+        val result = controller3A.update3A(afMode = AfMode.CONTINUOUS_PICTURE, retainLocks = true)
+        launch {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED,
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_LOCKED,
+                            CaptureResult.CONTROL_AF_MODE to
+                                CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                            CaptureResult.CONTROL_AF_TRIGGER to
+                                CaptureResult.CONTROL_AF_TRIGGER_START,
+                        ),
+                ),
+            )
+        }
+        val result3A = result.await()
+        val event = fakeCaptureSequenceProcessor.nextEvent() // update3a request event
+
+        assertThat(event.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(event.requiredParameters).containsEntry(CaptureRequest.CONTROL_AWB_LOCK, true)
+        assertThat(event.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START,
+            )
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+    }
+
+    @Test
+    fun testRetainLocksTrue_3ALockedAndAfNotContinuous_doesNotRetainAfLockButRetainsAeAndAwbLock() =
+        runTest {
+            val lockResult =
+                controller3A.lock3A(
+                    aeLockBehavior = Lock3ABehavior.IMMEDIATE,
+                    afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                    awbLockBehavior = Lock3ABehavior.IMMEDIATE,
+                )
+            launch {
+                listener3A.onRequestSequenceCreated(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
+                listener3A.onPartialCaptureResult(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                    FrameNumber(101L),
+                    FakeFrameMetadata(
+                        frameNumber = FrameNumber(101L),
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_LOCKED,
+                                CaptureResult.CONTROL_AWB_STATE to
+                                    CaptureResult.CONTROL_AWB_STATE_LOCKED,
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            ),
+                    ),
+                )
+            }
+            lockResult.await()
+            fakeCaptureSequenceProcessor.nextEvent() // repeating request event
+            fakeCaptureSequenceProcessor.nextEvent() // lock request event
+            fakeCaptureSequenceProcessor.nextEvent() // lock request event
+
+            val result = controller3A.update3A(afMode = AfMode.OFF, retainLocks = true)
+            launch {
+                listener3A.onRequestSequenceCreated(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
+                listener3A.onPartialCaptureResult(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                    FrameNumber(101L),
+                    FakeFrameMetadata(
+                        frameNumber = FrameNumber(101L),
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_LOCKED,
+                                CaptureResult.CONTROL_AWB_STATE to
+                                    CaptureResult.CONTROL_AWB_STATE_LOCKED,
+                                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF,
+                            ),
+                    ),
+                )
+            }
+            val result3A = result.await()
+            val event = fakeCaptureSequenceProcessor.nextEvent() // update3a request event
+
+            assertThat(event.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+            assertThat(event.requiredParameters)
+                .containsEntry(CaptureRequest.CONTROL_AWB_LOCK, true)
+            assertThat(event.requiredParameters)
+                .doesNotContainEntry(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CaptureRequest.CONTROL_AF_TRIGGER_START,
+                )
+            assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+            assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+        }
+
+    @Test
+    fun testRetainLocksTrue_3AUnlockedWithContinuousAfMode_leaves3AUnlocked() = runTest {
+        val lockResult = controller3A.unlock3A(ae = true, af = true, awb = true)
+        launch {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_SEARCHING,
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_SEARCHING,
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_INACTIVE,
+                        ),
+                ),
+            )
+        }
+        lockResult.await()
+
+        val result = controller3A.update3A(afMode = AfMode.CONTINUOUS_PICTURE, retainLocks = true)
+        launch {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_MODE to
+                                CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                        ),
+                ),
+            )
+        }
+        val result3A = result.await()
+
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+    }
+
+    @Test
+    fun testRetainLocksFalse_3ALocked_doesNotRetainLocksFor3A() = runTest {
+        val lockResult =
+            controller3A.lock3A(
+                aeLockBehavior = Lock3ABehavior.IMMEDIATE,
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                awbLockBehavior = Lock3ABehavior.IMMEDIATE,
+            )
+        launch {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED,
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_LOCKED,
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                        ),
+                ),
+            )
+        }
+        lockResult.await()
+
+        val result = controller3A.update3A(retainLocks = false)
+        launch {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_SEARCHING,
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_SEARCHING,
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_INACTIVE,
+                        ),
+                ),
+            )
+        }
+        val result3A = result.await()
+
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 }

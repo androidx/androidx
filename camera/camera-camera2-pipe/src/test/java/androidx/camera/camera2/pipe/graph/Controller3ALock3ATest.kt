@@ -123,7 +123,7 @@ internal class Controller3ALock3ATest {
         cameraResponse.await()
         assertThat(result.isCompleted).isFalse()
 
-        // One we we are notified that the AE and AF are in locked state, the result of lock3A call
+        // Once we are notified that the AE and AF are in locked state, the result of lock3A call
         // will complete.
         launch {
             listener3A.onRequestSequenceCreated(

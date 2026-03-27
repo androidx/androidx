@@ -195,7 +195,11 @@ constructor(
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
+        retainLocks: Boolean = false,
     ): Deferred<Result3A> {
+        // TODO(b/496247476): Handle cases when retainLocks is true but the lock will not be
+        // retained.
+
         // If the GraphProcessor does not have a repeating request we should update the current
         // parameters, but should not invalidate or trigger set a new listener.
         if (graphProcessor.repeatingRequest == null) {
@@ -218,23 +222,44 @@ constructor(
         val listener = createListenerFor3AParams(aeMode, afMode, awbMode, controlMode, flashMode)
         graphListener3A.addListener(listener)
 
+        // If retainLocks is true and previous 3A lock is also true, we will update the locks for
+        // the specified 3A
+        val currentState3A = state3ASnapshot()
+        val aeLock: Boolean? = if (retainLocks && currentState3A.aeLock == true) true else null
+        val awbLock: Boolean? = if (retainLocks && currentState3A.awbLock == true) true else null
+
         // Update the 3A state of the graph. This will make sure then when GraphProcessor builds
         // the next request it will apply the 3A parameters corresponding to the updated 3A state
         // to the request.
         graphState3A.update(
-            aeMode,
-            afMode,
-            awbMode,
-            controlMode,
-            flashMode,
-            aeRegions,
-            afRegions,
-            awbRegions,
+            aeMode = aeMode,
+            afMode = afMode,
+            awbMode = awbMode,
+            controlMode = controlMode,
+            flashMode = flashMode,
+            aeRegions = aeRegions,
+            afRegions = afRegions,
+            awbRegions = awbRegions,
+            aeLock = aeLock,
+            awbLock = awbLock,
         )
+
+        var parameters = graphState3A.toCaptureRequestParametersMap()
+        val isAfContinuousAndDifferent =
+            (afMode?.isContinuous()) == true && (currentState3A.afMode != afMode)
+
+        // Locks for AF will only be retained if AF is previously locked and AfMode is continuous
+        // and the new AfMode is different from the previous
+        // To retain the locks, we will send af trigger
+        val needAfTrigger =
+            retainLocks && currentState3A.afLock == true && isAfContinuousAndDifferent
+        if (needAfTrigger) {
+            parameters = parameters + parameterForAfTriggerStart
+        }
 
         // Try submitting a new repeating request with the 3A parameters corresponding to the new
         // 3A state and corresponding listeners.
-        graphProcessor.update3AParameters(graphState3A.toCaptureRequestParametersMap())
+        graphProcessor.update3AParameters(parameters)
 
         val result = listener.result
         synchronized(this) {

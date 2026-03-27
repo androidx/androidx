@@ -56,6 +56,11 @@ class Controller3AReset3ATest {
         )
     private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
 
+    @After
+    fun teardown() {
+        graphTestContext.close()
+    }
+
     @Test
     fun reset3A_afterUpdate3A__resetsAfRegions() =
         testScope.runTest {
