@@ -1356,12 +1356,13 @@ includeBuild("placeholder")
 // ---------------------------------------------------------------------
 
 void includeRequestedProjectsAndDependencies() {
-    Set<String> projectsToInclude = projectDependencyGraph
+    def projectsToInclude = projectDependencyGraph
             .getAllProjectsWithDependencies(filteredProjects)
     projectsToInclude.forEach { path, dir ->
         settings.include(path)
         project(path).projectDir = dir
     }
+    gradle.ext.includedProjectPaths = projectsToInclude.collect { it.v1 }.toSet()
 }
 includeRequestedProjectsAndDependencies()
 gradle.ext.allProjectConsumers = allProjectsConsumers(projectDependencyGraph)
