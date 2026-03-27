@@ -211,7 +211,6 @@ import androidx.compose.ui.spatial.ExecuteDelayed
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TextInputServiceAndroid
@@ -813,27 +812,12 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         replaceWith = ReplaceWith("fontFamilyResolver"),
     )
     @Suppress("DEPRECATION")
-    override val fontLoader: Font.ResourceLoader =
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (AndroidComposeUiFlags.isSharedFontEnabled) {
-            composeViewContext.fontLoader
-        } else {
-            AndroidFontResourceLoader(context)
-        }
+    override val fontLoader: Font.ResourceLoader
+        get() = composeViewContext.fontLoader
 
     // Backed by mutableStateOf so that the local provider recomposes when it changes
     // FontFamily.Resolver is not guaranteed to be stable or immutable, hence referential check
-    override var fontFamilyResolver: FontFamily.Resolver by
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (AndroidComposeUiFlags.isSharedFontEnabled) {
-            composeViewContext.fontFamilyResolver
-        } else {
-            mutableStateOf(createFontFamilyResolver(context), referentialEqualityPolicy())
-        }
-        private set
-
-    private val Configuration.fontWeightAdjustmentCompat: Int
-        get() = if (SDK_INT >= S) fontWeightAdjustment else 0
+    override val fontFamilyResolver: FontFamily.Resolver by composeViewContext.fontFamilyResolver
 
     // Backed by mutableStateOf so that the ambient provider recomposes when it changes
     override var layoutDirection by
@@ -3030,14 +3014,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 oldConfig.densityDpi != newConfig.densityDpi
         ) {
             density = Density(context)
-        }
-        // Update the font family resolver if the font weight adjustment changed
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (
-            !AndroidComposeUiFlags.isSharedFontEnabled &&
-                oldConfig.fontWeightAdjustmentCompat != newConfig.fontWeightAdjustmentCompat
-        ) {
-            fontFamilyResolver = createFontFamilyResolver(context)
         }
     }
 

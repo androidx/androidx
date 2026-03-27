@@ -74,13 +74,11 @@ package androidx.compose.ui {
     property public boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
     property public boolean isForceChildLayoutAfterMeasurementEnabled;
     property public boolean isFrameworkVelocityTrackerEnabled;
-    property public boolean isSharedFontEnabled;
     property public boolean isViewBasedSemanticsHandlerEnabled;
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
     field public static boolean isForceChildLayoutAfterMeasurementEnabled;
     field public static boolean isFrameworkVelocityTrackerEnabled;
-    field public static boolean isSharedFontEnabled;
     field public static boolean isViewBasedSemanticsHandlerEnabled;
   }
 
