@@ -372,6 +372,7 @@ package androidx.xr.scenecore.testing {
     method public void destroyWaterMaterial(androidx.xr.scenecore.runtime.MaterialResource material);
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.testing.FakeRenderingRuntime.FakeKhronosPbrMaterial> getCreatedKhronosPbrMaterials();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.testing.FakeRenderingRuntime.FakeWaterMaterial> getCreatedWaterMaterials();
+    method public androidx.xr.runtime.math.BoundingBox getCustomMeshBoundingBox(androidx.xr.scenecore.runtime.CustomMeshResource customMesh);
     method public androidx.xr.scenecore.runtime.TextureResource? getReflectionTextureFromIbl(androidx.xr.scenecore.runtime.ExrImageResource iblToken);
     method @InaccessibleFromKotlin public Enum<androidx.xr.scenecore.testing.FakeRenderingRuntime.State> getState();
     method public suspend Object? loadExrImageByAssetName(String assetName, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.runtime.ExrImageResource>);

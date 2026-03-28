@@ -78,8 +78,8 @@ public class VertexAttributeType private constructor(private val name: String) {
         /** Four unsigned 8-bit integers, normalized to [0, 1]. */
         @JvmField public val UBYTE4_NORM: VertexAttributeType = VertexAttributeType("UBYTE4_NORM")
 
-        /** A single unsigned 8-bit integer. */
-        @JvmField public val UBYTE: VertexAttributeType = VertexAttributeType("UBYTE")
+        /** Four unsigned 8-bit integers. */
+        @JvmField public val UBYTE4: VertexAttributeType = VertexAttributeType("UBYTE4")
     }
 
     public override fun toString(): String = name

@@ -60,7 +60,7 @@ public interface MeshBufferResource : Resource {
             public const val FLOAT3: Int = 2
             public const val FLOAT4: Int = 3
             public const val UBYTE4_NORM: Int = 4
-            public const val UBYTE: Int = 5
+            public const val UBYTE4: Int = 5
         }
     }
 }

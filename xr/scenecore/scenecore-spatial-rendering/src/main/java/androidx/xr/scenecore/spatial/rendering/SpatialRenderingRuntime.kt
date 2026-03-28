@@ -19,6 +19,8 @@ package androidx.xr.scenecore.spatial.rendering
 import android.app.Activity
 import android.os.Looper
 import androidx.annotation.VisibleForTesting
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Matrix3
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
@@ -748,6 +750,14 @@ private constructor(
             halfExtentY,
             halfExtentZ,
         )
+    }
+
+    override fun getCustomMeshBoundingBox(customMesh: CustomMeshResource): BoundingBox {
+        val aabb = FloatArray(6)
+        impressApi.getCustomMeshAabb((customMesh as CustomMesh).nativeHandle, aabb)
+        val center = Vector3(aabb[0], aabb[1], aabb[2])
+        val halfExtents = FloatSize3d(aabb[3], aabb[4], aabb[5])
+        return BoundingBox.fromCenterAndHalfExtents(center, halfExtents)
     }
 
     override fun destroyCustomMesh(customMesh: CustomMeshResource) {

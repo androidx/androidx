@@ -1697,6 +1697,10 @@ public class ImpressApiImpl : ImpressApi {
             .build()
     }
 
+    override fun getCustomMeshAabb(customMeshHandle: Long, outAabb: FloatArray) {
+        nGetCustomMeshAabb(getViewNativeHandle(view), customMeshHandle, outAabb)
+    }
+
     override fun destroyCustomMesh(customMeshHandle: Long): Unit =
         nDestroyCustomMesh(getViewNativeHandle(view), customMeshHandle)
 
@@ -2482,6 +2486,8 @@ public class ImpressApiImpl : ImpressApi {
         halfExtentY: Float,
         halfExtentZ: Float,
     ): Long
+
+    private external fun nGetCustomMeshAabb(view: Long, customMeshHandle: Long, outAabb: FloatArray)
 
     private external fun nDestroyCustomMesh(view: Long, customMeshHandle: Long)
 

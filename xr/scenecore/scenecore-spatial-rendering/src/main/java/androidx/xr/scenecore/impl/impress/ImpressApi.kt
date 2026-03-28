@@ -1332,6 +1332,15 @@ public interface ImpressApi {
     ): CustomMesh
 
     /**
+     * Gets the axis-aligned bounding box of a custom mesh.
+     *
+     * @param customMeshHandle The native handle of the custom mesh.
+     * @param outAabb A float array of size 6 to receive the AABB (centerX, centerY, centerZ,
+     *   halfExtentX, halfExtentY, halfExtentZ).
+     */
+    public fun getCustomMeshAabb(customMeshHandle: Long, outAabb: FloatArray)
+
+    /**
      * This method destroys a custom mesh using its native handle.
      *
      * @param customMeshHandle The native handle of the custom mesh to be destroyed.

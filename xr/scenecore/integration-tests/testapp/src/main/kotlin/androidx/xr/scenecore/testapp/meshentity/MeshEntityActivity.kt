@@ -321,21 +321,15 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(indexBuffer, 0)
         indexBuffer.position(0)
 
-        val meshBuffer =
-            MeshBuffer.create(
+        val cubeMesh =
+            CustomMesh.create(
                 currentSession,
                 vertexLayout,
                 arrayOf(vertexBuffer),
                 intArrayOf(vertexCount * stride),
                 indexBuffer,
                 36 * 4,
-            )
-
-        val cubeMesh =
-            CustomMesh.create(
-                currentSession,
-                meshBuffer,
-                listOf(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36)),
+                MeshSubsetTopology.TRIANGLES,
             )
         cubeEntity =
             MeshEntity.create(
@@ -346,7 +340,9 @@ class MeshEntityActivity : ComponentActivity() {
             )
         createPanel(
             currentSession,
-            "A cube with six different colored faces.",
+            "A cube with six different colored faces.\nBox: " +
+                "[${cubeMesh.bounds.min.x},${cubeMesh.bounds.min.y},${cubeMesh.bounds.min.z}] - " +
+                "[${cubeMesh.bounds.max.x},${cubeMesh.bounds.max.y},${cubeMesh.bounds.max.z}]",
             Pose(Vector3(-2f, 0.7f, -1.5f)),
         )
     }
@@ -368,20 +364,14 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(indexBuffer, 24)
         indexBuffer.position(0)
 
-        val meshBuffer =
-            MeshBuffer.create(
+        val twoSubsetsMesh =
+            CustomMesh.create(
                 currentSession,
                 vertexLayout,
                 arrayOf(vertexBuffer),
                 intArrayOf(vertexCount * stride),
                 indexBuffer,
                 72 * 4,
-            )
-
-        val twoSubsetsMesh =
-            CustomMesh.create(
-                currentSession,
-                meshBuffer,
                 listOf(
                     MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36),
                     MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36),
@@ -478,21 +468,15 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndicesStrip(indexBuffer, 0)
         indexBuffer.position(0)
 
-        val meshBuffer =
-            MeshBuffer.create(
+        val cubeMesh =
+            CustomMesh.create(
                 currentSession,
                 vertexLayout,
                 arrayOf(vertexBuffer),
                 intArrayOf(vertexCount * stride),
                 indexBuffer,
                 stripIndexCount * 4,
-            )
-
-        val cubeMesh =
-            CustomMesh.create(
-                currentSession,
-                meshBuffer,
-                listOf(MeshSubset(MeshSubsetTopology.TRIANGLE_STRIP, 0, stripIndexCount)),
+                MeshSubsetTopology.TRIANGLE_STRIP,
             )
         triangleStripEntity =
             MeshEntity.create(
@@ -568,20 +552,14 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(indexBuffer, 24)
         indexBuffer.position(0)
 
-        val meshBuffer =
-            MeshBuffer.create(
+        val cubeMesh =
+            CustomMesh.create(
                 currentSession,
                 vertexLayout,
                 arrayOf(vertexBuffer),
                 intArrayOf(vertexCount * stride),
                 indexBuffer,
                 72 * 4,
-            )
-
-        val cubeMesh =
-            CustomMesh.create(
-                currentSession,
-                meshBuffer,
                 listOf(
                     MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36),
                     MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36),

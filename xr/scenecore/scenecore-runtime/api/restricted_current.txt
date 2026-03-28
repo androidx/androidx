@@ -447,7 +447,7 @@ package androidx.xr.scenecore.runtime {
     field public static final int FLOAT2 = 1; // 0x1
     field public static final int FLOAT3 = 2; // 0x2
     field public static final int FLOAT4 = 3; // 0x3
-    field public static final int UBYTE = 5; // 0x5
+    field public static final int UBYTE4 = 5; // 0x5
     field public static final int UBYTE4_NORM = 4; // 0x4
   }
 
@@ -456,13 +456,13 @@ package androidx.xr.scenecore.runtime {
     property public static int FLOAT2;
     property public static int FLOAT3;
     property public static int FLOAT4;
-    property public static int UBYTE;
+    property public static int UBYTE4;
     property public static int UBYTE4_NORM;
     field public static final int FLOAT = 0; // 0x0
     field public static final int FLOAT2 = 1; // 0x1
     field public static final int FLOAT3 = 2; // 0x2
     field public static final int FLOAT4 = 3; // 0x3
-    field public static final int UBYTE = 5; // 0x5
+    field public static final int UBYTE4 = 5; // 0x5
     field public static final int UBYTE4_NORM = 4; // 0x4
   }
 
@@ -655,6 +655,7 @@ package androidx.xr.scenecore.runtime {
     method public void destroyMeshBuffer(androidx.xr.scenecore.runtime.MeshBufferResource meshBuffer);
     method public void destroyTexture(androidx.xr.scenecore.runtime.TextureResource texture);
     method public void destroyWaterMaterial(androidx.xr.scenecore.runtime.MaterialResource material);
+    method public androidx.xr.runtime.math.BoundingBox getCustomMeshBoundingBox(androidx.xr.scenecore.runtime.CustomMeshResource customMesh);
     method public androidx.xr.scenecore.runtime.TextureResource? getReflectionTextureFromIbl(androidx.xr.scenecore.runtime.ExrImageResource iblToken);
     method public suspend Object? loadExrImageByAssetName(String assetName, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.runtime.ExrImageResource>);
     method public suspend Object? loadExrImageByByteArray(byte[] assetData, String assetKey, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.runtime.ExrImageResource>);

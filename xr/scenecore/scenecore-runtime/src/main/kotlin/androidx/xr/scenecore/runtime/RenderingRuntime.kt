@@ -18,6 +18,7 @@ package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.JxrRuntime
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix3
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
@@ -686,6 +687,14 @@ public interface RenderingRuntime : JxrRuntime {
         halfExtentY: Float,
         halfExtentZ: Float,
     ): CustomMeshResource
+
+    /**
+     * Gets the bounding box of the given CustomMesh resource.
+     *
+     * @param customMesh The CustomMesh resource.
+     * @return The BoundingBox of the CustomMesh.
+     */
+    public fun getCustomMeshBoundingBox(customMesh: CustomMeshResource): BoundingBox
 
     /**
      * Destroys the given CustomMesh resource.

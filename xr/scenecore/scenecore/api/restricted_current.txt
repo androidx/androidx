@@ -161,10 +161,10 @@ package androidx.xr.scenecore {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CustomMesh implements java.lang.AutoCloseable {
     method @MainThread public void close();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox? getBounds();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getBounds();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.MeshBuffer getMeshBuffer();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.MeshSubset> getSubsets();
-    property public androidx.xr.runtime.math.BoundingBox? bounds;
+    property public androidx.xr.runtime.math.BoundingBox bounds;
     property public androidx.xr.scenecore.MeshBuffer meshBuffer;
     property public java.util.List<androidx.xr.scenecore.MeshSubset> subsets;
     field public static final androidx.xr.scenecore.CustomMesh.Companion Companion;
@@ -172,7 +172,11 @@ package androidx.xr.scenecore {
 
   public static final class CustomMesh.Companion {
     method @MainThread public androidx.xr.scenecore.CustomMesh create(androidx.xr.runtime.Session session, androidx.xr.scenecore.MeshBuffer meshBuffer, java.util.List<androidx.xr.scenecore.MeshSubset> subsets, optional androidx.xr.runtime.math.BoundingBox? boundingBox);
+    method @MainThread public androidx.xr.scenecore.CustomMesh create(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, java.nio.ByteBuffer[] vertexData, int[] vertexDataSizes, java.nio.ByteBuffer indexData, int indexDataSize, androidx.xr.scenecore.MeshSubsetTopology topology, optional androidx.xr.runtime.math.BoundingBox? boundingBox);
+    method @MainThread public androidx.xr.scenecore.CustomMesh create(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, java.nio.ByteBuffer[] vertexData, int[] vertexDataSizes, java.nio.ByteBuffer indexData, int indexDataSize, java.util.List<androidx.xr.scenecore.MeshSubset> subsets, optional androidx.xr.runtime.math.BoundingBox? boundingBox);
     method @BytecodeOnly @MainThread public static androidx.xr.scenecore.CustomMesh! create$default(androidx.xr.scenecore.CustomMesh.Companion!, androidx.xr.runtime.Session!, androidx.xr.scenecore.MeshBuffer!, java.util.List!, androidx.xr.runtime.math.BoundingBox!, int, Object!);
+    method @BytecodeOnly @MainThread public static androidx.xr.scenecore.CustomMesh! create$default(androidx.xr.scenecore.CustomMesh.Companion!, androidx.xr.runtime.Session!, androidx.xr.scenecore.VertexLayout!, java.nio.ByteBuffer![]!, int[]!, java.nio.ByteBuffer!, int, androidx.xr.scenecore.MeshSubsetTopology!, androidx.xr.runtime.math.BoundingBox!, int, Object!);
+    method @BytecodeOnly @MainThread public static androidx.xr.scenecore.CustomMesh! create$default(androidx.xr.scenecore.CustomMesh.Companion!, androidx.xr.runtime.Session!, androidx.xr.scenecore.VertexLayout!, java.nio.ByteBuffer![]!, int[]!, java.nio.ByteBuffer!, int, java.util.List!, androidx.xr.runtime.math.BoundingBox!, int, Object!);
   }
 
   public interface Entity extends androidx.xr.scenecore.ScenePose {
@@ -1545,7 +1549,7 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.VertexAttributeType FLOAT2;
     field public static final androidx.xr.scenecore.VertexAttributeType FLOAT3;
     field public static final androidx.xr.scenecore.VertexAttributeType FLOAT4;
-    field public static final androidx.xr.scenecore.VertexAttributeType UBYTE;
+    field public static final androidx.xr.scenecore.VertexAttributeType UBYTE4;
     field public static final androidx.xr.scenecore.VertexAttributeType UBYTE4_NORM;
   }
 
@@ -1554,7 +1558,7 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.VertexAttributeType FLOAT2;
     property public androidx.xr.scenecore.VertexAttributeType FLOAT3;
     property public androidx.xr.scenecore.VertexAttributeType FLOAT4;
-    property public androidx.xr.scenecore.VertexAttributeType UBYTE;
+    property public androidx.xr.scenecore.VertexAttributeType UBYTE4;
     property public androidx.xr.scenecore.VertexAttributeType UBYTE4_NORM;
   }
 

@@ -25,9 +25,9 @@ import java.nio.ByteBuffer
 /**
  * A container holding raw vertex and index data.
  *
- * A `MeshBuffer` contains one or more vertex buffers and an optional index buffer. The vertex
- * buffers contain the vertex data according to the provided [VertexLayout]. The index buffer
- * contains the indices of the vertices that form the primitives of the mesh.
+ * A `MeshBuffer` contains one or more vertex buffers and an index buffer. The vertex buffers
+ * contain the vertex data according to the provided [VertexLayout]. The index buffer contains the
+ * indices of the vertices that form the primitives of the mesh.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class MeshBuffer
@@ -37,6 +37,14 @@ private constructor(
     private val session: Session,
 ) : AutoCloseable {
 
+    /**
+     * Closes the given [MeshBuffer].
+     *
+     * The [MeshBuffer] can be explicitly closed at anytime or garbage collected. An exception will
+     * be thrown if the [MeshBuffer] is used after being closed.
+     *
+     * @throws IllegalStateException if the resource has already been closed.
+     */
     @MainThread
     override fun close() {
         session.renderingRuntime.destroyMeshBuffer(resource)
@@ -67,7 +75,7 @@ private constructor(
                 VertexAttributeType.FLOAT4 -> RtMeshBufferResource.VertexAttributeType.FLOAT4
                 VertexAttributeType.UBYTE4_NORM ->
                     RtMeshBufferResource.VertexAttributeType.UBYTE4_NORM
-                VertexAttributeType.UBYTE -> RtMeshBufferResource.VertexAttributeType.UBYTE
+                VertexAttributeType.UBYTE4 -> RtMeshBufferResource.VertexAttributeType.UBYTE4
                 else -> throw IllegalArgumentException("Unknown VertexAttributeType")
             }
 

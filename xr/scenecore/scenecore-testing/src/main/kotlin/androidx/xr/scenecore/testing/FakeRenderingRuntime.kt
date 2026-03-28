@@ -18,6 +18,7 @@ package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.NodeHolder
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix3
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
@@ -571,6 +572,9 @@ public class FakeRenderingRuntime(
         halfExtentY: Float,
         halfExtentZ: Float,
     ): CustomMeshResource = object : CustomMeshResource {}
+
+    override fun getCustomMeshBoundingBox(customMesh: CustomMeshResource): BoundingBox =
+        BoundingBox.fromMinMax(Vector3(0f, 0f, 0f), Vector3(0f, 0f, 0f))
 
     override fun destroyCustomMesh(customMesh: CustomMeshResource) {}
 
