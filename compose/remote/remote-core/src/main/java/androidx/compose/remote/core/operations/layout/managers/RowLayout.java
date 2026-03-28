@@ -32,8 +32,8 @@ import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
-import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
@@ -383,7 +383,7 @@ public class RowLayout extends LayoutManager {
                         }
                         float weight = ((LayoutComponent) child).getWidthModifier().getValue();
                         float childWidth = (weight * availableSpace) / totalWeights;
-                        WidthInModifierOperation widthInConstraints =
+                        DimensionInModifierOperation widthInConstraints =
                                 ((LayoutComponent) child).getWidthModifier().getWidthIn();
                         if (widthInConstraints != null) {
                             float min = widthInConstraints.getMin();

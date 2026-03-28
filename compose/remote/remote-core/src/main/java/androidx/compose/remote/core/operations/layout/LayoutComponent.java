@@ -15,6 +15,11 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.HORIZONTAL_CONSTRAINTS;
+import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.REQUIRED_HORIZONTAL_CONSTRAINTS;
+import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.VERTICAL_CONSTRAINTS;
+import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.REQUIRED_VERTICAL_CONSTRAINTS;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.OperationInterface;
@@ -36,6 +41,8 @@ import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
@@ -302,8 +309,8 @@ public class LayoutComponent extends Component {
         mPaddingRight = 0f;
         mPaddingBottom = 0f;
 
-        WidthInModifierOperation widthInConstraints = null;
-        HeightInModifierOperation heightInConstraints = null;
+        DimensionInModifierOperation widthInConstraints = null;
+        DimensionInModifierOperation heightInConstraints = null;
 
         for (OperationInterface op : mComponentModifiers.getList()) {
             if (op instanceof PaddingModifierOperation) {
@@ -326,6 +333,16 @@ public class LayoutComponent extends Component {
                 widthInConstraints = (WidthInModifierOperation) op;
             } else if (op instanceof HeightInModifierOperation) {
                 heightInConstraints = (HeightInModifierOperation) op;
+            } else if (op instanceof DimensionConstraintsModifierOperation) {
+                DimensionConstraintsModifierOperation dc =
+                        (DimensionConstraintsModifierOperation) op;
+                if (dc.getType() == HORIZONTAL_CONSTRAINTS
+                        || dc.getType() == REQUIRED_HORIZONTAL_CONSTRAINTS) {
+                    widthInConstraints = dc;
+                } else if (dc.getType() == VERTICAL_CONSTRAINTS
+                        || dc.getType() == REQUIRED_VERTICAL_CONSTRAINTS) {
+                    heightInConstraints = dc;
+                }
             } else if (op instanceof ZIndexModifierOperation) {
                 mZIndexModifier = (ZIndexModifierOperation) op;
             } else if (op instanceof GraphicsLayerModifierOperation) {
@@ -591,7 +608,7 @@ public class LayoutComponent extends Component {
                         || o.getType() == DimensionModifierOperation.Type.FILL_PARENT_MAX_WIDTH) {
                     w = isMin ? 0f : Float.MAX_VALUE;
                 }
-                WidthInModifierOperation widthIn = o.getWidthIn();
+                DimensionInModifierOperation widthIn = o.getWidthIn();
                 if (widthIn != null) {
                     w = Math.max(w, widthIn.getMin());
                 }
@@ -607,6 +624,28 @@ public class LayoutComponent extends Component {
             updatePadding();
         }
         return s + w + e;
+    }
+
+    protected float applyWidthConstraints(float width) {
+        if (mWidthModifier == null) {
+            return width;
+        }
+        DimensionInModifierOperation widthIn = mWidthModifier.getWidthIn();
+        if (widthIn == null) {
+            return width;
+        }
+        return widthIn.applyWidthConstraint(width);
+    }
+
+    protected float applyHeightConstraints(float height) {
+        if (mHeightModifier == null) {
+            return height;
+        }
+        DimensionInModifierOperation heightIn = mHeightModifier.getHeightIn();
+        if (heightIn == null) {
+            return height;
+        }
+        return heightIn.applyHeightConstraint(height);
     }
 
     /**
@@ -656,7 +695,7 @@ public class LayoutComponent extends Component {
                         || o.getType() == DimensionModifierOperation.Type.FILL_PARENT_MAX_HEIGHT) {
                     h = isMin ? 0f : Float.MAX_VALUE;
                 }
-                HeightInModifierOperation heightIn = o.getHeightIn();
+                DimensionInModifierOperation heightIn = o.getHeightIn();
                 if (heightIn != null) {
                     h = Math.max(h, heightIn.getMin());
                 }

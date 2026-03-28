@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.modifiers;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.creation.Rc;
 import androidx.compose.remote.creation.RemoteComposeWriter;
@@ -176,6 +177,30 @@ public class RecordingModifier {
      */
     public @NonNull RecordingModifier heightIn(float min, float max) {
         then(new HeightInModifier(min, max));
+        return this;
+    }
+
+    /**
+     * Add min/max constraints on the horizontal dimension
+     *
+     * @param min minimum dimension, of -1f if not applied
+     * @param max maximum dimension, of -1f if not applied
+     */
+    public @NonNull RecordingModifier requiredWidthIn(float min, float max) {
+        then(new WidthInModifier(
+                DimensionConstraintsModifierOperation.REQUIRED_HORIZONTAL_CONSTRAINTS, min, max));
+        return this;
+    }
+
+    /**
+     * Add min/max constraints on the vertical dimension
+     *
+     * @param min minimum dimension, of -1f if not applied
+     * @param max maximum dimension, of -1f if not applied
+     */
+    public @NonNull RecordingModifier requiredHeightIn(float min, float max) {
+        then(new HeightInModifier(
+                DimensionConstraintsModifierOperation.REQUIRED_VERTICAL_CONSTRAINTS, min, max));
         return this;
     }
 

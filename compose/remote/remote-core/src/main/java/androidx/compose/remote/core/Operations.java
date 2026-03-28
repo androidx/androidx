@@ -142,6 +142,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
@@ -324,6 +325,7 @@ public class Operations {
     public static final int LAYOUT_TEXT = 208;
     public static final int CORE_TEXT = 239;
     public static final int TEXT_STYLE = 242;
+    public static final int MODIFIER_DIMENSION_CONSTRAINTS = 243;
     public static final int LAYOUT_STATE = 217;
     public static final int LAYOUT_IMAGE = 234;
 
@@ -475,6 +477,8 @@ public class Operations {
             sMapV7AndroidXExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
             sMapV7AndroidXExperimental.put(LAYOUT_FLOW, FlowLayout::read);
             sMapV7AndroidXExperimental.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
+            sMapV7AndroidXExperimental.put(MODIFIER_DIMENSION_CONSTRAINTS,
+                    DimensionConstraintsModifierOperation::read);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -519,6 +523,8 @@ public class Operations {
             sMapV7WidgetsExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
             sMapV7WidgetsExperimental.put(LAYOUT_FLOW, FlowLayout::read);
             sMapV7WidgetsExperimental.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
+            sMapV7WidgetsExperimental.put(MODIFIER_DIMENSION_CONSTRAINTS,
+                    DimensionConstraintsModifierOperation::read);
         }
         return sMapV7WidgetsExperimental;
     }

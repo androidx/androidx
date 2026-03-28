@@ -32,7 +32,7 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
-import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
@@ -207,7 +207,7 @@ public class FlowLayout extends RowLayout {
                 componentHeight = 0f;
             } else if (hasWeight(c)) {
                 // need to check if we have minimum width
-                WidthInModifierOperation widthInConstraints =
+                DimensionInModifierOperation widthInConstraints =
                         ((LayoutComponent) c).getWidthModifier().getWidthIn();
                 if (widthInConstraints != null) {
                     float min = widthInConstraints.getMin();

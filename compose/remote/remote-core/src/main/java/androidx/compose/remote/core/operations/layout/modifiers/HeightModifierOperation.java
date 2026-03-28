@@ -36,7 +36,7 @@ import java.util.List;
 public class HeightModifierOperation extends DimensionModifierOperation {
     private static final int OP_CODE = Operations.MODIFIER_HEIGHT;
     public static final String CLASS_NAME = "HeightModifierOperation";
-    private @Nullable HeightInModifierOperation mHeightIn = null;
+    private @Nullable DimensionInModifierOperation mHeightIn = null;
 
     /**
      * The name of the class
@@ -129,7 +129,7 @@ public class HeightModifierOperation extends DimensionModifierOperation {
      *
      * @param heightInConstraints height constraints
      */
-    public void setHeightIn(@NonNull HeightInModifierOperation heightInConstraints) {
+    public void setHeightIn(@NonNull DimensionInModifierOperation heightInConstraints) {
         mHeightIn = heightInConstraints;
     }
 
@@ -138,7 +138,7 @@ public class HeightModifierOperation extends DimensionModifierOperation {
      *
      * @return height in constraints
      */
-    public @Nullable HeightInModifierOperation getHeightIn() {
+    public @Nullable DimensionInModifierOperation getHeightIn() {
         return mHeightIn;
     }
 

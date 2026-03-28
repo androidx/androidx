@@ -66,6 +66,7 @@ import androidx.compose.remote.core.operations.TextLength;
 import androidx.compose.remote.core.operations.TouchExpression;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
@@ -1122,28 +1123,28 @@ public class RemoteComposeWriter {
     /**
      * Add a text style
      *
-     * @param color the color
-     * @param colorId the color id
-     * @param fontSize the font size
-     * @param minFontSize the minimum font size
-     * @param maxFontSize the maximum font size
-     * @param fontStyle the font style
-     * @param fontWeight the font weight
-     * @param fontFamily the font family
-     * @param textAlign the text alignment
-     * @param overflow the overflow strategy
-     * @param maxLines the maximum number of lines
-     * @param letterSpacing the letter spacing
-     * @param lineHeightAdd the line height addition
+     * @param color                the color
+     * @param colorId              the color id
+     * @param fontSize             the font size
+     * @param minFontSize          the minimum font size
+     * @param maxFontSize          the maximum font size
+     * @param fontStyle            the font style
+     * @param fontWeight           the font weight
+     * @param fontFamily           the font family
+     * @param textAlign            the text alignment
+     * @param overflow             the overflow strategy
+     * @param maxLines             the maximum number of lines
+     * @param letterSpacing        the letter spacing
+     * @param lineHeightAdd        the line height addition
      * @param lineHeightMultiplier the line height multiplier
-     * @param lineBreakStrategy the line break strategy
+     * @param lineBreakStrategy    the line break strategy
      * @param hyphenationFrequency the hyphenation frequency
-     * @param justificationMode the justification mode
-     * @param underline if underlined
-     * @param strikethrough if strikethrough
-     * @param fontAxis font axis tags
-     * @param fontAxisValues font axis values
-     * @param autosize if autosize
+     * @param justificationMode    the justification mode
+     * @param underline            if underlined
+     * @param strikethrough        if strikethrough
+     * @param fontAxis             font axis tags
+     * @param fontAxisValues       font axis values
+     * @param autosize             if autosize
      * @return the id of the text style
      */
     public int addTextStyle(
@@ -4393,15 +4394,37 @@ public class RemoteComposeWriter {
         mBuffer.addRoundClipRectModifier(topStart, topEnd, bottomStart, bottomEnd);
     }
 
+    public static final byte HORIZONTAL_CONSTRAINTS =
+            DimensionConstraintsModifierOperation.HORIZONTAL_CONSTRAINTS;
+    public static final byte VERTICAL_CONSTRAINTS =
+            DimensionConstraintsModifierOperation.VERTICAL_CONSTRAINTS;
+    public static final byte REQUIRED_HORIZONTAL_CONSTRAINTS =
+            DimensionConstraintsModifierOperation.REQUIRED_HORIZONTAL_CONSTRAINTS;
+    public static final byte REQUIRED_VERTICAL_CONSTRAINTS =
+            DimensionConstraintsModifierOperation.REQUIRED_VERTICAL_CONSTRAINTS;
+
     /**
      * Add a width in modifier operation
      *
-     * @param min the minimum width
-     * @param max the maximum width
+     * @param min the min width
+     * @param max the max width
      */
     public void addWidthInModifierOperation(float min, float max) {
         mBuffer.addWidthInModifierOperation(min, max);
     }
+
+    /**
+     * Add a dimension constraints modifier operation
+     *
+     * @param min  the min dimension
+     * @param max  the max dimension
+     * @param type the type of constraint (Horizontal, Vertical, Required Horizontal,
+     *             Required Vertical)
+     */
+    public void addDimensionConstraintsModifierOperation(int type, float min, float max) {
+        mBuffer.addDimensionConstraintsModifierOperation(type, min, max);
+    }
+
 
     /**
      * Add a modifier padding
@@ -4468,6 +4491,7 @@ public class RemoteComposeWriter {
 
     /**
      * Add a click modifier operation
+     *
      * @param clickType type of click (0=single, 1=long, 2=double)
      */
     public void addClickModifierOperation(int clickType) {
@@ -4630,8 +4654,6 @@ public class RemoteComposeWriter {
     /**
      * Add a message to the log
      * This is for debugging purposes only it is used by debugging software
-     *
-     * @param message
      */
     public void rem(@NonNull String message) {
         mBuffer.rem(message);

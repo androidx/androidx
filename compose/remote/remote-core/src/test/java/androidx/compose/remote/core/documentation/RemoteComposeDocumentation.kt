@@ -131,6 +131,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
@@ -494,6 +495,10 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
         operationsMap.put(Operations.MODIFIER_HEIGHT, HeightModifierOperation::documentation)
         operationsMap.put(Operations.MODIFIER_WIDTH_IN, WidthInModifierOperation::documentation)
         operationsMap.put(Operations.MODIFIER_HEIGHT_IN, HeightInModifierOperation::documentation)
+        operationsMap.put(
+            Operations.MODIFIER_DIMENSION_CONSTRAINTS,
+            DimensionConstraintsModifierOperation::documentation,
+        )
         operationsMap.put(
             Operations.MODIFIER_COLLAPSIBLE_PRIORITY,
             CollapsiblePriorityModifierOperation::documentation,

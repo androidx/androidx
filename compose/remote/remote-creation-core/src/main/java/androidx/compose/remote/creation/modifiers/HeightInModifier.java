@@ -24,17 +24,29 @@ import org.jspecify.annotations.NonNull;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HeightInModifier implements RecordingModifier.Element {
 
+    int mType;
     float mMin;
     float mMax;
 
     public HeightInModifier(float min, float max) {
         mMin = min;
         mMax = max;
+        mType = -1;
+    }
+
+    public HeightInModifier(int type, float min, float max) {
+        mType = type;
+        mMin = min;
+        mMax = max;
     }
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.addHeightInModifierOperation(mMin, mMax);
+        if (mType == -1) {
+            writer.addHeightInModifierOperation(mMin, mMax);
+        } else {
+            writer.addDimensionConstraintsModifierOperation(mType, mMin, mMax);
+        }
     }
 
     public float getMin() {

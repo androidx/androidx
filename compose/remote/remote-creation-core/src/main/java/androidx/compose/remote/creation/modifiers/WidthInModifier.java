@@ -24,17 +24,29 @@ import org.jspecify.annotations.NonNull;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidthInModifier implements RecordingModifier.Element {
 
+    int mType;
     float mMin;
     float mMax;
 
     public WidthInModifier(float min, float max) {
         mMin = min;
         mMax = max;
+        mType = -1;
+    }
+
+    public WidthInModifier(int type, float min, float max) {
+        mType = type;
+        mMin = min;
+        mMax = max;
     }
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.addWidthInModifierOperation(mMin, mMax);
+        if (mType == -1) {
+            writer.addWidthInModifierOperation(mMin, mMax);
+        } else {
+            writer.addDimensionConstraintsModifierOperation(mType, mMin, mMax);
+        }
     }
 
     public float getMin() {

@@ -135,6 +135,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
@@ -1579,6 +1580,11 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     @Override
     public void addWidthInModifierOperation(float min, float max) {
         addOperation(new WidthInModifierOperation(min, max));
+    }
+
+    @Override
+    public void addDimensionConstraintsModifierOperation(int type, float min, float max) {
+        addOperation(new DimensionConstraintsModifierOperation(type, min, max));
     }
 
     @Override

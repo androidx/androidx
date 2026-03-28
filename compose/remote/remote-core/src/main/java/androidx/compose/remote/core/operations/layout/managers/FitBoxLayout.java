@@ -29,9 +29,8 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
-import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
-import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
@@ -130,14 +129,14 @@ public class FitBoxLayout extends LayoutManager {
                 LayoutComponent lc = (LayoutComponent) c;
                 WidthModifierOperation widthModifier = lc.getWidthModifier();
                 if (widthModifier != null) {
-                    WidthInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
+                    DimensionInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
                     if (widthIn != null) {
                         cw = widthIn.getMin();
                     }
                 }
                 HeightModifierOperation heightModifier = lc.getHeightModifier();
                 if (heightModifier != null) {
-                    HeightInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
+                    DimensionInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
                     if (heightIn != null) {
                         ch = heightIn.getMin();
                     }
@@ -258,14 +257,14 @@ public class FitBoxLayout extends LayoutManager {
                 LayoutComponent lc = (LayoutComponent) c;
                 WidthModifierOperation widthModifier = lc.getWidthModifier();
                 if (widthModifier != null) {
-                    WidthInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
+                    DimensionInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
                     if (widthIn != null) {
                         cw = widthIn.getMin();
                     }
                 }
                 HeightModifierOperation heightModifier = lc.getHeightModifier();
                 if (heightModifier != null) {
-                    HeightInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
+                    DimensionInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
                     if (heightIn != null) {
                         ch = heightIn.getMin();
                     }

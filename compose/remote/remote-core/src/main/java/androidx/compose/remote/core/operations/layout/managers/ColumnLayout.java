@@ -31,7 +31,7 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
-import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
 import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -352,7 +352,7 @@ public class ColumnLayout extends LayoutManager {
                         }
                         float weight = ((LayoutComponent) child).getHeightModifier().getValue();
                         float childHeight = (weight * availableSpace) / totalWeights;
-                        HeightInModifierOperation heightInConstraints =
+                        DimensionInModifierOperation heightInConstraints =
                                 ((LayoutComponent) child).getHeightModifier().getHeightIn();
                         if (heightInConstraints != null) {
                             float min = heightInConstraints.getMin();

@@ -112,4 +112,24 @@ public abstract class DimensionInModifierOperation extends Operation
     public void serializeToString(int indent, @NonNull StringSerializer serializer) {
         serializer.append(indent, "DIMENSION = [" + getMin() + ", " + getMax() + "]");
     }
+
+    /**
+     * Apply constraints
+     *
+     * @param width
+     * @return
+     */
+    public float applyWidthConstraint(float width) {
+        return width;
+    }
+
+    /**
+     * Apply constraints
+     *
+     * @param height
+     * @return
+     */
+    public float applyHeightConstraint(float height) {
+        return height;
+    }
 }
