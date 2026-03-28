@@ -258,6 +258,11 @@ public class BitmapData extends Operation implements SerializableToString, Seria
         } else {
             encoding = ENCODING_INLINE;
         }
+        if (!Limits.ENABLE_IMAGE_URLS) {
+            if (ENCODING_URL == encoding) {
+                throw new RuntimeException("URL image not supported [" + imageId + "]");
+            }
+        }
         if (width < 1
                 || height < 1
                 || height > Limits.MAX_IMAGE_DIMENSION

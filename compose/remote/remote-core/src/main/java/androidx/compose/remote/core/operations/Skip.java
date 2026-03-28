@@ -122,9 +122,6 @@ public class Skip extends Operation implements SerializableToString, Serializabl
         buffer.writeInt(value);   // int
         int offset = buffer.getIndex();
         buffer.writeInt(skipLength); // int
-        System.out.println();
-        Utils.logStack(">> offset = " + offset + " pos", 8);
-
         return offset;
     }
 

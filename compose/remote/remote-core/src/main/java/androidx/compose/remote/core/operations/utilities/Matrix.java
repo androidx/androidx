@@ -16,7 +16,6 @@
 package androidx.compose.remote.core.operations.utilities;
 
 import androidx.annotation.RestrictTo;
-import androidx.compose.remote.core.operations.Utils;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -565,7 +564,7 @@ public class Matrix {
                 sTempInVec = new float[4];
                 sTempOutVec = new float[4];
                 sTempInVec[3] = 1;
-                Utils.log("perspective transform ");
+                // perspective transform
             }
             System.arraycopy(input, 0, sTempInVec, 0, input.length);
         }

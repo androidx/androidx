@@ -478,7 +478,7 @@ public class TouchExpression extends Operation
     @Override
     public void touchDown(@NonNull RemoteContext context, float x, float y) {
         if (!(x >= mScrLeft && x <= mScrRight && y >= mScrTop && y <= mScrBottom)) {
-            Utils.log("NOT IN WINDOW " + x + ", " + y + " " + mScrLeft + ", " + mScrTop);
+            // "NOT IN WINDOW " + x + ", " + y + " " + mScrLeft + ", " + mScrTop);
             return;
         }
         mEasingToStop = false;

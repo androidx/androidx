@@ -453,18 +453,8 @@ fun fireworks2(): RemoteComposeContext {
                     //          val circle = addPathData(createCirclePath(centerX, centerY, rad))
                     //          addClipPath(circle)
                     fireworksEngine2(writer as RemoteComposeWriterAndroid, 0f, width, height)
-                    fireworksEngine2(
-                        writer as RemoteComposeWriterAndroid,
-                        ContinuousSec().toFloat(),
-                        width,
-                        height,
-                    )
-                    fireworksEngine2(
-                        writer as RemoteComposeWriterAndroid,
-                        ContinuousSec().toFloat(),
-                        width,
-                        height,
-                    )
+                    fireworksEngine2(writer as RemoteComposeWriterAndroid, 0f, width, height)
+                    fireworksEngine2(writer as RemoteComposeWriterAndroid, 0f, width, height)
 
                     var id = textCreateId("Simple test")
                     drawTextAnchored(id, centerX.toFloat(), centerY.toFloat(), 0f, 0f, 2)

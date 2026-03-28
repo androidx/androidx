@@ -24,6 +24,7 @@ import android.graphics.Paint;
 import android.widget.EdgeEffect;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RemoteClock;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.ScrollingEdgeEffect;
@@ -437,6 +438,9 @@ public class AndroidRemoteContext extends RemoteContext {
                     image = BitmapFactory.decodeFile(new String(data));
                     break;
                 case BitmapData.ENCODING_URL:
+                    if (!Limits.ENABLE_IMAGE_URLS) {
+                        throw new RuntimeException("URL image not supported [" + imageId + "]");
+                    }
                     try {
                         image = BitmapFactory.decodeStream(
                                 mBitmapLoader.loadBitmap(new String(data)));

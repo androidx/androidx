@@ -71,12 +71,6 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
      * @param theme the theme to set
      */
     public void setTheme(@NonNull RemoteContext context, int theme) {
-        if (mId == 44) {
-            Utils.logStack(" " + theme, 10);
-        } else {
-            Utils.log("(" + mId + ") set  " + theme);
-        }
-
         if (mCurrentTheme != theme) {
             Utils.log("(" + mId + ") update  " + theme);
             mCurrentTheme = theme;

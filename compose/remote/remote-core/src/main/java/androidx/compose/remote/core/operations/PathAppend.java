@@ -214,7 +214,7 @@ public class PathAppend extends PaintOperation implements VariableSupport, Seria
                 out[i + data.length] = mOutputPath[i];
             }
         } else {
-            System.out.println(">>>>>>>>>>> DATA IS NULL");
+            System.out.println("[" + mInstanceId + "] DATA IS NULL");
         }
         context.loadPathData(mInstanceId, 0, out);
     }
