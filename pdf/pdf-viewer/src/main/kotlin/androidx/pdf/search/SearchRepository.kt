@@ -16,13 +16,14 @@
 
 package androidx.pdf.search
 
-import android.os.DeadObjectException
+import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.core.util.isNotEmpty
 import androidx.pdf.PdfDocument
 import androidx.pdf.search.model.NoQuery
 import androidx.pdf.search.model.QueryResults
 import androidx.pdf.search.model.SearchResultState
+import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,8 +92,10 @@ public class SearchRepository(
             withContext(dispatcher) {
                 try {
                     pdfDocument.searchDocument(query = query, pageRange = searchPageRange)
-                } catch (e: DeadObjectException) {
-                    // Ignore exception due to service disconnection. User will try again.
+                } catch (e: RemoteException) {
+                    if (!e.isHandledRemoteException) throw e
+                    // Gracefully recover from known remote failures (e.g., service crashes or
+                    // IPC call rejection).
                     return@withContext null
                 }
             }

@@ -16,9 +16,11 @@
 
 package androidx.pdf.annotation.repository
 
+import android.os.RemoteException
 import androidx.annotation.VisibleForTesting
 import androidx.pdf.PdfDocument
 import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import java.util.Collections
 import kotlin.math.abs
 import kotlinx.coroutines.sync.Mutex
@@ -64,9 +66,15 @@ internal class PdfDocumentAnnotationsRepository(private val document: PdfDocumen
             // already fetched the data while this one was waiting. This check
             // prevents a redundant fetch.
             if (cachedAnnotationsPerPage[pageNum] == null) {
-                cachedAnnotationsPerPage[pageNum] = document.getAnnotationsForPage(pageNum)
+                try {
+                    cachedAnnotationsPerPage[pageNum] = document.getAnnotationsForPage(pageNum)
+                } catch (e: RemoteException) {
+                    if (!e.isHandledRemoteException) throw e
+                    // Gracefully recover from known remote failures (e.g., service crashes or
+                    // IPC call rejection) by treating annotations as empty for this page.
+                }
             }
-            cachedAnnotationsPerPage.getValue(pageNum)
+            cachedAnnotationsPerPage[pageNum] ?: emptyList()
         }
     }
 

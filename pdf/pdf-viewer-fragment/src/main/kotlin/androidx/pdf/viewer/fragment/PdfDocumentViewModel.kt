@@ -17,6 +17,8 @@
 package androidx.pdf.viewer.fragment
 
 import android.net.Uri
+import android.os.DeadObjectException
+import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.SavedStateHandle
@@ -296,10 +298,22 @@ public open class PdfDocumentViewModel(
             formApplyEditJob =
                 viewModelScope.launch {
                     previousJob?.join()
-                    currentState.pdfDocument.applyEdit(formEditInfo)
+                    applyEditToDocument(currentState.pdfDocument, formEditInfo)
                     formEditInfos.add(formEditInfo)
                     state[FORM_EDIT_INFOS_KEY] = formEditInfos
                 }
+        }
+    }
+
+    private suspend fun applyEditToDocument(
+        pdfDocument: EditablePdfDocument,
+        formEditInfo: FormEditInfo,
+    ) {
+        try {
+            pdfDocument.applyEdit(formEditInfo)
+        } catch (e: RemoteException) {
+            if (!e.isHandledRemoteException) throw e
+            // TODO b/493776658 Show error/retry UI
         }
     }
 
@@ -437,7 +451,9 @@ public open class PdfDocumentViewModel(
         val savedFormEdits = state.get<ArrayList<FormEditInfo>>(FORM_EDIT_INFOS_KEY)
         if (savedFormEdits.isNullOrEmpty()) return true
         try {
-            savedFormEdits.forEach { document.applyEdit(it) }
+            savedFormEdits.forEach {
+                applyEditToDocument(pdfDocument = document, formEditInfo = it)
+            }
             // If all the edits are applied successfully update the stored formEditInfos.
             formEditInfos.addAll(savedFormEdits)
         } catch (_: IllegalArgumentException) {
@@ -519,6 +535,23 @@ public open class PdfDocumentViewModel(
         private const val QUERY_RESULT_PAGE_NUM_KEY = "queryResultPageNum"
         private const val FORM_EDIT_INFOS_KEY = "formEditInfos"
         private val EMPTY_HIGHLIGHTS = HighlightData(currentIndex = -1, highlightBounds = listOf())
+
+        /**
+         * Determines whether this [Exception] is a known remote-service issue that
+         * [PdfDocumentViewModel] should handle gracefully rather than rethrowing.
+         *
+         * This includes:
+         * - [DeadObjectException]: The remote service process has crashed or been terminated.
+         * - Unrecognized IPC calls: Scenarios where the remote binder doesn't recognize an IPC
+         *   call, often signaled by an "unimplemented" message.
+         *
+         * @return `true` if the exception should be captured and handled internally; `false`
+         *   otherwise.
+         */
+        internal val Exception.isHandledRemoteException: Boolean
+            get() =
+                message?.contains("unimplemented", ignoreCase = true) == true ||
+                    this is DeadObjectException
 
         val Factory: ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {

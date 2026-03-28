@@ -16,11 +16,12 @@
 
 package androidx.pdf.view
 
-import android.os.DeadObjectException
+import android.os.RemoteException
 import androidx.pdf.PdfDocument
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.models.FormWidgetInfo
+import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import androidx.pdf.util.FORM_WIDGET_INFO_REQUEST_NAME
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -39,7 +40,9 @@ internal class FormWidgetMetadataLoader(
             val formWidgetInfos = pdfDocument.getFormWidgetInfos(pageNum)
             formFillingState.addPageFormWidgetInfos(pageNum, formWidgetInfos)
             return formWidgetInfos
-        } catch (e: DeadObjectException) {
+        } catch (e: RemoteException) {
+            if (!e.isHandledRemoteException) throw e
+
             val exception =
                 RequestFailedException(
                     requestMetadata =

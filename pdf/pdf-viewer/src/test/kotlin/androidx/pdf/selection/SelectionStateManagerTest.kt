@@ -20,6 +20,8 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.RectF
+import android.os.DeadObjectException
+import android.os.RemoteException
 import android.util.SparseArray
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -31,20 +33,24 @@ import androidx.pdf.annotation.models.ImagePdfObject
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.content.SelectionBoundary
+import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.selection.model.TextSelection
+import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
 import androidx.pdf.utils.isRequiredSdkExtensionAvailable
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -788,6 +794,172 @@ class SelectionStateManagerTest {
 
         // Verify the selection model remains null
         assertNull(manager.selectionModel.value)
+    }
+
+    @Test
+    fun updateSelectionAsync_onHandledRemoteException_emitsToErrorFlow() = runTest {
+        val remoteException =
+            RemoteException(
+                "android.os.RemoteException: Method getSelectAllSelectionBounds is unimplemented."
+            )
+        val pdfDocumentError =
+            mock<PdfDocument> {
+                onBlocking { getSelectAllSelectionBounds(any()) } doAnswer { throw remoteException }
+            }
+        val errorFlowReplay = MutableSharedFlow<Throwable>(replay = 1)
+        val localManager =
+            SelectionStateManager(
+                pdfDocumentError,
+                testScope,
+                handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                errorFlow = errorFlowReplay,
+                pageLayoutManager = null,
+                pageManager = null,
+            )
+
+        localManager.selectAllTextOnPageAsync(0)
+        testDispatcher.scheduler.runCurrent()
+
+        val error = errorFlowReplay.first() as RequestFailedException
+        assertThat(error.throwable).isEqualTo(remoteException)
+        assertThat(error.requestMetadata.requestName).isEqualTo(CONTENT_SELECTION_REQUEST_NAME)
+    }
+
+    @Test
+    fun updateSelectionAsync_onDeadObjectException_emitsToErrorFlow() = runTest {
+        val deadObjectException = DeadObjectException()
+        val pdfDocumentError =
+            mock<PdfDocument> {
+                onBlocking { getSelectAllSelectionBounds(any()) } doAnswer
+                    {
+                        throw deadObjectException
+                    }
+            }
+        val errorFlowReplay = MutableSharedFlow<Throwable>(replay = 1)
+        val localManager =
+            SelectionStateManager(
+                pdfDocumentError,
+                testScope,
+                handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                errorFlow = errorFlowReplay,
+                pageLayoutManager = null,
+                pageManager = null,
+            )
+
+        localManager.selectAllTextOnPageAsync(0)
+        testDispatcher.scheduler.runCurrent()
+
+        val error = errorFlowReplay.first() as RequestFailedException
+        assertThat(error.throwable).isEqualTo(deadObjectException)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test(expected = RemoteException::class)
+    fun updateSelectionAsync_onUnhandledRemoteException_throws() = runTest {
+        val remoteException = RemoteException("Unhandled error")
+        val pdfDocumentError =
+            mock<PdfDocument> {
+                onBlocking { getSelectAllSelectionBounds(any()) } doAnswer { throw remoteException }
+            }
+        // backgroundScope must be monitored for exceptions to be rethrown to runTest
+        val localManager =
+            SelectionStateManager(
+                pdfDocumentError,
+                backgroundScope = this,
+                handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                errorFlow = errorFlow,
+                pageLayoutManager = null,
+                pageManager = null,
+            )
+
+        localManager.selectAllTextOnPageAsync(0)
+        runCurrent()
+    }
+
+    @Test
+    fun maybeSelectImageAtPoint_onHandledRemoteException_emitsToErrorFlow() = runTest {
+        val remoteException =
+            RemoteException(
+                "android.os.RemoteException: Method getTopPageObjectAtPosition is unimplemented."
+            )
+        val pdfDocumentError =
+            mock<PdfDocument> {
+                onBlocking { getTopPageObjectAtPosition(any(), any()) } doAnswer
+                    {
+                        throw remoteException
+                    }
+            }
+        val errorFlowReplay = MutableSharedFlow<Throwable>(replay = 1)
+        val localManager =
+            SelectionStateManager(
+                pdfDocumentError,
+                testScope,
+                handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                errorFlow = errorFlowReplay,
+                pageLayoutManager = null,
+                pageManager = null,
+            )
+        localManager.isImageSelectionEnabled = true
+
+        localManager.maybeSelectImageAtPoint(0, PdfPoint(0, 0f, 0f))
+        testDispatcher.scheduler.runCurrent()
+
+        val error = errorFlowReplay.first() as RequestFailedException
+        assertThat(error.throwable).isEqualTo(remoteException)
+        assertThat(error.requestMetadata.requestName).isEqualTo(CONTENT_SELECTION_REQUEST_NAME)
+    }
+
+    @Test
+    fun maybeSelectImageAtPoint_onDeadObjectException_emitsToErrorFlow() = runTest {
+        val deadObjectException = DeadObjectException()
+        val pdfDocumentError =
+            mock<PdfDocument> {
+                onBlocking { getTopPageObjectAtPosition(any(), any()) } doAnswer
+                    {
+                        throw deadObjectException
+                    }
+            }
+        val errorFlowReplay = MutableSharedFlow<Throwable>(replay = 1)
+        val localManager =
+            SelectionStateManager(
+                pdfDocumentError,
+                testScope,
+                handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                errorFlow = errorFlowReplay,
+                pageLayoutManager = null,
+                pageManager = null,
+            )
+        localManager.isImageSelectionEnabled = true
+
+        localManager.maybeSelectImageAtPoint(0, PdfPoint(0, 0f, 0f))
+        testDispatcher.scheduler.runCurrent()
+
+        val error = errorFlowReplay.first() as RequestFailedException
+        assertThat(error.throwable).isEqualTo(deadObjectException)
+    }
+
+    @Test(expected = RemoteException::class)
+    fun maybeSelectImageAtPoint_onUnhandledRemoteException_throws() = runTest {
+        val remoteException = RemoteException("Unhandled error")
+        val pdfDocumentError =
+            mock<PdfDocument> {
+                onBlocking { getTopPageObjectAtPosition(any(), any()) } doAnswer
+                    {
+                        throw remoteException
+                    }
+            }
+        val localManager =
+            SelectionStateManager(
+                pdfDocumentError,
+                backgroundScope = this,
+                handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                errorFlow = errorFlow,
+                pageLayoutManager = null,
+                pageManager = null,
+            )
+        localManager.isImageSelectionEnabled = true
+
+        localManager.maybeSelectImageAtPoint(0, PdfPoint(0, 0f, 0f))
     }
 
     private fun getInitialSelectionForDragging(pageNumber: Int = 0): SelectionModel {

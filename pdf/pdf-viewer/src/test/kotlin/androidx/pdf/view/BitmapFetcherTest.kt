@@ -18,14 +18,23 @@ package androidx.pdf.view
 
 import android.graphics.Bitmap
 import android.graphics.Point
+import android.graphics.Rect
 import android.graphics.RectF
+import android.os.DeadObjectException
+import android.os.RemoteException
+import android.util.Size
 import androidx.pdf.PdfDocument
+import androidx.pdf.exceptions.RequestFailedException
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -376,5 +385,131 @@ class BitmapFetcherTest {
             .isEqualTo(
                 originalInvalidations + (newVisibleIndices.size - expectedRetainedIndices.size)
             )
+    }
+
+    @Test
+    fun test_bitmapFetcher_catchRemoteException_unimplementedApi() = runTest {
+        val pdfDocument =
+            createDocumentWithError(
+                RemoteException(
+                    "android.os.RemoteException: Method getPageBitmap is unimplemented."
+                )
+            )
+        // add a replay of 1 to ensure we can collect it later, if it was ever emitted
+        val errorFlow = MutableSharedFlow<Throwable>(replay = 1)
+
+        bitmapFetcher =
+            BitmapFetcher(
+                pageNum = 0,
+                pageSize,
+                pdfDocument,
+                testScope,
+                maxBitmapSizePx,
+                invalidationTracker,
+                errorFlow,
+            )
+
+        // fetch a full page bitmap
+        bitmapFetcher.maybeFetchNewBitmaps(1.5f, fullPageViewArea)
+        testDispatcher.scheduler.runCurrent()
+
+        val error = errorFlow.first()
+        // assert a request failed exception is thrown
+        assertThat(error is RequestFailedException)
+    }
+
+    @Test
+    fun test_bitmapFetcher_catchDeadObjectException() = runTest {
+        val pdfDocument = createDocumentWithError(DeadObjectException())
+        // add a replay of 1 to ensure we can collect it later, if it was ever emitted
+        val errorFlow = MutableSharedFlow<Throwable>(replay = 1)
+
+        bitmapFetcher =
+            BitmapFetcher(
+                pageNum = 0,
+                pageSize,
+                pdfDocument,
+                testScope,
+                maxBitmapSizePx,
+                invalidationTracker,
+                errorFlow,
+            )
+
+        // fetch a full page bitmap
+        bitmapFetcher.maybeFetchNewBitmaps(1.5f, fullPageViewArea)
+        testDispatcher.scheduler.runCurrent()
+
+        val error = errorFlow.first()
+        // assert a request failed exception is thrown
+        assertThat(error is RequestFailedException)
+    }
+
+    @Test
+    fun test_bitmapSourceClose_catchRemoteException() = runTest {
+        val pdfDocument = createDocumentWithError(DeadObjectException())
+        // add a replay of 1 to ensure we can collect it later, if it was ever emitted
+        val errorFlow = MutableSharedFlow<Throwable>(replay = 1)
+
+        bitmapFetcher =
+            BitmapFetcher(
+                pageNum = 0,
+                pageSize,
+                pdfDocument,
+                testScope,
+                maxBitmapSizePx,
+                invalidationTracker,
+                errorFlow,
+            )
+
+        bitmapFetcher.close()
+        testDispatcher.scheduler.runCurrent()
+
+        val error = errorFlow.first() as RequestFailedException
+        // assert we don't show error if a bitmap close operation is failed
+        assertThat(error.showError).isFalse()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test(expected = RemoteException::class)
+    fun test_bitmapFetcher_throwsGenericRemoteException() = runTest {
+        val pdfDocument = createDocumentWithError(RemoteException())
+
+        bitmapFetcher =
+            BitmapFetcher(
+                pageNum = 0,
+                pageSize,
+                pdfDocument,
+                backgroundScope = this,
+                maxBitmapSizePx,
+                invalidationTracker,
+                errorFlow,
+            )
+
+        // fetch a full page bitmap
+        bitmapFetcher.maybeFetchNewBitmaps(1.5f, fullPageViewArea)
+        runCurrent()
+    }
+
+    private fun createDocumentWithError(error: Throwable): PdfDocument {
+        return mock<PdfDocument> {
+            on { getPageBitmapSource(any()) } doAnswer
+                { _ ->
+                    object : PdfDocument.BitmapSource {
+                        override val pageNumber: Int
+                            get() = 0
+
+                        override suspend fun getBitmap(
+                            scaledPageSizePx: Size,
+                            tileRegion: Rect?,
+                        ): Bitmap {
+                            throw error
+                        }
+
+                        override fun close() {
+                            throw error
+                        }
+                    }
+                }
+        }
     }
 }

@@ -19,7 +19,7 @@ package androidx.pdf.view.layout
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.RectF
-import android.os.DeadObjectException
+import android.os.RemoteException
 import android.util.Range
 import android.util.SparseArray
 import androidx.pdf.PdfDocument
@@ -27,6 +27,7 @@ import androidx.pdf.PdfPoint
 import androidx.pdf.PdfRect
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
+import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import androidx.pdf.util.PAGE_INFO_REQUEST_NAME
 import androidx.pdf.view.PdfFormFillingState
 import kotlinx.coroutines.CoroutineScope
@@ -409,7 +410,8 @@ internal class PageLayoutManager(
                 // TODO(b/409465579): Propagate custom exception from SandboxedPdfDocument to
                 // decouple
                 // it from service specific exceptions
-                catch (e: DeadObjectException) {
+                catch (e: RemoteException) {
+                    if (!e.isHandledRemoteException) throw e
                     // An exception happened above because of service disconnection. Our marked
                     // requestedReach is no longer correct. In subsequent calls the missed value
                     // will be approximated by the next known value.

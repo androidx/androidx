@@ -19,7 +19,7 @@ package androidx.pdf.selection
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.RectF
-import android.os.DeadObjectException
+import android.os.RemoteException
 import android.util.SparseArray
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -43,6 +43,7 @@ import androidx.pdf.selection.model.HyperLinkSelection
 import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.selection.model.TextSelection
 import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
+import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import androidx.pdf.view.PageManager
 import androidx.pdf.view.layout.PageLayoutManager
 import kotlinx.coroutines.CoroutineScope
@@ -179,14 +180,32 @@ internal class SelectionStateManager(
 
     suspend fun maybeSelectImageAtPoint(pageNum: Int, point: PdfPoint): Boolean {
         if (!isImageSelectionEnabled) return false
+        try {
+            val imageObject =
+                pdfDocument.getTopPageObjectAtPosition(pageNum, PointF(point.x, point.y))
 
-        val imageObject = pdfDocument.getTopPageObjectAtPosition(pageNum, PointF(point.x, point.y))
+            if (imageObject != null && imageObject is ImagePdfObject) {
+                val imageSelection = imageObject.toImageSelection(pageNum)
+                updateImageSelection(pageNum = pageNum, imageSelection = imageSelection)
+                return true
+            }
+        } catch (e: RemoteException) {
+            if (!e.isHandledRemoteException) throw e
 
-        if (imageObject != null && imageObject is ImagePdfObject) {
-            val imageSelection = imageObject.toImageSelection(pageNum)
-            updateImageSelection(pageNum = pageNum, imageSelection = imageSelection)
-            return true
+            val exception =
+                RequestFailedException(
+                    requestMetadata =
+                        RequestMetadata(
+                            requestName = CONTENT_SELECTION_REQUEST_NAME,
+                            pageRange = pageNum..pageNum,
+                        ),
+                    throwable = e,
+                    // Non-critical failure, user can retry the operation.
+                    showError = false,
+                )
+            errorFlow.emit(exception)
         }
+
         return false
     }
 
@@ -654,7 +673,9 @@ internal class SelectionStateManager(
                                 SelectionUiSignal.ToggleActionMode(show = true)
                             )
                         }
-                    } catch (e: DeadObjectException) {
+                    } catch (e: RemoteException) {
+                        if (!e.isHandledRemoteException) throw e
+
                         val exception =
                             RequestFailedException(
                                 requestMetadata =

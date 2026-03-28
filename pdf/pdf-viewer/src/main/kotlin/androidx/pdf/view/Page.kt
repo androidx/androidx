@@ -24,7 +24,7 @@ import android.graphics.Point
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.RectF
-import android.os.DeadObjectException
+import android.os.RemoteException
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -32,6 +32,7 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.models.FormWidgetInfo
+import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import androidx.pdf.util.PAGE_CONTENTS_REQUEST_NAME
 import androidx.pdf.util.PAGE_LINKS_REQUEST_NAME
 import kotlinx.coroutines.CoroutineScope
@@ -210,7 +211,9 @@ internal class Page(
                                 it.text
                             }
                         onPageTextReady.invoke(pageNum)
-                    } catch (e: DeadObjectException) {
+                    } catch (e: RemoteException) {
+                        if (!e.isHandledRemoteException) throw e
+
                         val exception =
                             RequestFailedException(
                                 requestMetadata =
@@ -284,7 +287,9 @@ internal class Page(
                     ensureActive()
                     try {
                         links = pdfDocument.getPageLinks(pageNum)
-                    } catch (e: DeadObjectException) {
+                    } catch (e: RemoteException) {
+                        if (!e.isHandledRemoteException) throw e
+
                         val exception =
                             RequestFailedException(
                                 requestMetadata =

@@ -705,6 +705,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     private var scrollPositionToRestore: PointF? = null
     private var zoomToRestore: Float? = null
     private val errorFlow = MutableSharedFlow<Throwable>()
+    private val errorSnackbar: Snackbar by lazy {
+        Snackbar.make(
+            this,
+            context.getString(R.string.error_cannot_open_pdf),
+            Snackbar.LENGTH_SHORT,
+        )
+    }
+
     /** Used to track is the first page is rendered. */
     private var isFirstPageRendered: Boolean = false
 
@@ -1842,8 +1850,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             mainScope.launch(start = CoroutineStart.UNDISPATCHED) {
                 // Prevent 2 copies from running concurrently
                 errorsToJoin?.join()
-                // Add debounce to prevents multiple, rapid error indicators from being displayed
-                // to the user in quick succession.
                 errorFlow.collect { error ->
                     val localError =
                         if (error is RequestFailedException)
@@ -1911,13 +1917,18 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     private fun showErrorInSnackbar(error: Throwable) {
+        // prevent multiple, rapid error indicators from being displayed to the user in quick
+        // succession
+        if (errorSnackbar.isShown) return
+
         val errorMsg =
             when (error) {
                 // TODO(b/404836992): Fix strings after confirmation from UXW
                 is RequestFailedException -> context.getString(R.string.error_cannot_open_pdf)
                 else -> context.getString(R.string.error_cannot_open_pdf)
             }
-        Snackbar.make(this, errorMsg, Snackbar.LENGTH_SHORT).show()
+        errorSnackbar.setText(errorMsg)
+        errorSnackbar.show()
     }
 
     private fun setupFastScroller() {

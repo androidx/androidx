@@ -156,6 +156,7 @@ internal open class FakePdfDocument(
     }
 
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
+        if (exceptionToThrow != null) throw exceptionToThrow
         return annotationsPerPage.getOrDefault(pageNum, emptyList())
     }
 
@@ -216,6 +217,7 @@ internal open class FakePdfDocument(
         query: String,
         pageRange: IntRange,
     ): SparseArray<List<PageMatchBounds>> {
+        if (exceptionToThrow != null) throw exceptionToThrow
         return searchResults
     }
 
@@ -235,6 +237,7 @@ internal open class FakePdfDocument(
     }
 
     override suspend fun getPageInfo(pageNumber: Int, pageInfoFlags: Long): PdfDocument.PageInfo {
+        if (exceptionToThrow != null) throw exceptionToThrow
         layoutReach = maxOf(pageNumber, layoutReach)
         val size = pages[pageNumber]
         if (size == null) {

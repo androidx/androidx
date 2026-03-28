@@ -21,15 +21,26 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
+import android.os.RemoteException
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfRect
 import androidx.pdf.content.PdfPageTextContent
+import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.models.FormWidgetInfo
+import androidx.pdf.util.PAGE_CONTENTS_REQUEST_NAME
+import androidx.pdf.util.PAGE_LINKS_REQUEST_NAME
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,16 +86,19 @@ class PageTest {
 
     private lateinit var page: Page
 
-    private val errorFlow = MutableSharedFlow<Throwable>()
+    private val errorFlow = MutableSharedFlow<Throwable>(replay = 1)
 
     private val pageUpdatedEvents = mutableListOf<PageBitmapState>()
 
-    private fun createPage(): Page {
+    private fun createPage(
+        pdfDocumentToUse: PdfDocument = pdfDocument,
+        scopeToUse: CoroutineScope = testScope,
+    ): Page {
         return Page(
             pageNum = 0,
             pageSize = PAGE_SIZE,
-            pdfDocument = pdfDocument,
-            backgroundScope = testScope,
+            pdfDocument = pdfDocumentToUse,
+            backgroundScope = scopeToUse,
             maxBitmapSizePx = MAX_BITMAP_SIZE,
             onBitmapReady = { pageUpdatedEvents.add(PageBitmapState.PageBitmapReady(0)) },
             onFormWidgetReady = invalidationTracker,
@@ -243,6 +257,60 @@ class PageTest {
     }
 
     @Test
+    fun enableAccessibility_failsFetchingText_onRemoteException() = runTest {
+        val remoteException =
+            RemoteException("android.os.RemoteException: Method getPageContents is unimplemented.")
+        val pdfDocument = createDocumentWithError(remoteException)
+        val page = createPage(pdfDocumentToUse = pdfDocument)
+
+        page.isAccessibilityEnabled = true
+        testDispatcher.scheduler.runCurrent()
+
+        val error = errorFlow.first() as RequestFailedException
+
+        assertTrue(error.showError)
+        assertEquals(PAGE_CONTENTS_REQUEST_NAME, error.requestMetadata.requestName)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test(expected = IllegalStateException::class)
+    fun enableAccessibility_failsFetchingText_onGenericException() = runTest {
+        val pdfDocument = createDocumentWithError(IllegalStateException())
+        val page = createPage(pdfDocumentToUse = pdfDocument, scopeToUse = this)
+
+        page.isAccessibilityEnabled = true
+        runCurrent()
+    }
+
+    @Test
+    fun setVisible_failsFetchingLinks_onRemoteException() = runTest {
+        val remoteException =
+            RemoteException("android.os.RemoteException: Method getPageLinks is unimplemented.")
+        val pdfDocument = createDocumentWithError(remoteException)
+        val page = createPage(pdfDocumentToUse = pdfDocument)
+        page.isAccessibilityEnabled = false
+
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT, stablePosition = true)
+        testDispatcher.scheduler.runCurrent()
+
+        val error = errorFlow.first() as RequestFailedException
+
+        assertTrue(error.showError)
+        assertEquals(PAGE_LINKS_REQUEST_NAME, error.requestMetadata.requestName)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test(expected = RemoteException::class)
+    fun setVisible_failsFetchingLinks_onGenericException() = runTest {
+        val pdfDocument = createDocumentWithError(RemoteException())
+        val page = createPage(pdfDocumentToUse = pdfDocument, scopeToUse = this)
+        page.isAccessibilityEnabled = false
+
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT, stablePosition = true)
+        runCurrent()
+    }
+
+    @Test
     fun setPageInvisible_cancelsTextFetch() {
         page.setVisible(zoom = 1.0f, FULL_PAGE_RECT)
         page.setInvisible()
@@ -283,3 +351,14 @@ val UPDATED_PAGE_WIDGET_INFOS =
             isReadOnly = false,
         ),
     )
+
+private fun createDocumentWithError(error: Throwable): PdfDocument {
+    return mock<PdfDocument> {
+        on { getPageBitmapSource(any()) } doAnswer
+            { invocation ->
+                FakeBitmapSource(invocation.getArgument(0))
+            }
+        onBlocking { getPageContent(any()) } doAnswer { throw error }
+        onBlocking { getPageLinks(any()) } doAnswer { throw error }
+    }
+}

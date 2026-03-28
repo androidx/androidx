@@ -19,7 +19,7 @@ package androidx.pdf.annotation.highlights.utils
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.RectF
-import android.os.DeadObjectException
+import android.os.RemoteException
 import androidx.pdf.PdfDocument
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PathPdfObject.PathInput
@@ -27,6 +27,7 @@ import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
+import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 
 /** Applies a [Matrix] transformation to this point, returning a new [PointF]. */
 internal fun PointF.applyTransform(transform: Matrix): PointF {
@@ -83,7 +84,9 @@ internal suspend fun PdfDocument.calculateHighlightRects(
         return selection.selectedContents.filterIsInstance<PdfPageTextContent>().flatMap {
             it.bounds
         }
-    } catch (e: DeadObjectException) {
+    } catch (e: RemoteException) {
+        if (!e.isHandledRemoteException) throw e
+
         throw createSelectionFailedException(pageNum, e)
     }
 }

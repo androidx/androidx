@@ -68,6 +68,7 @@ internal open class FakePdfDocument(
     private val pageFormWidgetInfos: Map<Int, List<FormWidgetInfo>> = mapOf(),
     private val annotationsPerPage: Map<Int, List<KeyedPdfAnnotation>> = mapOf(),
     override val linearizationStatus: Int = LINEARIZATION_STATUS_UNKNOWN,
+    private val exceptionToThrow: Exception? = null,
 ) : PdfDocument {
     override val pageCount: Int = pages.size
 
@@ -133,6 +134,7 @@ internal open class FakePdfDocument(
     }
 
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
+        if (exceptionToThrow != null) throw exceptionToThrow
         return annotationsPerPage.getOrDefault(pageNum, emptyList())
     }
 

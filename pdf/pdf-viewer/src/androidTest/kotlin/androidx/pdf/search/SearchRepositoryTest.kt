@@ -16,6 +16,8 @@
 
 package androidx.pdf.search
 
+import android.os.DeadObjectException
+import android.os.RemoteException
 import android.util.SparseArray
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.search.model.NoQuery
@@ -228,6 +230,36 @@ class SearchRepositoryTest {
             assertEquals(5, results.resultBounds.size())
             assertEquals(10, results.queryResultsIndex.pageNum)
             assertEquals(2, results.queryResultsIndex.resultBoundsIndex)
+        }
+    }
+
+    @Test
+    fun produceSearchResults_onHandledRemoteException_updatesToNoQuery() = runTest {
+        val remoteException =
+            RemoteException("android.os.RemoteException: Method searchDocument is unimplemented.")
+        val pdfDocument = FakePdfDocument(exceptionToThrow = remoteException)
+
+        with(SearchRepository(pdfDocument)) {
+            produceSearchResults(query = "test", currentVisiblePage = 0)
+            assertTrue(queryResults.value is NoQuery)
+        }
+    }
+
+    @Test
+    fun produceSearchResults_onDeadObjectException_updatesToNoQuery() = runTest {
+        val pdfDocument = FakePdfDocument(exceptionToThrow = DeadObjectException())
+
+        with(SearchRepository(pdfDocument)) {
+            produceSearchResults(query = "test", currentVisiblePage = 0)
+            assertTrue(queryResults.value is NoQuery)
+        }
+    }
+
+    @Test(expected = RemoteException::class)
+    fun produceSearchResults_onUnhandledRemoteException_throws() = runTest {
+        val pdfDocument = FakePdfDocument(exceptionToThrow = RemoteException())
+        with(SearchRepository(pdfDocument)) {
+            produceSearchResults(query = "test", currentVisiblePage = 0)
         }
     }
 }
