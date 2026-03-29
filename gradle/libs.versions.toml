@@ -10,6 +10,8 @@ androidLint = "32.2.0-alpha05"
 # https://developer.android.com/studio/archive and find the matching version of Studio.
 androidStudioIj = "2025.3.4.1"
 androidStudioName = "panda4-canary1"
+# For IntelliJ download via intellij gradle task
+intelliJVersion = "2026.1"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "31.1.1"
