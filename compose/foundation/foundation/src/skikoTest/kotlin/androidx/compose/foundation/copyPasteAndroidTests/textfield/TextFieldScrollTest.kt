@@ -46,7 +46,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
@@ -333,6 +335,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                         remember { scrollerPosition },
                         TextFieldValue(text),
                         VisualTransformation.None,
+                        null,
                     ) {
                         textLayoutResultRef.value
                     },
@@ -383,6 +386,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                         remember { scrollerPosition },
                         TextFieldValue(text),
                         VisualTransformation.None,
+                        null,
                     ) {
                         textLayoutResultRef.value
                     },
@@ -520,6 +524,7 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         onNodeWithTag(TextfieldTag).performTouchInput { swipeRight() }
         runOnIdle {
+            assertThat(overscrollEffect.drawCallsCount).isGreaterThan(0)
             assertThat(overscrollEffect.applyToScrollCallCount).isGreaterThan(0)
             assertThat(overscrollEffect.applyToFlingCallCount).isGreaterThan(0)
         }
@@ -539,6 +544,7 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         onNodeWithTag(TextfieldTag).performTouchInput { swipeDown() }
         runOnIdle {
+            assertThat(overscrollEffect.drawCallsCount).isGreaterThan(0)
             assertThat(overscrollEffect.applyToScrollCallCount).isGreaterThan(0)
             assertThat(overscrollEffect.applyToFlingCallCount).isGreaterThan(0)
         }
@@ -609,6 +615,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                         remember { scrollerPosition },
                         TextFieldValue(text),
                         VisualTransformation.None,
+                        overscrollEffect,
                         { textLayoutResultRef.value },
                     ),
         )
@@ -616,8 +623,16 @@ class TextFieldScrollTest : FocusedWindowTest {
 }
 
 private class CustomEffect : OverscrollEffect {
+    inner class OverscrollNode : Modifier.Node(), DrawModifierNode {
+        override fun ContentDrawScope.draw() {
+            drawCallsCount++
+            drawContent()
+        }
+    }
+
     override val isInProgress = false
-    override val node = object : Modifier.Node() {}
+    override val node = OverscrollNode()
+    var drawCallsCount = 0
     var applyToScrollCallCount = 0
     var applyToFlingCallCount = 0
 

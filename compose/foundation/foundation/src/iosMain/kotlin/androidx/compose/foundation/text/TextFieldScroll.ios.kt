@@ -19,6 +19,7 @@ package androidx.compose.foundation.text
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -47,6 +48,7 @@ internal actual fun Modifier.textFieldScroll(
     scrollerPosition: TextFieldScrollerPosition,
     textFieldValue: TextFieldValue,
     visualTransformation: VisualTransformation,
+    overscrollEffect: OverscrollEffect?,
     textLayoutResultProvider: () -> TextLayoutResultProxy?
 ): Modifier {
     val orientation = scrollerPosition.orientation
@@ -72,7 +74,7 @@ internal actual fun Modifier.textFieldScroll(
                 textLayoutResultProvider
             )
     }
-    return this.clipToBounds().then(layout)
+    return this.overscroll(overscrollEffect).clipToBounds().then(layout)
 }
 
 private data class IOSVerticalScrollLayoutModifier(

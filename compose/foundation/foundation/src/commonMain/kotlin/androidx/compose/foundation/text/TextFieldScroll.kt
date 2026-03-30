@@ -22,7 +22,7 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -119,6 +119,7 @@ internal expect fun Modifier.textFieldScroll(
     scrollerPosition: TextFieldScrollerPosition,
     textFieldValue: TextFieldValue,
     visualTransformation: VisualTransformation,
+    overscrollEffect: OverscrollEffect?,
     textLayoutResultProvider: () -> TextLayoutResultProxy?,
 ): Modifier
 
@@ -126,6 +127,7 @@ internal fun Modifier.defaultTextFieldScroll(
     scrollerPosition: TextFieldScrollerPosition,
     textFieldValue: TextFieldValue,
     visualTransformation: VisualTransformation,
+    overscrollEffect: OverscrollEffect?,
     textLayoutResultProvider: () -> TextLayoutResultProxy?,
 ): Modifier {
     val orientation = scrollerPosition.orientation
@@ -151,7 +153,7 @@ internal fun Modifier.defaultTextFieldScroll(
                     textLayoutResultProvider,
                 )
         }
-    return this.clipToBounds().then(layout)
+    return this.overscroll(overscrollEffect).clipToBounds().then(layout)
 }
 
 private data class VerticalScrollLayoutModifier(
