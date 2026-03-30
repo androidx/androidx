@@ -136,6 +136,18 @@ internal sealed interface CompilationInputs {
             )
         }
 
+        /**
+         * Returns [CompilationInputs] for a KMP project that does not have a jvm/android target.
+         * The returned [CompilationInputs] will not have sources or a classpath for a "main"
+         * compilation, but will have source set information for all source sets.
+         */
+        fun fromKmpWithoutJvmTarget(project: Project): CompilationInputs {
+            return MultiplatformCompilationInputs.withoutMainCompilation(
+                project = project,
+                kmpExtension = requireKmpExtension(project),
+            )
+        }
+
         /** Constructs a [CompilationInputs] from a sourceset */
         fun fromSourceSet(sourceSet: SourceSet, project: Project): CompilationInputs {
             val sourcePaths: FileCollection =
@@ -279,6 +291,27 @@ internal class MultiplatformCompilationInputs(
                 project.files(compileDependencies),
                 bootClasspath,
                 sourcePaths,
+            )
+        }
+
+        /**
+         * Creates [MultiplatformCompilationInputs] where the sources and classpath for the main
+         * compilation are empty, but the [MultiplatformCompilationInputs.sourceSets] contains
+         * information about all source sets. This is to enabled running metalava for projects
+         * without a jvm or android compilation.
+         */
+        fun withoutMainCompilation(
+            project: Project,
+            kmpExtension: KotlinMultiplatformExtension,
+        ): MultiplatformCompilationInputs {
+            return MultiplatformCompilationInputs(
+                project = project,
+                sourceSets = getSourceSets(project, kmpExtension),
+                // No files are provided for the classpath or sources of the compilation, since none
+                // of the source sets will be treated as the main compilation for metalava.
+                dependencyClasspath = project.files(),
+                bootClasspath = project.files(),
+                sourcePaths = project.files(),
             )
         }
 

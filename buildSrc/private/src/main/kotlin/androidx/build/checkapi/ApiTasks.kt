@@ -50,8 +50,16 @@ data class LibraryApiTaskConfig(val variant: LibraryVariant) : ApiTaskConfig()
 
 object JavaApiTaskConfig : ApiTaskConfig()
 
-object KmpApiTaskConfig : ApiTaskConfig()
+/**
+ * A KMP project with a jvm target (if there is an android target,
+ * [AndroidMultiplatformApiTaskConfig]) should be used instead.
+ */
+object KmpJvmApiTaskConfig : ApiTaskConfig()
 
+/** A KMP project without an android or jvm target. */
+object KmpNoJvmApiTaskConfig : ApiTaskConfig()
+
+/** A KMP project with an android target. */
 data class AndroidMultiplatformApiTaskConfig(val variant: KotlinMultiplatformAndroidVariant) :
     ApiTaskConfig()
 
@@ -87,10 +95,21 @@ internal fun Project.shouldWriteVersionedApiFile(): Boolean {
     return true
 }
 
-fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: AndroidXExtension) {
+fun Project.configureProjectForApiTasks(
+    config: ApiTaskConfig,
+    extension: AndroidXExtension,
+    /**
+     * If [shouldConfigure] is provided and is false, API tasks will not be configured for this
+     * project.
+     */
+    shouldConfigure: Provider<Boolean>? = null,
+) {
     // afterEvaluate required to read extension properties
     afterEvaluate {
         if (!extension.shouldConfigureApiTasks().get()) {
+            return@afterEvaluate
+        }
+        if (shouldConfigure != null && !shouldConfigure.get()) {
             return@afterEvaluate
         }
 
@@ -107,17 +126,26 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
         val (compilationInputs, androidManifest) =
             configureCompilationInputsAndManifest(config) ?: return@afterEvaluate
         val baselinesApiLocation = ApiBaselinesLocation.fromApiLocation(currentApiLocation)
-        val generateApiDependencies = createReleaseApiConfiguration()
+        // If this is a KMP project with no jvm/android target, don't attempt to resolve the release
+        // jar since it will not exist.
+        val hasJvmOrAndroidTarget = config !is KmpNoJvmApiTaskConfig
+        val generateApiDependencies =
+            if (hasJvmOrAndroidTarget) {
+                createReleaseApiConfiguration()
+            } else {
+                null
+            }
 
         MetalavaTasks.setupProject(
             project,
             compilationInputs,
-            generateApiDependencies,
+            project.files(generateApiDependencies),
             extension,
             androidManifest,
             baselinesApiLocation,
             builtApiLocation,
             outputApiLocations,
+            hasJvmOrAndroidTarget,
         )
 
         project.setupWithStableAidlPlugin()
@@ -163,13 +191,16 @@ internal fun Project.configureCompilationInputsAndManifest(
             CompilationInputs.fromKmpAndroidTarget(project) to
                 config.variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
         }
-        is KmpApiTaskConfig -> {
+        is KmpJvmApiTaskConfig -> {
             CompilationInputs.fromKmpJvmTarget(project) to null
         }
         is JavaApiTaskConfig -> {
             val javaExtension = extensions.getByType<JavaPluginExtension>()
             val mainSourceSet = javaExtension.sourceSets.getByName("main")
             CompilationInputs.fromSourceSet(mainSourceSet, this) to null
+        }
+        is KmpNoJvmApiTaskConfig -> {
+            CompilationInputs.fromKmpWithoutJvmTarget(project) to null
         }
     }
 }

@@ -54,16 +54,14 @@ class ProjectXmlTest {
                 emptyList(),
                 emptyList(),
                 emptyList(),
-                compiledSources,
+                null,
                 setOf(KotlinPlatformType.androidJvm),
             )
 
         checkElementXml(
             element,
             """
-            <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]">
-              <src jar="/fake/path/root/compiledSources.jar"/>
-            </module>
+            <module name="androidMain" android="true" kotlinPlatforms="JVM [1.8]"/>
             """
                 .trimIndent(),
         )
@@ -77,16 +75,14 @@ class ProjectXmlTest {
                 emptyList(),
                 emptyList(),
                 emptyList(),
-                compiledSources,
+                null,
                 setOf(KotlinPlatformType.common, KotlinPlatformType.jvm),
             )
 
         checkElementXml(
             element,
             """
-            <module name="commonMain" kotlinPlatforms="JVM [1.8]">
-              <src jar="/fake/path/root/compiledSources.jar"/>
-            </module>
+            <module name="commonMain" kotlinPlatforms="JVM [1.8]"/>
             """
                 .trimIndent(),
         )

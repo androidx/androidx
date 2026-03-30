@@ -189,6 +189,7 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
                 kotlinSourceLevel.get(),
                 workerExecutor,
                 multiplatform = false,
+                hasJvmOrAndroidTarget = true,
             )
         } else {
             logger.warn("No API file for $mavenId")

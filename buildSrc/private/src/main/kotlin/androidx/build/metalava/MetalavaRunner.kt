@@ -264,15 +264,23 @@ internal fun generateApi(
     workerExecutor: WorkerExecutor,
     pathToManifest: String? = null,
     multiplatform: Boolean,
+    hasJvmOrAndroidTarget: Boolean,
 ) {
     val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> =
         mutableListOf(GenerateApiMode.PublicApi to apiLintMode)
 
+    // Generate `RestrictTo` APIs as a separate API surface. This does not make sense to do for
+    // projects without a jvm/android target, because the purpose of tracking `RestrictTo` is for
+    // maintaining binary compatibility, but metalava can only enforce binary compatibility for jvm
+    // based projects.
     @Suppress("LiftReturnOrAssignment")
-    if (includeRestrictToLibraryGroupApis) {
-        generateApiConfigs += GenerateApiMode.AllRestrictedApis to ApiLintMode.Skip
-    } else {
-        generateApiConfigs += GenerateApiMode.RestrictToLibraryGroupPrefixApis to ApiLintMode.Skip
+    if (hasJvmOrAndroidTarget) {
+        if (includeRestrictToLibraryGroupApis) {
+            generateApiConfigs += GenerateApiMode.AllRestrictedApis to ApiLintMode.Skip
+        } else {
+            generateApiConfigs +=
+                GenerateApiMode.RestrictToLibraryGroupPrefixApis to ApiLintMode.Skip
+        }
     }
 
     generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
@@ -289,6 +297,7 @@ internal fun generateApi(
             workerExecutor,
             pathToManifest,
             multiplatform,
+            hasJvmOrAndroidTarget,
         )
     }
 }
@@ -310,6 +319,7 @@ private fun generateApi(
     workerExecutor: WorkerExecutor,
     pathToManifest: String? = null,
     multiplatform: Boolean,
+    hasJvmOrAndroidTarget: Boolean,
 ) {
     val args =
         getGenerateApiArgs(
@@ -322,6 +332,7 @@ private fun generateApi(
             apiLevelsArgs,
             pathToManifest,
             multiplatform,
+            hasJvmOrAndroidTarget,
         )
     runMetalavaWithArgs(metalavaClasspath, args, kotlinSourceLevel, workerExecutor)
 }
@@ -340,35 +351,39 @@ fun getGenerateApiArgs(
     apiLevelsArgs: List<String>,
     pathToManifest: String? = null,
     multiplatform: Boolean,
+    hasJvmOrAndroidTarget: Boolean,
 ): List<String> {
-    // generate public API txt
-    val args =
-        mutableListOf(
-            "--source-path",
-            sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
-            "--project",
-            projectXml.path,
-        )
+    val args = mutableListOf("--project", projectXml.path, "--format=4.0", "--warnings-as-errors")
 
-    // Include the jar file to generate bytecode-only APIs if this project has any Kotlin source.
-    if (compiledSources != null && sourcePaths.any { containsKotlinFiles(it) }) {
-        args += listOf("--compiled-sources", compiledSources.absolutePath)
-    }
+    // Generate public API txt if there is a jvm/android target. If there isn't, the `generateApi`
+    // task will just run API lint without creating a signature file.
+    if (hasJvmOrAndroidTarget) {
+        args +=
+            listOf(
+                "--source-path",
+                sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
+            )
 
-    args += listOf("--format=4.0", "--warnings-as-errors")
+        // Include the jar file to generate bytecode-only APIs if this project has any Kotlin
+        // source.
+        if (compiledSources != null && sourcePaths.any { containsKotlinFiles(it) }) {
+            args += listOf("--compiled-sources", compiledSources.absolutePath)
+        }
 
-    pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
+        pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
 
-    if (outputLocation != null) {
-        when (generateApiMode) {
-            is GenerateApiMode.PublicApi -> {
-                args += listOf("--api", outputLocation.publicApiFile.toString())
-                // Generate API levels just for the public API
-                args += apiLevelsArgs
-            }
-            is GenerateApiMode.AllRestrictedApis,
-            GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
-                args += listOf("--api", outputLocation.restrictedApiFile.toString())
+        if (outputLocation != null) {
+            when (generateApiMode) {
+                is GenerateApiMode.PublicApi -> {
+                    args += listOf("--api", outputLocation.publicApiFile.toString())
+                    // Generate API levels just for the public API
+                    args += apiLevelsArgs
+                }
+
+                is GenerateApiMode.AllRestrictedApis,
+                GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
+                    args += listOf("--api", outputLocation.restrictedApiFile.toString())
+                }
             }
         }
     }
