@@ -163,16 +163,10 @@ class RectListBenchmark {
             scrollableItems.fastForEach {
                 val x = r.nextInt(-100, 100)
                 val y = r.nextInt(-100, 100)
-                updateSubhierarchy(qt, it, x, y)
+                val index = qt.indexOf(it.id, it.lastIndex)
+                qt.updateSubhierarchy(it.id, index, x, y)
             }
         }
-    }
-
-    internal fun updateSubhierarchy(qt: RectList, item: Item, deltaX: Int, deltaY: Int) {
-        val index = qt.indexOf(item.id, item.lastIndex)
-        item.lastIndex = index
-        qt.moveWithDelta(index, deltaX, deltaY)
-        item.children.fastForEach { updateSubhierarchy(qt, it, deltaX, deltaY) }
     }
 
     @Test
