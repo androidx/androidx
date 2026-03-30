@@ -186,7 +186,7 @@ internal class RectManager(
             .also {
                 val layoutNode = node.node.requireLayoutNode()
                 if (layoutNode.inRectList()) {
-                    rects.updateHasCallbacksAt(layoutNode.findIndexInRectList(), true)
+                    rects.updateHasCallbacksAt(layoutNode.indexInRectList(), true)
                 }
                 invalidate()
                 scheduleDebounceCallback(true)
@@ -218,7 +218,7 @@ internal class RectManager(
     fun invalidateCallbacksFor(layoutNode: LayoutNode) {
         if (layoutNode.inRectList()) {
             isDirty = true
-            val index = layoutNode.findIndexInRectList()
+            val index = layoutNode.indexInRectList()
             rects.markUpdatedAt(index)
         }
         scheduleDebounceCallback(ensureSomethingScheduled = true)
@@ -227,7 +227,7 @@ internal class RectManager(
     fun updateFlagsFor(layoutNode: LayoutNode, focusable: Boolean, gesturable: Boolean) {
         if (layoutNode.isAttached && layoutNode.inRectList()) {
             rects.updateFlagsAt(
-                index = layoutNode.findIndexInRectList(),
+                index = layoutNode.indexInRectList(),
                 focusable = focusable,
                 gesturable = gesturable,
             )
@@ -270,36 +270,26 @@ internal class RectManager(
                 val height = delegate.measuredHeight
 
                 if (layoutNode.inRectList()) {
+                    val index = layoutNode.indexInRectList()
                     if (parent != null) {
-                        val delta =
-                            rects.moveBasedOnParentOffset(
-                                index = layoutNode.findIndexInRectList(),
-                                parentIndex = parent.findIndexInRectList(),
-                                offsetFromParentX = offsetFromParent.x,
-                                offsetFromParentY = offsetFromParent.y,
-                                width = width,
-                                height = height,
-                            )
-                        val deltaX = unpackX(delta)
-                        val deltaY = unpackY(delta)
-                        if (deltaX != 0 || deltaY != 0) {
-                            layoutNode.move(deltaX, deltaY)
-                        }
+                        rects.moveBasedOnParentOffset(
+                            id = layoutNode.semanticsId,
+                            index = index,
+                            parentIndex = parent.indexInRectList(),
+                            offsetFromParentX = offsetFromParent.x,
+                            offsetFromParentY = offsetFromParent.y,
+                            width = width,
+                            height = height,
+                        )
                     } else {
-                        // moving the root.
-                        val delta =
-                            rects.moveAt(
-                                index = layoutNode.findIndexInRectList(),
-                                l = offsetFromParent.x,
-                                t = offsetFromParent.y,
-                                r = offsetFromParent.x + width,
-                                b = offsetFromParent.y + height,
-                            )
-                        val deltaX = unpackX(delta)
-                        val deltaY = unpackY(delta)
-                        if (deltaX != 0 || deltaY != 0) {
-                            layoutNode.move(deltaX, deltaY)
-                        }
+                        rects.moveAt(
+                            id = layoutNode.semanticsId,
+                            index = layoutNode.indexInRectList(),
+                            l = offsetFromParent.x,
+                            t = offsetFromParent.y,
+                            r = offsetFromParent.x + width,
+                            b = offsetFromParent.y + height,
+                        )
                     }
                 } else {
                     val semanticsId = layoutNode.semanticsId
@@ -312,7 +302,7 @@ internal class RectManager(
                             rects.insertBasedOnParentOffset(
                                 value = semanticsId,
                                 parentId = parent.semanticsId,
-                                parentIndex = parent.findIndexInRectList(),
+                                parentIndex = parent.indexInRectList(),
                                 offsetFromParentX = offsetFromParent.x,
                                 offsetFromParentY = offsetFromParent.y,
                                 width = width,
@@ -362,22 +352,9 @@ internal class RectManager(
         scheduleDebounceCallback(ensureSomethingScheduled = true)
     }
 
-    private fun LayoutNode.move(deltaX: Int, deltaY: Int) {
-        // TODO: pass parentIndex to avoid traversing the list every time when the cache is not
-        //   hit.
-        forEachChild { child ->
-            if (child.inRectList()) {
-                rects.moveWithDelta(child.findIndexInRectList(), deltaX, deltaY)
-                child.move(deltaX, deltaY)
-            } else {
-                child.move(deltaX, deltaY)
-            }
-        }
-    }
-
     fun getOffsetFromRectListFor(layoutNode: LayoutNode): IntOffset =
         if (layoutNode.inRectList()) {
-            val topLeft = rects.getTopLeftAt(layoutNode.findIndexInRectList())
+            val topLeft = rects.getTopLeftAt(layoutNode.indexInRectList())
             IntOffset(unpackX(topLeft), unpackY(topLeft))
         } else {
             IntOffset.Max
@@ -431,7 +408,7 @@ internal class RectManager(
         val id = layoutNode.semanticsId
 
         if (layoutNode.inRectList()) {
-            rects.updateAt(layoutNode.findIndexInRectList(), l, t, r, b)
+            rects.updateAt(layoutNode.indexInRectList(), l, t, r, b)
         } else {
             val parent = layoutNode.parent
             layoutNode.rectListIndex =
@@ -442,7 +419,7 @@ internal class RectManager(
                     r = r,
                     b = b,
                     parentId = parent?.semanticsId ?: -1,
-                    parentIndex = parent?.findIndexInRectList() ?: NotFound,
+                    parentIndex = parent?.indexInRectList() ?: NotFound,
                     focusable = layoutNode.nodes.has(Nodes.FocusTarget),
                     gesturable = layoutNode.nodes.has(Nodes.PointerInput),
                     hasCallbacks = throttledCallbacks.rectChangedMap.containsKey(id),
@@ -503,7 +480,7 @@ internal class RectManager(
 
     fun remove(layoutNode: LayoutNode) {
         if (layoutNode.inRectList()) {
-            rects.removeAt(layoutNode.findIndexInRectList())
+            rects.removeAt(layoutNode.indexInRectList())
             layoutNode.rectListIndex = NotFound
             layoutNode.rectInParentDirty = true
             invalidate()
@@ -516,7 +493,7 @@ internal class RectManager(
         if (cachedNode?.inRectList() != true) {
             return
         }
-        rects.withRectAt(cachedNode.findIndexInRectList(), block)
+        rects.withRectAt(cachedNode.indexInRectList(), block)
     }
 
     /**
@@ -687,11 +664,11 @@ internal class RectManager(
 
     fun unsetHasCallbacksFor(layoutNode: LayoutNode) {
         if (layoutNode.inRectList()) {
-            rects.updateHasCallbacksAt(layoutNode.findIndexInRectList(), false)
+            rects.updateHasCallbacksAt(layoutNode.indexInRectList(), false)
         }
     }
 
-    private fun LayoutNode.findIndexInRectList(): Int {
+    private fun LayoutNode.indexInRectList(): Int {
         val cachedIndex = rectListIndex
         val result =
             if (cachedIndex == NotFound) {

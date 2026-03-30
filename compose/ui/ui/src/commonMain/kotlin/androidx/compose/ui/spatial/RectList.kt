@@ -284,11 +284,12 @@ internal class RectList {
     }
 
     /**
-     * Moves the rectangle associated with this value to the specified rectangle and returns the
-     * top-left delta. This delta can be applied to each node in the node subhierarchy with
-     * [moveWithDelta].
+     * Moves the rectangle associated with this value to the specified rectangle, and updates every
+     * item that is "below" the specified rectangle by the associated offset. move() is generally
+     * more efficient than calling update() for all of the rectangles included in the subhierarchy
+     * of the item.
      */
-    fun moveAt(index: Int, l: Int, t: Int, r: Int, b: Int): Long {
+    fun moveAt(id: Int, index: Int, l: Int, t: Int, r: Int, b: Int) {
         val prevLT = items[index + 0]
         items[index + 0] = packXY(l, t)
         items[index + 1] = packXY(r, b)
@@ -296,15 +297,82 @@ internal class RectList {
         items[index + 2] = metaMarkUpdatedIfHasCallbacks(meta)
         val deltaX = l - unpackX(prevLT)
         val deltaY = t - unpackY(prevLT)
-        return packXY(deltaX, deltaY)
+
+        if (deltaX != 0 || deltaY != 0) {
+            updateSubhierarchy(id, index, deltaX, deltaY)
+        }
     }
 
-    fun moveWithDelta(index: Int, deltaX: Int, deltaY: Int) {
-        val prevLT = items[index + 0]
-        val prevBR = items[index + 1]
-        items[index + 0] = packXY(unpackX(prevLT) + deltaX, unpackY(prevLT) + deltaY)
-        items[index + 1] = packXY(unpackX(prevBR) + deltaX, unpackY(prevBR) + deltaY)
-        items[index + 2] = metaMarkUpdatedIfHasCallbacks(items[index + 2])
+    fun updateSubhierarchy(id: Int, index: Int, deltaX: Int, deltaY: Int) {
+        updateSubhierarchy(
+            stackMeta =
+                packMeta(
+                    itemId = id,
+                    // item index is in parent id slot for this case
+                    parentId = index,
+                    lastChildOffset = itemsSize / LongsPerItem,
+                    updated = false,
+                    focusable = false,
+                    gesturable = false,
+                    hasCallbacks = false,
+                ),
+            deltaX = deltaX,
+            deltaY = deltaY,
+        )
+    }
+
+    /**
+     * Updates a subhierarchy of items by the specified delta. For efficiency, the [stackMeta]
+     * provided is a Long encoded with the same scheme of the "meta" long of each item, where the
+     * encoding has the following semantic specific to this method:
+     *
+     *        Long (64 bits): the "stack meta" encoding
+     *          25 bits: the "parent id" that we are matching on (normally item id)
+     *          25 bits: the minimum index that a child can have (normally parent index)
+     *          10 bits: max offset from start index a child can have (normally last child offset)
+     *          next bits are unused
+     *
+     * We use this essentially as a way to encode three integers into a long, which includes all of
+     * the data needed to efficiently iterate through the below algorithm. It is effectively an id
+     * and a range. The range isn't strictly needed, but it helps turn this O(n^2) algorithm into
+     * something that is ~O(n) in the average case (still O(n^2) worst case though). By using the
+     * same encoding as "meta" longs, we only need to update the start index when we
+     */
+    private fun updateSubhierarchy(stackMeta: Long, deltaX: Int, deltaY: Int) {
+        val items = items
+        val stack = stack
+        val size = itemsSize
+
+        stack[0] = stackMeta
+        var stackSize = 1
+        while (stackSize > 0) {
+            val idAndStartAndOffset = stack[--stackSize]
+            val parentId = unpackMetaValue(idAndStartAndOffset) // parent id is in the id slot
+            var i = unpackMetaParentId(idAndStartAndOffset) // start index is in the parent id slot
+            val offset = unpackMetaLastChildOffset(idAndStartAndOffset)
+            val endIndex =
+                if (offset == MaxSupportedLastChildOffset) size else i + (offset * LongsPerItem)
+            if (i < 0) break
+            while (i < size - 2) {
+                if (i >= endIndex) break
+                val meta = items[i + 2]
+                if (unpackMetaParentId(meta) == parentId) {
+                    val topLeft = items[i + 0]
+                    val bottomRight = items[i + 1]
+                    items[i + 0] = packXY(unpackX(topLeft) + deltaX, unpackY(topLeft) + deltaY)
+                    items[i + 1] =
+                        packXY(unpackX(bottomRight) + deltaX, unpackY(bottomRight) + deltaY)
+                    items[i + 2] = metaMarkUpdatedIfHasCallbacks(meta)
+                    if (unpackMetaLastChildOffset(meta) > 0) {
+                        // we need to store itemId, lastChildOffset, and a "start index".
+                        // For convenience, we just use `meta` which already encodes two of those
+                        // values, and we add `i` into the slot for "parentId"
+                        stack[stackSize++] = metaWithParentId(meta, i + LongsPerItem)
+                    }
+                }
+                i += LongsPerItem
+            }
+        }
     }
 
     /**
@@ -312,13 +380,14 @@ internal class RectList {
      * method allows to both find the parent offset and return the new child offset in one pass.
      */
     fun moveBasedOnParentOffset(
+        id: Int,
         index: Int,
         parentIndex: Int,
         offsetFromParentX: Int,
         offsetFromParentY: Int,
         width: Int,
         height: Int,
-    ): Long {
+    ) {
         val parentLT = items[parentIndex + 0]
         val parentX = unpackX(parentLT)
         val parentY = unpackY(parentLT)
@@ -336,7 +405,10 @@ internal class RectList {
         items[index + 0] = packXY(l, t)
         items[index + 1] = packXY(r, b)
         items[index + 2] = metaMarkUpdatedIfHasCallbacks(meta)
-        return packXY(deltaX, deltaY)
+
+        if (deltaX != 0 || deltaY != 0) {
+            updateSubhierarchy(id, index, deltaX, deltaY)
+        }
     }
 
     fun markUpdatedAt(index: Int) {
@@ -373,8 +445,7 @@ internal class RectList {
         val items = items
         val size = itemsSize
         var i = 0
-        while (i < items.size - 2) {
-            if (i >= size) break
+        while (i < size - 2) {
             val meta = items[i + 2]
             if (unpackMetaValue(meta) == value) {
                 return i
@@ -416,7 +487,7 @@ internal class RectList {
         val items = items
         val size = itemsSize
         var i = 0
-        while (i < items.size - 2) {
+        while (i < size - 2) {
             if (i >= size) break
             val topLeft = items[i + 0]
             val bottomRight = items[i + 1]
