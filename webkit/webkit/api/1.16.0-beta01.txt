@@ -2,10 +2,10 @@
 package androidx.webkit {
 
   @SuppressCompatibility @androidx.webkit.WebSettingsCompat.ExperimentalBackForwardCacheSettings public class BackForwardCacheSettings {
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public int getMaxPagesInCache();
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public long getTimeoutSeconds();
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public void setMaxPagesInCache(int);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public void setTimeoutSeconds(long);
+    method @IntRange(from=0) @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public int getMaxPagesInCache();
+    method @IntRange(from=0) @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public long getTimeoutSeconds();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public void setMaxPagesInCache(@IntRange(from=0) int);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public void setTimeoutSeconds(@IntRange(from=0) long);
   }
 
   @AnyThread public class CookieManagerCompat {
