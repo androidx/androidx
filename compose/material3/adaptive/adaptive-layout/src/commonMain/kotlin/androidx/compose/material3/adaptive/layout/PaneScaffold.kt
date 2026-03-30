@@ -351,6 +351,7 @@ private class PreferredWidthElement(private val width: PreferredSize) :
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class PreferredWidthNode(var width: PreferredSize) :
     ParentDataModifierNode, Modifier.Node() {
     override fun Density.modifyParentData(parentData: Any?) =
@@ -389,6 +390,7 @@ private class PreferredHeightElement(private val height: PreferredSize) :
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class PreferredHeightNode(var height: PreferredSize) :
     ParentDataModifierNode, Modifier.Node() {
     override fun Density.modifyParentData(parentData: Any?) =
@@ -397,6 +399,7 @@ private class PreferredHeightNode(var height: PreferredSize) :
         }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun Modifier.paneMargins(fixedMargins: PaddingValues, insets: List<RectRulers>) =
     this.then(
@@ -410,6 +413,7 @@ private fun Modifier.paneMargins(fixedMargins: PaddingValues, insets: List<RectR
         )
     )
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private data class PaneMarginsElement(val paneMargins: PaneMargins) :
     ModifierNodeElement<PaneMarginsNode>() {
     private val inspectorInfo = debugInspectorInfo {
@@ -430,6 +434,7 @@ private data class PaneMarginsElement(val paneMargins: PaneMargins) :
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class PaneMarginsNode(var paneMargins: PaneMargins) :
     ParentDataModifierNode, Modifier.Node() {
     override fun Density.modifyParentData(parentData: Any?) =
@@ -494,6 +499,7 @@ private object AnimatedPaneElement : ModifierNodeElement<AnimatedPaneNode>() {
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class AnimatedPaneNode : ParentDataModifierNode, Modifier.Node() {
     override fun Density.modifyParentData(parentData: Any?) =
         ((parentData as? PaneScaffoldParentDataImpl) ?: PaneScaffoldParentDataImpl()).also {
