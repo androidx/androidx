@@ -57,7 +57,6 @@ dependencies {
 
 android {
     namespace = "androidx.xr.arcore.openxr"
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
 }
 
 androidComponents {

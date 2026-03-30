@@ -31,7 +31,6 @@ plugins {
 }
 
 android {
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.window"
 }
 

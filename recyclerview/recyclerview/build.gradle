@@ -47,7 +47,6 @@ android {
     defaultConfig {
         compileSdk { version = release(35) }
         testInstrumentationRunner "androidx.recyclerview.test.TestRunner"
-        consumerProguardFiles("proguard-rules.pro")
     }
     testOptions.unitTests.returnDefaultValues = true
     namespace = "androidx.recyclerview"

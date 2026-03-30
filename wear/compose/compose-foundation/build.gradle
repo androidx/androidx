@@ -74,7 +74,6 @@ android {
     compileSdk { version = release(35) }
     defaultConfig {
         minSdk { version = release(25) }
-        consumerProguardFiles("proguard-rules.pro")
     }
     namespace = "androidx.wear.compose.foundation"
 }

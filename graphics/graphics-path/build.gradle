@@ -76,7 +76,6 @@ android {
                 ])
             }
         }
-        consumerProguardFiles "proguard-rules.pro"
     }
 
     externalNativeBuild {

@@ -69,7 +69,6 @@ android {
 
     defaultConfig {
         minSdk { version = release(26) }
-        consumerProguardFiles("proguard-rules.pro")
     }
     namespace = "androidx.wear.tiles.renderer"
 }

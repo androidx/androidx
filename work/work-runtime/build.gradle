@@ -44,7 +44,6 @@ android {
         }
     }
     defaultConfig {
-        consumerProguardFiles("proguard-rules.pro")
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [

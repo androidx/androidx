@@ -31,7 +31,6 @@ plugins {
 
 android {
     namespace = "androidx.core.location.altitude"
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
 }
 
 dependencies {

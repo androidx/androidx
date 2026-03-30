@@ -36,7 +36,6 @@ dependencies {
 
 android {
     compileSdk { version = release(35) }
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     aaptOptions {
         additionalParameters "--no-version-transitions"
     }

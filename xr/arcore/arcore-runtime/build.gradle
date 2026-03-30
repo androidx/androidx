@@ -31,7 +31,6 @@ dependencies {
 
 android {
     namespace = "androidx.xr.arcore.runtime"
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
 }
 
 androidx {
