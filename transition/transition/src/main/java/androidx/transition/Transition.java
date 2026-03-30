@@ -2080,7 +2080,7 @@ public abstract class Transition implements Cloneable {
 
         for (int i = numOldAnims - 1; i >= 0; i--) {
             AnimationInfo info = oldAnimators.valueAt(i);
-            if (info.mView != null && windowId.equals(info.mWindowId)) {
+            if (info.mView != null && Objects.equals(windowId, info.mWindowId)) {
                 Animator anim = oldAnimators.keyAt(i);
                 anim.end();
             }

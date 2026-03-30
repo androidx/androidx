@@ -270,4 +270,29 @@ public class TransitionManagerTest extends BaseTest {
             assertTrue(latch.await(1, TimeUnit.SECONDS));
         }
     }
+
+    @Test
+    public void testEndTransitionsWithDetachedView() throws Throwable {
+        final ViewGroup root = rule.getActivity().getRoot();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ViewGroup sceneRoot = new android.widget.FrameLayout(root.getContext());
+        final View view = new View(root.getContext());
+        final Transition transition = new AutoTransition();
+
+        rule.runOnUiThread(() -> {
+            root.addView(sceneRoot, new ViewGroup.LayoutParams(100, 100));
+            transition.addListener(new TransitionListenerAdapter() {
+                @Override
+                public void onTransitionStart(@NonNull Transition transition) {
+                    // Detach the sceneRoot from its parent so its WindowId becomes null
+                    root.removeView(sceneRoot);
+                    TransitionManager.endTransitions(sceneRoot); // NPE would be thrown here
+                    latch.countDown();
+                }
+            });
+            Scene scene = new Scene(sceneRoot, view);
+            TransitionManager.go(scene, transition);
+        });
+        assertTrue(latch.await(1, TimeUnit.SECONDS));
+    }
 }
