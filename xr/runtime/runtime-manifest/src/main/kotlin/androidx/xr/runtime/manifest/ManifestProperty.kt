@@ -183,6 +183,28 @@ public val PROPERTY_XR_USES_CUSTOM_FULL_SPACE_MANAGED_ANIMATION: String =
     "android.window.PROPERTY_XR_USES_CUSTOM_FULL_SPACE_MANAGED_ANIMATION"
 
 /**
+ * Intent category to inform the system that the activity should be displayed in the launcher of a
+ * projected XR device.
+ *
+ * **Syntax:**
+ *
+ * ```
+ * <application>
+ * <activity>
+ *   <intent-filter>
+ *     <action android:name="android.intent.action.MAIN" />
+ *     <category android:name="android.intent.category.XR_PROJECTED_LAUNCHER" />
+ *   </intent-filter>
+ * </activity>
+ * </application>
+ * ```
+ *
+ * Constant Value: "android.intent.category.XR_PROJECTED_LAUNCHER"
+ */
+@JvmField
+public val CATEGORY_XR_PROJECTED_LAUNCHER: String = "android.intent.category.XR_PROJECTED_LAUNCHER"
+
+/**
  * Activity level [ActivityInfo.Property][android.content.pm.ActivityInfo.Property] to inform the
  * system that the activity should be displayed on a projected display, rather than on the device
  * display.
