@@ -260,8 +260,6 @@ internal class ResizableNode(
         }
     }
 
-    override fun CoreEntityScope.modifyCoreEntity() {}
-
     override fun onDetach() {
         disableComponent()
     }
