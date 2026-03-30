@@ -953,6 +953,10 @@ internal constructor(
                 waitForIdle()
             }
         }
+
+        override fun hasPendingWork(): Boolean {
+            return !composeIdlingResource.isIdle
+        }
     }
 
     private fun throwPendingException() {
@@ -1071,6 +1075,8 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     fun unregisterIdlingResource(idlingResource: IdlingResource)
 
     actual fun setContent(composable: @Composable () -> Unit)
+
+    actual fun hasPendingWork(): Boolean
 }
 
 /**

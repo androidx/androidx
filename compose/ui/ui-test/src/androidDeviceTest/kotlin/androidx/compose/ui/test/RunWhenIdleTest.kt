@@ -144,6 +144,59 @@ class RunWhenIdleTest {
             .inOrder()
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun triggeredAnimation_withHasPendingWork() = runComposeUiTest {
+        var size by mutableStateOf(64.dp)
+
+        setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(
+                    modifier =
+                        Modifier.testTag("foo")
+                            .animateContentSize { _, _ -> }
+                            .size(size)
+                            .background(Color.Red)
+                )
+            }
+        }
+
+        mainClock.autoAdvance = false
+        val timeSeries = mutableListOf<IntSize>()
+        // Triggering the animation
+        size = 32.dp
+
+        while (hasPendingWork()) {
+            mainClock.advanceTimeByFrame()
+            waitForIdle()
+
+            captureMotionTestValues(timeSeries)
+        }
+        assertThat(timeSeries)
+            .containsExactly(
+                IntSize(64, 64),
+                IntSize(64, 64),
+                IntSize(63, 63),
+                IntSize(60, 60),
+                IntSize(56, 56),
+                IntSize(52, 52),
+                IntSize(49, 49),
+                IntSize(46, 46),
+                IntSize(43, 43),
+                IntSize(41, 41),
+                IntSize(39, 39),
+                IntSize(37, 37),
+                IntSize(36, 36),
+                IntSize(35, 35),
+                IntSize(35, 35),
+                IntSize(34, 34),
+                IntSize(34, 34),
+                IntSize(33, 33),
+                IntSize(32, 32),
+            )
+            .inOrder()
+    }
+
     /**
      * Illustrative implementation of a "sample the property values of the current frame" method.
      *

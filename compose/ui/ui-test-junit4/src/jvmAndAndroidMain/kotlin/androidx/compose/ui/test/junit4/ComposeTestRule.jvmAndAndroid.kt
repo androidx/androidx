@@ -266,6 +266,20 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
 
     /** Unregisters an [IdlingResource] from this test. */
     fun unregisterIdlingResource(idlingResource: IdlingResource)
+
+    /**
+     * Returns whether the Compose UI has any pending work.
+     *
+     * This performs a passive check of the [mainClock], snapshot state, and recomposer to determine
+     * if there is any pending work. Unlike [waitForIdle], calling this method does not advance the
+     * clock or drain the main message queue.
+     *
+     * This is particularly useful when `autoAdvance` is disabled, allowing you to inspect the state
+     * of the UI while an animation or other work is still active.
+     */
+    fun hasPendingWork(): Boolean {
+        throw NotImplementedError("hasPendingWork() is not implemented.")
+    }
 }
 
 /**
