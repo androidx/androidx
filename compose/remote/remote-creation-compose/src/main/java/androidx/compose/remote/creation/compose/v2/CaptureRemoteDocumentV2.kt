@@ -109,11 +109,7 @@ public suspend fun captureSingleRemoteDocumentV2(
                 profile = profile,
                 writerEvents = writerEvents,
                 layoutDirection = layoutDirection,
-                remoteDensity =
-                    RemoteDensity(
-                        creationDisplayInfo.density.rf,
-                        context.resources.configuration.fontScale.rf,
-                    ),
+                remoteDensity = remoteDensity,
             )
 
         composition.setContent {
