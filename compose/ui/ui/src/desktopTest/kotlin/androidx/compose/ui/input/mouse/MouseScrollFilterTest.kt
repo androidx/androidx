@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // https://github.com/JetBrains/compose-jb/issues/1514
+@file:Suppress("DEPRECATION") // https://youtrack.jetbrains.com/issue/CMP-6181
 
 package androidx.compose.ui.input.mouse
 

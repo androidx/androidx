@@ -46,7 +46,7 @@ import org.junit.Test
 @OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
 internal class TooltipAreaTest {
 
-    // https://github.com/JetBrains/compose-jb/issues/2821
+    // https://youtrack.jetbrains.com/issue/CMP-2821
     @Test
     fun simpleTooltipIsShown() = runComposeUiTest {
         setContent {

@@ -356,7 +356,7 @@ class ScrollbarTest {
         )
     }
 
-    // See https://github.com/JetBrains/compose-jb/issues/2640
+    // See https://youtrack.jetbrains.com/issue/CMP-2640
     @Test
     fun `drag scrollbar to bottom with content padding`() {
         val listState = LazyListState()
@@ -390,7 +390,7 @@ class ScrollbarTest {
         assertEquals(0, firstVisibleItem.offset)
     }
 
-    // See https://github.com/JetBrains/compose-jb/issues/2679
+    // See https://youtrack.jetbrains.com/issue/CMP-2679
     @Test
     fun `drag scrollbar to bottom and top with large and small items`() {
         val listState = LazyListState()
@@ -435,7 +435,7 @@ class ScrollbarTest {
     }
 
     // TODO(demin): write a test when we support DesktopComposeTestRule.mainClock:
-    //  see https://github.com/JetBrains/compose-jb/issues/637
+    //  see https://youtrack.jetbrains.com/issue/CMP-6249
 //    fun `move mouse to the slider and drag it`() {
 //        ...
 //        rule.performMouseMove(0, 25)

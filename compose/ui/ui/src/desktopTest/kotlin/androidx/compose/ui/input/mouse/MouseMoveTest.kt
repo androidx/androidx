@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // https://github.com/JetBrains/compose-jb/issues/1514
+@file:Suppress("DEPRECATION") // https://youtrack.jetbrains.com/issue/CMP-6181
 
 package androidx.compose.ui.input.mouse
 
@@ -443,7 +443,7 @@ class MouseMoveTest {
         collector2.assertCounts(enter = 1, exit = 1, move = 0)
     }
 
-    // bug https://github.com/JetBrains/compose-jb/issues/2147
+    // bug https://youtrack.jetbrains.com/issue/CMP-2147
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun `move between two components with an intermediate render`() {

@@ -53,7 +53,7 @@ internal class DesktopCursorPositionTest {
     private val anchorSize = IntSize(100, 100)
     private val popupSize = IntSize(20, 20)
 
-    // https://github.com/JetBrains/compose-jb/issues/2821
+    // https://youtrack.jetbrains.com/issue/CMP-2821
     @Test
     fun `pointer position with single component`(): Unit = runBlocking(Dispatchers.Main) {
         var pointerPosition: IntOffset? = null

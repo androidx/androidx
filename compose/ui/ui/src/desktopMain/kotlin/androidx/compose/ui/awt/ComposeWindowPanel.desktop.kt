@@ -51,7 +51,7 @@ internal class ComposeWindowPanel(
     private var isDisposed = false
 
     // AWT can leak JFrame in some cases
-    // (see https://github.com/JetBrains/compose-jb/issues/1688),
+    // (see https://youtrack.jetbrains.com/issue/CMP-1688),
     // so we nullify bridge on dispose, to prevent keeping
     // big objects in memory (like the whole LayoutNode tree of the window)
     private var _composeContainer: ComposeContainer? = ComposeContainer(

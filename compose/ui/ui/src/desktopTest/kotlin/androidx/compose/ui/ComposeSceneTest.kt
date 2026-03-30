@@ -462,7 +462,7 @@ class ComposeSceneTest {
         awaitNextRender()
         screenshotRule.snap(surface, "frame4_change_height")
 
-        // see https://github.com/JetBrains/compose-jb/issues/2171, we have extra rendered frames here
+        // see https://youtrack.jetbrains.com/issue/CMP-2171, we have extra rendered frames here
         skipRenders()
 
         assertFalse(hasRenders())

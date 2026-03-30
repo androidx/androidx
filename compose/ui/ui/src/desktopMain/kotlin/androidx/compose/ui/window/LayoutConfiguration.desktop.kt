@@ -30,9 +30,9 @@ import java.util.*
 //  font size can be changed on Windows 10 in Settings - Ease of Access,
 //  on Ubuntu in Settings - Universal Access
 //  on macOS there is no such setting
-//  issue: https://github.com/JetBrains/compose-jb/issues/57
+//  issue: https://youtrack.jetbrains.com/issue/CMP-6391
 
-// TODO(demin) support RTL. see https://github.com/JetBrains/compose-jb/issues/872.
+// TODO(demin) support RTL. see https://youtrack.jetbrains.com/issue/CMP-5362.
 //  also, don't forget to search all LayoutDirection.Ltr in desktopMain
 
 internal val GlobalDensity get() = GraphicsEnvironment.getLocalGraphicsEnvironment()

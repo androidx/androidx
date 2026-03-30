@@ -226,7 +226,7 @@ class ComposeDialogTest {
         }
     }
 
-    // bug https://github.com/JetBrains/compose-jb/issues/1448
+    // bug https://youtrack.jetbrains.com/issue/CMP-5170
     @Test
     fun `dispose window in event handler`() = runApplicationTest {
         val window = ComposeDialog()

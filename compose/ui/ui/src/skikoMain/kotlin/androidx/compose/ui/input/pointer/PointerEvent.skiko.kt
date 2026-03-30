@@ -24,7 +24,7 @@ internal actual typealias NativePointerButtons = Int
 internal actual typealias NativePointerKeyboardModifiers = Int
 
 
-// TODO(https://github.com/JetBrains/compose-jb/issues/2184) support more buttons
+// TODO(https://youtrack.jetbrains.com/issue/CMP-2184) support more buttons
 /**
  * Creates [PointerButtons] with the specified state of the pressed buttons.
  */

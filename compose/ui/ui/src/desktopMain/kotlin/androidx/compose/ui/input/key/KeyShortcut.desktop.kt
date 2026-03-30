@@ -19,7 +19,7 @@ package androidx.compose.ui.input.key
 import java.awt.event.InputEvent
 import javax.swing.KeyStroke
 
-// TODO(https://github.com/JetBrains/compose-jb/issues/914): support arbitrary shortcuts
+// TODO(https://youtrack.jetbrains.com/issue/CMP-5337): support arbitrary shortcuts
 /**
  * Represents a key combination which should be pressed on a keyboard to trigger some action.
  */

@@ -39,7 +39,7 @@ import kotlin.test.assertEquals
 class LayoutTest {
 
     @Test
-    // Issue: https://github.com/JetBrains/compose-jb/issues/2696
+    // Issue: https://youtrack.jetbrains.com/issue/CMP-2696
     fun layoutInMovableContent() = runSkikoComposeUiTest {
         var boxIx by mutableStateOf(0)
         var valueSeenByLayout = -1

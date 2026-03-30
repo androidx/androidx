@@ -146,7 +146,7 @@ fun DialogWindow(
  * @param icon Icon in the title bar of the dialog (for platforms that support this).
  * On macOs individual windows can't have a separate icon. To change the icon in the Dock,
  * set it via `iconFile` in build.gradle
- * (https://github.com/JetBrains/compose-jb/tree/master/tutorials/Native_distributions_and_local_execution#platform-specific-options)
+ * (https://kotlinlang.org/docs/multiplatform/compose-native-distribution.html#platform-specific-options)
  * @param undecorated Disables or enables decorations for this dialog.
  * @param transparent Disables or enables window transparency. Transparency may be set only if the
  * dialog is undecorated, otherwise an exception will be thrown.
@@ -242,7 +242,7 @@ fun DialogWindow(
  * @param icon Icon in the title bar of the window (for platforms that support this).
  * On macOs individual windows can't have a separate icon. To change the icon in the Dock,
  * set it via `iconFile` in build.gradle
- * (https://github.com/JetBrains/compose-jb/tree/master/tutorials/Native_distributions_and_local_execution#platform-specific-options)
+ * (https://kotlinlang.org/docs/multiplatform/compose-native-distribution.html#platform-specific-options)
  * @param decoration Specifies the decoration for this dialog.
  * @param transparent Disables or enables window transparency. Transparency may be set only if the
  * dialog is undecorated, otherwise an exception will be thrown.

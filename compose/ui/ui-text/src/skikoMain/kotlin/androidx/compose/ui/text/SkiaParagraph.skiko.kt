@@ -184,7 +184,7 @@ internal class SkiaParagraph(
         val line = lineMetricsForOffset(offset)!!
 
         // workaround for https://bugs.chromium.org/p/skia/issues/detail?id=11321 :(
-        // Otherwise it shows a big cursor on a new empty line https://github.com/JetBrains/compose-jb/issues/1895
+        // Otherwise it shows a big cursor on a new empty line https://youtrack.jetbrains.com/issue/CMP-1895
         val isNewEmptyLine = offset - 1 == line.startIndex && offset == text.length
         val metrics = defaultFont.metrics
 

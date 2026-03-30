@@ -269,7 +269,7 @@ class MenuBarTest {
         assertThat(item.icon?.readFirstPixel()).isEqualTo(null)
     }
 
-    // bug https://github.com/JetBrains/compose-jb/issues/1097#issuecomment-921108560
+    // bug https://youtrack.jetbrains.com/issue/CMP-6228#focus=Comments-27-10382458.0-0
     @Test(timeout = 20000)
     fun `set icon and disable item`() = runApplicationTest {
         var window: ComposeWindow? = null

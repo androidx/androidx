@@ -15,7 +15,7 @@
  */
 
 @file:OptIn(ExperimentalComposeUiApi::class)
-@file:Suppress("DEPRECATION") // https://github.com/JetBrains/compose-jb/issues/1514
+@file:Suppress("DEPRECATION") // https://youtrack.jetbrains.com/issue/CMP-6181
 
 package androidx.compose.ui.input.mouse
 
@@ -142,7 +142,7 @@ fun Modifier.mouseScrollFilter(
     // scroll events, which were send after the first scroll event in the current frame
     // (so there will be no more than one scroll event per frame)
 
-    // TODO(https://github.com/JetBrains/compose-jb/issues/1345):
+    // TODO(https://youtrack.jetbrains.com/issue/CMP-5200):
     //  the more proper behaviour would be to batch multiple scroll events into the single one
     while (true) {
         val event = awaitScrollEvent()

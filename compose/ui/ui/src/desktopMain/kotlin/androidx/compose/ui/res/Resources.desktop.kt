@@ -54,7 +54,7 @@ internal fun openResource(
  */
 private object ClassLoaderResourceLoader {
     fun load(resourcePath: String): InputStream {
-        // TODO(https://github.com/JetBrains/compose-jb/issues/618): probably we shouldn't use
+        // TODO(https://youtrack.jetbrains.com/issue/CMP-6099): probably we shouldn't use
         //  contextClassLoader here, as it is not defined in threads created by non-JVM
         val contextClassLoader = Thread.currentThread().contextClassLoader!!
         val resource = contextClassLoader.getResourceAsStream(resourcePath)
