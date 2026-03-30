@@ -43,11 +43,11 @@ class EmphasisTest {
         }
 
         fun <R : Any> withEmphasis(
-            style: Int = EmphasisSpan.DEFAULT_EMPHASIS_STYLE,
+            style: EmphasisStyle = EmphasisSpan.DEFAULT_EMPHASIS_STYLE,
             filled: Boolean = EmphasisSpan.DEFAULT_EMPHASIS_FILL,
             scale: Float = EmphasisSpan.DEFAULT_SCALE,
             block: StyleTextBuilder.() -> R,
-        ) = withSpan(EmphasisSpan(style, filled, scale), block)
+        ) = withSpan(EmphasisSpan(style, filled, scale = scale), block)
 
         fun text(text: CharSequence) {
             result.append(text)
@@ -106,11 +106,7 @@ class EmphasisTest {
         val text =
             StyleTextBuilder()
                 .apply {
-                    withEmphasis(
-                        style = EmphasisSpan.STYLE_TRIANGLE,
-                        filled = false,
-                        scale = 0.7f,
-                    ) {
+                    withEmphasis(style = EmphasisStyle.Triangle, filled = false, scale = 0.7f) {
                         text("あいうえお")
                     }
                 }
@@ -223,11 +219,7 @@ class EmphasisTest {
         val text =
             StyleTextBuilder()
                 .apply {
-                    withEmphasis(
-                        style = EmphasisSpan.STYLE_TRIANGLE,
-                        filled = false,
-                        scale = 0.7f,
-                    ) {
+                    withEmphasis(style = EmphasisStyle.Triangle, filled = false, scale = 0.7f) {
                         text("12")
                     }
                 }

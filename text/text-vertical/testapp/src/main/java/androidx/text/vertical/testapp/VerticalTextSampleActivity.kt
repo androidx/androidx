@@ -54,7 +54,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.text.vertical.EmphasisSpan
+import androidx.text.vertical.EmphasisStyle
 import androidx.text.vertical.VerticalTextLayout
 import java.util.Locale
 import kotlin.math.max
@@ -191,7 +191,7 @@ fun ComplexHorizontalText(paint: TextPaint, modifier: Modifier = Modifier) {
         buildVerticalText {
             withEmphasis { text("傍点も") }
             text("Support")
-            withEmphasis(EmphasisSpan.STYLE_SESAME) { text("されてます。") }
+            withEmphasis(EmphasisStyle.Sesame) { text("されてます。") }
         },
         paint,
         modifier,
