@@ -97,6 +97,7 @@ androidXMultiplatform {
     sourceSets {
         commonTest.dependencies {
             implementation(project(":sqlite:sqlite"))
+            implementation(project(":sqlite:sqlite-async"))
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
             implementation(project(":kruth:kruth"))

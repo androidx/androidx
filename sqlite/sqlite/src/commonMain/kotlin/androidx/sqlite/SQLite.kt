@@ -63,31 +63,3 @@ public fun throwSQLiteException(errorCode: Int, errorMsg: String?): Nothing {
     }
     throw SQLiteException(message)
 }
-
-/**
- * Opens a new database connection.
- *
- * On web targets this function is asynchronous while for non-web it is synchronous.
- */
-public expect suspend fun SQLiteDriver.open(fileName: String): SQLiteConnection
-
-/**
- * Prepares a new SQL statement asynchronously.
- *
- * On web targets this function is asynchronous while for non-web it is synchronous.
- */
-public expect suspend fun SQLiteConnection.prepare(sql: String): SQLiteStatement
-
-/**
- * Executes a single SQL statement asynchronously that returns no values.
- *
- * On web targets this function is asynchronous while for non-web it is synchronous.
- */
-public expect suspend fun SQLiteConnection.executeSQL(sql: String)
-
-/**
- * Executes the statement asynchronously and evaluates the next result row if available.
- *
- * On web targets this function is asynchronous while for non-web it is synchronous.
- */
-public expect suspend fun SQLiteStatement.step(): Boolean

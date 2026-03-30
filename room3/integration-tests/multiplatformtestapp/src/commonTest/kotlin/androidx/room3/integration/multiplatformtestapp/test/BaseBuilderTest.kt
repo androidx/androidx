@@ -23,7 +23,7 @@ import androidx.room3.integration.multiplatformtestapp.backgroundDispatcher
 import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.step
+import androidx.sqlite.async.step
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred

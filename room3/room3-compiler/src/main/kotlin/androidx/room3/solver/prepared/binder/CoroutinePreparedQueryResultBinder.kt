@@ -23,7 +23,6 @@ import androidx.room3.compiler.codegen.box
 import androidx.room3.ext.InvokeWithLambdaParameter
 import androidx.room3.ext.LambdaSpec
 import androidx.room3.ext.RoomMemberNames.DB_UTIL_PERFORM_SUSPENDING
-import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.prepared.result.PreparedQueryResultAdapter
@@ -62,9 +61,8 @@ class CoroutinePreparedQueryResultBinder(
                             addLocalVal(
                                 statementVar,
                                 SQLiteDriverTypeNames.STATEMENT,
-                                "%L.%M(%L)",
+                                "%L.prepare(%L)",
                                 connectionVar,
-                                SQLiteDriverMemberNames.CONNECTION_PREPARE,
                                 sqlQueryVar,
                             )
                             beginControlFlow("try")

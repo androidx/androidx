@@ -211,9 +211,7 @@ public actual interface SQLiteStatement : AutoCloseable {
      *
      * @return true if there are more rows to evaluate or false if the statement is done executing
      */
-    public actual suspend fun stepAsync(): Boolean {
-        throw NotImplementedError("$this does not implement stepAsync().")
-    }
+    public suspend fun step(): Boolean
 
     /**
      * Resets the prepared statement back to initial state so that it can be re-executed via [step].

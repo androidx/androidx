@@ -20,10 +20,7 @@ import androidx.driver.web.worker.createDefaultWebWorkerDriver
 import androidx.kruth.assertThat
 import androidx.sqlite.SQLITE_DATA_INTEGER
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
-import androidx.sqlite.executeSQL
-import androidx.sqlite.open
-import androidx.sqlite.prepare
-import androidx.sqlite.step
+import androidx.sqlite.execSQL
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
@@ -32,7 +29,7 @@ class WebWorkerSQLiteDriverTest {
     fun openAndCloseConnection() = runTest {
         val driver: WebWorkerSQLiteDriver = createDefaultWebWorkerDriver()
         val connection = driver.open(":memory:")
-        connection.executeSQL("PRAGMA user_version = 5")
+        connection.execSQL("PRAGMA user_version = 5")
         connection.prepare("PRAGMA user_version").use { statement ->
             assertThat(statement.step()).isTrue()
             assertThat(statement.getColumnName(0)).isEqualTo("user_version")

@@ -32,9 +32,9 @@ import androidx.room3.util.TableInfo
 import androidx.room3.util.ViewInfo
 import androidx.room3.util.getQualifiedName
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.executeSQL
-import androidx.sqlite.prepare
-import androidx.sqlite.step
+import androidx.sqlite.async.executeSQL
+import androidx.sqlite.async.prepare
+import androidx.sqlite.async.step
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 

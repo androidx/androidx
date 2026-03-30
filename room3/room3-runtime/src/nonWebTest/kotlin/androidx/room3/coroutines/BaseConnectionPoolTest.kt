@@ -31,8 +31,8 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.async.executeSQL
 import androidx.sqlite.execSQL
-import androidx.sqlite.executeSQL
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.test.Test

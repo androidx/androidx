@@ -204,7 +204,7 @@ private constructor(
         return result.columnTypes[index]
     }
 
-    override suspend fun stepAsync(): Boolean {
+    override suspend fun step(): Boolean {
         throwIfClosed()
         if (rowIndex == -1) {
             this.result = dbWorker.step(statementId, bindings)

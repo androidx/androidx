@@ -21,39 +21,7 @@ package androidx.sqlite
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
-/**
- * Opens a new database connection.
- *
- * @see [SQLiteDriver.open]
- */
-public actual suspend fun SQLiteDriver.open(fileName: String): SQLiteConnection {
-    return this.open(fileName)
-}
-
-/**
- * Prepares a new SQL statement.
- *
- * @see [SQLiteConnection.prepare]
- */
-public actual suspend fun SQLiteConnection.prepare(sql: String): SQLiteStatement {
-    return this.prepare(sql)
-}
-
 /** Executes a single SQL statement that returns no values. */
 public fun SQLiteConnection.execSQL(sql: String) {
     this.prepare(sql).use { it.step() }
-}
-
-/** Executes a single SQL statement that returns no values. */
-public actual suspend fun SQLiteConnection.executeSQL(sql: String) {
-    this.prepare(sql).use { it.step() }
-}
-
-/**
- * Executes the statement and evaluates the next result row if available.
- *
- * @see [SQLiteStatement.step]
- */
-public actual suspend fun SQLiteStatement.step(): Boolean {
-    return this.step()
 }

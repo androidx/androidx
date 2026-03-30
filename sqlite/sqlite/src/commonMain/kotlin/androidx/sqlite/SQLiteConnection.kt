@@ -31,16 +31,6 @@ public expect interface SQLiteConnection : AutoCloseable {
     public open fun inTransaction(): Boolean
 
     /**
-     * Prepares a new SQL statement asynchronously.
-     *
-     * See also [Compiling a SQL statement](https://www.sqlite.org/c3ref/prepare.html)
-     *
-     * @param sql the SQL statement to prepare
-     * @return the prepared statement.
-     */
-    public open suspend fun prepareAsync(sql: String): SQLiteStatement
-
-    /**
      * Closes the database connection.
      *
      * Once a connection is closed it should no longer be used. Calling this function on an already

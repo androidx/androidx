@@ -28,8 +28,8 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.executeSQL
-import androidx.sqlite.prepare
+import androidx.sqlite.async.executeSQL
+import androidx.sqlite.async.prepare
 import androidx.sqlite.throwSQLiteException
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.ContinuationInterceptor

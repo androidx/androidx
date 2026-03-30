@@ -23,7 +23,7 @@ import androidx.room3.integration.multiplatformtestapp.backgroundDispatcher
 import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteException
-import androidx.sqlite.step
+import androidx.sqlite.async.step
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

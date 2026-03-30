@@ -20,8 +20,8 @@ import androidx.kruth.assertThat
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.async.executeSQL
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import androidx.sqlite.executeSQL
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 

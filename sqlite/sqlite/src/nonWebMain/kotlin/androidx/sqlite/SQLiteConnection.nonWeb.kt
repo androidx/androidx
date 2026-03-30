@@ -43,19 +43,6 @@ public actual interface SQLiteConnection : AutoCloseable {
     public fun prepare(sql: String): SQLiteStatement
 
     /**
-     * Prepares a new SQL statement asynchronously.
-     *
-     * See also [Compiling a SQL statement](https://www.sqlite.org/c3ref/prepare.html)
-     *
-     * @param sql the SQL statement to prepare
-     * @return the prepared statement.
-     */
-    @Deprecated("Avoid async API on non-Web source sets.", level = DeprecationLevel.HIDDEN)
-    public actual suspend fun prepareAsync(sql: String): SQLiteStatement {
-        return prepare(sql)
-    }
-
-    /**
      * Closes the database connection.
      *
      * Once a connection is closed it should no longer be used. Calling this function on an already

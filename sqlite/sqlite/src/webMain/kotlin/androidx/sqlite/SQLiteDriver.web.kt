@@ -46,7 +46,5 @@ public actual interface SQLiteDriver {
      * @param fileName Name of the database file.
      * @return the database connection.
      */
-    public actual suspend fun openAsync(fileName: String): SQLiteConnection {
-        throw NotImplementedError("$this does not implement openAsync().")
-    }
+    public suspend fun open(fileName: String): SQLiteConnection
 }

@@ -51,6 +51,7 @@ androidXMultiplatform {
             api(project(":room3:room3-common"))
             api(project(":room3:room3-runtime"))
             api(project(":sqlite:sqlite"))
+            implementation(project(":sqlite:sqlite-async"))
             implementation(project(":room3:room3-migration"))
         }
         commonTest.dependencies {

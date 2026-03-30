@@ -24,7 +24,6 @@ import androidx.room3.compiler.processing.isLong
 import androidx.room3.compiler.processing.isVoid
 import androidx.room3.compiler.processing.isVoidObject
 import androidx.room3.ext.RoomTypeNames
-import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.parser.QueryType
 import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.prepared.binder.PreparedQueryResultBinder
@@ -58,7 +57,7 @@ class PreparedQueryResultAdapter(private val returnType: XType, private val quer
 
     fun executeAndReturn(connectionVar: String, statementVar: String, scope: CodeGenScope) {
         scope.builder.apply {
-            addStatement("%L.%M()", statementVar, SQLiteDriverMemberNames.STATEMENT_STEP)
+            addStatement("%L.step()", statementVar)
             if (returnType.isVoid() || returnType.isVoidObject() || returnType.isKotlinUnit()) {
                 if (returnType.isVoidObject()) {
                     addStatement("null")

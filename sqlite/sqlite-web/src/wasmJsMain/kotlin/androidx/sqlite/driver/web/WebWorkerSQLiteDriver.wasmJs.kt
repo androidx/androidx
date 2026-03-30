@@ -31,7 +31,7 @@ public actual class WebWorkerSQLiteDriver(worker: Worker) : SQLiteDriver {
     override val hasConnectionPool: Boolean
         get() = false
 
-    override suspend fun openAsync(fileName: String): SQLiteConnection {
+    actual override suspend fun open(fileName: String): SQLiteConnection {
         return dbWebWorker.open(fileName)
     }
 }

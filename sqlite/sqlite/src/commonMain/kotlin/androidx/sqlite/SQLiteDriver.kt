@@ -36,14 +36,4 @@ public expect interface SQLiteDriver {
     @Suppress("INAPPLICABLE_JVM_NAME") // Due to KT-31420
     @get:JvmName("hasConnectionPool")
     public open val hasConnectionPool: Boolean
-
-    /**
-     * Opens a new database connection asynchronously.
-     *
-     * To open an in-memory database use the special name `:memory:` as the [fileName].
-     *
-     * @param fileName Name of the database file.
-     * @return the database connection.
-     */
-    public open suspend fun openAsync(fileName: String): SQLiteConnection
 }

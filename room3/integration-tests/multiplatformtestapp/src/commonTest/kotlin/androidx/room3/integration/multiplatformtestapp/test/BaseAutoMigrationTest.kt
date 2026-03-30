@@ -35,9 +35,9 @@ import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.testing.MigrationTestHelper
 import androidx.room3.util.getQualifiedName
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.executeSQL
-import androidx.sqlite.prepare
-import androidx.sqlite.step
+import androidx.sqlite.async.executeSQL
+import androidx.sqlite.async.prepare
+import androidx.sqlite.async.step
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 

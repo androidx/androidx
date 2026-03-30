@@ -1,0 +1,12 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.sqlite:sqlite-async>
+final suspend fun (androidx.sqlite/SQLiteConnection).androidx.sqlite.async/executeSQL(kotlin/String) // androidx.sqlite.async/executeSQL|executeSQL@androidx.sqlite.SQLiteConnection(kotlin.String){}[0]
+final suspend fun (androidx.sqlite/SQLiteConnection).androidx.sqlite.async/prepare(kotlin/String): androidx.sqlite/SQLiteStatement // androidx.sqlite.async/prepare|prepare@androidx.sqlite.SQLiteConnection(kotlin.String){}[0]
+final suspend fun (androidx.sqlite/SQLiteDriver).androidx.sqlite.async/open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.sqlite.async/open|open@androidx.sqlite.SQLiteDriver(kotlin.String){}[0]
+final suspend fun (androidx.sqlite/SQLiteStatement).androidx.sqlite.async/step(): kotlin/Boolean // androidx.sqlite.async/step|step@androidx.sqlite.SQLiteStatement(){}[0]

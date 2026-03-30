@@ -334,6 +334,7 @@ dependencies {
     docs(project(":sharetarget:sharetarget"))
     docs(project(":slidingpanelayout:slidingpanelayout"))
     kmpDocs(project(":sqlite:sqlite"))
+    kmpDocs(project(":sqlite:sqlite-async"))
     kmpDocs(project(":sqlite:sqlite-bundled"))
     kmpDocs(project(":sqlite:sqlite-framework"))
     docs(project(":sqlite:sqlite-ktx"))

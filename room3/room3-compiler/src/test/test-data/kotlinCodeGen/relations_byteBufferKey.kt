@@ -7,8 +7,6 @@ import androidx.room3.util.performBlocking
 import androidx.room3.util.recursiveFetchMap
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.prepare
-import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.ByteArray
 import kotlin.Int

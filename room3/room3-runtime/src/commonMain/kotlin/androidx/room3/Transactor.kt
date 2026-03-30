@@ -19,7 +19,7 @@ package androidx.room3
 import androidx.room3.Transactor.SQLiteTransactionType
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.step
+import androidx.sqlite.async.step
 
 /**
  * A wrapper of [SQLiteConnection] that belongs to a connection pool and is safe to use in a
