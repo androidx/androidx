@@ -24,7 +24,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @SmallTest
-class FragmentTransactionTest {
+class FragmentTransactionExtTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
