@@ -36,7 +36,7 @@ internal object ProjectXml {
     fun create(
         sourceSets: List<SourceSetInputs>,
         bootClasspath: Collection<File>,
-        compiledSourceJar: File,
+        compiledSourceJar: File?,
         outputFile: File,
     ) {
         // Compute the files for each source set initially so they can be checked multiple times
@@ -172,7 +172,7 @@ internal object ProjectXml {
         dependsOnSourceSets: Collection<String>,
         sourceFiles: Collection<File>,
         allDependencies: Collection<File>,
-        compiledSourceJar: File,
+        compiledSourceJar: File?,
         kotlinPlatforms: Set<KotlinPlatformType>,
     ): Element {
         val moduleElement = DocumentHelper.createElement("module")
@@ -233,9 +233,11 @@ internal object ProjectXml {
 
         // Adding the compiled sources of this project fixes issues where annotations on some
         // elements aren't registered by metalava (e.g. in :ink:ink-rendering).
-        val jarElement = DocumentHelper.createElement("src")
-        jarElement.addAttribute("jar", compiledSourceJar.absolutePath)
-        moduleElement.add(jarElement)
+        if (compiledSourceJar != null) {
+            val jarElement = DocumentHelper.createElement("src")
+            jarElement.addAttribute("jar", compiledSourceJar.absolutePath)
+            moduleElement.add(jarElement)
+        }
 
         return moduleElement
     }

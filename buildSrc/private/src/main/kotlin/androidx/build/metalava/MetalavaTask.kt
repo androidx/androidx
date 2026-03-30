@@ -28,6 +28,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
@@ -88,7 +89,7 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
     var sourcePaths: FileCollection = project.files()
 
     /** Class files compiled from sourcePaths */
-    @get:Classpath var compiledSources: FileCollection = project.files()
+    @get:Classpath abstract val compiledSources: ConfigurableFileCollection
 
     @get:[Optional InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val manifestPath: RegularFileProperty
@@ -113,8 +114,31 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
      */
     @get:Internal abstract val sourceSets: ListProperty<SourceSetInputs>
 
+    /**
+     * For jvm/android projects, the [compiledSources] is used to determine whether to rerun
+     * metalava, but it won't exist for a KMP project without a jvm/android target. In this case,
+     * the source files are what should be used to determine whether to rerun metalava.
+     */
+    @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
+    fun getKmpSources(): Provider<List<FileCollection>> {
+        return hasJvmOrAndroidTarget.zip(sourceSets) { hasJvmOrAndroidTarget, sourceSets ->
+            if (!hasJvmOrAndroidTarget) {
+                sourceSets.map { it.sourcePaths }
+            } else {
+                emptyList()
+            }
+        }
+    }
+
     /** Whether metalava should process the project as multiplatform. */
     @get:Input abstract val multiplatform: Property<Boolean>
+
+    /**
+     * Whether the project has a jvm or android compilation. This is always true for non-KMP
+     * projects, but can be false for KMP projects.
+     */
+    @get:Input abstract val hasJvmOrAndroidTarget: Property<Boolean>
 
     /**
      * Creates an XML file representing the project structure.
@@ -125,7 +149,12 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
         val sourceSets = sourceSets.get()
         check(sourceSets.isNotEmpty()) { "Project must have at least one source set." }
         val outputFile = File(temporaryDir, "project.xml")
-        ProjectXml.create(sourceSets, bootClasspath.files, compiledSources.singleFile, outputFile)
+        ProjectXml.create(
+            sourceSets,
+            bootClasspath.files,
+            compiledSources.singleOrNull(),
+            outputFile,
+        )
         return outputFile
     }
 }

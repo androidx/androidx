@@ -19,6 +19,7 @@ package androidx.sqlite.driver.web
 import org.w3c.dom.Worker
 
 /** A [DatabaseWebWorker] implementation for Js. */
+@Suppress("KmpSignatureClash")
 internal class DatabaseWebWorkerImpl(worker: Worker) : DatabaseWebWorker(worker) {
     override suspend fun open(fileName: String): WebWorkerSQLiteConnection {
         val request = OpenDbRequest(fileName)
