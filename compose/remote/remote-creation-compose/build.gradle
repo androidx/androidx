@@ -80,6 +80,7 @@ dependencies {
     androidTestImplementation(project(":compose:remote:remote-core-testutils"))
     androidTestImplementation(project(":compose:remote:remote-player-view"))
     androidTestImplementation(project(":compose:remote:remote-player-compose-testutils"))
+    androidTestImplementation(project(":compose:remote:remote-player-compose"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
