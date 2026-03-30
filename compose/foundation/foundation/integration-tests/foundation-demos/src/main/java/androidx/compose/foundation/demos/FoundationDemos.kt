@@ -33,6 +33,12 @@ import androidx.compose.foundation.samples.ControlledScrollableRowSample
 import androidx.compose.foundation.samples.CustomTouchSlopSample
 import androidx.compose.foundation.samples.InteractionSourceFlowSample
 import androidx.compose.foundation.samples.SimpleInteractionSourceSample
+import androidx.compose.foundation.samples.SimpleStyleSample
+import androidx.compose.foundation.samples.StyleAnimationSample
+import androidx.compose.foundation.samples.StyleForegroundBackgroundSample
+import androidx.compose.foundation.samples.StyleStateKeySample
+import androidx.compose.foundation.samples.StyleStateSample
+import androidx.compose.foundation.samples.TextStyleTextMotionSample
 import androidx.compose.foundation.samples.VerticalScrollExample
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
@@ -68,12 +74,23 @@ private val DragAndDropDemos =
         ComposableDemo("Nested Drag and drop") { DragAndDropNestedDemo() },
     )
 
+private val StyleDemos =
+    listOf(
+        ComposableDemo("Simple Style") { SimpleStyleSample() },
+        ComposableDemo("Style State") { StyleStateSample() },
+        ComposableDemo("Style Animation") { StyleAnimationSample() },
+        ComposableDemo("Style Foreground and Background") { StyleForegroundBackgroundSample() },
+        ComposableDemo("Style TextMotion Animated") { TextStyleTextMotionSample() },
+        ComposableDemo("Style State Key") { StyleStateKeySample() },
+    )
+
 val FoundationDemos =
     DemoCategory(
         "Foundation",
         listOf(
             DemoCategory("High-level Gestures", GestureDemos),
             DemoCategory("Drag and drop", DragAndDropDemos),
+            DemoCategory("Style", StyleDemos),
             ComposableDemo("Combined clickable") { CombinedClickableDemo() },
             ComposableDemo("Expanded touch bounds ") { ExpandedTouchBoundsDemo() },
             ComposableDemo("Overscroll") { OverscrollDemo() },

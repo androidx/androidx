@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -1308,6 +1309,19 @@ sealed interface StyleScope : CompositionLocalAccessorScope, Density {
      * @see androidx.compose.ui.text.TextStyle
      */
     fun fontSynthesis(value: FontSynthesis) // enum int value, 4 possible values,
+
+    /**
+     * Sets the text motion strategy, which can be used to optimize for readability or for smooth
+     * animations. This property is inherited by child text components if not overridden. This
+     * affects text layout and is a component of a [TextStyle].
+     *
+     * This property is inherited.
+     *
+     * @param value The [TextMotion] strategy to apply.
+     * @see textStyle
+     * @see androidx.compose.ui.text.TextStyle
+     */
+    fun textMotion(value: TextMotion)
 
     /**
      * A helper function to implement state reading extension functions such as

@@ -51,6 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.isSpecified
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -149,6 +150,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
 
     // text style, affects text layout
     internal var fontFamily: FontFamily? = null
+    internal var textMotion: TextMotion? = null
     internal var textIndent: TextIndent? = null
     internal var fontSize: TextUnit = TextUnit.Unspecified
     internal var lineHeight: TextUnit = TextUnit.Unspecified
@@ -213,6 +215,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
                     borderBrush != other.borderBrush ||
                     backgroundColor != other.backgroundColor ||
                     backgroundBrush != other.backgroundBrush ||
+                    foregroundColor != other.foregroundColor ||
                     foregroundBrush != other.foregroundBrush ||
                     innerShadow != other.innerShadow ||
                     dropShadow != other.dropShadow ||
@@ -253,6 +256,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         if (checkFor and TextLayoutFlag != 0) {
             if (
                 fontFamily != other.fontFamily ||
+                    textMotion != other.textMotion ||
                     textIndent != other.textIndent ||
                     fontSize != other.fontSize ||
                     lineHeight != other.lineHeight ||
@@ -281,6 +285,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         target.contentColor = contentColor
         target.contentBrush = contentBrush
         target.fontFamily = fontFamily
+        target.textMotion = textMotion
         target.textIndent = textIndent
         target.fontSize = fontSize
         target.lineHeight = lineHeight
@@ -326,6 +331,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         target.borderBrush = borderBrush
         target.backgroundColor = backgroundColor
         target.backgroundBrush = backgroundBrush
+        target.foregroundColor = foregroundColor
         target.foregroundBrush = foregroundBrush
         target.dropShadow = dropShadow
         target.innerShadow = innerShadow
@@ -375,6 +381,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         contentColor = source.contentColor.takeOrElse(contentColor)
         contentBrush = source.contentBrush ?: contentBrush
         fontFamily = source.fontFamily ?: fontFamily
+        textMotion = source.textMotion ?: textMotion
         textIndent = source.textIndent ?: textIndent
         fontSize = source.fontSize.takeOrElse(fontSize)
         lineHeight = source.lineHeight.takeOrElse(lineHeight)
@@ -421,7 +428,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
                 lineHeightStyle = fallback.lineHeightStyle,
                 lineBreak = lineBreak.takeOrElse(fallback.lineBreak),
                 hyphens = if (hyphens != default.hyphens) hyphens else fallback.hyphens,
-                textMotion = fallback.textMotion,
+                textMotion = textMotion ?: fallback.textMotion,
             )
             .let { if (contentBrush != null) it.copy(brush = contentBrush) else it }
     }
@@ -468,12 +475,14 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
             if (default.borderBrush != borderBrush) add("borderBrush", borderBrush)
             if (default.backgroundColor != backgroundColor) add("backgroundColor", backgroundColor)
             if (default.backgroundBrush != backgroundBrush) add("backgroundBrush", backgroundBrush)
+            if (default.foregroundColor != foregroundColor) add("foregroundColor", foregroundColor)
             if (default.foregroundBrush != foregroundBrush) add("foregroundBrush", foregroundBrush)
             if (default.clip != clip) add("clip", clip)
             if (default.shape != shape) add("shape", shape)
             if (default.contentColor.isSpecified) add("contentColor", contentColor)
             if (default.contentBrush != backgroundBrush) add("contentBrush", contentBrush)
             if (default.fontFamily != fontFamily) add("fontFamily", fontFamily)
+            if (default.textMotion != textMotion) add("textMotion", textMotion)
             if (default.textIndent != textIndent) add("textIndent", textIndent)
             if (default.fontSize != fontSize) add("fontSize", fontSize)
             if (default.lineHeight != lineHeight) add("lineHeight", lineHeight)
@@ -946,6 +955,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         span.fontWeight?.let { fontWeight(it) }
         span.textDecoration?.let { textDecoration(it) }
         span.fontSynthesis?.let { fontSynthesis(it) }
+        span.fontFamily?.let { fontFamily(it) }
 
         val p = value.toParagraphStyle()
         p.textIndent?.let { textIndent(it) }
@@ -954,6 +964,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         if (p.hyphens.isSpecified) hyphens(p.hyphens)
         if (p.textDirection.isSpecified) textDirection(p.textDirection)
         if (p.textAlign.isSpecified) textAlign(p.textAlign)
+        p.textMotion?.let { textMotion(it) }
     }
 
     internal val fontStyle: FontStyle
@@ -1012,6 +1023,11 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         // TODO: should we deal with async differently?
         flags = flags or TextLayoutFlag
         fontFamily = value
+    }
+
+    override fun textMotion(value: TextMotion) {
+        flags = flags or TextLayoutFlag
+        textMotion = value
     }
 
     override fun textIndent(value: TextIndent) {
@@ -1188,8 +1204,9 @@ internal fun lerpDraw(a: ResolvedStyle, b: ResolvedStyle, t: Float, result: Reso
         backgroundColor = lerp(a.backgroundColor, b.backgroundColor, t)
         backgroundBrush =
             lerp(a.backgroundBrush, a.backgroundColor, b.backgroundBrush, b.backgroundColor, t)
+        foregroundColor = lerp(a.foregroundColor, b.foregroundColor, t)
         foregroundBrush =
-            lerp(a.foregroundBrush, Color.Unspecified, b.foregroundBrush, Color.Unspecified, t)
+            lerp(a.foregroundBrush, a.foregroundColor, b.foregroundBrush, b.foregroundColor, t)
         innerShadow = lerpShadows(a.innerShadow, b.innerShadow, t)
         dropShadow = lerpShadows(a.dropShadow, b.dropShadow, t)
     }
@@ -1270,6 +1287,7 @@ internal fun lerpTextLayout(a: ResolvedStyle, b: ResolvedStyle, t: Float, result
         }
 
         fontFamily = if (t < 0.5f) a.fontFamily else b.fontFamily
+        textMotion = if (t < 0.5f) a.textMotion else b.textMotion
         textIndent = if (t < 0.5f) a.textIndent else b.textIndent
         baselineShift = if (t < 0.5f) a.baselineShift else b.baselineShift
         lineBreak = if (t < 0.5f) a.lineBreak else b.lineBreak
@@ -1392,6 +1410,7 @@ internal val TextDefaultsResolvedStyle =
         fontFamily(FontFamily.Default)
         baselineShift(BaselineShift.None)
         textDecoration(TextDecoration.None)
+        textMotion(TextMotion.Static)
     }
 
 // Packing (offset, length)

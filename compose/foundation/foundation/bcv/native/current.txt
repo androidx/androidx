@@ -806,6 +806,7 @@ sealed interface androidx.compose.foundation.style/StyleScope : androidx.compose
     abstract fun textDecoration(androidx.compose.ui.text.style/TextDecoration) // androidx.compose.foundation.style/StyleScope.textDecoration|textDecoration(androidx.compose.ui.text.style.TextDecoration){}[0]
     abstract fun textDirection(androidx.compose.ui.text.style/TextDirection) // androidx.compose.foundation.style/StyleScope.textDirection|textDirection(androidx.compose.ui.text.style.TextDirection){}[0]
     abstract fun textIndent(androidx.compose.ui.text.style/TextIndent) // androidx.compose.foundation.style/StyleScope.textIndent|textIndent(androidx.compose.ui.text.style.TextIndent){}[0]
+    abstract fun textMotion(androidx.compose.ui.text.style/TextMotion) // androidx.compose.foundation.style/StyleScope.textMotion|textMotion(androidx.compose.ui.text.style.TextMotion){}[0]
     abstract fun textStyle(androidx.compose.ui.text/TextStyle) // androidx.compose.foundation.style/StyleScope.textStyle|textStyle(androidx.compose.ui.text.TextStyle){}[0]
     abstract fun top(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.top|top(androidx.compose.ui.unit.Dp){}[0]
     abstract fun transformOrigin(androidx.compose.ui.graphics/TransformOrigin) // androidx.compose.foundation.style/StyleScope.transformOrigin|transformOrigin(androidx.compose.ui.graphics.TransformOrigin){}[0]
