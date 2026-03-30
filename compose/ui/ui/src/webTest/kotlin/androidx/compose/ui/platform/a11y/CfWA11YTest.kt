@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.OnCanvasTests
 import androidx.compose.ui.currentTimeMillis
 import androidx.compose.ui.platform.testTag
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -58,6 +59,7 @@ import org.w3c.dom.get
  *   That's why it's better to use an Int state in such tests, so the change in HTML will be noticed 100%.
  * - Note: running the k/js tests in FF takes 15% longer than in Chrome. K/Wasm is fast in both cases.
  */
+@Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-10001/Fix-CfWA11YTest.a11yButtonClick-is-too-flaky
 class CfWA11YTest : OnCanvasTests {
 
     @Test
