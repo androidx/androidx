@@ -29,7 +29,7 @@ internal interface CoreEntityNode : DelegatableSubspaceNode {
      * Called during the placement of the [CoreEntity] prior to when the size and position is
      * finally set on the node.
      */
-    fun CoreEntityScope.modifyCoreEntity()
+    fun CoreEntityScope.modifyCoreEntity() {}
 }
 
 /**
