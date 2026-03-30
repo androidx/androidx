@@ -363,7 +363,7 @@ internal class SlotTableEditor(val table: SlotTable) {
     }
 
     fun seek(handle: GroupHandle) {
-        debugRuntimeCheck(containsHandle(handle)) {
+        debugRuntimeCheck(handle == NULL_GROUP_HANDLE || containsHandle(handle)) {
             "Handle ${handle.group}:${handle.context} is not in the table being read"
         }
         val handleContext = handle.context

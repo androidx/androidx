@@ -27,8 +27,26 @@ import androidx.compose.runtime.tooling.ComposeStackTraceFrame
 
 internal class SlotTableReader(val table: SlotTable) {
     private var addressSpace = table.addressSpace
-    private var groups = addressSpace.groups
-    private var slots: Array<Any?> = table.addressSpace.slots
+
+    // Cache the group and slot arrays locally. If the emptyCount is > 0 then a builder is active,
+    // and one of these arrays could resize from underneath us. When a read of the slot table is
+    // performed in this state, we need to use the addressSpace's value to ensure the reference is
+    // up-to-date. The reader is a very hot path, and reducing the distance between these backing
+    // arrays has tangible performance improvements despite the introduction of the branch.
+    private var _groups = addressSpace.groups
+    private inline val groups: IntArray
+        get() {
+            if (emptyCount > 0) _groups = addressSpace.groups
+            return _groups
+        }
+
+    private var _slots: Array<Any?> = table.addressSpace.slots
+    private inline val slots: Array<Any?>
+        get() {
+            if (emptyCount > 0) _slots = addressSpace.slots
+            return _slots
+        }
+
     private var parent = NULL_ADDRESS
     private var _current = table.root
     private var current: GroupAddress
@@ -109,7 +127,7 @@ internal class SlotTableReader(val table: SlotTable) {
         val flags = groups.groupFlags(group)
         val slotRange = groups.groupSlotRange(group)
         return if (HasAuxSlotFlag in flags) {
-            upToDateSlots()[slotAddressOf(slotRange) + auxSlotIndex(flags)]
+            slots[slotAddressOf(slotRange) + auxSlotIndex(flags)]
         } else Composer.Empty
     }
 
@@ -123,7 +141,7 @@ internal class SlotTableReader(val table: SlotTable) {
         val flags = groups.groupFlags(address)
         val slotRange = groups.groupSlotRange(address)
         return if (HasObjectKeyFlag in flags) {
-            upToDateSlots()[slotAddressOf(slotRange) + objectKeySlotIndex(flags)]
+            slots[slotAddressOf(slotRange) + objectKeySlotIndex(flags)]
         } else null
     }
 
@@ -131,7 +149,7 @@ internal class SlotTableReader(val table: SlotTable) {
         val flags = groups.groupFlags(group)
         val slotRange = groups.groupSlotRange(group)
         return if (IsNodeFlag in flags) {
-            upToDateSlots()[slotAddressOf(slotRange) + nodeSlotIndex(flags)]
+            slots[slotAddressOf(slotRange) + nodeSlotIndex(flags)]
         } else null
     }
 
@@ -178,7 +196,7 @@ internal class SlotTableReader(val table: SlotTable) {
 
     fun maybeNode(group: GroupAddress) =
         if (IsNodeFlag in groups.groupFlags(group)) {
-            upToDateSlots()[slotAddressOf(groups.groupSlotRange(group))]
+            slots[slotAddressOf(groups.groupSlotRange(group))]
         } else Composer.Empty
 
     fun parentOf(group: GroupAddress) = groups.groupParent(group)
@@ -309,8 +327,8 @@ internal class SlotTableReader(val table: SlotTable) {
         // insert table. Update the cached values for the arrays and re-read the slot location for
         // the parent.
         if (emptyCount == 0) {
-            slots = addressSpace.slots
-            groups = addressSpace.groups
+            _slots = addressSpace.slots
+            _groups = addressSpace.groups
             val offset = slotEnd - slotCurrent
             val slotRange = groups.groupSlotRange(parent)
             if (slotRange != NULL_ADDRESS) {
@@ -444,17 +462,6 @@ internal class SlotTableReader(val table: SlotTable) {
             block(current)
             current = makeGroupHandle(current.group, nextSiblingOf(current.group))
         }
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun upToDateSlots(): Array<Any?> {
-        if (emptyCount > 0) {
-            // If the emptyCount is > 0 then a builder is active (that composer is building the
-            // insert table. If a read of the slot table is performed in this state the slots array
-            // may have moved. This ensures it is kept up-to-date.
-            slots = addressSpace.slots
-        }
-        return slots
     }
 }
 
