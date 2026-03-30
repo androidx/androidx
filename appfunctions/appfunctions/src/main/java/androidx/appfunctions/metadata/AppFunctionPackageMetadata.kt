@@ -130,11 +130,13 @@ public class AppFunctionPackageMetadata(
                 displayDescription = displayDescription ?: "",
             )
         } catch (ex: Exception) {
-            Log.d(
-                APP_FUNCTIONS_TAG,
-                "Encountered an error while resolving app metadata for package: $packageName.",
-                ex,
-            )
+            if (Log.isLoggable(APP_FUNCTIONS_TAG, Log.DEBUG)) {
+                Log.d(
+                    APP_FUNCTIONS_TAG,
+                    "Encountered an error while resolving app metadata for package: $packageName.",
+                    ex,
+                )
+            }
             null
         }
     }
