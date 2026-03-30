@@ -38,7 +38,6 @@ import kotlin.math.roundToInt
  * @param maxEndOffset the maximum end offset that the content can be adjusted before it starts
  *   clipping the content
  */
-@ExperimentalMaterial3ExpressiveApi
 internal fun Modifier.horizontalCenterOptically(
     shape: CornerBasedShape,
     maxStartOffset: Dp = 0.dp,
@@ -66,7 +65,6 @@ internal fun Modifier.horizontalCenterOptically(
         }
     }
 
-@ExperimentalMaterial3ExpressiveApi
 internal fun Modifier.horizontalCenterOptically(
     shape: ShapeWithHorizontalCenterOptically,
     maxStartOffset: Dp = 0.dp,

@@ -48,7 +48,6 @@ class HorizontalCenterOpticallyTest {
     private val ContainerTag = "container"
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun horizontalCenterOptically_contentPadding_asymmetricShape() {
         val shape =
@@ -87,7 +86,6 @@ class HorizontalCenterOpticallyTest {
         (containerBounds.right - textBounds.right).assertIsEqualTo(expectedEndPadding)
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun horizontalCenterOptically_contentPadding_symmetricShape() {
         val shape = RoundedCornerShape(0.dp)
@@ -119,7 +117,6 @@ class HorizontalCenterOpticallyTest {
         (containerBounds.right - textBounds.right).assertIsEqualTo(expectedPadding)
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun horizontalCenterOptically_contentPadding_asymmetricShape_rtl() {
         val shape =
