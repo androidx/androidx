@@ -502,6 +502,46 @@ class TextFieldKeyEventTest {
             expectedText("hello")
         }
 
+    @Test
+    fun textField_ctrlHome_nonMacOs() =
+        singleKeyStrokeTest(
+            keyMappings = listOf(NonMacOsKeyMapping),
+            initText = "aaa\nbbb\nccc\nddd",
+            initSelection = TextRange(7),
+            keys = Key.CtrlLeft + Key.MoveHome,
+            expectedSelection = TextRange(0),
+        )
+
+    @Test
+    fun textField_ctrlEnd_nonMacOs() =
+        singleKeyStrokeTest(
+            keyMappings = listOf(NonMacOsKeyMapping),
+            initText = "aaa\nbbb\nccc\nddd",
+            initSelection = TextRange(7),
+            keys = Key.CtrlLeft + Key.MoveEnd,
+            expectedSelection = TextRange("aaa\nbbb\nccc\nddd".length),
+        )
+
+    @Test
+    fun textField_cmdHome_macOs() =
+        singleKeyStrokeTest(
+            keyMappings = listOf(MacOsKeyMapping),
+            initText = "aaa\nbbb\nccc\nddd",
+            initSelection = TextRange(7),
+            keys = Key.MetaLeft + Key.MoveHome,
+            expectedSelection = TextRange(0),
+        )
+
+    @Test
+    fun textField_cmdEnd_macOs() =
+        singleKeyStrokeTest(
+            keyMappings = listOf(MacOsKeyMapping),
+            initText = "aaa\nbbb\nccc\nddd",
+            initSelection = TextRange(7),
+            keys = Key.MetaLeft + Key.MoveEnd,
+            expectedSelection = TextRange("aaa\nbbb\nccc\nddd".length),
+        )
+
     private class SequenceScope(
         private val state: TextFieldState,
         private val clipboard: FakeClipboard,

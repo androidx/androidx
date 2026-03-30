@@ -22,13 +22,18 @@ import androidx.compose.ui.input.key.key
 
 internal object DefaultSkikoKeyMapping : KeyMapping {
     override fun map(event: KeyEvent): KeyCommand? {
-        return when (event.modifiers) {
-            KeyModifiers.CtrlShift -> {
-                when (event.key) {
-                    Key.MoveHome,
-                    Key.NumPadMoveHome -> KeyCommand.SELECT_HOME
-                    Key.MoveEnd,
-                    Key.NumPadMoveEnd -> KeyCommand.SELECT_END
+        return when (event.key) {
+            Key.MoveHome, Key.NumPadMoveHome -> {
+                when (event.modifiers) {
+                    KeyModifiers.Ctrl -> KeyCommand.HOME
+                    KeyModifiers.CtrlShift -> KeyCommand.SELECT_HOME
+                    else -> null
+                }
+            }
+            Key.MoveEnd, Key.NumPadMoveEnd -> {
+                when (event.modifiers) {
+                    KeyModifiers.Ctrl -> KeyCommand.END
+                    KeyModifiers.CtrlShift -> KeyCommand.SELECT_END
                     else -> null
                 }
             }
@@ -73,6 +78,20 @@ internal fun createMacOsDefaultKeyMapping(): KeyMapping {
                         KeyModifiers.Alt,
                         KeyModifiers.Shift,
                         KeyModifiers.AltShift -> KeyCommand.NEW_LINE
+                        else -> null
+                    }
+                }
+                Key.MoveHome, Key.NumPadMoveHome -> {
+                    when (event.modifiers) {
+                        KeyModifiers.Meta -> KeyCommand.HOME
+                        KeyModifiers.ShiftMeta -> KeyCommand.SELECT_HOME
+                        else -> null
+                    }
+                }
+                Key.MoveEnd, Key.NumPadMoveEnd -> {
+                    when (event.modifiers) {
+                        KeyModifiers.Meta -> KeyCommand.END
+                        KeyModifiers.ShiftMeta -> KeyCommand.SELECT_END
                         else -> null
                     }
                 }
