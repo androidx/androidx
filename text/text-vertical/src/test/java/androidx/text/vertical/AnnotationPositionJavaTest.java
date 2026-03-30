@@ -22,10 +22,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-// NOTE: this test suite is intentionally created as Java file,
-// to ensure interoperability with legacy Java code.
+// NOTE: Do not convert this code to Kotlin -- This test suite is intentionally
+// created as Java file to ensure interoperability with legacy Java code.
 @RunWith(JUnit4.class)
-public class AnnotationPositionTest {
+public class AnnotationPositionJavaTest {
     @Test
     public void constants_interop_java() {
         assertThat(AnnotationPosition.Unknown.value).isEqualTo(VALUE_UNKNOWN);

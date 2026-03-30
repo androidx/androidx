@@ -44,14 +44,14 @@ import android.text.style.ReplacementSpan
  * @property textScale The text scale ratio of the ruby text relative to the base text. Defaults to
  *   0.5f.
  */
-@Suppress("BanParcelableUsage", "ValueClassUsageFromConstructor")
+@Suppress("BanParcelableUsage")
 public class RubySpan
 @JvmOverloads
 constructor(
     @JvmField public val text: CharSequence,
-    @get:JvmName("position") public val position: AnnotationPosition = DEFAULT_POSITION,
-    public val orientation: TextOrientation = DEFAULT_ORIENTATION,
-    public val textScale: Float = 0.5f,
+    @JvmField public val position: AnnotationPosition = DEFAULT_POSITION,
+    @JvmField public val orientation: TextOrientation = DEFAULT_ORIENTATION,
+    @JvmField public val textScale: Float = 0.5f,
 ) : ReplacementSpan(), Parcelable {
 
     private val impl by lazy {

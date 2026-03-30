@@ -17,7 +17,7 @@
 package androidx.text.vertical
 
 /** Properties of a text annotation (i.e. ruby and emphasis marks). */
-public sealed class AnnotationPosition(@JvmField public val value: Int) {
+public sealed class AnnotationPosition protected constructor(@JvmField public val value: Int) {
     public companion object {
         /** The text annotation position is unknown. */
         @JvmField public val Unknown: AnnotationPosition = UnknownImpl
@@ -47,6 +47,10 @@ public sealed class AnnotationPosition(@JvmField public val value: Int) {
                 else -> Unknown
             }
     }
+
+    // Prevents exhaustive `when` usage for Kotlin consumers, making it safe
+    // to add new types in the future (go/android-api-guidelines#classes-sealed)
+    private object Hidden : AnnotationPosition(Int.MAX_VALUE)
 }
 
 private object UnknownImpl : AnnotationPosition(-1)

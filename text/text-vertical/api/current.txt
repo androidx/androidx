@@ -76,10 +76,7 @@ package androidx.text.vertical {
     ctor @BytecodeOnly public RubySpan(CharSequence!, androidx.text.vertical.AnnotationPosition!, androidx.text.vertical.TextOrientation!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int describeContents();
     method public void draw(android.graphics.Canvas canvas, CharSequence? text, int start, int end, float x, int top, int y, int bottom, android.graphics.Paint paint);
-    method @InaccessibleFromKotlin public androidx.text.vertical.TextOrientation getOrientation();
     method public int getSize(android.graphics.Paint paint, CharSequence? text, int start, int end, android.graphics.Paint.FontMetricsInt? fm);
-    method @InaccessibleFromKotlin public float getTextScale();
-    method @InaccessibleFromKotlin public androidx.text.vertical.AnnotationPosition position();
     method public void writeToParcel(android.os.Parcel parcel, int flags);
     property public androidx.text.vertical.TextOrientation orientation;
     property public androidx.text.vertical.AnnotationPosition position;
@@ -87,7 +84,10 @@ package androidx.text.vertical {
     property public float textScale;
     field public static final android.os.Parcelable.Creator<androidx.text.vertical.RubySpan> CREATOR;
     field public static final androidx.text.vertical.RubySpan.Companion Companion;
+    field public final androidx.text.vertical.TextOrientation orientation;
+    field public final androidx.text.vertical.AnnotationPosition position;
     field public final CharSequence text;
+    field public final float textScale;
   }
 
   public static final class RubySpan.Companion {
