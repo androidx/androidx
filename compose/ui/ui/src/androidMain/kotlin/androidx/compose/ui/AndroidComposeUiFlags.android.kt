@@ -74,5 +74,5 @@ object AndroidComposeUiFlags {
     // TODO: b/483449576
     @field:Suppress("MutableBareField")
     @JvmField
-    var isFrameworkVelocityTrackerEnabled: Boolean = true
+    var isFrameworkVelocityTrackerEnabled: Boolean = false
 }
