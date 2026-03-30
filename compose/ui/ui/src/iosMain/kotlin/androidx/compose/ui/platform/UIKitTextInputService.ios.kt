@@ -250,15 +250,6 @@ internal class UIKitTextInputService(
         }
     }
 
-    fun updateTextFrame(rect: Rect) {
-        if (usingNativeTextInput) {
-            textFieldFrameInRoot = rect
-        } else {
-            textUIView?.setFrame(rect.toDpRect(view.density).asCGRect())
-        }
-        showMenuOrUpdatePosition()
-    }
-
     private fun calculateContentBounds(textLayoutResult: TextLayoutResult, textFieldFrame: Rect, unclippedTextPosition: Offset): Rect {
         val textSize = textLayoutResult.size.toSize()
         val contentBounds = Rect(
@@ -285,23 +276,38 @@ internal class UIKitTextInputService(
     private var clippingTextFrame: Rect? = null
     private var currentContentBounds: Rect? = null
     private var currentContentInsets: DpInsets? = null
-    fun updateClippingTextFrame(rect: Rect) {
-        clippingTextFrame = rect
+    private var unclippedTextPosition: Offset? = null
+
+    fun updateTextFieldGeometry(
+        textFieldFrame: Rect,
+        clippingTextFrame: Rect,
+        unclippedTextPosition: Offset
+    ) {
+        textFieldFrameInRoot = textFieldFrame
+        this.clippingTextFrame = clippingTextFrame
+        this.unclippedTextPosition = unclippedTextPosition
+
+        updateTextViewPosition()
+
+        showMenuOrUpdatePosition()
     }
 
-    fun updateUnclippedTextPosition(offset: Offset) {
+    private fun updateTextViewPosition() {
+        val rect = textFieldFrameInRoot ?: return
+
         if (usingNativeTextInput) {
             // Since Compose content is rendered on a MetalView and the UITextInput-implementing
             // view is overlayed on top of it, we need to synchronize the Compose text
             // field with the IntermediateTextScrollView (which contains IntermediateUITextView)
             // to ensure native iOS text input controls
             // align correctly with the rendered text.
-            val rect = textFieldFrameInRoot ?: return
             val layoutResult = textLayoutResult ?: return
+            val unclippedTextPosition = unclippedTextPosition ?: return
+
             val contentBounds = calculateContentBounds(
                 layoutResult,
                 rect,
-                offset
+                unclippedTextPosition
             )
             currentContentBounds = contentBounds
             val contentInsets = calculateContentInsets(rect, contentBounds)
@@ -311,6 +317,8 @@ internal class UIKitTextInputService(
                 contentBounds.toDpRect(view.density),
                 contentInsets
             )
+        } else {
+            textUIView?.setFrame(rect.toDpRect(view.density).asCGRect())
         }
     }
 
