@@ -21,6 +21,9 @@ package androidx.compose.foundation.style
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
@@ -217,6 +220,40 @@ class StyleTest {
             assertEquals(Color.Blue, contentColor)
             assertEquals(null, contentBrush)
         }
+    }
+
+    @Test
+    fun resolve_foreground_color_brush() {
+        val brush = Brush.linearGradient()
+        resolved(Style({ foreground(Color.Blue) }, { foreground(brush) })) {
+            assertEquals(Color.Unspecified, foregroundColor)
+            assertEquals(brush, foregroundBrush)
+        }
+    }
+
+    @Test
+    fun resolve_foreground_brush_color() {
+        val brush = Brush.linearGradient()
+        resolved(Style({ foreground(brush) }, { foreground(Color.Blue) })) {
+            assertEquals(Color.Blue, foregroundColor)
+            assertEquals(null, foregroundBrush)
+        }
+    }
+
+    @Test
+    fun diff_foregroundColor() {
+        val style1 = ResolvedStyle()
+        style1.resolveForTesting({ foreground(Color.Red) }, Density(1f), false)
+
+        val style2 = ResolvedStyle()
+        style2.resolveForTesting({ foreground(Color.Blue) }, Density(1f), false)
+
+        val changes = style1.diff(style2)
+        assertEquals(
+            DrawFlag,
+            changes and DrawFlag,
+            "DrawFlag should be set when foregroundColor changes",
+        )
     }
 
     @Test
@@ -441,6 +478,27 @@ class StyleTest {
             MutableStyleState(null).also { it.isSelected = false },
         ) {
             assertEquals(Color.Blue, contentColor)
+        }
+    }
+
+    @Test
+    fun resolve_textStyle_textMotion() {
+        resolved({ textStyle(TextStyle(textMotion = TextMotion.Animated)) }) {
+            assertEquals(TextMotion.Animated, textMotion)
+        }
+    }
+
+    @Test
+    fun resolve_textStyle_fontFamily() {
+        resolved({ textStyle(TextStyle(fontFamily = FontFamily.Serif)) }) {
+            assertEquals(FontFamily.Serif, fontFamily)
+        }
+    }
+
+    @Test
+    fun resolve_textMotion() {
+        resolved({ textMotion(TextMotion.Animated) }) {
+            assertEquals(TextMotion.Animated, textMotion)
         }
     }
 }

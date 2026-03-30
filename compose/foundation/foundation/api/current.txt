@@ -2359,6 +2359,7 @@ package androidx.compose.foundation.style {
     method @KotlinOnly public void textDirection(androidx.compose.ui.text.style.TextDirection value);
     method @BytecodeOnly public void textDirection-Hejc4pk(int);
     method public void textIndent(androidx.compose.ui.text.style.TextIndent value);
+    method public void textMotion(androidx.compose.ui.text.style.TextMotion value);
     method public void textStyle(androidx.compose.ui.text.TextStyle value);
     method @KotlinOnly public void top(androidx.compose.ui.unit.Dp value);
     method @BytecodeOnly public void top-0680j_4(float);
