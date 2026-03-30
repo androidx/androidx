@@ -553,6 +553,10 @@ private constructor(
     fun onRootWithViewInteraction(interaction: ViewInteraction): SemanticsNodeInteractionsProvider {
         return composeTest.onRootWithViewInteraction(interaction)
     }
+
+    override fun hasPendingWork(): Boolean {
+        return composeTest.hasPendingWork()
+    }
 }
 
 internal fun <A : ComponentActivity> getActivityFromTestRule(rule: ActivityScenarioRule<A>): A {

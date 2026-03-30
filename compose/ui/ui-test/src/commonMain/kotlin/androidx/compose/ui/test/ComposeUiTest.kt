@@ -236,6 +236,24 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      *   doesn't have access to a host to set content in.
      */
     fun setContent(composable: @Composable () -> Unit)
+
+    /**
+     * Returns whether the Compose UI has any pending work.
+     *
+     * This performs a passive check of the [mainClock], snapshot state, and recomposer to determine
+     * if there is any pending work. Unlike [waitForIdle], calling this method does not advance the
+     * clock or drain the main message queue.
+     *
+     * This is particularly useful when `autoAdvance` is disabled, allowing you to inspect the state
+     * of the UI while an animation or other work is still active. If `autoAdvance` is `true`, the
+     * testing framework continuously processes pending work. In that scenario, calling this method
+     * acts as a momentary snapshot and will generally return `false`. It may briefly return `true`
+     * if work is queued but the framework hasn't auto-advanced yet, making the result fleeting and
+     * unreliable for driving test logic.
+     *
+     * @sample androidx.compose.ui.test.samples.hasPendingWorkSample
+     */
+    fun hasPendingWork(): Boolean
 }
 
 /**
