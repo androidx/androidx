@@ -31,39 +31,39 @@ public class RubySpanJavaTest {
         RubySpan span = new RubySpan("ruby", AnnotationPosition.After, TextOrientation.Upright,
                 0.6f);
 
-        assertThat(span.text.toString()).isEqualTo("ruby");
-        assertThat(span.position).isEqualTo(AnnotationPosition.After);
-        assertThat(span.orientation).isEqualTo(TextOrientation.Upright);
-        assertThat(span.textScale).isEqualTo(0.6f);
+        assertThat(span.getText().toString()).isEqualTo("ruby");
+        assertThat(span.getPosition()).isEqualTo(AnnotationPosition.After);
+        assertThat(span.getOrientation()).isEqualTo(TextOrientation.Upright);
+        assertThat(span.getTextScale()).isEqualTo(0.6f);
     }
 
     @Test
     public void constructor_defaultScale() {
         RubySpan span = new RubySpan("ruby", AnnotationPosition.After, TextOrientation.Upright);
 
-        assertThat(span.text.toString()).isEqualTo("ruby");
-        assertThat(span.position).isEqualTo(AnnotationPosition.After);
-        assertThat(span.orientation).isEqualTo(TextOrientation.Upright);
-        assertThat(span.textScale).isEqualTo(0.5f);
+        assertThat(span.getText().toString()).isEqualTo("ruby");
+        assertThat(span.getPosition()).isEqualTo(AnnotationPosition.After);
+        assertThat(span.getOrientation()).isEqualTo(TextOrientation.Upright);
+        assertThat(span.getTextScale()).isEqualTo(0.5f);
     }
 
     @Test
     public void constructor_defaultOrientationAndScale() {
         RubySpan span = new RubySpan("ruby", AnnotationPosition.After);
 
-        assertThat(span.text.toString()).isEqualTo("ruby");
-        assertThat(span.position).isEqualTo(AnnotationPosition.After);
-        assertThat(span.orientation).isEqualTo(TextOrientation.Mixed);
-        assertThat(span.textScale).isEqualTo(0.5f);
+        assertThat(span.getText().toString()).isEqualTo("ruby");
+        assertThat(span.getPosition()).isEqualTo(AnnotationPosition.After);
+        assertThat(span.getOrientation()).isEqualTo(TextOrientation.Mixed);
+        assertThat(span.getTextScale()).isEqualTo(0.5f);
     }
 
     @Test
     public void constructor_defaultPositionOrientationAndScale() {
         RubySpan span = new RubySpan("ruby");
 
-        assertThat(span.text.toString()).isEqualTo("ruby");
-        assertThat(span.position).isEqualTo(AnnotationPosition.Before);
-        assertThat(span.orientation).isEqualTo(TextOrientation.Mixed);
-        assertThat(span.textScale).isEqualTo(0.5f);
+        assertThat(span.getText().toString()).isEqualTo("ruby");
+        assertThat(span.getPosition()).isEqualTo(AnnotationPosition.Before);
+        assertThat(span.getOrientation()).isEqualTo(TextOrientation.Mixed);
+        assertThat(span.getTextScale()).isEqualTo(0.5f);
     }
 }

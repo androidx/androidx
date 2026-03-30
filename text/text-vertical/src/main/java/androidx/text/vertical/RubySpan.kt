@@ -48,15 +48,15 @@ import android.text.style.ReplacementSpan
 public class RubySpan
 @JvmOverloads
 constructor(
-    @JvmField public val text: CharSequence,
-    @JvmField public val position: AnnotationPosition = DEFAULT_POSITION,
-    @JvmField public val orientation: TextOrientation = DEFAULT_ORIENTATION,
-    @JvmField public val textScale: Float = 0.5f,
+    public val text: CharSequence,
+    public val position: AnnotationPosition = DEFAULT_POSITION,
+    public val orientation: TextOrientation = DEFAULT_ORIENTATION,
+    public val textScale: Float = 0.5f,
 ) : ReplacementSpan(), Parcelable {
 
     private val impl by lazy {
         HorizontalSpanImpl(
-            { paint, text, start, end -> LayoutKey(start, end, text) },
+            { _, text, start, end -> LayoutKey(start, end, text) },
             { paint, bodyText, start, end ->
                 HorizontalRubySpanLayout(bodyText, start, end, text, paint, textScale)
             },

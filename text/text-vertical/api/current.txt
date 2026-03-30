@@ -18,38 +18,58 @@ package androidx.text.vertical {
     property public androidx.text.vertical.AnnotationPosition Unknown;
   }
 
-  public final class EmphasisSpan extends android.text.style.ReplacementSpan {
+  public final class EmphasisSpan extends android.text.style.ReplacementSpan implements android.os.Parcelable {
     ctor public EmphasisSpan();
-    ctor public EmphasisSpan(optional int style, optional boolean isFilled, optional float scale);
-    ctor @BytecodeOnly public EmphasisSpan(int, boolean, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public EmphasisSpan(optional androidx.text.vertical.EmphasisStyle style);
+    ctor public EmphasisSpan(optional androidx.text.vertical.EmphasisStyle style, optional boolean isFilled);
+    ctor public EmphasisSpan(optional androidx.text.vertical.EmphasisStyle style, optional boolean isFilled, optional androidx.text.vertical.AnnotationPosition position);
+    ctor public EmphasisSpan(optional androidx.text.vertical.EmphasisStyle style, optional boolean isFilled, optional androidx.text.vertical.AnnotationPosition position, optional float scale);
+    ctor @BytecodeOnly public EmphasisSpan(androidx.text.vertical.EmphasisStyle!, boolean, androidx.text.vertical.AnnotationPosition!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public int describeContents();
     method public void draw(android.graphics.Canvas canvas, CharSequence? text, int start, int end, float x, int top, int y, int bottom, android.graphics.Paint paint);
+    method @InaccessibleFromKotlin public androidx.text.vertical.AnnotationPosition getPosition();
     method @InaccessibleFromKotlin public float getScale();
     method public int getSize(android.graphics.Paint paint, CharSequence? text, int start, int end, android.graphics.Paint.FontMetricsInt? fm);
-    method @InaccessibleFromKotlin public int getStyle();
+    method @InaccessibleFromKotlin public androidx.text.vertical.EmphasisStyle getStyle();
     method @InaccessibleFromKotlin public boolean isFilled();
+    method public void writeToParcel(android.os.Parcel parcel, int flags);
     property public boolean isFilled;
+    property public androidx.text.vertical.AnnotationPosition position;
     property public float scale;
-    property public int style;
+    property public androidx.text.vertical.EmphasisStyle style;
+    field public static final android.os.Parcelable.Creator<androidx.text.vertical.EmphasisSpan> CREATOR;
     field public static final androidx.text.vertical.EmphasisSpan.Companion Companion;
     field public static final boolean DEFAULT_EMPHASIS_FILL = true;
-    field public static final int DEFAULT_EMPHASIS_STYLE = 0; // 0x0
+    field public static final androidx.text.vertical.EmphasisStyle DEFAULT_EMPHASIS_STYLE;
+    field public static final androidx.text.vertical.AnnotationPosition DEFAULT_POSITION;
     field public static final float DEFAULT_SCALE = 0.5f;
-    field public static final int STYLE_CIRCLE = 1; // 0x1
-    field public static final int STYLE_DOT = 0; // 0x0
-    field public static final int STYLE_DOUBLE_CIRCLE = 2; // 0x2
-    field public static final int STYLE_SESAME = 4; // 0x4
-    field public static final int STYLE_TRIANGLE = 3; // 0x3
   }
 
   public static final class EmphasisSpan.Companion {
+    property public android.os.Parcelable.Creator<androidx.text.vertical.EmphasisSpan> CREATOR;
     property public static boolean DEFAULT_EMPHASIS_FILL;
-    property public static int DEFAULT_EMPHASIS_STYLE;
+    property public androidx.text.vertical.EmphasisStyle DEFAULT_EMPHASIS_STYLE;
+    property public androidx.text.vertical.AnnotationPosition DEFAULT_POSITION;
     property public static float DEFAULT_SCALE;
-    property public static int STYLE_CIRCLE;
-    property public static int STYLE_DOT;
-    property public static int STYLE_DOUBLE_CIRCLE;
-    property public static int STYLE_SESAME;
-    property public static int STYLE_TRIANGLE;
+  }
+
+  public abstract sealed nonexhaustive class EmphasisStyle {
+    property public final int value;
+    field public static final androidx.text.vertical.EmphasisStyle Circle;
+    field public static final androidx.text.vertical.EmphasisStyle.Companion Companion;
+    field public static final androidx.text.vertical.EmphasisStyle Dot;
+    field public static final androidx.text.vertical.EmphasisStyle DoubleCircle;
+    field public static final androidx.text.vertical.EmphasisStyle Sesame;
+    field public static final androidx.text.vertical.EmphasisStyle Triangle;
+    field public final int value;
+  }
+
+  public static final class EmphasisStyle.Companion {
+    property public androidx.text.vertical.EmphasisStyle Circle;
+    property public androidx.text.vertical.EmphasisStyle Dot;
+    property public androidx.text.vertical.EmphasisStyle DoubleCircle;
+    property public androidx.text.vertical.EmphasisStyle Sesame;
+    property public androidx.text.vertical.EmphasisStyle Triangle;
   }
 
   public final class FontShearSpan extends android.text.style.MetricAffectingSpan {
@@ -76,7 +96,11 @@ package androidx.text.vertical {
     ctor @BytecodeOnly public RubySpan(CharSequence!, androidx.text.vertical.AnnotationPosition!, androidx.text.vertical.TextOrientation!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int describeContents();
     method public void draw(android.graphics.Canvas canvas, CharSequence? text, int start, int end, float x, int top, int y, int bottom, android.graphics.Paint paint);
+    method @InaccessibleFromKotlin public androidx.text.vertical.TextOrientation getOrientation();
+    method @InaccessibleFromKotlin public androidx.text.vertical.AnnotationPosition getPosition();
     method public int getSize(android.graphics.Paint paint, CharSequence? text, int start, int end, android.graphics.Paint.FontMetricsInt? fm);
+    method @InaccessibleFromKotlin public CharSequence getText();
+    method @InaccessibleFromKotlin public float getTextScale();
     method public void writeToParcel(android.os.Parcel parcel, int flags);
     property public androidx.text.vertical.TextOrientation orientation;
     property public androidx.text.vertical.AnnotationPosition position;
@@ -84,10 +108,6 @@ package androidx.text.vertical {
     property public float textScale;
     field public static final android.os.Parcelable.Creator<androidx.text.vertical.RubySpan> CREATOR;
     field public static final androidx.text.vertical.RubySpan.Companion Companion;
-    field public final androidx.text.vertical.TextOrientation orientation;
-    field public final androidx.text.vertical.AnnotationPosition position;
-    field public final CharSequence text;
-    field public final float textScale;
   }
 
   public static final class RubySpan.Companion {

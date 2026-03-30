@@ -50,7 +50,7 @@ class RubySpanTest {
     private val RUBY_TEXT = "ABCDE"
 
     @Test
-    fun rubySpan_Constructor_Position() {
+    fun constructor_Position() {
         RubySpan(RUBY_TEXT, AnnotationPosition.After).run {
             assertThat(text).isEqualTo(RUBY_TEXT)
             assertThat(position).isEqualTo(AnnotationPosition.After)
@@ -63,7 +63,7 @@ class RubySpanTest {
     }
 
     @Test
-    fun rubySpan_Parcelable_parcelRoundTrip() {
+    fun parcelable_parcelRoundTrip() {
         // Given a SpannableString with a simple bold span on the first two characters
         val spannedText = SpannableString("ABCDE")
         spannedText.setSpan(StyleSpan(Typeface.BOLD), 0, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
