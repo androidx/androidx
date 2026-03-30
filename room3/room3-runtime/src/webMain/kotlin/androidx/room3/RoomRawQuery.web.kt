@@ -23,7 +23,7 @@ internal actual fun newBindOnlySQLiteStatement(delegate: SQLiteStatement): BindO
 
 private class BindOnlySQLiteStatementImpl(delegate: SQLiteStatement) :
     BindOnlySQLiteStatement(delegate) {
-    override suspend fun stepAsync(): Boolean {
+    override suspend fun step(): Boolean {
         error(ONLY_BIND_CALLS_ALLOWED_ERROR)
     }
 }

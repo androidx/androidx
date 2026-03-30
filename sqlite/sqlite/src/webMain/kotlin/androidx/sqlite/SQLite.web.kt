@@ -22,34 +22,7 @@ package androidx.sqlite
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
-/**
- * Opens a new database connection asynchronously.
- *
- * @see [SQLiteDriver.openAsync]
- */
-public actual suspend fun SQLiteDriver.open(fileName: String): SQLiteConnection {
-    return this.openAsync(fileName)
-}
-
-/**
- * Prepares a new SQL statement asynchronously.
- *
- * @see [SQLiteConnection.prepareAsync]
- */
-public actual suspend fun SQLiteConnection.prepare(sql: String): SQLiteStatement {
-    return this.prepareAsync(sql)
-}
-
-/** Executes a single SQL statement asynchronously that returns no values. */
-public actual suspend fun SQLiteConnection.executeSQL(sql: String) {
-    this.prepareAsync(sql).use { it.stepAsync() }
-}
-
-/**
- * Executes the statement asynchronously and evaluates the next result row if available.
- *
- * @see [SQLiteStatement.stepAsync]
- */
-public actual suspend fun SQLiteStatement.step(): Boolean {
-    return this.stepAsync()
+/** Executes a single SQL statement that returns no values asynchronously. */
+public suspend fun SQLiteConnection.execSQL(sql: String) {
+    this.prepare(sql).use { it.step() }
 }

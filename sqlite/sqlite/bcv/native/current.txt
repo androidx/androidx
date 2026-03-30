@@ -14,7 +14,6 @@ abstract interface androidx.sqlite/SQLiteConnection : kotlin/AutoCloseable { // 
     abstract fun close() // androidx.sqlite/SQLiteConnection.close|close(){}[0]
     abstract fun prepare(kotlin/String): androidx.sqlite/SQLiteStatement // androidx.sqlite/SQLiteConnection.prepare|prepare(kotlin.String){}[0]
     open fun inTransaction(): kotlin/Boolean // androidx.sqlite/SQLiteConnection.inTransaction|inTransaction(){}[0]
-    open suspend fun prepareAsync(kotlin/String): androidx.sqlite/SQLiteStatement // androidx.sqlite/SQLiteConnection.prepareAsync|prepareAsync(kotlin.String){}[0]
 }
 
 abstract interface androidx.sqlite/SQLiteDriver { // androidx.sqlite/SQLiteDriver|null[0]
@@ -22,7 +21,6 @@ abstract interface androidx.sqlite/SQLiteDriver { // androidx.sqlite/SQLiteDrive
         open fun <get-hasConnectionPool>(): kotlin/Boolean // androidx.sqlite/SQLiteDriver.hasConnectionPool.<get-hasConnectionPool>|<get-hasConnectionPool>(){}[0]
 
     abstract fun open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.sqlite/SQLiteDriver.open|open(kotlin.String){}[0]
-    open suspend fun openAsync(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.sqlite/SQLiteDriver.openAsync|openAsync(kotlin.String){}[0]
 }
 
 abstract interface androidx.sqlite/SQLiteStatement : kotlin/AutoCloseable { // androidx.sqlite/SQLiteStatement|null[0]
@@ -50,7 +48,6 @@ abstract interface androidx.sqlite/SQLiteStatement : kotlin/AutoCloseable { // a
     open fun getColumnNames(): kotlin.collections/List<kotlin/String> // androidx.sqlite/SQLiteStatement.getColumnNames|getColumnNames(){}[0]
     open fun getFloat(kotlin/Int): kotlin/Float // androidx.sqlite/SQLiteStatement.getFloat|getFloat(kotlin.Int){}[0]
     open fun getInt(kotlin/Int): kotlin/Int // androidx.sqlite/SQLiteStatement.getInt|getInt(kotlin.Int){}[0]
-    open suspend fun stepAsync(): kotlin/Boolean // androidx.sqlite/SQLiteStatement.stepAsync|stepAsync(){}[0]
 }
 
 final class androidx.sqlite/SQLiteException : kotlin/RuntimeException { // androidx.sqlite/SQLiteException|null[0]
@@ -71,7 +68,3 @@ final const val androidx.sqlite/SQLITE_DATA_TEXT // androidx.sqlite/SQLITE_DATA_
 final fun (androidx.sqlite/SQLiteConnection).androidx.sqlite/execSQL(kotlin/String) // androidx.sqlite/execSQL|execSQL@androidx.sqlite.SQLiteConnection(kotlin.String){}[0]
 final fun androidx.sqlite.util/getStatementPrefix(kotlin/String): kotlin/String? // androidx.sqlite.util/getStatementPrefix|getStatementPrefix(kotlin.String){}[0]
 final fun androidx.sqlite/throwSQLiteException(kotlin/Int, kotlin/String?): kotlin/Nothing // androidx.sqlite/throwSQLiteException|throwSQLiteException(kotlin.Int;kotlin.String?){}[0]
-final suspend fun (androidx.sqlite/SQLiteConnection).androidx.sqlite/executeSQL(kotlin/String) // androidx.sqlite/executeSQL|executeSQL@androidx.sqlite.SQLiteConnection(kotlin.String){}[0]
-final suspend fun (androidx.sqlite/SQLiteConnection).androidx.sqlite/prepare(kotlin/String): androidx.sqlite/SQLiteStatement // androidx.sqlite/prepare|prepare@androidx.sqlite.SQLiteConnection(kotlin.String){}[0]
-final suspend fun (androidx.sqlite/SQLiteDriver).androidx.sqlite/open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.sqlite/open|open@androidx.sqlite.SQLiteDriver(kotlin.String){}[0]
-final suspend fun (androidx.sqlite/SQLiteStatement).androidx.sqlite/step(): kotlin/Boolean // androidx.sqlite/step|step@androidx.sqlite.SQLiteStatement(){}[0]

@@ -88,6 +88,7 @@ androidXMultiplatform {
             dependencies {
                 api(project(":room3:room3-common"))
                 api(project(":sqlite:sqlite"))
+                implementation(project(":sqlite:sqlite-async"))
                 api("androidx.collection:collection:1.5.0")
                 api("androidx.annotation:annotation:1.9.1")
                 api(libs.kotlinCoroutinesCore)

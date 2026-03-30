@@ -47,17 +47,4 @@ public actual interface SQLiteDriver {
      * @return the database connection.
      */
     public fun open(fileName: String): SQLiteConnection
-
-    /**
-     * Opens a new database connection asynchronously.
-     *
-     * To open an in-memory database use the special name `:memory:` as the [fileName].
-     *
-     * @param fileName Name of the database file.
-     * @return the database connection.
-     */
-    @Deprecated("Avoid async API on non-Web source sets.", level = DeprecationLevel.HIDDEN)
-    public actual suspend fun openAsync(fileName: String): SQLiteConnection {
-        return open(fileName)
-    }
 }

@@ -16,7 +16,6 @@
 
 package androidx.room3.solver.query.result
 
-import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.processor.Context
 import androidx.room3.solver.CodeGenScope
@@ -35,7 +34,7 @@ class MapQueryResultAdapter(
                 typeName = mapValueResultAdapter.getDeclarationTypeName(),
                 assignExpr = mapValueResultAdapter.getInstantiationCodeBlock(),
             )
-            beginControlFlow("while (%L.%M())", stmtVarName, SQLiteDriverMemberNames.STATEMENT_STEP)
+            beginControlFlow("while (%L.step())", stmtVarName)
                 .apply {
                     mapValueResultAdapter.convert(
                         scope,

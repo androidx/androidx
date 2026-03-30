@@ -28,7 +28,7 @@ import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingState
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomRawQuery
-import androidx.sqlite.step
+import androidx.sqlite.async.step
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName

@@ -19,8 +19,8 @@ import androidx.annotation.RestrictTo
 import androidx.room3.util.getTotalChangedRows
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.prepare
-import androidx.sqlite.step
+import androidx.sqlite.async.prepare
+import androidx.sqlite.async.step
 
 /**
  * Implementations of this class know how to delete or update a particular entity.

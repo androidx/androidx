@@ -24,10 +24,10 @@ import androidx.room3.coroutines.ExclusiveMutex
 import androidx.room3.util.isMigrationRequired
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.executeSQL
-import androidx.sqlite.open
-import androidx.sqlite.prepare
-import androidx.sqlite.step
+import androidx.sqlite.async.executeSQL
+import androidx.sqlite.async.open
+import androidx.sqlite.async.prepare
+import androidx.sqlite.async.step
 
 /** Expect implementation declaration of Room's connection manager. */
 internal expect class RoomConnectionManager

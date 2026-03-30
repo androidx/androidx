@@ -29,8 +29,8 @@ internal actual fun newConnectionWrapper(
 private class ConnectionWrapperImpl(delegate: SQLiteConnection) :
     ConnectionWrapper(delegate = delegate) {
 
-    override suspend fun prepareAsync(sql: String): SQLiteStatement {
-        return delegate.prepareAsync(sql)
+    override suspend fun prepare(sql: String): SQLiteStatement {
+        return delegate.prepare(sql)
     }
 
     override fun getCache() = null
@@ -45,7 +45,7 @@ internal actual fun newStatementWrapper(
 
 private class StatementWrapperImpl(delegate: SQLiteStatement, isRecycled: () -> Boolean) :
     StatementWrapper(delegate, isRecycled) {
-    override suspend fun stepAsync(): Boolean = withStateCheck {
-        return delegate.stepAsync()
+    override suspend fun step(): Boolean = withStateCheck {
+        return delegate.step()
     }
 }

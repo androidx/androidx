@@ -26,10 +26,10 @@ import androidx.sqlite.SQLITE_DATA_TEXT
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
-import androidx.sqlite.executeSQL
-import androidx.sqlite.open
-import androidx.sqlite.prepare
-import androidx.sqlite.step
+import androidx.sqlite.async.executeSQL
+import androidx.sqlite.async.open
+import androidx.sqlite.async.prepare
+import androidx.sqlite.async.step
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 

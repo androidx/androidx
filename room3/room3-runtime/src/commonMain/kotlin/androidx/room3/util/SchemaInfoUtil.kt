@@ -19,8 +19,8 @@ package androidx.room3.util
 import androidx.room3.ColumnInfo
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.prepare
-import androidx.sqlite.step
+import androidx.sqlite.async.prepare
+import androidx.sqlite.async.step
 import kotlin.collections.removeLast as removeLastKt
 
 /**

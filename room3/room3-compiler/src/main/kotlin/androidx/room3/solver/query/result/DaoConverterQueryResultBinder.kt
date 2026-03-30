@@ -27,7 +27,6 @@ import androidx.room3.ext.LambdaSpec
 import androidx.room3.ext.ListOfString
 import androidx.room3.ext.RoomMemberNames.DB_UTIL_PERFORM_SUSPENDING
 import androidx.room3.ext.RoomTypeNames.RAW_QUERY
-import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.types.DaoReturnTypeConverter
@@ -154,9 +153,8 @@ class DaoConverterQueryResultBinder(
                         addLocalVal(
                             statementVar,
                             SQLiteDriverTypeNames.STATEMENT,
-                            "%L.%M(%L)",
+                            "%L.prepare(%L)",
                             connectionVar,
-                            SQLiteDriverMemberNames.CONNECTION_PREPARE,
                             sqlSource,
                         )
                         beginControlFlow("try")

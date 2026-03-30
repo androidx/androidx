@@ -16,6 +16,7 @@
 
 package androidx.sqlite.driver.web
 
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 
 /**
@@ -145,4 +146,6 @@ import androidx.sqlite.SQLiteDriver
  * }
  * ```
  */
-public expect class WebWorkerSQLiteDriver : SQLiteDriver
+public expect class WebWorkerSQLiteDriver : SQLiteDriver {
+    override suspend fun open(fileName: String): SQLiteConnection
+}

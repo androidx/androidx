@@ -40,9 +40,7 @@ public actual interface SQLiteConnection : AutoCloseable {
      * @param sql the SQL statement to prepare
      * @return the prepared statement.
      */
-    public actual suspend fun prepareAsync(sql: String): SQLiteStatement {
-        throw NotImplementedError("$this does not implement prepareAsync().")
-    }
+    public suspend fun prepare(sql: String): SQLiteStatement
 
     /**
      * Closes the database connection.

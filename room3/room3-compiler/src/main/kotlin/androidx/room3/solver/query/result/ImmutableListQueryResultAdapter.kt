@@ -19,7 +19,6 @@ package androidx.room3.solver.query.result
 import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.processing.XType
 import androidx.room3.ext.GuavaTypeNames
-import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.solver.CodeGenScope
 
 class ImmutableListQueryResultAdapter(
@@ -40,12 +39,11 @@ class ImmutableListQueryResultAdapter(
             )
 
             val tmpVarName = scope.getTmpVar("_item")
-            beginControlFlow("while (%L.%M())", stmtVarName, SQLiteDriverMemberNames.STATEMENT_STEP)
-                .apply {
-                    addLocalVariable(name = tmpVarName, typeName = typeArg.asTypeName())
-                    rowAdapter.convert(tmpVarName, stmtVarName, scope)
-                    addStatement("%L.add(%L)", immutableListBuilderName, tmpVarName)
-                }
+            beginControlFlow("while (%L.step())", stmtVarName).apply {
+                addLocalVariable(name = tmpVarName, typeName = typeArg.asTypeName())
+                rowAdapter.convert(tmpVarName, stmtVarName, scope)
+                addStatement("%L.add(%L)", immutableListBuilderName, tmpVarName)
+            }
             endControlFlow()
             addLocalVal(
                 name = outVarName,

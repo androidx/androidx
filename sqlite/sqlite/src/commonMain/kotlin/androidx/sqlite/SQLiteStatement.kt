@@ -189,17 +189,6 @@ public expect interface SQLiteStatement : AutoCloseable {
     @DataType public fun getColumnType(@IntRange(from = 0) index: Int): Int
 
     /**
-     * Executes the statement asynchronously and evaluates the next result row if available.
-     *
-     * A statement is initially prepared and compiled but is not executed until one or more calls to
-     * this function. If the statement execution produces result rows then this function will return
-     * `true` indicating there is a new row of data ready to be read.
-     *
-     * @return true if there are more rows to evaluate or false if the statement is done executing
-     */
-    public open suspend fun stepAsync(): Boolean
-
-    /**
      * Resets the prepared statement back to initial state so that it can be re-executed via [step].
      * Any parameter bound via the `bind*()` APIs will retain their value.
      */

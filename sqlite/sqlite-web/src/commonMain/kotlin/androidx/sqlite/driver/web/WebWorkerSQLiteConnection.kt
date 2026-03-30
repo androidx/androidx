@@ -33,7 +33,7 @@ internal class WebWorkerSQLiteConnection(
         return inTransaction
     }
 
-    override suspend fun prepareAsync(sql: String): SQLiteStatement {
+    override suspend fun prepare(sql: String): SQLiteStatement {
         throwIfClosed()
         return dbWorker.prepare(databaseId, sql, ::setInTransaction)
     }

@@ -28,9 +28,9 @@ import androidx.room3.executeSQL
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.executeSQL
-import androidx.sqlite.prepare
-import androidx.sqlite.step
+import androidx.sqlite.async.executeSQL
+import androidx.sqlite.async.prepare
+import androidx.sqlite.async.step
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName

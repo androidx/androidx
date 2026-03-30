@@ -31,8 +31,8 @@ import androidx.room3.util.SQLiteResultCode.SQLITE_MISUSE
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.executeSQL
-import androidx.sqlite.prepare
+import androidx.sqlite.async.executeSQL
+import androidx.sqlite.async.prepare
 import androidx.sqlite.throwSQLiteException
 import kotlin.collections.removeLast as removeLastKt
 import kotlin.concurrent.Volatile

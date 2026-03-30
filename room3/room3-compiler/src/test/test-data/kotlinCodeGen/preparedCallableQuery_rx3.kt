@@ -3,8 +3,6 @@ import androidx.room3.rxjava3.RxDaoReturnTypeConverters
 import androidx.room3.util.getLastInsertedRowId
 import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.prepare
-import androidx.sqlite.step
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single

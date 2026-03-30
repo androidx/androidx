@@ -20,7 +20,6 @@ import androidx.room3.compiler.codegen.XPropertySpec
 import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.isKotlinUnit
-import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.prepared.binder.PreparedQueryResultBinder
@@ -47,9 +46,8 @@ class DaoConverterPreparedQueryResultBinder(
                 addLocalVal(
                     statementVar,
                     SQLiteDriverTypeNames.STATEMENT,
-                    "%L.%M(%L)",
+                    "%L.prepare(%L)",
                     connectionVar,
-                    SQLiteDriverMemberNames.CONNECTION_PREPARE,
                     sqlQueryVar,
                 )
                 beginControlFlow("try")

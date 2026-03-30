@@ -19,8 +19,8 @@ import androidx.annotation.RestrictTo
 import androidx.room3.util.getLastInsertedRowId
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.prepare
-import androidx.sqlite.step
+import androidx.sqlite.async.prepare
+import androidx.sqlite.async.step
 
 /**
  * Implementations of this class knows how to insert a particular entity.

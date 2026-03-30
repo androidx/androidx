@@ -47,6 +47,7 @@ androidXMultiplatform {
         commonMain.dependencies {
             api("androidx.paging:paging-common:3.4.2")
             api(project(":room3:room3-runtime"))
+            implementation(project(":sqlite:sqlite-async"))
         }
 
         commonTest.dependencies {
