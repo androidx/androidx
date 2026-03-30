@@ -13,6 +13,6 @@
     @androidx.annotation.Keep <init>(...);
 }
 
--keepclassmembers,allowobfuscation class * {
+-keepclassmembers,allowobfuscation,allowshrinking class * {
   @androidx.annotation.DoNotInline <methods>;
 }
