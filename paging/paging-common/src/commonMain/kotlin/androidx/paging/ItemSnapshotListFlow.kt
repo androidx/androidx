@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("PagerAsState")
+@file:JvmName("ItemSnapshotListFlow")
 
 package androidx.paging
 
@@ -46,17 +46,17 @@ import kotlinx.coroutines.flow.filterNotNull
  * @param [onLoadError] the callback invoked when any loads return
  *   [androidx.paging.LoadState.Error]. Provides the [CombinedLoadStates] containing the error.
  *   No-op by default. See [Pager.retry] for a recovery option.
- * @sample androidx.paging.samples.PagerAsStateSample
- * @sample androidx.paging.samples.PagerAsStateWithSeparatorsSample
- * @sample androidx.paging.samples.PagerAsStateLoadErrorSample
+ * @sample androidx.paging.samples.ItemSnapshotListFlowSample
+ * @sample androidx.paging.samples.ItemSnapshotListFlowWithSeparatorsSample
+ * @sample androidx.paging.samples.ItemSnapshotListFlowLoadErrorSample
  */
-public fun <T : Any> Flow<PagingData<T>>.asState(
+public fun <T : Any> Flow<PagingData<T>>.asItemSnapshotListFlow(
     onLoadError: (CombinedLoadStates) -> Unit = {}
 ): Flow<ItemSnapshotList<T>> {
     var errorCombinedLoadStates: CombinedLoadStates? = null
 
     return channelFlow {
-        this@asState.collectLatest { pagingData ->
+        this@asItemSnapshotListFlow.collectLatest { pagingData ->
             pagingData.flow
                 .simpleScan(null) { pageStore: PageStore<T>?, pageEvent ->
                     var currPageStore = pageStore

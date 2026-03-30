@@ -30,7 +30,7 @@ import androidx.paging.ItemSnapshotList
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
-import androidx.paging.asState
+import androidx.paging.asItemSnapshotListFlow
 import androidx.paging.insertSeparators
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,18 +39,18 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 @Sampled
-fun PagerAsStateSample() {
+fun ItemSnapshotListFlowSample() {
     lateinit var pagingSourceFactory: () -> PagingSource<String, SampleData.Item>
 
     /** Initialize Pager in ViewModel */
     val pager =
         Pager(config = PagingConfig(pageSize = 40), pagingSourceFactory = pagingSourceFactory)
 
-    val itemsFlow = pager.flow.asState()
+    val itemsFlow = pager.flow.asItemSnapshotListFlow()
 }
 
 @Sampled
-fun PagerAsStateWithSeparatorsSample() {
+fun ItemSnapshotListFlowWithSeparatorsSample() {
     lateinit var pagingSourceFactory: () -> PagingSource<String, SampleData.Item>
 
     /** Initialize Pager in ViewModel */
@@ -70,18 +70,18 @@ fun PagerAsStateWithSeparatorsSample() {
                     else null
                 }
             }
-            .asState()
+            .asItemSnapshotListFlow()
 }
 
 @Sampled
-fun PagerAsStateLoadErrorSample() {
+fun ItemSnapshotListFlowLoadErrorSample() {
     lateinit var pagingSourceFactory: () -> PagingSource<String, SampleData.Item>
 
     /** Initialize Pager in ViewModel */
     val pager =
         Pager(config = PagingConfig(pageSize = 40), pagingSourceFactory = pagingSourceFactory)
     val itemsFlow =
-        pager.flow.asState { _ ->
+        pager.flow.asItemSnapshotListFlow { _ ->
             /** Retries the failed load without invalidating the PagingSource */
             pager.retry()
         }
@@ -93,7 +93,7 @@ fun PagerLoadMoreDataSample() {
     val viewModel = viewModel { PagerViewModel() }
 
     // collect on Pager
-    val itemsFlow = viewModel.pagerStateFlow.collectAsStateWithLifecycle()
+    val itemsFlow = viewModel.snapshotListFlow.collectAsStateWithLifecycle()
     val items: List<SampleData.Item> = itemsFlow.value.items
 
     LazyColumn {
@@ -132,8 +132,10 @@ private class PagerViewModel : ViewModel() {
     private val pager =
         Pager(config = PagingConfig(pageSize = 40), pagingSourceFactory = pagingSourceFactory)
 
-    val pagerStateFlow: StateFlow<ItemSnapshotList<SampleData.Item>> =
-        pager.flow.asState().stateIn(viewModelScope, SharingStarted.Lazily, initialList)
+    val snapshotListFlow: StateFlow<ItemSnapshotList<SampleData.Item>> =
+        pager.flow
+            .asItemSnapshotListFlow()
+            .stateIn(viewModelScope, SharingStarted.Lazily, initialList)
 
     /** Load more data at the end of the list */
     fun append() {
