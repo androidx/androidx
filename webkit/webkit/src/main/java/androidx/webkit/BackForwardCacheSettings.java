@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import android.webkit.WebView;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiFeature;
@@ -66,7 +67,7 @@ public class BackForwardCacheSettings {
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public long getTimeoutSeconds() {
+    public @IntRange(from = 0) long getTimeoutSeconds() {
         final ApiFeature.NoFramework feature =
                 WebViewFeatureInternal.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3;
         if (feature.isSupportedByWebView()) {
@@ -91,7 +92,7 @@ public class BackForwardCacheSettings {
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public void setTimeoutSeconds(long timeoutSeconds) {
+    public void setTimeoutSeconds(@IntRange(from = 0) long timeoutSeconds) {
         final ApiFeature.NoFramework feature =
                 WebViewFeatureInternal.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3;
         if (feature.isSupportedByWebView()) {
@@ -115,7 +116,7 @@ public class BackForwardCacheSettings {
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public int getMaxPagesInCache() {
+    public @IntRange(from = 0) int getMaxPagesInCache() {
         final ApiFeature.NoFramework feature =
                 WebViewFeatureInternal.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3;
         if (feature.isSupportedByWebView()) {
@@ -140,7 +141,7 @@ public class BackForwardCacheSettings {
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public void setMaxPagesInCache(int maxPagesInCache) {
+    public void setMaxPagesInCache(@IntRange(from = 0) int maxPagesInCache) {
         final ApiFeature.NoFramework feature =
                 WebViewFeatureInternal.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3;
         if (feature.isSupportedByWebView()) {
