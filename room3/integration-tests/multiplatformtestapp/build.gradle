@@ -82,7 +82,7 @@ androidXMultiplatform {
         nativeTest.dependsOn(nonWebTest)
 
         // Host OSes (Linux and Mac)
-        hostNativeTest.dependsOn(nativeTest)
+        create("hostNativeTest").dependsOn(nativeTest)
         macosTest.dependsOn(hostNativeTest)
         linuxTest.dependsOn(hostNativeTest)
 
