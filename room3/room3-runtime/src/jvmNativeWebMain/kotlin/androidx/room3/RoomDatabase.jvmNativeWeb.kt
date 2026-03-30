@@ -49,9 +49,7 @@ import kotlinx.coroutines.cancel
  *
  * @see Database
  */
-public actual abstract class RoomDatabase
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-actual constructor() {
+public actual abstract class RoomDatabase actual constructor() {
 
     private lateinit var connectionManager: RoomConnectionManager
     private lateinit var coroutineScope: CoroutineScope
@@ -123,7 +121,11 @@ actual constructor() {
      * @throws NotImplementedError by default
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    protected actual abstract fun createOpenDelegate(): RoomOpenDelegateMarker
+    protected actual open fun createOpenDelegate(): RoomOpenDelegateMarker {
+        throw NotImplementedError(
+            "This function should be implemented by Room's generated database implementation."
+        )
+    }
 
     /**
      * Creates the invalidation tracker
@@ -133,7 +135,12 @@ actual constructor() {
      *
      * @return A new invalidation tracker.
      */
-    protected actual abstract fun createInvalidationTracker(): InvalidationTracker
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+    protected actual open fun createInvalidationTracker(): InvalidationTracker {
+        throw NotImplementedError(
+            "This function should be implemented by Room's generated database implementation."
+        )
+    }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun getCoroutineScope(): CoroutineScope {
@@ -151,8 +158,10 @@ actual constructor() {
      * @throws NotImplementedError by default
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    public actual abstract fun getRequiredAutoMigrationSpecClasses():
-        Set<KClass<out AutoMigrationSpec>>
+    public actual open fun getRequiredAutoMigrationSpecClasses():
+        Set<KClass<out AutoMigrationSpec>> {
+        return emptySet()
+    }
 
     /**
      * Returns a list of automatic [Migration]s that have been generated.
@@ -165,9 +174,11 @@ actual constructor() {
      * @throws NotImplementedError by default
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    public actual abstract fun createAutoMigrations(
+    public actual open fun createAutoMigrations(
         autoMigrationSpecs: Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec>
-    ): List<Migration>
+    ): List<Migration> {
+        return emptyList()
+    }
 
     /**
      * Gets the instance of the given type converter class.
@@ -205,7 +216,9 @@ actual constructor() {
      * @return A map that will include all required type converters for this database.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    protected actual abstract fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>>
+    protected actual open fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
+        return emptyMap()
+    }
 
     /** Property delegate of [getRequiredTypeConverterClasses] for common ext functionality. */
     internal actual val requiredTypeConverterClassesMap: Map<KClass<*>, List<KClass<*>>>

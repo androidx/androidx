@@ -45,9 +45,7 @@ import kotlinx.coroutines.withContext
  *
  * @see Database
  */
-public expect abstract class RoomDatabase
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-constructor() {
+public expect abstract class RoomDatabase() {
 
     /**
      * The invalidation tracker for this database.
@@ -96,7 +94,7 @@ constructor() {
      * @return A new delegate to be used while opening the database
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    protected abstract fun createOpenDelegate(): RoomOpenDelegateMarker
+    protected open fun createOpenDelegate(): RoomOpenDelegateMarker
 
     /**
      * Creates the invalidation tracker
@@ -106,7 +104,8 @@ constructor() {
      *
      * @return A new invalidation tracker.
      */
-    protected abstract fun createInvalidationTracker(): InvalidationTracker
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+    protected open fun createInvalidationTracker(): InvalidationTracker
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun getCoroutineScope(): CoroutineScope
 
@@ -120,7 +119,7 @@ constructor() {
      *   this database.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    public abstract fun getRequiredAutoMigrationSpecClasses(): Set<KClass<out AutoMigrationSpec>>
+    public open fun getRequiredAutoMigrationSpecClasses(): Set<KClass<out AutoMigrationSpec>>
 
     /**
      * Returns a list of automatic [Migration]s that have been generated.
@@ -132,7 +131,7 @@ constructor() {
      * @return A list of migration instances each of which is a generated 'auto migration'.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    public abstract fun createAutoMigrations(
+    public open fun createAutoMigrations(
         autoMigrationSpecs: Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec>
     ): List<Migration>
 
@@ -167,7 +166,7 @@ constructor() {
      * @return A map that will include all required type converters for this database.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    protected abstract fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>>
+    protected open fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>>
 
     /** Property delegate of [getRequiredTypeConverterClasses] for common ext functionality. */
     internal val requiredTypeConverterClassesMap: Map<KClass<*>, List<KClass<*>>>
