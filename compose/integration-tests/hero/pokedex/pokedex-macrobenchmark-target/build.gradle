@@ -29,10 +29,7 @@ android {
         release {
             minifyEnabled = true
             shrinkResources = true
-            proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "pokedex-macrobenchmark-target-rules.pro"
-            )
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
 
