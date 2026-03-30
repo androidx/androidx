@@ -16,6 +16,8 @@
 
 package androidx.core.provider;
 
+import static org.junit.Assert.assertEquals;
+
 import android.util.Base64;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -58,5 +60,30 @@ public class FontRequestTest {
     @Test(expected = NullPointerException.class)
     public void testConstructor_nullCerts() {
         new FontRequest(PROVIDER, PACKAGE, QUERY, null);
+    }
+
+    @Test
+    public void testCreateIdentifier_default() {
+        FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS);
+        assertEquals(PROVIDER + "-" + PACKAGE + "-" + QUERY + "-null", request.getId());
+    }
+
+    @Test
+    public void testCreateIdentifier_withVariationSettings() {
+        FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS, "wght 400");
+        assertEquals(PROVIDER + "-" + PACKAGE + "-" + QUERY + "-null-VF", request.getId());
+    }
+
+    @Test
+    public void testCreateIdentifier_withSystemFont() {
+        FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS, "systemFont",
+                "wght 400");
+        assertEquals(PROVIDER + "-" + PACKAGE + "-" + QUERY + "-systemFont-VF", request.getId());
+    }
+
+    @Test
+    public void testCreateIdentifier_blankVariationSettings() {
+        FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS, "systemFont", "   ");
+        assertEquals(PROVIDER + "-" + PACKAGE + "-" + QUERY + "-systemFont", request.getId());
     }
 }

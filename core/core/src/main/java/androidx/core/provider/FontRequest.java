@@ -158,8 +158,17 @@ public final class FontRequest {
             @Nullable String systemFont,
             @Nullable String variationSettings
     ) {
-        return providerAuthority + "-" + providerPackage + "-" + query + "-" + systemFont + "-"
-                + variationSettings;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(providerAuthority)
+                .append("-").append(providerPackage)
+                .append("-").append(query)
+                .append("-").append(systemFont);
+
+        if (variationSettings != null && !variationSettings.isBlank()) {
+            stringBuilder.append("-VF");
+        }
+
+        return stringBuilder.toString();
     }
 
     /**
