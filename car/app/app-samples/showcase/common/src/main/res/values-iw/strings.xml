@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
+<!-- 
  Copyright (C) 2021 The Android Open Source Project
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -242,7 +242,7 @@
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"רשימה 2"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"טקסט משנה מתחת לכל רשימה"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"הדגמה של תמונת סיום ופעולות"</string>
-    <string name="chip_demo_title" msgid="92190365856639582">"הדגמה של סמל המסנן"</string>
+    <string name="chip_demo_title" msgid="814337127879515513">"הדגמה (דמו) של צ\'יפ"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"הדגמה (דמו) של סרגל התקדמות"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"הדגמה של תבנית החלונית"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"הדגמת התבנית של רשימת המקומות"</string>
