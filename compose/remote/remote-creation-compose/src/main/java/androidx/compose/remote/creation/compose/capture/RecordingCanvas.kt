@@ -426,6 +426,25 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         drawBitmap(bitmap.asImageBitmap(), src, dst, paint)
     }
 
+    public fun drawBitmap(
+        bitmap: Bitmap,
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+        paint: Paint?,
+    ) {
+        usePaint(paint!!)
+        document.drawBitmap(
+            bitmap,
+            left.getFloatIdForCreationState(creationState),
+            top.getFloatIdForCreationState(creationState),
+            right.getFloatIdForCreationState(creationState),
+            bottom.getFloatIdForCreationState(creationState),
+            "",
+        )
+    }
+
     /**
      * Draws a [RemotePath] onto the canvas using the specified [Paint].
      *
