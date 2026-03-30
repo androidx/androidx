@@ -29,22 +29,6 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment"))
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-common:2.6.1")
-    implementation(libs.androidx.annotation)
-    implementation(libs.jspecify)
-    androidTestImplementation("androidx.activity:activity-ktx:1.8.1") {
-        because "Mirror fragment dependency graph for -ktx artifacts"
-    }
-    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1")
-    androidTestImplementation("androidx.savedstate:savedstate:1.2.1")
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(project(":internal-testutils-runtime"))
 }
 
 androidx {

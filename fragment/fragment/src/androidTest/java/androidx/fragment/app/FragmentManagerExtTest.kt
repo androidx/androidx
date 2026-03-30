@@ -8,7 +8,7 @@ import org.junit.Test
 
 @SmallTest
 @Suppress("DEPRECATION")
-class FragmentManagerTest {
+class FragmentManagerExtTest {
     @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private val fragmentManager
