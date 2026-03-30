@@ -48,8 +48,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.datastore:datastore-android:$datastoreVersion")
     implementation("androidx.datastore:datastore-core:$datastoreVersion")
-    // TODO: b/492082337 - Change to fixed release
-    implementation(project(":wear:wear-core"))
+    // TODO: b/492082337 - Change to stable release once available
+    implementation("androidx.wear:wear-core:1.1.0-alpha-01")
 
     compileOnly files("../../../wear/wear_sdk/wear-sdk.jar")
 
