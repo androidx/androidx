@@ -73,14 +73,14 @@ public final class WebViewStartUpConfig {
     }
 
     /**
-     * Returns the {@link Set} of profiles to be loaded during the UI thread blocking
+     * Returns the {@link Set} of {@link Profile} names to be loaded during the UI thread blocking
      * parts of WebView startup.
      * <p>
      * <p>For more details on the behavior of this setting, see the documentation for
      * {@link WebViewStartUpConfig.Builder#setProfilesToLoadDuringStartup(Set)}.
      * <p>
      *
-     * @return A {@link Set} of profiles to be loaded, or {@code null} if
+     * @return A {@link Set} of {@link Profile} names to be loaded, or {@code null} if
      * this configuration setting is not active.
      * @see WebViewStartUpConfig.Builder#setProfilesToLoadDuringStartup(Set)
      */
@@ -139,23 +139,15 @@ public final class WebViewStartUpConfig {
          * <p>
          * Defaults to `true`. If not set to `false`, UI thread startup tasks will be
          * run.
-         *
-         * @throws IllegalArgumentException if this is set to {@code false} after a set of
-         *                                  profiles to load has already been specified via
-         *                                  {@link #setProfilesToLoadDuringStartup(Set)}.
          */
         public @NonNull Builder setShouldRunUiThreadStartUpTasks(
                 boolean shouldRunUiThreadStartUpTasks) {
-            if (mProfilesToLoadDuringStartup != null && !shouldRunUiThreadStartUpTasks) {
-                throw new IllegalArgumentException(
-                        "Can't specify profiles to load without running UI thread startup tasks");
-            }
             mShouldRunUiThreadStartUpTasks = shouldRunUiThreadStartUpTasks;
             return this;
         }
 
         /**
-         * Specifies a set of profiles to load before the startup callback is invoked.
+         * Specifies a set of {@link Profile} names to load before the startup callback is invoked.
          * <p>
          * This method allows you to specify a set of profiles that are guaranteed to have been
          * loaded before the {@link WebViewCompat.WebViewStartUpCallback} is invoked. This can
@@ -181,18 +173,11 @@ public final class WebViewStartUpConfig {
          * {@link WebViewFeature#isStartupFeatureSupported(Context, String)}
          * returns false for {@link WebViewFeature#STARTUP_FEATURE_SET_PROFILES_TO_LOAD}.
          *
-         * @param profiles A {@link Set} of profile names to pre-load or an empty Set to load none.
+         * @param profiles A {@link Set} of {@link Profile} names to preload or an empty Set to
+         *                 load none.
          * @return The {@link Builder} instance for method chaining.
-         * @throws IllegalArgumentException if this method is called when
-         *                                  {@link #setShouldRunUiThreadStartUpTasks(boolean)}
-         *                                  has been set to {@code false}.
          */
         public @NonNull Builder setProfilesToLoadDuringStartup(@NonNull Set<String> profiles) {
-            if (!mShouldRunUiThreadStartUpTasks) {
-                throw new IllegalArgumentException(
-                        "Can't specify profiles to load without running UI thread startup "
-                                + "tasks");
-            }
             this.mProfilesToLoadDuringStartup = new HashSet<>(profiles);
             return this;
         }
@@ -201,8 +186,13 @@ public final class WebViewStartUpConfig {
          * Build and return a {@link WebViewStartUpConfig} object.
          *
          * @return immutable {@link WebViewStartUpConfig} object.
+         * @throws IllegalStateException if incompatible options are requested.
          */
         public @NonNull WebViewStartUpConfig build() {
+            if (mProfilesToLoadDuringStartup != null && !mShouldRunUiThreadStartUpTasks) {
+                throw new IllegalStateException(
+                        "Can't specify profiles to load without running UI thread startup tasks");
+            }
             return new WebViewStartUpConfig(mExecutor, mShouldRunUiThreadStartUpTasks,
                     mProfilesToLoadDuringStartup);
         }
