@@ -48,7 +48,6 @@ dependencies {
 }
 
 android {
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.wear"
 }
 

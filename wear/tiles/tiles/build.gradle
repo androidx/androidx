@@ -60,7 +60,6 @@ android {
 
     defaultConfig {
         minSdk { version = release(26) }
-        consumerProguardFiles("proguard-rules.pro")
     }
     buildFeatures {
         aidl = true

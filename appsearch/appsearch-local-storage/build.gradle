@@ -39,7 +39,6 @@ android {
         minifyEnabled = false
     }
     defaultConfig {
-        consumerProguardFiles("proguard-rules.pro")
         externalNativeBuild {
             cmake {
                 arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"

@@ -31,8 +31,6 @@ dependencies {
 }
 
 android {
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
-
     testOptions {
         animationsDisabled = true
     }

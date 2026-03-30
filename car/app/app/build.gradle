@@ -85,7 +85,6 @@ android {
     }
     defaultConfig {
         resValue "string", "car_app_library_version", androidx.LibraryVersions.CAR_APP.toString()
-        consumerProguardFiles("proguard-rules.pro")
     }
     buildTypes.configureEach {
         stableAidl {

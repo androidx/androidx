@@ -34,7 +34,6 @@ dependencies {
 }
 
 android {
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.window.extensions.core"
 }
 

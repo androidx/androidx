@@ -81,7 +81,6 @@ android {
     aaptOptions {
         noCompress "ttf"
     }
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.biometric"
     compileSdk { version = release(36) { minorApiLevel = 1 }}
 }

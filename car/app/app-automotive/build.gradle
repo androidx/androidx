@@ -57,7 +57,6 @@ dependencies {
 android {
     defaultConfig {
         minSdk { version = release(29) }
-        consumerProguardFiles("proguard-rules.pro")
     }
     buildFeatures {
         aidl = true

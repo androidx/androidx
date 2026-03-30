@@ -73,6 +73,5 @@ androidx {
 }
 
 android {
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.tracing.perfetto"
 }

@@ -21,7 +21,6 @@ plugins {
 }
 
 android {
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.core.google.shortcuts"
 }
 

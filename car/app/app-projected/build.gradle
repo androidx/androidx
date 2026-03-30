@@ -48,7 +48,6 @@ android {
     buildFeatures {
         aidl = true
     }
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     buildTypes.configureEach {
         stableAidl {
             version = 1

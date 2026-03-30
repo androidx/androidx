@@ -55,7 +55,4 @@ tasks.withType(KotlinCompile).configureEach { task ->
 android {
     compileSdk { version = release(35) }
     namespace = "androidx.compose.benchmarkutils"
-
-    // workarounds for b/328649293
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
 }
