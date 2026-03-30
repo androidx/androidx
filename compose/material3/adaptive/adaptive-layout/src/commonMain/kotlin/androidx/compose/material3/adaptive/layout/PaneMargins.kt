@@ -17,6 +17,7 @@
 package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.RectRulers
@@ -35,6 +36,7 @@ import kotlin.math.roundToInt
  *
  * @see paneMargins
  */
+@ExperimentalMaterial3AdaptiveApi
 @Immutable
 sealed interface PaneMargins {
     fun Placeable.PlacementScope.getPaneLeft(measuredLeft: Int) = measuredLeft
@@ -59,6 +61,7 @@ sealed interface PaneMargins {
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Immutable
 internal class PaneMarginsImpl(
     fixedMargins: PaddingValues = PaddingValues(),
