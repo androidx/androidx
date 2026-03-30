@@ -109,16 +109,16 @@ package androidx.room3 {
   }
 
   public abstract class RoomDatabase {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RoomDatabase();
+    ctor public RoomDatabase();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void assertNotMainThread();
     method public abstract suspend Object? clearAllTables(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void close();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract java.util.List<androidx.room3.migration.Migration> createAutoMigrations(java.util.Map<kotlin.reflect.KClass<? extends androidx.room3.migration.AutoMigrationSpec>,? extends androidx.room3.migration.AutoMigrationSpec> autoMigrationSpecs);
-    method protected abstract androidx.room3.InvalidationTracker createInvalidationTracker();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected abstract androidx.room3.RoomOpenDelegateMarker createOpenDelegate();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.room3.migration.Migration> createAutoMigrations(java.util.Map<kotlin.reflect.KClass<? extends androidx.room3.migration.AutoMigrationSpec>,? extends androidx.room3.migration.AutoMigrationSpec> autoMigrationSpecs);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected androidx.room3.InvalidationTracker createInvalidationTracker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected androidx.room3.RoomOpenDelegateMarker createOpenDelegate();
     method @InaccessibleFromKotlin public androidx.room3.InvalidationTracker getInvalidationTracker();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract java.util.Set<kotlin.reflect.KClass<? extends androidx.room3.migration.AutoMigrationSpec>> getRequiredAutoMigrationSpecClasses();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected abstract java.util.Map<kotlin.reflect.KClass<? extends java.lang.Object?>,java.util.List<kotlin.reflect.KClass<? extends java.lang.Object?>>> getRequiredTypeConverterClasses();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.Set<kotlin.reflect.KClass<? extends androidx.room3.migration.AutoMigrationSpec>> getRequiredAutoMigrationSpecClasses();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.Map<kotlin.reflect.KClass<? extends java.lang.Object?>,java.util.List<kotlin.reflect.KClass<? extends java.lang.Object?>>> getRequiredTypeConverterClasses();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.Map<java.lang.Class<? extends java.lang.Object?>,java.util.List<java.lang.Class<? extends java.lang.Object?>>> getRequiredTypeConverters();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final <T> T getTypeConverter(kotlin.reflect.KClass<T> klass);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected final suspend Object? internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);

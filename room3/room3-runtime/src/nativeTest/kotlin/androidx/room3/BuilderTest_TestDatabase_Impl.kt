@@ -16,10 +16,7 @@
 
 package androidx.room3
 
-import androidx.room3.migration.AutoMigrationSpec
-import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
-import kotlin.reflect.KClass
 
 internal class BuilderTest_TestDatabase_Impl : BuilderTest.TestDatabase() {
     override fun createOpenDelegate(): RoomOpenDelegateMarker {
@@ -47,18 +44,4 @@ internal class BuilderTest_TestDatabase_Impl : BuilderTest.TestDatabase() {
     }
 
     override suspend fun clearAllTables() {}
-
-    override fun createAutoMigrations(
-        autoMigrationSpecs: Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec>
-    ): List<Migration> {
-        return emptyList()
-    }
-
-    override fun getRequiredAutoMigrationSpecClasses(): Set<KClass<out AutoMigrationSpec>> {
-        return emptySet()
-    }
-
-    override fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
-        return emptyMap()
-    }
 }
