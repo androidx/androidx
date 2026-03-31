@@ -1,6 +1,8 @@
 # androidx.xr.runtime.DisplayBlendMode is referenced by native code.
 -keep class androidx.xr.runtime.DisplayBlendMode { *; }
 -keep class androidx.xr.runtime.DisplayBlendMode$Companion { *; }
+# Prevent androidx.xr.runtime.interfaces.DisplayBlendMode from being obfuscated as it is referenced by native code.
+-keep class androidx.xr.runtime.interfaces.DisplayBlendMode { *; }
 # androidx.xr.runtime.FieldOfView is referenced by native code (legacy).
 -keep class androidx.xr.runtime.FieldOfView { *; }
 # androidx.xr.runtime.Log is referenced by native code.
@@ -35,6 +37,7 @@
 -keep class * implements androidx.xr.runtime.internal.RenderingRuntimeFactory { *; }
 -keep class androidx.xr.runtime.internal.SceneRuntimeFactory { *; }
 -keep class * implements androidx.xr.runtime.internal.SceneRuntimeFactory { *; }
+-keep class * implements androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory { *; }
 
 # Preserve StateExtender and its implementations, as they're looked up via
 # a service locator.
