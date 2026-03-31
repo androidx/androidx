@@ -41,17 +41,12 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 private fun RemoteCircularProgressIndicatorPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) {
-    RemotePreview(profile = profile) { RemoteCircularProgressEnabled() }
+    RemotePreview(profile = profile) { Container { RemoteCircularProgressEnabled() } }
 }
 
 @Composable
 fun RemoteCircularProgressEnabled() {
-    Container {
-        RemoteCircularProgressIndicator(
-            modifier = RemoteModifier.size(100.rdp),
-            progress = 0.75f.rf,
-        )
-    }
+    RemoteCircularProgressIndicator(modifier = RemoteModifier.size(100.rdp), progress = 0.75f.rf)
 }
 
 @WearPreviewDevices
@@ -59,20 +54,18 @@ fun RemoteCircularProgressEnabled() {
 private fun RemoteCircularProgressNoGapCustomAnglePreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) {
-    RemotePreview(profile = profile) { RemoteCircularProgressNoGapCustomAngle() }
+    RemotePreview(profile = profile) { Container { RemoteCircularProgressNoGapCustomAngle() } }
 }
 
 @Composable
 fun RemoteCircularProgressNoGapCustomAngle() {
-    Container {
-        RemoteCircularProgressIndicator(
-            modifier = RemoteModifier.size(150.rdp),
-            progress = 0.75f.rf,
-            startAngle = 135f.rf,
-            endAngle = 45f.rf,
-            gapSize = 0.rdp,
-        )
-    }
+    RemoteCircularProgressIndicator(
+        modifier = RemoteModifier.size(150.rdp),
+        progress = 0.75f.rf,
+        startAngle = 135f.rf,
+        endAngle = 45f.rf,
+        gapSize = 0.rdp,
+    )
 }
 
 @WearPreviewDevices
@@ -80,22 +73,20 @@ fun RemoteCircularProgressNoGapCustomAngle() {
 private fun RemoteCircularProgressIndicatorCustomColorPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) {
-    RemotePreview(profile = profile) { RemoteCircularProgressIndicatorCustomColor() }
+    RemotePreview(profile = profile) { Container { RemoteCircularProgressIndicatorCustomColor() } }
 }
 
 @Composable
 fun RemoteCircularProgressIndicatorCustomColor() {
-    Container {
-        RemoteCircularProgressIndicator(
-            modifier = RemoteModifier.size(150.rdp),
-            progress = 0.75f.rf,
-            colors =
-                RemoteProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Red.rc,
-                    trackColor = Color.Blue.rc,
-                ),
-        )
-    }
+    RemoteCircularProgressIndicator(
+        modifier = RemoteModifier.size(150.rdp),
+        progress = 0.75f.rf,
+        colors =
+            RemoteProgressIndicatorDefaults.colors(
+                indicatorColor = Color.Red.rc,
+                trackColor = Color.Blue.rc,
+            ),
+    )
 }
 
 @WearPreviewDevices
@@ -103,18 +94,16 @@ fun RemoteCircularProgressIndicatorCustomColor() {
 private fun RemoteCircularProgressIndicatorDisabledPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) {
-    RemotePreview(profile = profile) { RemoteCircularProgressIndicatorDisabled() }
+    RemotePreview(profile = profile) { Container { RemoteCircularProgressIndicatorDisabled() } }
 }
 
 @Composable
 fun RemoteCircularProgressIndicatorDisabled() {
-    Container {
-        RemoteCircularProgressIndicator(
-            modifier = RemoteModifier.size(150.rdp),
-            progress = 0.75f.rf,
-            enabled = false.rb,
-        )
-    }
+    RemoteCircularProgressIndicator(
+        modifier = RemoteModifier.size(150.rdp),
+        progress = 0.75f.rf,
+        enabled = false.rb,
+    )
 }
 
 @WearPreviewDevices

@@ -16,6 +16,12 @@
 
 package androidx.wear.compose.remote.integration.demos.components
 
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Operations
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -24,6 +30,8 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
@@ -41,6 +49,25 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.material3.ListSubHeader
 import androidx.wear.compose.material3.Text
 
+@Suppress("RestrictedApiAndroidX")
+private val profileFeaturePaintMeasureDisabled =
+    Profile(
+        CoreDocument.DOCUMENT_API_LEVEL,
+        RcProfiles.PROFILE_ANDROIDX,
+        AndroidxRcPlatformServices(),
+        {
+            Operations.getOperations(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX)
+                ?.keySet()
+                .orEmpty() + setOf(Operations.CORE_TEXT)
+        },
+    ) { _, profile, _ ->
+        RemoteComposeWriterAndroid(
+            profile,
+            RemoteComposeWriter.hTag(Header.FEATURE_PAINT_MEASURE, 0),
+            RemoteComposeWriter.hTag(Header.DOC_PROFILES, profile.operationsProfiles),
+        )
+    }
+
 @Composable
 @Suppress("RestrictedApiAndroidX")
 fun RemoteDemoItem(
@@ -54,9 +81,12 @@ fun RemoteDemoItem(
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         val captured =
-            captureSingleRemoteDocument(context = context) {
+            captureSingleRemoteDocument(
+                context = context,
+                profile = profileFeaturePaintMeasureDisabled,
+            ) {
                 RemoteBox(
-                    modifier = RemoteModifier.fillMaxWidth().padding(horizontal = 8.rdp),
+                    modifier = RemoteModifier.fillMaxWidth().padding(8.rdp),
                     contentAlignment = RemoteAlignment.Center,
                     content = content,
                 )

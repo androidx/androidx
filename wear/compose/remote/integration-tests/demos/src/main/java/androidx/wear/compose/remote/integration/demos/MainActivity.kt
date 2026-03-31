@@ -20,10 +20,14 @@ package androidx.wear.compose.remote.integration.demos
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalRemotePlayerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RemoteComposePlayerFlags.shouldPlayerWrapContentSize = true
         setContent { WearApp() }
     }
 }
