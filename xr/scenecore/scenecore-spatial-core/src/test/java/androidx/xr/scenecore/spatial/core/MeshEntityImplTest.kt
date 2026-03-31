@@ -19,6 +19,7 @@ import android.app.Activity
 import androidx.xr.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
+import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeMeshFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions

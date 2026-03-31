@@ -24,6 +24,7 @@ import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
+import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions

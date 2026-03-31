@@ -76,6 +76,8 @@ import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
+import androidx.xr.scenecore.runtime.impl.OpenXrScenePose
+import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.convertPerceivedResolution
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.convertSpatialCapabilities
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.convertSpatialVisibility

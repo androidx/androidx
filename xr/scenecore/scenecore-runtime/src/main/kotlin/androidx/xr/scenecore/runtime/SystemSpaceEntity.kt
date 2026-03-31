@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.Pose
 import java.util.concurrent.Executor
 
 /** Interface for a system-controlled SceneCore Entity that defines its own coordinate space. */
@@ -29,4 +30,8 @@ public interface SystemSpaceEntity : Entity {
      * @param executor The executor to run the listener on. Defaults to SceneCore executor if null.
      */
     public fun setOnOriginChangedListener(listener: Runnable?, executor: Executor?)
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val poseInOpenXrReferenceSpace: Pose?
+        get() = null
 }

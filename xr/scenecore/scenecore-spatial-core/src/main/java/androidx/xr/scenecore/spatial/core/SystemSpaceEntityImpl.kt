@@ -73,7 +73,7 @@ internal constructor(
         originChangedExecutor = executor ?: scheduledExecutor
     }
 
-    public val poseInOpenXrReferenceSpace: Pose?
+    public override val poseInOpenXrReferenceSpace: Pose?
         /**
          * Returns the pose relative to an OpenXR reference space.
          *

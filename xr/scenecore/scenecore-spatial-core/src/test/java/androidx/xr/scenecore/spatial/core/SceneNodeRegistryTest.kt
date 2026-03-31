@@ -32,6 +32,7 @@ import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
+import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeGltfFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.Node

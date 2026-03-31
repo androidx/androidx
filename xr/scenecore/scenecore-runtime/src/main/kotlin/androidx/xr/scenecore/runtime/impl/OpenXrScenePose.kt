@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.spatial.core
+package androidx.xr.scenecore.runtime.impl
 
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.ScenePose
-import androidx.xr.scenecore.runtime.impl.BaseScenePose
 
-internal class OpenXrScenePose(
-    private val activitySpace: ActivitySpaceImpl,
+// TODO: b/496641320 - Rename the class to something more generic like "ReferenceScenePose"
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class OpenXrScenePose(
+    private val activitySpace: ActivitySpace,
     private val perceptionPose: Pose?,
 ) : BaseScenePose() {
 
@@ -44,6 +47,6 @@ internal class OpenXrScenePose(
         activitySpace.hitTestRelativeToActivityPose(origin, direction, hitTestFilter, this)
 
     /** Returns the pose relative to the OpenXR reference space (may be null if not ready). */
-    val poseInOpenXrReferenceSpace: Pose?
+    public val poseInOpenXrReferenceSpace: Pose?
         get() = perceptionPose
 }

@@ -34,6 +34,7 @@ import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.runtime.AnchorEntity
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
+import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeGltfFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.Node

@@ -40,6 +40,14 @@ dependencies {
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
     implementation("androidx.media3:media3-exoplayer:1.9.0-beta01")
 
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(project(":xr:runtime:runtime-testing"))
+    testImplementation(project(":xr:scenecore:scenecore-testing"))
+
     // For com.android.extensions.xr
     // TODO(b/447454270): Remove this once extensions are in g3.
     compileOnly(libs.androidExtensionsXr)
