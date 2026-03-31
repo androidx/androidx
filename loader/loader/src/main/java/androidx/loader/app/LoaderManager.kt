@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// Cannot be updated, the Kt name has been released.
+@file:Suppress("FacadeClassJvmName")
 
 package androidx.loader.app
 
