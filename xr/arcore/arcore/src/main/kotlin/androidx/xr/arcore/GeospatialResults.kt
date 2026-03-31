@@ -48,7 +48,7 @@ public class CreatePoseFromGeospatialPoseNotTracking : CreatePoseFromGeospatialP
  *
  * @property error a human-readable description of the error that occurred
  */
-public class CreatePoseFromGeospatialPoseErrorInternal(public val error: String) :
+public class CreatePoseFromGeospatialPoseInternalError(public val error: String) :
     CreatePoseFromGeospatialPoseResult()
 
 /**
@@ -112,5 +112,5 @@ public class CreateGeospatialPoseFromPoseNotTracking : CreateGeospatialPoseFromP
  *
  * @property error a human-readable description of the error that occurred
  */
-public class CreateGeospatialPoseFromPoseErrorInternal(public val error: String) :
+public class CreateGeospatialPoseFromPoseInternalError(public val error: String) :
     CreateGeospatialPoseFromPoseResult()
