@@ -167,10 +167,12 @@ class CustomEffectContextTest {
         // We don't need any content, we only need to trigger the scheduler
         runComposeUiTest(scheduler) {
             setContent { rememberCoroutineScope().launch { withFrameNanos {} } }
-        }
 
-        // Only if it is used will the scheduler's time be changed
-        assertThat(scheduler.currentTime).isNotEqualTo(startTime)
+            runOnIdle {
+                // Only if it is used will the scheduler's time be changed
+                assertThat(scheduler.currentTime).isNotEqualTo(startTime)
+            }
+        }
     }
 
     private class TestCoroutineContextElement : CoroutineContext.Element {
