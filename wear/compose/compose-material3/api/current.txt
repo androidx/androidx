@@ -732,6 +732,9 @@ package androidx.wear.compose.material3 {
     property public androidx.wear.compose.material3.EdgeButtonSize Small;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearComposeMaterial3Api {
+  }
+
   public final class FadingExpandingLabelDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!> getAnimationSpec(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec;
@@ -2294,6 +2297,12 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.text.TextStyle titleLarge;
     property public androidx.compose.ui.text.TextStyle titleMedium;
     property public androidx.compose.ui.text.TextStyle titleSmall;
+  }
+
+  @SuppressCompatibility @androidx.wear.compose.material3.ExperimentalWearComposeMaterial3Api public final class WearComposeMaterial3Flags {
+    property public boolean isSwipeToRevealDualFlingThresholdEnabled;
+    field public static final androidx.wear.compose.material3.WearComposeMaterial3Flags INSTANCE;
+    field public static boolean isSwipeToRevealDualFlingThresholdEnabled;
   }
 
 }

@@ -1078,6 +1078,54 @@ class SwipeToRevealTest {
         )
     }
 
+    @Test()
+    fun isSwipeToRevealDualFlingThresholdEnabled_true() {
+        verify_isSwipeToRevealDualFlingThresholdEnabled(true)
+    }
+
+    @Test()
+    fun isSwipeToRevealDualFlingThresholdEnabled_false() {
+        verify_isSwipeToRevealDualFlingThresholdEnabled(false)
+    }
+
+    @OptIn(ExperimentalWearComposeMaterial3Api::class)
+    private fun verify_isSwipeToRevealDualFlingThresholdEnabled(enabled: Boolean) {
+        try {
+            WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = enabled
+            rule.setContent {
+                ScreenConfiguration(SCREEN_SIZE_LARGE) {
+                    val revealState = rememberRevealState(initialValue = Covered)
+                    SwipeToRevealWithDefaults(
+                        modifier = Modifier.testTag(TEST_TAG),
+                        primaryAction = { DefaultPrimaryActionButton(onClick = {}) },
+                        revealState = revealState,
+                        secondaryAction = { DefaultSecondaryActionButton(onClick = {}) },
+                        undoPrimaryAction = {
+                            DefaultUndoActionButton(
+                                modifier = Modifier.testTag(UNDO_PRIMARY_ACTION_TAG),
+                                onClick = {},
+                            )
+                        },
+                    )
+                }
+            }
+
+            rule.onNodeWithTag(TEST_TAG).performTouchInput {
+                swipeLeft(startX = centerX, endX = 0f, 100)
+            }
+            rule.waitForIdle()
+
+            if (enabled) {
+                rule.onNodeWithTag(UNDO_PRIMARY_ACTION_TAG).assertExists()
+            } else {
+                rule.onNodeWithTag(UNDO_PRIMARY_ACTION_TAG).assertDoesNotExist()
+            }
+        } finally {
+            // reset flag back
+            WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
+        }
+    }
+
     private fun verifyAnimateToIllegalState(
         targetValue: RevealValue,
         revealDirection: RevealDirection = RightToLeft,
