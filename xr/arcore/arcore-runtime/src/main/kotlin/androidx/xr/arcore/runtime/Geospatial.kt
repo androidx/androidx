@@ -188,7 +188,9 @@ public interface Geospatial {
      * Gets the availability of the Visual Positioning System (VPS) at a specified horizontal
      * position.
      *
-     * The availability of VPS in a given location helps to improve the quality of Geospatial
+     * The Visual Positioning System (VPS) provides highly accurate global localization by matching
+     * features from the device's camera against Google's global database of 3D imagery. The
+     * availability of VPS in a given location helps to improve the quality of Geospatial
      * localization and tracking accuracy.
      *
      * @param latitude the latitude to check
