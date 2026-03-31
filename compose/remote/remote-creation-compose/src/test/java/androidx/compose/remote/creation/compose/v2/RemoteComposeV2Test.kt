@@ -17,7 +17,7 @@
 package androidx.compose.remote.creation.compose.v2
 
 import android.content.Context
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.FitBox
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -50,7 +50,7 @@ class RemoteComposeV2Test {
 
     @Test
     fun testCaptureDocument() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
                 RemoteBoxV2 { RemoteTextV2(text = "Hello V2".rs) }
@@ -62,7 +62,7 @@ class RemoteComposeV2Test {
 
     @Test
     fun testComplexComposition() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
                 RemoteColumnV2 {
@@ -77,7 +77,7 @@ class RemoteComposeV2Test {
 
     @Test
     fun testScopeAndSpacer() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
                 RemoteRowV2 {
@@ -92,7 +92,7 @@ class RemoteComposeV2Test {
 
     @Test
     fun testV1toV2Switching() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
                 // Using V1 components inside V2 capture
@@ -110,7 +110,7 @@ class RemoteComposeV2Test {
 
     @Test
     fun testRemoteCanvasV2() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
                 RemoteCanvas { drawRect(paint = RemotePaint { color = Color.Red.rc }) }
@@ -122,7 +122,7 @@ class RemoteComposeV2Test {
 
     @Test
     fun testFitBoxV2() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
                 FitBox { RemoteText(text = "Fit Content") }
@@ -134,7 +134,7 @@ class RemoteComposeV2Test {
 
     @Test
     fun testCollapsibleLayoutsV2() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
                 RemoteCollapsibleColumn {
@@ -151,7 +151,7 @@ class RemoteComposeV2Test {
 
     @Test
     fun testStateLayoutV2() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
                 val checked = rememberMutableRemoteEnum(ToggleState.On)

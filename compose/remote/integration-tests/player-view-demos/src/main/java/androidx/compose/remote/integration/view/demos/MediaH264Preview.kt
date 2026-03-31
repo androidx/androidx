@@ -43,11 +43,12 @@ import androidx.compose.material3.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.CreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableTarget
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -393,7 +394,7 @@ private class VideoEncodeThread(
 }
 
 @Suppress("RestrictedApiAndroidX", "COMPOSE_APPLIER_CALL_MISMATCH")
-@androidx.compose.runtime.ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+@ComposableTarget(applier = "androidx.compose.ui.UiComposable")
 @Composable
 fun mediaH264Preview(
     context: Context,
@@ -409,7 +410,9 @@ fun mediaH264Preview(
 
     val config = LocalConfiguration.current
     val creationDisplayInfo =
-        remember(sample, width, height) { CreationDisplayInfo(width, height, config.densityDpi) }
+        remember(sample, width, height) {
+            RemoteCreationDisplayInfo(width, height, config.densityDpi)
+        }
     val virtualDisplay = rememberVirtualDisplay(creationDisplayInfo)
 
     var videoDocument by remember(sample) { mutableStateOf<RemoteDocument?>(null) }
@@ -423,7 +426,13 @@ fun mediaH264Preview(
     // Use a cleaner capture mechanism that disposes itself properly
     if (sample is DumperSample.ComposableSample && videoDocument == null) {
         LaunchedEffect(sample) {
-            val doc = captureSingleRemoteDocument(context, creationDisplayInfo) { sample.content() }
+            val doc =
+                captureSingleRemoteDocumentV2(
+                    creationDisplayInfo = creationDisplayInfo,
+                    context = context,
+                ) {
+                    sample.content()
+                }
             videoDocument = RemoteDocument(ByteArrayInputStream(doc.bytes), ManualRemoteClock())
         }
     } else if (sample is DumperSample.Context && videoDocument == null) {
@@ -487,8 +496,9 @@ fun mediaH264Preview(
     return outputData
 }
 
+@Suppress("RestrictedApiAndroidX")
 @Composable
-fun rememberVirtualDisplay(creationDisplayInfo: CreationDisplayInfo): VirtualDisplay {
+fun rememberVirtualDisplay(creationDisplayInfo: RemoteCreationDisplayInfo): VirtualDisplay {
     val context = LocalContext.current
     val virtualDisplay = remember { DisplayPool.allocate(context, creationDisplayInfo) }
     DisposableEffect(Unit) { onDispose { DisplayPool.release(virtualDisplay) } }
@@ -496,14 +506,15 @@ fun rememberVirtualDisplay(creationDisplayInfo: CreationDisplayInfo): VirtualDis
 }
 
 /** API for managing a pool of [VirtualDisplay] objects. The current implementation does not */
+@Suppress("RestrictedApiAndroidX")
 object DisplayPool {
-    fun allocate(context: Context, creationDisplayInfo: CreationDisplayInfo): VirtualDisplay {
+    fun allocate(context: Context, creationDisplayInfo: RemoteCreationDisplayInfo): VirtualDisplay {
         val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         return displayManager.createVirtualDisplay(
             "Projection",
-            creationDisplayInfo.width,
-            creationDisplayInfo.height,
-            creationDisplayInfo.densityDpi,
+            creationDisplayInfo.size.width.toInt(),
+            creationDisplayInfo.size.height.toInt(),
+            (creationDisplayInfo.density.density * 160f).toInt(),
             SurfaceView(context).holder.surface,
             0,
         )

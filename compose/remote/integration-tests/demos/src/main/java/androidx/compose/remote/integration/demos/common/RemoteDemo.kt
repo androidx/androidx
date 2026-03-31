@@ -18,8 +18,9 @@ package androidx.compose.remote.integration.demos.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.view.RemoteComposePlayer
@@ -45,9 +46,15 @@ fun RemoteDemo(
 
     Box(modifier = Modifier.fillMaxSize()) {
         val context = LocalContext.current
-        // TODO(b/495316956): pass LayoutDirection to captureSingleRemoteDocument
+        val creationDisplayInfo = createCreationDisplayInfo()
+        // TODO(b/495316956): pass LayoutDirection to captureSingleRemoteDocumentV2
         LaunchedEffect(Unit) {
-            val captured = captureSingleRemoteDocument(context = context, content = content)
+            val captured =
+                captureSingleRemoteDocumentV2(
+                    creationDisplayInfo = creationDisplayInfo,
+                    context = context,
+                    content = content,
+                )
             documentState = RemoteDocument(captured.bytes)
         }
 

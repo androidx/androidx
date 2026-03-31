@@ -19,7 +19,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
@@ -52,7 +52,7 @@ class Material3ImageTest {
         val sizeDp = size.rdp
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(size, size, context.resources.displayMetrics.densityDpi)
+                RemoteCreationDisplayInfo(size, size, context.resources.displayMetrics.densityDpi)
         ) {
             val avatarImage =
                 rememberNamedRemoteBitmap(name = "avatarImage") {
@@ -72,7 +72,7 @@ class Material3ImageTest {
         val sizeDp = size.rdp
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(size, size, context.resources.displayMetrics.densityDpi)
+                RemoteCreationDisplayInfo(size, size, context.resources.displayMetrics.densityDpi)
         ) {
             val backgroundImage =
                 rememberNamedRemoteBitmap(name = "backgroundImage") {

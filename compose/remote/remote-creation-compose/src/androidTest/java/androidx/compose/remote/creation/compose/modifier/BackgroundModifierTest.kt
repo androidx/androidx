@@ -17,8 +17,8 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import android.content.Context
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -69,7 +69,7 @@ class BackgroundModifierTest {
 
     val size = Size(200f, 200f)
     private val creationDisplayInfo =
-        CreationDisplayInfo(
+        RemoteCreationDisplayInfo(
             size.width.toInt(),
             size.height.toInt(),
             context.resources.displayMetrics.densityDpi,

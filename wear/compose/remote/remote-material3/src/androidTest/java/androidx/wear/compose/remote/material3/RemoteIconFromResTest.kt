@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.padding
@@ -47,7 +47,7 @@ class RemoteIconFromResTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val creationDisplayInfo =
-        CreationDisplayInfo(500, 500, context.resources.displayMetrics.densityDpi)
+        RemoteCreationDisplayInfo(500, 500, context.resources.displayMetrics.densityDpi)
 
     @Test
     fun iconsFromRes() {

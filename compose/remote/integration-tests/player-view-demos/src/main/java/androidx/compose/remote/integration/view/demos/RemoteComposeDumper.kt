@@ -16,8 +16,8 @@
 
 package androidx.compose.remote.integration.view.demos
 
-import androidx.compose.remote.creation.CreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -62,7 +62,9 @@ fun RemoteComposeDumper(
     var currentDataLength by remember { mutableIntStateOf(0) }
 
     val creationDisplayInfo =
-        remember(sample, width, height) { CreationDisplayInfo(width, height, config.densityDpi) }
+        remember(sample, width, height) {
+            RemoteCreationDisplayInfo(width, height, config.densityDpi)
+        }
     val virtualDisplay = rememberVirtualDisplay(creationDisplayInfo)
 
     when (sample) {
@@ -70,7 +72,10 @@ fun RemoteComposeDumper(
             if (!isCaptureFinished) {
                 LaunchedEffect(sample) {
                     val doc =
-                        captureSingleRemoteDocument(context, creationDisplayInfo) {
+                        captureSingleRemoteDocumentV2(
+                            creationDisplayInfo = creationDisplayInfo,
+                            context = context,
+                        ) {
                             sample.content()
                         }
                     stream.ensureCapacity(doc.bytes.size)

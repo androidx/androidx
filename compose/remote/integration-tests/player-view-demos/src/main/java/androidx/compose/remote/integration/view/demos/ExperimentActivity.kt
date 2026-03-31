@@ -67,9 +67,9 @@ import androidx.compose.material3.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Theme
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
@@ -267,7 +267,8 @@ fun getComposeDoc(
         suspend fun rememberRemoteDocument(
             context: Context,
             profile: Profile = DemoVersions.AndroidXCinnamonBun,
-            creationDisplayInfo: CreationDisplayInfo = CreationDisplayInfo(1000, 1000, 440),
+            creationDisplayInfo: RemoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(1000, 1000, 440),
             content: @Composable () -> Unit,
         ) {
             val result =
@@ -410,7 +411,7 @@ class ExperimentActivity : ComponentActivity() {
             @Composable
             override fun getDoc(): MutableState<CoreDocument?> {
                 val time = System.nanoTime()
-                val creationDisplayInfo = CreationDisplayInfo(1000, 1000, 160)
+                val creationDisplayInfo = RemoteCreationDisplayInfo(1000, 1000, 160)
                 val d =
                     rememberRemoteDocument(creationDisplayInfo = creationDisplayInfo) {
                         cRun.invoke()

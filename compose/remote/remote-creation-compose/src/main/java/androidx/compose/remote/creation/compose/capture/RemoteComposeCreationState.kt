@@ -22,7 +22,6 @@ import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableObjectIntMap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
@@ -46,7 +45,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     override val parentScope: RemoteComposeCreationState
         get() = this
 
-    public val creationDisplayInfo: CreationDisplayInfo
+    public val creationDisplayInfo: RemoteCreationDisplayInfo
     public val profile: Profile
     public override lateinit var remoteDensity: RemoteDensity
     public override lateinit var layoutDirection: LayoutDirection
@@ -92,7 +91,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         get() = profile.platform
 
     public constructor(
-        creationDisplayInfo: CreationDisplayInfo,
+        creationDisplayInfo: RemoteCreationDisplayInfo,
         profile: Profile,
         writerEvents: WriterEvents?,
         remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
@@ -100,19 +99,23 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
-        document = profile.create(creationDisplayInfo, writerEvents) as RemoteComposeWriterAndroid
+        document =
+            profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerEvents)
+                as RemoteComposeWriterAndroid
         this.remoteDensity = remoteDensity
         this.layoutDirection = layoutDirection
     }
 
     public constructor(
-        creationDisplayInfo: CreationDisplayInfo,
+        creationDisplayInfo: RemoteCreationDisplayInfo,
         contentDescription: String?,
         profile: Profile,
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
-        document = profile.create(creationDisplayInfo, null) as RemoteComposeWriterAndroid
+        document =
+            profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
+                as RemoteComposeWriterAndroid
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
     }
@@ -127,7 +130,8 @@ public open class RemoteComposeCreationState : RemoteStateScope {
                     RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
                 },
             )
-        this.creationDisplayInfo = CreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
+        this.creationDisplayInfo =
+            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
         document = RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
@@ -143,7 +147,8 @@ public open class RemoteComposeCreationState : RemoteStateScope {
                     RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
                 },
             )
-        this.creationDisplayInfo = CreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
+        this.creationDisplayInfo =
+            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
         if (apiLevel == CoreDocument.DOCUMENT_API_LEVEL && profiles == 0) {
             document =
                 RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
@@ -163,7 +168,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     }
 
     public constructor(
-        creationDisplayInfo: CreationDisplayInfo,
+        creationDisplayInfo: RemoteCreationDisplayInfo,
         profile: Profile,
         writer: RemoteComposeWriter,
     ) {
@@ -176,8 +181,9 @@ public open class RemoteComposeCreationState : RemoteStateScope {
 
     public constructor(size: Size, profile: Profile) {
         this.profile = profile
-        this.creationDisplayInfo = CreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
-        this.document = profile.create(creationDisplayInfo, null)
+        this.creationDisplayInfo =
+            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
+        this.document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
     }
@@ -195,7 +201,11 @@ public open class RemoteComposeCreationState : RemoteStateScope {
 // Density and Size should be taken from Compose in this mode
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class NoRemoteCompose :
-    RemoteComposeCreationState(CreationDisplayInfo(1, 1, 160), null, RcPlatformProfiles.ANDROIDX) {
+    RemoteComposeCreationState(
+        RemoteCreationDisplayInfo(1, 1, 160),
+        null,
+        RcPlatformProfiles.ANDROIDX,
+    ) {
     override fun <T : RemoteState<*>> getOrCreateNamedState(
         type: Class<T>,
         name: String,

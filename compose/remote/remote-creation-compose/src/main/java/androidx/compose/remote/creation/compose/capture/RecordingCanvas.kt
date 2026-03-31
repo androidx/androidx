@@ -30,7 +30,6 @@ import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.paint.PaintBundle
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
@@ -90,7 +89,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
     override val layoutDirection: LayoutDirection
         get() = this.creationState.layoutDirection
 
-    public val creationDisplayInfo: CreationDisplayInfo
+    public val creationDisplayInfo: RemoteCreationDisplayInfo
         get() = creationState.creationDisplayInfo
 
     /**
@@ -154,8 +153,8 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         drawRect(
             0f.rf,
             0f.rf,
-            creationState.creationDisplayInfo.width.rf,
-            creationState.creationDisplayInfo.height.rf,
+            creationState.creationDisplayInfo.size.width.toInt().rf,
+            creationState.creationDisplayInfo.size.height.toInt().rf,
             Paint().apply {
                 color = drawColor
                 style = Paint.Style.FILL

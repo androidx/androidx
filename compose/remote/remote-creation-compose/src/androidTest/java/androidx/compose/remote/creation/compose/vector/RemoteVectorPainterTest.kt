@@ -17,8 +17,8 @@
 package androidx.compose.remote.creation.compose.vector
 
 import android.content.Context
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -62,7 +62,7 @@ class RemoteVectorPainterTest {
     fun fromImageVector() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
             backgroundColor = Color.White,
         ) {
             LoadFromImageVector(
@@ -76,7 +76,7 @@ class RemoteVectorPainterTest {
     fun fromRes() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
             backgroundColor = Color.White,
         ) {
             LoadFromRes(res = R.drawable.android, modifier = RemoteModifier.size(48.rdp))
@@ -87,7 +87,7 @@ class RemoteVectorPainterTest {
     fun fromRemoteImageVector() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
             backgroundColor = Color.White,
         ) {
             LoadFromRemoteImageVector(
@@ -101,7 +101,7 @@ class RemoteVectorPainterTest {
     fun tinted_fromImageVector() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
             backgroundColor = Color.White,
         ) {
             LoadFromImageVector(
@@ -116,7 +116,7 @@ class RemoteVectorPainterTest {
     fun tinted_fromRes() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
             backgroundColor = Color.White,
         ) {
             LoadFromRes(
@@ -131,7 +131,7 @@ class RemoteVectorPainterTest {
     fun tinted_fromRemoteImageVector() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
             backgroundColor = Color.White,
         ) {
             LoadFromRemoteImageVector(
