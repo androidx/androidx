@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress(
+    "NOTHING_TO_INLINE",
+    // Cannot be updated, the Kt name has been released.
+    "FacadeClassJvmName",
+)
 
 package androidx.preference
 
