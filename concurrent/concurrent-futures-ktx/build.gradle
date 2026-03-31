@@ -29,12 +29,6 @@ plugins {
 
 dependencies {
     api(project(":concurrent:concurrent-futures"))
-    api(libs.kotlinCoroutinesCore)
-
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 androidx {

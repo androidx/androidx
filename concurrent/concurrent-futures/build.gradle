@@ -24,15 +24,18 @@ import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("java-library")
+    id("kotlin")
 }
 
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     api(libs.guavaListenableFuture)
+    api(libs.kotlinCoroutinesCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 androidx {

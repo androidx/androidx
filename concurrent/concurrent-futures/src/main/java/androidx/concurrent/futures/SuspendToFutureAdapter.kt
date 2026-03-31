@@ -85,7 +85,7 @@ public object SuspendToFutureAdapter {
      * support can be broken by valid internal implementation changes to any transitive dependencies
      * of the operation performed by [block].
      */
-    @Suppress("AsyncSuffixFuture")
+    @Suppress("AsyncSuffixFuture", "MissingJvmstatic")
     public fun <T> launchFuture(
         context: CoroutineContext = EmptyCoroutineContext,
         launchUndispatched: Boolean = true,
