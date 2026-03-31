@@ -23,6 +23,7 @@
             android:name="androidx.transition.TransitionActivity"/>
         <activity
             android:name="androidx.transition.AddTransitionFragmentInActivity"/>
+        <activity android:name="androidx.transition.TestActivity"/>
     </application>
 
 </manifest>

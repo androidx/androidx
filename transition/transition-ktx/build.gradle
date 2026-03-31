@@ -29,12 +29,6 @@ plugins {
 
 dependencies {
     api(project(":transition:transition"))
-
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
 }
 
 androidx {
