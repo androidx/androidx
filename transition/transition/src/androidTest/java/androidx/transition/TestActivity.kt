@@ -18,7 +18,7 @@ package androidx.transition
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.transition.ktx.test.R
+import androidx.transition.test.R
 
 class TestActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

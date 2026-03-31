@@ -22,7 +22,7 @@ import android.widget.ImageView
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.transition.ktx.test.R
+import androidx.transition.test.R
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -32,7 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @MediumTest
-class TransitionTest {
+class TransitionExtTest {
     @Suppress("DEPRECATION")
     @JvmField
     @Rule
