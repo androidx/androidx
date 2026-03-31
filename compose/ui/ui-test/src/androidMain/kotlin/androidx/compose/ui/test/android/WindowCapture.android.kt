@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.TestContext
+import androidx.core.graphics.createBitmap
 import androidx.test.platform.graphics.HardwareRendererCompat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -50,32 +51,65 @@ internal fun Window.captureRegionToImage(
             // Then we generate the bitmap
             generateBitmap(boundsInWindow).asImageBitmap()
         }
+        // We cannot rely entirely on addOnDrawListener (used in forceRedraw) because it only
+        // signals that the UI thread has finished its draw pass, not that the RenderThread has
+        // finished outputting pixels to the buffer. On API < 29 or without hardware acceleration,
+        // this race condition can result in a fully transparent bitmap, so we must explicitly
+        // check for it.
+        if (
+            (Build.VERSION.SDK_INT < 29 || !decorView.isHardwareAccelerated) &&
+                isEntirelyTransparent(imageBitmap)
+        ) {
+            throw TransparentBitmapException()
+        }
     }
     return imageBitmap
 }
 
+/**
+ * Executes a given block of code with a retry mechanism, specifically designed to handle transient
+ * rendering issues during [PixelCopy] operations.
+ *
+ * It attempts to run the [retryBlock] up to 3 times, handling two known transient states:
+ * 1. [PixelCopy.ERROR_SOURCE_NO_DATA]: Retries immediately without a delay.
+ * 2. [TransparentBitmapException]: Retries after a brief delay to allow the RenderThread to catch
+ *    up.
+ *
+ * @throws PixelCopyException If the block fails with `ERROR_SOURCE_NO_DATA` after max retries.
+ * @throws Exception Any unexpected exception thrown by the [retryBlock].
+ */
+@Suppress("BanThreadSleep", "InlinedApi")
 @VisibleForTesting
 internal fun runWithRetryWhenNoData(retryBlock: () -> Unit) {
     var retryAttempts = 0
-    var shouldRetry = true
-    while (shouldRetry) {
+    val maxAttempts = 3
+    var currentDelayMs = 16L
+    while (retryAttempts < maxAttempts) {
+        retryAttempts++
         try {
-            shouldRetry = false
             retryBlock()
-        } catch (e: PixelCopyException) {
-            // retry up to 3 times only if the resulting error is "source no data"
-            if (e.copyResultStatus == PixelCopy.ERROR_SOURCE_NO_DATA && retryAttempts >= 2) {
-                throw PixelCopyException(
-                    e.copyResultStatus,
-                    "PixelCopy failed with result ERROR_SOURCE_NO_DATA after 3 retry attempts!",
-                )
-            } else if (e.copyResultStatus == PixelCopy.ERROR_SOURCE_NO_DATA) {
-                shouldRetry = true
-            } else {
-                throw e
+            return
+        } catch (e: Exception) {
+            val isSourceNoData =
+                e is PixelCopyException && e.copyResultStatus == PixelCopy.ERROR_SOURCE_NO_DATA
+            val isTransparent = e is TransparentBitmapException
+            if (!isSourceNoData && !isTransparent) throw e
+
+            if (retryAttempts == maxAttempts) {
+                if (isSourceNoData) {
+                    throw PixelCopyException(
+                        e.copyResultStatus,
+                        "PixelCopy failed with result ERROR_SOURCE_NO_DATA after 3 retry attempts!",
+                    )
+                }
+                // Swallow TransparentBitmapException on the final attempt and exit cleanly.
+                return
             }
-        } finally {
-            retryAttempts++
+            // Give RenderThread time to catch up
+            if (isTransparent) {
+                Thread.sleep(currentDelayMs)
+                currentDelayMs *= 2
+            }
         }
     }
 }
@@ -126,12 +160,7 @@ internal fun View.forceRedraw(testContext: TestContext) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 private fun Window.generateBitmap(boundsInWindow: Rect): Bitmap {
-    val destBitmap =
-        Bitmap.createBitmap(
-            boundsInWindow.width(),
-            boundsInWindow.height(),
-            Bitmap.Config.ARGB_8888,
-        )
+    val destBitmap = createBitmap(boundsInWindow.width(), boundsInWindow.height())
     generateBitmapFromPixelCopy(boundsInWindow, destBitmap)
     return destBitmap
 }
@@ -164,8 +193,11 @@ private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap:
 internal class PixelCopyException(val copyResultStatus: Int, message: String? = null) :
     RuntimeException(message ?: "PixelCopy failed with result $copyResultStatus!")
 
-// Unfortunately this is a copy paste from AndroidComposeTestRule. At this moment it is a bit
+internal class TransparentBitmapException : RuntimeException()
+
+// Unfortunately this is a copy-paste from AndroidComposeTestRule. At this moment it is a bit
 // tricky to share this method. We can expose it on TestOwner in theory.
+@Suppress("BanThreadSleep")
 private fun MainTestClock.waitUntil(timeoutMillis: Long, condition: () -> Boolean) {
     val startTime = System.nanoTime()
     while (!condition()) {
@@ -198,4 +230,22 @@ private object PixelCopyHelper {
     ) {
         PixelCopy.request(source, srcRect, dest, listener, listenerThread)
     }
+}
+
+private fun isEntirelyTransparent(imageBitmap: ImageBitmap): Boolean {
+    if (!imageBitmap.hasAlpha) return false
+
+    val width = imageBitmap.width
+    val height = imageBitmap.height
+    val pixels = IntArray(width)
+
+    for (y in 0 until height) {
+        imageBitmap.readPixels(buffer = pixels, startY = y, width = width, height = 1)
+        for (pixel in pixels) {
+            if ((pixel ushr 24) > 0) {
+                return false
+            }
+        }
+    }
+    return true
 }
