@@ -69,8 +69,8 @@ class OpenXrPerceptionManagerTest {
 
     @get:Rule val activityRule = ActivityScenarioRule(ComponentActivity::class.java)
 
-    lateinit var openXrManager: OpenXrManager
-    lateinit var underTest: OpenXrPerceptionManager
+    private lateinit var openXrManager: OpenXrManager
+    private lateinit var underTest: OpenXrPerceptionManager
 
     @Before
     fun setUp() {

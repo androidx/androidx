@@ -17,22 +17,22 @@
 package androidx.xr.arcore.openxr
 
 internal class EyeTrackingState private constructor(private val value: Int) {
-    public companion object {
+    companion object {
 
-        @JvmField public val NOT_TRACKING: EyeTrackingState = EyeTrackingState(0)
+        @JvmField val NOT_TRACKING: EyeTrackingState = EyeTrackingState(0)
 
-        @JvmField public val LEFT_ONLY: EyeTrackingState = EyeTrackingState(1)
+        @JvmField val LEFT_ONLY: EyeTrackingState = EyeTrackingState(1)
 
-        @JvmField public val RIGHT_ONLY: EyeTrackingState = EyeTrackingState(2)
+        @JvmField val RIGHT_ONLY: EyeTrackingState = EyeTrackingState(2)
 
-        @JvmField public val BOTH: EyeTrackingState = EyeTrackingState(3)
+        @JvmField val BOTH: EyeTrackingState = EyeTrackingState(3)
     }
 
     @get:JvmName("hasLeft")
-    public val hasLeft: Boolean
+    val hasLeft: Boolean
         get() = this == LEFT_ONLY || this == BOTH
 
     @get:JvmName("hasRight")
-    public val hasRight: Boolean
+    val hasRight: Boolean
         get() = this == RIGHT_ONLY || this == BOTH
 }

@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
 
@@ -28,7 +27,6 @@ import androidx.xr.runtime.math.Pose
  */
 // TODO(b/439895601): Rename ViewCameraState to RenderViewpointState
 @Suppress("DataClassDefinition")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 internal data class ViewCameraState(
     val pose: Pose = Pose(),
     val fieldOfView: FieldOfView = FieldOfView(0f, 0f, 0f, 0f),

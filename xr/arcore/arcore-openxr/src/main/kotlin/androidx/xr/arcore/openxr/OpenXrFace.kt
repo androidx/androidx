@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Face
 import androidx.xr.arcore.runtime.Mesh
 import androidx.xr.arcore.runtime.TrackingState
@@ -37,30 +36,28 @@ import androidx.xr.runtime.math.Pose
  * @property foreheadRightPose the [Pose] located at the right side of the detected face's forehead
  * @property isValid a flag indicating if the face is valid
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrFace : Updatable, Face {
+internal class OpenXrFace : Updatable, Face {
 
-    public override var trackingState: TrackingState = TrackingState.PAUSED
+    override var trackingState: TrackingState = TrackingState.PAUSED
         private set
 
-    public override var blendShapeValues: FloatArray = FloatArray(XR_FACE_PARAMETER_COUNT_ANDROID)
+    override var blendShapeValues: FloatArray = FloatArray(XR_FACE_PARAMETER_COUNT_ANDROID)
         private set
 
-    public override var confidenceValues: FloatArray =
-        FloatArray(XR_FACE_REGION_CONFIDENCE_COUNT_ANDROID)
+    override var confidenceValues: FloatArray = FloatArray(XR_FACE_REGION_CONFIDENCE_COUNT_ANDROID)
         private set
 
-    public override val centerPose: Pose? = null
+    override val centerPose: Pose? = null
 
-    public override val mesh: Mesh? = null
+    override val mesh: Mesh? = null
 
-    public override val noseTipPose: Pose? = null
+    override val noseTipPose: Pose? = null
 
-    public override val foreheadLeftPose: Pose? = null
+    override val foreheadLeftPose: Pose? = null
 
-    public override val foreheadRightPose: Pose? = null
+    override val foreheadRightPose: Pose? = null
 
-    public override var isValid: Boolean = false
+    override var isValid: Boolean = false
 
     /**
      * Updates the entity retrieving its state at [xrTime].

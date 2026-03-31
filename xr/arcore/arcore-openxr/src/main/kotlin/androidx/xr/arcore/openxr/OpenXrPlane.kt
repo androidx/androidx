@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.Plane
@@ -40,8 +39,7 @@ import androidx.xr.runtime.math.Vector2
  * @property subsumedBy the plane that subsumed this plane
  * @property trackingState the [TrackingState] of the plane
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrPlane
+internal class OpenXrPlane
 internal constructor(
     internal val planeId: Long,
     override val type: Plane.Type,

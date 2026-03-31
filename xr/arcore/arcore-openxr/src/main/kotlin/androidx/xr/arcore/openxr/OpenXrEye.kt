@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Eye as Eye
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
@@ -28,8 +27,7 @@ import androidx.xr.runtime.math.Pose
  * @property pose the [Pose] of the eye
  * @property trackingState the [TrackingState] of the eye
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrEye() : Eye {
+internal class OpenXrEye() : Eye {
     override var isOpen: Boolean = false
         private set
 

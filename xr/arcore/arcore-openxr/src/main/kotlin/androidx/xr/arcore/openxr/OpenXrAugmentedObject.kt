@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.AugmentedObject
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.AugmentedObjectCategory
@@ -36,8 +35,7 @@ import androidx.xr.runtime.math.Pose
  * @property extents the extents of the object
  * @property trackingState the [TrackingState] of the object
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrAugmentedObject
+internal class OpenXrAugmentedObject
 internal constructor(
     internal val objectId: Long,
     internal val timeSource: OpenXrTimeSource,

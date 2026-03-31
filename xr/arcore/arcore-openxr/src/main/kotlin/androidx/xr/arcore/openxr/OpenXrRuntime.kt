@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.AnchorPersistenceMode
@@ -38,8 +37,7 @@ import kotlin.time.ComparableTimeMark
  * @property lifecycleManager that manages the lifecycle of the OpenXR session
  * @property perceptionManager that manages the perception capabilities of a runtime using OpenXR
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrRuntime
+internal class OpenXrRuntime
 internal constructor(
     override val lifecycleManager: OpenXrManager,
     override val perceptionManager: OpenXrPerceptionManager,

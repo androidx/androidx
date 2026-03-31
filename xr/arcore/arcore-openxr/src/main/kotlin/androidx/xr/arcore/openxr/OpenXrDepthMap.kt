@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.DepthMap
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.math.IntSize2d
@@ -34,8 +33,7 @@ import java.nio.FloatBuffer
  * @property smoothDepthMap the smooth depth map
  * @property smoothConfidenceMap the smooth confidence map
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrDepthMap internal constructor(private val viewIndex: Int) : DepthMap {
+internal class OpenXrDepthMap internal constructor(private val viewIndex: Int) : DepthMap {
 
     override val width: Int
         get() = resolution.width

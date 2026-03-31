@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
@@ -36,31 +35,30 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * @property state the current [Geospatial.State]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class OpenXrGeospatial
+internal class OpenXrGeospatial
 internal constructor(
     private val xrResources: XrResources,
     private val timeSource: OpenXrTimeSource,
 ) : Geospatial, Updatable {
 
-    public override var state: Geospatial.State = Geospatial.State.NOT_RUNNING
+    override var state: Geospatial.State = Geospatial.State.NOT_RUNNING
         private set
 
-    override public fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
+    override fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
         val xrTime = timeSource.getXrTime(timeSource.markNow())
         val result = nativeLocatePoseFromGeospatialPose(xrTime, geospatialPose)
         // The native implementation returns null when not tracking.
         return result ?: throw GeospatialPoseNotTrackingException()
     }
 
-    override public fun createGeospatialPoseFromPose(pose: Pose): Geospatial.GeospatialPoseResult {
+    override fun createGeospatialPoseFromPose(pose: Pose): Geospatial.GeospatialPoseResult {
         val xrTime = timeSource.getXrTime(timeSource.markNow())
         val result = nativeCreateGeospatialPoseFromPose(xrTime, pose)
         // The native implementation returns null when not tracking.
         return result ?: throw GeospatialPoseNotTrackingException()
     }
 
-    override public fun createAnchor(
+    override fun createAnchor(
         latitude: Double,
         longitude: Double,
         altitude: Double,
@@ -75,7 +73,7 @@ internal constructor(
         return anchor
     }
 
-    override public suspend fun createAnchorOnSurface(
+    override suspend fun createAnchorOnSurface(
         latitude: Double,
         longitude: Double,
         altitudeAboveSurface: Double,

@@ -20,7 +20,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.RenderViewpoint
 import androidx.xr.runtime.FieldOfView
 import androidx.xr.runtime.math.Pose
@@ -31,8 +30,7 @@ import androidx.xr.runtime.math.Pose
  * @property pose the [Pose] of the render viewpoint
  * @property fieldOfView the [FieldOfView] of the render viewpoint
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrRenderViewpoint internal constructor() : RenderViewpoint {
+internal class OpenXrRenderViewpoint internal constructor() : RenderViewpoint {
 
     override var pose: Pose = Pose()
         private set

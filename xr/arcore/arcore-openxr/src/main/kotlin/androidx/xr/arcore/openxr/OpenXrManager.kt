@@ -53,8 +53,7 @@ import kotlinx.coroutines.delay
  * @property config the current [Config] of the session
  */
 @Suppress("NotCloseable")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrManager
+internal class OpenXrManager
 internal constructor(
     private val context: Context,
     private val perceptionManager: OpenXrPerceptionManager,
