@@ -114,9 +114,18 @@ class AuthenticationManagerTest {
         try {
             Dispatchers.setMain(testDispatcher)
             runTest(testDispatcher) {
+                val localLifecycleOwner = TestLifecycleOwner()
+                val localManager =
+                    getAuthenticationManager(
+                        lifecycleOwner = localLifecycleOwner,
+                        authenticationCallback = clientAuthenticationCallback,
+                    )
+                localManager.initialize()
+                localLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+
                 viewModel.isDelayingPrompt = true
                 val promptInfo = getPromptInfo()
-                manager.authenticate(promptInfo, null) { isAuthenticationShown = true }
+                localManager.authenticate(promptInfo, null) { isAuthenticationShown = true }
 
                 assertThat(isAuthenticationShown).isFalse()
                 assertThat(viewModel.isPromptShowing).isFalse()
@@ -215,131 +224,6 @@ class AuthenticationManagerTest {
         viewModel.setAuthenticationResult(result)
 
         assertThat(authResult).isNull()
-    }
-
-    @Test
-    fun onAuthenticationResult_multipleManagers_dispatchedToCorrectManager() {
-        val testLifecycleOwner2 = TestLifecycleOwner()
-        var authResult2: BiometricPrompt.AuthenticationResult? = null
-        // This will be key2
-        val manager2 =
-            getAuthenticationManager(
-                lifecycleOwner = testLifecycleOwner2,
-                authenticationCallback =
-                    object : BiometricPrompt.AuthenticationCallback() {
-                        override fun onAuthenticationSucceeded(
-                            result: BiometricPrompt.AuthenticationResult
-                        ) {
-                            authResult2 = result
-                        }
-                    },
-            )
-
-        manager2.initialize()
-        testLifecycleOwner2.handleLifecycleEvent(Lifecycle.Event.ON_START)
-
-        manager2.authenticate(getPromptInfo(), null) {}
-        val result = BiometricPrompt.AuthenticationResult(null, 0)
-        viewModel.setAuthenticationResult(result)
-
-        assertThat(authResult).isNull()
-        assertThat(authResult2).isEqualTo(result)
-    }
-
-    @Test
-    fun testStartObservingAuth_afterRecreation_onlyValidForCorrectKey() {
-        // 1. Setup more initial managers and authenticate with manager2Initial
-        val testLifecycleOwner2Initial = TestLifecycleOwner()
-        // This will be key2
-        val manager2Initial =
-            getAuthenticationManager(
-                lifecycleOwner = testLifecycleOwner2Initial,
-                authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {},
-            )
-        manager2Initial.initialize()
-        testLifecycleOwner2Initial.handleLifecycleEvent(Lifecycle.Event.ON_START)
-
-        val testLifecycleOwner3Initial = TestLifecycleOwner()
-        // This will be key2
-        val manager3Initial =
-            getAuthenticationManager(
-                lifecycleOwner = testLifecycleOwner3Initial,
-                authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {},
-            )
-        manager3Initial.initialize()
-        testLifecycleOwner3Initial.handleLifecycleEvent(Lifecycle.Event.ON_START)
-
-        // Simulate authentication started by manager2Initial
-        manager2Initial.authenticate(getPromptInfo(), null) {}
-        assertThat(viewModel.currentAuthenticationKey).isEqualTo(2)
-
-        // 2. Simulate activity recreation
-        testLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        testLifecycleOwner2Initial.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        testLifecycleOwner3Initial.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-
-        val newLifecycleOwner1 = TestLifecycleOwner()
-        var authResult1AfterRecreation: BiometricPrompt.AuthenticationResult? = null
-        // This will be key1 again
-        val manager1AfterRecreation =
-            getAuthenticationManager(
-                lifecycleOwner = newLifecycleOwner1,
-                authenticationCallback =
-                    object : BiometricPrompt.AuthenticationCallback() {
-                        override fun onAuthenticationSucceeded(
-                            result: BiometricPrompt.AuthenticationResult
-                        ) {
-                            authResult1AfterRecreation = result
-                        }
-                    },
-            )
-        manager1AfterRecreation.initialize()
-        newLifecycleOwner1.handleLifecycleEvent(Lifecycle.Event.ON_START)
-
-        val newLifecycleOwner2 = TestLifecycleOwner()
-        var authResult2AfterRecreation: BiometricPrompt.AuthenticationResult? = null
-        // This will be key2 again
-        val manager2AfterRecreation =
-            getAuthenticationManager(
-                lifecycleOwner = newLifecycleOwner2,
-                authenticationCallback =
-                    object : BiometricPrompt.AuthenticationCallback() {
-                        override fun onAuthenticationSucceeded(
-                            result: BiometricPrompt.AuthenticationResult
-                        ) {
-                            authResult2AfterRecreation = result
-                        }
-                    },
-            )
-        manager2AfterRecreation.initialize()
-        newLifecycleOwner2.handleLifecycleEvent(Lifecycle.Event.ON_START)
-
-        val newLifecycleOwner3 = TestLifecycleOwner()
-        var authResult3AfterRecreation: BiometricPrompt.AuthenticationResult? = null
-        // This will be key3 again
-        val manager3AfterRecreation =
-            getAuthenticationManager(
-                lifecycleOwner = newLifecycleOwner3,
-                authenticationCallback =
-                    object : BiometricPrompt.AuthenticationCallback() {
-                        override fun onAuthenticationSucceeded(
-                            result: BiometricPrompt.AuthenticationResult
-                        ) {
-                            authResult3AfterRecreation = result
-                        }
-                    },
-            )
-        manager3AfterRecreation.initialize()
-        newLifecycleOwner3.handleLifecycleEvent(Lifecycle.Event.ON_START)
-
-        // 3. Dispatch a result from the ViewModel
-        val result = BiometricPrompt.AuthenticationResult(null, 0)
-        viewModel.setAuthenticationResult(result)
-
-        // 4. Only manager2AfterRecreation's callback should receive the result, because prior to
-        // activity's recreation, it was manager2Initial starts the authentication.
-        assertThat(authResult2AfterRecreation).isEqualTo(result)
-        assertThat(authResult1AfterRecreation).isNull()
     }
 
     private fun getAuthenticationManager(

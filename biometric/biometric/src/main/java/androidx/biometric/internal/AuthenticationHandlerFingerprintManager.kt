@@ -16,19 +16,13 @@
 
 package androidx.biometric.internal
 
-import android.content.Context
 import android.content.Intent
 import androidx.biometric.BiometricPrompt
-import androidx.biometric.BiometricPrompt.AuthenticationCallback
 import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.ui.FingerprintDialogActivity
-import androidx.biometric.internal.viewmodel.AuthenticationViewModel
 import androidx.biometric.utils.ErrorUtils
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import java.util.concurrent.Executor
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 
 /**
@@ -37,42 +31,29 @@ import kotlinx.coroutines.launch
  *
  * This handler is responsible for launching [FingerprintDialogActivity] to show the UI, and for
  * handling the results of the authentication.
- *
- * @param context The application context.
- * @param lifecycleOwner The lifecycle owner for observing lifecycle events.
- * @param viewModel The [AuthenticationViewModel] that holds the state for the ongoing
- *   authentication.
- * @param confirmCredentialActivityLauncher A [Runnable] to launch the confirm credential activity
- *   as a fallback.
- * @param clientExecutor The executor for posting results to the client callback.
- * @param clientAuthenticationCallback The client-provided callback for receiving authentication
- *   events.
  */
 internal class AuthenticationHandlerFingerprintManager(
-    val context: Context,
-    val lifecycleOwner: LifecycleOwner,
-    val viewModel: AuthenticationViewModel,
-    val confirmCredentialActivityLauncher: Runnable,
-    val clientExecutor: Executor,
-    clientAuthenticationCallback: AuthenticationCallback,
+    private val authenticationManager: AuthenticationManager
 ) : AuthenticationHandler {
-    private val authenticationManager =
-        AuthenticationManager(
-            context,
-            lifecycleOwner,
-            viewModel,
-            confirmCredentialActivityLauncher,
-            clientExecutor,
-            clientAuthenticationCallback,
-        )
+    val context
+        get() = authenticationManager.context
+
+    val lifecycleOwner
+        get() = authenticationManager.lifecycleOwner
+
+    val viewModel
+        get() = authenticationManager.viewModel
+
+    val confirmCredentialActivityLauncher
+        get() = authenticationManager.confirmCredentialActivityLauncher
 
     private val resultDispatcher =
         object :
             AuthenticationResultDispatcher(
                 context,
                 viewModel,
-                clientExecutor,
-                clientAuthenticationCallback,
+                authenticationManager.clientExecutor,
+                authenticationManager.clientAuthenticationCallback,
                 confirmCredentialActivityLauncher,
                 { dismiss() },
             ) {

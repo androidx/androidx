@@ -61,16 +61,10 @@ internal class AuthenticationManager(
     val lifecycleOwner: LifecycleOwner,
     val viewModel: AuthenticationViewModel,
     val confirmCredentialActivityLauncher: Runnable,
-    clientExecutor: Executor,
-    clientAuthenticationCallback: AuthenticationCallback,
+    val clientExecutor: Executor,
+    val clientAuthenticationCallback: AuthenticationCallback,
+    private val onDismissed: (() -> Unit)? = null,
 ) {
-    /**
-     * A unique identifier for [AuthenticationManager] used to filter callbacks and events.
-     *
-     * @see [AuthenticationViewModel.authManagerKey]
-     */
-    private val key = viewModel.generateNextManagerKey()
-
     /** The dispatcher responsible for sending authentication results to the client's callback. */
     var resultDispatcher: AuthenticationResultDispatcher =
         object :
@@ -103,22 +97,20 @@ internal class AuthenticationManager(
      * authentication or falling back to the device's credential screen.
      */
     val isNegativeButtonPressPendingObserver = {
-        if (viewModel.isPromptShowing) {
-            when (viewModel.singleFallbackOption) {
-                is Fallback.OverriddenDeviceCredential -> resultDispatcher.showKMAsFallback()
-                is Fallback.DefaultCancel -> {
-                    resultDispatcher.onAuthenticationError(
-                        BiometricPrompt.ERROR_CANCELED,
-                        context.getString(R.string.generic_error_user_canceled),
-                    )
-                    cancelAuthentication(CanceledFrom.USER)
-                }
-                is Fallback.CustomOption -> {
-                    resultDispatcher.sendFallbackOptionAndDismiss(
-                        viewModel.singleFallbackOption as Fallback.CustomOption
-                    )
-                    cancelAuthentication(CanceledFrom.NEGATIVE_BUTTON)
-                }
+        when (viewModel.singleFallbackOption) {
+            is Fallback.OverriddenDeviceCredential -> resultDispatcher.showKMAsFallback()
+            is Fallback.DefaultCancel -> {
+                resultDispatcher.onAuthenticationError(
+                    BiometricPrompt.ERROR_CANCELED,
+                    context.getString(R.string.generic_error_user_canceled),
+                )
+                cancelAuthentication(CanceledFrom.USER)
+            }
+            is Fallback.CustomOption -> {
+                resultDispatcher.sendFallbackOptionAndDismiss(
+                    viewModel.singleFallbackOption as Fallback.CustomOption
+                )
+                cancelAuthentication(CanceledFrom.NEGATIVE_BUTTON)
             }
         }
     }
@@ -137,28 +129,25 @@ internal class AuthenticationManager(
         resultDispatcher: AuthenticationResultDispatcher? = this.resultDispatcher,
         uiStateObserver: AuthenticationUiStateObserver? = this.uiStateObserver,
     ) {
+        resultDispatcher?.let { this.resultDispatcher = it }
+        uiStateObserver?.let { this.uiStateObserver = it }
+
         if (isInitialized) {
             return
         }
         isInitialized = true
-        resultDispatcher?.let { this.resultDispatcher = it }
-        uiStateObserver?.let { this.uiStateObserver = it }
 
         // When activity/fragment restarts, we need to check |viewModel.isPromptShowing| for
         // reconnecting view models.
         val observer = LifecycleEventObserver { owner, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> {
-                    if (viewModel.isPromptShowing) {
-                        startObservingAuth()
-                    }
+                    startObservingAuth()
                 }
                 Lifecycle.Event.ON_STOP -> {
                     // cancel authentication when the client is permanently removed
                     if (
-                        owner.isPermanentlyRemoved(event) &&
-                            viewModel.isPromptShowing &&
-                            !viewModel.isConfirmingDeviceCredential
+                        owner.isPermanentlyRemoved(event) && !viewModel.isConfirmingDeviceCredential
                     ) {
                         cancelAuthentication(CanceledFrom.INTERNAL)
                     }
@@ -166,7 +155,7 @@ internal class AuthenticationManager(
 
                 Lifecycle.Event.ON_DESTROY -> {
                     stopObservingAuth()
-                    viewModel.resetManagerKey()
+                    viewModel.resetHandlerKey()
 
                     lifecycleContainer.clearObservers()
                 }
@@ -192,8 +181,6 @@ internal class AuthenticationManager(
         crypto: BiometricPrompt.CryptoObject?,
         showAuthentication: () -> Unit,
     ) {
-        // currentAuthenticationKey must be set prior to observing for correct validation.
-        viewModel.currentAuthenticationKey = key
         startObservingAuth()
 
         // PromptInfo has to be set prior to others.
@@ -242,7 +229,6 @@ internal class AuthenticationManager(
 
     /** Removes any associated UI from the client activity/fragment. */
     fun dismiss() {
-        viewModel.currentAuthenticationKey = 0
         viewModel.isPromptShowing = false
         viewModel.isConfirmingDeviceCredential = false
 
@@ -252,11 +238,12 @@ internal class AuthenticationManager(
             viewModel.setDelayedDelayingPrompt(false, SHOW_PROMPT_DELAY_MS.toLong())
         }
         stopObservingAuth()
+        onDismissed?.invoke()
     }
 
     /** Prepares the authentication, setting up view model observers. */
     private fun startObservingAuth() {
-        if (isAuthenticationPrepared || key != viewModel.currentAuthenticationKey) {
+        if (isAuthenticationPrepared) {
             return
         }
         isAuthenticationPrepared = true
@@ -295,26 +282,20 @@ internal class AuthenticationManager(
             lifecycleOwner.lifecycleScope.launch {
                 launch {
                     viewModel.authenticationResult.collect { authenticationResult ->
-                        if (viewModel.isPromptShowing) {
-                            resultDispatcher.onAuthenticationSucceeded(authenticationResult)
-                        }
+                        resultDispatcher.onAuthenticationSucceeded(authenticationResult)
                     }
                 }
                 launch {
                     viewModel.authenticationError.collect { authenticationError ->
-                        if (viewModel.isPromptShowing) {
-                            resultDispatcher.onAuthenticationError(
-                                authenticationError.errorCode,
-                                authenticationError.errorMessage,
-                            )
-                        }
+                        resultDispatcher.onAuthenticationError(
+                            authenticationError.errorCode,
+                            authenticationError.errorMessage,
+                        )
                     }
                 }
                 launch {
                     viewModel.isAuthenticationFailurePending.collect {
-                        if (viewModel.isPromptShowing) {
-                            resultDispatcher.onAuthenticationFailed()
-                        }
+                        resultDispatcher.onAuthenticationFailed()
                     }
                 }
             }

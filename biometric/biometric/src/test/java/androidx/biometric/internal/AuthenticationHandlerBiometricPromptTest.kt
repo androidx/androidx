@@ -82,12 +82,17 @@ class AuthenticationHandlerBiometricPromptTest {
 
         authenticationHandler =
             AuthenticationHandlerBiometricPrompt(
-                context = context,
-                lifecycleOwner = testLifecycleOwner,
-                viewModel = viewModel,
-                confirmCredentialActivityLauncher = { isConfirmCredentialActivityLaunched = true },
-                clientExecutor = clientExecutor,
-                clientAuthenticationCallback = clientAuthenticationCallback,
+                AuthenticationManager(
+                    context = context,
+                    lifecycleOwner = testLifecycleOwner,
+                    viewModel = viewModel,
+                    confirmCredentialActivityLauncher = {
+                        isConfirmCredentialActivityLaunched = true
+                    },
+                    clientExecutor = clientExecutor,
+                    clientAuthenticationCallback = clientAuthenticationCallback,
+                    onDismissed = {},
+                )
             )
     }
 

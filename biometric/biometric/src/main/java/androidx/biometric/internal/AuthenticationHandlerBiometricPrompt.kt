@@ -41,7 +41,6 @@ import androidx.biometric.utils.AuthenticatorUtils
 import androidx.biometric.utils.CryptoObjectUtils
 import androidx.biometric.utils.ErrorUtils
 import androidx.biometric.utils.PromptContentViewUtils
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import java.util.concurrent.Executor
 import kotlinx.coroutines.Job
@@ -58,22 +57,19 @@ private const val TAG = "AuthHandlerBP"
  * an internal [AuthenticationManager] to manage state and interactions.
  */
 internal class AuthenticationHandlerBiometricPrompt(
-    val context: Context,
-    lifecycleOwner: LifecycleOwner,
-    val viewModel: AuthenticationViewModel,
-    confirmCredentialActivityLauncher: Runnable,
-    val clientExecutor: Executor,
-    clientAuthenticationCallback: AuthenticationCallback,
+    private val authenticationManager: AuthenticationManager
 ) : AuthenticationHandler {
-    private val authenticationManager =
-        AuthenticationManager(
-            context,
-            lifecycleOwner,
-            viewModel,
-            confirmCredentialActivityLauncher,
-            clientExecutor,
-            clientAuthenticationCallback,
-        )
+    val context
+        get() = authenticationManager.context
+
+    val viewModel
+        get() = authenticationManager.viewModel
+
+    val lifecycleOwner
+        get() = authenticationManager.lifecycleOwner
+
+    val clientExecutor
+        get() = authenticationManager.clientExecutor
 
     init {
         val resultDispatcher =
@@ -82,8 +78,8 @@ internal class AuthenticationHandlerBiometricPrompt(
                     context,
                     viewModel,
                     clientExecutor,
-                    clientAuthenticationCallback,
-                    confirmCredentialActivityLauncher,
+                    authenticationManager.clientAuthenticationCallback,
+                    authenticationManager.confirmCredentialActivityLauncher,
                     { authenticationManager.dismiss() },
                 ) {
                 override fun onAuthenticationError(errorCode: Int, errorMessage: CharSequence?) {
@@ -113,16 +109,12 @@ internal class AuthenticationHandlerBiometricPrompt(
                         }
                         launch {
                             viewModel.isFallbackOptionPressPending.collect { fallback ->
-                                if (viewModel.isPromptShowing) {
-                                    onFallbackOptionPressed(fallback)
-                                }
+                                onFallbackOptionPressed(fallback)
                             }
                         }
                         launch {
                             viewModel.isMoreOptionsButtonPressPending.collect {
-                                if (viewModel.isPromptShowing) {
-                                    onMoreOptionsButtonPressed()
-                                }
+                                onMoreOptionsButtonPressed()
                             }
                         }
                     }
@@ -216,7 +208,7 @@ internal class AuthenticationHandlerBiometricPrompt(
             if (logoBitmap != null) {
                 Api35Impl.setLogoBitmap(builder, logoBitmap)
             }
-            if (logoDescription != null && !logoDescription.isEmpty()) {
+            if (!logoDescription.isNullOrEmpty()) {
                 Api35Impl.setLogoDescription(builder, logoDescription)
             }
             if (contentView != null) {
