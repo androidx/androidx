@@ -24,7 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.animateRemoteFloat
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
@@ -45,16 +45,14 @@ public fun RemoteCircularProgressIndicatorSample(modifier: RemoteModifier = Remo
 @RemoteComposable
 @Composable
 public fun RemoteCircularProgressIndicatorAnimatedSample(
-    modifier: RemoteModifier = RemoteModifier
+    modifier: RemoteModifier = RemoteModifier.size(150.rdp)
 ) {
     val progress = rememberMutableRemoteFloat { 0.25f.rf }
     val animatedProgress = animateRemoteFloat(0.25f) { progress }
 
     val toggleAction = ValueChange(progress, (progress + 0.25f) % 1f)
 
-    Container(modifier = modifier.clickable(toggleAction).padding(8.rdp)) {
-        RemoteCircularProgressIndicator(progress = animatedProgress)
-    }
+    RemoteCircularProgressIndicator(progress = animatedProgress, modifier.clickable(toggleAction))
 }
 
 @WearPreviewDevices
