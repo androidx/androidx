@@ -1048,9 +1048,12 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FakeSystemSpaceEntity extends androidx.xr.scenecore.testing.FakeEntity implements androidx.xr.scenecore.runtime.SystemSpaceEntity {
     ctor public FakeSystemSpaceEntity();
     method @InaccessibleFromKotlin public final Runnable? getOnOriginChangedListener();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getPoseInOpenXrReferenceSpace();
     method public final void onOriginChanged();
     method public void setOnOriginChangedListener(Runnable? listener, java.util.concurrent.Executor? executor);
+    method public final void setOpenXrReferenceSpaceTransform(androidx.xr.runtime.math.Matrix4 fromTrs);
     property public final Runnable? onOriginChangedListener;
+    property public androidx.xr.runtime.math.Pose? poseInOpenXrReferenceSpace;
   }
 
 }

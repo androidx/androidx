@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.xr.scenecore.spatial.core
 
+package androidx.xr.scenecore.runtime.impl
+
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
-import androidx.xr.scenecore.runtime.impl.BaseScenePose
 
 /** A ScenePose representing the origin of the OpenXR reference space. */
-internal class PerceptionSpaceScenePoseImpl(activitySpace: ActivitySpaceImpl) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class PerceptionSpaceScenePoseImpl(activitySpace: ActivitySpace) :
     BaseScenePose(), PerceptionSpaceScenePose {
     private val openXrScenePoseHelper: OpenXrScenePoseHelper = OpenXrScenePoseHelper(activitySpace)
 

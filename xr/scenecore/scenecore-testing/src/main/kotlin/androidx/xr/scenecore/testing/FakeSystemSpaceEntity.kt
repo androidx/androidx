@@ -17,6 +17,8 @@
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.SystemSpaceEntity
 import java.util.concurrent.Executor
 
@@ -26,6 +28,9 @@ import java.util.concurrent.Executor
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class FakeSystemSpaceEntity() : FakeEntity(), SystemSpaceEntity {
+
+    private var openXrReferenceSpaceTransform: Matrix4? = null
+
     public var onOriginChangedListener: Runnable? = null
         private set
 
@@ -56,4 +61,12 @@ public open class FakeSystemSpaceEntity() : FakeEntity(), SystemSpaceEntity {
             onOriginChangedExecutor?.execute(listener) ?: listener.run()
         }
     }
+
+    public fun setOpenXrReferenceSpaceTransform(fromTrs: Matrix4) {
+        openXrReferenceSpaceTransform = fromTrs
+        setScale(fromTrs.scale)
+    }
+
+    override val poseInOpenXrReferenceSpace: Pose?
+        get() = openXrReferenceSpaceTransform?.toPose()
 }

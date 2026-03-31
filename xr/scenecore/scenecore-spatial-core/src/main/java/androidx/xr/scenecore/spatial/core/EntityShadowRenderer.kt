@@ -27,6 +27,7 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
+import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import com.android.extensions.xr.XrExtensions
 import java.util.concurrent.ScheduledExecutorService
 
