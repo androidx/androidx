@@ -136,6 +136,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
             };
 
     int[] mLocationCache = new int[2];
+    private ViewTreeObserver mRegisteredObserver;
+    private boolean mIsAttached = false;
 
     private void updateOrigin() {
         if (mDocument != null) {
@@ -145,10 +147,16 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     }
 
     private void updateGlobalLayoutListener() {
-        getViewTreeObserver().removeOnGlobalLayoutListener(mGlobalLayoutListener);
-        if (isAttachedToWindow() && mDocument != null
+        if (mRegisteredObserver != null && mRegisteredObserver.isAlive()) {
+            mRegisteredObserver.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+        }
+        mRegisteredObserver = null;
+
+        if (mIsAttached
+                && mDocument != null
                 && mDocument.getDocument().useFeature(Header.FEATURE_LT_RESIZE)) {
-            getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener);
+            mRegisteredObserver = getViewTreeObserver();
+            mRegisteredObserver.addOnGlobalLayoutListener(mGlobalLayoutListener);
             updateOrigin();
         }
     }
@@ -303,6 +311,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
 
     @Override
     public void onViewAttachedToWindow(@NonNull View view) {
+        mIsAttached = true;
         if (mChoreographer == null) {
             mChoreographer = Choreographer.getInstance();
             mChoreographer.postFrameCallback(mFrameCallback);
@@ -354,6 +363,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
 
     @Override
     public void onViewDetachedFromWindow(@NonNull View view) {
+        mIsAttached = false;
         updateGlobalLayoutListener();
         if (mChoreographer != null) {
             mChoreographer.removeFrameCallback(mFrameCallback);
