@@ -19,13 +19,18 @@ package androidx.wear.compose.foundation.lazy
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -353,6 +358,229 @@ class TransformingLazyColumnStateTest {
             expectedAnchorIndex = expectedAnchorIndex,
             targetIndex = targetIndex,
         )
+    }
+
+    @Test
+    fun requestAnchorItem_itemTop_keepsVisualTopEdgeFixed() {
+        var targetItemHeight by mutableStateOf(itemSizeDp)
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            TransformingLazyColumn(state = state, modifier = Modifier.height(itemSizeDp * 3f)) {
+                items(10, key = { it }) { index ->
+                    val height = if (index == 5) targetItemHeight else itemSizeDp
+                    Box(Modifier.height(height).fillMaxWidth())
+                }
+            }
+        }
+
+        scope.launch { state.scrollToItem(5) }
+        rule.waitForIdle()
+
+        var initialTopOffset = 0
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first { it.key == 5 }
+            initialTopOffset = item.offset
+            state.requestAnchorItem(5, TransformingLazyColumnAnchorType.ItemTop)
+            targetItemHeight = itemSizeDp * 2f
+        }
+
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first { it.key == 5 }
+            // Verify the visual top offset remains exactly the same
+            assertThat(item.offset).isEqualTo(initialTopOffset)
+            assertThat(state.anchorItemIndex).isEqualTo(item.index)
+            // Verify height actually changed
+            val expectedHeight = with(rule.density) { (itemSizeDp * 2f).roundToPx() }
+            assertThat(item.transformedHeight).isEqualTo(expectedHeight)
+        }
+    }
+
+    @Test
+    fun requestAnchorItem_itemBottom_keepsVisualBottomEdgeFixed() {
+        var targetItemHeight by mutableStateOf(itemSizeDp)
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            TransformingLazyColumn(state = state, modifier = Modifier.height(itemSizeDp * 3f)) {
+                items(10, key = { it }) { index ->
+                    val height = if (index == 5) targetItemHeight else itemSizeDp
+                    Box(Modifier.height(height).fillMaxWidth())
+                }
+            }
+        }
+
+        scope.launch { state.scrollToItem(5) }
+        rule.waitForIdle()
+
+        var initialBottomOffset = 0
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first { it.key == 5 }
+            initialBottomOffset = item.offset + item.transformedHeight
+
+            state.requestAnchorItem(5, TransformingLazyColumnAnchorType.ItemBottom)
+            targetItemHeight = itemSizeDp * 2f
+        }
+
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first { it.key == 5 }
+            val newBottomOffset = item.offset + item.transformedHeight
+            // Verify the visual bottom offset remains exactly the same
+            assertThat(newBottomOffset).isEqualTo(initialBottomOffset)
+            assertThat(state.anchorItemIndex).isEqualTo(item.index)
+        }
+    }
+
+    @Test
+    fun requestAnchorItem_itemTopAndReverseLayout_keepsVisualTopEdgeFixed() {
+        var targetItemHeight by mutableStateOf(itemSizeDp)
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            TransformingLazyColumn(
+                state = state,
+                reverseLayout = true,
+                modifier = Modifier.height(itemSizeDp * 3f),
+            ) {
+                items(10, key = { it }) { index ->
+                    val height = if (index == 5) targetItemHeight else itemSizeDp
+                    Box(Modifier.height(height).fillMaxWidth())
+                }
+            }
+        }
+
+        scope.launch { state.scrollToItem(5) }
+        rule.waitForIdle()
+
+        var initialVisualTop = 0
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first { it.key == 5 }
+            val viewportHeight = state.layoutInfo.viewportSize.height
+
+            // In reverseLayout, Visual Top = viewportHeight - logicalOffset - height
+            initialVisualTop = viewportHeight - item.offset - item.transformedHeight
+
+            // ItemTop always anchors the visual top edge, even in reverseLayout
+            state.requestAnchorItem(5, TransformingLazyColumnAnchorType.ItemTop)
+            targetItemHeight = itemSizeDp * 2f
+        }
+
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first { it.key == 5 }
+            val viewportHeight = state.layoutInfo.viewportSize.height
+            val newVisualTop = viewportHeight - item.offset - item.transformedHeight
+
+            // Verify the visual top offset remains exactly the same
+            assertThat(newVisualTop).isEqualTo(initialVisualTop)
+            assertThat(state.anchorItemIndex).isEqualTo(item.index)
+        }
+    }
+
+    @Test
+    fun requestAnchorItem_itemBottomAndReverseLayout_keepsVisualBottomEdgeFixed() {
+        var targetItemHeight by mutableStateOf(itemSizeDp)
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            TransformingLazyColumn(
+                state = state,
+                reverseLayout = true,
+                modifier = Modifier.height(itemSizeDp * 3f),
+            ) {
+                items(10, key = { it }) { index ->
+                    val height = if (index == 5) targetItemHeight else itemSizeDp
+                    Box(Modifier.height(height).fillMaxWidth())
+                }
+            }
+        }
+
+        scope.launch { state.scrollToItem(5) }
+        rule.waitForIdle()
+
+        var initialVisualBottom = 0
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first { it.key == 5 }
+            val viewportHeight = state.layoutInfo.viewportSize.height
+
+            // In reverseLayout, Visual Bottom = viewportHeight - logicalOffset
+            initialVisualBottom = viewportHeight - item.offset
+
+            // ItemBottom always anchors the visual bottom edge, even in reverseLayout
+            state.requestAnchorItem(5, TransformingLazyColumnAnchorType.ItemBottom)
+            targetItemHeight = itemSizeDp * 2f
+        }
+
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first { it.key == 5 }
+            val viewportHeight = state.layoutInfo.viewportSize.height
+            val newVisualBottom = viewportHeight - item.offset
+
+            // Verify the visual bottom offset remains exactly the same
+            assertThat(newVisualBottom).isEqualTo(initialVisualBottom)
+            assertThat(state.anchorItemIndex).isEqualTo(item.index)
+        }
+    }
+
+    @Test
+    fun requestAnchorItem_clearedOnScroll() {
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            TransformingLazyColumn(state = state, modifier = Modifier.height(itemSizeDp * 3f)) {
+                items(10, key = { it }) { Box(Modifier.height(itemSizeDp).fillMaxWidth()) }
+            }
+        }
+
+        rule.runOnIdle {
+            // Request an anchor
+            state.requestAnchorItem(5, TransformingLazyColumnAnchorType.ItemTop)
+            assertThat(state.requestedAnchorKey).isEqualTo(5)
+        }
+
+        scope.launch { state.scrollBy(10f) }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            // Verify the anchor request was automatically cleared by the layout pass
+            assertThat(state.requestedAnchorKey).isNull()
+            assertThat(state.anchorItemIndex).isNotEqualTo(5)
+        }
+    }
+
+    @Test
+    fun requestAnchorItem_itemNotVisible_hasNoEffect() {
+        var targetItemHeight by mutableStateOf(itemSizeDp)
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            TransformingLazyColumn(state = state, modifier = Modifier.height(itemSizeDp * 3f)) {
+                items(50, key = { it }) { index ->
+                    val height = if (index == 49) targetItemHeight else itemSizeDp
+                    Box(Modifier.height(height).fillMaxWidth())
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            // Item 49 is off-screen
+            state.requestAnchorItem(49, TransformingLazyColumnAnchorType.ItemTop)
+            // Trigger layout change
+            targetItemHeight = itemSizeDp * 2f
+        }
+
+        rule.runOnIdle { assertThat(state.layoutInfo.visibleItems.first().key).isEqualTo(0) }
     }
 
     private fun setupLazyColumn(itemsCount: Int, itemsPerPage: Int): TransformingLazyColumnState {

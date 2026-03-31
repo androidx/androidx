@@ -753,6 +753,19 @@ package androidx.wear.compose.foundation.lazy {
     property public abstract androidx.compose.animation.core.Easing scaleInterpolator;
   }
 
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TransformingLazyColumnAnchorType {
+    method @BytecodeOnly public static androidx.wear.compose.foundation.lazy.TransformingLazyColumnAnchorType! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.wear.compose.foundation.lazy.TransformingLazyColumnAnchorType.Companion Companion;
+  }
+
+  public static final class TransformingLazyColumnAnchorType.Companion {
+    method @BytecodeOnly public int getItemBottom-nLXEOWU();
+    method @BytecodeOnly public int getItemTop-nLXEOWU();
+    property public androidx.wear.compose.foundation.lazy.TransformingLazyColumnAnchorType ItemBottom;
+    property public androidx.wear.compose.foundation.lazy.TransformingLazyColumnAnchorType ItemTop;
+  }
+
   public final class TransformingLazyColumnDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior snapFlingBehavior(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state, optional androidx.compose.ui.unit.Dp snapOffset, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decay);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior snapFlingBehavior-uFdPcIQ(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState, float, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
@@ -847,6 +860,8 @@ package androidx.wear.compose.foundation.lazy {
     method @InaccessibleFromKotlin public int getAnchorItemScrollOffset();
     method @InaccessibleFromKotlin public androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo getLayoutInfo();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
+    method @KotlinOnly public void requestAnchorItem(Object? key, androidx.wear.compose.foundation.lazy.TransformingLazyColumnAnchorType anchorType);
+    method @BytecodeOnly public void requestAnchorItem-bw6Eukk(Object?, int);
     method public void requestScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset);
     method @BytecodeOnly public static void requestScrollToItem$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, int, int, int, Object!);
     method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
