@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE") // Aliases to public API.
+@file:Suppress(
+    // Aliases to public API.
+    "NOTHING_TO_INLINE",
+    // Cannot be updated, the Kt name has been released.
+    "FacadeClassJvmName",
+)
 
 package androidx.palette.graphics
 
