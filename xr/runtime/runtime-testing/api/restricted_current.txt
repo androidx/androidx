@@ -19,6 +19,14 @@ package androidx.xr.runtime.testing {
     property @Deprecated public Integer? testSpatialApiVersion;
   }
 
+  public final class XrDeviceTestRule extends org.junit.rules.ExternalResource {
+    ctor public XrDeviceTestRule();
+    method protected void before();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.DisplayBlendMode getPreferredDisplayBlendMode();
+    method @InaccessibleFromKotlin public void setPreferredDisplayBlendMode(androidx.xr.runtime.DisplayBlendMode);
+    property public androidx.xr.runtime.DisplayBlendMode preferredDisplayBlendMode;
+  }
+
 }
 
 package androidx.xr.runtime.testing.internal {

@@ -20,14 +20,23 @@ import android.content.Context
 import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
+import androidx.xr.runtime.testing.XrDeviceTestRule
 import kotlin.coroutines.CoroutineContext
 
 internal class FakeXrDeviceCapabilityProviderFactory : XrDeviceCapabilityProviderFactory {
+
+    companion object {
+        var xrDeviceTestRule: XrDeviceTestRule? = null
+    }
 
     override var requirements: Set<Feature> = emptySet()
 
     override fun create(
         context: Context,
         coroutineContext: CoroutineContext,
-    ): XrDeviceCapabilityProvider = FakeXrDeviceCapabilityProvider(context)
+    ): XrDeviceCapabilityProvider {
+        val provider = FakeXrDeviceCapabilityProvider(context)
+        xrDeviceTestRule?.capabilityProvider = provider
+        return provider
+    }
 }
