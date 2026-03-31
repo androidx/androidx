@@ -57,9 +57,9 @@ fun RemoteIconDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Default") { RemoteIconDefault() } }
-            item { RemoteDemoItem("From Resource") { RemoteIconFromResource() } }
-            item { RemoteDemoItem("Color") { RemoteIconColor() } }
+            remoteDemoItem("Default") { RemoteIconDefault() }
+            remoteDemoItem("From Resource") { RemoteIconFromResource() }
+            remoteDemoItem("Color") { RemoteIconColor() }
         }
     }
 }

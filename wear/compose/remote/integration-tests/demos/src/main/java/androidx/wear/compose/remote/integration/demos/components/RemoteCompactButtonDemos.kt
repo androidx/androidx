@@ -59,11 +59,11 @@ fun RemoteCompactButtonDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Icon") { RemoteCompactButtonWithIcon() } }
-            item { RemoteDemoItem("Label") { RemoteCompactButtonWithLabel() } }
-            item { RemoteDemoItem("Icon and label") { RemoteCompactButtonWithIconAndLabel() } }
-            item { RemoteDemoItem("Border") { RemoteCompactButtonWithBorder() } }
-            item { RemoteDemoItem("Custom shape") { RemoteCompactButtonWithShape() } }
+            remoteDemoItem("Icon") { RemoteCompactButtonWithIcon() }
+            remoteDemoItem("Label") { RemoteCompactButtonWithLabel() }
+            remoteDemoItem("Icon and label") { RemoteCompactButtonWithIconAndLabel() }
+            remoteDemoItem("Border") { RemoteCompactButtonWithBorder() }
+            remoteDemoItem("Custom shape") { RemoteCompactButtonWithShape() }
         }
     }
 }

@@ -56,8 +56,8 @@ fun RemoteButtonGroupDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Two buttons") { RemoteButtonGroupTwoButtons() } }
-            item { RemoteDemoItem("Three buttons") { RemoteButtonGroupThreeButtons() } }
+            remoteDemoItem("Two buttons") { RemoteButtonGroupTwoButtons() }
+            remoteDemoItem("Three buttons") { RemoteButtonGroupThreeButtons() }
         }
     }
 }

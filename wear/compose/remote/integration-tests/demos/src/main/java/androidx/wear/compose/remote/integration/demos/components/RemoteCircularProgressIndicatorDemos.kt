@@ -59,13 +59,11 @@ fun RemoteCircularProgressIndicatorDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Enabled") { RemoteCircularProgressEnabled() } }
-            item { RemoteDemoItem("Disabled") { RemoteCircularProgressIndicatorDisabled() } }
-            item { RemoteDemoItem("Custom Color") { RemoteCircularProgressIndicatorCustomColor() } }
-            item {
-                RemoteDemoItem("No Gap Custom Angle") { RemoteCircularProgressNoGapCustomAngle() }
-            }
-            item { RemoteDemoItem("Animated") { RemoteCircularProgressIndicatorAnimatedSample() } }
+            remoteDemoItem("Enabled") { RemoteCircularProgressEnabled() }
+            remoteDemoItem("Disabled") { RemoteCircularProgressIndicatorDisabled() }
+            remoteDemoItem("Custom Color") { RemoteCircularProgressIndicatorCustomColor() }
+            remoteDemoItem("No Gap Custom Angle") { RemoteCircularProgressNoGapCustomAngle() }
+            remoteDemoItem("Animated") { RemoteCircularProgressIndicatorAnimatedSample() }
         }
     }
 }

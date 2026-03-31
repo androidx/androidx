@@ -63,28 +63,22 @@ fun RemoteTextDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Default") { RemoteText("Default Text".rs) } }
-            item {
-                RemoteDemoItem("Color") {
-                    RemoteText("Colored Text".rs, color = RemoteColor(Color.Cyan))
-                }
+            remoteDemoItem("Default") { RemoteText("Default Text".rs) }
+            remoteDemoItem("Color") {
+                RemoteText("Colored Text".rs, color = RemoteColor(Color.Cyan))
             }
-            item {
-                RemoteDemoItem("Style") {
-                    RemoteText(
-                        "Italic Text".rs,
-                        style = RemoteTextStyle(fontStyle = FontStyle.Italic, fontSize = 24.rsp),
-                    )
-                }
+            remoteDemoItem("Style") {
+                RemoteText(
+                    "Italic Text".rs,
+                    style = RemoteTextStyle(fontStyle = FontStyle.Italic, fontSize = 24.rsp),
+                )
             }
-            item {
-                RemoteDemoItem("Centered") {
-                    RemoteText(
-                        "Centered Text".rs,
-                        textAlign = TextAlign.Center,
-                        modifier = RemoteModifier.remoteFillMaxWidth(),
-                    )
-                }
+            remoteDemoItem("Centered") {
+                RemoteText(
+                    "Centered Text".rs,
+                    textAlign = TextAlign.Center,
+                    modifier = RemoteModifier.remoteFillMaxWidth(),
+                )
             }
         }
     }
