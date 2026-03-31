@@ -25,22 +25,21 @@ import org.junit.runner.RunWith
 class EmphasisSpanTest {
 
     @Test
-    fun parcelable_parcelRoundTrip() {
-        val original =
-            EmphasisSpan(
+    fun constructor_Position() {
+        EmphasisSpan(style = EmphasisStyle.Triangle, isFilled = false, scale = 0.7f).run {
+            assertThat(style).isEqualTo(EmphasisStyle.Triangle)
+            assertThat(position).isEqualTo(AnnotationPosition.Before)
+        }
+
+        EmphasisSpan(
                 style = EmphasisStyle.Triangle,
                 isFilled = false,
                 position = AnnotationPosition.After,
                 scale = 0.7f,
             )
-
-        // WHEN we write it to a Parcel and read it back
-        val restored = parcelRoundTrip(original, EmphasisSpan.CREATOR)
-
-        // THEN the restored object must be identical
-        assertThat(restored.style).isEqualTo(original.style)
-        assertThat(restored.isFilled).isEqualTo(original.isFilled)
-        assertThat(restored.position).isEqualTo(original.position)
-        assertThat(restored.scale).isEqualTo(original.scale)
+            .run {
+                assertThat(style).isEqualTo(EmphasisStyle.Triangle)
+                assertThat(position).isEqualTo(AnnotationPosition.After)
+            }
     }
 }

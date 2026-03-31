@@ -16,34 +16,10 @@
 
 package androidx.text.vertical
 
-import android.graphics.Typeface
-import android.os.Parcel
-import android.os.Parcelable
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextUtils
-import android.text.style.StyleSpan
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-
-// Helper function to simulate IPC transfer
-internal fun <T> parcelRoundTrip(input: T, creator: Parcelable.Creator<T>): T {
-    val parcel = Parcel.obtain()
-    try {
-        // Write
-        (input as Parcelable).writeToParcel(parcel, 0)
-
-        // Reset for reading
-        parcel.setDataPosition(0)
-
-        // Read
-        return creator.createFromParcel(parcel)
-    } finally {
-        parcel.recycle()
-    }
-}
 
 @RunWith(AndroidJUnit4::class)
 class RubySpanTest {
@@ -51,47 +27,14 @@ class RubySpanTest {
 
     @Test
     fun constructor_Position() {
-        RubySpan(RUBY_TEXT, AnnotationPosition.After).run {
+        RubySpan(RUBY_TEXT).run {
             assertThat(text).isEqualTo(RUBY_TEXT)
-            assertThat(position).isEqualTo(AnnotationPosition.After)
+            assertThat(position).isEqualTo(AnnotationPosition.Before)
         }
 
         RubySpan(RUBY_TEXT, AnnotationPosition.After).run {
             assertThat(text).isEqualTo(RUBY_TEXT)
             assertThat(position).isEqualTo(AnnotationPosition.After)
         }
-    }
-
-    @Test
-    fun parcelable_parcelRoundTrip() {
-        // Given a SpannableString with a simple bold span on the first two characters
-        val spannedText = SpannableString("ABCDE")
-        spannedText.setSpan(StyleSpan(Typeface.BOLD), 0, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        val original =
-            RubySpan(
-                text = spannedText,
-                position = AnnotationPosition.After,
-                orientation = TextOrientation.Upright,
-                textScale = 0.3f,
-            )
-
-        // WHEN we write it to a Parcel and read it back
-        val restored = parcelRoundTrip(original, RubySpan.CREATOR)
-
-        // THEN the restored object must be identical
-        // Only TextUtils.equals checks both the character data and the attached spans
-        assertThat(TextUtils.equals(restored.text, original.text)).isTrue()
-        assertThat(restored.position).isEqualTo(original.position)
-        assertThat(restored.orientation).isEqualTo(original.orientation)
-        assertThat(restored.textScale).isEqualTo(original.textScale)
-
-        // Explicitly verify the span survived the trip
-        val restoredSpanned = restored.text as Spanned
-        val spans = restoredSpanned.getSpans(0, restoredSpanned.length, StyleSpan::class.java)
-        assertThat(spans).hasLength(1)
-        assertThat(spans[0].style).isEqualTo(Typeface.BOLD)
-        assertThat(restoredSpanned.getSpanStart(spans[0])).isEqualTo(0)
-        assertThat(restoredSpanned.getSpanEnd(spans[0])).isEqualTo(2)
     }
 }
