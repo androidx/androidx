@@ -40,7 +40,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class PagerAsStateTest {
+class ItemSnapshotListFlowTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(dispatcher)
@@ -421,7 +421,7 @@ class PagerAsStateTest {
             val pager =
                 Pager(config, pagingSourceFactory = pagingSourceFactory)
                     .flow
-                    .asState()
+                    .asItemSnapshotListFlow()
                     .stateIn(backgroundScope)
 
             advanceUntilIdle()
@@ -588,7 +588,7 @@ class PagerAsStateTest {
         testScope.runTest {
             launch {
                 pager.flow
-                    .asState { combinedLoadStates ->
+                    .asItemSnapshotListFlow { combinedLoadStates ->
                         throw IllegalStateException("$combinedLoadStates")
                     }
                     .catch { error = it as? IllegalStateException }
@@ -629,7 +629,7 @@ private fun <Value : Any> CoroutineScope.collectOnPager(
 ): PagerResult<Value> {
     val dataList = arrayListOf<ItemSnapshotList<Value>>()
 
-    val job = launch { flow.asState(onLoadError).collect { dataList.add(it) } }
+    val job = launch { flow.asItemSnapshotListFlow(onLoadError).collect { dataList.add(it) } }
 
     return PagerResult(dataList, job)
 }

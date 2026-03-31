@@ -118,6 +118,11 @@ package androidx.paging {
     property public int size;
   }
 
+  public final class ItemSnapshotListFlow {
+    method public static <T> kotlinx.coroutines.flow.Flow<androidx.paging.ItemSnapshotList<T>> asItemSnapshotListFlow(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, optional kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> onLoadError);
+    method @BytecodeOnly public static kotlinx.coroutines.flow.Flow! asItemSnapshotListFlow$default(kotlinx.coroutines.flow.Flow!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
   public abstract sealed exhaustive class LoadState {
     method @InaccessibleFromKotlin public final boolean getEndOfPaginationReached();
     property public final boolean endOfPaginationReached;
@@ -318,11 +323,6 @@ package androidx.paging {
     method public void refresh(Value item);
     method public void retry();
     property public kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> flow;
-  }
-
-  public final class PagerAsState {
-    method public static <T> kotlinx.coroutines.flow.Flow<androidx.paging.ItemSnapshotList<T>> asState(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, optional kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> onLoadError);
-    method @BytecodeOnly public static kotlinx.coroutines.flow.Flow! asState$default(kotlinx.coroutines.flow.Flow!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class PagingConfig {
