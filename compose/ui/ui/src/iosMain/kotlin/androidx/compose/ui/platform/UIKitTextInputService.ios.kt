@@ -1064,25 +1064,22 @@ internal class UIKitTextInputService(
                     val layout = textLayoutResult ?: return null
                     val startLine = layout.getLineForOffset(range.start)
                     val endLine = layout.getLineForOffset(range.end)
-                    val lineRange = startLine..endLine
+
+                    val candidateOffsets = buildSet {
+                        add(range.start)
+                        add(range.end)
+
+                        for (line in startLine..endLine) {
+                            add(max(range.start, layout.getLineStart(line)))
+                            add(min(range.end, layout.getLineEnd(line)))
+                        }
+                    }
 
                     when (farthestInDirection) {
-                        PlatformTextLayoutDirection.Left -> {
-                            lineRange.minByOrNull {
-                                when (it) {
-                                    startLine -> layout.getHorizontalPosition(range.start, true)
-                                    else -> layout.getLineLeft(it)
-                                }
-                            }
-                        }
-                        PlatformTextLayoutDirection.Right -> {
-                            lineRange.maxByOrNull {
-                                when (it) {
-                                    endLine -> layout.getHorizontalPosition(range.end, true)
-                                    else -> layout.getLineRight(it)
-                                }
-                            }
-                        }
+                        PlatformTextLayoutDirection.Left ->
+                            candidateOffsets.minByOrNull { layout.getHorizontalPosition(it, true) }
+                        PlatformTextLayoutDirection.Right ->
+                            candidateOffsets.maxByOrNull { layout.getHorizontalPosition(it, true) }
                         else -> null
                     }
                 }
