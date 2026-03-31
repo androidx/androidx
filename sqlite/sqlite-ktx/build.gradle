@@ -32,9 +32,6 @@ plugins {
 
 dependencies {
     api(project(":sqlite:sqlite"))
-
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
 }
 
 androidx {
