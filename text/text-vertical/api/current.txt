@@ -73,8 +73,8 @@ package androidx.text.vertical {
     ctor public FontShearSpan(optional float fontShear);
     ctor @BytecodeOnly public FontShearSpan(float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float getFontShear();
-    method public void updateDrawState(android.text.TextPaint? p0);
-    method public void updateMeasureState(android.text.TextPaint p0);
+    method public void updateDrawState(android.text.TextPaint? textPaint);
+    method public void updateMeasureState(android.text.TextPaint textPaint);
     property public float fontShear;
     field public static final androidx.text.vertical.FontShearSpan.Companion Companion;
     field public static final float DEFAULT_FONT_SHEAR = 0.2679492f;
