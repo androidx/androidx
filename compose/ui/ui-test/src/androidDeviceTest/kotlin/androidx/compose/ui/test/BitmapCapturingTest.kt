@@ -48,7 +48,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,7 +69,7 @@ class BitmapCapturingTest(val config: TestConfig) {
             )
     }
 
-    @get:Rule val rule = createAndroidComposeRule(config.activityClass, StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule(config.activityClass)
 
     private val rootTag = "Root"
     private val tagTopLeft = "TopLeft"
