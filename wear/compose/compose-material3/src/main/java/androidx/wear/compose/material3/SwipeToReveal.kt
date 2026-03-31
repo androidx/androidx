@@ -1492,6 +1492,7 @@ private fun <T> anchoredDraggableLayoutInfoProvider(
     }
 
 /** Exact copy from [androidx.compose.foundation.gestures.computeTarget]. */
+@OptIn(ExperimentalWearComposeMaterial3Api::class)
 private fun <T> DraggableAnchors<T>.computeTarget(
     currentOffset: Float,
     velocity: Float,
@@ -1505,13 +1506,21 @@ private fun <T> DraggableAnchors<T>.computeTarget(
     // When we're not moving, pick the closest anchor and don't consider directionality
     return if (!isMoving) {
         currentAnchors.closestAnchor(currentOffset)!!
-    } else if (abs(velocity) >= abs(velocityThreshold(VelocityNearThreshold))) {
+    } else if (
+        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled &&
+            abs(velocity) >= abs(velocityThreshold(VelocityNearThreshold))
+    ) {
         if (abs(velocity) >= abs(velocityThreshold(VelocityRevealedThreshold))) {
             if (velocity < 0) currentAnchors.closestAnchor(currentAnchors.minPosition())!!
             else currentAnchors.closestAnchor(currentAnchors.maxPosition())!!
         } else {
             currentAnchors.closestAnchor(currentOffset, searchUpwards = isMovingForward)!!
         }
+    } else if (
+        !WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled &&
+            abs(velocity) >= abs(velocityThreshold(800.dp))
+    ) {
+        currentAnchors.closestAnchor(currentOffset, searchUpwards = isMovingForward)!!
     } else {
         val left = currentAnchors.closestAnchor(currentOffset, false)!!
         val leftAnchorPosition = currentAnchors.positionOf(left)
