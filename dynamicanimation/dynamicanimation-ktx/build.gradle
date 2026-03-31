@@ -29,15 +29,6 @@ plugins {
 
 dependencies {
     api(project(":dynamicanimation:dynamicanimation"))
-
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.dexmakerMockito)
 }
 
 androidx {
