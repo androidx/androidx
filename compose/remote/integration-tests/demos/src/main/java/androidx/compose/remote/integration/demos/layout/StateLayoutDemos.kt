@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
-import androidx.compose.remote.creation.compose.layout.rememberStateMachine
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
@@ -91,9 +90,8 @@ fun StateLayoutSimpleDemo() {
 
         RemoteDemo(update = { player -> player.setUserLocalInt(stateId, selectedState) }) {
             val remoteState = rememberNamedRemoteInt(stateId, states[0])
-            val fsm = rememberStateMachine(remoteState, *states)
 
-            RemoteStateLayout(stateMachine = fsm) { state ->
+            RemoteStateLayout(state = remoteState, states = states) { state ->
                 val color =
                     when (state) {
                         0 -> Color.Red

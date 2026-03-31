@@ -41,7 +41,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
-import androidx.compose.remote.creation.compose.layout.rememberStateMachine
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -798,10 +797,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
                 val checked = rememberMutableRemoteEnum<Checked>(Checked.Off)
-                val fsm = rememberStateMachine<Checked>(checked)
 
-                RemoteStateLayout(stateMachine = fsm, modifier = RemoteModifier.fillMaxSize()) {
-                    state ->
+                RemoteStateLayout(state = checked, modifier = RemoteModifier.fillMaxSize()) { state
+                    ->
                     when (state) {
                         Checked.Off ->
                             RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red))
@@ -849,10 +847,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
                 val checked = rememberMutableRemoteEnum(Checked.On)
-                val fsm = rememberStateMachine(checked)
 
-                RemoteStateLayout(stateMachine = fsm, modifier = RemoteModifier.fillMaxSize()) {
-                    state ->
+                RemoteStateLayout(state = checked, modifier = RemoteModifier.fillMaxSize()) { state
+                    ->
                     when (state) {
                         Checked.Off ->
                             RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red))
@@ -901,10 +898,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
                 val checked = rememberMutableRemoteEnum(Checked.On).withGlobalScope()
-                val fsm = rememberStateMachine(checked)
 
                 RemoteStateLayout(
-                    stateMachine = fsm,
+                    state = checked,
                     modifier =
                         RemoteModifier.fillMaxSize()
                             .onTouchDown(ValueChange(checked, RemoteEnum(Checked.Off)))
