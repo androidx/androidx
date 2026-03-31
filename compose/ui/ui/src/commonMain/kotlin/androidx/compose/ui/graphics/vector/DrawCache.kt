@@ -41,8 +41,6 @@ internal class DrawCache {
 
     @PublishedApi internal var mCachedImage: ImageBitmap? = null
     private var cachedCanvas: Canvas? = null
-    private var scopeDensity: Density? = null
-    private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
     private var size: IntSize = IntSize.Zero
     private var config: ImageBitmapConfig = ImageBitmapConfig.Argb8888
 
@@ -60,15 +58,13 @@ internal class DrawCache {
         layoutDirection: LayoutDirection,
         block: DrawScope.() -> Unit,
     ) {
-        this.scopeDensity = density
-        this.layoutDirection = layoutDirection
         var targetImage = mCachedImage
         var targetCanvas = cachedCanvas
         if (
             targetImage == null ||
                 targetCanvas == null ||
-                size.width > targetImage.width ||
-                size.height > targetImage.height ||
+                size.width != targetImage.width ||
+                size.height != targetImage.height ||
                 this.config != config
         ) {
             targetImage = ImageBitmap(size.width, size.height, config = config)
