@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,68 +16,66 @@
 
 package androidx.sqlite.db
 
-import org.junit.Assert.fail
+import org.junit.Assert
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
+import org.mockito.Mockito
 
 class SupportSQLiteDatabaseTest {
     @Test
     fun exclusiveDefault() {
-        val db = mock(SupportSQLiteDatabase::class.java)
+        val db = Mockito.mock(SupportSQLiteDatabase::class.java)
         db.transaction {}
-        verify(db).beginTransaction()
+        Mockito.verify(db).beginTransaction()
     }
 
     @Test
     fun exclusiveFalse() {
-        val db = mock(SupportSQLiteDatabase::class.java)
+        val db = Mockito.mock(SupportSQLiteDatabase::class.java)
         db.transaction(exclusive = false) {}
-        verify(db).beginTransactionNonExclusive()
+        Mockito.verify(db).beginTransactionNonExclusive()
     }
 
     @Test
     fun exclusiveTrue() {
-        val db = mock(SupportSQLiteDatabase::class.java)
+        val db = Mockito.mock(SupportSQLiteDatabase::class.java)
         db.transaction(exclusive = true) {}
-        verify(db).beginTransaction()
+        Mockito.verify(db).beginTransaction()
     }
 
     @Test
     fun bodyNormalCallsSuccessAndEnd() {
-        val db = mock(SupportSQLiteDatabase::class.java)
+        val db = Mockito.mock(SupportSQLiteDatabase::class.java)
         db.transaction {}
-        verify(db).setTransactionSuccessful()
-        verify(db).endTransaction()
+        Mockito.verify(db).setTransactionSuccessful()
+        Mockito.verify(db).endTransaction()
     }
 
     @Suppress("UNREACHABLE_CODE") // A programming error might not invoke the lambda.
     @Test
     fun bodyThrowsDoesNotCallSuccess() {
-        val db = mock(SupportSQLiteDatabase::class.java)
+        val db = Mockito.mock(SupportSQLiteDatabase::class.java)
         try {
             db.transaction { throw IllegalStateException() }
-            fail()
+            Assert.fail()
         } catch (e: IllegalStateException) {}
-        verify(db, times(0)).setTransactionSuccessful()
-        verify(db).endTransaction()
+        Mockito.verify(db, Mockito.times(0)).setTransactionSuccessful()
+        Mockito.verify(db).endTransaction()
     }
 
     @Test
     fun bodyNonLocalReturnCallsSuccessAndEnd() {
-        val db = mock(SupportSQLiteDatabase::class.java)
+        val db = Mockito.mock(SupportSQLiteDatabase::class.java)
         callTransactionWithNonLocalReturnBody(db)
-        verify(db).setTransactionSuccessful()
-        verify(db).endTransaction()
+        Mockito.verify(db).setTransactionSuccessful()
+        Mockito.verify(db).endTransaction()
     }
 
     @Test
     fun bodyLocalReturnCallsSuccessAndEnd() {
-        val db = mock(SupportSQLiteDatabase::class.java)
+        val db = Mockito.mock(SupportSQLiteDatabase::class.java)
         callTransactionWithLocalReturnBody(db)
-        verify(db).setTransactionSuccessful()
-        verify(db).endTransaction()
+        Mockito.verify(db).setTransactionSuccessful()
+        Mockito.verify(db).endTransaction()
     }
 
     private fun callTransactionWithNonLocalReturnBody(db: SupportSQLiteDatabase) {

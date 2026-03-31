@@ -133,6 +133,11 @@ package androidx.sqlite.db {
     property public abstract int version;
   }
 
+  public final class SupportSQLiteDatabaseKt {
+    method public static inline <T> T transaction(androidx.sqlite.db.SupportSQLiteDatabase, optional boolean exclusive, kotlin.jvm.functions.Function1<? super androidx.sqlite.db.SupportSQLiteDatabase,? extends T> body);
+    method @BytecodeOnly public static Object! transaction$default(androidx.sqlite.db.SupportSQLiteDatabase!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
   public interface SupportSQLiteOpenHelper extends java.io.Closeable {
     method public void close();
     method @InaccessibleFromKotlin public String? getDatabaseName();
