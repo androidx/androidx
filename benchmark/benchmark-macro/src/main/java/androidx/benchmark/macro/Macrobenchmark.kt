@@ -198,6 +198,19 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                         summary = CpuInfo.Error.SUMMARY,
                         message = CpuInfo.Error.MESSAGE.trimIndent(),
                     ),
+                    conditionalError(
+                        hasError = !DeviceInfo.canShellAccessAppFiles,
+                        id = "SHELL-ACCESS-DENIED",
+                        summary = "Shell user cannot access app files",
+                        message =
+                            """
+                            MediaProvider/FUSE is blocking the ADB shell from accessing app data.
+                            This is a known issue on some devices and prevents Jetpack Benchmark from
+                            capturing profiles and traces. The device may simply be incompatible
+                            with Jetpack Benchmark.
+                            """
+                                .trimIndent(),
+                    ),
                 )
                 .sortedBy { it.id }
 
