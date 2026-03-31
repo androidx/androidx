@@ -41,6 +41,13 @@ class SinglePageLayoutStrategyTest {
     }
 
     @Test
+    fun testInitialization_withZeroPageCount_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            SinglePageLayoutStrategy(pageCount = 0, verticalPageSpacingPx = 10f)
+        }
+    }
+
+    @Test
     fun testInitialization_withNegativePageCount_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException::class.java) {
             SinglePageLayoutStrategy(pageCount = -1, verticalPageSpacingPx = 10f)

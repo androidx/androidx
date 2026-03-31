@@ -21,18 +21,21 @@ import android.net.Uri
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.SavedStateHandle
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfLoader
 import androidx.pdf.PdfPoint
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.viewer.coroutines.collectTill
 import androidx.pdf.viewer.coroutines.toListDuring
+import androidx.pdf.viewer.document.FakePdfDocument
 import androidx.pdf.viewer.fragment.TestUtils.openFileAsUri
 import androidx.pdf.viewer.fragment.model.PdfFragmentUiState
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import java.io.IOException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -431,11 +434,51 @@ class PdfDocumentViewModelTest {
         assertFalse(savedState.contains("formEditInfos"))
     }
 
+    @Test
+    fun test_pdfDocumentViewModel_loadDocumentFailure_zeroPageCount() = runTest {
+        val documentUri = Uri.parse("content://test.app/zero_page.pdf")
+        val fakePdfLoader = FakePdfLoader()
+        fakePdfLoader.documentToReturn = FakePdfDocument(pages = emptyList())
+
+        val pdfViewModel = PdfDocumentViewModel(SavedStateHandle(), fakePdfLoader)
+
+        val uiStates = mutableListOf<PdfFragmentUiState>()
+        val collectJob = launch {
+            pdfViewModel.fragmentUiScreenState.collectTill(uiStates) { state ->
+                state is PdfFragmentUiState.DocumentError
+            }
+        }
+
+        pdfViewModel.loadDocument(documentUri, null)
+        collectJob.join()
+
+        assertTrue(uiStates.last() is PdfFragmentUiState.DocumentError)
+        val errorState = uiStates.last() as PdfFragmentUiState.DocumentError
+        assertTrue(errorState.exception is IllegalStateException)
+    }
+
     private fun fullyContains(innerRects: List<Rect>, outerRects: List<Rect>): Boolean {
         return innerRects.all { inner -> outerRects.any { outer -> outer.contains(inner) } }
     }
 
     /** A test-only subclass to expose protected methods for verification. */
+    private class FakePdfLoader : PdfLoader {
+        var documentToReturn: PdfDocument? = null
+
+        override suspend fun openDocument(uri: Uri, password: String?): PdfDocument {
+            return documentToReturn ?: throw IOException("Document not set in FakePdfLoader")
+        }
+
+        override suspend fun openDocument(
+            uri: Uri,
+            fileDescriptor: android.os.ParcelFileDescriptor,
+            password: String?,
+            renderParams: androidx.pdf.RenderParams,
+        ): PdfDocument {
+            return documentToReturn ?: throw IOException("Document not set in FakePdfLoader")
+        }
+    }
+
     private class TestPdfDocumentViewModel(
         savedStateHandle: SavedStateHandle,
         pdfLoader: SandboxedPdfLoader,

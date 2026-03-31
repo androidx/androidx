@@ -414,6 +414,9 @@ public open class PdfDocumentViewModel(
 
             // Try opening pdf with provided params
             var document = loader.openDocument(uri, password)
+            if (document.pageCount <= 0) {
+                throw IllegalStateException("Invalid PDF: 0 pages in document $uri")
+            }
             // Restore the edited state of the document before updating the UI status to Loaded.
             val formStateRestored = restoreFormFillingState(document)
             if (!formStateRestored) {

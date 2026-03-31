@@ -58,7 +58,7 @@ import kotlin.random.Random
 @OpenForTesting
 internal open class FakePdfDocument(
     /** A list of (x, y) page dimensions in content coordinates */
-    private val pages: List<Point> = listOf(),
+    private val pages: List<Point> = listOf(Point(600, 800)),
     override val formType: Int = PDF_FORM_TYPE_NONE,
     override val linearizationStatus: Int = LINEARIZATION_STATUS_UNKNOWN,
     @Deprecated(
