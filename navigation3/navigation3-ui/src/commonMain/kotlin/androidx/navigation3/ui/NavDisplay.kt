@@ -21,6 +21,7 @@ package androidx.navigation3.ui
 
 import androidx.collection.mutableObjectFloatMapOf
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.SharedTransitionScope
@@ -832,6 +833,10 @@ public fun <T : Any> NavDisplay(
         }
     }
 
+    // allows OverlayScenes to access animatedContentScope even if it's no-op so that
+    // LocalNavAnimatedContentScope doesn't need to be nullable
+    lateinit var animatedContentScope: AnimatedContentScope
+
     transition.AnimatedContent(
         contentKey = { scene -> AnimatedSceneKey(scene) },
         contentAlignment = contentAlignment,
@@ -856,9 +861,10 @@ public fun <T : Any> NavDisplay(
                     if (isSettled && currentOverlayScenes.isEmpty()) Lifecycle.State.RESUMED
                     else Lifecycle.State.STARTED
             )
+        animatedContentScope = remember { this }
         CompositionLocalProvider(
             LocalLifecycleOwner provides sceneLifecycleOwner,
-            LocalNavAnimatedContentScope provides this,
+            LocalNavAnimatedContentScope provides animatedContentScope,
             LocalCurrentScene provides targetScene,
             LocalEntriesToExcludeFromCurrentScene provides
                 sceneToExcludedEntryMap.getValue(AnimatedSceneKey(targetScene)),
@@ -901,8 +907,9 @@ public fun <T : Any> NavDisplay(
                 LocalEntriesToExcludeFromCurrentScene provides
                     sceneToExcludedEntryMap.getValue(AnimatedSceneKey(overlayScene)),
                 LocalCurrentScene provides overlayScene,
+                LocalNavAnimatedContentScope provides animatedContentScope,
             ) {
-                overlayScene.content.invoke()
+                overlayScene.content()
             }
         }
         // if the overlay scene is popped, let onRemoved finish before
