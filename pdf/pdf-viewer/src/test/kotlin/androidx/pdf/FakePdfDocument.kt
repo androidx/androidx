@@ -53,7 +53,7 @@ import kotlinx.coroutines.withTimeout
 /** Fake implementation of [PdfDocument], for testing. */
 @OpenForTesting
 internal open class FakePdfDocument(
-    internal val pages: List<Point?> = listOf(),
+    internal val pages: List<Point?> = listOf(Point(600, 800)),
     override val formType: Int = PDF_FORM_TYPE_NONE,
     @Deprecated(
         "Deprecated, Use linearizationStatus instead",

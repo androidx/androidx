@@ -42,6 +42,17 @@ class TwoPageLayoutStrategyTest {
     }
 
     @Test
+    fun testInitialization_withZeroPageCount_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            TwoPageLayoutStrategy(
+                pageCount = 0,
+                verticalPageSpacingPx = 10f,
+                horizontalPageSpacingPx = 5f,
+            )
+        }
+    }
+
+    @Test
     fun testInitialization_withNegativePageCount_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException::class.java) {
             TwoPageLayoutStrategy(

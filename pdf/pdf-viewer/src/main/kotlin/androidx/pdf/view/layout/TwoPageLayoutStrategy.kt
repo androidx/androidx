@@ -70,7 +70,7 @@ internal class TwoPageLayoutStrategy(
     private var currentPageRowWidth = 0f
 
     init {
-        require(pageCount >= 0) { "Empty PDF!" }
+        require(pageCount > 0) { "Empty PDF!" }
         require(verticalPageSpacingPx >= 0) { "Invalid vertical spacing!" }
         require(horizontalPageSpacingPx >= 0) { "Invalid horizontal spacing!" }
     }

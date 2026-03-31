@@ -1967,6 +1967,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     @Suppress("deprecation")
     private fun onDocumentSet() {
         val localPdfDocument = pdfDocument ?: return
+        // No pages to render, return without processing document further.
+        if (localPdfDocument.pageCount <= 0) return
         /* We use the maximum pixel dimension of the display as the maximum pixel dimension for any
         single Bitmap we render, i.e. the threshold for tiled rendering. This is an arbitrary,
         but reasonable threshold to use that does not depend on volatile state like the current
