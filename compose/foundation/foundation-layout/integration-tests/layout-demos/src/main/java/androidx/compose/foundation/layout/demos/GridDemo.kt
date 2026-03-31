@@ -88,6 +88,8 @@ fun GridDemo() {
         AspectRatioDemo()
         Spacer(Modifier.height(32.dp))
         LazyListInGridDemo()
+        Spacer(Modifier.height(32.dp))
+        SpanIntrinsicHeightDemo()
     }
 }
 
@@ -552,6 +554,46 @@ private fun LazyListInGridDemo() {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun SpanIntrinsicHeightDemo() {
+    DemoHeader("Span Intrinsic Height")
+    Text(
+        "Verifies if an item spanning multiple columns in an Auto row calculates " +
+            "its intrinsic height using the full spanned width (columns + gaps) " +
+            "rather than just a single column's width.",
+        fontSize = 12.sp,
+        fontStyle = FontStyle.Italic,
+        modifier = Modifier.padding(bottom = 8.dp),
+    )
+
+    Grid(
+        config = {
+            column(GridTrackSize.Percentage(0.5f))
+            column(GridTrackSize.Percentage(0.5f))
+            repeat(2) { row(GridTrackSize.Auto) }
+            gap(16.dp)
+        },
+        modifier = Modifier.demoContainer(borderColor = Color.Magenta),
+    ) {
+        // Row 1: The spanning item being tested
+        GridDemoItem(
+            text =
+                "This text spans 2 columns. The row should be short, " +
+                    "but if maxIntrinsicHeight is queried at half the actual width, " +
+                    "it will incorrectly report a much taller height.",
+            color = Color.Red,
+            row = 1,
+            column = 1,
+            columnSpan = 2,
+        )
+
+        // Row 2: Single-column items to visualize the actual column widths
+        GridDemoItem(text = "Column 1\n(Normal)", color = Color.Blue, row = 2, column = 1)
+
+        GridDemoItem(text = "Column 2\n(Normal)", color = Color.Green, row = 2, column = 2)
     }
 }
 

@@ -1274,6 +1274,7 @@ private fun calculateGridTrackSizes(
             columnWidths = columnWidths,
             gridItems = gridItems,
             rowGap = rowGapPx,
+            columnGap = colGapPx,
         )
 
     // Use totalColCount and totalRowCount instead of the explicit spec sizes.
@@ -1435,7 +1436,8 @@ private fun calculateColumnWidths(
         isRowAxis = false,
         constraints = constraints,
         crossAxisSizes = null, // Not needed for column width calculation
-        gap = columnGap,
+        mainAxisGap = columnGap,
+        crossAxisGap = 0,
     )
 
     // --- Pass 1.8: Expand Auto Tracks ---
@@ -1508,6 +1510,7 @@ private fun calculateRowHeights(
     columnWidths: IntArray,
     gridItems: MutableObjectList<GridItem>,
     rowGap: Int,
+    columnGap: Int,
 ): Int {
     if (totalCount == 0) return 0
 
@@ -1554,6 +1557,7 @@ private fun calculateRowHeights(
                             items = itemsByRow[index],
                             columnWidths = columnWidths,
                             fallbackWidth = constraints.maxWidth,
+                            columnGap = columnGap,
                         )
                     }
                 }
@@ -1568,6 +1572,7 @@ private fun calculateRowHeights(
                         items = itemsByRow[index],
                         columnWidths = columnWidths,
                         fallbackWidth = constraints.maxWidth,
+                        columnGap = columnGap,
                     )
                 }
 
@@ -1576,6 +1581,7 @@ private fun calculateRowHeights(
                         items = itemsByRow[index],
                         columnWidths = columnWidths,
                         fallbackWidth = constraints.maxWidth,
+                        columnGap = columnGap,
                     )
 
                 GridTrackSize.TypeMaxContent ->
@@ -1583,6 +1589,7 @@ private fun calculateRowHeights(
                         items = itemsByRow[index],
                         columnWidths = columnWidths,
                         fallbackWidth = constraints.maxWidth,
+                        columnGap = columnGap,
                     )
 
                 GridTrackSize.TypeAuto -> {
@@ -1592,6 +1599,7 @@ private fun calculateRowHeights(
                             items = itemsByRow[index],
                             columnWidths = columnWidths,
                             fallbackWidth = constraints.maxWidth,
+                            columnGap = columnGap,
                         )
                     } else {
                         // Finite space: Auto needs Min (for base) and Max (for growth).
@@ -1600,6 +1608,7 @@ private fun calculateRowHeights(
                                 itemsByRow[index],
                                 columnWidths,
                                 constraints.maxWidth,
+                                columnGap = columnGap,
                             )
                         // Unpack the Long (High 32 = Max, Low 32 = Min)
                         val max = (packed ushr 32).toInt()
@@ -1625,6 +1634,7 @@ private fun calculateRowHeights(
                         items = itemsByRow[index],
                         columnWidths = columnWidths,
                         fallbackWidth = constraints.maxWidth,
+                        columnGap = columnGap,
                     )
             }
         outSizes[index] = size
@@ -1640,7 +1650,8 @@ private fun calculateRowHeights(
         isRowAxis = true,
         constraints = constraints,
         crossAxisSizes = columnWidths,
-        gap = rowGap,
+        mainAxisGap = rowGap,
+        crossAxisGap = columnGap,
     )
 
     // --- Pass 1.8: Expand Auto Tracks ---
@@ -1752,13 +1763,13 @@ private fun calculateMaxIntrinsicHeight(
     items: MutableObjectList<GridItem>?,
     columnWidths: IntArray,
     fallbackWidth: Int,
+    columnGap: Int,
 ): Int {
     if (items == null) return 0
     var maxSize = 0
     items.forEach { item ->
         if (item.rowSpan == 1) {
-            val colIndex = item.column
-            val width = if (colIndex < columnWidths.size) columnWidths[colIndex] else fallbackWidth
+            val width = getSpannedWidth(item, columnWidths, fallbackWidth, columnGap)
             val size = wrapIntrinsicException { item.measurable.maxIntrinsicHeight(width) }
             if (size > maxSize) maxSize = size
         }
@@ -1770,13 +1781,13 @@ private fun calculateMinIntrinsicHeight(
     items: MutableObjectList<GridItem>?,
     columnWidths: IntArray,
     fallbackWidth: Int,
+    columnGap: Int,
 ): Int {
     if (items == null) return 0
     var maxSize = 0
     items.forEach { item ->
         if (item.rowSpan == 1) {
-            val colIndex = item.column
-            val width = if (colIndex < columnWidths.size) columnWidths[colIndex] else fallbackWidth
+            val width = getSpannedWidth(item, columnWidths, fallbackWidth, columnGap)
             val size = wrapIntrinsicException { item.measurable.minIntrinsicHeight(width) }
             if (size > maxSize) maxSize = size
         }
@@ -1828,14 +1839,14 @@ private fun calculateMinMaxIntrinsicHeight(
     items: MutableObjectList<GridItem>?,
     columnWidths: IntArray,
     fallbackWidth: Int,
+    columnGap: Int,
 ): Long {
     if (items == null) return 0L
     var maxMin = 0
     var maxMax = 0
     items.forEach { item ->
         if (item.rowSpan == 1) {
-            val colIndex = item.column
-            val width = if (colIndex < columnWidths.size) columnWidths[colIndex] else fallbackWidth
+            val width = getSpannedWidth(item, columnWidths, fallbackWidth, columnGap)
             val min = wrapIntrinsicException { item.measurable.minIntrinsicHeight(width) }
             val max = wrapIntrinsicException { item.measurable.maxIntrinsicHeight(width) }
             if (min > maxMin) maxMin = min
@@ -1843,6 +1854,40 @@ private fun calculateMinMaxIntrinsicHeight(
         }
     }
     return (maxMax.toLong() shl 32) or (maxMin.toLong() and 0xFFFFFFFFL)
+}
+
+/**
+ * Calculates the total width occupied by a [GridItem] spanning multiple columns.
+ *
+ * This function sums the widths of all columns the item spans and includes any gaps between these
+ * columns. This is necessary to provide the correct width constraint when calculating intrinsic
+ * heights for items in [GridTrackSize.Auto] rows.
+ *
+ * @param item The [GridItem] for which to calculate the spanned width.
+ * @param columnWidths An array containing the calculated widths of each column.
+ * @param fallbackWidth The width to use for columns outside the bounds of [columnWidths].
+ * @param columnGap The spacing in pixels between columns.
+ * @return The total width in pixels occupied by the item, including gaps.
+ */
+private fun getSpannedWidth(
+    item: GridItem,
+    columnWidths: IntArray,
+    fallbackWidth: Int,
+    columnGap: Int,
+): Int {
+    val colStart = item.column
+    if (colStart >= columnWidths.size) return fallbackWidth
+
+    var width = 0
+    val colEnd = (colStart + item.columnSpan).coerceAtMost(columnWidths.size)
+    for (i in colStart until colEnd) {
+        width += columnWidths[i]
+    }
+    // Add the gaps that are included in the span
+    val spannedGaps = max(0, (colEnd - colStart) - 1) * columnGap
+    width += spannedGaps
+
+    return width
 }
 
 /**
@@ -1870,7 +1915,8 @@ private fun calculateMinMaxIntrinsicHeight(
  * @param crossAxisSizes The calculated sizes of the *opposite* axis (e.g., Column Widths when
  *   calculating Row Heights). This is crucial for correctly measuring the intrinsic height of items
  *   that wrap text based on specific column widths.
- * @param gap The spacing between tracks.
+ * @param mainAxisGap The spacing between tracks on the axis currently being calculated.
+ * @param crossAxisGap The spacing between tracks on the opposite axis.
  */
 private fun distributeSpanningSpace(
     explicitSpecs: LongList,
@@ -1879,7 +1925,8 @@ private fun distributeSpanningSpace(
     isRowAxis: Boolean,
     constraints: Constraints,
     crossAxisSizes: IntArray?,
-    gap: Int,
+    mainAxisGap: Int,
+    crossAxisGap: Int,
 ) {
     gridItems.forEach { item ->
         val trackIndex = if (isRowAxis) item.row else item.column
@@ -1912,6 +1959,12 @@ private fun distributeSpanningSpace(
             }
         }
 
+        // Add the gaps that are internal to the span on the main axis.
+        // If an item spans 3 columns, it spans 2 gaps. We must include these
+        // gaps in the 'currentSpannedSize' so we don't overestimate the deficit.
+        val spannedGapsMain = max(0, span - 1) * mainAxisGap
+        currentSpannedSize += spannedGapsMain
+
         // --- Step 2: Calculate the Item's Required Size (Intrinsic Measurement) ---
         // This differs based on the axis.
         val requiredSize =
@@ -1927,8 +1980,8 @@ private fun distributeSpanningSpace(
                         itemWidth += crossAxisSizes[i]
                     }
                     // Add the gaps that are included in the span.
-                    val spannedGaps = max(0, item.columnSpan - 1) * gap
-                    itemWidth += spannedGaps
+                    val spannedGapsCross = max(0, item.columnSpan - 1) * crossAxisGap
+                    itemWidth += spannedGapsCross
                 } else {
                     // If we don't know column widths, constrain only by parent max.
                     itemWidth = constraints.maxWidth
