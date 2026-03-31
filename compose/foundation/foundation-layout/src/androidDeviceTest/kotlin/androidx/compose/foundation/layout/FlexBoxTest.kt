@@ -984,9 +984,10 @@ class FlexBoxTest {
                         )
                         // Item with shrink=1 (default, will shrink)
                         Box(
-                            Modifier.widthIn(min = 40.dp, max = 60.dp).height(20.dp).onSizeChanged {
-                                widths.add(1, it.width)
-                            }
+                            Modifier.widthIn(min = 20.dp)
+                                .height(20.dp)
+                                .flex { basis(60.dp) }
+                                .onSizeChanged { widths.add(1, it.width) }
                         )
                     }
                 }

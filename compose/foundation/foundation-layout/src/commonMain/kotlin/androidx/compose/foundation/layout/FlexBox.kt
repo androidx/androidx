@@ -550,9 +550,7 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         items.fastForEachUntil(startIndex, endIndex) { item ->
             val flexFactor = if (isGrowing) item.grow else item.shrink
 
-            if (
-                flexFactor == 0f || (!isGrowing && item.flexBaseSize <= item.hypotheticalMainSize)
-            ) {
+            if (flexFactor == 0f || (!isGrowing && item.flexBaseSize < item.hypotheticalMainSize)) {
                 item.targetMainSize = item.hypotheticalMainSize
                 item.isFrozen = true
                 sumFrozenTargetSize += item.targetMainSize
