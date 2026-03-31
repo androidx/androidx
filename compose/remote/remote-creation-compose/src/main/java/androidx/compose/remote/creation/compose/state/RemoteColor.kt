@@ -203,7 +203,10 @@ internal constructor(
             cacheKey = key,
         ) { creationState ->
             floatArrayOf(
-                creationState.document.getColorAttribute(idProvider(creationState), component)
+                creationState.document.getColorAttribute(
+                    creationState.getOrPutVariableId(cacheKey) { idProvider(creationState) },
+                    component,
+                )
             )
         }
     }
