@@ -18,9 +18,6 @@ package androidx.text.vertical
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.text.style.ReplacementSpan
 
 /**
@@ -42,7 +39,6 @@ import android.text.style.ReplacementSpan
  *   emphasis mark relative to the font size. A scale of 0.5f means the emphasis mark will be half
  *   the size of the text.
  */
-@Suppress("BanParcelableUsage")
 public class EmphasisSpan
 @JvmOverloads
 constructor(
@@ -50,7 +46,7 @@ constructor(
     public val isFilled: Boolean = DEFAULT_EMPHASIS_FILL,
     public val position: AnnotationPosition = AnnotationPosition.Before,
     public val scale: Float = DEFAULT_SCALE,
-) : ReplacementSpan(), Parcelable {
+) : ReplacementSpan() {
     private val impl by lazy {
         HorizontalSpanImpl(
             { _, text, start, end -> LayoutKey(start, end, text) },
@@ -92,30 +88,7 @@ constructor(
         impl.draw(canvas, text, start, end, x, top, y, bottom, paint)
     }
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        // Delegate to Bundle for robust forward compatibility.
-        // By wrapping the data in a Bundle, we ensure that if we add new fields in future
-        // versions of this library, older clients can still read the Parcel without crashing,
-        // as Bundle automatically ignores unknown keys.
-        val bundle =
-            Bundle().apply {
-                putInt(FIELD_STYLE, style.value)
-                putBoolean(FIELD_IS_FILLED, isFilled)
-                putInt(FIELD_POSITION, position.value)
-                putFloat(FIELD_SCALE, scale)
-            }
-        parcel.writeBundle(bundle)
-    }
-
-    override fun describeContents(): Int = 0
-
     public companion object {
-        // Keys for Bundle delegation
-        private const val FIELD_STYLE: String = "style"
-        private const val FIELD_IS_FILLED: String = "isFilled"
-        private const val FIELD_POSITION: String = "position"
-        private const val FIELD_SCALE: String = "scale"
-
         /** The default scale factor for emphasis marks. */
         public const val DEFAULT_SCALE: Float = 0.5f
         /** The default style used for emphasis marks, typically a dot. */
@@ -123,33 +96,5 @@ constructor(
         /** The default value for whether the emphasis mark should be filled. */
         public const val DEFAULT_EMPHASIS_FILL: Boolean = true
         @JvmField public val DEFAULT_POSITION: AnnotationPosition = AnnotationPosition.Before
-
-        @JvmField
-        public val CREATOR: Parcelable.Creator<EmphasisSpan> =
-            object : Parcelable.Creator<EmphasisSpan> {
-                override fun createFromParcel(source: Parcel): EmphasisSpan {
-                    val bundle = source.readBundle(EmphasisSpan::class.java.classLoader)
-
-                    val styleVal =
-                        bundle?.getInt(FIELD_STYLE, DEFAULT_EMPHASIS_STYLE.value)
-                            ?: DEFAULT_EMPHASIS_STYLE.value
-                    val isFilledVal =
-                        bundle?.getBoolean(FIELD_IS_FILLED, DEFAULT_EMPHASIS_FILL)
-                            ?: DEFAULT_EMPHASIS_FILL
-                    val positionVal =
-                        bundle?.getInt(FIELD_POSITION, DEFAULT_POSITION.value)
-                            ?: DEFAULT_POSITION.value
-                    val scaleVal = bundle?.getFloat(FIELD_SCALE, DEFAULT_SCALE) ?: DEFAULT_SCALE
-
-                    return EmphasisSpan(
-                        style = EmphasisStyle.fromInt(styleVal),
-                        isFilled = isFilledVal,
-                        position = AnnotationPosition.fromInt(positionVal),
-                        scale = scaleVal,
-                    )
-                }
-
-                override fun newArray(size: Int): Array<EmphasisSpan?> = arrayOfNulls(size)
-            }
     }
 }
