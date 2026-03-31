@@ -53,8 +53,24 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
     private var onStateChangedExecutor: Executor = HandlerExecutor.mainThreadExecutor
     /** Asynchronous job responsible for finding a suitable plane to anchor this entity to. */
     private var planeFindingJob: Job? = null
-    /** Plane [Anchor] this anchor entity represents. */
-    private var planeAnchor: Anchor? = null
+    /**
+     * Plane [Anchor] that was found semantically. This will be null if the AnchorEntity was created
+     * with a previously created Anchor.
+     */
+    private var ownedAnchor: Anchor? = null
+
+    /**
+     * Returns the ARCore for Jetpack XR Anchor associated with this AnchorEntity.
+     *
+     * @return the ARCore for Jetpack XR Anchor associated with this AnchorEntity. This may be null
+     *   if the AnchorEntity is still searching for a suitable anchor.
+     */
+    public var anchor: Anchor? = null
+        get() {
+            checkNotDisposed()
+            return field
+        }
+        private set
 
     /** The current tracking state for this AnchorEntity. */
     public var state: State = rtEntity.state.fromRtState()
@@ -100,17 +116,6 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         override fun toString(): String = name
     }
 
-    /**
-     * Returns the ARCore for Jetpack XR Anchor associated with this AnchorEntity.
-     *
-     * @return the ARCore for Jetpack XR Anchor associated with this AnchorEntity. This may be null
-     *   if the AnchorEntity is still searching for a suitable anchor.
-     */
-    public fun getAnchor(): Anchor? {
-        checkNotDisposed()
-        return planeAnchor
-    }
-
     internal data class PlaneFindingInfo(
         val dimensions: FloatSize2d,
         val orientation: @PlaneOrientationValue Int,
@@ -128,7 +133,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                     planeFindingJob = null
                 }
                 State.ERROR -> {
-                    planeAnchor?.detach()
+                    ownedAnchor?.detach()
                 }
             }
         }
@@ -176,7 +181,10 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                             if (anchorCreateResult is AnchorCreateSuccess) {
                                 val anchor = anchorCreateResult.anchor
                                 if (entity.rtEntity!!.setAnchor(anchor)) {
-                                    entity.planeAnchor = anchor
+                                    entity.anchor = anchor
+                                    // Set the owned Anchor separately as it is being detached when
+                                    // the Entity is in an Error state.
+                                    entity.ownedAnchor = anchor
                                     entity.updateState(State.ANCHORED)
                                 } else {
                                     anchor.detach()
@@ -289,6 +297,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         public fun create(session: Session, anchor: Anchor): AnchorEntity {
             val rtAnchorEntity = session.sceneRuntime.createAnchorEntity()
             val anchorEntity = AnchorEntity(rtAnchorEntity, session.scene.entityRegistry)
+            anchorEntity.anchor = anchor
             rtAnchorEntity.setOnStateChangedListener(anchorEntity.defaultStateChangedListener)
             rtAnchorEntity.setAnchor(anchor)
             return anchorEntity

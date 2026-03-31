@@ -113,6 +113,13 @@ class AnchorEntityTest {
     }
 
     @Test
+    fun createViaAnchor_anchor_returnsProvidedAnchor() {
+        val anchorEntity = AnchorEntity.create(session, anchor)
+
+        assertThat(anchorEntity.anchor).isEqualTo(anchor)
+    }
+
+    @Test
     fun createViaSemantic_noPlanes_returnsUnanchoredEntity() {
         val anchorEntity =
             AnchorEntity.create(
@@ -202,7 +209,7 @@ class AnchorEntityTest {
             advanceUntilIdle()
 
             assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
-            val anchor1 = anchorEntity.getAnchor()
+            val anchor1 = anchorEntity.anchor
             assertThat(anchor1).isNotNull()
 
             // Add another matching plane
@@ -217,7 +224,7 @@ class AnchorEntityTest {
 
             // Should still be anchored to the first one
             assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
-            assertThat(anchorEntity.getAnchor()).isEqualTo(anchor1)
+            assertThat(anchorEntity.anchor).isEqualTo(anchor1)
         }
     }
 
