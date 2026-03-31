@@ -103,7 +103,7 @@ public class BackForwardCacheSettingsTest {
         BackForwardCacheSettings backForwardCacheSettings =
                 WebSettingsCompat.getBackForwardCacheSettings(settings);
 
-        backForwardCacheSettings.setKeepForwardEntries(false);
-        Assert.assertFalse(backForwardCacheSettings.getKeepForwardEntries());
+        backForwardCacheSettings.setKeepForwardEntriesEnabled(false);
+        Assert.assertFalse(backForwardCacheSettings.isKeepForwardEntriesEnabled());
     }
 }

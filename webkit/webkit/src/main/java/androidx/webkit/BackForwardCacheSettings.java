@@ -164,9 +164,8 @@ public class BackForwardCacheSettings {
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @WebSettingsCompat.ExperimentalBackForwardCacheSettings
-    public boolean getKeepForwardEntries() {
+    public boolean isKeepForwardEntriesEnabled() {
         final ApiFeature.NoFramework feature =
                 WebViewFeatureInternal.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4;
         if (feature.isSupportedByWebView()) {
@@ -190,9 +189,8 @@ public class BackForwardCacheSettings {
      */
     @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @WebSettingsCompat.ExperimentalBackForwardCacheSettings
-    public void setKeepForwardEntries(boolean keepForwardEntries) {
+    public void setKeepForwardEntriesEnabled(boolean keepForwardEntries) {
         final ApiFeature.NoFramework feature =
                 WebViewFeatureInternal.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V4;
         if (feature.isSupportedByWebView()) {
