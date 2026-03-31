@@ -1771,9 +1771,7 @@ private fun calculateMaxIntrinsicWidth(items: MutableObjectList<GridItem>?): Int
     var maxSize = 0
     items.forEach { item ->
         if (item.columnSpan == 1) {
-            val size = wrapIntrinsicException {
-                item.measurable.maxIntrinsicWidth(Constraints.Infinity)
-            }
+            val size = item.measurable.maxIntrinsicWidth(Constraints.Infinity)
             if (size > maxSize) maxSize = size
         }
     }
@@ -1785,9 +1783,7 @@ private fun calculateMinIntrinsicWidth(items: MutableObjectList<GridItem>?): Int
     var maxSize = 0
     items.forEach { item ->
         if (item.columnSpan == 1) {
-            val size = wrapIntrinsicException {
-                item.measurable.minIntrinsicWidth(Constraints.Infinity)
-            }
+            val size = item.measurable.minIntrinsicWidth(Constraints.Infinity)
             if (size > maxSize) maxSize = size
         }
     }
@@ -1805,7 +1801,7 @@ private fun calculateMaxIntrinsicHeight(
     items.forEach { item ->
         if (item.rowSpan == 1) {
             val width = getSpannedWidth(item, columnWidths, fallbackWidth, columnGap)
-            val size = wrapIntrinsicException { item.measurable.maxIntrinsicHeight(width) }
+            val size = item.measurable.maxIntrinsicHeight(width)
             if (size > maxSize) maxSize = size
         }
     }
@@ -1823,7 +1819,7 @@ private fun calculateMinIntrinsicHeight(
     items.forEach { item ->
         if (item.rowSpan == 1) {
             val width = getSpannedWidth(item, columnWidths, fallbackWidth, columnGap)
-            val size = wrapIntrinsicException { item.measurable.minIntrinsicHeight(width) }
+            val size = item.measurable.minIntrinsicHeight(width)
             if (size > maxSize) maxSize = size
         }
     }
@@ -1845,12 +1841,8 @@ private fun calculateMinMaxIntrinsicWidth(items: MutableObjectList<GridItem>?): 
     var maxMax = 0
     items.forEach { item ->
         if (item.columnSpan == 1) {
-            val min = wrapIntrinsicException {
-                item.measurable.minIntrinsicWidth(Constraints.Infinity)
-            }
-            val max = wrapIntrinsicException {
-                item.measurable.maxIntrinsicWidth(Constraints.Infinity)
-            }
+            val min = item.measurable.minIntrinsicWidth(Constraints.Infinity)
+            val max = item.measurable.maxIntrinsicWidth(Constraints.Infinity)
             if (min > maxMin) maxMin = min
             if (max > maxMax) maxMax = max
         }
@@ -1882,8 +1874,8 @@ private fun calculateMinMaxIntrinsicHeight(
     items.forEach { item ->
         if (item.rowSpan == 1) {
             val width = getSpannedWidth(item, columnWidths, fallbackWidth, columnGap)
-            val min = wrapIntrinsicException { item.measurable.minIntrinsicHeight(width) }
-            val max = wrapIntrinsicException { item.measurable.maxIntrinsicHeight(width) }
+            val min = item.measurable.minIntrinsicHeight(width)
+            val max = item.measurable.maxIntrinsicHeight(width)
             if (min > maxMin) maxMin = min
             if (max > maxMax) maxMax = max
         }
@@ -2021,12 +2013,12 @@ private fun distributeSpanningSpace(
                     // If we don't know column widths, constrain only by parent max.
                     itemWidth = constraints.maxWidth
                 }
-                wrapIntrinsicException { item.measurable.maxIntrinsicHeight(itemWidth) }
+                item.measurable.maxIntrinsicHeight(itemWidth)
             } else {
                 // Case: Calculating Column Widths.
                 // Intrinsic width must be calculated against infinite height to prevent
                 // aspect ratio modifiers from demanding widths based on the grid's height.
-                wrapIntrinsicException { item.measurable.maxIntrinsicWidth(Constraints.Infinity) }
+                item.measurable.maxIntrinsicWidth(Constraints.Infinity)
             }
 
         // --- Step 3: Distribute Deficit ---
@@ -2243,27 +2235,3 @@ private fun calculateTrackOffsets(sizes: IntArray, gapPx: Int): IntArray {
     }
     return offsets
 }
-
-/**
- * Executes intrinsic measurements and intercepts SubcomposeLayout crashes. If a SubcomposeLayout
- * (like LazyColumn) causes a crash, it wraps the framework exception with a Grid-specific solution
- * directing the developer to use [GridTrackSize.MinMax].
- */
-private inline fun <T> wrapIntrinsicException(block: () -> T): T {
-    return try {
-        block()
-    } catch (e: IllegalStateException) {
-        if (e.message?.contains("SubcomposeLayout") == true) {
-            throw IllegalStateException(SubcomposeLayoutIntrinsicErrorMessage, e)
-        }
-        throw e
-    }
-}
-
-@ExperimentalGridApi
-internal const val SubcomposeLayoutIntrinsicErrorMessage =
-    "Grid intrinsic measurement failed because a SubcomposeLayout (e.g., LazyColumn or LazyRow) " +
-        "was placed inside a track that queries its intrinsic measurements (like `Auto` or `Flex`).\n\n" +
-        "To fix this, change the track definition to `GridTrackSize.MinMax(min = 0.dp, max = 1.fr)` " +
-        "(or your desired flex weight for max) to explicitly set a minimum base size and bypass " +
-        "the intrinsic measurement pass."
