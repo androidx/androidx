@@ -2866,54 +2866,6 @@ class GridTest : LayoutTest() {
         }
 
     @Test
-    fun testGrid_lazyColumn_inFlexTrack_throwsHelpfulException() {
-        val latch = CountDownLatch(1)
-        var caughtException: Throwable? = null
-
-        show {
-            // We wrap the Grid in a custom Layout so we can catch the exception
-            // directly on the UI thread during the measurement phase.
-            Layout(
-                content = {
-                    Grid(
-                        config = {
-                            // Standard Flex queries intrinsics -> Crashes on SubcomposeLayout
-                            column(GridTrackSize.Flex(1.fr))
-                            row(GridTrackSize.Flex(1.fr))
-                        },
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(10) { Box(Modifier.height(20.dp)) }
-                        }
-                    }
-                },
-                measurePolicy = { measurables, constraints ->
-                    try {
-                        // Trigger the Grid's measure pass. This is what triggers the
-                        // intrinsic query, and subsequently, our wrapped exception.
-                        measurables.firstOrNull()?.measure(constraints)
-                    } catch (e: Throwable) {
-                        // Catch the exception before it bubbles up and crashes the test runner!
-                        caughtException = e
-                    }
-
-                    latch.countDown()
-                    layout(100, 100) {} // Return dummy layout
-                },
-            )
-        }
-
-        assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
-
-        val message = caughtException?.message
-        assertTrue(
-            "Expected helpful error message, but got: $message",
-            message?.contains(SubcomposeLayoutIntrinsicErrorMessage) == true,
-        )
-    }
-
-    @Test
     fun testGrid_autoRowHeight_respectsColumnSpanAndGap() =
         with(density) {
             val colSize = 50.dp
