@@ -16,10 +16,13 @@
 
 package androidx.benchmark
 
+import android.app.admin.DevicePolicyManager
+import android.content.Context
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -83,6 +86,20 @@ class DeviceInfoTest {
     @Test
     fun artMainlineVersion() =
         validateArtMainlineVersion(artMainlineVersion = DeviceInfo.artMainlineVersion)
+
+    @Test
+    fun canShellAccessAppFiles_granted() {
+        assumeTrue(DeviceInfo.isRooted)
+        assertTrue(DeviceInfo.canShellAccessAppFiles)
+    }
+
+    @Test
+    fun canShellAccessAppFiles_denied() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        assumeTrue(dpm.isDeviceOwnerApp("com.google.android.apps.work.clouddpc"))
+        assertFalse(DeviceInfo.canShellAccessAppFiles)
+    }
 }
 
 /**

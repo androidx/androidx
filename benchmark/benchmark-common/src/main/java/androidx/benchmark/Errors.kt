@@ -250,6 +250,19 @@ object Errors {
             warningString += DeviceMirroring.Error.MESSAGE.trimMarginWrapNewlines()
         }
 
+        if (!DeviceInfo.canShellAccessAppFiles) {
+            warningPrefix += "SHELL-ACCESS-DENIED_"
+            warningString +=
+                """
+                |ERROR: Shell user cannot access app files
+                |    MediaProvider/FUSE is blocking the ADB shell from accessing app data.
+                |    This is a known issue on some devices and prevents Jetpack Benchmark from
+                |    capturing profiles and traces. The device may simply be incompatible with
+                |    Jetpack Benchmark.
+            """
+                    .trimMarginWrapNewlines()
+        }
+
         PREFIX = warningPrefix
         if (warningString.isNotEmpty()) {
             InstrumentationResults.scheduleIdeWarningOnNextReport(warningString)
