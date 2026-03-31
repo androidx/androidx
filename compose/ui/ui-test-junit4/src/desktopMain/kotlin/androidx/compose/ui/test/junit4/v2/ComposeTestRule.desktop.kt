@@ -16,10 +16,18 @@
 
 package androidx.compose.ui.test.junit4.v2
 
+import androidx.compose.ui.test.DesktopComposeUiTest
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.DesktopComposeTestRule
 import kotlin.coroutines.CoroutineContext
 
-actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule {
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-9519/Implement-ComposeUiTest-v2-APIs-and-migrate-the-tests
-    TODO("createComposeRule v2 - Not yet implemented")
-}
+@OptIn(ExperimentalTestApi::class, InternalTestApi::class)
+actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
+    DesktopComposeTestRule(
+        DesktopComposeUiTest(
+            effectContext = effectContext,
+            useStandardTestDispatcherForComposition = true
+        )
+    )

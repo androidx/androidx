@@ -55,10 +55,9 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.test.runInternalSkikoComposeUiTest
+import androidx.compose.ui.test.v2.runInternalSkikoComposeUiTest
 import androidx.compose.ui.touch
 import androidx.compose.ui.unit.dp
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -66,7 +65,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 
 /**
  * Tests the ordering of the phases of the [BaseComposeScene.render] loop.
@@ -82,9 +80,7 @@ class RenderPhasesTest {
      * 5. Effects launched in the composition.
      */
     @Test
-    fun testBasicOrder() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun testBasicOrder() = runInternalSkikoComposeUiTest {
         mainClock.autoAdvance = false
 
         val phases = mutableListOf<String>()
@@ -93,7 +89,7 @@ class RenderPhasesTest {
         setContent {
             LaunchedEffect(Unit) {
                 var stop = false
-                while(!stop) {
+                while (!stop) {
                     withFrameNanos {
                         if (logPhases) {
                             phases.add("frame")
@@ -145,9 +141,7 @@ class RenderPhasesTest {
      * Test that synthetic events are delivered after effects have run.
      */
     @Test
-    fun syntheticEventsDispatchedAfterEffects() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun syntheticEventsDispatchedAfterEffects() = runInternalSkikoComposeUiTest {
         val phases = mutableListOf<String>()
         var showNewBox by mutableStateOf(false)
 
@@ -185,9 +179,7 @@ class RenderPhasesTest {
      * correct order, and only after the draw phase.
      */
     @Test
-    fun coroutinesDispatchedAfterDraw() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun coroutinesDispatchedAfterDraw() = runInternalSkikoComposeUiTest {
         mainClock.autoAdvance = false
 
         val phases = mutableListOf<String>()
@@ -196,7 +188,7 @@ class RenderPhasesTest {
             val coroutineScope = rememberCoroutineScope()
 
             LaunchedEffect(Unit) {
-                while(true) {
+                while (true) {
                     withFrameMillis {
                         if (startTest) {
                             coroutineScope.launch {
@@ -232,15 +224,18 @@ class RenderPhasesTest {
         startTest = true
         mainClock.advanceTimeByFrame()
         assertContentEquals(
-            expected = listOf("draw", "launchedWithFrame", "launchedFromComposition", "launchedFromEffect"),
+            expected = listOf(
+                "draw",
+                "launchedWithFrame",
+                "launchedFromComposition",
+                "launchedFromEffect"
+            ),
             actual = phases
         )
     }
 
     @Test
-    fun layoutScopeInvalidationDoesNotCauseRemeasure() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun layoutScopeInvalidationDoesNotCauseRemeasure() = runInternalSkikoComposeUiTest {
         var measureCount = 0
         var layoutCount = 0
 
@@ -273,7 +268,7 @@ class RenderPhasesTest {
     @Test
     fun readingStateInLayoutModifiedByMeasureDoesNotCauseInfiniteRemeasureAndLayout() {
         // https://github.com/JetBrains/compose-multiplatform/issues/4760
-        runInternalSkikoComposeUiTest(coroutineDispatcher = StandardTestDispatcher()) {
+        runInternalSkikoComposeUiTest {
             mainClock.autoAdvance = false
             val state = mutableStateOf(0)
             // Don't read the state initially so that the test fails rather than getting stuck
@@ -285,7 +280,7 @@ class RenderPhasesTest {
                         val prevValue = Snapshot.withoutReadObservation {
                             state.value
                         }
-                        state.value = prevValue+1
+                        state.value = prevValue + 1
                         layout(100, 100) {
                             if (readStateInLayout) {
                                 state.value  // Read the state value!
@@ -311,9 +306,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun measureAndLayoutRunsAgainBeforeDraw() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun measureAndLayoutRunsAgainBeforeDraw() = runInternalSkikoComposeUiTest {
         // Android runs measureAndLayout again right before drawing; validate this behavior.
         val state = mutableStateOf(0)
         val events = mutableListOf<String>()
@@ -342,9 +335,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun dragPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun dragPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest {
         val scrollState = ScrollState(0)
         setContent {
             Box(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
@@ -372,9 +363,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun scrollPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun scrollPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest {
         val scrollState = ScrollState(0)
         setContent {
             Box(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
@@ -396,9 +385,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun panPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun panPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest {
         val scrollState = ScrollState(0)
         setContent {
             Box(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
@@ -420,9 +407,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun scalePointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun scalePointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest {
         var scale = 1f
         setContent {
             Box(modifier = Modifier.size(100.dp).onPointerEvent(PointerEventType.ScaleChange) {
@@ -448,9 +433,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun pointerPressEventProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun pointerPressEventProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest {
         var pointerHandledAfterDelay by mutableStateOf(false)
         setContent {
             val coroutineScope = rememberCoroutineScope()
@@ -481,9 +464,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun pointerScrollEventProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun pointerScrollEventProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest {
         var pointerHandledAfterDelay by mutableStateOf(false)
         setContent {
             val coroutineScope = rememberCoroutineScope()
@@ -513,9 +494,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun keyEventsProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun keyEventsProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest {
         var keyHandledAfterDelay by mutableStateOf(false)
         setContent {
             val coroutineScope = rememberCoroutineScope()
@@ -555,9 +534,7 @@ class RenderPhasesTest {
     }
 
     @Test
-    fun rotaryEventsProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun rotaryEventsProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest {
         var eventHandledAfterDelay by mutableStateOf(false)
         setContent {
             val coroutineScope = rememberCoroutineScope()

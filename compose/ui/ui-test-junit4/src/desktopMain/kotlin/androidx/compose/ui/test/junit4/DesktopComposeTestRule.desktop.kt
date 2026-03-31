@@ -37,26 +37,44 @@ import kotlin.coroutines.EmptyCoroutineContext
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-@OptIn(InternalTestApi::class)
-actual fun createComposeRule(): ComposeContentTestRule = DesktopComposeTestRule()
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
+@OptIn(InternalTestApi::class, ExperimentalTestApi::class)
+actual fun createComposeRule(): ComposeContentTestRule =
+    DesktopComposeTestRule(
+        DesktopComposeUiTest(
+            effectContext = EmptyCoroutineContext,
+            useStandardTestDispatcherForComposition = false
+        )
+    )
 
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
 @ExperimentalTestApi
 @OptIn(InternalTestApi::class)
 actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
-    DesktopComposeTestRule(effectContext)
+    DesktopComposeTestRule(
+        DesktopComposeUiTest(
+            effectContext = effectContext,
+            useStandardTestDispatcherForComposition = false
+        )
+    )
 
 @InternalTestApi
 @OptIn(ExperimentalTestApi::class)
-class DesktopComposeTestRule private constructor(
+class DesktopComposeTestRule internal constructor(
     private val composeTest: DesktopComposeUiTest
 ) : ComposeContentTestRule {
-
-    constructor() : this(DesktopComposeUiTest())
-
-    @ExperimentalTestApi
-    constructor(
-        effectContext: CoroutineContext = EmptyCoroutineContext
-    ) : this(DesktopComposeUiTest(effectContext = effectContext))
 
     @InternalComposeUiApi
     var scene: ComposeScene

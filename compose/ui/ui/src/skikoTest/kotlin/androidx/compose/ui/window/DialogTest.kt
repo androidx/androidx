@@ -47,7 +47,7 @@ import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.runInternalSkikoComposeUiTest
+import androidx.compose.ui.test.v2.runInternalSkikoComposeUiTest
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.touch
 import androidx.compose.ui.unit.IntSize
@@ -241,9 +241,7 @@ class DialogTest {
 
     @OptIn(InternalTestApi::class)
     @Test
-    fun dialogCompositionSubscribesToStateChangesImmediately() = runInternalSkikoComposeUiTest(
-        coroutineDispatcher = StandardTestDispatcher()
-    ) {
+    fun dialogCompositionSubscribesToStateChangesImmediately() = runInternalSkikoComposeUiTest {
         // https://github.com/JetBrains/compose-multiplatform/issues/4609
         var showDialog by mutableStateOf(false)
         var lastValueInComposition: Int? = null

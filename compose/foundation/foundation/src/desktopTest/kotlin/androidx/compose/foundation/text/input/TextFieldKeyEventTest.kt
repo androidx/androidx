@@ -44,14 +44,13 @@ import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
-import androidx.compose.ui.test.runInternalSkikoComposeUiTest
+import androidx.compose.ui.test.v2.runInternalSkikoComposeUiTest
 import androidx.compose.ui.test.withKeysDown
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 
 // Adapted from CommonTextFieldKeyEventTest.kt in AOSP
 @OptIn(ExperimentalTestApi::class)
@@ -584,7 +583,7 @@ class TextFieldKeyEventTest {
     ) {
         keyMappingOverride = namedKeyMapping.keyMapping
         try {
-            runInternalSkikoComposeUiTest(coroutineDispatcher = StandardTestDispatcher()) {
+            runInternalSkikoComposeUiTest {
                 val tag = "TextFieldTestTag"
                 val state = TextFieldState(initText, initSelection)
                 val clipboard = FakeClipboard(initClipboardText)

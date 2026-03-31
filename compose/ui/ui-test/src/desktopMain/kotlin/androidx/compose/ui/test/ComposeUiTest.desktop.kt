@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * Variant of [runComposeUiTest] that allows you to specify the size of the surface.
@@ -29,11 +30,17 @@ import kotlin.time.Duration
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
  * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
  */
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.v2.runDesktopComposeUiTest` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
 @ExperimentalTestApi
 fun runDesktopComposeUiTest(
     width: Int = 1024,
     height: Int = 768,
-    // TODO(https://github.com/JetBrains/compose-multiplatform/issues/2960) Support effectContext
     effectContext: CoroutineContext = EmptyCoroutineContext,
     runTestContext: CoroutineContext = EmptyCoroutineContext,
     testTimeout: Duration = Duration.INFINITE,
@@ -46,7 +53,8 @@ fun runDesktopComposeUiTest(
                 height = height,
                 effectContext = effectContext,
                 runTestContext = runTestContext,
-                testTimeout = testTimeout
+                testTimeout = testTimeout,
+                useStandardTestDispatcherForComposition = false
             )
         ) {
             runTest { block() }
@@ -54,6 +62,7 @@ fun runDesktopComposeUiTest(
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class, InternalTestApi::class)
 @ExperimentalTestApi
 class DesktopComposeUiTest(
     width: Int = 1024,
@@ -62,6 +71,7 @@ class DesktopComposeUiTest(
     runTestContext: CoroutineContext = EmptyCoroutineContext,
     testTimeout: Duration = Duration.INFINITE,
     density: Density = Density(1f),
+    useStandardTestDispatcherForComposition: Boolean,
 ) : SkikoComposeUiTest(
     width = width,
     height = height,
@@ -69,8 +79,10 @@ class DesktopComposeUiTest(
     runTestContext = runTestContext,
     testTimeout = testTimeout,
     density = density,
+    semanticsOwnerListener = null,
+    windowInsets = null,
+    useStandardTestDispatcherForComposition = useStandardTestDispatcherForComposition
 ) {
-
     private val idlingResources = mutableSetOf<IdlingResource>()
 
     override fun areAllResourcesIdle(): Boolean {

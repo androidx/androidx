@@ -60,7 +60,7 @@ import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.SkikoComposeUiTest
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInputSelection
-import androidx.compose.ui.test.runInternalSkikoComposeUiTest
+import androidx.compose.ui.test.v2.runInternalSkikoComposeUiTest
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.toDpSize
 import androidx.compose.ui.unit.DpOffset
@@ -622,7 +622,7 @@ private fun runDesktopA11yTest(block: suspend ComposeA11yTestScope.() -> Unit) {
 
     runInternalSkikoComposeUiTest(
         semanticsOwnerListener = sceneAccessibility,
-        coroutineDispatcher = testDispatcher
+        effectContext = testDispatcher
     ) {
         block(
             ComposeA11yTestScope(

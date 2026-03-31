@@ -44,19 +44,31 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 
+@OptIn(ExperimentalTestApi::class)
+class TestBasicsTest : AbstractTestBasicsTest(
+    runUiTest = { runComposeUiTest(block = it) }
+)
+
+@OptIn(ExperimentalTestApi::class)
+class TestBasicsTestV2 : AbstractTestBasicsTest(
+    runUiTest = { androidx.compose.ui.test.v2.runComposeUiTest(block = it) }
+)
 
 /**
  * Basic tests of the testing framework itself.
  */
 @OptIn(ExperimentalTestApi::class)
-class TestBasicsTest {
+abstract class AbstractTestBasicsTest(
+    private val runUiTest: (ComposeUiTest.() -> Unit) -> TestResult
+) {
 
     // See https://github.com/JetBains/compose-multiplatform/issues/3117
     @Test
     fun recompositionCompletesBeforeSetContentReturns() = repeat(100) {
-        runComposeUiTest {
+        runUiTest {
             var globalValue by atomic(0)
             setContent {
                 var localValue by remember { mutableStateOf(0) }
@@ -80,7 +92,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun inputEventAdvancesClock() = runComposeUiTest {
+    fun inputEventAdvancesClock() = runUiTest {
         setContent {
             Box(Modifier.testTag("box").size(100.dp))
         }
@@ -92,7 +104,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun obtainingSemanticsNodeInteractionWaitsUntilIdle() = runComposeUiTest {
+    fun obtainingSemanticsNodeInteractionWaitsUntilIdle() = runUiTest {
         var text by mutableStateOf("1")
 
         setContent {
@@ -105,7 +117,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun testCaptureToImage() = runComposeUiTest {
+    fun testCaptureToImage() = runUiTest {
         val color = Color.Green
         setContent {
             Box(Modifier.testTag("box").size(20.dp).background(color))
@@ -126,7 +138,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun infiniteDelayLoopInLaunchedEffectDoesNotHang() = runComposeUiTest {
+    fun infiniteDelayLoopInLaunchedEffectDoesNotHang() = runUiTest {
         runTest(timeout = 500.milliseconds) {
             var runDelayLoop by mutableStateOf(false)
             var effectLaunched = false
@@ -152,7 +164,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun delayInLaunchedEffectIsExecutedAfterAdvancingClock() = runComposeUiTest {
+    fun delayInLaunchedEffectIsExecutedAfterAdvancingClock() = runUiTest {
         var value = 0
         mainClock.autoAdvance = false
         setContent {
@@ -174,7 +186,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun advancingClockCausesRecompositions() = runComposeUiTest {
+    fun advancingClockCausesRecompositions() = runUiTest {
         var value by mutableStateOf(0)
         val compositionValues = mutableListOf<Int>()
         setContent {
@@ -192,7 +204,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun advancingClockByLessThanFrameDoesNotRecompose() = runComposeUiTest {
+    fun advancingClockByLessThanFrameDoesNotRecompose() = runUiTest {
         mainClock.autoAdvance = false
         var value by mutableIntStateOf(1)
         var compositionValue = 0
@@ -208,7 +220,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun launchedEffectsRunAfterComposition() = runComposeUiTest {
+    fun launchedEffectsRunAfterComposition() = runUiTest {
         val actions = mutableListOf<String>()
         setContent {
             LaunchedEffect(Unit) {
@@ -221,7 +233,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun waitForIdleDoesNotAdvanceClockIfAlreadyIdle() = runComposeUiTest {
+    fun waitForIdleDoesNotAdvanceClockIfAlreadyIdle() = runUiTest {
         setContent { }
 
         val initialTime = mainClock.currentTime
@@ -231,7 +243,7 @@ class TestBasicsTest {
 
     @Test
     @IgnoreWebTest
-    fun runOnIdleExecutesOnUiThread() = runComposeUiTest {
+    fun runOnIdleExecutesOnUiThread() = runUiTest {
         setContent { }
         runOnIdle {
             assertTrue(isOnUiThread())
@@ -239,7 +251,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun runOnIdleExecutesWhenIdle() = runComposeUiTest {
+    fun runOnIdleExecutesWhenIdle() = runUiTest {
         var sourceValue by mutableIntStateOf(0)
         var targetValue = 0
         setContent {
@@ -254,7 +266,7 @@ class TestBasicsTest {
     }
 
     @Test
-    fun runOnIdleDoesNotWaitForIdleAfterward() = runComposeUiTest {
+    fun runOnIdleDoesNotWaitForIdleAfterward() = runUiTest {
         var sourceValue by mutableIntStateOf(0)
         var targetValue = 0
         setContent {
@@ -271,7 +283,7 @@ class TestBasicsTest {
     @Test
     fun emptyTestPerformance() = runTest(timeout = 6.seconds) {
         repeat(100) {
-            runComposeUiTest {
+            runUiTest {
                 setContent { }
             }
         }
@@ -279,16 +291,17 @@ class TestBasicsTest {
 
     // The two tests below work together to make sure that the initial input is reset between tests
     @Test
-    fun inputModeResetBetweenTests1() = runComposeUiTest {
+    fun inputModeResetBetweenTests1() = runUiTest {
         var initialInputMode: InputMode? = null
         var inputModeAfterwards: InputMode? = null
         setContent {
-            initialInputMode = LocalInputModeManager.current.inputMode
-            LocalInputModeManager.current.apply {
-                requestInputMode(
+            val inputModeManager = LocalInputModeManager.current
+            initialInputMode = inputModeManager.inputMode
+            LaunchedEffect(Unit) {
+                inputModeManager.requestInputMode(
                     if (initialInputMode == InputMode.Touch) InputMode.Keyboard else InputMode.Touch
                 )
-                inputModeAfterwards = inputMode
+                inputModeAfterwards = inputModeManager.inputMode
             }
         }
 
@@ -303,16 +316,17 @@ class TestBasicsTest {
     }
 
     @Test
-    fun inputModeResetBetweenTests2() = runComposeUiTest {
+    fun inputModeResetBetweenTests2() = runUiTest {
         var initialInputMode: InputMode? = null
         var inputModeAfterwards: InputMode? = null
         setContent {
-            initialInputMode = LocalInputModeManager.current.inputMode
-            LocalInputModeManager.current.apply {
-                requestInputMode(
+            val inputModeManager = LocalInputModeManager.current
+            initialInputMode = inputModeManager.inputMode
+            LaunchedEffect(Unit) {
+                inputModeManager.requestInputMode(
                     if (initialInputMode == InputMode.Touch) InputMode.Keyboard else InputMode.Touch
                 )
-                inputModeAfterwards = inputMode
+                inputModeAfterwards = inputModeManager.inputMode
             }
         }
 

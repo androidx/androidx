@@ -34,7 +34,7 @@ import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.runComposeUiTest
-import androidx.compose.ui.test.runInternalSkikoComposeUiTest
+import androidx.compose.ui.test.v2.runInternalSkikoComposeUiTest
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -391,7 +391,7 @@ internal class TooltipAreaTest {
     @OptIn(InternalComposeUiApi::class, InternalTestApi::class)
     private fun runComposeUiTestWithStandardTestDispatcher(
         block: suspend ComposeUiTest.() -> Unit
-    ) = runInternalSkikoComposeUiTest(coroutineDispatcher = StandardTestDispatcher()) {
+    ) = runInternalSkikoComposeUiTest {
         block()
     }
 
