@@ -2906,6 +2906,156 @@ class GridTest : LayoutTest() {
         )
     }
 
+    @Test
+    fun testGrid_autoRowHeight_respectsColumnSpanAndGap() =
+        with(density) {
+            val colSize = 50.dp
+            val colSizePx = colSize.roundToPx()
+            val gapSize = 10.dp
+            val gapSizePx = gapSize.roundToPx()
+
+            val expectedSpannedWidth = (colSizePx * 2) + gapSizePx
+
+            val latch = CountDownLatch(1)
+            val childSize = Ref<IntSize>()
+
+            show {
+                Grid(
+                    config = {
+                        column(GridTrackSize.Fixed(colSize))
+                        column(GridTrackSize.Fixed(colSize))
+                        row(GridTrackSize.Auto)
+                        columnGap(gapSize)
+                    }
+                ) {
+                    Layout(
+                        modifier =
+                            Modifier.gridItem(1, 1, columnSpan = 2).onGloballyPositioned {
+                                childSize.value = it.size
+                                latch.countDown()
+                            },
+                        measurePolicy =
+                            object : MeasurePolicy {
+                                override fun MeasureScope.measure(
+                                    measurables: List<Measurable>,
+                                    constraints: Constraints,
+                                ): MeasureResult {
+                                    // Protect against Constraints.Infinity (Int.MAX_VALUE)
+                                    val w =
+                                        if (constraints.hasBoundedWidth) constraints.maxWidth
+                                        else expectedSpannedWidth
+                                    val h = if (w < expectedSpannedWidth) 200 else 100
+                                    return layout(w, h) {}
+                                }
+
+                                // Override intrinsic widths so Grid's Pass 1.5 doesn't
+                                // trigger the default fallback measurements.
+                                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    height: Int,
+                                ): Int = expectedSpannedWidth
+
+                                override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    height: Int,
+                                ): Int = expectedSpannedWidth
+
+                                // The critical intrinsic height checks
+                                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    width: Int,
+                                ): Int = if (width < expectedSpannedWidth) 200 else 100
+
+                                override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    width: Int,
+                                ): Int = if (width < expectedSpannedWidth) 200 else 100
+                            },
+                    )
+                }
+            }
+
+            assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "Auto row height should be calculated using the full spanned width (including gaps)",
+                100,
+                childSize.value?.height,
+            )
+            assertEquals(
+                "Item should occupy the full spanned width",
+                expectedSpannedWidth,
+                childSize.value?.width,
+            )
+        }
+
+    @Test
+    fun testGrid_autoColumnWidth_respectsColumnSpanAndGap() =
+        with(density) {
+            // Scenario:
+            // 2 Auto columns with a 10px gap.
+            // An item spans both columns (columnSpan = 2) and has an intrinsic width of 110px.
+            // The gap provides 10px, so the columns only need to provide 100px total.
+            // Since there are 2 Auto columns, they should equally split the 100px -> 50px each.
+
+            val gapSize = 10.dp
+            val gapSizePx = gapSize.roundToPx()
+            val intrinsicWidthPx = 110
+
+            val expectedColWidth = (intrinsicWidthPx - gapSizePx) / 2
+
+            val latch = CountDownLatch(2)
+            val col1Size = Ref<IntSize>()
+            val col2Size = Ref<IntSize>()
+
+            show {
+                Grid(
+                    config = {
+                        column(GridTrackSize.Auto)
+                        column(GridTrackSize.Auto)
+                        row(GridTrackSize.Fixed(50.dp)) // Row for the spanning item
+                        row(GridTrackSize.Fixed(50.dp)) // Row for the measurement boxes
+                        columnGap(gapSize)
+                    }
+                ) {
+                    // The item spanning 2 columns driving the Auto expansion
+                    IntrinsicItem(
+                        minWidth = intrinsicWidthPx,
+                        minIntrinsicWidth = intrinsicWidthPx,
+                        maxIntrinsicWidth = intrinsicWidthPx,
+                        modifier = Modifier.gridItem(row = 1, column = 1, columnSpan = 2),
+                    )
+
+                    // Dummy items in Row 2 to accurately measure the final column widths
+                    Box(
+                        Modifier.gridItem(row = 2, column = 1).fillMaxSize().onGloballyPositioned {
+                            col1Size.value = it.size
+                            latch.countDown()
+                        }
+                    )
+                    Box(
+                        Modifier.gridItem(row = 2, column = 2).fillMaxSize().onGloballyPositioned {
+                            col2Size.value = it.size
+                            latch.countDown()
+                        }
+                    )
+                }
+            }
+
+            assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "Column 1 should account for the spanned gap when calculating deficit",
+                expectedColWidth,
+                col1Size.value?.width,
+            )
+            assertEquals(
+                "Column 2 should account for the spanned gap when calculating deficit",
+                expectedColWidth,
+                col2Size.value?.width,
+            )
+        }
+
     @Composable
     private fun IntrinsicItem(
         minWidth: Int,
