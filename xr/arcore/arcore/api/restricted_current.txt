@@ -114,8 +114,8 @@ package androidx.xr.arcore {
     property public androidx.xr.runtime.TrackingState trackingState;
   }
 
-  public final class CreateGeospatialPoseFromPoseErrorInternal extends androidx.xr.arcore.CreateGeospatialPoseFromPoseResult {
-    ctor public CreateGeospatialPoseFromPoseErrorInternal(String error);
+  public final class CreateGeospatialPoseFromPoseInternalError extends androidx.xr.arcore.CreateGeospatialPoseFromPoseResult {
+    ctor public CreateGeospatialPoseFromPoseInternalError(String error);
     method @InaccessibleFromKotlin public String getError();
     property public String error;
   }
@@ -138,8 +138,8 @@ package androidx.xr.arcore {
     property public double verticalAccuracy;
   }
 
-  public final class CreatePoseFromGeospatialPoseErrorInternal extends androidx.xr.arcore.CreatePoseFromGeospatialPoseResult {
-    ctor public CreatePoseFromGeospatialPoseErrorInternal(String error);
+  public final class CreatePoseFromGeospatialPoseInternalError extends androidx.xr.arcore.CreatePoseFromGeospatialPoseResult {
+    ctor public CreatePoseFromGeospatialPoseInternalError(String error);
     method @InaccessibleFromKotlin public String getError();
     property public String error;
   }
