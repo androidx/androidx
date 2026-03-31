@@ -1138,7 +1138,42 @@ private fun resolveGridItemIndices(
         }
     }
 
+    // Sort the items immediately after their physical coordinates are resolved.
+    // This ensures that Track Sizing, Measuring, and Placement all iterate over the
+    // items in spatial Z-order (top-start to bottom-end).
+    gridItems.sortWith(GridItemsComparator)
+
     return ResolvedGridItemIndicesResult(gridItems, IntSize(maxCol, maxRow))
+}
+
+/**
+ * A singleton comparator used to sort GridItems into their visual Z-order (row-major). Statically
+ * allocated to prevent object creation during the measure/layout pass.
+ */
+private val GridItemsComparator =
+    Comparator<GridItem> { a, b ->
+        val rowCompare = a.row.compareTo(b.row)
+        if (rowCompare != 0) rowCompare else a.column.compareTo(b.column)
+    }
+
+/**
+ * Temporary extension to sort a [MutableObjectList] using a [Comparator]. Uses an allocation-free
+ * insertion sort to guarantee zero memory allocations during the high-frequency measurement/layout
+ * phase.
+ *
+ * Remove this once `sortBy` / `sortWith` is natively added to `MutableObjectList`.
+ */
+private fun <T> MutableObjectList<T>.sortWith(comparator: Comparator<T>) {
+    for (i in 1 until size) {
+        val current = this[i]
+        var j = i - 1
+        // Shift elements to the right to make room for the current item
+        while (j >= 0 && comparator.compare(this[j], current) > 0) {
+            this[j + 1] = this[j]
+            j--
+        }
+        this[j + 1] = current
+    }
 }
 
 /**
