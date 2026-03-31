@@ -54,6 +54,13 @@ package androidx.dynamicanimation.animation {
   public abstract static class DynamicAnimation.ViewProperty extends androidx.dynamicanimation.animation.FloatPropertyCompat<android.view.View!> {
   }
 
+  public final class DynamicAnimationKt {
+    method public static androidx.dynamicanimation.animation.FlingAnimation flingAnimationOf(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> setter, kotlin.jvm.functions.Function0<java.lang.Float> getter);
+    method public static androidx.dynamicanimation.animation.SpringAnimation springAnimationOf(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> setter, kotlin.jvm.functions.Function0<java.lang.Float> getter, optional float finalPosition);
+    method @BytecodeOnly public static androidx.dynamicanimation.animation.SpringAnimation! springAnimationOf$default(kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, float, int, Object!);
+    method public static inline androidx.dynamicanimation.animation.SpringAnimation withSpringForceProperties(androidx.dynamicanimation.animation.SpringAnimation, kotlin.jvm.functions.Function1<? super androidx.dynamicanimation.animation.SpringForce,kotlin.Unit> func);
+  }
+
   public final class FlingAnimation extends androidx.dynamicanimation.animation.DynamicAnimation<androidx.dynamicanimation.animation.FlingAnimation!> {
     ctor public FlingAnimation(androidx.dynamicanimation.animation.FloatValueHolder!);
     ctor public <K> FlingAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>!);

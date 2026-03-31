@@ -22,7 +22,7 @@ import androidx.dynamicanimation.animation.SpringForce
 import androidx.dynamicanimation.animation.flingAnimationOf
 import androidx.dynamicanimation.animation.springAnimationOf
 import androidx.dynamicanimation.animation.withSpringForceProperties
-import androidx.dynamicanimation.ktx.test.R
+import androidx.dynamicanimation.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -40,7 +40,7 @@ import org.mockito.Mockito.verify
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class DynamicAnimationTest {
+class DynamicAnimationExtTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -93,7 +93,7 @@ class DynamicAnimationTest {
         assertEquals(100f, view.getScaleX())
     }
 
-    /** Test extension for setting up [SpringForce] */
+    /** Test extension for setting up [androidx.dynamicanimation.animation.SpringForce] */
     @Test
     fun testSpringForce() {
         val springAnimationWithoutFinalPosition =
