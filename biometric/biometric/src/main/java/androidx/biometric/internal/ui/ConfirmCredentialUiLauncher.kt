@@ -236,6 +236,7 @@ internal fun handleConfirmCredentialResult(
             )
         )
     }
+    callerViewModel.isPromptShowing = false
 }
 
 // -------------------- Generic Helpers --------------------

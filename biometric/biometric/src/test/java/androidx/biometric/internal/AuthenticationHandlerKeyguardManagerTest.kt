@@ -54,12 +54,17 @@ class AuthenticationHandlerKeyguardManagerTest {
 
         handler =
             AuthenticationHandlerKeyguardManager(
-                context = context,
-                lifecycleOwner = testLifecycleOwner,
-                viewModel = viewModel,
-                confirmCredentialActivityLauncher = { isConfirmCredentialActivityLaunched = true },
-                clientExecutor = clientExecutor,
-                clientAuthenticationCallback = clientAuthenticationCallback,
+                AuthenticationManager(
+                    context = context,
+                    lifecycleOwner = testLifecycleOwner,
+                    viewModel = viewModel,
+                    confirmCredentialActivityLauncher = {
+                        isConfirmCredentialActivityLaunched = true
+                    },
+                    clientExecutor = clientExecutor,
+                    clientAuthenticationCallback = clientAuthenticationCallback,
+                    onDismissed = {},
+                )
             )
 
         testLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)

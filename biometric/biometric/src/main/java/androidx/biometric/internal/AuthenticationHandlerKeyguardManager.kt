@@ -16,14 +16,8 @@
 
 package androidx.biometric.internal
 
-import android.content.Context
 import androidx.biometric.BiometricPrompt
-import androidx.biometric.BiometricPrompt.AuthenticationCallback
 import androidx.biometric.internal.data.CanceledFrom
-import androidx.biometric.internal.viewmodel.AuthenticationViewModel
-import androidx.lifecycle.LifecycleOwner
-import java.util.concurrent.Executor
-import kotlinx.coroutines.Runnable
 
 /**
  * An [AuthenticationHandler] implementation that manages authentication flows primarily delegating
@@ -34,22 +28,10 @@ import kotlinx.coroutines.Runnable
  * credential screen
  */
 internal class AuthenticationHandlerKeyguardManager(
-    context: Context,
-    lifecycleOwner: LifecycleOwner,
-    viewModel: AuthenticationViewModel,
-    val confirmCredentialActivityLauncher: Runnable,
-    clientExecutor: Executor,
-    clientAuthenticationCallback: AuthenticationCallback,
+    private val authenticationManager: AuthenticationManager
 ) : AuthenticationHandler {
-    private val authenticationManager =
-        AuthenticationManager(
-            context,
-            lifecycleOwner,
-            viewModel,
-            confirmCredentialActivityLauncher,
-            clientExecutor,
-            clientAuthenticationCallback,
-        )
+    val confirmCredentialActivityLauncher
+        get() = authenticationManager.confirmCredentialActivityLauncher
 
     init {
         authenticationManager.initialize()

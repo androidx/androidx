@@ -42,37 +42,56 @@ import androidx.fragment.app.FragmentActivity
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { TwoAuthLauncher() }
+        setContent { FourAuthLauncher() }
     }
 }
 
 @Composable
-private fun TwoAuthLauncher() {
-    Column {
-        RememberLauncherForAuthResult("1")
-        RememberLauncherForAuthResult("2")
-        RememberLauncherForAuthResult("3")
-        RememberLauncherForAuthResult("4")
-    }
-}
-
-@Composable
-private fun RememberLauncherForAuthResult(id: String) {
-    var authResult by rememberSaveable { mutableStateOf("") }
-    val resultCallback = remember {
-        object : AuthenticationResultCallback {
-            override fun onAuthResult(result: AuthenticationResult) {
-                authResult = id + result.toText()
-            }
-
-            override fun onAuthAttemptFailed() {
-                authResult = id + "fail, try again"
-            }
-        }
-    }
-    val launcher = rememberAuthenticationLauncher(resultCallback = resultCallback)
+private fun FourAuthLauncher() {
+    var result1 by rememberSaveable { mutableStateOf("") }
+    var result2 by rememberSaveable { mutableStateOf("") }
+    var result3 by rememberSaveable { mutableStateOf("") }
+    var result4 by rememberSaveable { mutableStateOf("") }
 
     Column(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
+        Button(
+            onClick = {
+                result1 = ""
+                result2 = ""
+                result3 = ""
+                result4 = ""
+            }
+        ) {
+            Text("Clear All Results")
+        }
+        RememberLauncherForAuthResult("1", result1) { result1 = it }
+        RememberLauncherForAuthResult("2", result2) { result2 = it }
+        RememberLauncherForAuthResult("3", result3) { result3 = it }
+        RememberLauncherForAuthResult("4", result4) { result4 = it }
+    }
+}
+
+@Composable
+private fun RememberLauncherForAuthResult(
+    id: String,
+    authResult: String,
+    onResultChanged: (String) -> Unit,
+) {
+    val resultCallback =
+        remember(onResultChanged) {
+            object : AuthenticationResultCallback {
+                override fun onAuthResult(result: AuthenticationResult) {
+                    onResultChanged(id + result.toText())
+                }
+
+                override fun onAuthAttemptFailed() {
+                    onResultChanged(id + "fail, try again")
+                }
+            }
+        }
+    val launcher = rememberAuthenticationLauncher(resultCallback = resultCallback)
+
+    Column {
         Button(
             onClick = {
                 launcher.launch(
@@ -85,7 +104,7 @@ private fun RememberLauncherForAuthResult(id: String) {
                 )
             }
         ) {
-            Text(text = "Start Authentication")
+            Text(text = "Start Authentication $id")
         }
         Text(text = "Result: $authResult", modifier = Modifier.fillMaxWidth(fraction = 0.5f))
     }

@@ -146,19 +146,19 @@ class AuthenticationViewModelTest {
         }
 
     @Test
-    fun testGenerateNextManagerKey() {
-        assertThat(viewModel.generateNextManagerKey()).isEqualTo(1)
-        assertThat(viewModel.generateNextManagerKey()).isEqualTo(2)
+    fun testGenerateNextHandlerKey() {
+        assertThat(viewModel.generateNextHandlerKey()).isEqualTo(1)
+        assertThat(viewModel.generateNextHandlerKey()).isEqualTo(2)
     }
 
     @Test
-    fun testResetManagerKey() {
-        viewModel.generateNextManagerKey()
-        viewModel.generateNextManagerKey()
+    fun testResetHandlerKey() {
+        viewModel.generateNextHandlerKey()
+        viewModel.generateNextHandlerKey()
 
-        viewModel.resetManagerKey()
+        viewModel.resetHandlerKey()
 
-        assertThat(viewModel.generateNextManagerKey()).isEqualTo(1)
+        assertThat(viewModel.generateNextHandlerKey()).isEqualTo(1)
     }
 
     @Test

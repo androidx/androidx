@@ -50,8 +50,8 @@ internal class AuthenticationViewModel(
 ) : ViewModel() {
     /**
      * The key associated with the current authentication session. This key is stored in
-     * [PromptConfigRepository] and is updated to the caller's [authManagerKey] when an
-     * authentication session starts. It is compared with [authManagerKey] to ensure that only the
+     * [PromptConfigRepository] and is updated to the caller's [authHandlerKey] when an
+     * authentication session starts. It is compared with [authHandlerKey] to ensure that only the
      * active [AuthenticationManager] instance processes authentication events, especially after
      * configuration changes.
      */
@@ -270,39 +270,41 @@ internal class AuthenticationViewModel(
         }
 
     /**
-     * A unique identifier for [AuthenticationManager] used to filter callbacks and events.
+     * A unique identifier for [androidx.biometric.internal.AuthenticationHandler] used to filter
+     * callbacks and events.
      *
-     * Since multiple instances of [AuthenticationManager] may exist simultaneously, this key allows
-     * this manager to verify it is the active owner of the current authentication session. If this
-     * key does not match the [currentAuthenticationKey], this manager will ignore incoming events.
+     * Since multiple instances of [androidx.biometric.internal.AuthenticationHandler] may exist
+     * simultaneously, this key allows this handler to verify it is the active owner of the current
+     * authentication session. If this key does not match the [currentAuthenticationKey], this
+     * handler will ignore incoming events.
      *
-     * The key must be got by [generateNextManagerKey] when needed, and the generator must be reset
-     * by [resetManagerKey] when the launcher's lifecycle ends. This ensures that after a
-     * configuration change, managers are recreated and reassigned the same keys in the same order,
+     * The key must be got by [generateNextHandlerKey] when needed, and the generator must be reset
+     * by [resetHandlerKey] when the launcher's lifecycle ends. This ensures that after a
+     * configuration change, handler are recreated and reassigned the same keys in the same order,
      * allowing the authentication process to be correctly restored with the right instance.
      *
      * Note: If it's older API, we need to support the case when BiometricPrompt is initialized
      * later than onCreate(), e.g. button click listener. Therefore, using key does not work for old
      * APIs. See go/bp-androidx-redesign for more information.
      */
-    private val authManagerKey = AtomicInteger()
+    private val authHandlerKey = AtomicInteger()
 
     /**
-     * Atomically increments the current value and get a next manager key.
+     * Atomically increments the current value and get a next handler key.
      *
-     * @see [authManagerKey]
+     * @see [authHandlerKey]
      */
-    fun generateNextManagerKey(): Int {
-        return authManagerKey.incrementAndGet()
+    fun generateNextHandlerKey(): Int {
+        return authHandlerKey.incrementAndGet()
     }
 
     /**
-     * Reset the manager key.
+     * Reset the handler key.
      *
-     * @see [authManagerKey]
+     * @see [authHandlerKey]
      */
-    fun resetManagerKey() {
-        authManagerKey.set(0)
+    fun resetHandlerKey() {
+        authHandlerKey.set(0)
     }
 
     /** Sets the [BiometricPrompt.PromptInfo] for the current authentication session. */
