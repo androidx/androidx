@@ -199,6 +199,9 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
 
     private fun onPropertiesChanged() {
         interopWrappingView.interactionMode = properties.interactionMode
+        // required to properly clip the content of the wrapping view in case interop unclipped
+        // bounds are larger than clipped bounds
+        interopWrappingView.clipsToBounds = !properties.placedAsOverlay
 
         platformModifier = Modifier
             .pointerInteropFilter(

@@ -64,10 +64,7 @@ internal class InteropWrappingView(
         }
 
     init {
-        // required to properly clip the content of the wrapping view in case interop unclipped
-        // bounds are larger than clipped bounds
         userInteractionEnabled = interactionMode != null
-        clipsToBounds = true
     }
 
     private fun updateAccessibilityElements() {
