@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.getString
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsProperties.HideFromAccessibility
@@ -288,23 +289,58 @@ private fun LinkAnnotation.getTag(): String? =
 
 internal fun SemanticsNode.canBeAccessibilityElement(): Boolean {
     return !isHiddenFromAccessibility &&
-        (unmergedConfig.isMergingSemanticsOfDescendants ||
-            isUnmergedNode && isSpeakingNode)
+        (unmergedConfig.isMergingSemanticsOfDescendants || isUnmergedSpeakingNode)
 }
 
-private val SemanticsNode.isUnmergedNode get() =
-    !isFake && layoutNode.findClosestParentNode {
-        it.semanticsConfiguration?.isMergingSemanticsOfDescendants == true
-    } == null
+internal val SemanticsNode.isUnmergedSpeakingNode: Boolean get() {
+    if (isFake) return false
+    if (!unmergedConfig.isSpeakingNode) return false
+    if (unmergedConfig.isActionableNode) return true
 
-private val SemanticsNode.isSpeakingNode: Boolean get() {
-    return unmergedConfig.contains(SemanticsProperties.ContentDescription) ||
-        unmergedConfig.contains(SemanticsProperties.EditableText) ||
-        unmergedConfig.contains(SemanticsProperties.Text) ||
-        unmergedConfig.contains(SemanticsProperties.StateDescription) ||
-        unmergedConfig.contains(SemanticsProperties.ToggleableState) ||
-        unmergedConfig.contains(SemanticsProperties.Selected) ||
-        unmergedConfig.contains(SemanticsProperties.ProgressBarRangeInfo)
+    val hasReplacedChildren = replacedChildren.isNotEmpty()
+
+    var currentNode = layoutNode.parent
+    while (currentNode != null) {
+        if (currentNode.semanticsConfiguration?.isMergingSemanticsOfDescendants == true) {
+            return false
+        }
+        if (hasReplacedChildren && currentNode.semanticsConfiguration?.isSpeakingNode == true) {
+            return false
+        }
+        if (currentNode.semanticsConfiguration?.getOrNull(SemanticsProperties.IsTraversalGroup) == true) {
+            return true
+        }
+        currentNode = currentNode.parent
+    }
+
+    return replacedChildren.isEmpty()
+}
+
+internal val SemanticsConfiguration.isActionableNode: Boolean
+    get() = (contains(SemanticsActions.RequestFocus) ||
+        contains(SemanticsActions.OnClick) ||
+        contains(SemanticsActions.OnLongClick) ||
+        contains(SemanticsActions.SetProgress) ||
+        contains(SemanticsActions.SetText) ||
+        contains(SemanticsActions.InsertTextAtCursor) ||
+        contains(SemanticsActions.SetSelection) ||
+        contains(SemanticsActions.OnImeAction) ||
+        contains(SemanticsActions.CopyText) ||
+        contains(SemanticsActions.CutText) ||
+        contains(SemanticsActions.PasteText) ||
+        contains(SemanticsActions.Expand) ||
+        contains(SemanticsActions.Collapse) ||
+        contains(SemanticsActions.Dismiss) ||
+        contains(SemanticsActions.CustomActions))
+
+internal val SemanticsConfiguration.isSpeakingNode: Boolean get() {
+    return contains(SemanticsProperties.ContentDescription) ||
+        contains(SemanticsProperties.EditableText) ||
+        contains(SemanticsProperties.Text) ||
+        contains(SemanticsProperties.StateDescription) ||
+        contains(SemanticsProperties.ToggleableState) ||
+        contains(SemanticsProperties.Selected) ||
+        contains(SemanticsProperties.ProgressBarRangeInfo)
 }
 
 @Suppress("DEPRECATION")

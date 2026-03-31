@@ -18,6 +18,7 @@ package androidx.compose.ui.accessibility
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.RadioButton
@@ -956,7 +958,9 @@ class ComponentsAccessibilitySemanticTest {
         setContent {
             Box(modifier = Modifier.semantics { contentDescription = "Box 1" }) {
                 Box(modifier = Modifier.semantics { contentDescription = "Box 2" }) {
-                    Column(modifier = Modifier.padding(1.dp).semantics { contentDescription = "Column 3" }) {
+                    Column(
+                        modifier = Modifier.padding(1.dp)
+                            .semantics { contentDescription = "Column 3" }) {
                         Text("Text 1")
                         Text("Text 2")
                     }
@@ -971,11 +975,11 @@ class ComponentsAccessibilitySemanticTest {
             }
             node {
                 label = "Box 2"
-                isAccessibilityElement = true
+                isAccessibilityElement = false
             }
             node {
                 label = "Column 3"
-                isAccessibilityElement = true
+                isAccessibilityElement = false
             }
             node {
                 label = "Text 1"
@@ -1235,6 +1239,136 @@ class ComponentsAccessibilitySemanticTest {
                 isAccessibilityElement = true
                 label = "link"
                 traits = listOf(UIAccessibilityTraitButton)
+            }
+        }
+    }
+
+    @Test
+    fun testSemanticsMergingWithFocusableNodes() = runUIKitInstrumentedTest {
+        setContent {
+            Column(modifier = Modifier.clickable {}) {
+                Text("Line 1")
+                Text("Line 2")
+                Text("Line 3", modifier = Modifier.focusable())
+            }
+        }
+
+        assertAccessibilityTree {
+            node {
+                isAccessibilityElement = true
+                label = "Line 1, Line 2"
+                traits(UIAccessibilityTraitButton)
+                node {
+                    isAccessibilityElement = false
+                    label = "Line 1"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+                node {
+                    isAccessibilityElement = false
+                    label = "Line 2"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+            }
+            node {
+                isAccessibilityElement = true
+                label = "Line 3"
+                traits(UIAccessibilityTraitStaticText)
+            }
+        }
+    }
+
+    @Test
+    fun testSemanticsMergingWithProgressIndicators() = runUIKitInstrumentedTest {
+        setContent {
+            Column(modifier = Modifier.semantics(mergeDescendants = true) {}) {
+                Row {
+                    Text("Circular")
+                    CircularProgressIndicator()
+                }
+
+                Row {
+                    Text("Linear")
+                    LinearProgressIndicator(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+
+        assertAccessibilityTree {
+            node {
+                isAccessibilityElement = true
+                label = "Circular, Linear"
+                node {
+                    isAccessibilityElement = false
+                    label = "Circular"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+                node {
+                    isAccessibilityElement = false
+                    label = "Linear"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+            }
+            node {
+                isAccessibilityElement = true
+            }
+            node {
+                isAccessibilityElement = true
+            }
+        }
+    }
+
+    @Test
+    fun testSemanticsMergingWithComplexHierarchy() = runUIKitInstrumentedTest {
+        setContent {
+            Column(
+                modifier = Modifier.clickable {}
+            ) {
+                Text("Line 1")
+                Column(
+                    modifier = Modifier.clickable {}
+                ) {
+                    Text("Line 3")
+                    Button(onClick = {}) { Text("Button") }
+                }
+                Text("Line 2")
+            }
+        }
+
+        assertAccessibilityTree {
+            node {
+                isAccessibilityElement = true
+                label = "Line 1, Line 2"
+                traits(UIAccessibilityTraitButton)
+                node {
+                    isAccessibilityElement = false
+                    label = "Line 1"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+                node {
+                    isAccessibilityElement = false
+                    label = "Line 2"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+            }
+            node {
+                isAccessibilityElement = true
+                label = "Line 3"
+                traits(UIAccessibilityTraitButton)
+                node {
+                    isAccessibilityElement = false
+                    label = "Line 3"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+            }
+            node {
+                isAccessibilityElement = true
+                label = "Button"
+                traits(UIAccessibilityTraitButton)
+                node {
+                    isAccessibilityElement = false
+                    label = "Button"
+                    traits(UIAccessibilityTraitStaticText)
+                }
             }
         }
     }
