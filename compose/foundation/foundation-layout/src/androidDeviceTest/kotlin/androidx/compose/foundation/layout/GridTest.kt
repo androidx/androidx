@@ -18,6 +18,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -25,9 +26,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -38,6 +44,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -3053,6 +3060,90 @@ class GridTest : LayoutTest() {
                 "Column 2 should account for the spanned gap when calculating deficit",
                 expectedColWidth,
                 col2Size.value?.width,
+            )
+        }
+
+    @Test
+    fun testGrid_focusTraversal_followsPlacementOrder() =
+        with(density) {
+            val focusLog = mutableListOf<String>()
+            val latch = CountDownLatch(1)
+            var isPlaced by mutableStateOf(false)
+
+            show {
+                val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+                val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
+
+                Grid(
+                    config = {
+                        repeat(2) { column(GridTrackSize.Flex(1.fr)) }
+                        repeat(2) { row(GridTrackSize.Flex(1.fr)) }
+                    },
+                    modifier = Modifier.size(100.dp).onGloballyPositioned { isPlaced = true },
+                ) {
+                    // Compose items in reverse visual order: (2,2), (2,1), (1,2), (1,1)
+
+                    // 4. (2, 2)
+                    Box(
+                        Modifier.gridItem(row = 2, column = 2)
+                            .size(50.dp)
+                            .onFocusChanged { if (it.isFocused) focusLog.add("2,2") }
+                            .focusable()
+                    )
+                    // 3. (2, 1)
+                    Box(
+                        Modifier.gridItem(row = 2, column = 1)
+                            .size(50.dp)
+                            .onFocusChanged { if (it.isFocused) focusLog.add("2,1") }
+                            .focusable()
+                    )
+                    // 2. (1, 2)
+                    Box(
+                        Modifier.gridItem(row = 1, column = 2)
+                            .size(50.dp)
+                            .onFocusChanged { if (it.isFocused) focusLog.add("1,2") }
+                            .focusable()
+                    )
+                    // 1. (1, 1)
+                    Box(
+                        Modifier.gridItem(row = 1, column = 1)
+                            .size(50.dp)
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { if (it.isFocused) focusLog.add("1,1") }
+                            .focusable()
+                    )
+                }
+
+                if (isPlaced) {
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        // 1. Initially focus the top-start item (1,1)
+                        focusRequester.requestFocus()
+                        kotlinx.coroutines.yield() // Allow event to process
+
+                        // 2. Tab -> should go to (1,2)
+                        focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next)
+                        kotlinx.coroutines.yield()
+
+                        // 3. Tab -> should go to (2,1)
+                        focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next)
+                        kotlinx.coroutines.yield()
+
+                        // 4. Tab -> should go to (2,2)
+                        focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next)
+                        kotlinx.coroutines.yield()
+
+                        latch.countDown()
+                    }
+                }
+            }
+
+            assertTrue("Timed out waiting for focus traversal", latch.await(2, TimeUnit.SECONDS))
+
+            val expectedOrder = listOf("1,1", "1,2", "2,1", "2,2")
+            assertEquals(
+                "Focus should traverse in a Z-shaped order based on placement order, not composition order",
+                expectedOrder,
+                focusLog,
             )
         }
 
