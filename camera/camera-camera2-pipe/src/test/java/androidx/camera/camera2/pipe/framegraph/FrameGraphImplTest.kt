@@ -62,7 +62,12 @@ class FrameGraphImplTest {
         FakeCameraMetadata(
             mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         )
-    private val streamConfig1 = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
+    private val streamConfig1 =
+        CameraStream.Config.create(
+            Size(640, 480),
+            StreamFormat.YUV_420_888,
+            imageSourceConfig = androidx.camera.camera2.pipe.ImageSourceConfig(capacity = 10),
+        )
     private val streamConfig2 = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
     private val graphConfig =
         CameraGraph.Config(camera = metadata.camera, streams = listOf(streamConfig1, streamConfig2))
@@ -658,6 +663,56 @@ class FrameGraphImplTest {
             assertThat(capture1.status).isEqualTo(OutputStatus.AVAILABLE)
             assertThat(capture2.status).isEqualTo(OutputStatus.AVAILABLE)
             assertThat(capture3.status).isEqualTo(OutputStatus.AVAILABLE)
+        }
+
+    @Test
+    fun drain_clearsBuffers() =
+        testScope.runTest {
+            initialize(this)
+            val stream1 = frameGraph.streams[streamConfig1]!!.id
+            val stream2 = frameGraph.streams[streamConfig2]!!.id
+            val buffer1 = frameGraph.captureWith(setOf(stream1), capacity = 10)
+            val buffer2 = frameGraph.captureWith(setOf(stream2), capacity = 10)
+            advanceUntilIdle()
+            repeat(5) { frameGraph.simulateNextFrame() }
+            advanceUntilIdle()
+            assertEquals(5, buffer1.size.value)
+            assertEquals(5, buffer2.size.value)
+
+            frameGraph.drain(stream1)
+            advanceUntilIdle()
+
+            assertEquals(0, buffer1.size.value)
+            assertEquals(5, buffer2.size.value)
+
+            frameGraph.drain(stream2)
+            advanceUntilIdle()
+
+            assertEquals(0, buffer1.size.value)
+            assertEquals(0, buffer2.size.value)
+        }
+
+    @Test
+    fun drain_flushesImageSource() =
+        testScope.runTest {
+            initialize(this)
+            val stream = frameGraph.streams[streamConfig1]!!.id
+            val imageSource = cameraPipeSimulator.fakeImageSources[stream]
+            assertThat(imageSource).isNotNull()
+            assertThat(imageSource!!.isFlushed).isFalse()
+
+            frameGraph.drain(stream)
+            advanceUntilIdle()
+
+            assertThat(imageSource.isFlushed).isTrue()
+
+            frameGraph.simulateImage(stream, 100)
+            assertThat(imageSource.isFlushed).isFalse()
+
+            frameGraph.drain(stream)
+            advanceUntilIdle()
+
+            assertThat(imageSource.isFlushed).isTrue()
         }
 
     companion object {

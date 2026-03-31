@@ -41,6 +41,9 @@ private constructor(
     public val images: List<FakeImage>
         get() = fakeImageReader.images
 
+    public val isFlushed: Boolean
+        get() = fakeImageReader.isFlushed
+
     public fun simulateImage(timestamp: Long, outputId: OutputId? = null): FakeImage {
         return fakeImageReader.simulateImage(timestamp, outputId)
     }
