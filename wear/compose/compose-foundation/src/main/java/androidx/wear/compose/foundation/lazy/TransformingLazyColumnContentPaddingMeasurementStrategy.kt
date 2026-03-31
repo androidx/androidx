@@ -347,7 +347,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
 
         with(measurementScope) {
             this.itemsCount = itemsCount
-            this.itemSpacing = itemSpacing
+            this.itemSpacing = itemSpacingPx
             this.maxHeight = containerConstraints.maxHeight
             this.beforeContentPadding = initialBeforeContentPadding
             this.afterContentPadding = initialAfterContentPadding
