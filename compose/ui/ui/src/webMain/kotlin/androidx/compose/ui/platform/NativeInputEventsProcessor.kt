@@ -18,8 +18,11 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.TestOnly
 import androidx.compose.ui.input.key.toComposeEvent
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.input.BackspaceCommand
 import androidx.compose.ui.text.input.CommitTextCommand
+import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.SetSelectionCommand
 import androidx.compose.ui.text.input.TextFieldValue
@@ -53,6 +56,19 @@ internal abstract class NativeInputEventsProcessor(
 
     internal var lastCompositionEndTimestamp = 0.0 // Double because of k/wasm where Number.toLong() leads to a compilation error
     private var lastProcessedKeydown: KeyboardEvent? = null
+
+    private tailrec fun TextLayoutResult.getPrevWordOffset(currentOffset: Int): Int {
+        if (currentOffset <= 0) {
+            return 0
+        }
+        val text = layoutInput.text
+        val currentWord = getWordBoundary(currentOffset.coerceIn(0, text.length - 1))
+        return if (currentWord.start >= currentOffset) {
+            getPrevWordOffset(currentOffset - 1)
+        } else {
+            OffsetMapping.Identity.transformedToOriginal(currentWord.start)
+        }
+    }
 
     /**
      * Schedules a checkpoint for processing input events.
@@ -166,13 +182,13 @@ internal abstract class NativeInputEventsProcessor(
                 if (lastProcessedKeydown?.isBackspace() != true) return@buildList
 
                 // This would mean event was triggered by long press on mobile device (iOS)
-                if (lastProcessedKeydown?.altKey == false) {
+                if (lastProcessedKeydown?.repeat == true) {
                     val layoutResult = composeSender.currentTextLayoutResult() ?: return@buildList
-                    val text = layoutResult.layoutInput.text
-                    val wordBoundary = layoutResult.getWordBoundary(textRangeStart.coerceIn(0, text.length - 1))
 
-                    add(SetSelectionCommand(wordBoundary.start, wordBoundary.end))
-                    add(BackspaceCommand())
+
+                    val offset = layoutResult.getPrevWordOffset(textRangeStart)
+                    val deleteCommand = DeleteSurroundingTextCommand((textRangeEnd - offset).coerceAtLeast(0), 0)
+                    add(deleteCommand)
                 }
             }
 

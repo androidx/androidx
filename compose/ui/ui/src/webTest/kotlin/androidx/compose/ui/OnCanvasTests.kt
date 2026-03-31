@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.window.ComposeViewport
 import androidx.compose.ui.window.ComposeViewportConfiguration
 import kotlin.coroutines.suspendCoroutine
@@ -232,6 +233,7 @@ internal class WebApplicationScope(
 
 internal interface TestInputState {
     val text: CharSequence
+    val selection: TextRange
 
     @Composable
     fun createBasicTextField(focusRequester: FocusRequester)

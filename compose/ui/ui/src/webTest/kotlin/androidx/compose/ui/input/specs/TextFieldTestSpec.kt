@@ -50,6 +50,7 @@ internal interface TextFieldTestSpec : OnCanvasTests {
 
         focusRequester.requestFocus()
         waitForHtmlInput()
+        awaitAnimationFrame()
 
         return textFieldStateHolder
     }

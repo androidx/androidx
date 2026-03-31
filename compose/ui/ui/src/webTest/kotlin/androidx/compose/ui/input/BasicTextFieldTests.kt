@@ -49,6 +49,9 @@ private class TextFieldValueHolder(private val textFieldValue: MutableState<Text
     override val text: String
         get() = textFieldValue.value.text
 
+    override val selection: TextRange
+        get() = textFieldValue.value.selection
+
     @Composable
     override fun createBasicTextField(focusRequester: FocusRequester) {
         BasicTextField(
@@ -64,6 +67,9 @@ private class TextFieldValueHolder(private val textFieldValue: MutableState<Text
 private class TextFieldStateHolder(private val textFieldState: TextFieldState) : TestInputState {
     override val text: CharSequence
         get() = textFieldState.text
+
+    override val selection: TextRange
+        get() = textFieldState.selection
 
     @Composable
     override fun createBasicTextField(focusRequester: FocusRequester) {
