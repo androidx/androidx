@@ -33,7 +33,16 @@ dependencies {
     api(project(":xr:runtime:runtime"))
 
     implementation("androidx.annotation:annotation:1.8.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-testing:2.10.0")
     implementation(libs.truth)
+
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.junit)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRunner)
+    testImplementation(project(":kruth:kruth"))
+    testImplementation(libs.testRules)
+    testImplementation("androidx.appcompat:appcompat:1.2.0")
 }
 
 android {

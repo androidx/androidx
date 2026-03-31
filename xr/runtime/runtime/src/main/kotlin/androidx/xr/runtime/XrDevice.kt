@@ -81,6 +81,7 @@ private constructor(
             listOf(
                 "androidx.xr.runtime.openxr.OpenXrDeviceCapabilityProviderFactory",
                 "androidx.xr.projected.ProjectedDeviceCapabilityProviderFactory",
+                "androidx.xr.runtime.testing.internal.FakeXrDeviceCapabilityProviderFactory",
             )
 
         @GuardedBy("deviceCache") private val deviceCache = WeakHashMap<Context, XrDevice>()
