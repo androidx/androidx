@@ -16,7 +16,8 @@
 
 package androidx.preference
 
-import androidx.preference.ktx.test.R
+import android.content.Context
+import androidx.preference.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -38,7 +39,7 @@ class PreferenceGroupTest {
     @JvmField
     @Rule
     val rule = androidx.test.rule.ActivityTestRule(PreferenceTestHelperActivity::class.java)
-    private val context = ApplicationProvider.getApplicationContext() as android.content.Context
+    private val context = ApplicationProvider.getApplicationContext() as Context
     private lateinit var preferenceGroup: PreferenceGroup
 
     @Before
