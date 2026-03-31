@@ -28,14 +28,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-9904/Implement-TrackpadButton-actual
-@Ignore
 /**
  * Tests the trackpad-event sending functionality of the test framework.
  */
@@ -229,12 +226,12 @@ class TrackpadInputTest {
 
         onNodeWithTag("tag").apply {
             performTrackpadInput {
-                //scroll(Offset(0f, 50f))
+                pan(Offset(0f, 50f))
             }
             assertEquals(Offset(0f, 50f), panDelta, "Wrong vertical scroll delta detected")
 
             performTrackpadInput {
-                //scroll(Offset(30f, 0f))
+                pan(Offset(30f, 0f))
             }
             assertEquals(Offset(30f, 0f), panDelta, "Wrong horizontal scroll delta detected")
         }
@@ -262,12 +259,12 @@ class TrackpadInputTest {
 
         onNodeWithTag("tag").apply {
             performTrackpadInput {
-                // pinch(0.5f)
+                scale(0.5f)
             }
             assertEquals(0.5f, scale, "Wrong vertical scroll delta detected")
 
             performTrackpadInput {
-                // pinch(2.0f)
+                scale(2.0f)
             }
             assertEquals(2.0f, scale, "Wrong horizontal scroll delta detected")
         }

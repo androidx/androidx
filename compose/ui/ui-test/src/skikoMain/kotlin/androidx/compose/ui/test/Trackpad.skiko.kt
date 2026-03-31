@@ -18,15 +18,14 @@ package androidx.compose.ui.test
 
 import kotlin.jvm.JvmInline
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-9904/Implement-TrackpadButton-actual
 @JvmInline
 actual value class TrackpadButton actual constructor(actual val buttonId: Int) {
     actual companion object {
         actual val Primary: TrackpadButton
-            get() = TODO("Not yet implemented")
+            get() = TrackpadButton(0)
         actual val Secondary: TrackpadButton
-            get() = TODO("Not yet implemented")
+            get() = TrackpadButton(1)
         actual val Tertiary: TrackpadButton
-            get() = TODO("Not yet implemented")
+            get() = TrackpadButton(2)
     }
 }
