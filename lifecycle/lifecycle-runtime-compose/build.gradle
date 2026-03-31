@@ -55,7 +55,7 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(project(":lifecycle:lifecycle-runtime"))
             api("androidx.annotation:annotation:1.9.1")
-            api("androidx.compose.runtime:runtime:1.9.0")
+            api("androidx.compose.runtime:runtime:1.11.0-beta01")
         }
 
         commonTest.dependencies {
