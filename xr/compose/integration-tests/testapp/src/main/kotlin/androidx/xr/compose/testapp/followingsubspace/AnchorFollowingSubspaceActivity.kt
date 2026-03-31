@@ -189,7 +189,7 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
             val anchor = createAnchorEntity(session, position)
             rootAnchor = anchor
 
-            onDispose { anchor?.getAnchor()?.detach() }
+            onDispose { anchor?.anchor?.detach() }
         }
 
         val currentAnchor = rootAnchor
@@ -245,8 +245,8 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
             alternateAnchor = localAlternative
 
             onDispose {
-                localRoot?.getAnchor()?.detach()
-                localAlternative?.getAnchor()?.detach()
+                localRoot?.anchor?.detach()
+                localAlternative?.anchor?.detach()
             }
         }
 
