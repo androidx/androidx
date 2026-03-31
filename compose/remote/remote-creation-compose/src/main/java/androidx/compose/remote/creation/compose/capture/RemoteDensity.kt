@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.capture
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
@@ -36,7 +35,8 @@ public class RemoteDensity(public val density: RemoteFloat, public val fontScale
         private const val DEFAULT_FONT_SIZE = 14f
 
         /**
-         * Creates a [RemoteDensity] instance from the provided [CreationDisplayInfo] and [Context].
+         * Creates a [RemoteDensity] instance from the provided [RemoteCreationDisplayInfo] and
+         * [Context].
          *
          * @param creationDisplayInfo The display information containing the screen density.
          * @param context optional context to get font scale from local configuration, if not
@@ -46,11 +46,11 @@ public class RemoteDensity(public val density: RemoteFloat, public val fontScale
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun from(
-            creationDisplayInfo: CreationDisplayInfo,
+            creationDisplayInfo: RemoteCreationDisplayInfo,
             context: Context? = null,
         ): RemoteDensity {
             val localScale = if (context == null) 1f else context.resources.configuration.fontScale
-            return RemoteDensity(creationDisplayInfo.density.rf, localScale.rf)
+            return RemoteDensity(creationDisplayInfo.density.density.rf, localScale.rf)
         }
 
         /**

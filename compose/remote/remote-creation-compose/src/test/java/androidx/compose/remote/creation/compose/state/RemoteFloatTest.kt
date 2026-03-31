@@ -25,8 +25,8 @@ import androidx.compose.remote.core.RemoteContext.ID_CONTINUOUS_SEC
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
@@ -1149,7 +1149,7 @@ class RemoteFloatTest {
 
     @Test
     fun rememberNamedRemoteFloatConstant() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(
                 creationDisplayInfo = displayInfo,
@@ -1171,7 +1171,7 @@ class RemoteFloatTest {
 
     @Test
     fun rememberNamedRemoteFloatExpression() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(
                 creationDisplayInfo = displayInfo,
@@ -1197,7 +1197,7 @@ class RemoteFloatTest {
 
     @Test
     fun rememberMutableRemoteFloatConstant() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(
                 creationDisplayInfo = displayInfo,
@@ -1224,7 +1224,7 @@ class RemoteFloatTest {
 
     @Test
     fun rememberMutableRemoteFloatExpression() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(
                 creationDisplayInfo = displayInfo,
@@ -1253,7 +1253,7 @@ class RemoteFloatTest {
 
     @Test
     fun rememberCreateMutableRemoteFloatConstant() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(
                 creationDisplayInfo = displayInfo,

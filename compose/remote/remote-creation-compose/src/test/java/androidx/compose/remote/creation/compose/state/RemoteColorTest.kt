@@ -26,8 +26,8 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.ColorAttribute
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -514,7 +514,7 @@ class RemoteColorTest {
 
     @Test
     fun writesOutColorOnce() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
 
         val document =
             captureSingleRemoteDocumentV2(

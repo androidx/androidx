@@ -19,7 +19,7 @@ package androidx.compose.remote.player.compose.creation.compose.capture
 import android.content.Context
 import android.util.Log
 import androidx.compose.remote.core.WireBuffer
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -110,7 +110,11 @@ class BlendModeTest {
         runBlocking {
             remoteComposeTestRule.runScreenshotTest(
                 creationDisplayInfo =
-                    CreationDisplayInfo(2000, 2500, context.resources.displayMetrics.densityDpi)
+                    RemoteCreationDisplayInfo(
+                        2000,
+                        2500,
+                        context.resources.displayMetrics.densityDpi,
+                    )
             ) {
                 AllBlendModes()
             }

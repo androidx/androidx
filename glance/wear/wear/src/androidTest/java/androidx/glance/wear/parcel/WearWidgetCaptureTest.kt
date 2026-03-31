@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.action.pendingIntentAction
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -36,7 +37,6 @@ import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
@@ -162,7 +162,7 @@ class WearWidgetCaptureTest {
             CreationDisplayInfo(400, 400, context.resources.configuration.densityDpi)
         val profile = RcPlatformProfiles.WEAR_WIDGETS
         val result =
-            captureSingleRemoteDocumentV2(
+            captureSingleRemoteDocument(
                 creationDisplayInfo = creationDisplayInfo,
                 context = context,
                 profile = profile,

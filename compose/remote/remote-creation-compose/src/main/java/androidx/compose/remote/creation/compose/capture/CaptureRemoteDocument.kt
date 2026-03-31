@@ -42,18 +42,20 @@ import androidx.compose.runtime.Composable
  */
 public suspend fun captureSingleRemoteDocument(
     context: Context,
-    creationDisplayInfo: CreationDisplayInfo = createCreationDisplayInfo(context),
+    creationDisplayInfo: CreationDisplayInfo =
+        createCreationDisplayInfo(context).toCreationDisplayInfo(),
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     content: @Composable @RemoteComposable () -> Unit,
 ): CapturedDocument {
     val layoutDirection = toLayoutDirection(context.resources.configuration.layoutDirection)
 
+    val remoteCreationDisplayInfo = creationDisplayInfo.toRemote()
     // Make part of the API above when v1 path removed
     val remoteDensity =
         RemoteDensity(creationDisplayInfo.density.rf, context.resources.configuration.fontScale.rf)
 
     return captureSingleRemoteDocumentV2(
-        creationDisplayInfo = creationDisplayInfo,
+        creationDisplayInfo = remoteCreationDisplayInfo,
         remoteDensity = remoteDensity,
         layoutDirection = layoutDirection,
         profile = profile,
@@ -61,3 +63,10 @@ public suspend fun captureSingleRemoteDocument(
         context = context,
     )
 }
+
+private fun CreationDisplayInfo.toRemote(): RemoteCreationDisplayInfo =
+    RemoteCreationDisplayInfo(
+        width = this.width,
+        height = this.height,
+        densityDpi = this.densityDpi,
+    )

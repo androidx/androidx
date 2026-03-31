@@ -18,7 +18,7 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.border
@@ -51,7 +51,7 @@ class RemoteIconTest {
     fun volumeUpRemoteIcon() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(
+                RemoteCreationDisplayInfo(
                     size.width,
                     size.height,
                     context.resources.displayMetrics.densityDpi,
@@ -66,7 +66,7 @@ class RemoteIconTest {
     fun volumeUpRemoteIcon_tintedRed() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(
+                RemoteCreationDisplayInfo(
                     size.width,
                     size.height,
                     context.resources.displayMetrics.densityDpi,
@@ -85,7 +85,7 @@ class RemoteIconTest {
     fun volumeUpRemoteIcon_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(
+                RemoteCreationDisplayInfo(
                     size.width,
                     size.height,
                     context.resources.displayMetrics.densityDpi,
@@ -101,7 +101,7 @@ class RemoteIconTest {
     fun volumeUpRemoteIcon_scaledUp() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
             backgroundColor = Color.Black,
         ) {
             RemoteIcon(
@@ -116,7 +116,7 @@ class RemoteIconTest {
     fun remoteIcon_fromImageVector() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
             backgroundColor = Color.Black,
         ) {
             RemoteIcon(
@@ -131,7 +131,7 @@ class RemoteIconTest {
     fun remoteIcon_setBorderSizeUnchanged() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                CreationDisplayInfo(200, 100, context.resources.displayMetrics.densityDpi),
+                RemoteCreationDisplayInfo(200, 100, context.resources.displayMetrics.densityDpi),
             backgroundColor = Color.Black,
         ) {
             RemoteRow {

@@ -25,8 +25,8 @@ import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.core.semantics.CoreSemantics
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
@@ -55,7 +55,7 @@ class SemanticsModifierTest {
 
     @Test
     fun semanticsModifier_recordsCorrectProperties() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val captured =
             captureSingleRemoteDocumentV2(
                 creationDisplayInfo = displayInfo,
@@ -89,7 +89,7 @@ class SemanticsModifierTest {
 
     @Test
     fun clearAndSetSemantics_recordsCorrectMode() = runTest {
-        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val captured =
             captureSingleRemoteDocumentV2(
                 creationDisplayInfo = displayInfo,

@@ -24,11 +24,11 @@ import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.integration.demos.ScrollableList
 import androidx.compose.runtime.Composable
@@ -61,7 +61,7 @@ suspend fun listWidget(context: Context, name: String): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 suspend fun record(context: Context, content: @RemoteComposable @Composable () -> Unit): ByteArray =
     withContext(Dispatchers.Main) {
-        captureSingleRemoteDocument(
+        captureSingleRemoteDocumentV2(
                 context = context,
                 creationDisplayInfo = createCreationDisplayInfo(context),
                 profile = RcPlatformProfiles.WIDGETS_V6,

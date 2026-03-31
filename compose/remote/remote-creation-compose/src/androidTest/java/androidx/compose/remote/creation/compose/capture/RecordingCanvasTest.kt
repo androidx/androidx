@@ -145,9 +145,9 @@ class RecordingCanvasTest {
 
     @Test
     fun creationDisplayInfo() {
-        assertThat(recordingCanvas.creationDisplayInfo.width).isEqualTo(WIDTH)
-        assertThat(recordingCanvas.creationDisplayInfo.height).isEqualTo(HEIGHT)
-        assertThat(recordingCanvas.creationDisplayInfo.densityDpi).isEqualTo(160)
+        assertThat(recordingCanvas.creationDisplayInfo.size.width).isEqualTo(WIDTH.toFloat())
+        assertThat(recordingCanvas.creationDisplayInfo.size.height).isEqualTo(HEIGHT.toFloat())
+        assertThat(recordingCanvas.creationDisplayInfo.density.density).isEqualTo(1f)
     }
 
     @Test

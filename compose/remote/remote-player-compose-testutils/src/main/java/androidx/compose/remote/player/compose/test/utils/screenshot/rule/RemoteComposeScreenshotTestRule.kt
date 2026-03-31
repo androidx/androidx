@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.heightDp
@@ -125,7 +125,7 @@ class RemoteComposeScreenshotTestRule(
     }
 
     fun runTest(
-        creationDisplayInfo: CreationDisplayInfo = displayInfo,
+        creationDisplayInfo: RemoteCreationDisplayInfo = displayInfo,
         backgroundColor: Color? = null,
         content: @Composable @RemoteComposable () -> Unit,
     ) {
@@ -138,7 +138,7 @@ class RemoteComposeScreenshotTestRule(
 
     fun runScreenshotTest(
         screenshotName: Description = testDescription,
-        creationDisplayInfo: CreationDisplayInfo = displayInfo,
+        creationDisplayInfo: RemoteCreationDisplayInfo = displayInfo,
         layoutDirection: LayoutDirection? = null,
         backgroundColor: Color? = null,
         deviceConfigurationOverride: DeviceConfigurationOverride? = null,
@@ -163,7 +163,7 @@ class RemoteComposeScreenshotTestRule(
 
     fun runScreenshotTest(
         screenshotName: Description = testDescription,
-        creationDisplayInfo: CreationDisplayInfo = displayInfo,
+        creationDisplayInfo: RemoteCreationDisplayInfo = displayInfo,
         backgroundColor: Color? = null,
         document: CoreDocument,
         deviceConfigurationOverride: DeviceConfigurationOverride? = null,
@@ -208,7 +208,7 @@ class RemoteComposeScreenshotTestRule(
     }
 
     fun setContent(
-        creationDisplayInfo: CreationDisplayInfo = displayInfo,
+        creationDisplayInfo: RemoteCreationDisplayInfo = displayInfo,
         layoutDirection: LayoutDirection? = null,
         backgroundColor: Color? = null,
         deviceConfigurationOverride: DeviceConfigurationOverride? = null,
@@ -274,12 +274,12 @@ class RemoteComposeScreenshotTestRule(
     @Composable
     private fun RemoteDocumentPlayer(
         document: CoreDocument,
-        creationDisplayInfo: CreationDisplayInfo,
+        creationDisplayInfo: RemoteCreationDisplayInfo,
     ) {
         RemoteDocumentPlayer(
             document,
-            creationDisplayInfo.width,
-            creationDisplayInfo.height,
+            creationDisplayInfo.size.width.toInt(),
+            creationDisplayInfo.size.height.toInt(),
             debugMode = 1,
             bitmapLoader = bitmapLoader,
             onNamedAction = { name, value, _ -> clickEvents.add(Pair(name, value)) },

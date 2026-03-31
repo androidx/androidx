@@ -21,11 +21,11 @@ package androidx.compose.remote.creation.compose.v2
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.compose.capture.toLayoutDirection
@@ -83,9 +83,12 @@ import kotlinx.coroutines.launch
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun captureSingleRemoteDocumentV2(
-    creationDisplayInfo: CreationDisplayInfo,
+    creationDisplayInfo: RemoteCreationDisplayInfo,
     remoteDensity: RemoteDensity =
-        RemoteDensity(creationDisplayInfo.density.rf, context.resources.configuration.fontScale.rf),
+        RemoteDensity(
+            creationDisplayInfo.density.density.rf,
+            context.resources.configuration.fontScale.rf,
+        ),
     layoutDirection: LayoutDirection? = null,
     context: Context,
     clock: RemoteClock = RemoteClock.SYSTEM,
@@ -116,7 +119,10 @@ public suspend fun captureSingleRemoteDocumentV2(
             CompositionLocalProvider(
                 LocalRemoteComposeCreationState provides creationState,
                 LocalDensity provides
-                    Density(creationDisplayInfo.density, context.resources.configuration.fontScale),
+                    Density(
+                        creationDisplayInfo.density.density,
+                        context.resources.configuration.fontScale,
+                    ),
                 LocalContext provides context,
                 LocalConfiguration provides context.resources.configuration,
                 LocalLayoutDirection provides layoutDirection,
@@ -180,9 +186,12 @@ public suspend fun captureSingleRemoteDocumentV2(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun captureRemoteDocumentV2(
-    creationDisplayInfo: CreationDisplayInfo,
+    creationDisplayInfo: RemoteCreationDisplayInfo,
     remoteDensity: RemoteDensity =
-        RemoteDensity(creationDisplayInfo.density.rf, context.resources.configuration.fontScale.rf),
+        RemoteDensity(
+            creationDisplayInfo.density.density.rf,
+            context.resources.configuration.fontScale.rf,
+        ),
     layoutDirection: LayoutDirection? = null,
     writerEvents: WriterEvents,
     context: Context,
@@ -223,7 +232,10 @@ public fun captureRemoteDocumentV2(
             CompositionLocalProvider(
                 LocalRemoteComposeCreationState provides creationState,
                 LocalDensity provides
-                    Density(creationDisplayInfo.density, context.resources.configuration.fontScale),
+                    Density(
+                        creationDisplayInfo.density.density,
+                        context.resources.configuration.fontScale,
+                    ),
                 LocalContext provides context,
                 LocalConfiguration provides context.resources.configuration,
                 LocalLayoutDirection provides layoutDirection,

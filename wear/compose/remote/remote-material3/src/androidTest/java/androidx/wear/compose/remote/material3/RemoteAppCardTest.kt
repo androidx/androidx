@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.test.core.app.ApplicationProvider
@@ -40,7 +40,7 @@ class RemoteAppCardTest {
         RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
 
     private val creationDisplayInfo =
-        CreationDisplayInfo(
+        RemoteCreationDisplayInfo(
             500,
             500,
             ApplicationProvider.getApplicationContext<Context>().resources.displayMetrics.densityDpi,

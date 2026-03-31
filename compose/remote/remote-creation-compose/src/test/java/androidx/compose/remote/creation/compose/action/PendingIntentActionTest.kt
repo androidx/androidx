@@ -18,10 +18,10 @@ package androidx.compose.remote.creation.compose.action
 
 import android.app.PendingIntent
 import android.content.Intent
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.compose.action.PendingIntentAction.Companion.ACTION_NAME
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -61,7 +61,7 @@ class PendingIntentActionTest {
         val writerEvents = WriterEvents()
         val creationState =
             RemoteComposeCreationState(
-                creationDisplayInfo = CreationDisplayInfo(1, 1, 160),
+                creationDisplayInfo = RemoteCreationDisplayInfo(1, 1, 160),
                 profile = RcPlatformProfiles.ANDROIDX,
                 writerEvents = writerEvents,
                 layoutDirection = LayoutDirection.Ltr,

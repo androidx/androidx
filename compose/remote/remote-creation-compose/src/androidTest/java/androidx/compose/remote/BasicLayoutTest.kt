@@ -25,11 +25,12 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.action.ValueChange
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
+import androidx.compose.remote.creation.compose.capture.toCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -121,7 +122,11 @@ class BasicLayoutTest {
 
     // Cuttlefish tests run on device with 720x1280 at 2.0 density
     val creationDisplayInfo =
-        CreationDisplayInfo((260 * 2.75).toInt(), (300 * 2.75).toInt(), ((2.75f * 160).toInt()))
+        RemoteCreationDisplayInfo(
+            (260 * 2.75).toInt(),
+            (300 * 2.75).toInt(),
+            ((2.75f * 160).toInt()),
+        )
 
     @Composable
     fun rememberRemoteDocumentFixedDensity(
@@ -137,7 +142,13 @@ class BasicLayoutTest {
         val result = remember { mutableStateOf<CoreDocument?>(null) }
         val context = LocalContext.current
         LaunchedEffect(Unit) {
-            val captured = captureSingleRemoteDocument(context, creationDisplayInfo) { content() }
+            val captured =
+                captureSingleRemoteDocument(
+                    creationDisplayInfo = creationDisplayInfo.toCreationDisplayInfo(),
+                    context = context,
+                ) {
+                    content()
+                }
             result.value =
                 CoreDocument().apply {
                     this.initFromBuffer(

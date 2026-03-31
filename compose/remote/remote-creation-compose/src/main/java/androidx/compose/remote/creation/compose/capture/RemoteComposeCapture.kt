@@ -20,7 +20,6 @@ package androidx.compose.remote.creation.compose.capture
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -40,7 +39,7 @@ import java.io.ByteArrayInputStream
 
 @Composable
 public fun rememberRemoteDocument(
-    creationDisplayInfo: CreationDisplayInfo = createCreationDisplayInfo(),
+    creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(),
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     writerEvents: WriterEvents = WriterEvents(),
     onCreate: ((CoreDocument) -> Unit)? = null,
@@ -81,7 +80,7 @@ public fun rememberRemoteDocument(
 ): MutableState<CoreDocument?> {
     return rememberRemoteDocument(
         creationDisplayInfo =
-            CreationDisplayInfo(
+            RemoteCreationDisplayInfo(
                 size.width.toInt(),
                 size.height.toInt(),
                 LocalConfiguration.current.densityDpi,
