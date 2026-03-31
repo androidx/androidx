@@ -21,7 +21,7 @@ import android.text.style.MetricAffectingSpan
 import androidx.text.vertical.FontShearSpan.Companion.DEFAULT_FONT_SHEAR
 
 /**
- * A span that applies a shear (skew) transformation to the vertical writing text.
+ * A span that applies a shear (skew) transformation to vertical writing text.
  *
  * This span inherits from [MetricAffectingSpan], but it is specifically designed for use within a
  * [VerticalTextLayout] and will not have an effect in other contexts.
@@ -32,17 +32,22 @@ import androidx.text.vertical.FontShearSpan.Companion.DEFAULT_FONT_SHEAR
  * The shear value represents the horizontal skew factor for rotated or tate-chu-yoko text. For
  * upright text, this value is used as the vertical skew factor.
  *
- * See [DEFAULT_FONT_SHEAR] for the default value.
+ * NOTE: This span only works with [VerticalTextLayout].
  *
- * Note: This span only works with VerticalTextLayout.
- *
- * @property fontShear The shear factor to apply to the text.
+ * @property fontShear The shear factor to apply to the text. This is the tangent of the shear
+ *   angle.
  */
-public class FontShearSpan(public val fontShear: Float = DEFAULT_FONT_SHEAR) :
-    MetricAffectingSpan() {
-    override fun updateMeasureState(p0: TextPaint) {}
+public class FontShearSpan
+@JvmOverloads
+constructor(public val fontShear: Float = DEFAULT_FONT_SHEAR) : MetricAffectingSpan() {
 
-    override fun updateDrawState(p0: TextPaint?) {}
+    override fun updateMeasureState(textPaint: TextPaint) {
+        /* No-op: Handled internally by VerticalTextLayout */
+    }
+
+    override fun updateDrawState(textPaint: TextPaint?) {
+        /* No-op: Handled internally by VerticalTextLayout */
+    }
 
     public companion object {
         /**
