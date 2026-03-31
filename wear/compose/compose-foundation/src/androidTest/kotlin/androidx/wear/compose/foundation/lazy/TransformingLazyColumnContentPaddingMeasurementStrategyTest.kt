@@ -794,6 +794,137 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         assertThat(result.visibleItems.first().offset).isEqualTo(requiredTopPx)
     }
 
+    @Test
+    fun requestedAnchor_itemTop_anchorsLogicalTopOffset() {
+        var requestedKey: Any? = null
+        val strategy =
+            measurementStrategy(
+                requestedAnchorKey = { requestedKey },
+                requestedAnchorType = { TransformingLazyColumnAnchorType.ItemTop },
+                reverseLayout = false,
+            )
+        val initialResult = strategy.measure(itemHeights = listOf(50, 50, 50))
+        val initialItem1 = initialResult.visibleItems.first { it.index == 1 }
+        assertThat(initialItem1.offset).isEqualTo(50)
+
+        requestedKey = 1
+        val newResult = strategy.measure(itemHeights = listOf(50, 100, 50))
+        val newItem1 = newResult.visibleItems.first { it.index == 1 }
+
+        assertThat(newItem1.offset).isEqualTo(50)
+        assertThat(newItem1.transformedHeight).isEqualTo(100)
+    }
+
+    @Test
+    fun requestedAnchor_itemBottom_anchorsLogicalBottomOffset() {
+        var requestedKey: Any? = null
+        val strategy =
+            measurementStrategy(
+                requestedAnchorKey = { requestedKey },
+                requestedAnchorType = { TransformingLazyColumnAnchorType.ItemBottom },
+            )
+        val initialResult = strategy.measure(itemHeights = listOf(50, 50, 50))
+        val initialItem1 = initialResult.visibleItems.first { it.index == 1 }
+        val initialLogicalBottom = initialItem1.offset + initialItem1.transformedHeight
+        assertThat(initialLogicalBottom).isEqualTo(100) // 50 + 50
+
+        requestedKey = 1
+        val newResult = strategy.measure(itemHeights = listOf(50, 100, 50))
+
+        val newItem1 = newResult.visibleItems.first { it.index == 1 }
+        val newLogicalBottom = newItem1.offset + newItem1.transformedHeight
+
+        // ItemBottom should lock the logical bottom offset at 100
+        // Which means the offset should now be 0 (100 bottom - 100 height)
+        assertThat(newLogicalBottom).isEqualTo(100)
+        assertThat(newItem1.offset).isEqualTo(0)
+    }
+
+    @Test
+    fun requestedAnchor_itemTopAndReverseLayout_anchorsLogicalEndOffset() {
+        var requestedKey: Any? = null
+        val strategy =
+            measurementStrategy(
+                requestedAnchorKey = { requestedKey },
+                requestedAnchorType = { TransformingLazyColumnAnchorType.ItemTop },
+                reverseLayout = true,
+            )
+        val initialResult = strategy.measure(itemHeights = listOf(50, 50, 50))
+        val initialItem1 = initialResult.visibleItems.first { it.index == 1 }
+        val initialLogicalEnd = initialItem1.offset + initialItem1.transformedHeight
+        assertThat(initialLogicalEnd).isEqualTo(100)
+
+        requestedKey = 1
+        val newResult = strategy.measure(itemHeights = listOf(50, 100, 50))
+        val newItem1 = newResult.visibleItems.first { it.index == 1 }
+        val newLogicalEnd = newItem1.offset + newItem1.transformedHeight
+
+        // ItemTop in reverseLayout fixes the visual top, which is the logical end.
+        assertThat(newLogicalEnd).isEqualTo(100)
+        assertThat(newItem1.offset).isEqualTo(0)
+    }
+
+    @Test
+    fun requestedAnchor_itemBottomAndReverseLayout_anchorsLogicalStartOffset() {
+        var requestedKey: Any? = null
+        val strategy =
+            measurementStrategy(
+                requestedAnchorKey = { requestedKey },
+                requestedAnchorType = { TransformingLazyColumnAnchorType.ItemBottom },
+                reverseLayout = true,
+            )
+        val initialResult = strategy.measure(itemHeights = listOf(50, 50, 50))
+        val initialItem1 = initialResult.visibleItems.first { it.index == 1 }
+        assertThat(initialItem1.offset).isEqualTo(50)
+
+        requestedKey = 1
+        val newResult = strategy.measure(itemHeights = listOf(50, 100, 50))
+        val newItem1 = newResult.visibleItems.first { it.index == 1 }
+
+        // ItemBottom in reverseLayout fixes the visual bottom, which is the logical start.
+        assertThat(newItem1.offset).isEqualTo(50)
+        assertThat(newItem1.transformedHeight).isEqualTo(100)
+    }
+
+    @Test
+    fun requestedAnchor_clearedWhenScrollInProgress() {
+        var requestedKey: Any? = 1
+        var isScrolling = false
+        var clearCalled = false
+
+        val strategy =
+            measurementStrategy(
+                requestedAnchorKey = { requestedKey },
+                requestedAnchorType = { TransformingLazyColumnAnchorType.ItemTop },
+                isScrollInProgress = { isScrolling },
+                onClearRequestedAnchor = { clearCalled = true },
+            )
+
+        strategy.measure(itemHeights = listOf(50, 50, 50))
+
+        isScrolling = true
+        strategy.measure(itemHeights = listOf(50, 50, 50))
+
+        assertThat(clearCalled).isTrue()
+    }
+
+    @Test
+    fun requestedAnchor_ignoredIfKeyNotVisible() {
+        var requestedKey: Any? = null
+        val strategy =
+            measurementStrategy(
+                requestedAnchorKey = { requestedKey },
+                requestedAnchorType = { TransformingLazyColumnAnchorType.ItemTop },
+            )
+        strategy.measure(itemHeights = listOf(50, 50, 50))
+
+        requestedKey = 10
+        val newResult = strategy.measure(itemHeights = listOf(50, 50, 50))
+
+        assertThat(newResult.visibleItems.isNotEmpty()).isTrue()
+        assertThat(newResult.anchorItemIndex).isNotEqualTo(10)
+    }
+
     private val mockGraphicContext =
         object : GraphicsContext {
             override fun createGraphicsLayer(): GraphicsLayer {
@@ -810,6 +941,12 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
     private fun measurementStrategy(
         contentPadding: PaddingValues = PaddingValues(),
         reverseLayout: Boolean = false,
+        isScrollInProgress: () -> Boolean = { false },
+        requestedAnchorKey: () -> Any? = { null },
+        requestedAnchorType: () -> TransformingLazyColumnAnchorType = {
+            TransformingLazyColumnAnchorType.ItemTop
+        },
+        onClearRequestedAnchor: () -> Unit = {},
     ) =
         TransformingLazyColumnContentPaddingMeasurementStrategy(
             contentPadding,
@@ -817,8 +954,11 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
             layoutDirection = LayoutDirection.Ltr,
             mockGraphicContext,
             mockItemAnimator,
-            isScrollInProgress = { false },
+            isScrollInProgress = isScrollInProgress,
             reverseLayout = reverseLayout,
+            requestedAnchorKey = requestedAnchorKey,
+            requestedAnchorType = requestedAnchorType,
+            onClearRequestedAnchor = onClearRequestedAnchor,
         )
 
     private val strategy = measurementStrategy(PaddingValues())

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.fastRoundToInt
@@ -46,6 +47,9 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
     private val graphicsContext: GraphicsContext,
     private val itemAnimator: LazyLayoutItemAnimator<TransformingLazyColumnMeasuredItem>,
     private val isScrollInProgress: () -> Boolean,
+    private val requestedAnchorKey: () -> Any?,
+    private val requestedAnchorType: () -> TransformingLazyColumnAnchorType,
+    private val onClearRequestedAnchor: () -> Unit,
     private val reverseLayout: Boolean,
 ) : TransformingLazyColumnMeasurementStrategy {
     override val rightContentPadding: Int =
@@ -62,6 +66,8 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
         var itemsCount: Int,
         var maxHeight: Int,
     ) {
+        var activeRequestedAnchorKey: Any? = null
+
         val isAtStartOrOverscrolledBackwards: Boolean
             get() = with(visibleItems.first()) { index == 0 && offset >= beforeContentPadding }
 
@@ -177,6 +183,12 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
         fun anchorItem(): TransformingLazyColumnMeasuredItem? =
             with(visibleItems) {
                 if (isEmpty()) return null
+
+                if (activeRequestedAnchorKey != null) {
+                    val requestedAnchorItem = fastFirstOrNull { it.key == activeRequestedAnchorKey }
+                    if (requestedAnchorItem != null) return requestedAnchorItem
+                }
+
                 val maxHeight = maxHeight
                 fastForEach {
                     // Item covers the center of the container.
@@ -267,6 +279,8 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             }
     }
 
+    private var previousVisibleItems: List<TransformingLazyColumnMeasuredItem> = emptyList()
+
     private var measurementScope = MeasurementScope(ArrayDeque(), 0, 0, 0, 0, 0)
 
     override fun measure(
@@ -304,34 +318,83 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             )
         }
 
-        // Restore the position of anchor item from the previous measurement.
-        val previousAnchorItem =
-            if (lastMeasuredAnchorItemHeight > 0) {
-                val offset =
-                    containerConstraints.maxHeight / 2 -
-                        lastMeasuredAnchorItemHeight / 2 -
-                        anchorItemScrollOffset
-
-                measuredItemProvider.downwardMeasuredItem(
-                    anchorItemIndex,
-                    // If the previous anchor item is deleted, the item at the same index
-                    // becomes the new anchor and inherits the offset of the deleted item.
-                    // If the original anchor's top was off-screen, this inherited offset
-                    // could also place the new anchor off-screen.
-                    // To prevent this, we coerce the new anchor's top offset to be at least 0,
-                    // ensuring it remains visible on screen.
-                    offset = if (previousAnchorPresent) offset else offset.coerceAtLeast(0),
-                    maxHeight = containerConstraints.maxHeight,
-                )
+        val activeRequestedAnchorKey =
+            if (isScrollInProgress()) {
+                onClearRequestedAnchor()
+                null
             } else {
-                measuredItemProvider
-                    .upwardMeasuredItem(
+                requestedAnchorKey()
+            }
+
+        var previousAnchorItem: TransformingLazyColumnMeasuredItem? = null
+
+        if (activeRequestedAnchorKey != null) {
+            val requestedIndex = keyIndexMap.getIndex(activeRequestedAnchorKey)
+            if (requestedIndex != -1) {
+                val previousInfo =
+                    previousVisibleItems.fastFirstOrNull { it.key == activeRequestedAnchorKey }
+                if (previousInfo != null) {
+                    val oldOffset = previousInfo.offset
+                    val oldHeight = previousInfo.transformedHeight
+
+                    // Map Visual (ItemTop/ItemBottom) to Logical (Start/End)
+                    // In a normal layout, fixing Visual Bottom means fixing Logical End.
+                    // In a reverse layout, fixing Visual Top means fixing Logical End.
+                    val fixLogicalEnd =
+                        (!reverseLayout &&
+                            requestedAnchorType() == TransformingLazyColumnAnchorType.ItemBottom) ||
+                            (reverseLayout &&
+                                requestedAnchorType() == TransformingLazyColumnAnchorType.ItemTop)
+
+                    previousAnchorItem =
+                        if (fixLogicalEnd) {
+                            val bottomOffset = oldOffset + oldHeight
+                            measuredItemProvider.upwardMeasuredItem(
+                                requestedIndex,
+                                offset = bottomOffset,
+                                maxHeight = containerConstraints.maxHeight,
+                            )
+                        } else { // Logical Start
+                            measuredItemProvider.downwardMeasuredItem(
+                                requestedIndex,
+                                offset = oldOffset,
+                                maxHeight = containerConstraints.maxHeight,
+                            )
+                        }
+                }
+            }
+        }
+
+        if (previousAnchorItem == null) {
+            // Restore the position of anchor item from the previous measurement.
+            previousAnchorItem =
+                if (lastMeasuredAnchorItemHeight > 0) {
+                    val offset =
+                        containerConstraints.maxHeight / 2 -
+                            lastMeasuredAnchorItemHeight / 2 -
+                            anchorItemScrollOffset
+
+                    measuredItemProvider.downwardMeasuredItem(
                         anchorItemIndex,
-                        offset = containerConstraints.maxHeight / 2 - anchorItemScrollOffset,
+                        // If the previous anchor item is deleted, the item at the same index
+                        // becomes the new anchor and inherits the offset of the deleted item.
+                        // If the original anchor's top was off-screen, this inherited offset
+                        // could also place the new anchor off-screen.
+                        // To prevent this, we coerce the new anchor's top offset to be at least 0,
+                        // ensuring it remains visible on screen.
+                        offset = if (previousAnchorPresent) offset else offset.coerceAtLeast(0),
                         maxHeight = containerConstraints.maxHeight,
                     )
-                    .also { it.offset += it.transformedHeight / 2 }
-            }
+                } else {
+                    measuredItemProvider
+                        .upwardMeasuredItem(
+                            anchorItemIndex,
+                            offset = containerConstraints.maxHeight / 2 - anchorItemScrollOffset,
+                            maxHeight = containerConstraints.maxHeight,
+                        )
+                        .also { it.offset += it.transformedHeight / 2 }
+                }
+        }
 
         var canScrollForward = true
         var canScrollBackward = true
@@ -351,6 +414,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             this.maxHeight = containerConstraints.maxHeight
             this.beforeContentPadding = initialBeforeContentPadding
             this.afterContentPadding = initialAfterContentPadding
+            this.activeRequestedAnchorKey = activeRequestedAnchorKey
             this.visibleItems.clear()
 
             fun TransformingLazyColumnMeasuredItem.isVisible(): Boolean =
@@ -479,6 +543,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                 scrollToBeConsumed
             }
 
+        this.previousVisibleItems = actuallyVisibleItems
         return TransformingLazyColumnMeasureResult(
                 anchorItemKey = anchorItem.key,
                 anchorItemIndex = anchorItem.index,

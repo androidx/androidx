@@ -18,12 +18,15 @@ package androidx.wear.compose.material3.demos
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,8 +38,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnAnchorType
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.itemsIndexed
@@ -48,8 +53,10 @@ import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.FadingExpandingLabel
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.OutlinedCard
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
@@ -57,6 +64,7 @@ import androidx.wear.compose.material3.TitleCard
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import kotlinx.coroutines.delay
 
 @Composable
 fun TransformingLazyColumnNotificationsDemo(
@@ -394,6 +402,153 @@ fun TransformingLazyColumnAnimationSample() {
                             }
                             CompactButton(onClick = { addCardAfter(index) }) { Text("+") }
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@SuppressLint("PrimitiveInCollection")
+@Composable
+fun TransformingLazyColumnRequestAnchorItemDemo() {
+    val transformationSpec = rememberTransformationSpec()
+    val state = rememberTransformingLazyColumnState()
+
+    // State for our simulated Voice Input
+    var voiceText by remember { mutableStateOf("") }
+    var wordIndex by remember { mutableIntStateOf(0) }
+    var isSpeaking by remember { mutableStateOf(false) }
+
+    val simulatedWords =
+        listOf(
+            "This",
+            "is",
+            "a",
+            "live",
+            "simulation",
+            "of",
+            "voice",
+            "typing.",
+            "Notice",
+            "how",
+            "the",
+            "action",
+            "buttons",
+            "stay",
+            "pinned",
+            "and",
+            "the",
+            "text",
+            "box",
+            "expands",
+            "smoothly",
+            "upwards!",
+        )
+
+    // The timed loop that simulates continuous voice typing
+    LaunchedEffect(isSpeaking) {
+        if (isSpeaking) {
+            while (wordIndex < simulatedWords.size) {
+                delay(300) // Delay to simulate natural typing/speaking cadence
+
+                state.requestAnchorItem(
+                    key = "voice_input_text",
+                    anchorType = TransformingLazyColumnAnchorType.ItemBottom,
+                )
+
+                voiceText =
+                    if (voiceText.isEmpty()) {
+                        simulatedWords[wordIndex]
+                    } else {
+                        "$voiceText ${simulatedWords[wordIndex]}"
+                    }
+                wordIndex++
+            }
+            // Auto-stop when we run out of words
+            isSpeaking = false
+        }
+    }
+
+    AppScaffold {
+        ScreenScaffold(state) { contentPadding ->
+            TransformingLazyColumn(state = state, contentPadding = contentPadding) {
+                items(3, key = { "top_item_$it" }) { index ->
+                    Card(
+                        onClick = {},
+                        modifier =
+                            Modifier.transformedHeight(this, transformationSpec)
+                                .animateItem(placementSpec = null),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text("Previous Message $index")
+                    }
+                }
+
+                // The Voice Input Text Card (Grows upwards)
+                item(key = "voice_input_text") {
+                    OutlinedCard(
+                        onClick = {}, // Inert now, driven by the loop
+                        modifier =
+                            Modifier.defaultMinSize(minHeight = 48.dp)
+                                .transformedHeight(this, transformationSpec)
+                                .animateItem(placementSpec = null),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        FadingExpandingLabel(
+                            text = voiceText.ifEmpty { "Waiting for voice..." },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+
+                // Action Buttons Group
+                item(key = "action_buttons") {
+                    Row(
+                        modifier =
+                            Modifier.fillMaxWidth().graphicsLayer {
+                                with(transformationSpec) {
+                                    applyContainerTransformation(scrollProgress)
+                                }
+                            },
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        CompactButton(
+                            onClick = {
+                                isSpeaking = false
+                                voiceText = ""
+                                wordIndex = 0
+                            }
+                        ) {
+                            Text("Clear")
+                        }
+
+                        // The Start/Stop Toggle Button
+                        CompactButton(
+                            onClick = {
+                                if (wordIndex < simulatedWords.size) {
+                                    isSpeaking = !isSpeaking
+                                } else {
+                                    // Reset and restart if finished
+                                    voiceText = ""
+                                    wordIndex = 0
+                                    isSpeaking = true
+                                }
+                            }
+                        ) {
+                            Text(if (isSpeaking) "Stop" else "Start")
+                        }
+                    }
+                }
+
+                items(5, key = { "bottom_item_$it" }) { index ->
+                    Card(
+                        onClick = {},
+                        modifier =
+                            Modifier.transformedHeight(this, transformationSpec).animateItem(),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text("Older Context $index")
                     }
                 }
             }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -184,6 +185,49 @@ public class TransformingLazyColumnState(
         private set
 
     /**
+     * Requests a specific item (identified by [key]) to act as the layout anchor for the list.
+     *
+     * The layout anchor determines which item remains stationary during a layout pass.
+     * [TransformingLazyColumn] natively measures items outwards from the anchor: items placed above
+     * the anchor are measured bottom-up, and items below are measured top-down. Anchoring a
+     * specific item using this method provides control over the direction in which it (or
+     * surrounding items) expands or shrinks when intrinsic heights change.
+     *
+     * For example, a "Show More" button that expands to reveal text below it can be requested with
+     * [TransformingLazyColumnAnchorType.ItemTop]. This keeps its visual top edge anchored and
+     * forces the new content to push downwards. For an input text box at the bottom of a list,
+     * [TransformingLazyColumnAnchorType.ItemBottom] can be used so its visual bottom edge is
+     * anchored and the text expands upwards.
+     *
+     * Call this method immediately before mutating the state that causes the item's size to change.
+     * The request will take effect in the very next remeasure pass.
+     *
+     * It is highly recommended to assign explicit, stable keys to items in the list (via the `key`
+     * parameter in the `item` or `items` DSL) when using this API. If explicit keys are not used,
+     * structural changes to the list may cause the anchor request to fail.
+     *
+     * **Visibility and Lifecycle:**
+     * - **Not Visible/Not Present:** If the provided [key] is not present in the list or is not
+     *   currently visible on screen during the layout pass, this request is ignored. The list will
+     *   fall back to its default anchoring logic (anchoring to the item closest to the viewport
+     *   center).
+     * - **Persistence:** The requested anchor persists across multiple frames. This allows it to
+     *   work seamlessly with `Modifier.animateContentSize()` as the item smoothly changes height
+     *   over time.
+     * - **Clearing:** The request is automatically cleared the moment the user initiates a scroll
+     *   gesture (when `isScrollInProgress` becomes true).
+     *
+     * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnRequestAnchorItemSample
+     * @param key The unique, stable key of the item to anchor.
+     * @param anchorType The [TransformingLazyColumnAnchorType] defining which visual edge of the
+     *   item remains anchored in place.
+     */
+    public fun requestAnchorItem(key: Any?, anchorType: TransformingLazyColumnAnchorType) {
+        requestedAnchorKey = key
+        requestedAnchorType = anchorType
+    }
+
+    /**
      * The key of the item that is currently considered the anchor for scrolling purposes.
      *
      * This property is closely related to [anchorItemIndex], which provides the numerical index of
@@ -192,6 +236,13 @@ public class TransformingLazyColumnState(
      * [TransformingLazyColumn].
      */
     internal var anchorItemKey: Any = EmptyAnchorKey
+        private set
+
+    internal var requestedAnchorKey: Any? = null
+        private set
+
+    internal var requestedAnchorType: TransformingLazyColumnAnchorType =
+        TransformingLazyColumnAnchorType.ItemTop
         private set
 
     internal var nearestRange: IntRange by
@@ -434,6 +485,41 @@ public class TransformingLazyColumnState(
             // nested scrolling)
             scrollToBeConsumed = 0f // We're not consuming the rest, give it back
             return scrollConsumed
+        }
+    }
+}
+
+/**
+ * Represents the part of the item that should remain fixed when it is requested as a layout anchor
+ * via[TransformingLazyColumnState.requestAnchorItem].
+ *
+ * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnRequestAnchorItemSample
+ */
+@Immutable
+@JvmInline
+public value class TransformingLazyColumnAnchorType internal constructor(internal val type: Int) {
+    public companion object {
+        /**
+         * Anchors the visual top edge of the item to its current position on the screen. If the
+         * item's height grows, it will expand downwards. This behavior is absolute and remains the
+         * same regardless of the list's reverseLayout direction.
+         */
+        public val ItemTop: TransformingLazyColumnAnchorType = TransformingLazyColumnAnchorType(0)
+
+        /**
+         * Anchors the visual bottom edge of the item to its current position on the screen. If the
+         * item's height grows, it will expand upwards. This behavior is absolute and remains the
+         * same regardless of the list's reverseLayout direction.
+         */
+        public val ItemBottom: TransformingLazyColumnAnchorType =
+            TransformingLazyColumnAnchorType(1)
+    }
+
+    override fun toString(): String {
+        return when (this) {
+            ItemTop -> "TransformingLazyColumnAnchorType.ItemTop"
+            ItemBottom -> "TransformingLazyColumnAnchorType.ItemBottom"
+            else -> "TransformingLazyColumnAnchorType.Unknown"
         }
     }
 }
