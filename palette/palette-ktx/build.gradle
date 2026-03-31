@@ -29,10 +29,6 @@ plugins {
 
 dependencies {
     api(project(":palette:palette"))
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
 }
 
 androidx {
