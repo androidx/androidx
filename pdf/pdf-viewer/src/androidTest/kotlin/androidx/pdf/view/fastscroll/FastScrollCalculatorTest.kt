@@ -127,4 +127,65 @@ class FastScrollCalculatorTest {
         val expectedViewScroll = 100
         assertEquals(expectedViewScroll, fastScrollY)
     }
+
+    @Test
+    fun canFastScroll_returnsTrue_whenSufficientViewHeight() = runTest {
+        val mockContext = mock<Context>()
+        val mockResources = mock<Resources>()
+        whenever(mockContext.resources).thenReturn(mockResources)
+        whenever(mockResources.getDimension(R.dimen.scroller_top_margin)).thenReturn(10f)
+        whenever(mockResources.getDimension(R.dimen.scroller_bottom_margin)).thenReturn(10f)
+
+        val calculator = FastScrollCalculator(mockContext)
+        // scrollbarLength = 100 - (10 + 10 + 20) = 60
+        // scrollableHeight = 200 - 100 = 100
+        val canFastScroll =
+            calculator.canFastScroll(
+                viewHeight = 100,
+                thumbHeightPx = 20,
+                estimatedFullHeight = 200f,
+            )
+
+        assertEquals(true, canFastScroll)
+    }
+
+    @Test
+    fun canFastScroll_returnsFalse_whenScrollbarLengthIsInsufficient() = runTest {
+        val mockContext = mock<Context>()
+        val mockResources = mock<Resources>()
+        whenever(mockContext.resources).thenReturn(mockResources)
+        whenever(mockResources.getDimension(R.dimen.scroller_top_margin)).thenReturn(50f)
+        whenever(mockResources.getDimension(R.dimen.scroller_bottom_margin)).thenReturn(50f)
+
+        val calculator = FastScrollCalculator(mockContext)
+        // scrollbarLength = 100 - (50 + 50 + 20) = -20
+        val canFastScroll =
+            calculator.canFastScroll(
+                viewHeight = 100,
+                thumbHeightPx = 20,
+                estimatedFullHeight = 200f,
+            )
+
+        assertEquals(false, canFastScroll)
+    }
+
+    @Test
+    fun canFastScroll_returnsFalse_whenScrollableHeightIsInsufficient() = runTest {
+        val mockContext = mock<Context>()
+        val mockResources = mock<Resources>()
+        whenever(mockContext.resources).thenReturn(mockResources)
+        whenever(mockResources.getDimension(R.dimen.scroller_top_margin)).thenReturn(10f)
+        whenever(mockResources.getDimension(R.dimen.scroller_bottom_margin)).thenReturn(10f)
+
+        val calculator = FastScrollCalculator(mockContext)
+        // scrollableHeight = 50 - 100 = -50
+        val canFastScroll =
+            calculator.canFastScroll(
+                viewHeight = 100,
+                thumbHeightPx = 20,
+                estimatedFullHeight = 50f,
+            )
+
+        assertEquals(false, canFastScroll)
+    }
 }

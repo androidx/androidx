@@ -92,6 +92,16 @@ public class FastScroller(
         paddingRect: Rect,
     ) {
         val effectiveViewHeight = viewHeight - paddingRect.top - paddingRect.bottom
+        if (
+            !scrollCalculator.canFastScroll(
+                effectiveViewHeight,
+                fastScrollDrawer.thumbHeightPx,
+                estimatedFullHeight,
+            )
+        ) {
+            return
+        }
+
         if (scrollY != lastScrollY) {
             fastScrollY =
                 scrollCalculator.computeThumbPosition(
@@ -126,6 +136,16 @@ public class FastScroller(
     ): Int {
         val effectiveViewHeight = viewHeight - paddingRect.top - paddingRect.bottom
         val effectiveScrollY = scrollY - paddingRect.top
+
+        if (
+            !scrollCalculator.canFastScroll(
+                effectiveViewHeight,
+                fastScrollDrawer.thumbHeightPx,
+                estimatedFullHeight,
+            )
+        ) {
+            return 0
+        }
 
         fastScrollY =
             scrollCalculator.constrainScrollPosition(
