@@ -19,74 +19,74 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteEnum
 import androidx.compose.remote.creation.compose.state.RemoteInt
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteEnum
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.v2.StateLayoutV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import kotlin.enums.EnumEntries
-import kotlin.enums.enumEntries
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteStateMachine<T>
-internal constructor(public val currentState: RemoteInt, public val states: List<T>) {
+internal class RemoteStateMachine<T>
+internal constructor(val currentState: RemoteInt, val states: List<T>) {
 
-    public fun size(): Int {
+    fun size(): Int {
         return states.size
     }
 }
 
+/**
+ * A layout that displays content based on the current value of a [RemoteEnum] state.
+ *
+ * @param state The [RemoteEnum] state that determines which content to display.
+ * @param modifier The [RemoteModifier] to be applied to the layout.
+ * @param content The composable content to be displayed for each enum state.
+ */
 @RemoteComposable
 @Composable
-public fun rememberStateMachine(
-    currentState: RemoteInt = rememberMutableRemoteInt(0),
-    vararg states: Int,
-): RemoteStateMachine<Int> {
-    val currentState = rememberMutableRemoteInt(0)
-    return remember { RemoteStateMachine(currentState, states.sorted()) }
-}
-
-@RemoteComposable
-@Composable
-public inline fun <reified T : Enum<T>> rememberStateMachine(
-    currentState: RemoteEnum<T> = rememberMutableRemoteEnum(enumEntries<T>().first())
-): RemoteStateMachine<T> {
-    return rememberStateMachine(currentState, enumEntries())
-}
-
-@RemoteComposable
-@Composable
-public fun <T : Enum<T>> rememberStateMachine(
-    currentState: RemoteEnum<T>,
-    enumEntries: EnumEntries<T>,
-): RemoteStateMachine<T> {
-    return remember<RemoteStateMachine<T>> {
-        RemoteStateMachine(currentState.intValue, enumEntries)
-    }
-}
-
-@RemoteComposable
-@Composable
-public inline fun <reified T : Enum<T>> RemoteStateLayout(
+public fun <T : Enum<T>> RemoteStateLayout(
     state: RemoteEnum<T>,
-    modifier: RemoteModifier = RemoteModifier,
-    noinline content: @Composable (T) -> Unit,
-) {
-    RemoteStateLayout(
-        stateMachine = rememberStateMachine(state),
-        modifier = modifier,
-        content = content,
-    )
-}
-
-@RemoteComposable
-@Composable
-public fun <T> RemoteStateLayout(
-    stateMachine: RemoteStateMachine<T>,
     modifier: RemoteModifier = RemoteModifier,
     content: @Composable (T) -> Unit,
 ) {
+    val stateMachine = remember { RemoteStateMachine(state.intValue, state.enumEntries) }
+    StateLayoutV2(stateMachine, modifier, content)
+}
+
+/**
+ * A layout that displays content based on the current value of a [RemoteBoolean] state.
+ *
+ * @param state The [RemoteBoolean] state that determines which content to display.
+ * @param modifier The [RemoteModifier] to be applied to the layout.
+ * @param content The composable content to be displayed for the boolean state.
+ */
+@RemoteComposable
+@Composable
+public fun RemoteStateLayout(
+    state: RemoteBoolean,
+    modifier: RemoteModifier = RemoteModifier,
+    content: @Composable (Boolean) -> Unit,
+) {
+    val stateMachine = remember { RemoteStateMachine(state.intValue, listOf(false, true)) }
+    StateLayoutV2(stateMachine, modifier, content)
+}
+
+/**
+ * A layout that displays content based on the current value of a [RemoteInt] state.
+ *
+ * @param state The [RemoteInt] state that determines which content to display.
+ * @param states The set of possible integer states.
+ * @param modifier The [RemoteModifier] to be applied to the layout.
+ * @param content The composable content to be displayed for each integer state.
+ */
+@RemoteComposable
+@Composable
+public fun RemoteStateLayout(
+    state: RemoteInt,
+    vararg states: Int,
+    modifier: RemoteModifier = RemoteModifier,
+    content: @Composable (Int) -> Unit,
+) {
+    val stateMachine = remember { RemoteStateMachine(state, states.sorted()) }
     StateLayoutV2(stateMachine, modifier, content)
 }

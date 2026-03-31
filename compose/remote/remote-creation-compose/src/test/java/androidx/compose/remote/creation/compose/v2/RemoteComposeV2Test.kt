@@ -27,7 +27,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
-import androidx.compose.remote.creation.compose.layout.rememberStateMachine
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
@@ -155,10 +154,7 @@ class RemoteComposeV2Test {
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
                 val checked = rememberMutableRemoteEnum(ToggleState.On)
-                val stateMachine = rememberStateMachine(checked)
-                RemoteStateLayout(stateMachine = stateMachine) { state ->
-                    RemoteText(text = "State $state".rs)
-                }
+                RemoteStateLayout(state = checked) { state -> RemoteText(text = "State $state".rs) }
             }
 
         assertNotNull(document)

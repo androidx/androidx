@@ -123,9 +123,8 @@ class StateLayoutTest {
         currentState: RemoteEnum<LayoutState> = rememberMutableRemoteEnum(LayoutState.First),
         content: @Composable @RemoteComposable (LayoutState) -> Unit,
     ) {
-        val stateMachine = rememberStateMachine<LayoutState>(currentState)
         RemoteStateLayout(
-            stateMachine = stateMachine,
+            state = currentState,
             modifier = RemoteModifier.fillMaxSize().background(Color.LightGray.rc),
         ) { layoutState ->
             RemoteColumn(

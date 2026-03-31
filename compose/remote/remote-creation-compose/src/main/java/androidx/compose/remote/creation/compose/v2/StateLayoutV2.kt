@@ -29,7 +29,7 @@ import androidx.compose.ui.util.fastForEach
 @Composable
 @RemoteComposable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> StateLayoutV2(
+internal fun <T> StateLayoutV2(
     stateMachine: RemoteStateMachine<T>,
     modifier: RemoteModifier = RemoteModifier,
     content: @Composable @RemoteComposable (T) -> Unit,
