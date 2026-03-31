@@ -161,7 +161,8 @@ constructor(
     }
 
     override fun drain(streamId: StreamId) {
-        TODO("Not yet implemented")
+        frameGraphBuffers.trimAll(streamId)
+        cameraGraph.streams.getImageSource(streamId)?.flush()
     }
 
     override suspend fun acquireSession(): FrameGraph.Session {
