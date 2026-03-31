@@ -562,7 +562,6 @@ public class SpatialGltfModelAnimation internal constructor(private val animatio
                     seekStartTime = seekStartTime.toJavaDuration(),
                 )
         )
-        seekStartTime = 0.seconds
     }
 
     /**
@@ -583,7 +582,6 @@ public class SpatialGltfModelAnimation internal constructor(private val animatio
                     seekStartTime = seekStartTime.toJavaDuration(),
                 )
         )
-        seekStartTime = 0.seconds
     }
 
     /**
