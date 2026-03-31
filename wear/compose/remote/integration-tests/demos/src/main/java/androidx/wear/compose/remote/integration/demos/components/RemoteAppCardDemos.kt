@@ -57,16 +57,12 @@ fun RemoteAppCardDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Default", documentHeight = 150) { RemoteAppCardDefault() } }
-            item {
-                RemoteDemoItem("App name, time and title", documentHeight = 150) {
-                    RemoteAppCardWithAppNameTimeTitle()
-                }
+            remoteDemoItem("Default", documentHeight = 150) { RemoteAppCardDefault() }
+            remoteDemoItem("App name, time and title", documentHeight = 150) {
+                RemoteAppCardWithAppNameTimeTitle()
             }
-            item {
-                RemoteDemoItem("App name, title and subtitle", documentHeight = 150) {
-                    RemoteAppCardWithAppNameTitleSubtitle()
-                }
+            remoteDemoItem("App name, title and subtitle", documentHeight = 150) {
+                RemoteAppCardWithAppNameTitleSubtitle()
             }
         }
     }

@@ -57,9 +57,9 @@ fun RemoteIconButtonDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Default") { RemoteIconButtonEnabled() } }
-            item { RemoteDemoItem("Tonal") { RemoteIconButtonTonal() } }
-            item { RemoteDemoItem("Outlined") { RemoteIconButtonOutlined() } }
+            remoteDemoItem("Default") { RemoteIconButtonEnabled() }
+            remoteDemoItem("Tonal") { RemoteIconButtonTonal() }
+            remoteDemoItem("Outlined") { RemoteIconButtonOutlined() }
         }
     }
 }

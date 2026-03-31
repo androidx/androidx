@@ -57,16 +57,12 @@ fun RemoteTitleCardDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Default", documentHeight = 150) { RemoteTitleCardDefault() } }
-            item {
-                RemoteDemoItem("Title and subtitle", documentHeight = 150) {
-                    RemoteTitleCardWithTitleSubtitle()
-                }
+            remoteDemoItem("Default", documentHeight = 150) { RemoteTitleCardDefault() }
+            remoteDemoItem("Title and subtitle", documentHeight = 150) {
+                RemoteTitleCardWithTitleSubtitle()
             }
-            item {
-                RemoteDemoItem("Title and time", documentHeight = 150) {
-                    RemoteTitleCardWithTitleTime()
-                }
+            remoteDemoItem("Title and time", documentHeight = 150) {
+                RemoteTitleCardWithTitleTime()
             }
         }
     }

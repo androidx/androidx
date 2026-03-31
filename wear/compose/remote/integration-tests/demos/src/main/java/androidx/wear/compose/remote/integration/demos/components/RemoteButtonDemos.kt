@@ -61,17 +61,13 @@ fun RemoteButtonDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Label") { RemoteButtonEnabled() } }
-            item { RemoteDemoItem("Border") { RemoteButtonWithBorder() } }
-            item { RemoteDemoItem("Secondary label") { RemoteButtonWithSecondaryLabel() } }
-            item { RemoteDemoItem("Icon") { RemoteButtonWithIcon() } }
-            item {
-                RemoteDemoItem("Icon and secondary label") {
-                    RemoteButtonWithIconAndSecondaryLabel()
-                }
-            }
-            item { RemoteDemoItem("Custom shape") { RemoteButtonWithShape() } }
-            item { RemoteDemoItem("Background") { RemoteButtonWithBackground() } }
+            remoteDemoItem("Label") { RemoteButtonEnabled() }
+            remoteDemoItem("Border") { RemoteButtonWithBorder() }
+            remoteDemoItem("Secondary label") { RemoteButtonWithSecondaryLabel() }
+            remoteDemoItem("Icon") { RemoteButtonWithIcon() }
+            remoteDemoItem("Icon and secondary label") { RemoteButtonWithIconAndSecondaryLabel() }
+            remoteDemoItem("Custom shape") { RemoteButtonWithShape() }
+            remoteDemoItem("Background") { RemoteButtonWithBackground() }
         }
     }
 }

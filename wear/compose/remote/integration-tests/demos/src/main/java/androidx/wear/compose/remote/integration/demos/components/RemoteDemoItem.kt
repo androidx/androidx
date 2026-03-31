@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.remote.integration.demos.components
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -38,15 +37,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.material3.ListSubHeader
 import androidx.wear.compose.material3.Text
 
 @Composable
 @Suppress("RestrictedApiAndroidX")
 fun RemoteDemoItem(
-    label: String,
     modifier: Modifier = Modifier,
-    playerModifier: Modifier = Modifier,
     documentWidth: Int? = null,
     documentHeight: Int? = null,
     content: @Composable @RemoteComposable () -> Unit,
@@ -66,22 +64,37 @@ fun RemoteDemoItem(
         documentState = RemoteDocument(captured.bytes)
     }
 
-    Column(modifier = modifier) {
-        ListSubHeader { Text(label) }
+    if (documentState != null) {
+        val windowInfo = LocalWindowInfo.current
 
-        if (documentState != null) {
-            val windowInfo = LocalWindowInfo.current
+        @Composable fun getDefaultHeight() = with(LocalDensity.current) { 50.dp.toPx() }.toInt()
 
-            @Composable fun getDefaultHeight() = with(LocalDensity.current) { 50.dp.toPx() }.toInt()
+        RemoteDocumentPlayer(
+            document = documentState!!.document,
+            documentWidth = documentWidth ?: windowInfo.containerSize.width,
+            documentHeight = documentHeight ?: getDefaultHeight(),
+            modifier = modifier,
+            debugMode = 0,
+            onNamedAction = { _, _, _ -> },
+        )
+    }
+}
 
-            RemoteDocumentPlayer(
-                document = documentState!!.document,
-                documentWidth = documentWidth ?: windowInfo.containerSize.width,
-                documentHeight = documentHeight ?: getDefaultHeight(),
-                modifier = playerModifier,
-                debugMode = 0,
-                onNamedAction = { _, _, _ -> },
-            )
-        }
+@Suppress("RestrictedApiAndroidX")
+fun TransformingLazyColumnScope.remoteDemoItem(
+    label: String,
+    playerModifier: Modifier = Modifier,
+    documentWidth: Int? = null,
+    documentHeight: Int? = null,
+    content: @Composable @RemoteComposable () -> Unit,
+) {
+    item { ListSubHeader { Text(label) } }
+    item {
+        RemoteDemoItem(
+            modifier = playerModifier,
+            documentWidth = documentWidth,
+            documentHeight = documentHeight,
+            content = content,
+        )
     }
 }

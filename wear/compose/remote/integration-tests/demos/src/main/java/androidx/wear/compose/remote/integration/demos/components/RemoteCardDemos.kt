@@ -56,8 +56,8 @@ fun RemoteCardDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            item { RemoteDemoItem("Default", documentHeight = 100) { RemoteCardDefault() } }
-            item { RemoteDemoItem("Outline", documentHeight = 100) { RemoteCardOutline() } }
+            remoteDemoItem("Default", documentHeight = 100) { RemoteCardDefault() }
+            remoteDemoItem("Outline", documentHeight = 100) { RemoteCardOutline() }
         }
     }
 }
