@@ -121,21 +121,24 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
 
     /**
      * Executes the given [action] in the same way as [runOnUiThread] but [waits][waitForIdle] until
-     * the app is idle before executing the action. This is the recommended way of doing your
-     * assertions on shared variables.
+     * the app is idle before executing the action. T
+     *
+     * Prefer using [runWhenIdle] as it optimizes performance by suppressing redundant
+     * synchronization during node queries.
      *
      * This method blocks until the action is complete.
      */
     fun <T> runOnIdle(action: () -> T): T
 
     /**
-     * Executes the given [action] on the UI thread in the same way as [runOnIdle]. It first
-     * [waits][waitForIdle] until the app is idle before executing the action.
+     * Executes the given [action] on the UI thread. It first [waits][waitForIdle] until the app is
+     * idle before executing the action.
      *
-     * Unlike [runOnIdle], this method skips unnecessary synchronization inside the provided
-     * [action] block. Because the UI is already known to be idle, multiple node queries,
-     * interactions, or assertions can evaluate immediately and seamlessly against the current,
-     * stable UI state.
+     * This method skips unnecessary synchronization inside the provided [action] block. Standard
+     * node queries (like `fetchSemanticsNode()`) normally trigger a redundant `waitForIdle()` under
+     * the hood, which can impose a significant performance toll in tests that manually step through
+     * frames. Bypassing this implicit wait makes this the highly optimized and preferred API for
+     * state inspection.
      *
      * This block is intended primarily for inspecting the UI state, making assertions, or capturing
      * properties without the performance overhead of repeated synchronization. You should avoid
@@ -148,13 +151,14 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     fun <T> runWhenIdle(action: () -> T): T
 
     /**
-     * Executes the given [action] on the UI thread in the same way as [runWhenIdle]. It first
-     * [suspends][awaitIdle] until the app is idle before executing the action.
+     * Executes the given [action] on the UI thread. It first [suspends][awaitIdle] until the app is
+     * idle before executing the action.
      *
-     * Like [runWhenIdle], this method skips unnecessary synchronization inside the provided
-     * [action] block. Because the UI is already known to be idle, multiple node queries,
-     * interactions, or assertions can evaluate immediately and seamlessly against the current,
-     * stable UI state.
+     * This method skips unnecessary synchronization inside the provided [action] block. Standard
+     * node queries (like `fetchSemanticsNode()`) normally trigger a redundant `waitForIdle()` under
+     * the hood, which can impose a significant performance toll in tests that manually step through
+     * frames. Bypassing this implicit wait makes this the highly optimized and preferred API for
+     * state inspection.
      *
      * This block is intended primarily for inspecting the UI state, making assertions, or capturing
      * properties without the performance overhead of repeated synchronization. You should avoid
