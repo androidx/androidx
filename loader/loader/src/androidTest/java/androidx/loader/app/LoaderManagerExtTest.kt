@@ -33,7 +33,7 @@ import org.mockito.Mockito.mock
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class LoaderManagerTest {
+class LoaderManagerExtTest {
 
     private lateinit var loaderManager: LoaderManager
 
