@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.ArDevice
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
@@ -26,8 +25,7 @@ import androidx.xr.runtime.math.Pose
  *
  * @property devicePose the [Pose] of the device
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrDevice internal constructor() : ArDevice, Updatable {
+internal class OpenXrDevice internal constructor() : ArDevice, Updatable {
 
     override var devicePose: Pose = Pose()
         private set

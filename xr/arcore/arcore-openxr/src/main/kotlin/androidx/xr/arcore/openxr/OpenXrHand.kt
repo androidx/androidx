@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Hand
 import androidx.xr.arcore.runtime.TrackingState
 import java.nio.ByteBuffer
@@ -33,8 +32,7 @@ import java.nio.FloatBuffer
  *   [XrHandJointLocationEXT](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrHandJointLocationEXT)
  *   data
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrHand internal constructor(private val isLeftHand: Boolean) : Hand, Updatable {
+internal class OpenXrHand internal constructor(private val isLeftHand: Boolean) : Hand, Updatable {
 
     override var trackingState: TrackingState = TrackingState.PAUSED
         private set

@@ -18,7 +18,6 @@ package androidx.xr.arcore.openxr
 
 import android.os.IBinder
 import androidx.annotation.GuardedBy
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.ExportableAnchor
 import androidx.xr.arcore.runtime.TrackingState
@@ -38,15 +37,14 @@ import kotlin.concurrent.withLock
  * @property persistenceState the [Anchor.PersistenceState] for this anchor
  * @property uuid the [UUID] that identifies this Anchor if it is persisted
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class OpenXrAnchor
+internal class OpenXrAnchor
 internal constructor(
-    public override val nativePointer: Long,
+    override val nativePointer: Long,
     private val xrResources: XrResources,
     loadedUuid: UUID? = null,
 ) : ExportableAnchor, Updatable {
 
-    public override val anchorToken: IBinder by lazy { nativeGetAnchorToken(nativePointer) }
+    override val anchorToken: IBinder by lazy { nativeGetAnchorToken(nativePointer) }
 
     override var pose: Pose = Pose()
         private set
