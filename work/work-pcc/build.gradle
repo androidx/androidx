@@ -32,7 +32,6 @@ androidx {
     // until you have consulted the owners of the WorkManager library and
     // Jetpack Working group.
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2026"
     description = "Android WorkManager Private Compute Core Extensions"
 }

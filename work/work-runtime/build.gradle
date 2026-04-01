@@ -120,7 +120,6 @@ kotlin {
 androidx {
     name = "WorkManager Runtime"
     type = SoftwareType.PUBLISHED_LIBRARY
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2018"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false

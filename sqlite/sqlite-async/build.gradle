@@ -63,5 +63,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
     description = "SQLite Async Extensions"
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

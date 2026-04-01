@@ -36,7 +36,6 @@ dependencies {
 androidx {
     name = "WorkManager Kotlin Extensions"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2018"
     description = "Android WorkManager Kotlin Extensions"
 }
