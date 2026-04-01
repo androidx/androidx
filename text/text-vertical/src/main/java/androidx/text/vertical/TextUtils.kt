@@ -16,9 +16,9 @@
 
 package androidx.text.vertical
 
+import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.Spanned
-import android.text.TextPaint
 import android.util.ArrayMap
 import java.text.BreakIterator
 import java.text.CharacterIterator
@@ -61,7 +61,7 @@ internal inline fun <reified T> forEachSpan(
  * @param end The exclusive ending index.
  * @param consumer A lambda function that will be called for each code points.
  */
-internal inline fun fotEachCodePoints(
+internal inline fun forEachCodePoint(
     text: CharSequence,
     start: Int,
     end: Int,
@@ -108,21 +108,42 @@ internal inline fun CharSequence.forEachParagraph(
     }
 }
 
+/** Wrap the specified [block] in calls to [Canvas.save] and [Canvas.restoreToCount]. */
+internal inline fun Canvas.withSave(block: Canvas.() -> Unit) {
+    val checkpoint = save()
+    try {
+        block()
+    } finally {
+        restoreToCount(checkpoint)
+    }
+}
+
 /**
- * Executes a block of code with a temporary applying scaling of the text size of a given
- * [TextPaint].
+ * Executes a block of code with a temporary applying scaling of the text size of a given [Paint].
  */
-internal inline fun <T : Paint, R> withTempScale(
-    textPaint: T,
-    scale: Float,
-    crossinline block: () -> R,
-): R {
-    val originalSize = textPaint.textSize
-    textPaint.textSize *= scale
+internal inline fun <T : Paint, R> T.withTextScale(scale: Float, crossinline block: T.() -> R): R {
+    val originalSize = textSize
+    textSize *= scale
     try {
         return block()
     } finally {
-        textPaint.textSize = originalSize
+        textSize = originalSize
+    }
+}
+
+/**
+ * Executes a block of code with a temporary applying scaling X of the text size of a given [Paint].
+ */
+internal inline fun <T : Paint, R> T.withTextScaleX(
+    scaleX: Float,
+    crossinline block: T.() -> R,
+): R {
+    val originalScaleX = textScaleX
+    textScaleX = scaleX
+    try {
+        return block()
+    } finally {
+        textScaleX = originalScaleX
     }
 }
 
