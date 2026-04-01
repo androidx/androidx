@@ -871,6 +871,18 @@ internal class TextFieldSelectionState(
         }
     }
 
+    /**
+     * Observer for text drag gestures in a text field.
+     *
+     * Note: During a drag gesture, we accept that the user is interacting with whatever they are
+     * seeing on the screen currently. Any changes that are in
+     * [androidx.compose.foundation.text.input.TextFieldState] might not have had a chance to
+     * produce a layout result yet. For instance, it might be possible that the text you read from
+     * [androidx.compose.foundation.text.input.TextFieldState] has a length of 15 because a
+     * character was added, but the last layout result was created for a text with length 14. Thus,
+     * we should use the text from [TextLayoutState.layoutResult]
+     * (`textLayoutState.layoutResult?.layoutInput?.text`).
+     */
     private inner class TextFieldTextDragObserver(private val requestFocus: () -> Unit) :
         TextDragObserver {
         private var dragBeginOffsetInText = -1
@@ -997,11 +1009,21 @@ internal class TextFieldSelectionState(
                     }
             } else {
                 startOffset =
-                    dragBeginOffsetInText.takeIf { it >= 0 }
-                        ?: textLayoutState.getOffsetForPosition(
-                            position = dragBeginPosition,
-                            coerceInVisibleBounds = false,
-                        )
+                    if (ComposeFoundationFlags.isConcurrentTextFieldSelectionFixEnabled) {
+                        val textLength =
+                            textLayoutState.layoutResult?.layoutInput?.text?.length ?: 0
+                        dragBeginOffsetInText.takeIf { it in 0..textLength }
+                            ?: textLayoutState.getOffsetForPosition(
+                                position = dragBeginPosition,
+                                coerceInVisibleBounds = false,
+                            )
+                    } else {
+                        dragBeginOffsetInText.takeIf { it >= 0 }
+                            ?: textLayoutState.getOffsetForPosition(
+                                position = dragBeginPosition,
+                                coerceInVisibleBounds = false,
+                            )
+                    }
                 endOffset =
                     textLayoutState.getOffsetForPosition(
                         position = currentDragPosition,
