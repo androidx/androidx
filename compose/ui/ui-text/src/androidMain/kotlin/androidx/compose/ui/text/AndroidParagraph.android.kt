@@ -373,8 +373,9 @@ internal class AndroidParagraph(
     }
 
     override fun getOffsetForPosition(position: Offset): Int {
-        val line = layout.getLineForVertical(position.y.toInt())
-        return layout.getOffsetForHorizontal(line, position.x)
+        val lineUnbounded = layout.getLineForVerticalUnbounded(position.y.toInt())
+        if (lineUnbounded >= lineCount) return layout.text.length
+        return layout.getOffsetForHorizontal(lineUnbounded, position.x)
     }
 
     override fun getRangeForRect(
