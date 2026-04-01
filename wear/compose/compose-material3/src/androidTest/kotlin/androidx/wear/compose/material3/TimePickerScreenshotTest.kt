@@ -174,7 +174,9 @@ class TimePickerScreenshotTest {
             content = {
                 // Set locale to Arabic for correct pattern and AM/PM strings.
                 val arabicConfig =
-                    Configuration(LocalConfiguration.current).apply { setLocale(Locale("ar")) }
+                    Configuration(LocalConfiguration.current).apply {
+                        setLocale(Locale.forLanguageTag("ar"))
+                    }
                 CompositionLocalProvider(LocalConfiguration provides arabicConfig) {
                     TimePicker(
                         onTimePicked = {},

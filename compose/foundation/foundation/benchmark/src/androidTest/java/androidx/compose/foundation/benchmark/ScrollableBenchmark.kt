@@ -56,9 +56,9 @@ class ScrollableBenchmark {
             }
             val motionEventHelper = MotionEventHelper(rootView)
             var expectedScrollDelta = case.scrolledDelta
-            val viewCenter = Offset(rootView.measuredWidth / 2f, rootView.measuredHeight / 2f)
             var overallScroll = 0f
             benchmarkRule.measureRepeatedOnUiThread {
+                val viewCenter = Offset(rootView.measuredWidth / 2f, rootView.measuredHeight / 2f)
                 motionEventHelper.sendEvent(MotionEvent.ACTION_DOWN, viewCenter)
                 motionEventHelper.sendEvent(
                     MotionEvent.ACTION_MOVE,

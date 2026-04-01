@@ -22,7 +22,7 @@ plugins {
 android {
     namespace = "androidx.compose.animation.macrobenchmark"
     compileSdk {
-        version = release(36)
+        version = release(37)
     }
 
     buildTypes {

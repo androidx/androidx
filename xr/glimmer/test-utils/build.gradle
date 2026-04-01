@@ -33,7 +33,7 @@ dependencies {
 }
 
 android {
-    compileSdk { version = release(35) }
+    compileSdk { version = release(37) }
     namespace = "androidx.xr.glimmer.testutils"
     defaultConfig {
         minSdk { version = release(33) }
