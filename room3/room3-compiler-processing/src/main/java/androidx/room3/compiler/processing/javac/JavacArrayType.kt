@@ -24,50 +24,15 @@ import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.javac.kotlin.KmTypeContainer
 import javax.lang.model.type.ArrayType
 
-internal class JavacArrayType
-private constructor(
+internal class JavacArrayType(
     env: JavacProcessingEnv,
     override val typeMirror: ArrayType,
-    nullability: XNullability?,
-    private val knownComponentNullability: XNullability?,
-    override val kotlinType: KmTypeContainer?,
+    nullability: XNullability? = null,
+    knownComponentNullability: XNullability? = null,
+    override val kotlinType: KmTypeContainer? = null,
 ) : JavacType(env, typeMirror, nullability), XArrayType {
-
-    constructor(
-        env: JavacProcessingEnv,
-        typeMirror: ArrayType,
-    ) : this(
-        env = env,
-        typeMirror = typeMirror,
-        kotlinType = null,
-        nullability = null,
-        knownComponentNullability = null,
-    )
-
-    constructor(
-        env: JavacProcessingEnv,
-        typeMirror: ArrayType,
-        kotlinType: KmTypeContainer,
-    ) : this(
-        env = env,
-        typeMirror = typeMirror,
-        nullability = kotlinType.nullability,
-        knownComponentNullability = kotlinType.typeArguments.firstOrNull()?.nullability,
-        kotlinType = kotlinType,
-    )
-
-    constructor(
-        env: JavacProcessingEnv,
-        typeMirror: ArrayType,
-        nullability: XNullability,
-        knownComponentNullability: XNullability?,
-    ) : this(
-        env = env,
-        typeMirror = typeMirror,
-        nullability = nullability,
-        knownComponentNullability = knownComponentNullability,
-        kotlinType = null,
-    )
+    private val componentNullability: XNullability? =
+        knownComponentNullability ?: kotlinType?.typeArguments?.firstOrNull()?.nullability
 
     override val equalityItems: Array<out Any?> by lazy { arrayOf(typeMirror) }
 
@@ -75,7 +40,7 @@ private constructor(
         XTypeName(
             java = JArrayTypeName.get(typeMirror),
             kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME,
-            nullability = knownComponentNullability ?: XNullability.UNKNOWN,
+            nullability = componentNullability ?: XNullability.UNKNOWN,
         )
     }
 
@@ -87,7 +52,7 @@ private constructor(
     override val componentType: XType by lazy {
         val componentType = typeMirror.componentType
         val componentTypeNullability =
-            knownComponentNullability
+            componentNullability
                 ?: if (componentType.kind.isPrimitive) {
                     XNullability.NONNULL
                 } else {
@@ -105,7 +70,7 @@ private constructor(
             env = env,
             typeMirror = typeMirror,
             nullability = nullability,
-            knownComponentNullability = knownComponentNullability,
+            knownComponentNullability = componentNullability,
             kotlinType = kotlinType,
         )
     }
