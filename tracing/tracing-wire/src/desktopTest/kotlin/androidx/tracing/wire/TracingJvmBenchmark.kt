@@ -17,6 +17,7 @@
 package androidx.tracing.wire
 
 import androidx.tracing.AbstractTraceSink
+import androidx.tracing.EmptyTraceContext
 import androidx.tracing.TraceContext
 import kotlin.coroutines.CoroutineContext
 import kotlinx.benchmark.Benchmark
@@ -96,7 +97,11 @@ open class TracingJvmBenchmark {
         sink: AbstractTraceSink,
         @Suppress("SameParameterValue") isEnabled: Boolean,
     ): TraceContext {
-        return TraceContext(sink = sink, isEnabled = isEnabled)
+        return if (isEnabled) {
+            TraceContext(sink = sink, isEnabled = isEnabled)
+        } else {
+            EmptyTraceContext
+        }
     }
 
     fun buildInMemorySink(coroutineContext: CoroutineContext = Dispatchers.IO): TraceSink {

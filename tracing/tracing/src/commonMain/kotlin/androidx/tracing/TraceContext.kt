@@ -122,8 +122,9 @@ internal constructor(
 }
 
 // An empty trace context when tracing is disabled.
-internal object EmptyTraceContext : TraceContext(sink = EmptyTraceSink(), isEnabled = false) {
-    val track = EmptyProcessTrack(context = this)
+@RestrictTo(Scope.LIBRARY_GROUP)
+public object EmptyTraceContext : TraceContext(sink = EmptyTraceSink(), isEnabled = false) {
+    internal val track = EmptyProcessTrack(context = this)
     override var process: ProcessTrack = track
     internal val thread = EmptyThreadTrack(track)
     internal val counter = EmptyCounterTrack(track)
