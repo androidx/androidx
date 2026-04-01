@@ -594,6 +594,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     float mScaledVerticalScrollFactor = Float.MIN_VALUE;
 
     private boolean mPreserveFocusAfterLayout = true;
+    private boolean mScrollToTopEnabled = true;
 
     final ViewFlinger mViewFlinger = new ViewFlinger();
 
@@ -826,6 +827,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         }
         mClipToPadding = a.getBoolean(R.styleable.RecyclerView_android_clipToPadding, true);
+        mScrollToTopEnabled = a.getBoolean(R.styleable.RecyclerView_isScrollToTopEnabled, true);
         mEnableFastScroller = a.getBoolean(R.styleable.RecyclerView_fastScrollEnabled, false);
         if (mEnableFastScroller) {
             StateListDrawable verticalThumbDrawable = (StateListDrawable) a
@@ -2010,6 +2012,44 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return;
         }
         mLayout.smoothScrollToPosition(this, mState, position);
+    }
+
+    /**
+     * Sets whether this RecyclerView should consume system-level scroll-to-top events.
+     * <p>
+     * When set to true (default), this view will scroll to the top when a system trigger
+     * occurs, provided the view is currently scrolled down.
+     *
+     * @param enabled true to enable scroll-to-top behavior, false to disable.
+     */
+    public void setScrollToTopEnabled(boolean enabled) {
+        mScrollToTopEnabled = enabled;
+    }
+
+    /**
+     * Indicates whether this RecyclerView allows system-level scroll-to-top event consumption.
+     *
+     * @return True if scroll-to-top consumption is enabled, false otherwise.
+     */
+    public boolean isScrollToTopEnabled() {
+        return mScrollToTopEnabled;
+    }
+
+    /**
+     * Called when a scroll-to-top command is received.
+     *
+     * @param x The x-coordinate of the scroll-to-top command, in the coordinate
+     *          space of this view.
+     * @return true if the event was consumed and should not be propagated to other
+     *   potential handlers.
+     */
+    public boolean onScrollToTop(int x) {
+        if (mScrollToTopEnabled && getLayoutManager() != null
+                && getLayoutManager().canScrollVertically() && canScrollVertically(-1)) {
+            smoothScrollToPosition(0);
+            return true;
+        }
+        return false;
     }
 
     @Override
