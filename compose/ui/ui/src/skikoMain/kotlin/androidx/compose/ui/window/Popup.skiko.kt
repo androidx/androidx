@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.exclude
 import androidx.compose.ui.platform.excludeWindowInsets
-import androidx.compose.ui.platform.findDefaultNavigationEventDispatcherOwner
 import androidx.compose.ui.scene.ComposeSceneLayer
 import androidx.compose.ui.scene.Content
 import androidx.compose.ui.scene.rememberComposeSceneLayer
@@ -53,6 +52,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 
 /**
  * Properties used to customize the behavior of a [Popup].
@@ -406,7 +406,7 @@ fun Popup(
             onBackHandler.backClickIsEnabled = properties.dismissOnBackPress
         }
         val navigationEventDispatcher =
-            requireNotNull(findDefaultNavigationEventDispatcherOwner()) {
+            requireNotNull(LocalNavigationEventDispatcherOwner.current) {
                 error("NavigationEventDispatcherOwner not found")
             }.navigationEventDispatcher
         DisposableEffect(navigationEventDispatcher, onBackHandler) {

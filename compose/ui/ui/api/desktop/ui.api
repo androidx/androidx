@@ -3744,7 +3744,7 @@ public final class androidx/compose/ui/platform/CompositionLocalsKt {
 }
 
 public final class androidx/compose/ui/platform/CompositionLocals_skikoKt {
-	public static final fun getLocalLifecycleOwner ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+	public static final synthetic fun getLocalLifecycleOwner ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 }
 
 public final class androidx/compose/ui/platform/DefaultViewConfiguration : androidx/compose/ui/platform/ViewConfiguration {

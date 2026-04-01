@@ -66,7 +66,7 @@ androidXMultiplatform {
             implementation(libs.kotlinTest)
             implementation(project(":compose:ui:ui-test"))
             implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
-            implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.1")
+            implementation("androidx.navigationevent:navigationevent-compose:$navigationEventVersion")
         }
 
         androidMain.dependencies {

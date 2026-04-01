@@ -90,8 +90,8 @@ androidXMultiplatform {
             api("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
             api("androidx.savedstate:savedstate-compose:1.4.0")
 
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0-alpha01")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0-alpha01")
         }
 
         commonTest.dependencies {
@@ -198,6 +198,7 @@ androidXMultiplatform {
             implementation(project(":compose:test-utils"))
         }
 
+        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
         // TODO: Align naming: nonAndroidMain
         skikoMain {
             dependsOn(commonMain)
@@ -209,12 +210,7 @@ androidXMultiplatform {
 
                 // Keep this dependency for compatibility due to https://youtrack.jetbrains.com/issue/KT-60874
                 implementation(project(":compose:ui:ui-backhandler"))
-
-                // Use direct dependency to AOSP's artifact instead of using project reference
-                // because this module supports all KMP platforms from the beginning.
-                // Project dependency (commented out version) is required for `integration` branch setup
-                // implementation(project(":navigationevent:navigationevent"))
-                implementation("androidx.navigationevent:navigationevent:1.0.1")
+                implementation("androidx.navigationevent:navigationevent-compose:$navigationEventVersion")
             }
         }
 
@@ -225,7 +221,6 @@ androidXMultiplatform {
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:ui:ui-test"))
-                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.1")
             }
         }
 

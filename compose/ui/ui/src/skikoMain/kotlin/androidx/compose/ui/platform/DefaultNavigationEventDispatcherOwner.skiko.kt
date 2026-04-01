@@ -18,22 +18,15 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.navigationevent.NavigationEventDispatcherOwner
-
-/**
- * Internal helper to provide [NavigationEventDispatcherOwner] from Compose UI module.
- * In applications please use [androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner].
- *
- * @hide
- */
-internal val LocalInternalNavigationEventDispatcherOwner =
-    staticCompositionLocalOf<NavigationEventDispatcherOwner?> { null }
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 
 
+@Deprecated(
+    "Moved to navigation-event-compose library in androidx.navigationevent.compose package.",
+    level = DeprecationLevel.HIDDEN
+)
 @InternalComposeApi
 @Composable
 fun findDefaultNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? =
-    LocalInternalNavigationEventDispatcherOwner.current
-        ?: LocalCompatNavigationEventDispatcherOwner.current
+    LocalNavigationEventDispatcherOwner.current

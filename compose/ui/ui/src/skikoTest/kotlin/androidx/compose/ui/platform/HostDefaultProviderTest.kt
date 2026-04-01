@@ -21,22 +21,17 @@ import androidx.compose.runtime.compositionLocalWithHostDefaultOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.lifecycle.ViewModelStoreOwner
-import kotlin.test.Ignore
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlin.test.Test
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class HostDefaultProviderTest {
 
     @Test
     fun testHostDefaultProviderGetLocalViewModelStoreOwner() = runSkikoComposeUiTest {
-        val ViewModelStoreOwnerHostDefaultKey = object : HostDefaultKey<ViewModelStoreOwner?> {}
-        val LocalViewModelStoreOwner =
-            compositionLocalWithHostDefaultOf(ViewModelStoreOwnerHostDefaultKey)
-
         var owner: ViewModelStoreOwner? = null
         setContent {
             owner = LocalViewModelStoreOwner.current
@@ -46,32 +41,18 @@ class HostDefaultProviderTest {
         assertIs<ViewModelStoreOwner>(owner)
     }
 
-    interface TestRegistry { fun foo() }
+    interface TestRegistry
     val TestRegistryKey = object : HostDefaultKey<TestRegistry?> {}
 
-    //iOS: Child process terminated with signal 11: Segmentation fault
-    //web: unhandled Promise rejection RuntimeError: array element access out of bounds
-    @Ignore
     @Test
-    fun testHostDefaultProviderError() = runSkikoComposeUiTest {
+    fun testHostDefaultProviderNull() = runSkikoComposeUiTest {
         val LocalTestRegistry = compositionLocalWithHostDefaultOf(TestRegistryKey)
 
-        var exception: Exception? = null
-        try {
-            setContent {
-                val registry = LocalTestRegistry.current
-                registry?.foo()
-            }
-        } catch (e: Exception) {
-            exception = e
+        var registry: TestRegistry? = null
+        setContent {
+            registry = LocalTestRegistry.current
         }
 
-        assertIs<ClassCastException>(exception)
-        assertTrue(
-            exception.message!!.contains(
-                "class androidx.compose.ui.platform.DefaultArchitectureComponentsOwner " +
-                    "cannot be cast to class androidx.compose.ui.platform.HostDefaultProviderTest\$TestRegistry"
-            )
-        )
+        assertNull(registry)
     }
 }

@@ -19,19 +19,13 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.HostDefaultKey
-import androidx.compose.runtime.HostDefaultProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LocalHostDefaultProvider
 import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
-import androidx.compose.ui.node.Owner
 import androidx.lifecycle.LifecycleOwner
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 
@@ -41,6 +35,7 @@ import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 @Deprecated(
     "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
     ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
+    level = DeprecationLevel.HIDDEN
 )
 actual val LocalLifecycleOwner get() = androidx.lifecycle.compose.LocalLifecycleOwner
 
@@ -63,18 +58,6 @@ val LocalPlatformWindowInsets = staticCompositionLocalOf<PlatformWindowInsets> {
     error("CompositionLocal LocalPlatformWindowInsets not present")
 }
 
-private val PlatformArchitectureComponentsOwner.values: Array<ProvidedValue<*>>
-    get() {
-        val providedValues = mutableListOf(
-            androidx.lifecycle.compose.LocalLifecycleOwner provides lifecycleOwner,
-            LocalInternalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
-            LocalCompatNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
-            LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
-        )
-        viewModelStoreOwner?.let { providedValues.add(LocalInternalViewModelStoreOwner provides it) }
-        return providedValues.toTypedArray()
-    }
-
 @OptIn(InternalComposeApi::class)
 @Composable
 internal fun ProvidePlatformCompositionLocals(
@@ -94,21 +77,16 @@ internal fun ProvidePlatformCompositionLocals(
         onDispose { registry.dispose() }
     }
 
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-9752/Properly-implement-HostDefaultProvider-and-LocalHostDefaultProvider-for-CMP
     val hostDefaultProvider = remember(platformContext) {
-        object : HostDefaultProvider {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T> getHostDefault(key: HostDefaultKey<T>): T {
-                return platformContext.architectureComponentsOwner as T
-            }
-        }
+        HostDefaultProviderImpl(platformContext)
     }
 
     CompositionLocalProvider(
         *values,
         LocalPlatformScreenReader provides platformContext.screenReader,
         LocalPlatformWindowInsets provides platformContext.windowInsets,
-        *platformContext.architectureComponentsOwner.values,
+        androidx.lifecycle.compose.LocalLifecycleOwner provides platformContext.architectureComponentsOwner.lifecycleOwner,
+        LocalSavedStateRegistryOwner provides platformContext.architectureComponentsOwner.savedStateRegistryOwner,
         LocalSaveableStateRegistry provides saveableStateRegistry,
         LocalHostDefaultProvider provides hostDefaultProvider,
         content = content,

@@ -20,18 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 
-/**
- * Internal helper to provide [ViewModelStoreOwner] from Compose UI module.
- * In applications please use [androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner].
- *
- * @hide
- */
-internal val LocalInternalViewModelStoreOwner = staticCompositionLocalOf<ViewModelStoreOwner?> {
-    null
-}
-
+@Deprecated(
+    "Moved to lifecycle-viewmodel-compose library in androidx.lifecycle.viewmodel.compose package.",
+    level = DeprecationLevel.HIDDEN
+)
 @InternalComposeApi
 @Composable
 fun findComposeDefaultViewModelStoreOwner(): ViewModelStoreOwner? =
-    LocalInternalViewModelStoreOwner.current
+    LocalViewModelStoreOwner.current

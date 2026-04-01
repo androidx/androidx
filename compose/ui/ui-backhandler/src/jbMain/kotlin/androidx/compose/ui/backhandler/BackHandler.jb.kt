@@ -23,15 +23,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import kotlinx.coroutines.flow.Flow
-
-@InternalComposeUiApi
-val LocalCompatNavigationEventDispatcherOwner =
-    staticCompositionLocalOf<NavigationEventDispatcherOwner?> { null }
 
 @OptIn(InternalComposeUiApi::class)
 @Deprecated("Use NavigationEventHandler instead")
@@ -41,8 +36,8 @@ actual fun PredictiveBackHandler(
     enabled: Boolean,
     onBack: suspend (progress: Flow<BackEventCompat>) -> Unit
 ) {
-    val owner = LocalCompatNavigationEventDispatcherOwner.current ?: error(
-        "No NavigationEventDispatcher was provided via LocalCompatNavigationEventDispatcherOwner"
+    val owner = LocalNavigationEventDispatcherOwner.current ?: error(
+        "No NavigationEventDispatcher was provided via LocalNavigationEventDispatcherOwner"
     )
     val dispatcher = owner.navigationEventDispatcher
     val coroutineScope = rememberCoroutineScope()
@@ -63,8 +58,8 @@ actual fun PredictiveBackHandler(
 @ExperimentalComposeUiApi
 @Composable
 actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
-    val owner = LocalCompatNavigationEventDispatcherOwner.current ?: error(
-        "No NavigationEventDispatcher was provided via LocalCompatNavigationEventDispatcherOwner"
+    val owner = LocalNavigationEventDispatcherOwner.current ?: error(
+        "No NavigationEventDispatcher was provided via LocalNavigationEventDispatcherOwner"
     )
     val dispatcher = owner.navigationEventDispatcher
     val compositeKey = currentCompositeKeyHashCode

@@ -29,7 +29,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.toLong
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -54,7 +53,6 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.exclude
 import androidx.compose.ui.platform.excludeWindowInsets
-import androidx.compose.ui.platform.findDefaultNavigationEventDispatcherOwner
 import androidx.compose.ui.platform.union
 import androidx.compose.ui.scene.ComposeSceneLayer
 import androidx.compose.ui.scene.Content
@@ -64,6 +62,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
@@ -182,7 +181,7 @@ actual fun Dialog(
         onBackHandler.backClickIsEnabled = properties.dismissOnBackPress
     }
     val navigationEventDispatcher =
-        requireNotNull(findDefaultNavigationEventDispatcherOwner()) {
+        requireNotNull(LocalNavigationEventDispatcherOwner.current) {
             error("NavigationEventDispatcherOwner not found")
         }.navigationEventDispatcher
     DisposableEffect(navigationEventDispatcher, onBackHandler) {
