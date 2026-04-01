@@ -51,6 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/test_button"
+            android:enabled="false"
             android:textSize="18sp"
             android:textFontWeight="400"
             android:text="Toggle HSM/FSM" />

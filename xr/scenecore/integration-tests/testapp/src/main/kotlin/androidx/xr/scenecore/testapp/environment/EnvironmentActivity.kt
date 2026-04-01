@@ -181,6 +181,8 @@ class EnvironmentActivity : AppCompatActivity() {
         }
         loadBytesButton.isEnabled = true
 
+        findViewById<Button>(R.id.environment_toggle_hsm_fsm).isEnabled = true
+
         // handle grey skybox
         findViewById<Button>(R.id.environment_button2_1).setOnClickListener {
             val currentGeometry = spatialEnvironmentPreference?.geometry
@@ -282,8 +284,14 @@ class EnvironmentActivity : AppCompatActivity() {
                 EventType.BOUNDS_CHANGED,
                 "w=${bounds.width}, h=${bounds.height}, d=${bounds.depth}",
             )
+
+            val button = findViewById<Button>(R.id.environment_toggle_hsm_fsm)
             if (bounds.width == Float.POSITIVE_INFINITY) {
                 spatialMode = SpatialMode.FSM
+                button?.text = getString(R.string.switch_to_hsm_button_text)
+            } else {
+                spatialMode = SpatialMode.HSM
+                button?.text = getString(R.string.switch_to_fsm_button_text)
             }
         }
     }
