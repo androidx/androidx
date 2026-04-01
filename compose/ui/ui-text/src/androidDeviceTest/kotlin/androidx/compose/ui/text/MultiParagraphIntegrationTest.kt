@@ -47,7 +47,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -288,6 +287,130 @@ class MultiParagraphIntegrationTest {
             assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(2)
         }
 
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun getOffsetForPosition_longSecondParagraph_maxLines2() =
+        with(defaultDensity) {
+            val text = createAnnotatedString(mutableListOf("AAA", "A".repeat(100_000)))
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.roundToPx()
+            val width = 100 * fontSizeInPx
+
+            val paragraph =
+                simpleMultiParagraph(
+                    text = text,
+                    fontSize = fontSize,
+                    width = width.toFloat(),
+                    maxLines = 2,
+                )
+
+            // The text should be rendered as:
+            //     AAA
+            //     AAAAAAA...
+
+            val position =
+                Offset(
+                    x = (fontSizeInPx) / 2f, // middle of first character horizontally
+                    y = fontSizeInPx * 2.5f, // below second line vertically
+                )
+
+            assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(100_003)
+        }
+
+    @SdkSuppress(maxSdkVersion = 25)
+    @Test
+    fun getOffsetForPosition_longSecondParagraph_maxLines2_beforeAPI26() =
+        with(defaultDensity) {
+            val text = createAnnotatedString(mutableListOf("AAA", "A".repeat(100_000)))
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.roundToPx()
+            val width = 100 * fontSizeInPx
+
+            val paragraph =
+                simpleMultiParagraph(
+                    text = text,
+                    fontSize = fontSize,
+                    width = width.toFloat(),
+                    maxLines = 2,
+                )
+
+            // The text should be rendered as:
+            //     AAA
+            //     AAAAAAA...
+
+            val position =
+                Offset(
+                    x = (fontSizeInPx) / 2f, // middle of first character horizontally
+                    y = fontSizeInPx * 2.5f, // below second line vertically
+                )
+
+            assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(3)
+        }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun getOffsetForPosition_longFirstParagraph_maxLines2() =
+        with(defaultDensity) {
+            val text = createAnnotatedString(mutableListOf("A".repeat(100_000), "AAA"))
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.roundToPx()
+            val width = 100 * fontSizeInPx
+
+            val paragraph =
+                simpleMultiParagraph(
+                    text = text,
+                    fontSize = fontSize,
+                    width = width.toFloat(),
+                    maxLines = 2,
+                )
+
+            // The text should be rendered as:
+            //     AAAAAAA...AAA
+            //     AAAAAAA...AAA
+
+            val position =
+                Offset(
+                    x = (fontSizeInPx) / 2f, // middle of first character horizontally
+                    y = fontSizeInPx * 2.5f, // below second line vertically
+                )
+
+            assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(100_000)
+        }
+
+    @SdkSuppress(maxSdkVersion = 25)
+    @Test
+    fun getOffsetForPosition_longFirstParagraph_maxLines2_beforeAPI26() =
+        with(defaultDensity) {
+            val text = createAnnotatedString(mutableListOf("A".repeat(100_000), "AAA"))
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.roundToPx()
+            val width = 100 * fontSizeInPx
+
+            val paragraph =
+                simpleMultiParagraph(
+                    text = text,
+                    fontSize = fontSize,
+                    width = width.toFloat(),
+                    maxLines = 2,
+                )
+
+            // The text should be rendered as:
+            //     AAAAAAA...AAA
+            //     AAAAAAA...AAA
+
+            val position =
+                Offset(
+                    x = (fontSizeInPx) / 2f, // middle of first character horizontally
+                    y = fontSizeInPx * 2.5f, // below second line vertically
+                )
+
+            assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(100)
+        }
+
     @Test
     fun getLineForVerticalPosition() =
         with(defaultDensity) {
@@ -365,6 +488,58 @@ class MultiParagraphIntegrationTest {
         }
 
     @Test
+    fun getLineForVerticalPosition_longSecondParagraph_maxLines2() =
+        with(defaultDensity) {
+            val text = createAnnotatedString(mutableListOf("AAA", "A".repeat(100_000)))
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.roundToPx()
+            val width = 100 * fontSizeInPx
+
+            val paragraph =
+                simpleMultiParagraph(
+                    text = text,
+                    fontSize = fontSize,
+                    width = width.toFloat(),
+                    maxLines = 2,
+                )
+
+            // The text should be rendered as:
+            //     AAA
+            //     AAAAAAA...
+
+            val y = fontSizeInPx * 2.5f // below second line
+            val actual = paragraph.getLineForVerticalPosition(y)
+            assertThat(actual).isEqualTo(1)
+        }
+
+    @Test
+    fun getLineForVerticalPosition_longFirstParagraph_maxLines2() =
+        with(defaultDensity) {
+            val text = createAnnotatedString(mutableListOf("A".repeat(100_000), "AAA"))
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.roundToPx()
+            val width = 100 * fontSizeInPx
+
+            val paragraph =
+                simpleMultiParagraph(
+                    text = text,
+                    fontSize = fontSize,
+                    width = width.toFloat(),
+                    maxLines = 2,
+                )
+
+            // The text should be rendered as:
+            //     AAAAAAA...
+            //     AAAAAAA...
+
+            val y = fontSizeInPx * 2.5f // below second line
+            val actual = paragraph.getLineForVerticalPosition(y)
+            assertThat(actual).isEqualTo(1)
+        }
+
+    @Test
     fun getBoundingBox() {
         with(defaultDensity) {
             val lineLength = 2
@@ -409,7 +584,7 @@ class MultiParagraphIntegrationTest {
         paragraph.getBoundingBox(-1)
     }
 
-    @Ignore("b/430079884 - Re-enable this test once the bug is fixed.")
+    //    @Ignore("b/430079884 - Re-enable this test once the bug is fixed.")
     @Test(expected = java.lang.IllegalArgumentException::class)
     fun getBoundingBox_offset_larger_than_length_throw_exception() {
         val text = "abc"
@@ -698,6 +873,54 @@ class MultiParagraphIntegrationTest {
 
         assertThat(paragraph.getLineForOffset(text.length + 1)).isEqualTo(1)
     }
+
+    @Test
+    fun getLineForOffset_longSecondParagraph_maxLines2() =
+        with(defaultDensity) {
+            val text = createAnnotatedString(mutableListOf("AAA", "A".repeat(100_000)))
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.roundToPx()
+            val width = 100 * fontSizeInPx
+
+            val paragraph =
+                simpleMultiParagraph(
+                    text = text,
+                    fontSize = fontSize,
+                    width = width.toFloat(),
+                    maxLines = 2,
+                )
+
+            // The text should be rendered as:
+            //     AAA
+            //     AAAAAA...
+
+            assertThat(paragraph.getLineForOffset(100_003)).isEqualTo(1)
+        }
+
+    @Test
+    fun getLineForOffset_longFirstParagraph_maxLines2() =
+        with(defaultDensity) {
+            val text = createAnnotatedString(mutableListOf("A".repeat(100_000), "AAA"))
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.roundToPx()
+            val width = 100 * fontSizeInPx
+
+            val paragraph =
+                simpleMultiParagraph(
+                    text = text,
+                    fontSize = fontSize,
+                    width = width.toFloat(),
+                    maxLines = 2,
+                )
+
+            // The text should be rendered as:
+            //     AAAAAA...
+            //     AAAAAA...
+
+            assertThat(paragraph.getLineForOffset(100_003)).isEqualTo(1)
+        }
 
     @Test
     fun getLineLeft() {
