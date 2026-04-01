@@ -82,7 +82,7 @@ class SoundFieldAudioComponentTest {
         val attributes = SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER)
         val component = SoundFieldAudioComponent.create(session, attributes)
 
-        val provider = component.getAudioOutputProvider()
+        val provider = component.audioOutputProvider
 
         assertThat(provider).isNotNull()
     }

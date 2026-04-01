@@ -17,7 +17,6 @@
 package androidx.xr.scenecore
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.media3.exoplayer.audio.AudioOutputProvider
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.SceneRuntime
@@ -31,7 +30,6 @@ import androidx.xr.scenecore.runtime.SceneRuntime
  *
  * This component can only be attached to one [Entity] at a time.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SoundFieldAudioComponent
 internal constructor(
     context: Context,
@@ -64,12 +62,13 @@ internal constructor(
     }
 
     /**
-     * Returns an [AudioOutputProvider] that can be used to configure an
-     * [androidx.media3.exoplayer.ExoPlayer.Builder] for ambisonics audio playback.
+     * An [AudioOutputProvider] that can be used to configure an
+     * [androidx.media3.exoplayer.ExoPlayer.Builder] for
+     * [ambisonics](https://developer.android.com/develop/xr/jetpack-xr-sdk/add-spatial-audio#ambionics_example)
+     * audio playback.
      */
-    public fun getAudioOutputProvider(): AudioOutputProvider {
-        return rtSoundFieldAudioComponent.getAudioOutputProvider()
-    }
+    public val audioOutputProvider: AudioOutputProvider
+        get() = rtSoundFieldAudioComponent.getAudioOutputProvider()
 
     public companion object {
         /**

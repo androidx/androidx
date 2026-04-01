@@ -798,6 +798,7 @@ package androidx.xr.scenecore.testing {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSoundEffectPool implements androidx.xr.scenecore.runtime.SoundEffectPool {
     ctor public FakeSoundEffectPool();
+    method public void clearOnLoadCompleteListener();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.SoundEffectPool.LoadCompleteListener? getLoadCompleteListener();
     method @InaccessibleFromKotlin public android.content.res.AssetFileDescriptor? getLoadedAfd();
     method @InaccessibleFromKotlin public Integer? getLoadedResId();

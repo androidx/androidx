@@ -104,11 +104,11 @@ class PositionalAudioComponentTest {
     }
 
     @Test
-    fun getAudioOutputProvider_returnsProvider() {
+    fun audioOutputProvider_returnsProvider() {
         val params = PointSourceParams()
         val component = PositionalAudioComponent.create(session, params)
 
-        val provider = component.getAudioOutputProvider()
+        val provider = component.audioOutputProvider
 
         val fakeComponent = component.rtComponent as FakePositionalAudioComponent
         assertThat(fakeComponent.getAudioOutputProviderCount).isEqualTo(1)

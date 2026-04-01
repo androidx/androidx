@@ -47,6 +47,9 @@ public interface SoundEffectPool {
      */
     public fun setOnLoadCompleteListener(executor: Executor, listener: LoadCompleteListener)
 
+    /** Clears any listener previously set with [setOnLoadCompleteListener]. */
+    public fun clearOnLoadCompleteListener()
+
     /**
      * Loads a sound from an application resource and returns a [SoundEffect] handle.
      *

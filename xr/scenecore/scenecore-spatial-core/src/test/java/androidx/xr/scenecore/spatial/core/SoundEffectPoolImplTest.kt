@@ -20,12 +20,11 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.xr.scenecore.runtime.SoundEffect
 import androidx.xr.scenecore.runtime.SoundEffectPool
-import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper
+import androidx.xr.scenecore.testing.FakeSoundPoolExtensionsWrapper
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executor
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
@@ -35,11 +34,11 @@ import org.robolectric.annotation.Config
 class SoundEffectPoolImplTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val mockSoundPoolExtensions = mock<SoundPoolExtensionsWrapper>()
+    private val fakeSoundPoolExtensions = FakeSoundPoolExtensionsWrapper()
 
     @Test
     fun load_returnsSoundEffectWithId() {
-        val soundEffectPool = SoundEffectPoolImpl(1, mockSoundPoolExtensions, null)
+        val soundEffectPool = SoundEffectPoolImpl(1, fakeSoundPoolExtensions, null)
         val soundEffect = soundEffectPool.load(context, 123)
 
         assertThat(soundEffect.id).isEqualTo(1)
@@ -47,7 +46,7 @@ class SoundEffectPoolImplTest {
 
     @Test
     fun setOnLoadCompleteListener_callsListener() {
-        val soundEffectPool = SoundEffectPoolImpl(1, mockSoundPoolExtensions, null)
+        val soundEffectPool = SoundEffectPoolImpl(1, fakeSoundPoolExtensions, null)
         var callbackCalled = false
         var loadedSoundEffect: SoundEffect? = null
         var loadedSuccess = false
@@ -74,6 +73,39 @@ class SoundEffectPoolImplTest {
         assertThat(loadedSoundEffect?.id).isEqualTo(soundEffect.id)
         assertThat(loadedSuccess).isTrue()
         assertThat(testExecutor.lastExecuted()).isNotNull()
+    }
+
+    @Test
+    fun play_throwsRuntimeExceptionWhenSoundPoolReturnsZero() {
+        val soundEffectPool = SoundEffectPoolImpl(1, fakeSoundPoolExtensions, null)
+        val soundEffect = soundEffectPool.load(context, 123)
+        val pointSourceParams = androidx.xr.scenecore.runtime.PointSourceParams()
+
+        fakeSoundPoolExtensions.setPlayAsPointSourceResult(0)
+
+        val player = soundEffectPool.getSoundEffectPlayer()
+        val exception =
+            org.junit.Assert.assertThrows(RuntimeException::class.java) {
+                player.play(soundEffect, pointSourceParams, null, 1.0f, 1, false)
+            }
+        assertThat(exception).hasMessageThat().contains("Failed to play sound effect")
+    }
+
+    @Test
+    fun play_returnsStreamWhenSoundPoolReturnsNonZero() {
+        val soundEffectPool = SoundEffectPoolImpl(1, fakeSoundPoolExtensions, null)
+        val soundEffect = soundEffectPool.load(context, 123)
+        val pointSourceParams = androidx.xr.scenecore.runtime.PointSourceParams()
+
+        fakeSoundPoolExtensions.setPlayAsPointSourceResult(10)
+
+        val stream =
+            soundEffectPool
+                .getSoundEffectPlayer()
+                .play(soundEffect, pointSourceParams, null, 1.0f, 1, false)
+
+        assertThat(stream).isNotNull()
+        assertThat(stream.streamId).isEqualTo(10)
     }
 }
 
