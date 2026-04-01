@@ -44,5 +44,24 @@ package androidx.xr.runtime.interfaces {
     method public androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider create(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrServiceUpdateRequester {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType getServiceType();
+    method public suspend Object? requestXrServiceUpdate(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    property public abstract androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType serviceType;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class XrServiceUpdateRequester.ServiceType {
+    field public static final androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType.Companion Companion;
+    field public static final androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType PROJECTED;
+  }
+
+  public static final class XrServiceUpdateRequester.ServiceType.Companion {
+    property public androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType PROJECTED;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrServiceUpdateRequesterFactory extends androidx.xr.runtime.interfaces.Service {
+    method public androidx.xr.runtime.interfaces.XrServiceUpdateRequester create(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+  }
+
 }
 
