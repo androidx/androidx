@@ -41,9 +41,6 @@ sealed class IntelliJPlatformUtilities(val projectRoot: File, val intellijInstal
     /** The lib directory of the IntelliJ installation. */
     abstract val IntelliJTask.libDirectory: File
 
-    /** The license path for the IntelliJ installation. */
-    abstract val IntelliJTask.licensePath: String
-
     /** Extracts an archive at [fromPath] with [archiveExtension] to [toPath] */
     abstract fun extractArchive(fromPath: String, toPath: String, execOperations: ExecOperations)
 
@@ -96,9 +93,6 @@ private class MacOsUtilities(projectRoot: File, intellijInstallationDir: File) :
     override val IntelliJTask.libDirectory: File
         get() = File(binaryDirectory, "Contents/lib")
 
-    override val IntelliJTask.licensePath: String
-        get() = File(binaryDirectory, "Contents/Resources/LICENSE.txt").absolutePath
-
     override fun extractArchive(fromPath: String, toPath: String, execOperations: ExecOperations) {
         val mountPoint = File.createTempFile("mount", null)
         mountPoint.delete()
@@ -150,19 +144,22 @@ private class LinuxUtilities(projectRoot: File, intellijInstallationDir: File) :
         get() = ".tar.gz"
 
     override val IntelliJTask.binaryDirectory: File
-        get() = File(intellijInstallationDir, "intellij")
+        get() {
+            val file =
+                intellijInstallationDir.walk().maxDepth(1).find { file ->
+                    file.nameWithoutExtension.startsWith("idea-IU-")
+                }
+            return requireNotNull(file) { "idea-IU- directory not found!" }
+        }
 
     override val IntelliJTask.launchCommandArguments: List<String>
         get() {
-            val intellijBinary = File(binaryDirectory, "bin/intellij")
+            val intellijBinary = File(binaryDirectory, "bin/idea")
             return listOf(intellijBinary.absolutePath, projectRoot.absolutePath)
         }
 
     override val IntelliJTask.libDirectory: File
         get() = File(binaryDirectory, "lib")
-
-    override val IntelliJTask.licensePath: String
-        get() = File(binaryDirectory, "LICENSE.txt").absolutePath
 
     override fun extractArchive(fromPath: String, toPath: String, execOperations: ExecOperations) {
         execOperations.exec { execOperation ->
