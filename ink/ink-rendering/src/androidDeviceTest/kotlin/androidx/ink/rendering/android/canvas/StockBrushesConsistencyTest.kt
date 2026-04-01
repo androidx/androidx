@@ -73,7 +73,7 @@ class StockBrushesConsistencyTest() {
                     listOf(
                         Stroke(
                             makeBrush(family = family, alpha = alpha),
-                            helper.octogonStylusInputs,
+                            helper.octagonStylusInputs,
                         )
                     )
                 }
@@ -88,7 +88,7 @@ class StockBrushesConsistencyTest() {
             families.map { family ->
                 sizes.map { size ->
                     listOf(
-                        Stroke(makeBrush(family = family, size = size), helper.octogonStylusInputs)
+                        Stroke(makeBrush(family = family, size = size), helper.octagonStylusInputs)
                     )
                 }
             },
@@ -104,7 +104,7 @@ class StockBrushesConsistencyTest() {
                     listOf(
                         Stroke(
                             makeBrush(family = family, color = color),
-                            helper.octogonStylusInputs,
+                            helper.octagonStylusInputs,
                         )
                     )
                 }

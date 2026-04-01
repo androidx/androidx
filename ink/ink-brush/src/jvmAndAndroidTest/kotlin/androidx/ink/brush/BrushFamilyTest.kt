@@ -109,6 +109,102 @@ class BrushFamilyTest {
     }
 
     @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(BrushFamily().calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
+    }
+
+    @Test
+    fun calculateMinimumRequiredVersion_withIntegralNode_returnsOne() {
+        val behavior =
+            BrushBehavior(
+                BrushBehavior.TargetNode(
+                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                    targetModifierRangeStart = 1f,
+                    targetModifierRangeEnd = 2f,
+                    input =
+                        BrushBehavior.IntegralNode(
+                            integrateOver = BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                            integralValueRangeStart = 0f,
+                            integralValueRangeEnd = 1f,
+                            integralOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
+                            input =
+                                BrushBehavior.SourceNode(
+                                    BrushBehavior.Source.NORMALIZED_PRESSURE,
+                                    0f,
+                                    1f,
+                                ),
+                        ),
+                )
+            )
+        val family = BrushFamily(tip = BrushTip(behaviors = listOf(behavior)))
+        assertThat(family.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
+    }
+
+    @Test
+    fun calculateMinimumRequiredVersion_withBinaryOpMin_returnsOne() {
+        val behavior =
+            BrushBehavior(
+                BrushBehavior.TargetNode(
+                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                    targetModifierRangeStart = 1f,
+                    targetModifierRangeEnd = 2f,
+                    input =
+                        BrushBehavior.BinaryOpNode(
+                            operation = BrushBehavior.BinaryOp.MIN,
+                            firstInput = BrushBehavior.ConstantNode(1f),
+                            secondInput = BrushBehavior.ConstantNode(2f),
+                        ),
+                )
+            )
+        val family = BrushFamily(tip = BrushTip(behaviors = listOf(behavior)))
+        assertThat(family.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
+    }
+
+    @Test
+    fun calculateMinimumRequiredVersion_withBinaryOpSum_returnsZero() {
+        val behavior =
+            BrushBehavior(
+                BrushBehavior.TargetNode(
+                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                    targetModifierRangeStart = 1f,
+                    targetModifierRangeEnd = 2f,
+                    input =
+                        BrushBehavior.BinaryOpNode(
+                            operation = BrushBehavior.BinaryOp.SUM,
+                            firstInput = BrushBehavior.ConstantNode(1f),
+                            secondInput = BrushBehavior.ConstantNode(2f),
+                        ),
+                )
+            )
+        val family = BrushFamily(tip = BrushTip(behaviors = listOf(behavior)))
+        assertThat(family.calculateMinimumRequiredVersion()).isEqualTo(Version.V0_JETPACK1_0_0)
+    }
+
+    @Test
+    fun calculateMinimumRequiredVersion_withTimeSinceStrokeEnd_returnsOne() {
+        val behavior =
+            BrushBehavior(
+                BrushBehavior.TargetNode(
+                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                    targetModifierRangeStart = 1f,
+                    targetModifierRangeEnd = 2f,
+                    input =
+                        BrushBehavior.SourceNode(
+                            source = BrushBehavior.Source.TIME_SINCE_STROKE_END_IN_SECONDS,
+                            sourceValueRangeStart = 0f,
+                            sourceValueRangeEnd = 1f,
+                        ),
+                )
+            )
+        val family = BrushFamily(tip = BrushTip(behaviors = listOf(behavior)))
+        assertThat(family.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
+    }
+
+    @Test
     fun inputModelToString_returnsExpectedValues() {
         assertThat(BrushFamily.EXPERIMENTAL_NAIVE_MODEL.toString())
             .isEqualTo("ExperimentalNaiveModel")

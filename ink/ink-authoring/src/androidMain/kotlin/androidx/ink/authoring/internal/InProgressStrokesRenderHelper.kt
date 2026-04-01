@@ -170,8 +170,8 @@ internal abstract class InProgressStrokesRenderHelper<
          * frame. Failure to do so will result in a flicker on handoff, where the stroke is
          * temporarily not rendered. Initiated by [requestStrokeCohortHandoffToHwui].
          *
-         * @param strokeCohort The finished strokes, with map iteration order in stroke z-order from
-         *   back to front.
+         * @param cohort The finished strokes, with map iteration order in stroke z-order from back
+         *   to front.
          */
         @UiThread fun onStrokeCohortHandoffToHwui(cohort: List<FinishedStroke<CompletedShapeT>>)
 
@@ -215,8 +215,8 @@ internal abstract class InProgressStrokesRenderHelper<
      * Between this and [Callback.onStrokeCohortHandoffToHwuiComplete], any calls to [requestDraw]
      * may not (and may never become) visible.
      *
-     * @param handingOff The finished strokes, with map iteration order in stroke z-order from back
-     *   to front.
+     * @param cohort The finished strokes, with map iteration order in stroke z-order from back to
+     *   front.
      */
     @UiThread
     abstract fun requestStrokeCohortHandoffToHwui(cohort: List<FinishedStroke<CompletedShapeT>>)

@@ -18,6 +18,7 @@ package androidx.ink.geometry
 
 import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.UsedByNative
+import kotlin.jvm.JvmStatic
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -31,7 +32,8 @@ import kotlin.math.sin
  * alternative.
  */
 @UsedByNative
-public class ImmutableVec(override val x: Float, override val y: Float) : Vec() {
+public class ImmutableVec @UsedByNative constructor(override val x: Float, override val y: Float) :
+    Vec() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toImmutable(): ImmutableVec = this
 

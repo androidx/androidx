@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.ink.geometry
+package androidx.ink.nativeloader
 
-import androidx.ink.nativeloader.NativeLoader
-import androidx.ink.nativeloader.UsedByNative
+import kotlin.test.Test
 
-@UsedByNative
-actual internal object AngleNative {
-    init {
+/** Trivial test for native loading. */
+class NativeLoaderSmokeTest {
+
+    @Test
+    fun load_doesNotCrash() {
         NativeLoader.load()
     }
-
-    @UsedByNative actual external fun normalizedDegrees(degrees: Float): Float
-
-    @UsedByNative actual external fun normalizedAboutZeroDegrees(degrees: Float): Float
-
-    @UsedByNative actual external fun normalizedRadians(radians: Float): Float
-
-    @UsedByNative actual external fun normalizedAboutZeroRadians(radians: Float): Float
 }

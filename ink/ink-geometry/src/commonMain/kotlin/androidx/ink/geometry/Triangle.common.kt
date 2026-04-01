@@ -19,8 +19,6 @@ package androidx.ink.geometry
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
-import androidx.ink.nativeloader.NativeLoader
-import androidx.ink.nativeloader.UsedByNative
 
 /**
  * A triangle defined by its three corners [p0], [p1] and [p2]. The order of these points matter - a
@@ -172,16 +170,9 @@ public abstract class Triangle internal constructor() {
 }
 
 /** Helper object to contain native JNI calls. */
-@UsedByNative
-private object TriangleNative {
+expect internal object TriangleNative {
 
-    init {
-        NativeLoader.load()
-    }
-
-    /** Helper method to check if a native `ink::Triangle` contains the native `ink::Point`. */
-    @UsedByNative
-    external fun contains(
+    fun contains(
         triangleP0X: Float,
         triangleP0Y: Float,
         triangleP1X: Float,

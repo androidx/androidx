@@ -20,10 +20,7 @@ import androidx.ink.brush.Brush
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.Stroke
 
-/**
- * If [InProgressStrokesView.rendererFactory] can be fully removed someday, then we can just pass in
- * a [androidx.ink.brush.TextureBitmapStore] here.
- */
+/** Internal implementation of [ShapeWorkflow] for constructing Ink's standard [Stroke]. */
 @ExperimentalCustomShapeWorkflowApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 public class InkShapeWorkflow(customRendererFactory: () -> CanvasStrokeRenderer) :

@@ -888,7 +888,7 @@ internal class CanvasMeshRenderer(
         internal enum class UniformId(val nativeValue: Int) {
             /**
              * The 2x2 linear component of the affine transformation from mesh / "object"
-             * coordinates to the canvas. This requires that the [meshToCanvasTransform] matrix used
+             * coordinates to the canvas. This requires that the `meshToCanvasTransform` matrix used
              * during drawing is an affine transform. Set it with [AndroidMesh.setFloatUniform]. It
              * is a `float4` with the following expected entries:
              * - `[0]`: `matrixValues[Matrix.MSCALE_X]`
@@ -1092,7 +1092,7 @@ internal object CanvasMeshRendererNative {
      *
      * @param meshFormatNativePointer The pointer address of a [MeshFormat].
      * @param isPacked Whether to fill the mesh spec with properties describing a packed format (as
-     *   in ink::Mesh) or an unpacked format (as in ink::MutableMesh).
+     *   in `ink::Mesh`) or an unpacked format (as in `ink::MutableMesh`).
      * @param attributeTypesOut An array that can hold at least [CanvasMeshRenderer.MAX_ATTRIBUTES]
      *   values. It will contain the resulting attribute types aligning with
      *   [CanvasMeshRenderer.Type.nativeValue]. The number of attributes will be determined by the
@@ -1118,8 +1118,7 @@ internal object CanvasMeshRendererNative {
      *   string vertex shader code.
      * @param fragmentShaderOut An array with at least one element that will be filled in by the
      *   string fragment shader code.
-     * @throws IllegalArgumentException If an unrecognized format was passed in, i.e. when
-     *   [nativeIsMeshFormatRenderable] returns false.
+     * @throws IllegalArgumentException if an unrecognized format was passed in
      */
     @UsedByNative
     external fun fillSkiaMeshSpecData(

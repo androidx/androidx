@@ -166,7 +166,7 @@ public fun AffineTransform.toMatrix(): Matrix =
 
 /**
  * Writes the values from this [AffineTransform] to [out]. Note the conversion from a 3x3
- * [AffineTransform] to a 4x4 column-major [android.compose.ui.graphics.Matrix].
+ * [AffineTransform] to a 4x4 column-major [androidx.compose.ui.graphics.Matrix].
  *
  * Returns the modified [Matrix] instance to allow chaining calls.
  *

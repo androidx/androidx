@@ -655,7 +655,7 @@ private object InProgressStrokeNative {
     external fun getVertexCount(nativePointer: Long, coatIndex: Int, partitionIndex: Int): Int
 
     /**
-     * Returns a direct [ByteBuffer] wrapped around the contents of [RawVertexData] for the mesh at
+     * Returns a direct [ByteBuffer] wrapped around the contents of `RawVertexData` for the mesh at
      * [partitionIndex]. It will be writeable, so be sure to only expose a read-only wrapper of it.
      */
     @UsedByNative
@@ -666,7 +666,7 @@ private object InProgressStrokeNative {
     ): ByteBuffer?
 
     /**
-     * Returns a direct [ByteBuffer] wrapped around the contents of [RawTriangleData] for the mesh
+     * Returns a direct [ByteBuffer] wrapped around the contents of `RawTriangleData` for the mesh
      * at [partitionIndex]. It will be writeable, so be sure to only expose a read-only wrapper of
      * it.
      */

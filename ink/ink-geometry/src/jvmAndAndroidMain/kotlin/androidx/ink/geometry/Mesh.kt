@@ -104,8 +104,7 @@ private constructor(
     public val triangleCount: Int = MeshNative.getTriangleCount(nativePointer)
 
     /** The bounding box of the vertex positions. */
-    public val bounds: Box? =
-        BoxAccumulator().apply { MeshNative.fillBounds(nativePointer, this) }.box
+    public val bounds: Box? by lazy { MeshNative.createBounds(nativePointer) }
 
     /** The transforms used to convert packed attributes into their actual values. */
     public val vertexAttributeUnpackingParams: List<MeshAttributeUnpackingParams> = run {
@@ -199,10 +198,10 @@ private object MeshNative {
     @UsedByNative external fun getAttributeCount(nativePointer: Long): Int
 
     /**
-     * Sets the given [BoxAccumulator] to the bounds of the mesh, including resetting the object if
-     * the mesh has no bounds.
+     * Returns a new [ImmutableBox] with the bounding box of the mesh at [nativePointer] if
+     * non-empty, or null if the mesh is empty.
      */
-    @UsedByNative external fun fillBounds(nativePointer: Long, boxAccumulator: BoxAccumulator)
+    @UsedByNative external fun createBounds(nativePointer: Long): ImmutableBox?
 
     /**
      * Set the given [offsets] and [scales] arrays (each of which must have at least

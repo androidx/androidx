@@ -18,16 +18,19 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.UsedByNative
+import kotlin.jvm.JvmStatic
 import kotlin.math.max
 import kotlin.math.min
 
 /**
  * An immutable axis-aligned rectangle. See [MutableBox] for a mutable version.
  *
- * Note that unlike [android.graphics.RectF], this does not express an opinion about axis direction
+ * Note that unlike `android.graphics.RectF`, this does not express an opinion about axis direction
  * (e.g. the positive `Y` axis being "down"), because it is intended to be used with any coordinate
  * system rather than just Android screen / View space.
  */
+@UsedByNative
 public class ImmutableBox internal constructor(x1: Float, y1: Float, x2: Float, y2: Float) : Box() {
 
     /** The lower bound in the `X` direction. */
@@ -71,6 +74,7 @@ public class ImmutableBox internal constructor(x1: Float, y1: Float, x2: Float, 
 
         /** Constructs the smallest [ImmutableBox] containing the two given points. */
         @JvmStatic
+        @UsedByNative
         public fun fromTwoPoints(point1: Vec, point2: Vec): ImmutableBox =
             ImmutableBox(point1.x, point1.y, point2.x, point2.y)
 

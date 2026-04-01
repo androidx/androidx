@@ -16,14 +16,11 @@
 
 package androidx.ink.geometry
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import kotlin.math.sqrt
+import kotlin.test.Test
 import kotlin.test.assertFailsWith
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class SegmentTest {
 
     @Test

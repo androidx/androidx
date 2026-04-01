@@ -16,7 +16,7 @@
 
 package androidx.ink.nativeloader
 
-import org.junit.Test
+import kotlin.test.Test
 
 /** Trivial test for native loading. */
 class NativeLoaderSmokeTest {

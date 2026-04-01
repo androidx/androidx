@@ -18,8 +18,6 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.ink.nativeloader.NativeLoader
-import androidx.ink.nativeloader.UsedByNative
 import kotlin.math.abs
 
 /**
@@ -165,23 +163,16 @@ public abstract class Box internal constructor() {
     }
 }
 
-@UsedByNative
-internal object BoxNative {
+expect internal object BoxNative {
 
-    init {
-        NativeLoader.load()
-    }
-
-    @UsedByNative
-    external fun createCenter(
+    fun createCenter(
         rectXMin: Float,
         rectYMin: Float,
         rectXMax: Float,
         rectYMax: Float,
     ): ImmutableVec
 
-    @UsedByNative
-    external fun populateCenter(
+    fun populateCenter(
         rectXMin: Float,
         rectYMin: Float,
         rectXMax: Float,
@@ -189,8 +180,7 @@ internal object BoxNative {
         out: MutableVec,
     )
 
-    @UsedByNative
-    external fun containsPoint(
+    fun containsPoint(
         rectXMin: Float,
         rectYMin: Float,
         rectXMax: Float,
@@ -199,8 +189,7 @@ internal object BoxNative {
         pointY: Float,
     ): Boolean
 
-    @UsedByNative
-    external fun containsBox(
+    fun containsBox(
         rectXMin: Float,
         rectYMin: Float,
         rectXMax: Float,

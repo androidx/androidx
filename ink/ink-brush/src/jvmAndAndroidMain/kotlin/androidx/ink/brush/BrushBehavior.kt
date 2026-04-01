@@ -468,16 +468,14 @@ private constructor(
 
             /**
              * Scales the brush-tip width, starting from the value calculated using
-             * [BrushTip.scaleX] and [BrushTip.scaleY]. The final brush width is clamped to a
-             * maximum of twice the base width. If multiple behaviors have one of these targets,
-             * they stack multiplicatively.
+             * [BrushTip.scaleX]. If multiple behaviors have this target, they stack
+             * multiplicatively.
              */
             @JvmField public val WIDTH_MULTIPLIER: Target = Target(0, "WIDTH_MULTIPLIER")
             /**
              * Scales the brush-tip height, starting from the value calculated using
-             * [BrushTip.scaleX] and [BrushTip.scaleY]. The final brush height is clamped to a
-             * maximum of twice the base height. If multiple behaviors have one of these targets,
-             * they stack multiplicatively.
+             * [BrushTip.scaleY]. If multiple behaviors have this target, they stack
+             * multiplicatively.
              */
             @JvmField public val HEIGHT_MULTIPLIER: Target = Target(1, "HEIGHT_MULTIPLIER")
             /** Convenience enumerator to target both [WIDTH_MULTIPLIER] and [HEIGHT_MULTIPLIER]. */
@@ -741,9 +739,10 @@ private constructor(
 
             /**
              * Progress in input distance traveled since the start of the stroke, measured in
-             * centimeters. If the input data does not indicate the relationship between stroke
-             * units and physical units (e.g. as may be the case for programmatically-generated
-             * inputs), then special handling will be applied based on the node type.
+             * centimeters. If the stroke input data does not indicate the relationship between
+             * stroke units and physical units (e.g. as may be the case for
+             * programmatically-generated inputs), then any node relying on this domain will emit
+             * null.
              */
             @JvmField
             public val DISTANCE_IN_CENTIMETERS: ProgressDomain =
@@ -947,6 +946,14 @@ private constructor(
         /**
          * Creates a [NoiseNode] that produces a random variation.
          *
+         * A new random value between 0 and 1 will be generated every [basePeriod] units along the
+         * [varyOver] domain, with the output of this node shifting smoothly between successive
+         * random values.
+         *
+         * If [varyOver] is [ProgressDomain.DISTANCE_IN_CENTIMETERS] and the stroke input data does
+         * not indicate the relationship between stroke units and physical units (e.g. as may be the
+         * case for programmatically-generated inputs), then the output value will be null.
+         *
          * @param seed the seed for the random number generator
          * @param varyOver the source of the varying over which the random function is evaluated
          * @param basePeriod the base period of the random function
@@ -1070,6 +1077,11 @@ private constructor(
          * Creates a [DampingNode] that damps changes in an input value, causing the output value to
          * slowly follow changes in the input value over a specified time or distance.
          *
+         * If [dampingSource] is [ProgressDomain.DISTANCE_IN_CENTIMETERS] and the stroke input data
+         * does not indicate the relationship between stroke units and physical units (e.g. as may
+         * be the case for programmatically-generated inputs), then the output value will be null
+         * regardless of the input.
+         *
          * @param dampingSource the source of the damping
          * @param dampingGap the amount of damping to apply
          * @param input input node that produces the value to be modified by the damping
@@ -1173,6 +1185,11 @@ private constructor(
 
         /**
          * Creates an [IntegralNode] that integrates over an input value.
+         *
+         * If [integrateOver] is [ProgressDomain.DISTANCE_IN_CENTIMETERS] and the stroke input data
+         * does not indicate the relationship between stroke units and physical units (e.g. as may
+         * be the case for programmatically-generated inputs), then the output value will be null
+         * regardless of the input.
          *
          * @param integrateOver the metric to integrate the input over
          * @param integralValueRangeStart the start of the range of values that the integral can
