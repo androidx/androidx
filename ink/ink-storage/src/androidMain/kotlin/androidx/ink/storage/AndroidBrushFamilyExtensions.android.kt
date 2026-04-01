@@ -24,12 +24,12 @@ import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.zip.GZIPOutputStream
 
 /** A callback to use with [decode] to manage texture image assets. */
-@ExperimentalInkCustomBrushApi
 public fun interface BrushFamilyDecodeCallback {
     /**
      * Called for each texture used by a BrushFamily when that BrushFamily is decoded. In the
@@ -58,7 +58,7 @@ public fun interface BrushFamilyDecodeCallback {
  *   that always returns `null`.
  * @receiver The [BrushFamily] object to encode.
  */
-@ExperimentalInkCustomBrushApi
+@OptIn(ExperimentalInkCustomBrushApi::class)
 public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureBitmapStore) {
     val textureIdToNativeBitmaps: MutableMap<String, ByteArray> = mutableMapOf()
 
@@ -103,7 +103,6 @@ public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureB
  *   message, or the corresponding [BrushFamily] is invalid.
  */
 @SuppressWarnings("ExecutorRegistration")
-@ExperimentalInkCustomBrushApi
 public fun BrushFamily.Companion.decode(
     input: InputStream,
     getClientTextureId: BrushFamilyDecodeCallback,
@@ -132,7 +131,6 @@ public fun BrushFamily.Companion.decode(
 // overload arbitrarily, which leads to potentially very confusing behavior (e.g. decode might work
 // by coincidence at one point and then suddenly stop working when more overloads are added).
 
-@ExperimentalInkCustomBrushApi
 public object AndroidBrushFamilySerialization {
     /**
      * Write a gzip-compressed `ink.proto.BrushFamily` binary proto message representing the
@@ -146,6 +144,7 @@ public object AndroidBrushFamilySerialization {
      *   [TextureBitmapStore] that always returns `null`.
      */
     @JvmStatic
+    @Throws(IOException::class)
     public fun encode(
         brushFamily: BrushFamily,
         output: OutputStream,
@@ -174,6 +173,7 @@ public object AndroidBrushFamilySerialization {
      */
     @SuppressWarnings("ExecutorRegistration")
     @JvmStatic
+    @Throws(IOException::class)
     public fun decode(
         input: InputStream,
         getClientTextureId: BrushFamilyDecodeCallback,

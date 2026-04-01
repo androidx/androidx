@@ -48,6 +48,7 @@ androidXMultiplatform {
 
     jvmAndAndroidTest.dependencies {
       implementation(libs.junit)
+      implementation(libs.kotlinTest)
     }
 
     androidDeviceTest.dependencies {

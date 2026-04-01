@@ -131,7 +131,7 @@ public class BoxAccumulator {
     }
 
     /**
-     * Expands the accumulated bounding box (if necessary) such that it also contains [point].
+     * Expands the accumulated bounding box (if necessary) such that it also contains `Point`.
      *
      * Returns the modified instance to allow chaining function calls.
      *
@@ -282,7 +282,7 @@ public class BoxAccumulator {
      * @return `this`
      */
     @UsedByNative
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun populateFrom(x1: Float, y1: Float, x2: Float, y2: Float): BoxAccumulator {
         hasBounds = true
         _bounds.setXBounds(x1, x2).setYBounds(y1, y2)
@@ -320,8 +320,8 @@ private object BoxAccumulatorNative {
     }
 
     /**
-     * Helper method to construct a native C++ [Envelope] and [Segment], add the native [Segment] to
-     * the native [Envelope], and update [output] using the result.
+     * Helper method to construct a native C++ `Envelope` and [Segment], add the native [Segment] to
+     * the native `Envelope`, and update [output] using the result.
      */
     @UsedByNative
     external fun addSegment(
@@ -338,8 +338,8 @@ private object BoxAccumulatorNative {
     )
 
     /**
-     * Helper method to construct a native C++ [Envelope] and [Triangle], add the native [Triangle]
-     * to the native [Envelope], and update [output] using the result.
+     * Helper method to construct a native C++ `Envelope` and [Triangle], add the native [Triangle]
+     * to the native `Envelope`, and update [output] using the result.
      */
     @UsedByNative
     external fun addTriangle(
@@ -358,8 +358,8 @@ private object BoxAccumulatorNative {
     )
 
     /**
-     * Helper method to construct a native C++ [Envelope] and [Parallelogram], add the native
-     * [Parallelogram] to the native [Envelope], and update [output] using the result.
+     * Helper method to construct a native C++ `Envelope` and [Parallelogram], add the native
+     * [Parallelogram] to the native `Envelope`, and update [output] using the result.
      */
     @UsedByNative
     external fun addParallelogram(
@@ -378,8 +378,8 @@ private object BoxAccumulatorNative {
     )
 
     /**
-     * Helper method to construct a native C++ [Envelope] and [Point], add the native [Point] to the
-     * native [Envelope], and update [output] using the result.
+     * Helper method to construct a native C++ `Envelope` and `Point`, add the native `Point` to the
+     * native `Envelope`, and update [output] using the result.
      */
     @UsedByNative
     external fun addPoint(
@@ -394,8 +394,8 @@ private object BoxAccumulatorNative {
     )
 
     /**
-     * Helper method to construct a native C++ [Envelope] using `this`, add the optional box to the
-     * native [Envelope], and update [output] using the result.
+     * Helper method to construct a native C++ `Envelope` using `this`, add the optional box to the
+     * native `Envelope`, and update [output] using the result.
      */
     @UsedByNative
     external fun addOptionalBox(

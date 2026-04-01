@@ -38,8 +38,8 @@ class StockBrushesTestHelper(private val context: Context) {
     private val resources = context.resources
     val cursiveStylusInputs = getStrokeInputBatchById(R.raw.cursive_stylus_inputbatch)
     val cursiveTouchInputs = getStrokeInputBatchById(R.raw.cursive_touch_inputbatch)
-    val octogonStylusInputs = getStrokeInputBatchById(R.raw.octogon_stylus_inputbatch)
-    val octogonTouchInputs = getStrokeInputBatchById(R.raw.octogon_touch_inputbatch)
+    val octagonStylusInputs = getStrokeInputBatchById(R.raw.octagon_stylus_inputbatch)
+    val octagonTouchInputs = getStrokeInputBatchById(R.raw.octagon_touch_inputbatch)
     val helloWorldDocument =
         List(39) { index ->
                 val resourceId =

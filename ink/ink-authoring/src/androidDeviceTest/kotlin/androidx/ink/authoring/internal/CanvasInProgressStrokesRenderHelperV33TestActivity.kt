@@ -66,8 +66,8 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
             CanvasInProgressStrokesRenderHelperV33(
                 mainView,
                 InkInProgressShapeRenderer(mockRenderer),
-                fakeThreads.uiThreadExecutors,
-                fakeThreads.renderThreadExecutors,
+                fakeThreads.uiThreadExecutor,
+                { fakeThreads.renderThreadExecutor.apply { isShutdown = false } },
             )
         renderHelper.callback = mockCallback
     }
@@ -83,33 +83,31 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
 
         val clock =
             FakeClock(1000) { newTimeMillis ->
-                _uiThreadExecutors.onNewTime(newTimeMillis)
-                _renderThreadExecutors.onNewTime(newTimeMillis)
+                uiThreadExecutor.onNewTime(newTimeMillis)
+                renderThreadExecutor.onNewTime(newTimeMillis)
             }
 
-        private val _uiThreadExecutors = FakeScheduledExecutor(ThreadId.UI)
-        val uiThreadExecutors: CanvasInProgressStrokesRenderHelperV33.ScheduledExecutor =
-            _uiThreadExecutors
+        val uiThreadExecutor = FakeScheduledExecutor(ThreadId.UI)
 
-        private val _renderThreadExecutors = FakeScheduledExecutor(ThreadId.RENDER)
-        val renderThreadExecutors: CanvasInProgressStrokesRenderHelperV33.ScheduledExecutor =
-            _renderThreadExecutors
+        val renderThreadExecutor = FakeScheduledExecutor(ThreadId.RENDER)
 
-        fun uiThreadReadyTaskCount() = _uiThreadExecutors.tasks.size
+        fun uiThreadReadyTaskCount() = uiThreadExecutor.tasks.size
 
-        fun renderThreadReadyTaskCount() = _renderThreadExecutors.tasks.size
+        fun renderThreadReadyTaskCount() = renderThreadExecutor.tasks.size
 
-        fun uiThreadDelayedTaskCount() = _uiThreadExecutors.delayedTasks.size
+        fun uiThreadDelayedTaskCount() = uiThreadExecutor.delayedTasks.size
 
-        fun renderThreadDelayedTaskCount() = _renderThreadExecutors.delayedTasks.size
+        fun renderThreadDelayedTaskCount() = renderThreadExecutor.delayedTasks.size
 
-        fun runUiThreadOnce() = runFakeThreadOnce(_uiThreadExecutors)
+        fun renderThreadIsShutdown() = renderThreadExecutor.isShutdown
 
-        fun runRenderThreadOnce() = runFakeThreadOnce(_renderThreadExecutors)
+        fun runUiThreadOnce() = runFakeThreadOnce(uiThreadExecutor)
 
-        fun runUiThreadToIdle() = runFakeThreadToIdle(_uiThreadExecutors)
+        fun runRenderThreadOnce() = runFakeThreadOnce(renderThreadExecutor)
 
-        fun runRenderThreadToIdle() = runFakeThreadToIdle(_renderThreadExecutors)
+        fun runUiThreadToIdle() = runFakeThreadToIdle(uiThreadExecutor)
+
+        fun runRenderThreadToIdle() = runFakeThreadToIdle(renderThreadExecutor)
 
         fun runOnUiThread(block: () -> Unit) {
             val previousThreadId = currentThreadId
@@ -149,11 +147,19 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
             return ranAny
         }
 
-        private inner class FakeScheduledExecutor(val threadId: ThreadId) :
+        internal inner class FakeScheduledExecutor(val threadId: ThreadId) :
             CanvasInProgressStrokesRenderHelperV33.ScheduledExecutor {
             val tasks = mutableListOf<Runnable>()
             /** Each element is a delayed runtime (in the [clock] time space) with its task. */
             val delayedTasks = mutableListOf<Pair<Long, Runnable>>()
+
+            override var isShutdown = false
+
+            override fun shutdown() {
+                tasks.clear()
+                delayedTasks.clear()
+                isShutdown = true
+            }
 
             override fun onThread() = currentThreadId == threadId
 

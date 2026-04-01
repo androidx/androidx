@@ -208,11 +208,11 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * shapes. Clients may implement the [LatencyDataCallback] interface and set this field to
      * receive latency measurements.
      *
-     * Notes for clients: Do not hold references to the [LatencyData] passed into this callback.
-     * After this callback returns, the [LatencyData] instance will immediately become invalid: it
-     * will be deleted or recycled. Also, to avoid stalling the UI thread, implementers should
-     * minimize the amount of computation in this callback, and should also avoid allocations (since
-     * allocation may trigger the garbage collector).
+     * Notes for clients: Do not hold references to the [androidx.ink.authoring.latency.LatencyData]
+     * passed into this callback. After this callback returns, the `LatencyData` instance will
+     * immediately become invalid: it will be deleted or recycled. Also, to avoid stalling the UI
+     * thread, implementers should minimize the amount of computation in this callback, and should
+     * also avoid allocations (since allocation may trigger the garbage collector).
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalLatencyDataApi

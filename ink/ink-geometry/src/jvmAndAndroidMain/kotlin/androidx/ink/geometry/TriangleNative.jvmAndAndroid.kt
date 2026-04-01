@@ -20,16 +20,21 @@ import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
 @UsedByNative
-actual internal object AngleNative {
+actual internal object TriangleNative {
+
     init {
         NativeLoader.load()
     }
 
-    @UsedByNative actual external fun normalizedDegrees(degrees: Float): Float
-
-    @UsedByNative actual external fun normalizedAboutZeroDegrees(degrees: Float): Float
-
-    @UsedByNative actual external fun normalizedRadians(radians: Float): Float
-
-    @UsedByNative actual external fun normalizedAboutZeroRadians(radians: Float): Float
+    @UsedByNative
+    actual external fun contains(
+        triangleP0X: Float,
+        triangleP0Y: Float,
+        triangleP1X: Float,
+        triangleP1Y: Float,
+        triangleP2X: Float,
+        triangleP2Y: Float,
+        pointX: Float,
+        pointY: Float,
+    ): Boolean
 }

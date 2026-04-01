@@ -18,8 +18,10 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
@@ -29,6 +31,7 @@ import kotlin.math.hypot
  * 1) A two-dimensional offset, i.e. the difference between two points
  * 2) A point in space, i.e. treating the vector as an offset from the origin
  */
+@UsedByNative
 public abstract class Vec internal constructor() {
     /** The [Vec]'s offset in the x-direction */
     public abstract val x: Float
@@ -276,31 +279,24 @@ public abstract class Vec internal constructor() {
     }
 }
 
-@UsedByNative
-internal object VecNative {
+expect internal object VecNative {
 
-    init {
-        NativeLoader.load()
-    }
+    fun unitVec(vecX: Float, vecY: Float): ImmutableVec
 
-    @UsedByNative external fun unitVec(vecX: Float, vecY: Float): ImmutableVec
+    fun populateUnitVec(vecX: Float, vecY: Float, output: MutableVec)
 
-    @UsedByNative external fun populateUnitVec(vecX: Float, vecY: Float, output: MutableVec)
-
-    @UsedByNative
     @AngleDegreesFloat
     @FloatRange(from = 0.0, to = 180.0)
-    external fun absoluteAngleBetweenInDegrees(
+    fun absoluteAngleBetweenInDegrees(
         firstVecX: Float,
         firstVecY: Float,
         secondVecX: Float,
         secondVecY: Float,
     ): Float
 
-    @UsedByNative
     @AngleDegreesFloat
     @FloatRange(from = -180.0, to = 180.0, fromInclusive = false)
-    external fun signedAngleBetweenInDegrees(
+    fun signedAngleBetweenInDegrees(
         firstVecX: Float,
         firstVecY: Float,
         secondVecX: Float,

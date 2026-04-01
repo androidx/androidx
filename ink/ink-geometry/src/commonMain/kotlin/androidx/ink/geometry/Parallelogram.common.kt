@@ -18,8 +18,6 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.ink.nativeloader.NativeLoader
-import androidx.ink.nativeloader.UsedByNative
 import kotlin.math.abs
 
 /**
@@ -219,7 +217,7 @@ public abstract class Parallelogram internal constructor() {
      * coordinate system, they are: top-left, top-right, bottom-right, bottom-left. The corners keep
      * their numbering through any skew and/or rotation applied to the base rectangle. Numerically,
      * the corners are equivalent to: `C - u - v C + u - v C + u + v C - u + v` Where `C` =
-     * [center], and `u` and `v` are the [semiAxes].
+     * [center], and `u` and `v` are the semi-axes
      *
      * Performance-sensitive code should use the [computeCorners] overload that takes pre-allocated
      * [MutableVec]s, so that instances can be reused across multiple calls.
@@ -355,15 +353,9 @@ public abstract class Parallelogram internal constructor() {
 }
 
 /** Native helper functions for Parallelogram. */
-@UsedByNative
-internal object ParallelogramNative {
+expect internal object ParallelogramNative {
 
-    init {
-        NativeLoader.load()
-    }
-
-    @UsedByNative
-    external fun createBoundingBox(
+    fun createBoundingBox(
         centerX: Float,
         centerY: Float,
         width: Float,
@@ -372,8 +364,7 @@ internal object ParallelogramNative {
         skew: Float,
     ): ImmutableBox
 
-    @UsedByNative
-    external fun populateBoundingBox(
+    fun populateBoundingBox(
         centerX: Float,
         centerY: Float,
         width: Float,
@@ -383,8 +374,7 @@ internal object ParallelogramNative {
         outBox: MutableBox,
     )
 
-    @UsedByNative
-    external fun createSemiAxes(
+    fun createSemiAxes(
         centerX: Float,
         centerY: Float,
         width: Float,
@@ -393,8 +383,7 @@ internal object ParallelogramNative {
         skew: Float,
     ): Array<ImmutableVec>
 
-    @UsedByNative
-    external fun populateSemiAxes(
+    fun populateSemiAxes(
         centerX: Float,
         centerY: Float,
         width: Float,
@@ -405,8 +394,7 @@ internal object ParallelogramNative {
         outAxis2: MutableVec,
     )
 
-    @UsedByNative
-    external fun createCorners(
+    fun createCorners(
         centerX: Float,
         centerY: Float,
         width: Float,
@@ -415,8 +403,7 @@ internal object ParallelogramNative {
         skew: Float,
     ): Array<ImmutableVec>
 
-    @UsedByNative
-    external fun populateCorners(
+    fun populateCorners(
         centerX: Float,
         centerY: Float,
         width: Float,
@@ -429,8 +416,7 @@ internal object ParallelogramNative {
         outCorner4: MutableVec,
     )
 
-    @UsedByNative
-    external fun contains(
+    fun contains(
         centerX: Float,
         centerY: Float,
         width: Float,

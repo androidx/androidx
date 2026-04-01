@@ -210,7 +210,7 @@ class StockBrushesTest(val brushName: String) {
                     listOf(
                         Stroke(
                             makeBrush(family = family, size = 10f),
-                            helper.octogonStylusInputs.overrideInputChannel(pressure = 0f),
+                            helper.octagonStylusInputs.overrideInputChannel(pressure = 0f),
                         )
                     )
                 ),
@@ -218,7 +218,7 @@ class StockBrushesTest(val brushName: String) {
                     listOf(
                         Stroke(
                             makeBrush(family = family, size = 10f),
-                            helper.octogonStylusInputs.overrideInputChannel(pressure = 0.1f),
+                            helper.octagonStylusInputs.overrideInputChannel(pressure = 0.1f),
                         )
                     )
                 ),
@@ -237,14 +237,14 @@ class StockBrushesTest(val brushName: String) {
             listOf(
                 listOf(
                     listOf(
-                        Stroke(makeBrush(family = family, size = 10f), helper.octogonStylusInputs)
+                        Stroke(makeBrush(family = family, size = 10f), helper.octagonStylusInputs)
                     )
                 ),
                 listOf(
                     listOf(
                         Stroke(
                             makeBrush(family = family, size = 10f),
-                            helper.octogonStylusInputs.overrideInputChannel(
+                            helper.octagonStylusInputs.overrideInputChannel(
                                 pressure = StrokeInput.NO_PRESSURE
                             ),
                         )
@@ -254,7 +254,7 @@ class StockBrushesTest(val brushName: String) {
                     listOf(
                         Stroke(
                             makeBrush(family = family, size = 10f),
-                            helper.octogonStylusInputs.overrideInputChannel(
+                            helper.octagonStylusInputs.overrideInputChannel(
                                 tilt = StrokeInput.NO_TILT
                             ),
                         )
@@ -264,7 +264,7 @@ class StockBrushesTest(val brushName: String) {
                     listOf(
                         Stroke(
                             makeBrush(family = family, size = 10f),
-                            helper.octogonStylusInputs.overrideInputChannel(
+                            helper.octagonStylusInputs.overrideInputChannel(
                                 orientation = StrokeInput.NO_ORIENTATION
                             ),
                         )
@@ -302,7 +302,7 @@ class StockBrushesTest(val brushName: String) {
                     listOf(
                         Stroke(
                             makeBrush(family = family, alpha = alpha, size = size),
-                            helper.octogonStylusInputs,
+                            helper.octagonStylusInputs,
                         )
                     )
                 }
@@ -336,10 +336,10 @@ class StockBrushesTest(val brushName: String) {
         val stroke =
             InProgressStroke().apply {
                 start(makeBrush(family = family, size = 10f))
-                enqueueInputs(helper.octogonStylusInputs, ImmutableStrokeInputBatch.EMPTY)
+                enqueueInputs(helper.octagonStylusInputs, ImmutableStrokeInputBatch.EMPTY)
                 updateShape(
-                    helper.octogonStylusInputs
-                        .get(helper.octogonStylusInputs.size - 1)
+                    helper.octagonStylusInputs
+                        .get(helper.octagonStylusInputs.size - 1)
                         .elapsedTimeMillis
                 )
             }

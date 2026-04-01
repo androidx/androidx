@@ -16,13 +16,10 @@
 
 package androidx.ink.geometry
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import kotlin.math.sqrt
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class MutableVecTest {
 
     @Test
@@ -36,9 +33,7 @@ class MutableVecTest {
     @Test
     fun equals_whenDifferentType_returnsFalse() {
         val vec = MutableVec(1f, 2f)
-        val segment = MutableSegment(MutableVec(1f, 2f), MutableVec(3f, 4f))
-
-        assertThat(vec).isNotEqualTo(segment)
+        assertThat(vec).isNotEqualTo(Any())
     }
 
     @Test

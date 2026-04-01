@@ -59,6 +59,16 @@ private constructor(
     public val developerComment: String = BrushFamilyNative.getDeveloperComment(nativePointer)
 
     /**
+     * Returns the minimum required [Version] for this [BrushFamily].
+     *
+     * By default, decoding a [BrushFamily] with a minimum required version higher than
+     * [Version.MAX_SUPPORTED] will fail.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public fun calculateMinimumRequiredVersion(): Version =
+        Version.fromInt(BrushFamilyNative.calculateMinimumRequiredVersion(nativePointer))
+
+    /**
      * Creates a [BrushFamily] with the given [BrushCoat]s.
      *
      * @param coats The [BrushCoat]s that make up this [BrushFamily].
@@ -430,6 +440,8 @@ private object BrushFamilyNative {
     @UsedByNative external fun getClientBrushFamilyId(nativePointer: Long): String
 
     @UsedByNative external fun getDeveloperComment(nativePointer: Long): String
+
+    @UsedByNative external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 
     /**
      * Returns a new, unowned native pointer to a copy of the `BrushCoat` at index for the

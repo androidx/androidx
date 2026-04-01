@@ -18,16 +18,18 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.UsedByNative
 import kotlin.math.max
 import kotlin.math.min
 
 /**
  * A mutable axis-aligned rectangle. See [ImmutableBox] for an immutable version.
  *
- * Note that unlike [android.graphics.RectF], this does not express an opinion about axis direction
+ * Note that unlike `android.graphics.RectF`, this does not express an opinion about axis direction
  * (e.g. the positive Y axis being "down"), because it is intended to be used with any coordinate
  * system rather than just Android screen/View space.
  */
+@UsedByNative
 public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2: Float) : Box() {
 
     /** The lower bound in the `X` direction. */
@@ -51,6 +53,7 @@ public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2:
      * `xMin`, and the maximum value becomes `xMax`. Returns the same instance to chain function
      * calls.
      */
+    @UsedByNative
     public fun setXBounds(x1: Float, x2: Float): MutableBox {
         xMin = min(x1, x2)
         xMax = max(x1, x2)
@@ -62,6 +65,7 @@ public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2:
      * `yMin`, and the maximum value becomes `yMax`. Returns the same instance to chain function
      * calls.
      */
+    @UsedByNative
     public fun setYBounds(y1: Float, y2: Float): MutableBox {
         yMin = min(y1, y2)
         yMax = max(y1, y2)

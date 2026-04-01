@@ -846,7 +846,7 @@ private constructor(
 
         // To be extended by extension methods.
         public companion object {
-            /** Returns a new [BrushPaint.Builder]. */
+            /** Returns a new [TextureLayer.Builder]. */
             @JvmStatic public fun builder(): Builder = Builder()
 
             /**

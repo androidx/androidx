@@ -1,29 +1,29 @@
 // Signature format: 4.0
 package androidx.ink.storage {
 
-  @SuppressCompatibility public final class AndroidBrushFamilyExtensions {
-    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static androidx.ink.brush.BrushFamily decode(androidx.ink.brush.BrushFamily.Companion, java.io.InputStream input, androidx.ink.storage.BrushFamilyDecodeCallback getClientTextureId);
-    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static void encode(androidx.ink.brush.BrushFamily, java.io.OutputStream output, androidx.ink.brush.TextureBitmapStore textureBitmapStore);
+  public final class AndroidBrushFamilyExtensions {
+    method public static androidx.ink.brush.BrushFamily decode(androidx.ink.brush.BrushFamily.Companion, java.io.InputStream input, androidx.ink.storage.BrushFamilyDecodeCallback getClientTextureId);
+    method public static void encode(androidx.ink.brush.BrushFamily, java.io.OutputStream output, androidx.ink.brush.TextureBitmapStore textureBitmapStore);
   }
 
-  @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public final class AndroidBrushFamilySerialization {
-    method public static androidx.ink.brush.BrushFamily decode(java.io.InputStream input, androidx.ink.storage.BrushFamilyDecodeCallback getClientTextureId);
-    method public static void encode(androidx.ink.brush.BrushFamily brushFamily, java.io.OutputStream output, androidx.ink.brush.TextureBitmapStore textureBitmapStore);
+  public final class AndroidBrushFamilySerialization {
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static androidx.ink.brush.BrushFamily decode(java.io.InputStream input, androidx.ink.storage.BrushFamilyDecodeCallback getClientTextureId) throws java.io.IOException;
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static void encode(androidx.ink.brush.BrushFamily brushFamily, java.io.OutputStream output, androidx.ink.brush.TextureBitmapStore textureBitmapStore) throws java.io.IOException;
     field public static final androidx.ink.storage.AndroidBrushFamilySerialization INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public fun interface BrushFamilyDecodeCallback {
+  public fun interface BrushFamilyDecodeCallback {
     method public String onDecodeTexture(String clientTextureId, android.graphics.Bitmap? bitmap);
   }
 
-  @SuppressCompatibility public final class BrushFamilyExtensions {
-    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static androidx.ink.brush.BrushFamily decode(androidx.ink.brush.BrushFamily.Companion, java.io.InputStream input);
-    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static void encode(androidx.ink.brush.BrushFamily, java.io.OutputStream output);
+  public final class BrushFamilyExtensions {
+    method public static androidx.ink.brush.BrushFamily decode(androidx.ink.brush.BrushFamily.Companion, java.io.InputStream input);
+    method public static void encode(androidx.ink.brush.BrushFamily, java.io.OutputStream output);
   }
 
-  @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public final class BrushFamilySerialization {
-    method public static androidx.ink.brush.BrushFamily decode(java.io.InputStream input);
-    method public static void encode(androidx.ink.brush.BrushFamily brushFamily, java.io.OutputStream output);
+  public final class BrushFamilySerialization {
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static androidx.ink.brush.BrushFamily decode(java.io.InputStream input) throws java.io.IOException;
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static void encode(androidx.ink.brush.BrushFamily brushFamily, java.io.OutputStream output) throws java.io.IOException;
     field public static final androidx.ink.storage.BrushFamilySerialization INSTANCE;
   }
 

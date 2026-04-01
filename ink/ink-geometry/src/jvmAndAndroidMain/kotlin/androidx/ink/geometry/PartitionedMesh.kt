@@ -78,21 +78,7 @@ private constructor(
             PartitionedMeshNative.newCopiesOfMeshes(nativePointer, groupIndex).map(Mesh::wrapNative)
         }
 
-    private val bounds: Box? by lazy {
-        if (meshesByGroup.isEmpty()) {
-            null
-        } else {
-            BoxAccumulator()
-                .apply {
-                    for (meshes in meshesByGroup) {
-                        for (mesh in meshes) {
-                            add(mesh.bounds)
-                        }
-                    }
-                }
-                .box
-        }
-    }
+    private val bounds: Box? by lazy { PartitionedMeshNative.createBounds(nativePointer) }
 
     /**
      * Returns the minimum bounding box of the [PartitionedMesh]. This will be null if the
@@ -554,6 +540,12 @@ private object PartitionedMeshNative {
         outlineVertexIndex: Int,
         outMeshIndexAndMeshVertexIndex: IntArray,
     )
+
+    /**
+     * Returns a new [ImmutableBox] with the bounding box of the mesh at [nativePointer] if
+     * non-empty, or null if the mesh is empty.
+     */
+    @UsedByNative external fun createBounds(nativePointer: Long): ImmutableBox?
 
     /**
      * JNI method to construct C++ `PartitionedMesh` and `Triangle` objects and calculate coverage

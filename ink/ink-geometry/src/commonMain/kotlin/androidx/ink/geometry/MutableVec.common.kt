@@ -31,6 +31,7 @@ import kotlin.math.sin
  * synchronization logic or use this object from a single thread. See [ImmutableVec] for an
  * immutable alternative.
  */
+@UsedByNative
 public class MutableVec(
     @set:UsedByNative override var x: Float,
     @set:UsedByNative override var y: Float,

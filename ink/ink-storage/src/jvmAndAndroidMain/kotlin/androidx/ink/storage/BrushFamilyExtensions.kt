@@ -19,7 +19,7 @@
 package androidx.ink.storage
 
 import androidx.ink.brush.BrushFamily
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.zip.GZIPOutputStream
@@ -28,7 +28,6 @@ import java.util.zip.GZIPOutputStream
  * Write a gzip-compressed serialized `ink.proto.BrushFamily` proto message representing the
  * [BrushFamily] to the given [OutputStream].
  */
-@ExperimentalInkCustomBrushApi
 public fun BrushFamily.encode(output: OutputStream) {
     GZIPOutputStream(output).use {
         it.write(BrushSerializationNative.serializeBrushFamily(nativePointer, mapOf()))
@@ -47,7 +46,6 @@ public fun BrushFamily.encode(output: OutputStream) {
  * @throws [IllegalArgumentException] [input] does not provide a valid `ink.proto.BrushFamily` proto
  *   message, or the corresponding [BrushFamily] is invalid.
  */
-@ExperimentalInkCustomBrushApi
 public fun BrushFamily.Companion.decode(input: InputStream): BrushFamily {
     val decompressed = DecompressedBytes(input)
     val nativePointer =
@@ -67,13 +65,13 @@ public fun BrushFamily.Companion.decode(input: InputStream): BrushFamily {
 // overload arbitrarily, which leads to potentially very confusing behavior (e.g. decode might
 // work by coincidence at one point and then suddenly stop working when more overloads are added).
 
-@ExperimentalInkCustomBrushApi
 public object BrushFamilySerialization {
     /**
      * Write a gzip-compressed serialized `ink.proto.BrushFamily` proto message representing the
      * [BrushFamily] to the given [OutputStream].
      */
     @JvmStatic
+    @Throws(IOException::class)
     public fun encode(brushFamily: BrushFamily, output: OutputStream): Unit =
         brushFamily.encode(output)
 
@@ -89,5 +87,7 @@ public object BrushFamilySerialization {
      * @throws [IllegalArgumentException] [input] does not provide a valid `ink.proto.BrushFamily`
      *   proto message, or the corresponding [BrushFamily] is invalid.
      */
-    @JvmStatic public fun decode(input: InputStream): BrushFamily = BrushFamily.decode(input)
+    @JvmStatic
+    @Throws(IOException::class)
+    public fun decode(input: InputStream): BrushFamily = BrushFamily.decode(input)
 }

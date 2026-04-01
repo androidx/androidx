@@ -16,20 +16,38 @@
 
 package androidx.ink.geometry
 
+import androidx.annotation.FloatRange
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
 @UsedByNative
-actual internal object AngleNative {
+actual internal object VecNative {
+
     init {
         NativeLoader.load()
     }
 
-    @UsedByNative actual external fun normalizedDegrees(degrees: Float): Float
+    @UsedByNative actual external fun unitVec(vecX: Float, vecY: Float): ImmutableVec
 
-    @UsedByNative actual external fun normalizedAboutZeroDegrees(degrees: Float): Float
+    @UsedByNative actual external fun populateUnitVec(vecX: Float, vecY: Float, output: MutableVec)
 
-    @UsedByNative actual external fun normalizedRadians(radians: Float): Float
+    @UsedByNative
+    @AngleDegreesFloat
+    @FloatRange(from = 0.0, to = 180.0)
+    actual external fun absoluteAngleBetweenInDegrees(
+        firstVecX: Float,
+        firstVecY: Float,
+        secondVecX: Float,
+        secondVecY: Float,
+    ): Float
 
-    @UsedByNative actual external fun normalizedAboutZeroRadians(radians: Float): Float
+    @UsedByNative
+    @AngleDegreesFloat
+    @FloatRange(from = -180.0, to = 180.0, fromInclusive = false)
+    actual external fun signedAngleBetweenInDegrees(
+        firstVecX: Float,
+        firstVecY: Float,
+        secondVecX: Float,
+        secondVecY: Float,
+    ): Float
 }

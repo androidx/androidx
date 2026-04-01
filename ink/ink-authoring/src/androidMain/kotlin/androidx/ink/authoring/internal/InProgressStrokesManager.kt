@@ -1630,7 +1630,7 @@ internal class InProgressStrokesManager<
      * A result of [claimStrokesToHandOff] that indicates that no strokes are currently in progress,
      * and nothing else is preventing handoff of the provided strokes.
      *
-     * @param finishedStrokes The finished strokes (which cannot be empty), with map iteration order
+     * @param finishedCohort The finished strokes (which cannot be empty), with map iteration order
      *   in stroke z-order, from back to front.
      */
     private data class Finished<CompletedShapeT : Any>(

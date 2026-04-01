@@ -35,6 +35,10 @@ androidXMultiplatform {
       implementation(project(":ink:ink-nativeloader"))
     }
 
+    commonTest.dependencies {
+      implementation(project(":kruth:kruth"))
+    }
+
     jvmAndAndroidTest.dependencies {
       implementation(libs.junit)
       implementation(libs.kotlinTest)

@@ -86,13 +86,16 @@ internal class CanvasInProgressStrokesRenderHelperV33<
         Looper.getMainLooper().let { looper ->
             ScheduledExecutorImpl(looper.thread, Handler(looper))
         },
-    private val renderThreadExecutor: ScheduledExecutor =
+    private val renderThreadExecutorFactory: () -> ScheduledExecutor = {
         HandlerThread(CanvasInProgressStrokesRenderHelperV33::class.java.simpleName + "_Render")
             .let {
                 it.start()
                 ScheduledExecutorImpl(it, Handler(it.looper))
-            },
+            }
+    },
 ) : InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT>() {
+
+    private var renderThreadExecutor: ScheduledExecutor = renderThreadExecutorFactory()
 
     override val contentsPreservedBetweenDraws = true
 
@@ -122,11 +125,18 @@ internal class CanvasInProgressStrokesRenderHelperV33<
             @UiThread
             override fun onViewAttachedToWindow(v: View) {
                 addAndInitSurfaceView()
+                // To make the logic simpler, first thread is created on init, even though
+                // recreation
+                // happens on attach.
+                if (renderThreadExecutor.isShutdown) {
+                    renderThreadExecutor = renderThreadExecutorFactory()
+                }
             }
 
             @UiThread
             override fun onViewDetachedFromWindow(v: View) {
                 mainView.removeView(surfaceView)
+                renderThreadExecutor.shutdown()
             }
         }
 
@@ -360,8 +370,24 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                 .preserveContents(true)
                 .setTransformFromBounds(bounds)
                 .drawAsync(renderThreadExecutor) { renderResult ->
-                    if (discarded.get()) return@drawAsync
+                    // This must be done before the check for discarded. That ensures that if the
+                    // check below
+                    // returns false, a subequent call to discard() will be able to clean up the
+                    // state. (If
+                    // the check below returns true, we ensure it's cleaned up here.)
                     buffersState.checkAndSet(expectedValue = null, initialState)
+                    if (discarded.get()) {
+                        // If we're in this block, discard() has definitely started and maybe
+                        // (probably)
+                        // finished. But we still have to consider the interleaving where discard()
+                        // is just
+                        // beyond setting discarded to true but has not yet kicked off the cleanup
+                        // by setting
+                        // buffersState to null. So whichever place gets to that first does the
+                        // cleanup.
+                        buffersState.getAndSet(null)?.cleanup()
+                        return@drawAsync
+                    }
                     SurfaceControlCompat.Transaction()
                         .setAndShow(active, renderResult.hardwareBuffer, renderResult.fence)
                         .addTransactionCommittedListener(
@@ -831,8 +857,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                     renderThreadExecutor,
                     object : SurfaceControlCompat.TransactionCommittedListener {
                         override fun onTransactionCommitted() {
-                            state.active.cleanup()
-                            state.inactive.cleanup()
+                            state.cleanup()
                             mainView.postInvalidate()
                         }
                     },
@@ -975,6 +1000,11 @@ internal class CanvasInProgressStrokesRenderHelperV33<
         init {
             check(active != inactive)
         }
+
+        fun cleanup() {
+            active.cleanup()
+            inactive.cleanup()
+        }
     }
 
     /**
@@ -982,6 +1012,10 @@ internal class CanvasInProgressStrokesRenderHelperV33<
      * to implement and fake.
      */
     interface ScheduledExecutor : Executor {
+        val isShutdown: Boolean
+
+        fun shutdown()
+
         fun onThread(): Boolean
 
         fun executeDelayed(command: Runnable, delayTime: Long, delayTimeUnit: TimeUnit)
@@ -990,9 +1024,25 @@ internal class CanvasInProgressStrokesRenderHelperV33<
     private class ScheduledExecutorImpl(private val thread: Thread, private val handler: Handler) :
         ScheduledExecutor {
 
+        private var stopped = AtomicBoolean(false)
+
+        override val isShutdown
+            get() = stopped.get()
+
+        override fun shutdown() {
+            // This should only be called for the render thread executor, which needs to be cleaned
+            // up
+            // with the view.
+            check(thread != Looper.getMainLooper().thread)
+            stopped.getAndSet(true)
+            // Quitting the looper will also cause the thread to exit.
+            handler.looper.quit()
+        }
+
         override fun onThread() = Thread.currentThread() == thread
 
         override fun execute(command: Runnable) {
+            if (isShutdown) return
             check(thread.isAlive)
             if (!handler.post(command)) {
                 throw RejectedExecutionException("$handler is shutting down")
@@ -1000,6 +1050,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
         }
 
         override fun executeDelayed(command: Runnable, delayTime: Long, delayTimeUnit: TimeUnit) {
+            if (isShutdown) return
             check(thread.isAlive)
             if (!handler.postDelayed(command, delayTimeUnit.toMillis(delayTime))) {
                 throw RejectedExecutionException("$handler is shutting down")

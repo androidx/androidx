@@ -31,6 +31,7 @@ import androidx.ink.nativeloader.UsedByNative
  * ones which could introduce unpredictable garbage collection related delays to the time-sensitive
  * input path. This class has the [update] method for that purpose, rather than being immutable.
  */
+@UsedByNative
 public class StrokeInput {
     /** The x-coordinate of the input position in stroke space. */
     public var x: Float = 0F

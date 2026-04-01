@@ -16,14 +16,11 @@
 
 package androidx.ink.geometry
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import kotlin.math.sqrt
+import kotlin.test.Test
 import kotlin.test.assertFailsWith
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class VecTest {
 
     @Test
@@ -61,22 +58,22 @@ class VecTest {
 
     @Test
     fun computeDirectionDegrees_returnsCorrectValue() {
-        assertThat(ImmutableVec(5f, 0f).computeDirectionDegrees()).isEqualTo(0f)
-        assertThat(ImmutableVec(0f, 5f).computeDirectionDegrees()).isEqualTo(90f)
-        assertThat(ImmutableVec(-5f, 0f).computeDirectionDegrees()).isEqualTo(180f)
-        assertThat(ImmutableVec(0f, -5f).computeDirectionDegrees()).isEqualTo(-90f)
-        assertThat(ImmutableVec(5f, 5f).computeDirectionDegrees()).isEqualTo(45f)
-        assertThat(ImmutableVec(-5f, 5f).computeDirectionDegrees()).isEqualTo(135f)
-        assertThat(ImmutableVec(-5f, -5f).computeDirectionDegrees()).isEqualTo(-135f)
-        assertThat(ImmutableVec(5f, -5f).computeDirectionDegrees()).isEqualTo(-45f)
+        assertThat(ImmutableVec(5f, 0f).computeDirectionDegrees()).isWithin(0.001f).of(0f)
+        assertThat(ImmutableVec(0f, 5f).computeDirectionDegrees()).isWithin(0.001f).of(90f)
+        assertThat(ImmutableVec(-5f, 0f).computeDirectionDegrees()).isWithin(0.001f).of(180f)
+        assertThat(ImmutableVec(0f, -5f).computeDirectionDegrees()).isWithin(0.001f).of(-90f)
+        assertThat(ImmutableVec(5f, 5f).computeDirectionDegrees()).isWithin(0.001f).of(45f)
+        assertThat(ImmutableVec(-5f, 5f).computeDirectionDegrees()).isWithin(0.001f).of(135f)
+        assertThat(ImmutableVec(-5f, -5f).computeDirectionDegrees()).isWithin(0.001f).of(-135f)
+        assertThat(ImmutableVec(5f, -5f).computeDirectionDegrees()).isWithin(0.001f).of(-45f)
     }
 
     @Test
     fun computeDirectionDegrees_whenVecContainsZero_returnsCorrectValue() {
-        assertThat(ImmutableVec(+0f, +0f).computeDirectionDegrees()).isEqualTo(0f)
-        assertThat(ImmutableVec(+0f, -0f).computeDirectionDegrees()).isEqualTo(-0f)
-        assertThat(ImmutableVec(-0f, +0f).computeDirectionDegrees()).isEqualTo(180f)
-        assertThat(ImmutableVec(-0f, -0f).computeDirectionDegrees()).isEqualTo(-180f)
+        assertThat(ImmutableVec(+0f, +0f).computeDirectionDegrees()).isWithin(0.001f).of(0f)
+        assertThat(ImmutableVec(+0f, -0f).computeDirectionDegrees()).isWithin(0.001f).of(-0f)
+        assertThat(ImmutableVec(-0f, +0f).computeDirectionDegrees()).isWithin(0.001f).of(180f)
+        assertThat(ImmutableVec(-0f, -0f).computeDirectionDegrees()).isWithin(0.001f).of(-180f)
     }
 
     @Test

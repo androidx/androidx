@@ -19,6 +19,7 @@ package androidx.ink.geometry
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.UsedByNative
+import kotlin.jvm.JvmStatic
 import kotlin.math.atan2
 
 /**
