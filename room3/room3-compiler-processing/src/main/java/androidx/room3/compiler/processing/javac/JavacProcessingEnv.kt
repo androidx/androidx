@@ -23,8 +23,8 @@ import androidx.room3.compiler.processing.XProcessingEnv
 import androidx.room3.compiler.processing.XProcessingEnvConfig
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
+import androidx.room3.compiler.processing.javac.kotlin.KmBaseTypeContainer
 import androidx.room3.compiler.processing.javac.kotlin.KmTypeContainer
-import androidx.room3.compiler.processing.javac.kotlin.KmTypeParameterContainer
 import com.google.auto.common.GeneratedAnnotations
 import com.google.auto.common.MoreTypes
 import java.util.Locale
@@ -37,7 +37,6 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.type.TypeVariable
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 
@@ -164,24 +163,6 @@ internal class JavacProcessingEnv(
 
     fun wrapTypeElement(element: TypeElement) = typeElementStore[element]
 
-    fun wrap(
-        typeMirror: TypeVariable,
-        kotlinType: KmTypeParameterContainer?,
-    ): JavacTypeVariableType {
-        return when {
-            kotlinType != null -> {
-                JavacTypeVariableType(
-                    env = this,
-                    typeMirror = MoreTypes.asTypeVariable(typeMirror),
-                    kotlinType = kotlinType,
-                )
-            }
-            else -> {
-                JavacTypeVariableType(env = this, typeMirror = MoreTypes.asTypeVariable(typeMirror))
-            }
-        }
-    }
-
     /**
      * Wraps the given java processing type into an XType.
      *
@@ -193,96 +174,56 @@ internal class JavacProcessingEnv(
      */
     inline fun <reified T : JavacType> wrap(
         typeMirror: TypeMirror,
-        kotlinType: KmTypeContainer?,
+        kotlinType: KmBaseTypeContainer? = null,
+        elementNullability: XNullability? = null,
+    ): T = wrapInternal(typeMirror, kotlinType, elementNullability) as T
+
+    /**
+     * Internal implementation that handles the core wrapping logic. This is not inlined, avoiding
+     * code bloat at call sites.
+     *
+     * @param typeMirror TypeMirror from java processor
+     * @param kotlinType If the type is derived from a kotlin source code, the KmType information
+     *   parsed from kotlin metadata
+     * @param elementNullability The nullability information parsed from the code. This value is
+     *   ignored if [kotlinType] is provided.
+     */
+    private fun wrapInternal(
+        typeMirror: TypeMirror,
+        kotlinType: KmBaseTypeContainer?,
         elementNullability: XNullability?,
-    ): T {
+    ): JavacType {
+        val nullability = kotlinType?.nullability ?: elementNullability
         return when (typeMirror.kind) {
             TypeKind.ARRAY ->
-                when {
-                    kotlinType != null -> {
-                        JavacArrayType(
-                            env = this,
-                            typeMirror = MoreTypes.asArray(typeMirror),
-                            kotlinType = kotlinType,
-                        )
-                    }
-                    elementNullability != null -> {
-                        JavacArrayType(
-                            env = this,
-                            typeMirror = MoreTypes.asArray(typeMirror),
-                            nullability = elementNullability,
-                            knownComponentNullability = null,
-                        )
-                    }
-                    else -> {
-                        JavacArrayType(env = this, typeMirror = MoreTypes.asArray(typeMirror))
-                    }
-                }
+                JavacArrayType(
+                    env = this,
+                    typeMirror = MoreTypes.asArray(typeMirror),
+                    kotlinType = kotlinType?.let { it as KmTypeContainer },
+                    nullability = nullability,
+                )
             TypeKind.DECLARED ->
-                when {
-                    kotlinType != null -> {
-                        JavacDeclaredType(
-                            env = this,
-                            typeMirror = MoreTypes.asDeclared(typeMirror),
-                            kotlinType = kotlinType,
-                        )
-                    }
-                    elementNullability != null -> {
-                        JavacDeclaredType(
-                            env = this,
-                            typeMirror = MoreTypes.asDeclared(typeMirror),
-                            nullability = elementNullability,
-                        )
-                    }
-                    else -> {
-                        JavacDeclaredType(env = this, typeMirror = MoreTypes.asDeclared(typeMirror))
-                    }
-                }
+                JavacDeclaredType(
+                    env = this,
+                    typeMirror = MoreTypes.asDeclared(typeMirror),
+                    kotlinType = kotlinType?.let { it as KmTypeContainer },
+                    nullability = nullability,
+                )
             TypeKind.TYPEVAR ->
-                when {
-                    kotlinType != null -> {
-                        JavacTypeVariableType(
-                            env = this,
-                            typeMirror = MoreTypes.asTypeVariable(typeMirror),
-                            kotlinType = kotlinType,
-                        )
-                    }
-                    elementNullability != null -> {
-                        JavacTypeVariableType(
-                            env = this,
-                            typeMirror = MoreTypes.asTypeVariable(typeMirror),
-                            nullability = elementNullability,
-                        )
-                    }
-                    else -> {
-                        JavacTypeVariableType(
-                            env = this,
-                            typeMirror = MoreTypes.asTypeVariable(typeMirror),
-                        )
-                    }
-                }
+                JavacTypeVariableType(
+                    env = this,
+                    typeMirror = MoreTypes.asTypeVariable(typeMirror),
+                    kotlinType = kotlinType,
+                    nullability = nullability,
+                )
             else ->
-                when {
-                    kotlinType != null -> {
-                        DefaultJavacType(
-                            env = this,
-                            typeMirror = typeMirror,
-                            kotlinType = kotlinType,
-                        )
-                    }
-                    elementNullability != null -> {
-                        DefaultJavacType(
-                            env = this,
-                            typeMirror = typeMirror,
-                            nullability = elementNullability,
-                        )
-                    }
-                    else -> {
-                        DefaultJavacType(env = this, typeMirror = typeMirror)
-                    }
-                }
+                DefaultJavacType(
+                    env = this,
+                    typeMirror = typeMirror,
+                    kotlinType = kotlinType?.let { it as KmTypeContainer },
+                    nullability = nullability,
+                )
         }
-            as T
     }
 
     internal fun wrapAnnotatedElement(element: Element, annotationName: String): XElement {
