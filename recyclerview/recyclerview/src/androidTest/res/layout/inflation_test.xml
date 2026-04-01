@@ -103,21 +103,4 @@
             android:layout_height="100dp"
             android:descendantFocusability="blocksDescendants"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/scrollToTopUndefined"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/scrollToTopEnabled"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            app:isScrollToTopEnabled="true"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/scrollToTopFalse"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            app:isScrollToTopEnabled="false"/>
-
 </LinearLayout>

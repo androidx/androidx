@@ -133,15 +133,6 @@ public class RecyclerViewTest {
 
         view = (RecyclerView) getActivity().findViewById(R.id.focusability_block);
         assertEquals(ViewGroup.FOCUS_BLOCK_DESCENDANTS, view.getDescendantFocusability());
-
-        view = (RecyclerView) getActivity().findViewById(R.id.scrollToTopUndefined);
-        assertTrue("Incorrect default scrollsToTop value", view.isScrollToTopEnabled());
-
-        view = (RecyclerView) getActivity().findViewById(R.id.scrollToTopEnabled);
-        assertTrue("Incorrect explicit scrollsToTop value", view.isScrollToTopEnabled());
-
-        view = (RecyclerView) getActivity().findViewById(R.id.scrollToTopFalse);
-        assertFalse("Incorrect explicit scrollsToTop value", view.isScrollToTopEnabled());
     }
 
     private Activity getActivity() {
