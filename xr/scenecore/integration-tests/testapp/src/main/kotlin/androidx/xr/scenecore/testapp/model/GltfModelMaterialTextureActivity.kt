@@ -61,8 +61,8 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
     private val TAG = "GltfModelMaterialTextureActivity"
     private val ANIMATION_NAME = "Fast_Flying"
     private val NODE_NAME = "Dragon"
-    private val DRAGON_SCALE = 0.2f
-    private val DRAGON_TRANSLATION = Vector3(0f, 0.3f, 0f)
+    private val DRAGON_SCALE = 0.4f
+    private val DRAGON_TRANSLATION = Vector3(0f, 0.85f, 0f)
     private var session: Session? = null
     private var spatialMode = SpatialMode.FSM
 
@@ -164,7 +164,7 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
         // Create Khronos PBR Material
         findViewById<Button>(R.id.gltf_model_button2_1).setOnClickListener {
             lifecycleScope.launch {
-                khronosPbrMaterial = KhronosPbrMaterial.create(session!!, AlphaMode.BLEND)
+                khronosPbrMaterial = KhronosPbrMaterial.create(session!!, AlphaMode.OPAQUE)
             }
         }
         // Dispose Khronos PBR Material via GC
