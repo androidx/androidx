@@ -28,6 +28,7 @@ import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionInvoke
 import androidx.appfunctions.compiler.core.toClassName
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -51,6 +52,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
 class AppFunctionAggregateProcessor(
     private val options: AppFunctionCompilerOptions,
     private val codeGenerator: CodeGenerator,
+    private val logger: KSPLogger,
 ) : SymbolProcessor {
 
     private var hasProcessed = false
@@ -179,10 +181,11 @@ class AppFunctionAggregateProcessor(
         // We generate both XML formats supported by old and new AppSearch indexer respectively
         // as it can't be guaranteed that the device will have the latest version of AppSearch.
         // TODO: Add compiler option to disable legacy xml generator.
-        val legacyIndexProcessor = AppFunctionLegacyIndexXmlProcessor(codeGenerator)
+        val legacyIndexProcessor =
+            AppFunctionLegacyIndexXmlProcessor(codeGenerator, options, logger)
         legacyIndexProcessor.process(resolver)
 
-        val indexProcessor = AppFunctionIndexXmlProcessor(codeGenerator)
+        val indexProcessor = AppFunctionIndexXmlProcessor(codeGenerator, options, logger)
         indexProcessor.process(resolver)
     }
 

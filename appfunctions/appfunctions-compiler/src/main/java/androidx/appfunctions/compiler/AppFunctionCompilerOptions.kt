@@ -28,6 +28,8 @@ private constructor(
      * or not.
      */
     val generateMetadataFromSchema: Boolean,
+    /** The location where the app functions XML file should be generated. */
+    val appFunctionsXmlLocation: String?,
 ) {
     companion object {
         private const val AGGREGATE_APP_FUNCTIONS_OPTION_KEY = "appfunctions:aggregateAppFunctions"
@@ -35,10 +37,13 @@ private constructor(
         private const val SUPPORT_LEGACY_INDEXER_OPTION_KEY =
             "appfunctions:generateMetadataFromSchema"
 
+        private const val APP_FUNCTIONS_XML_LOCATION_KEY = "appfunctions:appFunctionsXmlLocation"
+
         fun from(options: Map<String, String>): AppFunctionCompilerOptions {
             return AppFunctionCompilerOptions(
                 aggregateAppFunctions = getAggregateAppFunctionsOption(options),
                 generateMetadataFromSchema = getGenerateMetadataFromSchemaOption(options),
+                appFunctionsXmlLocation = options[APP_FUNCTIONS_XML_LOCATION_KEY],
             )
         }
 

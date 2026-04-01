@@ -58,7 +58,7 @@ class CompilationTestHelper(
         check(goldenFileSrcDir.isDirectory) { "[$goldenFileSrcDir] is not a directory." }
     }
 
-    private val outputDir: Path by lazy {
+    val outputDir: Path by lazy {
         requireNotNull(System.getProperty("test_output_dir")) {
                 "test_output_dir not set for diff test."
             }
@@ -106,7 +106,7 @@ class CompilationTestHelper(
      * Asserts that the compilation succeeds and contains a generated file (either source or
      * resource) with the given name, whose content matches the golden file.
      */
-    private fun assertSuccessWithGeneratedContent(
+    fun assertSuccessWithGeneratedContent(
         report: CompilationReport,
         expectGeneratedFileName: String,
         goldenFileName: String,
