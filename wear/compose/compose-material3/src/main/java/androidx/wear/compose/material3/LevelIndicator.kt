@@ -314,6 +314,8 @@ internal class FractionPositionStateAdapter(private val valueFraction: () -> Flo
     override val sizeFraction: Float
         get() = valueFraction()
 
+    override var jiggleAmount: Float = 0f
+
     override fun equals(other: Any?): Boolean {
         // Compare lambdas with referential equality
         return (other as? FractionPositionStateAdapter)?.valueFraction === valueFraction

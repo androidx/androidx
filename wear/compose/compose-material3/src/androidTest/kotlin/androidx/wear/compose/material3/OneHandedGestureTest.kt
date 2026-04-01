@@ -1,0 +1,542 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.wear.compose.material3
+
+import android.content.Context
+import android.view.View
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.ForcedSize
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.rememberPagerState
+import androidx.wear.compose.material3.onehandedgesture.GestureAction
+import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
+import androidx.wear.compose.material3.onehandedgesture.GesturePriority
+import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
+import androidx.wear.compose.material3.onehandedgesture.SdkGestureInputManager
+import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@MediumTest
+@RunWith(AndroidJUnit4::class)
+class OneHandedGestureTest {
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+
+    /** Verifies simple primary gesture */
+    @Test
+    fun simple_primary_gesture() {
+        var gestured = false
+        var indicatorShown = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Text(
+                    "Clickable",
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            onShowIndicator = { indicatorShown = true },
+                        ) {
+                            gestured = true
+                        },
+                )
+            }
+        }
+
+        // It takes at least a second for indicator to be shown. Fast-forward 3s to allow some delay
+        rule.mainClock.advanceTimeBy(3000)
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(true, gestured)
+            assertEquals(true, indicatorShown)
+        }
+    }
+
+    /** Verifies simple Dismiss gesture */
+    @Test
+    fun simple_dismiss_gesture() {
+        var gestured = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Text(
+                    "Clickable",
+                    modifier =
+                        Modifier.oneHandedGesture(action = GestureAction.Dismiss) {
+                            gestured = true
+                        },
+                )
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionDismiss)
+        rule.runOnIdle { assertEquals(true, gestured) }
+    }
+
+    /** Verifies that Clickable priority is higher than Scrollable */
+    @Test
+    fun clickable_over_scrollable() {
+        var tlcGestured = false
+        var textGestured = false
+        var tlcIndicatorShown = false
+        var textIndicatorShown = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                TransformingLazyColumn(
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            priority = GesturePriority.Scrollable,
+                            onShowIndicator = { tlcIndicatorShown = true },
+                        ) {
+                            tlcGestured = true
+                        }
+                ) {
+                    item {
+                        Text(
+                            "Clickable",
+                            modifier =
+                                Modifier.oneHandedGesture(
+                                    action = GestureAction.Primary,
+                                    priority = GesturePriority.Clickable,
+                                    onShowIndicator = { textIndicatorShown = true },
+                                ) {
+                                    textGestured = true
+                                },
+                        )
+                    }
+                }
+            }
+        }
+
+        // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
+        rule.mainClock.advanceTimeBy(3000)
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(false, tlcIndicatorShown)
+            assertEquals(false, tlcGestured)
+            assertEquals(true, textIndicatorShown)
+            assertEquals(true, textGestured)
+        }
+    }
+
+    /** Verifies that all gestures with the same priority are triggered */
+    @Test
+    fun two_gestures_same_priority() {
+        var tlcGestured = false
+        val textGestured = mutableListOf(false, false)
+        val textIndicatorShown = mutableListOf(false, false)
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                TransformingLazyColumn(
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            priority = GesturePriority.Scrollable,
+                        ) {
+                            tlcGestured = true
+                        }
+                ) {
+                    items(2) {
+                        Text(
+                            "Clickable$it",
+                            modifier =
+                                Modifier.oneHandedGesture(
+                                    action = GestureAction.Primary,
+                                    priority = GesturePriority.Clickable,
+                                    onShowIndicator = { textIndicatorShown[it] = true },
+                                ) {
+                                    textGestured[it] = true
+                                },
+                        )
+                    }
+                }
+            }
+        }
+
+        // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
+        rule.mainClock.advanceTimeBy(3000)
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(false, tlcGestured)
+            // Since all Texts have the same priority, verify that all of them have been gestured
+            assertEquals(true, textGestured.all { it })
+            assertEquals(true, textIndicatorShown.all { it })
+        }
+    }
+
+    /**
+     * Verifies that registering multiple oneHandedGestures with the same experienceId doesn't throw
+     * an exception
+     */
+    @Test
+    fun register_same_experience_id() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                repeat(2) {
+                    Text(
+                        "Clickable$it",
+                        modifier = Modifier.oneHandedGesture(action = GestureAction.Primary) {},
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+    }
+
+    /** Verifies that Composable isn't gestured unless it's fully visible */
+    @Test
+    fun test_visibility() {
+        var tlcGestured = false
+        var textGestured = false
+        var tlcIndicatorShown = false
+        var textIndicatorShown = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(200.dp, 200.dp))
+            ) {
+                MockSdkGestureInputManager(sdkGestureInputManager) {
+                    val state = rememberTransformingLazyColumnState()
+                    val scope = rememberCoroutineScope()
+                    TransformingLazyColumn(
+                        state = state,
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                action = GestureAction.Primary,
+                                priority = GesturePriority.Scrollable,
+                                onShowIndicator = { tlcIndicatorShown = true },
+                            ) {
+                                tlcGestured = true
+                                scope.launch { state.scrollBy(1000f) }
+                            },
+                    ) {
+                        item { Text("First item", modifier = Modifier.requiredHeight(150.dp)) }
+                        item {
+                            Text(
+                                "Second item with gesture",
+                                modifier =
+                                    Modifier.requiredHeight(150.dp).oneHandedGesture(
+                                        action = GestureAction.Primary,
+                                        priority = GesturePriority.Clickable,
+                                        onShowIndicator = { textIndicatorShown = true },
+                                    ) {
+                                        textGestured = true
+                                    },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
+        rule.mainClock.advanceTimeBy(3000)
+
+        rule.runOnIdle {
+            assertEquals(true, tlcIndicatorShown)
+            assertEquals(false, textIndicatorShown)
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+
+        // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
+        rule.mainClock.advanceTimeBy(3000)
+        rule.runOnIdle {
+            assertEquals(true, textIndicatorShown)
+            assertEquals(true, tlcGestured)
+            assertEquals(false, textGestured)
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+
+        rule.runOnIdle { assertEquals(true, textGestured) }
+    }
+
+    /**
+     * Verifies that long items (items which don't fit) can be gesturable if they take enough space
+     * on the screen.
+     */
+    @Test
+    fun test_visibility_long_item() {
+        var tlcGestured = false
+        var longItemGestured = false
+        var tlcIndicatorShown = false
+        var longItemIndicatorShown = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(200.dp, 200.dp))
+            ) {
+                MockSdkGestureInputManager(sdkGestureInputManager) {
+                    val state = rememberTransformingLazyColumnState()
+                    val scope = rememberCoroutineScope()
+                    TransformingLazyColumn(
+                        state = state,
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                action = GestureAction.Primary,
+                                priority = GesturePriority.Scrollable,
+                                onShowIndicator = { tlcIndicatorShown = true },
+                            ) {
+                                tlcGestured = true
+                                scope.launch { state.scrollBy(1000f) }
+                            },
+                    ) {
+                        item { Text("First item", modifier = Modifier.requiredHeight(150.dp)) }
+                        item {
+                            Text(
+                                "Second item with gesture",
+                                modifier =
+                                    Modifier.requiredHeight(400.dp).oneHandedGesture(
+                                        action = GestureAction.Primary,
+                                        priority = GesturePriority.Clickable,
+                                        onShowIndicator = { longItemIndicatorShown = true },
+                                    ) {
+                                        longItemGestured = true
+                                    },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // It takes at least a second for indicator to be shown. Fast-forward 3s to allow some delay
+        rule.mainClock.advanceTimeBy(3000)
+        assertEquals(true, tlcIndicatorShown)
+
+        // Scroll to the long item
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.mainClock.advanceTimeBy(3000)
+
+        rule.runOnIdle {
+            assertEquals(true, tlcGestured)
+            assertEquals(false, longItemGestured)
+            assertEquals(true, longItemIndicatorShown)
+        }
+
+        // Click the long item
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+
+        rule.runOnIdle { assertEquals(true, longItemGestured) }
+    }
+
+    /** Verifies behavior of gesturable Composables in Pager */
+    @Test
+    fun pager_gesture_aware_content_per_page() {
+        val numberOfPages = 10
+        val textGestured = MutableList(numberOfPages) { false }
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            val state = rememberPagerState { numberOfPages }
+
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                HorizontalPager(
+                    state = state,
+                    modifier = Modifier.fillMaxSize().testTag("Pager"),
+                ) { page ->
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text(
+                            "Clickable $page",
+                            modifier =
+                                Modifier.oneHandedGesture(action = GestureAction.Primary) {
+                                    textGestured[page] = true
+                                },
+                        )
+                    }
+                }
+            }
+        }
+
+        repeat(numberOfPages) {
+            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            rule.onNodeWithTag("Pager").performTouchInput { swipeLeft() }
+        }
+
+        rule.runOnIdle {
+            // Check that Texts on all Pager pages have been gestured
+            assertEquals(true, textGestured.all { it })
+        }
+    }
+
+    /** Verifies that updating Modifier.oneHandedGesture is correctly handled by the system */
+    @Test
+    fun updating_one_handed_gesture_modifier() {
+        val buttonGestured = MutableList(2) { 0 }
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            var invertPriorities by remember { mutableStateOf(false) }
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Button(
+                        onClick = { invertPriorities = !invertPriorities },
+                        modifier = Modifier.testTag("InvertPriorityButton"),
+                    ) {
+                        Text("Invert priority")
+                    }
+
+                    Button(
+                        onClick = {},
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                action = GestureAction.Primary,
+                                priority =
+                                    if (invertPriorities) GesturePriority.Clickable
+                                    else GesturePriority.Unspecified,
+                            ) {
+                                buttonGestured[0]++
+                            },
+                    ) {
+                        Text("Gesturable 1")
+                    }
+                    Button(
+                        onClick = {},
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                action = GestureAction.Primary,
+                                priority =
+                                    if (invertPriorities) GesturePriority.Unspecified
+                                    else GesturePriority.Clickable,
+                            ) {
+                                buttonGestured[1]++
+                            },
+                    ) {
+                        Text("Gesturable 2")
+                    }
+                }
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+
+        rule.runOnIdle {
+            // By default, 2nd button has higher priority and should be gestured
+            assertEquals(buttonGestured[0], 0)
+            assertEquals(buttonGestured[1], 1)
+        }
+        rule.onNodeWithTag("InvertPriorityButton").performClick()
+        rule.waitForIdle()
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            // After inverting priority, first button should be gestured. Number of gestures
+            // performed on the second button should not change
+            assertEquals(buttonGestured[0], 1)
+            assertEquals(buttonGestured[1], 1)
+        }
+    }
+
+    @Composable
+    private fun MockSdkGestureInputManager(
+        sdkGestureInputManager: SdkGestureInputManager,
+        content: @Composable () -> Unit,
+    ) {
+        val scope: CoroutineScope = rememberCoroutineScope()
+        val haptic = LocalHapticFeedback.current
+        val gestureManager =
+            remember(haptic, scope) { GestureManagerImpl(haptic, scope, sdkGestureInputManager) }
+
+        CompositionLocalProvider(LocalGestureManager provides gestureManager) { content() }
+    }
+
+    private class SdkGestureInputManagerMock : SdkGestureInputManager {
+        override fun isAvailable(context: Context): Boolean = true
+
+        override fun subscribeToSdkGestureAction(
+            view: View,
+            sdkGestureAction: Int,
+            enabledInAmbient: Boolean,
+            onGesture: (Int) -> Unit,
+        ) {
+            gestureConsumers[sdkGestureAction] = onGesture
+        }
+
+        override fun unsubscribeFromSdkGestureAction(view: View, sdkGestureAction: Int) {
+            gestureConsumers.remove(sdkGestureAction)
+        }
+
+        override fun notifyGestureConsumed(key: String, sdkGestureAction: Int) {}
+
+        override fun shouldShowIndicator(key: String, sdkGestureAction: Int): Boolean = true
+
+        override fun notifyIndicatorShown(key: String, sdkGestureAction: Int) {}
+
+        fun performGesture(sdkGestureAction: Int) {
+            gestureConsumers[sdkGestureAction]!!.invoke(sdkGestureAction)
+        }
+
+        private val gestureConsumers = mutableMapOf<Int, (Int) -> Unit>()
+    }
+
+    /* Copy from com.google.wear.input.GestureEvent class */
+    private val sdkActionDismiss = 2
+    private val sdkActionPrimary = 1
+}

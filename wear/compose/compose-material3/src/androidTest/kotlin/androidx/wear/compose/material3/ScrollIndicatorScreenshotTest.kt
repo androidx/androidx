@@ -250,6 +250,8 @@ class ScrollIndicatorScreenshotTest {
 
                             override val sizeFraction: Float
                                 get() = size
+
+                            override var jiggleAmount: Float = 0f
                         },
                     indicatorHeight = 50.dp,
                     indicatorWidth = 4.dp,

@@ -32,6 +32,7 @@ plugins {
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
+    implementation("androidx.compose.animation:animation-graphics:1.8.0")
     implementation("androidx.compose.foundation:foundation:1.8.0")
     implementation("androidx.compose.foundation:foundation-layout:1.8.0")
 
