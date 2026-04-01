@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.RemoteException
 import android.telecom.Call
 import android.telecom.Call.Callback
 import android.telecom.InCallService
@@ -430,7 +431,15 @@ internal class CallExtensionScopeImpl(
         } finally {
             Log.i(TAG, "setupExtensionSession: scope closing, calling onRemoveExtensions")
             callScope.cancel()
-            extensions?.extensionInitializationBinder?.onRemoveExtensions()
+            try {
+                extensions?.extensionInitializationBinder?.onRemoveExtensions()
+            } catch (e: RemoteException) {
+                Log.w(
+                    TAG,
+                    "setupExtensionSession: Remote process died, cannot remove extensions",
+                    e,
+                )
+            }
         }
     }
 
