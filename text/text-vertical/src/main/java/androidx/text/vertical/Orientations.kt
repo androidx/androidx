@@ -43,10 +43,7 @@ public enum class TextOrientation {
     Mixed,
 
     /**
-     * A value for the text orientation that represents the text will be laid out with the original
-     * orientations.
-     *
-     * All characters are laid out in upright orientation, regardless of script.
+     * Specifies that all characters are laid out in an upright orientation, regardless of script.
      *
      * This is useful when you want all characters to remain upright even for horizontal scripts.
      *
@@ -152,7 +149,10 @@ private class RunMerger(val end: Int, val consumer: (Int, Int, ResolvedOrientati
         }
     }
 
-    /** Finalize the merge and callback the last run. Do not call this method multiple times. */
+    /**
+     * Finalizes the merge and invokes the callback for the last run. Do not call this method
+     * multiple times.
+     */
     fun finish() {
         if (prevStart != -1) {
             consumer(prevStart, end, prevOrientation)
@@ -161,12 +161,12 @@ private class RunMerger(val end: Int, val consumer: (Int, Int, ResolvedOrientati
 }
 
 /**
- * Iterates over characters and resolves the each character's orientation property along with the
- * attached `OrientationSpan`.
+ * Iterates over characters and resolves each character's orientation property, taking into account
+ * attached [TextOrientationSpan]s.
  *
- * @param text The CharSequence
- * @param start The inclusive starting index
- * @param end The exclusive ending index
+ * @param text The text to process.
+ * @param start The inclusive starting index.
+ * @param end The exclusive ending index.
  * @param textOrientation The text orientation mode.
  * @param consumer A callback function that is called for each orientation transition. It receives
  *   three parameters:
@@ -212,7 +212,7 @@ internal fun forEachOrientation(
     merger.finish()
 }
 
-/** Iterates over characters and resolves the each character's orientation property. */
+/** Iterates over characters and resolves each character's orientation property. */
 @RequiresApi(Build.VERSION_CODES.N)
 private inline fun forOrientationNoSpans(
     text: CharSequence,
@@ -223,7 +223,7 @@ private inline fun forOrientationNoSpans(
 ) {
     var prevProp = ResolvedOrientation.Upright // unused initial value
     var prevStart = start
-    fotEachCodePoints(text, start, end) { i, cp ->
+    forEachCodePoint(text, start, end) { i, cp ->
         val prop = resolveOrientation(textOrientation, cp)
         if (i == start) {
             prevProp = prop

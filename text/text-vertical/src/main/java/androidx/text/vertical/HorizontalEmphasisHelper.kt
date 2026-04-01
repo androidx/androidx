@@ -105,17 +105,14 @@ internal class HorizontalEmphasisSpanLayout(
 
     override fun draw(canvas: Canvas, x: Float, y: Float, paint: Paint) {
         // Draw Body Text
-        canvas.save()
-        try {
+        canvas.withSave {
             val bodyDrawY = y + bodyAscent
-            canvas.translate(x, bodyDrawY)
+            translate(x, bodyDrawY)
 
             // The paint object stored in the layout is a shared cache, so reset it to the drawing
             // paint before calling draw ops.
             bodyLayout.paint.set(paint)
-            bodyLayout.draw(canvas)
-        } finally {
-            canvas.restore()
+            bodyLayout.draw(this)
         }
 
         // Draw Emphasis Text

@@ -86,8 +86,8 @@ internal class RubyLayoutRun(
 
     private val rubyScale = rubySpan.textScale
     private val rubyLayoutRuns: LineLayout =
-        withTempScale(paint, rubyScale) {
-            createLineLayout(rubySpan.text, 0, rubySpan.text.length, paint, rubySpan.orientation)
+        paint.withTextScale(rubyScale) {
+            createLineLayout(rubySpan.text, 0, rubySpan.text.length, this, rubySpan.orientation)
         }
     private val bodyLayoutRuns: LineLayout =
         createLineLayout(text, start, end, paint, textOrientation)
@@ -111,7 +111,7 @@ internal class RubyLayoutRun(
         bodyLayoutRuns.draw(canvas, originX, bodyY, paint)
 
         val rubyX = originX + bodyLayoutRuns.rightSide - rubyLayoutRuns.leftSide
-        withTempScale(paint, rubyScale) { rubyLayoutRuns.draw(canvas, rubyX, rubyY, paint) }
+        paint.withTextScale(rubyScale) { rubyLayoutRuns.draw(canvas, rubyX, rubyY, this) }
     }
 
     override fun getCharAdvances(out: FloatArray, paint: TextPaint) {

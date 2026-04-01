@@ -35,7 +35,7 @@ import kotlin.math.min
  * @param end The end index of the span.
  * @param rubyText The ruby text content.
  * @param paint The paint used for the initial measurement.
- * @param relSize The scaling factor for the ruby text.
+ * @param rubyScale The scaling factor for the ruby text.
  */
 internal class HorizontalRubySpanLayout(
     text: Spanned,
@@ -43,7 +43,7 @@ internal class HorizontalRubySpanLayout(
     end: Int,
     rubyText: CharSequence,
     paint: Paint,
-    private val relSize: Float,
+    private val rubyScale: Float,
 ) : HorizontalSpanLayout {
     private val bodyLayout: Layout
     private val rubyLayout: Layout
@@ -64,10 +64,10 @@ internal class HorizontalRubySpanLayout(
                 .toInt()
 
         // Measure Ruby Width
-        workPaint.textSize *= relSize
         val rubyWidth =
-            ceil(Layout.getDesiredWidth(rubyText, 0, rubyText.length, workPaint)).toInt()
-        workPaint.textSize /= relSize // Restore size
+            workPaint.withTextScale(rubyScale) {
+                ceil(Layout.getDesiredWidth(rubyText, 0, rubyText.length, this)).toInt()
+            }
 
         // Calculate total width and offsets to center content
         spanWidth = max(bodyWidth, rubyWidth)
@@ -86,7 +86,7 @@ internal class HorizontalRubySpanLayout(
                 .build()
 
         // Create Ruby Layout
-        workPaint.textSize *= relSize
+        workPaint.textSize *= rubyScale
         rubyLayout =
             StaticLayout.Builder.obtain(rubyText, 0, rubyText.length, workPaint, rubyWidth).build()
     }
@@ -120,32 +120,25 @@ internal class HorizontalRubySpanLayout(
      */
     override fun draw(canvas: Canvas, x: Float, y: Float, paint: Paint) {
         // Draw Body Text
-        canvas.save()
-        try {
+        canvas.withSave {
             val bodyDrawY = y + bodyAscent
-            canvas.translate(x + bodyXOffset, bodyDrawY)
+            translate(x + bodyXOffset, bodyDrawY)
 
             // The paint object stored in the layout is a shared cache, so reset it to the drawing
             // paint before calling draw ops.
             bodyLayout.paint.set(paint)
-            bodyLayout.draw(canvas)
-        } finally {
-            canvas.restore()
+            bodyLayout.draw(this)
         }
 
         // Draw Ruby Text
-        canvas.save()
-        try {
+        canvas.withSave {
             val rubyDrawY = y + bodyAscent + rubyAscent - rubyDescent
-            canvas.translate(x + rubyXOffset, rubyDrawY)
+            translate(x + rubyXOffset, rubyDrawY)
 
             // The paint object stored in the layout is a shared cache, so reset it to the drawing
             // paint before calling draw ops.
             rubyLayout.paint.set(paint)
-            rubyLayout.paint.textSize *= relSize
-            rubyLayout.draw(canvas)
-        } finally {
-            canvas.restore()
+            rubyLayout.paint.withTextScale(rubyScale) { rubyLayout.draw(this@withSave) }
         }
     }
 }
