@@ -49,7 +49,7 @@ internal abstract class CredentialProviderController<
     R2 : Any,
     R1 : Any,
     E1 : Any,
->(private val context: Context) : CredentialProviderBaseController(context) {
+>(context: Context) : CredentialProviderBaseController(context) {
 
     companion object {
 

@@ -18,14 +18,12 @@ package androidx.credentials.playservices.controllers.identitycredentials.getcre
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.BundleCompat.getParcelable
 import androidx.credentials.Credential
@@ -44,11 +42,11 @@ import com.google.android.gms.identitycredentials.CredentialOption
 import com.google.android.gms.identitycredentials.GetCredentialRequest
 import com.google.android.gms.identitycredentials.GetCredentialResponse
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 
 /** A controller to handle the get credential flow with identity credentials play services. */
-@RequiresApi(Build.VERSION_CODES.M)
-internal class GetCredentialController(val context: Context) :
+internal class GetCredentialController(context: Context) :
     CredentialProviderController<
         androidx.credentials.GetCredentialRequest,
         GetCredentialRequest,
@@ -56,6 +54,8 @@ internal class GetCredentialController(val context: Context) :
         androidx.credentials.GetCredentialResponse,
         GetCredentialException,
     >(context) {
+
+    private val contextReference = WeakReference(context)
 
     /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting
@@ -77,25 +77,27 @@ internal class GetCredentialController(val context: Context) :
     private val resultReceiver =
         object : ResultReceiver(Handler(Looper.getMainLooper())) {
             public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                val currentCallback = callback
                 if (
-                    maybeReportErrorFromResultReceiver(
+                    !maybeReportErrorFromResultReceiver(
                         resultData,
                         CredentialProviderBaseController.Companion::
                             getCredentialExceptionTypeToException,
                         executor = executor,
-                        callback = callback,
+                        callback = currentCallback,
                         cancellationSignal,
                     )
-                )
-                    return
-                ResponseUtils.handleGetCredentialResponse(
-                    resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
-                    resultCode,
-                    getParcelable(resultData, RESULT_DATA_TAG, Intent::class.java),
-                    executor,
-                    callback,
-                    cancellationSignal,
-                )
+                ) {
+                    ResponseUtils.handleGetCredentialResponse(
+                        resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
+                        resultCode,
+                        getParcelable(resultData, RESULT_DATA_TAG, Intent::class.java),
+                        executor,
+                        currentCallback,
+                        cancellationSignal,
+                    )
+                }
+                callback = emptyCallback()
             }
         }
 
@@ -115,6 +117,7 @@ internal class GetCredentialController(val context: Context) :
         if (CredentialProviderPlayServicesImpl.Companion.cancellationReviewer(cancellationSignal)) {
             return
         }
+        val context = contextReference.get() ?: return
         val convertedRequest = convertRequestToPlayServices(request)
         IdentityCredentialManager.getClient(context)
             .getCredential(convertedRequest)
@@ -138,6 +141,7 @@ internal class GetCredentialController(val context: Context) :
                 }
             }
             .addOnFailureListener { e ->
+                val context = contextReference.get() ?: return@addOnFailureListener
                 if (isGetSignInIntentRequest(request)) {
                     Log.w(
                         TAG,

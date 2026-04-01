@@ -47,12 +47,13 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.identitycredentials.CredentialOption
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 
 /** A controller to handle the GetRestoreCredential flow with play services. */
 @OptIn(ExperimentalDigitalCredentialApi::class)
 @RequiresApi(23)
-internal class CredentialProviderGetDigitalCredentialController(private val context: Context) :
+internal class CredentialProviderGetDigitalCredentialController(context: Context) :
     CredentialProviderController<
         GetCredentialRequest,
         com.google.android.gms.identitycredentials.GetCredentialRequest,
@@ -60,6 +61,8 @@ internal class CredentialProviderGetDigitalCredentialController(private val cont
         GetCredentialResponse,
         GetCredentialException,
     >(context) {
+
+    private val contextReference = WeakReference(context)
 
     /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting
@@ -78,27 +81,28 @@ internal class CredentialProviderGetDigitalCredentialController(private val cont
     private val resultReceiver =
         object : ResultReceiver(Handler(Looper.getMainLooper())) {
             public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                val currentCallback = callback
                 if (
-                    maybeReportErrorFromResultReceiver(
+                    !maybeReportErrorFromResultReceiver(
                         resultData,
                         CredentialProviderBaseController.Companion::
                             getCredentialExceptionTypeToException,
-                        executor,
-                        callback,
+                        executor = executor,
+                        callback = currentCallback,
                         cancellationSignal,
                     )
                 ) {
-                    return
-                } else {
                     ResponseUtils.handleGetCredentialResponse(
                         resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
                         resultCode,
                         getParcelable(resultData, RESULT_DATA_TAG, Intent::class.java),
                         executor,
-                        callback,
+                        currentCallback,
                         cancellationSignal,
                     )
                 }
+
+                callback = emptyCallback()
             }
         }
 
@@ -117,6 +121,7 @@ internal class CredentialProviderGetDigitalCredentialController(private val cont
         }
 
         val convertedRequest = this.convertRequestToPlayServices(request)
+        val context = contextReference.get() ?: return
         IdentityCredentialManager.getClient(context)
             .getCredential(convertedRequest)
             .addOnSuccessListener { result ->
