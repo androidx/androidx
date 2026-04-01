@@ -16,14 +16,14 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.xr.compose.subspace.node.SubspaceLayoutAwareModifierNode
+import androidx.xr.compose.subspace.node.SubspaceMeasuredSizeAwareModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.unit.IntVolumeSize
 
 /**
  * Invokes `onSizeChanged` with the `IntVolumeSize` of the element when its size changes.
  *
- * This callback is executed after the layout pass when the SubspaceComposable's size is finalized.
+ * This callback is executed after the measure pass when the SubspaceComposable's size is finalized.
  * It will be invoked at least once when the size becomes available and subsequently whenever the
  * size changes.
  *
@@ -44,7 +44,7 @@ private class OnSizeChangedVolumeElement(val onSizeChanged: (IntVolumeSize) -> U
     }
 
     override fun update(node: OnSizeChangedNode) {
-        node.callback = onSizeChanged
+        node.update(onSizeChanged)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -59,16 +59,21 @@ private class OnSizeChangedVolumeElement(val onSizeChanged: (IntVolumeSize) -> U
 }
 
 private class OnSizeChangedNode(public var callback: (IntVolumeSize) -> Unit) :
-    SubspaceModifier.Node(), SubspaceLayoutAwareModifierNode {
+    SubspaceModifier.Node(), SubspaceMeasuredSizeAwareModifierNode {
 
     private var lastSize: IntVolumeSize? = null
 
-    override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
-        val newSize = coordinates.size
+    internal fun update(callback: (IntVolumeSize) -> Unit) {
+        this.callback = callback
+        // This guarantees the new callback will be invoked immediately, even if
+        // the size hasn't changed.
+        lastSize = null
+    }
 
-        if (newSize != lastSize) {
-            callback(newSize)
-            lastSize = newSize
+    override fun onRemeasured(size: IntVolumeSize) {
+        if (size != lastSize) {
+            callback(size)
+            lastSize = size
         }
     }
 }

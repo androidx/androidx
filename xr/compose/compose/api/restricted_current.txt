@@ -1380,8 +1380,9 @@ package androidx.xr.compose.subspace.node {
     method public static <T> T currentValueOf(androidx.xr.compose.subspace.node.CompositionLocalConsumerSubspaceModifierNode, androidx.compose.runtime.CompositionLocal<T> local);
   }
 
-  public interface SubspaceLayoutAwareModifierNode extends androidx.xr.compose.subspace.layout.DelegatableSubspaceNode {
-    method public void onPlaced(androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates coordinates);
+  public interface SubspaceLayoutAwareModifierNode extends androidx.xr.compose.subspace.node.SubspaceMeasuredSizeAwareModifierNode {
+    method public default void onPlaced(androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates coordinates);
+    method public default void onRemeasured(androidx.xr.compose.unit.IntVolumeSize size);
   }
 
   public interface SubspaceLayoutModifierNode extends androidx.xr.compose.subspace.layout.DelegatableSubspaceNode {
@@ -1391,6 +1392,10 @@ package androidx.xr.compose.subspace.node {
   public final class SubspaceLayoutModifierNodeKt {
     method public static void invalidateMeasurement(androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode);
     method public static void invalidatePlacement(androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode);
+  }
+
+  public interface SubspaceMeasuredSizeAwareModifierNode extends androidx.xr.compose.subspace.layout.DelegatableSubspaceNode {
+    method public void onRemeasured(androidx.xr.compose.unit.IntVolumeSize size);
   }
 
   public abstract class SubspaceModifierNodeElement<N extends androidx.xr.compose.subspace.layout.SubspaceModifier.Node> implements androidx.xr.compose.subspace.layout.SubspaceModifier {

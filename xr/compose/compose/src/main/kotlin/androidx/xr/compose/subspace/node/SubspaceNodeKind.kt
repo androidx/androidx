@@ -51,6 +51,9 @@ internal object SubspaceNodes {
 
     inline val Semantics
         get() = SubspaceNodeKind<SubspaceSemanticsModifierNode>(0b1 shl 6)
+
+    inline val MeasuredSizeAware
+        get() = SubspaceNodeKind<SubspaceMeasuredSizeAwareModifierNode>(mask = 0b1 shl 7)
 }
 
 private val classToSubspaceKindSetMap = mutableObjectIntMapOf<KClass<out SubspaceModifier.Node>>()
@@ -79,6 +82,9 @@ internal fun calculateSubspaceNodeKindSetFrom(node: SubspaceModifier.Node): Int 
             }
             if (node is SubspaceSemanticsModifierNode) {
                 mask = mask or SubspaceNodes.Semantics
+            }
+            if (node is SubspaceMeasuredSizeAwareModifierNode) {
+                mask = mask or SubspaceNodes.MeasuredSizeAware
             }
             mask
         }
