@@ -353,7 +353,6 @@ public constructor(
 
         private val RUNTIME_FACTORY_PROVIDERS =
             listOf(
-                "androidx.xr.arcore.projected.ProjectedRuntimeFactory",
                 "androidx.xr.arcore.playservices.ArCoreRuntimeFactory",
                 "androidx.xr.arcore.openxr.OpenXrRuntimeFactory",
                 "androidx.xr.arcore.testing.FakePerceptionRuntimeFactory",

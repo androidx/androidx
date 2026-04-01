@@ -62,7 +62,7 @@ import kotlinx.coroutines.delay
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ArCoreManager
 internal constructor(
-    private val context: Context,
+    internal val context: Context,
     internal val perceptionManager: ArCorePerceptionManager,
     internal val timeSource: ArCoreTimeSource,
     private val arCoreApkInstance: ArCoreApk = ArCoreApk.getInstance(),
@@ -88,6 +88,7 @@ internal constructor(
         checkARCoreSupportedAndUpToDate(context)
         _session = Session(context)
         perceptionManager.session = _session
+        perceptionManager.geospatial.arCoreSession = _session
     }
 
     // TODO(b/392660855): Disable all features by default once this API is fully implemented.
