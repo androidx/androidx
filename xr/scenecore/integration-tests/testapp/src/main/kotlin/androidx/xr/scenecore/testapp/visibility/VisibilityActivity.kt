@@ -249,7 +249,7 @@ class VisibilityActivity : AppCompatActivity() {
             GltfModelEntity.create(
                     session!!,
                     model,
-                    Pose(Vector3(1f, 0f, 0f)),
+                    Pose(Vector3(2f, 0f, 0f)),
                     parent = session!!.scene.activitySpace,
                 )
                 .also {
