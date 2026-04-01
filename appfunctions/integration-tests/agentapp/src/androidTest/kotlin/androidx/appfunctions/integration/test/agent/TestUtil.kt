@@ -16,11 +16,15 @@
 
 package androidx.appfunctions.integration.test.agent
 
+import android.app.UiAutomation
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import com.google.common.truth.Truth.assertThat
+import java.security.MessageDigest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -124,6 +128,48 @@ internal object TestUtil {
         fail("Uri $uri is still write accessible from $packageName")
     }
 
+    /** Grants [context] the AppFunction access permission for [targetPackageName]. */
+    fun UiAutomation.grantAppFunctionAccess(context: Context, targetPackageName: String) {
+        if (Build.VERSION.SDK_INT < 37) return
+        val packageInfo =
+            context.packageManager.getPackageInfo(
+                context.packageName,
+                PackageManager.GET_SIGNING_CERTIFICATES,
+            )
+        val signatures = packageInfo.signingInfo?.signingCertificateHistory
+        val certificate =
+            if (!signatures.isNullOrEmpty()) {
+                val digest =
+                    MessageDigest.getInstance("SHA-256").digest(signatures.last().toByteArray())
+                digest.joinToString("") { "%02X".format(it) }
+            } else {
+                throw IllegalStateException(
+                    "No signatures found for package ${context.packageName}"
+                )
+            }
+        val signedPackage = "${context.packageName}:$certificate"
+        executeShellCommand("cmd app_function purge-allowlist-cache")
+        executeShellCommand(
+            buildString {
+                append("cmd allowlist add-package-multimap")
+                append(" ")
+                append("$APP_FUNCTION_ALLOWLIST_ID")
+                append(" ")
+                append(signedPackage)
+                append(" ")
+                append(targetPackageName)
+            }
+        )
+    }
+
+    /** Revokes AppFunction access. */
+    fun UiAutomation.revokeAppFunctionAccess() {
+        if (Build.VERSION.SDK_INT < 37) return
+        executeShellCommand("cmd app_function purge-allowlist-cache")
+        executeShellCommand("cmd allowlist clear-shell-allowlist $APP_FUNCTION_ALLOWLIST_ID")
+    }
+
     private const val RETRY_CHECK_INTERVAL_MILLIS: Long = 500
     private const val RETRY_MAX_INTERVALS: Long = 10
+    private const val APP_FUNCTION_ALLOWLIST_ID: Int = 2
 }
