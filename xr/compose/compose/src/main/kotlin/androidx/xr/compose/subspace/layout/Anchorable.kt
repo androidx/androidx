@@ -164,7 +164,7 @@ internal class AnchorableNode(
         // before measurement.
         updateAnchorableState()
         val placeable = measurable.measure(constraints)
-        return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        return layout(placeable.width, placeable.height, placeable.depth) {
             // Place at the position calculated by SceneCore
             placeable.place(
                 coreEntity.poseInMeters.convertMetersToPixels(currentValueOf(LocalDensity))

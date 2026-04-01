@@ -151,9 +151,9 @@ internal class SpatialBoxMeasurePolicy(
         measurables.fastForEachIndexed { index, measurable ->
             val placeable = measurable.measure(contentConstraints)
             placeables[index] = placeable
-            boxWidth = max(boxWidth, placeable.measuredWidth)
-            boxHeight = max(boxHeight, placeable.measuredHeight)
-            boxDepth = max(boxDepth, placeable.measuredDepth)
+            boxWidth = max(boxWidth, placeable.width)
+            boxHeight = max(boxHeight, placeable.height)
+            boxDepth = max(boxDepth, placeable.depth)
         }
 
         return layout(boxWidth, boxHeight, boxDepth) {
@@ -170,8 +170,7 @@ internal class SpatialBoxMeasurePolicy(
         }
     }
 
-    private fun SubspacePlaceable.size() =
-        IntVolumeSize(measuredWidth, measuredHeight, measuredDepth)
+    private fun SubspacePlaceable.size() = IntVolumeSize(width, height, depth)
 }
 
 /** Scope for the children of [SpatialBox]. */

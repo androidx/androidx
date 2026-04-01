@@ -1314,16 +1314,25 @@ package androidx.xr.compose.subspace.layout {
 
   public abstract class SubspacePlaceable {
     ctor public SubspacePlaceable();
+    method @InaccessibleFromKotlin public final int getDepth();
+    method @InaccessibleFromKotlin public final int getHeight();
     method @InaccessibleFromKotlin public final int getMeasuredDepth();
     method @InaccessibleFromKotlin public final int getMeasuredHeight();
     method @InaccessibleFromKotlin public final int getMeasuredWidth();
+    method @InaccessibleFromKotlin protected final androidx.xr.compose.unit.VolumeConstraints getMeasurementConstraints();
+    method @InaccessibleFromKotlin public final int getWidth();
     method protected abstract void placeAt(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin protected final void setMeasuredDepth(int);
     method @InaccessibleFromKotlin protected final void setMeasuredHeight(int);
     method @InaccessibleFromKotlin protected final void setMeasuredWidth(int);
+    method @InaccessibleFromKotlin protected final void setMeasurementConstraints(androidx.xr.compose.unit.VolumeConstraints);
+    property public final int depth;
+    property public final int height;
     property public final int measuredDepth;
     property public final int measuredHeight;
     property public final int measuredWidth;
+    property protected final androidx.xr.compose.unit.VolumeConstraints measurementConstraints;
+    property public final int width;
   }
 
   public abstract static class SubspacePlaceable.SubspacePlacementScope {

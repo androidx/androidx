@@ -104,7 +104,7 @@ private class AspectRatioNode(var aspectRatio: Float, var matchHeightConstraints
                 constraints
             }
         val placeable = measurable.measure(wrappedConstraints)
-        return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        return layout(placeable.width, placeable.height, placeable.depth) {
             placeable.place(Pose.Identity)
         }
     }

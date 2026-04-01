@@ -17,6 +17,7 @@
 package androidx.xr.compose.subspace.layout
 
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.Pose
 
 /**
@@ -26,17 +27,86 @@ import androidx.xr.runtime.math.Pose
  * Based on [androidx.compose.ui.layout.Placeable].
  */
 public abstract class SubspacePlaceable {
-    /** The measured width of the layout, in pixels. */
+    /**
+     * The width, in pixels, of the measured layout, as seen by the parent. This will usually
+     * coincide with the measured width of the layout (aka the `width` value passed into
+     * [SubspaceMeasureScope.layout]), but can be different if the layout does not respect its
+     * incoming constraints: in these cases the width will be coerced inside the min and max width
+     * constraints - to access the actual width that the layout measured itself to, use
+     * [measuredWidth].
+     */
+    public var width: Int = 0
+        private set
+
+    /**
+     * The height, in pixels, of the measured layout, as seen by the parent. This will usually
+     * coincide with the measured height of the layout (aka the `height` value passed into
+     * [SubspaceMeasureScope.layout]), but can be different if the layout does not respect its
+     * incoming constraints: in these cases the height will be coerced inside the min and max height
+     * constraints - to access the actual height that the layout measured itself to, use
+     * [measuredHeight].
+     */
+    public var height: Int = 0
+        private set
+
+    /**
+     * The depth, in pixels, of the measured layout, as seen by the parent. This will usually
+     * coincide with the measured depth of the layout (aka the `depth` value passed into
+     * [SubspaceMeasureScope.layout]), but can be different if the layout does not respect its
+     * incoming constraints: in these cases the depth will be coerced inside the min and max depth
+     * constraints - to access the actual depth that the layout measured itself to, use
+     * [measuredDepth].
+     */
+    public var depth: Int = 0
+        private set
+
+    /** The constraints used for the measurement made to obtain this [SubspacePlaceable]. */
+    protected var measurementConstraints: VolumeConstraints = VolumeConstraints()
+        set(value) {
+            if (field != value) {
+                field = value
+                onMeasuredSizeChanged()
+            }
+        }
+
+    /** The measured width of the layout. This might not respect [measurementConstraints]. */
     public var measuredWidth: Int = 0
-        protected set
+        protected set(value) {
+            if (field != value) {
+                field = value
+                onMeasuredSizeChanged()
+            }
+        }
 
-    /** The measured height of the layout, in pixels. */
+    /** The measured height of the layout. This might not respect [measurementConstraints]. */
     public var measuredHeight: Int = 0
-        protected set
+        protected set(value) {
+            if (field != value) {
+                field = value
+                onMeasuredSizeChanged()
+            }
+        }
 
-    /** The measured depth of the layout, in pixels. */
+    /** The measured depth of the layout. This might not respect [measurementConstraints]. */
     public var measuredDepth: Int = 0
-        protected set
+        protected set(value) {
+            if (field != value) {
+                field = value
+                onMeasuredSizeChanged()
+            }
+        }
+
+    private fun onMeasuredSizeChanged() {
+        width =
+            measuredWidth.coerceIn(measurementConstraints.minWidth, measurementConstraints.maxWidth)
+        height =
+            measuredHeight.coerceIn(
+                measurementConstraints.minHeight,
+                measurementConstraints.maxHeight,
+            )
+        depth =
+            measuredDepth.coerceIn(measurementConstraints.minDepth, measurementConstraints.maxDepth)
+    }
 
     /** Positions the [SubspacePlaceable] at [pose] in its parent's coordinate system. */
     protected abstract fun placeAt(pose: Pose)

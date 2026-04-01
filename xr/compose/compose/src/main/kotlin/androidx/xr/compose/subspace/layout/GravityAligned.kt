@@ -59,7 +59,7 @@ internal class GravityAlignedNode :
     ): SubspaceMeasureResult {
         val placeable = measurable.measure(constraints)
 
-        return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        return layout(placeable.width, placeable.height, placeable.depth) {
             // Gravity Aligned Calculation:
             // 1. Determine the object's desired "forward" direction in World space, but projected
             // onto the horizontal (XZ) plane.

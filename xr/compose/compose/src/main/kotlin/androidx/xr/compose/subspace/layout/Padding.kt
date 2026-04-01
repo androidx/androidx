@@ -233,9 +233,9 @@ private class PaddingNode(
         val subspacePlaceable =
             measurable.measure(constraints.offset(-horizontal, -vertical, -frontAndBack))
 
-        val width = constraints.constrainWidth(subspacePlaceable.measuredWidth + horizontal)
-        val height = constraints.constrainHeight(subspacePlaceable.measuredHeight + vertical)
-        val depth = constraints.constrainDepth(subspacePlaceable.measuredDepth + frontAndBack)
+        val width = constraints.constrainWidth(subspacePlaceable.width + horizontal)
+        val height = constraints.constrainHeight(subspacePlaceable.height + vertical)
+        val depth = constraints.constrainDepth(subspacePlaceable.depth + frontAndBack)
 
         return layout(width, height, depth) {
             val pose =

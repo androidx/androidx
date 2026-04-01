@@ -263,8 +263,7 @@ internal abstract class SpatialRowColumnMeasurePolicy {
                             placeable.mainAxisSize + measureState.spaceAfterLastNoWeight
                         measureState.crossAxisSize =
                             maxOf(measureState.crossAxisSize, placeable.crossAxisSize)
-                        measureState.depthSize =
-                            maxOf(measureState.depthSize, placeable.measuredDepth)
+                        measureState.depthSize = maxOf(measureState.depthSize, placeable.depth)
                     }
             }
         }
@@ -342,7 +341,7 @@ internal abstract class SpatialRowColumnMeasurePolicy {
                 measureState.weightedChildrenSpace += placeable.mainAxisSize
                 measureState.crossAxisSize =
                     maxOf(measureState.crossAxisSize, placeable.crossAxisSize)
-                measureState.depthSize = maxOf(measureState.depthSize, placeable.measuredDepth)
+                measureState.depthSize = maxOf(measureState.depthSize, placeable.depth)
             }
     }
 

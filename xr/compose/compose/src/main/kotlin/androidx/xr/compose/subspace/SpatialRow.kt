@@ -176,10 +176,10 @@ internal class SpatialRowMeasurePolicy(
     }
 
     override val SubspacePlaceable.mainAxisSize: Int
-        get() = measuredWidth
+        get() = width
 
     override val SubspacePlaceable.crossAxisSize: Int
-        get() = measuredHeight
+        get() = height
 
     override val VolumeConstraints.mainAxisTargetSpace: Int
         get() = if (maxWidth != VolumeConstraints.INFINITY) maxWidth else minWidth
@@ -287,7 +287,7 @@ internal class SpatialRowMeasurePolicy(
 
         val depthPosition =
             resolvedMeasurable.depthOffset(
-                depth = placeable.measuredDepth,
+                depth = placeable.depth,
                 space = containerSize.depth,
                 parentSpatialAlignment = alignment,
             )
