@@ -75,7 +75,6 @@ import androidx.xr.scenecore.runtime.SpatialVisibility
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.runtime.impl.OpenXrScenePose
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.convertPerceivedResolution
@@ -882,7 +881,7 @@ private constructor(
             return create(
                 activity,
                 executor,
-                extensions = requireNotNull(getXrExtensions()),
+                SpatialCoreXrExtensionsHolderProvider.extensionsLegacy,
                 SceneNodeRegistry(),
                 sceneRootNode,
                 taskWindowLeashNode,
@@ -929,7 +928,7 @@ private constructor(
             return create(
                 activity,
                 executor,
-                requireNotNull(getXrExtensions()),
+                SpatialCoreXrExtensionsHolderProvider.extensionsLegacy,
                 SceneNodeRegistry(),
             )
         }
@@ -943,7 +942,7 @@ private constructor(
             executor: ScheduledExecutorService,
             unscaledGravityAlignedActivitySpace: Boolean = true,
         ): SpatialSceneRuntime {
-            val xrExtensions = requireNotNull(getXrExtensions())
+            val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
             val sceneRootNode = xrExtensions.createNode()
             val taskWindowLeashNode = xrExtensions.createNode()
             xrExtensions.attachSpatialScene(

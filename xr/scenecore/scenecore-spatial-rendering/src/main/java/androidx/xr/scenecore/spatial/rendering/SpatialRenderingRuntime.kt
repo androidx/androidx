@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package androidx.xr.scenecore.spatial.rendering
 import android.app.Activity
 import android.os.Looper
 import androidx.annotation.VisibleForTesting
+import androidx.xr.runtime.TypeHolder
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Matrix3
@@ -52,7 +53,7 @@ import androidx.xr.scenecore.runtime.SpatialEnvironmentFeature
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.TextureResource
 import androidx.xr.scenecore.runtime.TextureSampler
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
+import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor
 import com.android.extensions.xr.XrExtensions
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import com.google.ar.imp.view.splitengine.ImpSplitEngine
@@ -845,8 +846,10 @@ private constructor(
             splitEngineSubspaceManager: SplitEngineSubspaceManager?,
             splitEngineRenderer: ImpSplitEngineRenderer?,
         ): SpatialRenderingRuntime {
-            val extensions =
-                getXrExtensions() ?: throw IllegalStateException("XrExtensions is null")
+            val extensionsHolder =
+                XrExtensionsHolderAccessor.holderLegacy
+                    ?: throw IllegalStateException("XrExtensions is null")
+            val extensions = TypeHolder.assertGetValue(extensionsHolder, XrExtensions::class.java)
 
             val finalImpressApi = impressApi ?: ImpressApiImpl()
 
