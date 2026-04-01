@@ -16,15 +16,13 @@
 package androidx.xr.arcore.projected
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
 
 /** Factory for creating instances of [ProjectedRuntime]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ProjectedRuntimeFactory() : PerceptionRuntimeFactory {
+internal class ProjectedRuntimeFactory : PerceptionRuntimeFactory {
     override val requirements: Set<Feature> = setOf(Feature.PROJECTED, Feature.FULLSTACK)
 
     override fun createRuntime(

@@ -35,8 +35,8 @@ import java.util.UUID
 @Deprecated(
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FakeRuntimeAnchor
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public constructor(override var pose: Pose, public val isTrackingAvailable: Boolean = true) :
     RuntimeAnchor {
 

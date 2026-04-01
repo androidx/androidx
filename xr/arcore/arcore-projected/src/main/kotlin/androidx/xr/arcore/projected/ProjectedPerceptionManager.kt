@@ -53,8 +53,7 @@ import java.util.UUID
  * @property monoDepthMap the mono [DepthMap], or null if not available
  * @property userFace the user's [Face], or null if not available
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ProjectedPerceptionManager
+internal class ProjectedPerceptionManager
 internal constructor(private val timeSource: ProjectedTimeSource) : PerceptionManager {
     internal val xrResources = XrResources()
 
@@ -165,7 +164,7 @@ internal constructor(private val timeSource: ProjectedTimeSource) : PerceptionMa
         throw NotImplementedError("clear is currently not supported by Projected.")
     }
 
-    public override fun setDisplayRotation(rotation: Int, width: Int, height: Int) {
+    override fun setDisplayRotation(rotation: Int, width: Int, height: Int) {
         throw NotImplementedError("setDisplayRotation is currently not supported by Projected.")
     }
 }

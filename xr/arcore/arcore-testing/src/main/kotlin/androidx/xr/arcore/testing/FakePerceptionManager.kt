@@ -50,43 +50,36 @@ import java.util.UUID
 @Deprecated(
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FakePerceptionManager : PerceptionManager, AnchorHolder {
 
     public val anchors: MutableList<Anchor> = mutableListOf<Anchor>()
     override val trackables: MutableList<Trackable> = mutableListOf<Trackable>()
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val leftEye: Eye? = FakeRuntimeEye()
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val rightEye: Eye? = FakeRuntimeEye()
 
     override val leftHand: Hand? = FakeRuntimeHand()
     override val rightHand: Hand? = FakeRuntimeHand()
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @get:SuppressLint("HiddenTypeParameter", "UnavailableSymbol")
     override val arDevice: FakeRuntimeArDevice = FakeRuntimeArDevice()
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @get:SuppressLint("HiddenTypeParameter", "UnavailableSymbol")
     override val leftRenderViewpoint: FakeRuntimeRenderViewpoint? =
         FakeRuntimeRenderViewpoint(Pose(Vector3(1f, 0f, 0f), Quaternion.Companion.Identity))
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @get:SuppressLint("HiddenTypeParameter", "UnavailableSymbol")
     override val rightRenderViewpoint: FakeRuntimeRenderViewpoint? =
         FakeRuntimeRenderViewpoint(Pose(Vector3(0f, 1f, 0f), Quaternion.Companion.Identity))
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @get:SuppressLint("HiddenTypeParameter", "UnavailableSymbol")
     override val monoRenderViewpoint: FakeRuntimeRenderViewpoint? =
         FakeRuntimeRenderViewpoint(Pose(Vector3(0f, 0f, 1f), Quaternion.Companion.Identity))
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val userFace: Face? = FakeRuntimeFace()
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val geospatial: Geospatial = FakeRuntimeGeospatial()
 
     override val leftDepthMap: DepthMap? = FakeRuntimeDepthMap()
@@ -125,7 +118,6 @@ public class FakePerceptionManager : PerceptionManager, AnchorHolder {
         anchorUuids.remove(uuid)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun onAnchorPersisted(anchor: Anchor) {
         anchorUuids.add(anchor.uuid!!)
     }

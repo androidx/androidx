@@ -25,7 +25,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 /** Factory for creating a [FakePerceptionRuntime] for testing purposes. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Deprecated(
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )
