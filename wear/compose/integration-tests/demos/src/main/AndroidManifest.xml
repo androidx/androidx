@@ -75,6 +75,12 @@
             android:label="NavDisplayWithOnBackBehaviorSampleActivity">
         </activity>
 
+        <activity
+            android:name="androidx.wear.compose.material3.demos.OneHandedGestureSwipeDismissableNavHostDemoActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="OneHandedGestureSwipeDismissableNavHostDemoActivity">
+        </activity>
+
     </application>
 
     <uses-feature android:name="android.hardware.type.watch"/>

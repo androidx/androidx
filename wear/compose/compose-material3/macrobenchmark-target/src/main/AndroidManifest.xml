@@ -490,6 +490,17 @@
         </activity>
 
         <activity
+            android:name=".TransformingLazyColumnOneHandedGesturesActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.TRANSFORMING_LAZY_COLUMN_ONE_HANDED_GESTURES_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".TransformingLazyColumnNotificationsActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
