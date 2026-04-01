@@ -16,21 +16,27 @@
 
 package androidx.appfunctions.compiler.processors
 
+import androidx.appfunctions.compiler.AppFunctionCompilerOptions
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctions
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
+import androidx.appfunctions.compiler.core.ProcessingException
+import androidx.appfunctions.compiler.core.XmlFileResolver
 import androidx.appfunctions.compiler.core.createElementWithTextNode
 import androidx.appfunctions.compiler.core.metadata.AppFunctionMetadataDocument
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
+import java.io.IOException
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import kotlin.io.path.Path
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 
@@ -44,8 +50,11 @@ import org.w3c.dom.Element
  * The new indexer will index additional properties based on the schema defined in SDK instead of
  * the pre-defined one in AppSearch.
  */
-class AppFunctionLegacyIndexXmlProcessor(private val codeGenerator: CodeGenerator) :
-    SymbolProcessor {
+class AppFunctionLegacyIndexXmlProcessor(
+    private val codeGenerator: CodeGenerator,
+    private val options: AppFunctionCompilerOptions,
+    private val logger: KSPLogger,
+) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val appFunctionSymbolResolver = AppFunctionSymbolResolver(resolver)
@@ -102,6 +111,26 @@ class AppFunctionLegacyIndexXmlProcessor(private val codeGenerator: CodeGenerato
                 setOutputProperty(OutputKeys.VERSION, "1.0")
                 setOutputProperty(OutputKeys.STANDALONE, "yes")
             }
+
+        if (options.appFunctionsXmlLocation != null) {
+            try {
+                XmlFileResolver.RESOLVER.getWriteStream(
+                        filePath =
+                            Path(options.appFunctionsXmlLocation)
+                                .resolve("${XML_FILE_NAME}.${XML_EXTENSION}"),
+                        logger,
+                    )
+                    .use { stream ->
+                        transformer.transform(DOMSource(xmlDocument), StreamResult(stream))
+                    }
+            } catch (e: IOException) {
+                throw ProcessingException(
+                    "Failed to create AppFunctions XML file at: ${options.appFunctionsXmlLocation}",
+                    null,
+                    e,
+                )
+            }
+        }
 
         codeGenerator
             .createNewFile(

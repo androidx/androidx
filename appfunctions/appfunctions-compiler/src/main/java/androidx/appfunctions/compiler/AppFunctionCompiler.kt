@@ -97,7 +97,11 @@ class AppFunctionCompiler(
             val entityProcessor =
                 AppFunctionSerializableProcessor(environment.codeGenerator, environment.logger)
             val aggregateProcessor =
-                AppFunctionAggregateProcessor(options, environment.codeGenerator)
+                AppFunctionAggregateProcessor(
+                    options,
+                    environment.codeGenerator,
+                    environment.logger,
+                )
             val schemaInventoryProcessor =
                 AppFunctionSchemaInventoryProcessor(environment.codeGenerator, options)
             return AppFunctionCompiler(
