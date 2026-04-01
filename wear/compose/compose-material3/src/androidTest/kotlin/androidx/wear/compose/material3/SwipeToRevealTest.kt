@@ -115,61 +115,99 @@ class SwipeToRevealTest {
 
     @Test
     fun onStateChangeToRevealed_performsHaptics() {
-        val results = mutableMapOf<HapticFeedbackType, Int>()
-        val haptics = hapticFeedback(collectResultsFromHapticFeedback(results))
-        lateinit var revealState: RevealState
-        lateinit var coroutineScope: CoroutineScope
+        assertHapticFeedback(
+            initialValue = RightRevealing,
+            action = { coroutineScope, revealState ->
+                rule.runOnIdle { coroutineScope.launch { revealState.animateTo(RightRevealed) } }
+            },
+            expectedHapticCount = 1,
+        )
+    }
 
-        rule.setContent {
-            revealState = rememberRevealState(initialValue = RightRevealing)
-            coroutineScope = rememberCoroutineScope()
-            CompositionLocalProvider(LocalHapticFeedback provides haptics) {
-                SwipeToRevealWithDefaults(
-                    modifier = Modifier.testTag(TEST_TAG),
-                    revealState = revealState,
-                )
-            }
-        }
+    @OptIn(ExperimentalWearComposeMaterial3Api::class)
+    @Test
+    fun onStateChangeToRevealing_performsHaptics() {
+        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
+        assertHapticFeedback(
+            initialValue = Covered,
+            action = { coroutineScope, revealState ->
+                rule.runOnIdle { coroutineScope.launch { revealState.animateTo(RightRevealing) } }
+            },
+            expectedHapticCount = 1,
+        )
+    }
 
-        rule.runOnIdle { assertThat(results).isEmpty() }
+    @OptIn(ExperimentalWearComposeMaterial3Api::class)
+    @Test
+    fun onSwipeSlowlyToFullyRevealed_performsHapticsTwice() {
+        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
+        assertHapticFeedback(
+            initialValue = Covered,
+            action = { _, _ ->
+                // We can not use swipeLeft/swipeRight for slowly swiping in test since
+                // composeTestRule will advance clock automatically and make it run very fast.
+                try {
+                    rule.mainClock.autoAdvance = false
 
-        rule.runOnIdle { coroutineScope.launch { revealState.animateTo(RightRevealed) } }
+                    rule.onNodeWithTag(TEST_TAG).performTouchInput {
+                        down(Offset(LARGE_SCREEN_WIDTH_DP * density * 0.9f, centerY))
+                    }
 
-        rule.runOnIdle {
-            assertThat(results).hasSize(1)
-            assertThat(results).containsKey(HapticFeedbackType.GestureThresholdActivate)
-            assertThat(results[HapticFeedbackType.GestureThresholdActivate]).isEqualTo(1)
-        }
+                    repeat(20) {
+                        rule.onNodeWithTag(TEST_TAG).performTouchInput { moveBy(Offset(-20f, 0f)) }
+                        rule.mainClock.advanceTimeBy(16)
+                        rule.waitForIdle()
+                    }
+
+                    rule.onNodeWithTag(TEST_TAG).performTouchInput { up() }
+                } finally {
+                    rule.mainClock.autoAdvance = true
+                }
+            },
+            expectedHapticCount = 2,
+        )
+    }
+
+    @OptIn(ExperimentalWearComposeMaterial3Api::class)
+    @Test
+    fun onFastFlingBeforeRevealing_performsHapticsOnce() {
+        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
+        assertHapticFeedback(
+            initialValue = Covered,
+            action = { _, _ ->
+                rule.onNodeWithTag(TEST_TAG).performTouchInput {
+                    swipeLeft(startX = 50 * density, endX = 0f, durationMillis = 100)
+                }
+            },
+            expectedHapticCount = 1,
+        )
+    }
+
+    @OptIn(ExperimentalWearComposeMaterial3Api::class)
+    @Test
+    fun onFastFlingAfterRevealing_performsHapticsOnce() {
+        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
+        assertHapticFeedback(
+            initialValue = Covered,
+            action = { _, _ ->
+                rule.onNodeWithTag(TEST_TAG).performTouchInput {
+                    swipeLeft(startX = 130 * density, endX = 0f, durationMillis = 100)
+                }
+            },
+            expectedHapticCount = 1,
+        )
     }
 
     @Test
     fun onStateChangeToLeftRevealed_performsHaptics() {
-        val results = mutableMapOf<HapticFeedbackType, Int>()
-        val haptics = hapticFeedback(collectResultsFromHapticFeedback(results))
-        lateinit var revealState: RevealState
-        lateinit var coroutineScope: CoroutineScope
-
-        rule.setContent {
-            CompositionLocalProvider(LocalHapticFeedback provides haptics) {
-                revealState = rememberRevealState(initialValue = LeftRevealing)
-                coroutineScope = rememberCoroutineScope()
-                SwipeToRevealWithDefaults(
-                    modifier = Modifier.testTag(TEST_TAG),
-                    revealState = revealState,
-                    revealDirection = Bidirectional,
-                )
-            }
-        }
-
-        rule.runOnIdle { assertThat(results).isEmpty() }
-
-        rule.runOnIdle { coroutineScope.launch { revealState.animateTo(LeftRevealed) } }
-
-        rule.runOnIdle {
-            assertThat(results).hasSize(1)
-            assertThat(results).containsKey(HapticFeedbackType.GestureThresholdActivate)
-            assertThat(results[HapticFeedbackType.GestureThresholdActivate]).isEqualTo(1)
-        }
+        assertHapticFeedback(
+            revealDirection = Bidirectional,
+            initialValue = LeftRevealing,
+            action = { coroutineScope, revealState ->
+                rule.runOnIdle { coroutineScope.launch { revealState.animateTo(LeftRevealed) } }
+            },
+            expectedHapticCount = 1,
+        )
     }
 
     @Test
@@ -1325,6 +1363,42 @@ class SwipeToRevealTest {
         }
     }
 
+    private fun assertHapticFeedback(
+        revealDirection: RevealDirection = RightToLeft,
+        initialValue: RevealValue = Covered,
+        action: (CoroutineScope, RevealState) -> Unit,
+        expectedHapticCount: Int,
+    ) {
+        val results = mutableMapOf<HapticFeedbackType, Int>()
+        val haptics = hapticFeedback(collectResultsFromHapticFeedback(results))
+        lateinit var revealState: RevealState
+        lateinit var coroutineScope: CoroutineScope
+
+        rule.setContent {
+            revealState = rememberRevealState(initialValue = initialValue)
+            coroutineScope = rememberCoroutineScope()
+            CompositionLocalProvider(LocalHapticFeedback provides haptics) {
+                ScreenConfiguration(LARGE_SCREEN_WIDTH_DP) {
+                    SwipeToRevealTwoActionsWithDefault(
+                        revealState = revealState,
+                        revealDirection = revealDirection,
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { assertThat(results).isEmpty() }
+
+        action(coroutineScope, revealState)
+
+        rule.runOnIdle {
+            assertThat(results).hasSize(1)
+            assertThat(results).containsKey(HapticFeedbackType.GestureThresholdActivate)
+            assertThat(results[HapticFeedbackType.GestureThresholdActivate])
+                .isEqualTo(expectedHapticCount)
+        }
+    }
+
     private fun assertThrowsHelpfulMessage(initialValue: RevealValue) {
         val assertionError =
             assertThrows(IllegalArgumentException::class.java) {
@@ -1585,7 +1659,10 @@ class SwipeToRevealTest {
     }
 
     @Composable
-    private fun SwipeToRevealTwoActionsWithDefault() {
+    private fun SwipeToRevealTwoActionsWithDefault(
+        revealState: RevealState,
+        revealDirection: RevealDirection,
+    ) {
         SwipeToRevealWithDefaults(
             modifier = Modifier.testTag(TEST_TAG),
             primaryAction = {
@@ -1594,7 +1671,8 @@ class SwipeToRevealTest {
             secondaryAction = {
                 DefaultSecondaryActionButton(modifier = Modifier.testTag(SECONDARY_ACTION_TAG))
             },
-            revealDirection = Bidirectional,
+            revealDirection = revealDirection,
+            revealState = revealState,
             enableTouchSlop = false,
         )
     }
