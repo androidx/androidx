@@ -5130,6 +5130,7 @@ package androidx.core.view.accessibility {
     method public CharSequence? getRoleDescription();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionCompat? getSelection();
     method public CharSequence? getStateDescription();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat? getStructuredDataInfo();
     method public CharSequence? getSupplementalDescription();
     method public CharSequence! getText();
     method public int getTextSelectionEnd();
@@ -5241,6 +5242,7 @@ package androidx.core.view.accessibility {
     method public void setSource(android.view.View!);
     method public void setSource(android.view.View!, int);
     method public void setStateDescription(CharSequence?);
+    method public void setStructuredDataInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat?);
     method public void setSupplementalDescription(CharSequence?);
     method public void setText(CharSequence!);
     method public void setTextEntryKey(boolean);
@@ -5445,6 +5447,41 @@ package androidx.core.view.accessibility {
   @IntDef(flag=false, value={androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXPANDED_STATE_UNDEFINED, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXPANDED_STATE_COLLAPSED, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXPANDED_STATE_PARTIAL, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXPANDED_STATE_FULL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.ExpandedState {
   }
 
+  public static class AccessibilityNodeInfoCompat.MathInfoCompat extends androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat {
+    ctor public AccessibilityNodeInfoCompat.MathInfoCompat(android.view.accessibility.AccessibilityNodeInfo.MathInfo?);
+    ctor public AccessibilityNodeInfoCompat.MathInfoCompat(@androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MathTag String);
+    field public static final String MATH_ATTRIBUTE_ARG = "arg";
+    field public static final String MATH_ATTRIBUTE_INTENT = "intent";
+    field public static final String MATH_TAG_FRACTION = "mfrac";
+    field public static final String MATH_TAG_IDENTIFIER = "mi";
+    field public static final String MATH_TAG_MATH = "math";
+    field public static final String MATH_TAG_MULTISCRIPTS = "mmultiscripts";
+    field public static final String MATH_TAG_NONE_SCRIPT = "none";
+    field public static final String MATH_TAG_NUMBER = "mn";
+    field public static final String MATH_TAG_OPERATOR = "mo";
+    field public static final String MATH_TAG_OVER = "mover";
+    field public static final String MATH_TAG_PRESCRIPT_DELIMITER = "mprescripts";
+    field public static final String MATH_TAG_ROOT = "mroot";
+    field public static final String MATH_TAG_ROW = "mrow";
+    field public static final String MATH_TAG_SQUARE_ROOT = "msqrt";
+    field public static final String MATH_TAG_STRING_LITERAL = "ms";
+    field public static final String MATH_TAG_SUB = "msub";
+    field public static final String MATH_TAG_SUB_SUP = "msubsup";
+    field public static final String MATH_TAG_SUP = "msup";
+    field public static final String MATH_TAG_TABLE = "mtable";
+    field public static final String MATH_TAG_TABLE_CELL = "mtd";
+    field public static final String MATH_TAG_TABLE_ROW = "mtr";
+    field public static final String MATH_TAG_TEXT = "mtext";
+    field public static final String MATH_TAG_UNDER = "munder";
+    field public static final String MATH_TAG_UNDER_OVER = "munderover";
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef({androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_ATTRIBUTE_INTENT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_ATTRIBUTE_ARG}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.MathInfoCompat.MathAttribute {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef({androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_MATH, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_FRACTION, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_IDENTIFIER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_MULTISCRIPTS, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_NONE_SCRIPT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_NUMBER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_OPERATOR, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_OVER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_PRESCRIPT_DELIMITER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_ROOT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_ROW, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_SQUARE_ROOT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_STRING_LITERAL, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_SUB, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_SUB_SUP, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_SUP, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_TABLE, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_TABLE_CELL, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_TABLE_ROW, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_TEXT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_UNDER, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat.MATH_TAG_UNDER_OVER}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.MathInfoCompat.MathTag {
+  }
+
   public static class AccessibilityNodeInfoCompat.RangeInfoCompat {
     ctor public AccessibilityNodeInfoCompat.RangeInfoCompat(int, float, float, float);
     method public float getCurrent();
@@ -5474,6 +5511,15 @@ package androidx.core.view.accessibility {
     method public int getOffset();
     method public android.view.View? getView();
     method public int getVirtualDescendantId();
+  }
+
+  public abstract static class AccessibilityNodeInfoCompat.StructuredDataInfoCompat {
+    ctor protected AccessibilityNodeInfoCompat.StructuredDataInfoCompat(android.view.accessibility.AccessibilityNodeInfo.StructuredDataInfo?);
+    method public String? getAttribute(String);
+    method public java.util.Map<java.lang.String!,java.lang.String!> getAttributes();
+    method public String? getTag();
+    method public void putAttribute(String, String);
+    method public void removeAttribute(String);
   }
 
   public static final class AccessibilityNodeInfoCompat.TouchDelegateInfoCompat {
