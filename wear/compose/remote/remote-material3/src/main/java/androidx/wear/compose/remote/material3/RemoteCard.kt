@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
+import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.heightIn
@@ -314,6 +315,7 @@ internal fun RemoteCardImpl(
     val containerModifier =
         modifier
             .remoteCardSizeModifier()
+            .clip(shape = shape)
             .clickable(
                 actions = buildList { add(onClick) },
                 enabled = enabled.constantValueOrNull ?: false,

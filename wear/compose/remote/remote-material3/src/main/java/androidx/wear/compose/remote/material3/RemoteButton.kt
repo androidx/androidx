@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
+import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
@@ -378,6 +379,7 @@ public fun RemoteCompactButton(
                 .semantics(mergeDescendants = true) { role = Role.Button }
                 .compactButtonModifier()
                 .padding(tapPadding)
+                .clip(shape = shape)
                 .clickable(onClick, enabled = enabled.constantValueOrNull ?: false),
         contentAlignment = RemoteAlignment.Center,
     ) {
@@ -460,7 +462,8 @@ private fun RemoteButtonImpl(
     content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
     val containerModifier =
-        RemoteModifier.clickable(
+        RemoteModifier.clip(shape = shape)
+            .clickable(
                 actions = buildList { onClick?.let { add(it) } },
                 enabled = enabled.constantValueOrNull ?: false && onClick != null,
             )
