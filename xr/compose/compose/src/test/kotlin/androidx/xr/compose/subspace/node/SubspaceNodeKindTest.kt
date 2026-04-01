@@ -25,6 +25,7 @@ import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
 import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -53,6 +54,7 @@ class SubspaceNodeKindTest {
                 SubspaceNodes.ParentData,
                 SubspaceNodes.LayoutAware,
                 SubspaceNodes.Locals,
+                SubspaceNodes.MeasuredSizeAware,
             )
         // Ensure no two masks collide (0b1, 0b10, 0b100, etc.)
         val masks = allKinds.map { it.mask }
@@ -91,10 +93,23 @@ class SubspaceNodeKindTest {
     fun testCalculateKindSet_layoutCoordinatesAwareModifierNode() {
         val node = CoordinatesAwareModifier()
         val kindSet = calculateSubspaceNodeKindSetFrom(node)
-        // Expected: Any + LayoutCoordinates
-        val expected = SubspaceNodes.Any or SubspaceNodes.LayoutAware
+        // Expected: Any + LayoutAware + MeasuredSizeAware
+        val expected =
+            SubspaceNodes.Any or SubspaceNodes.LayoutAware or SubspaceNodes.MeasuredSizeAware
         assertTrue(SubspaceNodes.LayoutAware in kindSet)
+        assertTrue(SubspaceNodes.MeasuredSizeAware in kindSet)
         assertTrue(SubspaceNodes.Locals !in kindSet)
+        assertEquals(expected, kindSet)
+    }
+
+    @Test
+    fun testCalculateKindSet_measuredSizeAwareModifierNode() {
+        val node = MeasuredSizeAwareModifier()
+        val kindSet = calculateSubspaceNodeKindSetFrom(node)
+        // Expected: Any + MeasuredSizeAware
+        val expected = SubspaceNodes.Any or SubspaceNodes.MeasuredSizeAware
+        assertTrue(SubspaceNodes.MeasuredSizeAware in kindSet)
+        assertTrue(SubspaceNodes.LayoutAware !in kindSet)
         assertEquals(expected, kindSet)
     }
 
@@ -153,6 +168,10 @@ class ParentLayoutModifier() : ParentLayoutParamsModifier, SubspaceModifier.Node
 
 class CoordinatesAwareModifier() : SubspaceLayoutAwareModifierNode, SubspaceModifier.Node() {
     override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {}
+}
+
+class MeasuredSizeAwareModifier() : SubspaceMeasuredSizeAwareModifierNode, SubspaceModifier.Node() {
+    override fun onRemeasured(size: IntVolumeSize) {}
 }
 
 class LocalConsumerSubspaceModifier() :

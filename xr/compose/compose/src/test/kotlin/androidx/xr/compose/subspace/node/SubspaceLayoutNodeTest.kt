@@ -34,6 +34,7 @@ import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.TestLogger
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.scenecore.Entity
 import com.google.common.truth.Truth.assertThat
@@ -53,6 +54,34 @@ class SubspaceLayoutNodeTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    private fun createOwner(): AndroidComposeSpatialElement =
+        AndroidComposeSpatialElement(StandardTestDispatcher())
+
+    @Composable
+    @SubspaceComposable
+    private fun EntityLayout(
+        modifier: SubspaceModifier = SubspaceModifier,
+        entity: Entity,
+        content: @Composable @SubspaceComposable () -> Unit = {},
+    ) {
+        SubspaceLayout(
+            content = content,
+            modifier = modifier,
+            coreEntity = CoreGroupEntity(entity),
+        ) { _, _ ->
+            layout(0, 0, 0) {}
+        }
+    }
+
+    private class TestMeasurePolicy : SubspaceMeasurePolicy {
+        override fun SubspaceMeasureScope.measure(
+            measurables: List<SubspaceMeasurable>,
+            constraints: VolumeConstraints,
+        ): SubspaceMeasureResult {
+            return layout(0, 0, 0) {}
+        }
+    }
 
     @Test
     fun subspaceLayoutNode_shouldParentNodesProperly() = runTest {
@@ -184,31 +213,56 @@ class SubspaceLayoutNodeTest {
         assertThat(childNode.depth).isEqualTo(2)
     }
 
-    private fun createOwner(): AndroidComposeSpatialElement =
-        AndroidComposeSpatialElement(StandardTestDispatcher())
+    @Test
+    fun subspaceLayoutNode_measure_notifiesMeasuredSizeAwareNodes() = runTest {
+        val owner: AndroidComposeSpatialElement = createOwner()
+        val node = SubspaceLayoutNode()
 
-    @Composable
-    @SubspaceComposable
-    private fun EntityLayout(
-        modifier: SubspaceModifier = SubspaceModifier,
-        entity: Entity,
-        content: @Composable @SubspaceComposable () -> Unit = {},
-    ) {
-        SubspaceLayout(
-            content = content,
-            modifier = modifier,
-            coreEntity = CoreGroupEntity(entity),
-        ) { _, _ ->
-            layout(0, 0, 0) {}
-        }
-    }
+        owner.root.insertAt(index = 0, instance = node)
 
-    private class TestMeasurePolicy : SubspaceMeasurePolicy {
-        override fun SubspaceMeasureScope.measure(
-            measurables: List<SubspaceMeasurable>,
-            constraints: VolumeConstraints,
-        ): SubspaceMeasureResult {
-            return layout(0, 0, 0) {}
-        }
+        // The variable to track the size passed to the measured size aware node.
+        var remeasuredSize: IntVolumeSize? = null
+
+        // A custom modifier node. It implements SubspaceModifierNodeElement.
+        // Whenever onRemeasured is called by the layout engine, it takes the
+        // size it was given and saves it into the remeasuredSize variable.
+        val measuredSizeAwareNode =
+            object : SubspaceMeasuredSizeAwareModifierNode, SubspaceModifier.Node() {
+                override fun onRemeasured(size: IntVolumeSize) {
+                    remeasuredSize = size
+                }
+            }
+
+        // Wrap measuredSizeAwareNode in an SubspaceModifierNodeElement.
+        val element =
+            object : SubspaceModifierNodeElement<SubspaceModifier.Node>() {
+                override fun create() = measuredSizeAwareNode
+
+                override fun update(node: SubspaceModifier.Node) {}
+
+                override fun equals(other: Any?) = this === other
+
+                override fun hashCode() = System.identityHashCode(this)
+            }
+
+        // Attach the SubspaceModifierNodeElement to the layout node.
+        node.modifier = element
+
+        // A hardcoded policy that dictates how a node calculates its size.
+        node.measurePolicy =
+            object : SubspaceMeasurePolicy {
+                override fun SubspaceMeasureScope.measure(
+                    measurables: List<SubspaceMeasurable>,
+                    constraints: VolumeConstraints,
+                ): SubspaceMeasureResult {
+                    return layout(10, 20, 30) {}
+                }
+            }
+
+        // Run the node's measurement pass. The measure policy is evaluated and
+        // onRemeasured is called.
+        node.measurableLayout.measure(constraints = VolumeConstraints())
+
+        assertThat(remeasuredSize).isEqualTo(IntVolumeSize(10, 20, 30))
     }
 }

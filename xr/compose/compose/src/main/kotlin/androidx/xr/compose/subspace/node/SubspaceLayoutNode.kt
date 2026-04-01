@@ -333,6 +333,12 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         owner?.requestEntityUpdate(this)
     }
 
+    internal fun dispatchMeasuredSizeTo(node: SubspaceMeasuredSizeAwareModifierNode) {
+        if (isAttached && isPlaced && layoutState == LayoutState.Idle) {
+            node.onRemeasured(measurableLayout.size)
+        }
+    }
+
     internal fun updateCoreEntityProperties() {
         if (!isAttached) return
 
@@ -488,6 +494,8 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
             measuredDepth = subspaceMeasureResult!!.depth
 
             owner?.logger?.nodeMeasured(this, constraints, size)
+
+            nodes.forEachOf(SubspaceNodes.MeasuredSizeAware) { it.onRemeasured(size) }
 
             return this
         }

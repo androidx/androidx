@@ -16,8 +16,10 @@
 
 package androidx.xr.compose.subspace.layout
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
@@ -126,5 +128,151 @@ class OnSizeChangedModifierTest {
         }
 
         assertThat(callbackCount).isEqualTo(1)
+    }
+
+    @Test
+    fun onSizeChanged_onRecompositionWithoutSizeChange_doesNotInvokeCallback() {
+        val fixedSize = 50.dp
+        var unrelatedState by mutableStateOf(false)
+        var callbackInvocationCount = 0
+
+        composeTestRule.setContent {
+            val stateRead = unrelatedState
+
+            val callback: (IntVolumeSize) -> Unit = remember { { callbackInvocationCount++ } }
+
+            Subspace {
+                SpatialPanel(modifier = SubspaceModifier.size(fixedSize).onSizeChanged(callback)) {
+                    Text(text = "Panel")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        assertThat(callbackInvocationCount).isEqualTo(1)
+
+        unrelatedState = true
+        composeTestRule.waitForIdle()
+
+        assertThat(callbackInvocationCount).isEqualTo(1)
+    }
+
+    @Test
+    fun onSizeChanged_whenSizeChanges_callbackIsInvokedWithNewSize() {
+        var currentSize by mutableStateOf(50.dp)
+        var panelSize: IntVolumeSize? = null
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.size(currentSize).onSizeChanged { size ->
+                            panelSize = size
+                        }
+                ) {
+                    Text(text = "Panel")
+                }
+            }
+        }
+
+        val expectedInitialSize = with(composeTestRule.density) { 50.dp.roundToPx() }
+        assertThat(panelSize)
+            .isEqualTo(IntVolumeSize(expectedInitialSize, expectedInitialSize, expectedInitialSize))
+
+        currentSize = 100.dp
+        composeTestRule.waitForIdle()
+
+        val expectedNewSize = with(composeTestRule.density) { 100.dp.roundToPx() }
+        assertThat(panelSize)
+            .isEqualTo(IntVolumeSize(expectedNewSize, expectedNewSize, expectedNewSize))
+    }
+
+    @Test
+    fun onSizeChanged_whenCallbackChanges_callbackIsInvokedWithCurrentSize() {
+        var currentSize by mutableStateOf(50.dp)
+        var panelSize: IntVolumeSize? = null
+        val expectedInitialSize = with(composeTestRule.density) { 50.dp.roundToPx() }
+
+        var currentCallback by
+            mutableStateOf<(IntVolumeSize) -> Unit>({ newSize -> panelSize = newSize })
+        var callbackInvocationCount = 0
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    SubspaceModifier.size(currentSize)
+                        .onSizeChanged(onSizeChanged = currentCallback)
+                ) {}
+            }
+        }
+
+        assertNotNull(panelSize)
+        assertThat(panelSize)
+            .isEqualTo(IntVolumeSize(expectedInitialSize, expectedInitialSize, expectedInitialSize))
+
+        // Update the callback to a new instance.
+        currentCallback = { newSize ->
+            panelSize = newSize
+            callbackInvocationCount++
+        }
+        composeTestRule.waitForIdle()
+
+        assertNotNull(panelSize)
+        assertThat(panelSize)
+            .isEqualTo(IntVolumeSize(expectedInitialSize, expectedInitialSize, expectedInitialSize))
+        assertThat(callbackInvocationCount).isEqualTo(1)
+    }
+
+    @Test
+    fun onSizeChanged_whenModifierRemoved_doesNotInvokeCallback() {
+        var hasModifier by mutableStateOf(true)
+        var invocationCount = 0
+
+        composeTestRule.setContent {
+            Subspace {
+                val callback: (IntVolumeSize) -> Unit = remember { { invocationCount++ } }
+
+                val modifier =
+                    if (hasModifier) {
+                        SubspaceModifier.onSizeChanged(callback)
+                    } else {
+                        SubspaceModifier
+                    }
+                SpatialPanel(modifier = modifier) { Text(text = "Panel") }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        val initialFires = invocationCount
+        assertThat(initialFires).isGreaterThan(0)
+
+        hasModifier = false
+        composeTestRule.waitForIdle()
+
+        // The dying modifier did not fire an update.
+        assertThat(invocationCount).isEqualTo(initialFires)
+    }
+
+    @Test
+    fun onSizeChanged_doesNotDispatchPhantomSizeOnInitialComposition() {
+        val capturedSizes = mutableListOf<IntVolumeSize>()
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.size(50.dp).onSizeChanged { size ->
+                            capturedSizes.add(size)
+                        }
+                ) {
+                    Text(text = "Panel")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        assertThat(capturedSizes.size).isEqualTo(1)
+        assertThat(capturedSizes[0].width).isGreaterThan(0)
     }
 }
