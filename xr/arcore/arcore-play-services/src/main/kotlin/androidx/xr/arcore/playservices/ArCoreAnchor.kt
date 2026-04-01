@@ -32,7 +32,7 @@ import java.util.UUID
  * @property trackingState the [TrackingState] of the anchor
  * @property uuid the [UUID] of the anchor
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ArCoreAnchor internal constructor(internal val _arCoreAnchor: ARCore1xAnchor) :
     Anchor {
 

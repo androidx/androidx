@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,11 @@
 
 package androidx.xr.arcore.playservices
 
-import androidx.annotation.RestrictTo
-import kotlin.RequiresOptIn
-
-/** Annotation for methods and properties that are not supported by ARCore 1.x. */
-@RequiresOptIn(
-    level = RequiresOptIn.Level.ERROR,
-    message =
-        "This property is exposed for compatibility with existing ARCore 1.x applications. Usage of this property is not offically supported, and will be removed in a future release.",
-)
+/**
+ * Marks APIs that provide access to properties about the device camera.
+ *
+ * These APIs are subject to change or removal in a future release.
+ */
+@RequiresOptIn(message = "This is an experimental API. It may be changed or removed in the future.")
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FUNCTION)
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public annotation class UnsupportedArCoreCompatApi {}
+public annotation class ExperimentalCameraApi

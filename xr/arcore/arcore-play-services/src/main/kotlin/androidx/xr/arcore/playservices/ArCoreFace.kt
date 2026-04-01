@@ -36,7 +36,7 @@ import com.google.ar.core.AugmentedFace
  * @property foreheadLeftPose the [Pose] of the left forehead
  * @property foreheadRightPose the [Pose] of the right forehead
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ArCoreFace internal constructor(private val arCoreFace: AugmentedFace) : Face {
     @UnsupportedArCoreCompatApi public fun arCoreAugmentedFace(): AugmentedFace = arCoreFace
 

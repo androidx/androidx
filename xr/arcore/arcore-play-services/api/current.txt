@@ -1,1 +1,32 @@
 // Signature format: 4.0
+package androidx.xr.arcore.playservices {
+
+  public final class CameraState {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCameraPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getDisplayOrientedPose();
+    method @InaccessibleFromKotlin public android.hardware.HardwareBuffer? getHardwareBuffer();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Matrix4? getProjectionMatrix();
+    method @InaccessibleFromKotlin public kotlin.time.ComparableTimeMark getTimeMark();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function1<java.nio.FloatBuffer,java.nio.FloatBuffer>? getTransformCoordinates2D();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Matrix4? getViewMatrix();
+    property public androidx.xr.runtime.math.Pose? cameraPose;
+    property public androidx.xr.runtime.math.Pose? displayOrientedPose;
+    property public android.hardware.HardwareBuffer? hardwareBuffer;
+    property public androidx.xr.runtime.math.Matrix4? projectionMatrix;
+    property public kotlin.time.ComparableTimeMark timeMark;
+    property public androidx.xr.arcore.runtime.TrackingState trackingState;
+    property public kotlin.jvm.functions.Function1<java.nio.FloatBuffer,java.nio.FloatBuffer>? transformCoordinates2D;
+    property public androidx.xr.runtime.math.Matrix4? viewMatrix;
+  }
+
+  @SuppressCompatibility public final class CameraStateExt {
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.arcore.playservices.ExperimentalCameraApi public static androidx.xr.arcore.playservices.CameraState? getCameraState(androidx.xr.runtime.CoreState);
+    property @SuppressCompatibility @androidx.xr.arcore.playservices.ExperimentalCameraApi public static androidx.xr.arcore.playservices.CameraState? androidx.xr.runtime.CoreState.cameraState;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalCameraApi {
+  }
+
+}
+

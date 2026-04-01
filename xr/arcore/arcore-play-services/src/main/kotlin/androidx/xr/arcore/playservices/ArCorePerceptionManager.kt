@@ -65,7 +65,7 @@ import kotlin.time.TimeSource.Monotonic
  * @property rightDepthMap the right [DepthMap], or null if not available
  * @property monoDepthMap the mono [DepthMap], or null if not available
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ArCorePerceptionManager
 internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManager {
 
@@ -177,29 +177,24 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
 
     override val trackables: Collection<Trackable> = xrResources.trackables.values
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) override val leftEye: Eye? = null
+    override val leftEye: Eye? = null
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) override val rightEye: Eye? = null
+    override val rightEye: Eye? = null
 
     override val leftHand: Hand? = null
 
     override val rightHand: Hand? = null
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) override val userFace: Face? = null
+    override val userFace: Face? = null
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     override val geospatial: ArCoreEarth = xrResources.geospatial
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val arDevice: ArCoreDevice = xrResources.arDevice
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val leftRenderViewpoint: RenderViewpoint? = null
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val rightRenderViewpoint: RenderViewpoint? = null
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val monoRenderViewpoint: RenderViewpoint? = null
 
     override val leftDepthMap: DepthMap? = null
@@ -265,7 +260,8 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
         xrResources.clear()
     }
 
-    public fun setDisplayRotation(rotation: Int, width: Int, height: Int) {
+    @ExperimentalCameraApi
+    override fun setDisplayRotation(rotation: Int, width: Int, height: Int) {
         if (rotation != displayRotation || width != displayWidth || height != displayHeight) {
             displayRotation = rotation
             displayWidth = width

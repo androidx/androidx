@@ -165,7 +165,7 @@ internal constructor(private val timeSource: ProjectedTimeSource) : PerceptionMa
         throw NotImplementedError("clear is currently not supported by Projected.")
     }
 
-    public fun setDisplayRotation(rotation: Int, width: Int, height: Int) {
+    public override fun setDisplayRotation(rotation: Int, width: Int, height: Int) {
         throw NotImplementedError("setDisplayRotation is currently not supported by Projected.")
     }
 }

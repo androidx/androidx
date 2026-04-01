@@ -29,7 +29,7 @@ import com.google.ar.core.TrackingState
  * @property devicePose the [Pose] of the device
  * @property trackingState the tracking state of the device
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ArCoreDevice internal constructor() : ArDevice {
 
     override var devicePose: Pose = Pose()
