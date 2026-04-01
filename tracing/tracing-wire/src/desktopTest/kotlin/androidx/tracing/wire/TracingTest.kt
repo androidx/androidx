@@ -462,4 +462,21 @@ class TracingTest {
             sink.close()
         }
     }
+
+    @Test
+    internal fun testDisabledTracerWritesNoBytes() = runTest {
+        val testSink = TestSink()
+        TraceDriver(sink = testSink, isEnabled = false).use { driver ->
+            val disabledTracer = driver.tracer
+
+            disabledTracer.traceCoroutine("cat", "event") {
+                // Do some work
+                delay(50)
+            }
+
+            driver.flush()
+
+            assertTrue(testSink.packets.isEmpty(), "Sink should be empty when tracer is disabled")
+        }
+    }
 }

@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.Process
 import androidx.tracing.AbstractTraceDriver
 import androidx.tracing.AbstractTraceSink
+import androidx.tracing.EmptyTraceContext
 import androidx.tracing.TraceAttributes
 import androidx.tracing.TraceContext
 import androidx.tracing.Tracer
@@ -58,7 +59,12 @@ constructor(
 ) : AbstractTraceDriver(sink = sink, isEnabled = isEnabled) {
 
     private val applicationContext = context.applicationContext
-    private val context = TraceContext(sink = sink, isEnabled = isEnabled)
+    private val context =
+        if (isEnabled) {
+            TraceContext(sink = sink, isEnabled = isEnabled)
+        } else {
+            EmptyTraceContext
+        }
 
     init {
         val pid = Process.myPid()

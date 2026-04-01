@@ -20,6 +20,7 @@ package androidx.tracing.wire
 
 import androidx.tracing.AbstractTraceDriver
 import androidx.tracing.AbstractTraceSink
+import androidx.tracing.EmptyTraceContext
 import androidx.tracing.TraceAttributes
 import androidx.tracing.TraceContext
 import androidx.tracing.Tracer
@@ -50,7 +51,12 @@ constructor(
     attributes: (TraceAttributes.() -> Unit)? = null,
 ) : AbstractTraceDriver(sink = sink, isEnabled = isEnabled) {
 
-    private val context = TraceContext(sink = sink, isEnabled = isEnabled)
+    private val context =
+        if (isEnabled) {
+            TraceContext(sink = sink, isEnabled = isEnabled)
+        } else {
+            EmptyTraceContext
+        }
 
     init {
         val processHandle = ProcessHandle.current()
