@@ -52,10 +52,11 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 
 /** A controller to handle the GetSignInIntent flow with play services. */
-internal class CredentialProviderGetSignInIntentController(private val context: Context) :
+internal class CredentialProviderGetSignInIntentController(context: Context) :
     CredentialProviderController<
         GetCredentialRequest,
         GetSignInIntentRequest,
@@ -63,6 +64,8 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
         GetCredentialResponse,
         GetCredentialException,
     >(context) {
+
+    private val contextReference = WeakReference(context)
 
     /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting
@@ -80,22 +83,25 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
     private val resultReceiver =
         object : ResultReceiver(Handler(Looper.getMainLooper())) {
             public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                val currentCallback = callback
                 if (
-                    maybeReportErrorFromResultReceiver(
+                    !maybeReportErrorFromResultReceiver(
                         resultData,
                         CredentialProviderBaseController.Companion::
                             getCredentialExceptionTypeToException,
                         executor = executor,
-                        callback = callback,
+                        callback = currentCallback,
                         cancellationSignal,
                     )
-                )
-                    return
-                handleResponse(
-                    resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
-                    resultCode,
-                    resultData.getParcelable(RESULT_DATA_TAG),
-                )
+                ) {
+                    handleResponse(
+                        resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
+                        resultCode,
+                        resultData.getParcelable(RESULT_DATA_TAG),
+                        currentCallback,
+                    )
+                }
+                callback = emptyCallback()
             }
         }
 
@@ -113,6 +119,7 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
             return
         }
 
+        val context = contextReference.get() ?: return
         val convertedRequest: GetSignInIntentRequest
         try {
             convertedRequest = this.convertRequestToPlayServices(request)
@@ -231,7 +238,12 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
         return cred.build()
     }
 
-    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
+    internal fun handleResponse(
+        uniqueRequestCode: Int,
+        resultCode: Int,
+        data: Intent?,
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
+    ) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             Log.w(
                 TAG,
@@ -244,17 +256,18 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
             maybeReportErrorResultCodeGet(
                 resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) },
-                { e -> this.executor.execute { this.callback.onError(e) } },
+                { e -> this.executor.execute { callback.onError(e) } },
                 cancellationSignal,
             )
         )
             return
         try {
+            val context = contextReference.get() ?: return
             val signInCredential =
                 Identity.getSignInClient(context).getSignInCredentialFromIntent(data)
             val response = convertResponseToCredentialManager(signInCredential)
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                this.executor.execute { this.callback.onResult(response) }
+                this.executor.execute { callback.onResult(response) }
             }
         } catch (e: ApiException) {
             var exception: GetCredentialException = GetCredentialUnknownException(e.message)

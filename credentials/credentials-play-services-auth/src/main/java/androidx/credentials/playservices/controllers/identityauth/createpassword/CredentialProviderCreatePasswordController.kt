@@ -41,10 +41,11 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SavePasswordRequest
 import com.google.android.gms.auth.api.identity.SignInPassword
 import com.google.android.gms.common.api.ApiException
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 
 /** A controller to handle the CreatePassword flow with play services. */
-internal class CredentialProviderCreatePasswordController(private val context: Context) :
+internal class CredentialProviderCreatePasswordController(context: Context) :
     CredentialProviderController<
         CreatePasswordRequest,
         SavePasswordRequest,
@@ -52,6 +53,8 @@ internal class CredentialProviderCreatePasswordController(private val context: C
         CreateCredentialResponse,
         CreateCredentialException,
     >(context) {
+
+    private val contextReference = WeakReference(context)
 
     /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting
@@ -70,18 +73,24 @@ internal class CredentialProviderCreatePasswordController(private val context: C
     private val resultReceiver =
         object : ResultReceiver(Handler(Looper.getMainLooper())) {
             public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                val currentCallback = callback
                 if (
-                    maybeReportErrorFromResultReceiver(
+                    !maybeReportErrorFromResultReceiver(
                         resultData,
                         CredentialProviderBaseController.Companion::
                             createCredentialExceptionTypeToException,
                         executor = executor,
-                        callback = callback,
+                        callback = currentCallback,
                         cancellationSignal,
                     )
-                )
-                    return
-                handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode)
+                ) {
+                    handleResponse(
+                        resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
+                        resultCode,
+                        currentCallback,
+                    )
+                }
+                callback = emptyCallback()
             }
         }
 
@@ -99,6 +108,7 @@ internal class CredentialProviderCreatePasswordController(private val context: C
             return
         }
 
+        val context = contextReference.get() ?: return
         val convertedRequest: SavePasswordRequest = this.convertRequestToPlayServices(request)
         Identity.getCredentialSavingClient(context)
             .savePassword(convertedRequest)
@@ -142,7 +152,11 @@ internal class CredentialProviderCreatePasswordController(private val context: C
         )
     }
 
-    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int) {
+    internal fun handleResponse(
+        uniqueRequestCode: Int,
+        resultCode: Int,
+        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
+    ) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             Log.w(
                 TAG,
@@ -155,14 +169,14 @@ internal class CredentialProviderCreatePasswordController(private val context: C
             maybeReportErrorResultCodeCreate(
                 resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) },
-                { e -> this.executor.execute { this.callback.onError(e) } },
+                { e -> this.executor.execute { callback.onError(e) } },
                 cancellationSignal,
             )
         )
             return
         val response: CreateCredentialResponse = convertResponseToCredentialManager(Unit)
         cancelOrCallbackExceptionOrResult(cancellationSignal) {
-            this.executor.execute { this.callback.onResult(response) }
+            this.executor.execute { callback.onResult(response) }
         }
     }
 

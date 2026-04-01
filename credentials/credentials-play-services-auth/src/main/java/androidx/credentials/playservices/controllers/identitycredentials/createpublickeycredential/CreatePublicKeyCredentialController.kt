@@ -18,14 +18,12 @@ package androidx.credentials.playservices.controllers.identitycredentials.create
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.BundleCompat.getParcelable
 import androidx.credentials.CreatePublicKeyCredentialRequest
@@ -50,11 +48,11 @@ import com.google.android.gms.common.api.UnsupportedApiCallException
 import com.google.android.gms.identitycredentials.CreateCredentialRequest
 import com.google.android.gms.identitycredentials.CreateCredentialResponse
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 
 /** A controller to handle the CreateCredential flow with play services. */
-@RequiresApi(Build.VERSION_CODES.M)
-internal class CreatePublicKeyCredentialController(private val context: Context) :
+internal class CreatePublicKeyCredentialController(context: Context) :
     CredentialProviderController<
         CreatePublicKeyCredentialRequest,
         CreateCredentialRequest,
@@ -62,6 +60,8 @@ internal class CreatePublicKeyCredentialController(private val context: Context)
         androidx.credentials.CreateCredentialResponse,
         CreateCredentialException,
     >(context) {
+
+    private val contextReference = WeakReference(context)
 
     /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting
@@ -82,22 +82,26 @@ internal class CreatePublicKeyCredentialController(private val context: Context)
     private val resultReceiver =
         object : ResultReceiver(Handler(Looper.getMainLooper())) {
             public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                val currentCallback = callback
                 if (
-                    maybeReportErrorFromResultReceiver(
+                    !maybeReportErrorFromResultReceiver(
                         resultData,
                         CredentialProviderBaseController.Companion::
                             createCredentialExceptionTypeToException,
                         executor = executor,
-                        callback = callback,
+                        callback = currentCallback,
                         cancellationSignal,
                     )
-                )
-                    return
-                handleResponse(
-                    resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
-                    resultCode,
-                    getParcelable(resultData, RESULT_DATA_TAG, Intent::class.java),
-                )
+                ) {
+                    handleResponse(
+                        resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
+                        resultCode,
+                        getParcelable(resultData, RESULT_DATA_TAG, Intent::class.java),
+                        currentCallback,
+                    )
+                }
+
+                callback = emptyCallback()
             }
         }
 
@@ -119,6 +123,7 @@ internal class CreatePublicKeyCredentialController(private val context: Context)
         }
 
         val convertedRequest = this.convertRequestToPlayServices(request)
+        val context = contextReference.get() ?: return
         IdentityCredentialManager.Companion.getClient(context)
             .createCredential(convertedRequest)
             .addOnSuccessListener {
@@ -182,7 +187,16 @@ internal class CreatePublicKeyCredentialController(private val context: Context)
             }
     }
 
-    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
+    internal fun handleResponse(
+        uniqueRequestCode: Int,
+        resultCode: Int,
+        data: Intent?,
+        callback:
+            CredentialManagerCallback<
+                androidx.credentials.CreateCredentialResponse,
+                CreateCredentialException,
+            >,
+    ) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             Log.w(
                 TAG,
@@ -195,7 +209,7 @@ internal class CreatePublicKeyCredentialController(private val context: Context)
             maybeReportErrorResultCodeCreate(
                 resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) },
-                { e -> this.executor.execute { this.callback.onError(e) } },
+                { e -> this.executor.execute { callback.onError(e) } },
                 cancellationSignal,
             )
         ) {
