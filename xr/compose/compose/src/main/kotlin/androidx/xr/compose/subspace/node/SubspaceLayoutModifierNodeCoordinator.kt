@@ -143,6 +143,8 @@ internal class SubspaceLayoutModifierNodeCoordinator(
      *   by its parent layout.
      */
     override fun measure(constraints: VolumeConstraints): SubspacePlaceable {
+        measurementConstraints = constraints
+
         with(layoutModifierNode) {
             val measurable: SubspaceMeasurable = child ?: layoutNode!!.measurableLayout
             val subspaceMeasureResult: SubspaceMeasureResult =

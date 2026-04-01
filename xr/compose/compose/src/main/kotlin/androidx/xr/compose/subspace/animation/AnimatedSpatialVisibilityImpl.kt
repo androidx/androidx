@@ -77,11 +77,7 @@ internal fun <T> AnimatedSpatialVisibilityImpl(
                     if (!visible(transition.targetState)) {
                         IntVolumeSize.Zero
                     } else {
-                        IntVolumeSize(
-                            placeable.measuredWidth,
-                            placeable.measuredHeight,
-                            placeable.measuredDepth,
-                        )
+                        IntVolumeSize(placeable.width, placeable.height, placeable.depth)
                     }
                 layout(size.width, size.height, size.depth) { placeable.place(Pose.Identity) }
             },
@@ -157,9 +153,9 @@ private class AnimatedSpatialEnterExitMeasurePolicy() : SubspaceMeasurePolicy {
         val placeables =
             measurables.fastMap {
                 it.measure(constraints).apply {
-                    maxWidth = max(maxWidth, measuredWidth)
-                    maxHeight = max(maxHeight, measuredHeight)
-                    maxDepth = max(maxDepth, measuredDepth)
+                    maxWidth = max(maxWidth, width)
+                    maxHeight = max(maxHeight, height)
+                    maxDepth = max(maxDepth, depth)
                 }
             }
         return layout(maxWidth, maxHeight, maxDepth) {
@@ -262,13 +258,8 @@ private fun Transition<EnterExitState>.slideAnimationModifier(
     return SubspaceModifier.layout { measurable, constraints ->
         val placeable = measurable.measure(constraints)
         // Size can only be determined in a custom layout modifier
-        fullSize =
-            IntVolumeSize(
-                placeable.measuredWidth,
-                placeable.measuredHeight,
-                placeable.measuredDepth,
-            )
-        layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        fullSize = IntVolumeSize(placeable.width, placeable.height, placeable.depth)
+        layout(placeable.width, placeable.height, placeable.depth) {
             placeable.place(
                 Pose(
                     // Place this layout at the offset calculated by our animation

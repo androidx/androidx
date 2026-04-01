@@ -233,11 +233,7 @@ private class RecommendedSizeNode :
         if (session == null) {
             val placeable = measurable.measure(constraints)
 
-            return layout(
-                placeable.measuredWidth,
-                placeable.measuredHeight,
-                placeable.measuredDepth,
-            ) {
+            return layout(placeable.width, placeable.height, placeable.depth) {
                 placeable.place(Pose())
             }
         }
@@ -280,7 +276,7 @@ private class RecommendedSizeNode :
 
         val placeable = measurable.measure(finalConstraints)
 
-        return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        return layout(placeable.width, placeable.height, placeable.depth) {
             placeable.place(Pose())
         }
     }
@@ -675,7 +671,7 @@ private class FillNode(public var direction: Direction, public var fraction: Flo
                 VolumeConstraints(minWidth, maxWidth, minHeight, maxHeight, minDepth, maxDepth)
             )
 
-        return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        return layout(placeable.width, placeable.height, placeable.depth) {
             placeable.place(Pose(translation = Vector3.Zero, rotation = Quaternion.Identity))
         }
     }
@@ -859,7 +855,7 @@ private class SizeNode(
             }
 
         val placeable = measurable.measure(wrappedConstraints)
-        return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        return layout(placeable.width, placeable.height, placeable.depth) {
             placeable.place(Pose())
         }
     }

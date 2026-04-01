@@ -195,9 +195,9 @@ private class SceneCoreEntityMeasurePolicy(private val originalSize: IntVolumeSi
             placeables[index] = placeable
             size =
                 IntVolumeSize(
-                    width = max(size.width, placeable.measuredWidth),
-                    height = max(size.height, placeable.measuredHeight),
-                    depth = max(size.depth, placeable.measuredDepth),
+                    width = max(size.width, placeable.width),
+                    height = max(size.height, placeable.height),
+                    depth = max(size.depth, placeable.depth),
                 )
         }
         val finalSize = size.coerceIn(constraints)

@@ -121,7 +121,7 @@ internal class RotationNode(public var quaternion: Quaternion) :
         constraints: VolumeConstraints,
     ): SubspaceMeasureResult {
         val placeable = measurable.measure(constraints)
-        return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        return layout(placeable.width, placeable.height, placeable.depth) {
             placeable.place(Pose(translation = Vector3.Zero, rotation = quaternion))
         }
     }
