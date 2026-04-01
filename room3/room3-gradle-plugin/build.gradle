@@ -78,6 +78,7 @@ tasks.withType(Test).configureEach { test ->
             ":room3:room3-compiler-processing:publish",
             ":room3:room3-external-antlr:publish",
             ":sqlite:sqlite:publish",
+            ":sqlite:sqlite-async:publish",
             ":sqlite:sqlite-framework:publish",
     )
 }
