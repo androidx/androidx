@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo
  *
  * This specifies how the index buffer maps vertices to geometric primitives.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MeshSubsetTopology private constructor(private val name: String) {
     public companion object {
         /** Every three indices form a separate triangle. */
@@ -48,7 +48,7 @@ public class MeshSubsetTopology private constructor(private val name: String) {
  *   buffer.
  * @param indexCount The number of indices to draw.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MeshSubset(
     public val topology: MeshSubsetTopology,
     public val indexOffset: Int,

@@ -1639,8 +1639,10 @@ public class ImpressApiImpl : ImpressApi {
         maxVertices: Int,
         maxIndices: Int,
         vertexData: Array<java.nio.ByteBuffer>?,
+        vertexDataOffsets: IntArray?,
         vertexDataSizes: IntArray?,
         indexData: java.nio.ByteBuffer?,
+        indexDataOffset: Int,
         indexDataSize: Int,
     ): MeshBuffer {
         val meshBufferHandle =
@@ -1652,8 +1654,10 @@ public class ImpressApiImpl : ImpressApi {
                 maxVertices,
                 maxIndices,
                 vertexData,
+                vertexDataOffsets,
                 vertexDataSizes,
                 indexData,
+                indexDataOffset,
                 indexDataSize,
             )
         return MeshBuffer.Builder()
@@ -2466,8 +2470,10 @@ public class ImpressApiImpl : ImpressApi {
         maxVertices: Int,
         maxIndices: Int,
         vertexData: Array<java.nio.ByteBuffer>?,
+        vertexDataOffsets: IntArray?,
         vertexDataSizes: IntArray?,
         indexData: java.nio.ByteBuffer?,
+        indexDataOffset: Int,
         indexDataSize: Int,
     ): Long
 

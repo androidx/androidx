@@ -28,7 +28,7 @@ import androidx.xr.scenecore.runtime.MeshEntity as RtMeshEntity
  * A `MeshEntity` renders a [CustomMesh] using a list of [Material]s. The number of materials must
  * match the number of subsets in the CustomMesh.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MeshEntity
 private constructor(
     rtEntity: RtMeshEntity,

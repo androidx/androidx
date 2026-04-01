@@ -29,7 +29,7 @@ import java.nio.ByteBuffer
  * contain the vertex data according to the provided [VertexLayout]. The index buffer contains the
  * indices of the vertices that form the primitives of the mesh.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MeshBuffer
 private constructor(
     private val resource: RtMeshBufferResource,
@@ -84,20 +84,19 @@ private constructor(
          *
          * @param session The session to use for creating the MeshBuffer.
          * @param vertexLayout The layout of the vertices in the vertex buffer(s).
-         * @param vertexData The vertex data arrays, one for each buffer index used in the layout.
-         * @param vertexDataSizes The sizes of the vertex data arrays in bytes.
-         * @param indexData The index data.
-         * @param indexDataSize The size of the index data in bytes.
+         * @param vertexData The vertex data regions, one for each buffer index used in the layout.
+         *   The data is copied and the original data in the ByteBuffer can be released or modified
+         *   without affecting the [MeshBuffer].
+         * @param indexData The index data region. The data is copied and the original data in the
+         *   ByteBuffer can be released or modified without affecting the [MeshBuffer].
          * @return A new [MeshBuffer].
          */
         @MainThread
         public fun create(
             session: Session,
             vertexLayout: VertexLayout,
-            vertexData: Array<ByteBuffer>,
-            vertexDataSizes: IntArray,
-            indexData: ByteBuffer,
-            indexDataSize: Int,
+            vertexData: Array<ByteBufferRegion>,
+            indexData: ByteBufferRegion,
         ): MeshBuffer {
             val runtime = session.renderingRuntime
 
@@ -112,6 +111,10 @@ private constructor(
                 bufferIndices[i] = attr.bufferIndex.toByte()
             }
 
+            val vertexBuffers = Array<ByteBuffer>(vertexData.size) { vertexData[it].buffer }
+            val vertexDataOffsets = IntArray(vertexData.size) { vertexData[it].offset }
+            val vertexDataSizes = IntArray(vertexData.size) { vertexData[it].size }
+
             val resource =
                 runtime.createMeshBuffer(
                     attributeIds,
@@ -119,10 +122,12 @@ private constructor(
                     bufferIndices,
                     0,
                     0,
-                    vertexData,
+                    vertexBuffers,
+                    vertexDataOffsets,
                     vertexDataSizes,
-                    indexData,
-                    indexDataSize,
+                    indexData.buffer,
+                    indexData.offset,
+                    indexData.size,
                 )
 
             return MeshBuffer(resource, vertexLayout, session)

@@ -706,8 +706,10 @@ private constructor(
         maxVertices: Int,
         maxIndices: Int,
         vertexData: Array<java.nio.ByteBuffer>?,
+        vertexDataOffsets: IntArray?,
         vertexDataSizes: IntArray?,
         indexData: java.nio.ByteBuffer?,
+        indexDataOffset: Int,
         indexDataSize: Int,
     ): MeshBufferResource {
         return impressApi.createMeshBuffer(
@@ -717,8 +719,10 @@ private constructor(
             maxVertices,
             maxIndices,
             vertexData,
+            vertexDataOffsets,
             vertexDataSizes,
             indexData,
+            indexDataOffset,
             indexDataSize,
         )
     }

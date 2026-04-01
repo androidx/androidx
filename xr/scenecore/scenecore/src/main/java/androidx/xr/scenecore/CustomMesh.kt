@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.scenecore.runtime.CustomMeshResource as RtCustomMeshResource
-import java.nio.ByteBuffer
 
 /**
  * An immutable resource that defines the structure of a renderable mesh.
@@ -29,7 +28,7 @@ import java.nio.ByteBuffer
  * A `CustomMesh` is composed of a [MeshBuffer] and a list of [MeshSubset]s. Each `MeshSubset`
  * defines a part of the mesh that can be rendered with a single [Material].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CustomMesh
 private constructor(
     private val resource: RtCustomMeshResource,
@@ -128,10 +127,11 @@ private constructor(
          *
          * @param session The session to use for creating the CustomMesh.
          * @param vertexLayout The layout of the vertices in the vertex buffer(s).
-         * @param vertexData The vertex data arrays, one for each buffer index used in the layout.
-         * @param vertexDataSizes The sizes of the vertex data arrays in bytes.
-         * @param indexData The index data.
-         * @param indexDataSize The size of the index data in bytes.
+         * @param vertexData The vertex data regions, one for each buffer index used in the layout.
+         *   The data is copied, so the original ByteBuffers can be modified or released without
+         *   affecting the [MeshBuffer].
+         * @param indexData The index data region. The data is copied, so the original ByteBuffer
+         *   can be modified or released without affecting the [MeshBuffer].
          * @param subsets The list of [MeshSubset]s defining the parts of the mesh.
          * @param boundingBox Optional user-supplied bounding box for culling. If not provided, the
          *   auto-computed bounding box of the entire [MeshBuffer] will be used.
@@ -141,22 +141,12 @@ private constructor(
         public fun create(
             session: Session,
             vertexLayout: VertexLayout,
-            vertexData: Array<ByteBuffer>,
-            vertexDataSizes: IntArray,
-            indexData: ByteBuffer,
-            indexDataSize: Int,
+            vertexData: Array<ByteBufferRegion>,
+            indexData: ByteBufferRegion,
             subsets: List<MeshSubset>,
             boundingBox: BoundingBox? = null,
         ): CustomMesh {
-            val meshBuffer =
-                MeshBuffer.create(
-                    session,
-                    vertexLayout,
-                    vertexData,
-                    vertexDataSizes,
-                    indexData,
-                    indexDataSize,
-                )
+            val meshBuffer = MeshBuffer.create(session, vertexLayout, vertexData, indexData)
             return create(session, meshBuffer, subsets, boundingBox)
         }
 
@@ -165,10 +155,11 @@ private constructor(
          *
          * @param session The session to use for creating the CustomMesh.
          * @param vertexLayout The layout of the vertices in the vertex buffer(s).
-         * @param vertexData The vertex data arrays, one for each buffer index used in the layout.
-         * @param vertexDataSizes The sizes of the vertex data arrays in bytes.
-         * @param indexData The index data.
-         * @param indexDataSize The size of the index data in bytes.
+         * @param vertexData The vertex data regions, one for each buffer index used in the layout.
+         *   The data is copied, so the original ByteBuffers can be modified or released without
+         *   affecting the [MeshBuffer].
+         * @param indexData The index data region. The data is copied, so the original ByteBuffer
+         *   can be modified or released without affecting the [MeshBuffer].
          * @param topology The [MeshSubsetTopology] of the primitives to draw.
          * @param boundingBox Optional user-supplied bounding box for culling. If not provided, the
          *   auto-computed bounding box of the entire [MeshBuffer] will be used.
@@ -178,25 +169,14 @@ private constructor(
         public fun create(
             session: Session,
             vertexLayout: VertexLayout,
-            vertexData: Array<ByteBuffer>,
-            vertexDataSizes: IntArray,
-            indexData: ByteBuffer,
-            indexDataSize: Int,
+            vertexData: Array<ByteBufferRegion>,
+            indexData: ByteBufferRegion,
             topology: MeshSubsetTopology,
             boundingBox: BoundingBox? = null,
         ): CustomMesh {
-            val indexCount = indexDataSize / BYTES_PER_INDEX
+            val indexCount = indexData.size / BYTES_PER_INDEX
             val subsets = listOf(MeshSubset(topology, 0, indexCount))
-            return create(
-                session,
-                vertexLayout,
-                vertexData,
-                vertexDataSizes,
-                indexData,
-                indexDataSize,
-                subsets,
-                boundingBox,
-            )
+            return create(session, vertexLayout, vertexData, indexData, subsets, boundingBox)
         }
     }
 }

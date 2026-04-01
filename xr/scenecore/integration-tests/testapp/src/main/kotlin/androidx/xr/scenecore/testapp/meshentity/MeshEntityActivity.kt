@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testapp.meshentity
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -44,6 +45,7 @@ import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AlphaMode
+import androidx.xr.scenecore.ByteBufferRegion
 import androidx.xr.scenecore.CustomMesh
 import androidx.xr.scenecore.KhronosPbrMaterial
 import androidx.xr.scenecore.MeshBuffer
@@ -63,6 +65,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@SuppressLint("RestrictedApiAndroidX")
 class MeshEntityActivity : ComponentActivity() {
     private var session: Session? = null
     private var material: KhronosPbrMaterial? = null
@@ -312,23 +315,21 @@ class MeshEntityActivity : ComponentActivity() {
 
     private fun createTest1_Cube(currentSession: Session, vertexLayout: VertexLayout, stride: Int) {
         val vertexCount = 24
-        val vertexBuffer =
-            ByteBuffer.allocateDirect(vertexCount * stride).order(ByteOrder.nativeOrder())
-        putCubeVertices(vertexBuffer, 0f, 0f, 0f, 0.3f)
-        vertexBuffer.position(0)
+        val vertexSize = vertexCount * stride
+        val indexSize = 36 * 4
 
-        val indexBuffer = ByteBuffer.allocateDirect(36 * 4).order(ByteOrder.nativeOrder())
-        putCubeIndices(indexBuffer, 0)
-        indexBuffer.position(0)
+        val sharedBuffer =
+            ByteBuffer.allocateDirect(vertexSize + indexSize).order(ByteOrder.nativeOrder())
+
+        putCubeVertices(sharedBuffer, 0f, 0f, 0f, 0.3f)
+        putCubeIndices(sharedBuffer, 0)
 
         val cubeMesh =
             CustomMesh.create(
                 currentSession,
                 vertexLayout,
-                arrayOf(vertexBuffer),
-                intArrayOf(vertexCount * stride),
-                indexBuffer,
-                36 * 4,
+                arrayOf(ByteBufferRegion(sharedBuffer, 0, vertexSize)),
+                ByteBufferRegion(sharedBuffer, vertexSize, indexSize),
                 MeshSubsetTopology.TRIANGLES,
             )
         cubeEntity =
@@ -357,21 +358,17 @@ class MeshEntityActivity : ComponentActivity() {
             ByteBuffer.allocateDirect(vertexCount * stride).order(ByteOrder.nativeOrder())
         putCubeVertices(vertexBuffer, 0f, -0.2f, 0f, 0.3f, colorSchemeIndex = 0)
         putCubeVertices(vertexBuffer, 0f, 0.2f, 0f, 0.3f, colorSchemeIndex = 1)
-        vertexBuffer.position(0)
 
         val indexBuffer = ByteBuffer.allocateDirect(72 * 4).order(ByteOrder.nativeOrder())
         putCubeIndices(indexBuffer, 0)
         putCubeIndices(indexBuffer, 24)
-        indexBuffer.position(0)
 
         val twoSubsetsMesh =
             CustomMesh.create(
                 currentSession,
                 vertexLayout,
-                arrayOf(vertexBuffer),
-                intArrayOf(vertexCount * stride),
-                indexBuffer,
-                72 * 4,
+                arrayOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
+                ByteBufferRegion(indexBuffer, 0, 72 * 4),
                 listOf(
                     MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36),
                     MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36),
@@ -401,21 +398,17 @@ class MeshEntityActivity : ComponentActivity() {
             ByteBuffer.allocateDirect(vertexCount * stride).order(ByteOrder.nativeOrder())
         putCubeVertices(vertexBuffer, 0f, -0.2f, 0f, 0.3f, colorSchemeIndex = 0)
         putCubeVertices(vertexBuffer, 0f, 0.2f, 0f, 0.3f, colorSchemeIndex = 1)
-        vertexBuffer.position(0)
 
         val indexBuffer = ByteBuffer.allocateDirect(72 * 4).order(ByteOrder.nativeOrder())
         putCubeIndices(indexBuffer, 0)
         putCubeIndices(indexBuffer, 24)
-        indexBuffer.position(0)
 
         val meshBuffer =
             MeshBuffer.create(
                 currentSession,
                 vertexLayout,
-                arrayOf(vertexBuffer),
-                intArrayOf(vertexCount * stride),
-                indexBuffer,
-                72 * 4,
+                arrayOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
+                ByteBufferRegion(indexBuffer, 0, 72 * 4),
             )
 
         val bottomCubeMesh =
@@ -460,22 +453,18 @@ class MeshEntityActivity : ComponentActivity() {
         val vertexBuffer =
             ByteBuffer.allocateDirect(vertexCount * stride).order(ByteOrder.nativeOrder())
         putCubeVertices(vertexBuffer, 0f, 0f, 0f, 0.3f, colorSchemeIndex = 0)
-        vertexBuffer.position(0)
 
         val stripIndexCount = 28
         val indexBuffer =
             ByteBuffer.allocateDirect(stripIndexCount * 4).order(ByteOrder.nativeOrder())
         putCubeIndicesStrip(indexBuffer, 0)
-        indexBuffer.position(0)
 
         val cubeMesh =
             CustomMesh.create(
                 currentSession,
                 vertexLayout,
-                arrayOf(vertexBuffer),
-                intArrayOf(vertexCount * stride),
-                indexBuffer,
-                stripIndexCount * 4,
+                arrayOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
+                ByteBufferRegion(indexBuffer, 0, stripIndexCount * 4),
                 MeshSubsetTopology.TRIANGLE_STRIP,
             )
         triangleStripEntity =
@@ -545,21 +534,17 @@ class MeshEntityActivity : ComponentActivity() {
             ByteBuffer.allocateDirect(vertexCount * stride).order(ByteOrder.nativeOrder())
         putCubeVertices(vertexBuffer, 0f, -0.2f, 0f, 0.3f, colorSchemeIndex = 0)
         putCubeVertices(vertexBuffer, 0f, 0.2f, 0f, 0.3f, colorSchemeIndex = 0)
-        vertexBuffer.position(0)
 
         val indexBuffer = ByteBuffer.allocateDirect(72 * 4).order(ByteOrder.nativeOrder())
         putCubeIndices(indexBuffer, 0)
         putCubeIndices(indexBuffer, 24)
-        indexBuffer.position(0)
 
         val cubeMesh =
             CustomMesh.create(
                 currentSession,
                 vertexLayout,
-                arrayOf(vertexBuffer),
-                intArrayOf(vertexCount * stride),
-                indexBuffer,
-                72 * 4,
+                arrayOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
+                ByteBufferRegion(indexBuffer, 0, 72 * 4),
                 listOf(
                     MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36),
                     MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36),

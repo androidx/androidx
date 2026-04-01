@@ -317,6 +317,8 @@ class SpatialRenderingRuntimeTest {
                 null,
                 null,
                 null,
+                null,
+                0,
                 0,
             )
         assertThat(meshBuffer).isNotNull()
@@ -336,6 +338,8 @@ class SpatialRenderingRuntimeTest {
                 null,
                 null,
                 null,
+                null,
+                0,
                 0,
             )
         renderingRuntime.destroyMeshBuffer(meshBuffer)
@@ -354,6 +358,8 @@ class SpatialRenderingRuntimeTest {
                 null,
                 null,
                 null,
+                null,
+                0,
                 0,
             )
         val customMesh =
@@ -386,6 +392,8 @@ class SpatialRenderingRuntimeTest {
                 null,
                 null,
                 null,
+                null,
+                0,
                 0,
             )
         val customMesh =
