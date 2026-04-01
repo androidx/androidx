@@ -20,20 +20,33 @@ import androidx.build.ProjectLayoutType
 import androidx.build.getSdkPath
 import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
+import androidx.build.studio.StudioTask.Companion.platformSpecificEnvironmentProperties
+import androidx.build.studio.StudioTask.Companion.setupSymlinksIfNeeded
 import androidx.build.studio.StudioTask.Companion.validateEnvironment
+import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import javax.inject.Inject
+import kotlin.collections.plus
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 import org.gradle.process.ExecOperations
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "the purpose of this task is to launch IntelliJ")
 abstract class IntelliJTask : DefaultTask() {
+
+    @get:Input
+    @get:Option(option = "acceptTos", description = "Accept IntelliJ IDEA Terms of Service")
+    @get:Optional
+    abstract val acceptTos: Property<Boolean>
 
     @get:Internal protected open val installParentDir: File = project.rootDir
     @get:Internal protected val projectRoot: File = project.rootDir
@@ -41,6 +54,10 @@ abstract class IntelliJTask : DefaultTask() {
 
     /** The idea.properties file that we want to tell IntelliJ to use */
     @get:Internal protected abstract val ideaProperties: File
+
+    /** The idea.vmoptions file that we want to start IntelliJ with */
+    @get:Internal
+    open val vmOptions = File(project.getSupportRootFolder(), "development/intellij/idea.vmoptions")
 
     private val intelliJVersion by lazy { project.getVersionByName("intelliJVersion") }
 
@@ -90,6 +107,7 @@ abstract class IntelliJTask : DefaultTask() {
         validateEnvironment("IntelliJ")
         install()
         writeAndroidSdkPath()
+        launch()
     }
 
     private val platformUtilities by lazy {
@@ -114,6 +132,83 @@ abstract class IntelliJTask : DefaultTask() {
             extractIntelliJArchive()
             // Finish install process
             successfulInstallFile.createNewFile()
+        }
+    }
+
+    /** Launches IntelliJ. */
+    private fun launch() {
+        if (checkLicenseAgreement(services)) {
+            // This seems like as good a time as any to set up SDK symlinks...
+            setupSymlinksIfNeeded(localSdkPath)
+
+            println("Launching intellij...")
+            launchIntelliJ()
+        }
+    }
+
+    private fun checkLicenseAgreement(
+        // This is needed to access UserInputHandler
+        @Suppress("InternalGradleApiUsage") services: org.gradle.internal.service.ServiceRegistry
+    ): Boolean {
+        if (!licenseAcceptedFile.exists()) {
+            // Open GitHub issue to make a public Gradle API for prompting the user:
+            // https://github.com/gradle/gradle/issues/28216
+            @Suppress("InternalGradleApiUsage")
+            val userInput =
+                services.get(org.gradle.api.internal.tasks.userinput.UserInputHandler::class.java)
+
+            if (!acceptTos.isPresent) {
+                val acceptAgreement =
+                    @Suppress("InternalGradleApiUsage")
+                    userInput.askYesNoQuestion(
+                        "Do you accept the license agreement at https://www.jetbrains.com/legal/docs/toolbox/user/"
+                    )
+                if (acceptAgreement == null || !acceptAgreement) {
+                    return false
+                }
+            }
+            licenseAcceptedFile.createNewFile()
+        }
+        return true
+    }
+
+    private fun launchIntelliJ() {
+        check(ideaProperties.exists()) {
+            "Invalid IntelliJ properties file location: ${ideaProperties.canonicalPath}"
+        }
+        check(vmOptions.exists()) {
+            "Invalid IntelliJ IDEA vm options file location: ${vmOptions.canonicalPath}"
+        }
+        val pid = with(platformUtilities) { findProcess() }
+        check(pid == null) { "Found managed instance of IntelliJ already running as PID $pid" }
+        val logFile = File(System.getProperty("user.home"), ".AndroidXIntelliJLog")
+        ProcessBuilder().apply {
+            // Can't just use inheritIO due to https://github.com/gradle/gradle/issues/16719
+            // Also can't use waitFor because it causes IntelliJ to get stuck: b/241386076
+            // So, we save this output in a file and display the path to the user
+            redirectOutput(logFile)
+            redirectError(logFile)
+            with(platformUtilities) { command(launchCommandArguments) }
+
+            val additionalIntelliJEnvironmentProperties =
+                mapOf(
+                    // These environment variables are used to set up AndroidX's default
+                    // configuration.
+                    "IDEA_PROPERTIES" to ideaProperties.canonicalPath,
+                    "IDEA_VM_OPTIONS" to vmOptions.canonicalPath,
+                    // This environment variable prevents IntelliJ from showing IDE inspection
+                    // warnings for nullability issues, if the context is deprecated. This
+                    // environment variable is consumed by InteroperabilityDetector.kt
+                    "ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED" to "true",
+                    // This environment variable is read by AndroidXRootImplPlugin to ensure that
+                    // IntelliJ-initiated Gradle tasks are run against the same version of AGP that
+                    // was used to start IntelliJ, which prevents version mismatch after repo sync.
+                    "EXPECTED_AGP_VERSION" to ANDROID_GRADLE_PLUGIN_VERSION,
+                ) + platformSpecificEnvironmentProperties()
+
+            // Append to the existing environment variables set by gradlew and the user.
+            environment().putAll(additionalIntelliJEnvironmentProperties)
+            start()
         }
     }
 
