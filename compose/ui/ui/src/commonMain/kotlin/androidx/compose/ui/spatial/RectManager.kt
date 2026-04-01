@@ -273,7 +273,6 @@ internal class RectManager(
                     val index = layoutNode.indexInRectList()
                     if (parent != null) {
                         rects.moveBasedOnParentOffset(
-                            id = layoutNode.semanticsId,
                             index = index,
                             parentIndex = parent.indexInRectList(),
                             offsetFromParentX = offsetFromParent.x,
@@ -283,7 +282,6 @@ internal class RectManager(
                         )
                     } else {
                         rects.moveAt(
-                            id = layoutNode.semanticsId,
                             index = layoutNode.indexInRectList(),
                             l = offsetFromParent.x,
                             t = offsetFromParent.y,

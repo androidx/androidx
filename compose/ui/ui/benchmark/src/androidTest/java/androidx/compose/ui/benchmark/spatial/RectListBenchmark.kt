@@ -164,7 +164,14 @@ class RectListBenchmark {
                 val x = r.nextInt(-100, 100)
                 val y = r.nextInt(-100, 100)
                 val index = qt.indexOf(it.id, it.lastIndex)
-                qt.updateSubhierarchy(it.id, index, x, y)
+                val rect = it.bounds
+                qt.moveAt(
+                    index,
+                    max(rect[0] + x, 0),
+                    max(rect[1] + y, 0),
+                    max(rect[2] + x, 0),
+                    max(rect[3] + y, 0),
+                )
             }
         }
     }
