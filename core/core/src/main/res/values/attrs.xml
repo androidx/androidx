@@ -210,4 +210,9 @@
              shortcut id and not an arbitrary string. -->
         <attr name="shortcutMatchRequired" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="NestedScrollView">
+        <!-- Defines whether the NestedScrollView should consume scroll-to-top events or not. -->
+        <attr name="isScrollToTopEnabled" format="boolean" />
+    </declare-styleable>
 </resources>
