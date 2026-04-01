@@ -16,9 +16,6 @@
 
 package androidx.core.app;
 
-import static androidx.core.app.AndroidAppFlags.FLAG_API_METRIC_STYLE;
-import static androidx.core.app.AndroidAppFlags.FLAG_API_NOTIFICATION_ACTION_CUSTOM;
-import static androidx.core.app.AndroidAppFlags.PACKAGE;
 import static androidx.core.app.NotificationCompat.Action.EMPHASIS_AUTO;
 import static androidx.core.app.NotificationCompat.Action.STYLE_AUTO;
 import static androidx.core.app.NotificationCompat.DEFAULT_ALL;
@@ -43,7 +40,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -77,7 +73,6 @@ import androidx.core.app.NotificationCompat.Style;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
-import androidx.core.flagging.Flags;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.BundleCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -3388,12 +3383,10 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 36) // TODO: b/469030926 - min = 37 and remove flag check.
+    @SdkSuppress(minSdkVersion = 37)
     public void action_emphasisAndStyle_toAndFromNotification() {
         // Sadly we don't have the same back-compatibility for actions that we do for styles,
         // so we lose action properties not present in the device's platform.
-        assumeTrue(Flags.getBooleanFlagValue(PACKAGE, FLAG_API_NOTIFICATION_ACTION_CUSTOM));
-
         NotificationCompat.Action action =
                 newActionBuilder()
                         .setEmphasisHint(NotificationCompat.Action.EMPHASIS_PRIMARY)
@@ -4188,9 +4181,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 36) // TODO: b/469030926 - min = 37 and remove flag check
+    @SdkSuppress(minSdkVersion = 37)
     public void metricStyle_recoverPlatformFromCompat() {
-        assumeTrue(Flags.getBooleanFlagValue(PACKAGE, FLAG_API_NOTIFICATION_ACTION_CUSTOM));
 
         Style originalCompat = sampleCompatMetricStyle();
         Notification n = newNotificationBuilder().setStyle(originalCompat).build();
@@ -4202,9 +4194,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 36) // TODO: b/469030926 - min = 37 and remove flag check
+    @SdkSuppress(minSdkVersion = 37)
     public void metricStyle_recoverCompatFromPlatform() {
-        assumeTrue(Flags.getBooleanFlagValue(PACKAGE, FLAG_API_NOTIFICATION_ACTION_CUSTOM));
 
         Notification.Style originalPlatform = samplePlatformMetricStyle();
         Notification n = new Notification.Builder(mContext, "channel")
@@ -4218,7 +4209,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @SuppressLint("NewApi")
     private static Notification.Style samplePlatformMetricStyle() {
-        if (!Flags.getBooleanFlagValue(PACKAGE, FLAG_API_METRIC_STYLE)) {
+        if (Build.VERSION.SDK_INT < 37) {
             throw new IllegalStateException("Cannot construct platform MetricStyle on this device");
         }
 
