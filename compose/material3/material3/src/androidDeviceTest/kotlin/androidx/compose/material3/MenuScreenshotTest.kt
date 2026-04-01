@@ -330,10 +330,6 @@ class MenuScreenshotTest {
                 DropdownMenuGroup(
                     shapes = MenuDefaults.groupShapes(shape = MenuDefaults.trailingGroupShape)
                 ) {
-                    MenuDefaults.Label { Text("Group Label") }
-                    HorizontalDivider(
-                        modifier = Modifier.padding(MenuDefaults.HorizontalDividerPadding)
-                    )
                     DropdownMenuItem(
                         shapes = MenuDefaults.itemShapes(shape = MenuDefaults.leadingItemShape),
                         text = { Text("Home") },
