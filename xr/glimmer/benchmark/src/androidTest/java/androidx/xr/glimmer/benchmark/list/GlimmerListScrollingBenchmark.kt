@@ -131,6 +131,8 @@ internal abstract class ScrollableGlimmerListTestCase(val listState: ListState) 
         val scrollBy = 75.dp
         scrollDistance = with(LocalDensity.current) { scrollBy.toPx() }
         expectedFocusedItemIndex = (scrollBy / (ItemHeight + SpacedBy)).toInt()
+        // id replaced with threadId, which is only available from API 36+
+        @Suppress("DEPRECATION")
         mainThreadId = LocalView.current.handler.looper.thread.id
         Box(Modifier.fillMaxSize()) { MeasuredContent() }
     }
@@ -156,6 +158,8 @@ internal abstract class ScrollableGlimmerListTestCase(val listState: ListState) 
     }
 
     protected fun assertMainThread() {
+        // id replaced with threadId, which is only available from API 36+
+        @Suppress("DEPRECATION")
         assertEquals(
             "Test case methods are expected to be called from the main thread.",
             mainThreadId,

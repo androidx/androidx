@@ -4407,13 +4407,16 @@ class SharedTransitionTest {
         }
         scope!!.testBlockToRun = {
             // Check that the test block is never ran on the custom thread
-            assertNotEquals(threadId, Thread.currentThread().id)
+            // id replaced with threadId, which is only available from API 36+
+            @Suppress("DEPRECATION") assertNotEquals(threadId, Thread.currentThread().id)
             testBlockInvocationCount++
         }
         rule.waitForIdle()
         val thread =
             @SuppressLint("BanThreadSleep")
             thread(start = true) {
+                // id replaced with threadId, which is only available from API 36+
+                @Suppress("DEPRECATION")
                 threadId = Thread.currentThread().id
                 repeat(100) {
                     Snapshot.withMutableSnapshot { isEnabled = !isEnabled }
