@@ -33,7 +33,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
     description = "Contains the LiveData DAO return type converter for Room."
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
 android {

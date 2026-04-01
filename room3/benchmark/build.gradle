@@ -58,7 +58,6 @@ android {
 
 androidx {
     type = SoftwareType.BENCHMARK
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
 // TODO(b/430983364): Workaround KSP incremental issues

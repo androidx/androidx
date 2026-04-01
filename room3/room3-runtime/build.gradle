@@ -205,7 +205,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Room-Runtime"
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
 // TODO(b/430983364): Workaround KSP incremental issue

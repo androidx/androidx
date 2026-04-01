@@ -42,7 +42,6 @@ dependencies {
 androidx {
     name = "WorkManager RxJava3"
     type = SoftwareType.PUBLISHED_LIBRARY
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2020"
     description = "Android WorkManager RxJava3 interoperatibility library"
 }

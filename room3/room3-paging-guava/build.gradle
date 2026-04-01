@@ -57,7 +57,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Guava integration in Room Paging"
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
 android {
