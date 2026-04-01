@@ -233,6 +233,7 @@ import kotlinx.coroutines.launch
  *   examples are shown in the code samples.
  * @see [androidx.wear.compose.foundation.SwipeToReveal]
  */
+@OptIn(ExperimentalWearComposeMaterial3Api::class)
 @Composable
 public fun SwipeToReveal(
     primaryAction: @Composable SwipeToRevealScope.() -> Unit,
@@ -305,6 +306,12 @@ public fun SwipeToReveal(
             }
         }
 
+    val revealedRatio: Float =
+        if (secondaryAction == null || anchorWidthPx / screenWidthPx == 1f) 0.5f
+        else
+            ((0.75f - anchorWidthPx / screenWidthPx) / (1f - anchorWidthPx / screenWidthPx))
+                .coerceAtLeast(0f)
+
     CustomTouchSlopProvider(
         newTouchSlop = LocalViewConfiguration.current.touchSlop * CustomTouchSlopMultiplier
     ) {
@@ -339,7 +346,17 @@ public fun SwipeToReveal(
                             anchoredDraggableFlingBehavior(
                                 state = revealState.anchoredDraggableState,
                                 snapAnimationSpec = AnchoredDraggableDefaults.SnapAnimationSpec,
-                                positionalThreshold = AnchoredDraggableDefaults.PositionalThreshold,
+                                positionalThreshold = { distance, isCompleting ->
+                                    if (
+                                        isCompleting &&
+                                            WearComposeMaterial3Flags
+                                                .isSwipeToRevealDualFlingThresholdEnabled
+                                    ) {
+                                        distance * revealedRatio
+                                    } else {
+                                        AnchoredDraggableDefaults.PositionalThreshold(distance)
+                                    }
+                                },
                                 density = LocalDensity.current,
                             ),
                     )
@@ -355,13 +372,26 @@ public fun SwipeToReveal(
                                         if (secondaryAction == null && !hasPartiallyRevealedState) {
                                             null
                                         } else {
+                                            val revealingAnchorPx =
+                                                (anchorWidthPx / screenWidthPx) * width
                                             val result =
-                                                (anchorWidthPx / screenWidthPx) *
-                                                    width *
+                                                revealingAnchorPx *
                                                     anchorSideMultiplier(anchor, direction)
 
                                             if (anchor == RightRevealing) {
-                                                revealState.revealThreshold = abs(result)
+                                                revealState.revealThreshold =
+                                                    if (
+                                                        WearComposeMaterial3Flags
+                                                            .isSwipeToRevealDualFlingThresholdEnabled
+                                                    ) {
+                                                        revealingAnchorPx +
+                                                            abs(
+                                                                revealedRatio *
+                                                                    (width - revealingAnchorPx)
+                                                            )
+                                                    } else {
+                                                        abs(result)
+                                                    }
                                             }
 
                                             result
@@ -529,6 +559,7 @@ public fun SwipeToReveal(
                                     label = "RevealedContentAlpha",
                                 )
                             var revealedContentHeight by remember { mutableIntStateOf(0) }
+
                             Row(
                                 modifier =
                                     Modifier.graphicsLayer { alpha = revealedContentAlpha.value }
@@ -1430,7 +1461,7 @@ private fun anchorSideMultiplier(anchor: RevealValue, direction: Int) =
 private fun <T> anchoredDraggableFlingBehavior(
     state: AnchoredDraggableState<T>,
     density: Density,
-    positionalThreshold: (totalDistance: Float) -> Float,
+    positionalThreshold: (totalDistance: Float, isCompleting: Boolean) -> Float,
     snapAnimationSpec: AnimationSpec<Float>,
 ): TargetedFlingBehavior =
     snapFlingBehavior(
@@ -1470,7 +1501,7 @@ private val NoOpDecayAnimationSpec: DecayAnimationSpec<Float> =
 /** Exact copy from [androidx.compose.foundation.gestures.AnchoredDraggableLayoutInfoProvider]. */
 private fun <T> anchoredDraggableLayoutInfoProvider(
     state: AnchoredDraggableState<T>,
-    positionalThreshold: (totalDistance: Float) -> Float,
+    positionalThreshold: (totalDistance: Float, isCompleting: Boolean) -> Float,
     velocityThreshold: (threshold: Dp) -> Float,
 ): SnapLayoutInfoProvider =
     object : SnapLayoutInfoProvider {
@@ -1496,7 +1527,7 @@ private fun <T> anchoredDraggableLayoutInfoProvider(
 private fun <T> DraggableAnchors<T>.computeTarget(
     currentOffset: Float,
     velocity: Float,
-    positionalThreshold: (totalDistance: Float) -> Float,
+    positionalThreshold: (totalDistance: Float, isCompleting: Boolean) -> Float,
     velocityThreshold: (threshold: Dp) -> Float,
 ): T {
     val currentAnchors = this
@@ -1527,7 +1558,10 @@ private fun <T> DraggableAnchors<T>.computeTarget(
         val right = currentAnchors.closestAnchor(currentOffset, true)!!
         val rightAnchorPosition = currentAnchors.positionOf(right)
         val distance = abs(leftAnchorPosition - rightAnchorPosition)
-        val relativeThreshold = abs(positionalThreshold(distance))
+        val isCompleting =
+            (velocity > 0 && left == LeftRevealing) || (velocity < 0 && right == RightRevealing)
+        val relativeThreshold = abs(positionalThreshold(distance, isCompleting))
+
         val closestAnchorFromStart =
             if (isMovingForward) leftAnchorPosition else rightAnchorPosition
         val relativePosition = abs(closestAnchorFromStart - currentOffset)
