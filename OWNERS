@@ -1,5 +1,4 @@
 adamp@google.com
-alanv@google.com
 asfalcone@google.com
 aurimas@google.com
 ccraik@google.com
@@ -19,11 +18,11 @@ sindhujasubr@google.com
 
 # docs
 per-file docs-tip-of-tree/build.gradle = set noparent
-per-file docs-tip-of-tree/build.gradle = asfalcone@google.com, juliamcclellan@google.com, aurimas@google.com, alanv@google.com, omarismail@google.com
+per-file docs-tip-of-tree/build.gradle = asfalcone@google.com, juliamcclellan@google.com, aurimas@google.com, omarismail@google.com
 
 # settings.gradle
 per-file *settings.gradle = set noparent
-per-file *settings.gradle = alanv@google.com, aurimas@google.com, omarismail@google.com
+per-file *settings.gradle = aurimas@google.com, omarismail@google.com
 # Core-Telecom
 per-file *libraryversions.toml = breadley@google.com, tgunn@google.com, tjstuart@google.com
 # Wear
