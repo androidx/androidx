@@ -23,7 +23,6 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.IBinder
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.Config
@@ -55,8 +54,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @property config the current [Config] of the session
  */
 @Suppress("NotCloseable")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ProjectedManager
+internal class ProjectedManager
 internal constructor(
     private val context: Context,
     internal val perceptionManager: ProjectedPerceptionManager,

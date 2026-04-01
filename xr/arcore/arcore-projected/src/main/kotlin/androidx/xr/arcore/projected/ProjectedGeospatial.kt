@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.projected
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
@@ -41,10 +40,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * @property state the [Geospatial.State] of the geospatial instance
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ProjectedGeospatial internal constructor(private val xrResources: XrResources) :
+internal class ProjectedGeospatial internal constructor(private val xrResources: XrResources) :
     Geospatial {
-    public override var state: Geospatial.State = Geospatial.State.NOT_RUNNING
+    override var state: Geospatial.State = Geospatial.State.NOT_RUNNING
         internal set
 
     private val service: IProjectedPerceptionService
@@ -59,7 +57,7 @@ public class ProjectedGeospatial internal constructor(private val xrResources: X
         }
     }
 
-    override public fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
+    override fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
         checkTrackingState()
         val projectedQuaternion =
             ProjectedQuarternion().apply {
@@ -86,7 +84,7 @@ public class ProjectedGeospatial internal constructor(private val xrResources: X
         )
     }
 
-    override public fun createGeospatialPoseFromPose(pose: Pose): Geospatial.GeospatialPoseResult {
+    override fun createGeospatialPoseFromPose(pose: Pose): Geospatial.GeospatialPoseResult {
         checkTrackingState()
         val projectedVector =
             ProjectedVector3().apply {
@@ -145,7 +143,7 @@ public class ProjectedGeospatial internal constructor(private val xrResources: X
         )
     }
 
-    override public fun createAnchor(
+    override fun createAnchor(
         latitude: Double,
         longitude: Double,
         altitude: Double,
@@ -154,7 +152,7 @@ public class ProjectedGeospatial internal constructor(private val xrResources: X
         throw NotImplementedError("Not implemented yet.")
     }
 
-    override public suspend fun createAnchorOnSurface(
+    override suspend fun createAnchorOnSurface(
         latitude: Double,
         longitude: Double,
         altitudeAboveSurface: Double,

@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore.testing
 
+import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Face as RuntimeFace
 import androidx.xr.arcore.runtime.Mesh
 import androidx.xr.arcore.runtime.TrackingState
@@ -29,6 +30,7 @@ import java.nio.ShortBuffer
 @Deprecated(
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FakeRuntimeFace(
     override var trackingState: TrackingState = TrackingState.PAUSED,
     override var isValid: Boolean = true,

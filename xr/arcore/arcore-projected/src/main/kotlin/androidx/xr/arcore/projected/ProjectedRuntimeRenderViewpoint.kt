@@ -20,7 +20,6 @@
 
 package androidx.xr.arcore.projected
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.RenderViewpoint as RuntimeRenderViewpoint
 import androidx.xr.runtime.FieldOfView
 import androidx.xr.runtime.math.Pose
@@ -29,9 +28,8 @@ import androidx.xr.runtime.math.Pose
  * @property pose the [Pose] of the render viewpoint
  * @property fieldOfView the [FieldOfView] of the render viewpoint
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ProjectedRuntimeRenderViewpoint(
+internal class ProjectedRuntimeRenderViewpoint(
     override var pose: Pose = Pose(),
     @Deprecated(message = "Convert to androidx.xr.runtime.math.FieldOfView")
     override var fieldOfView: FieldOfView = FieldOfView(0f, 0f, 0f, 0f),
-) : RuntimeRenderViewpoint {}
+) : RuntimeRenderViewpoint

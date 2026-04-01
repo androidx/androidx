@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.projected
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.AnchorPersistenceMode
@@ -38,8 +37,7 @@ import kotlin.time.ComparableTimeMark
  * @property lifecycleManager that manages the lifecycle of the Projected session
  * @property perceptionManager that manages the perception capabilities of a runtime using Projected
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ProjectedRuntime
+internal class ProjectedRuntime
 internal constructor(
     override val lifecycleManager: ProjectedManager,
     override val perceptionManager: ProjectedPerceptionManager,

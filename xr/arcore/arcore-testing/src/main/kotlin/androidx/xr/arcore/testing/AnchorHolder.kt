@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,20 @@
 
 package androidx.xr.arcore.testing
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 
 /** Interface that holds [Anchors][Anchor]. */
 @Deprecated(
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public interface AnchorHolder {
+internal interface AnchorHolder {
 
     /**
      * Notifies the [AnchorHolder] that the given [Anchor] has been persisted.
      *
      * @param anchor the [Anchor] that has been persisted
      */
-    public fun onAnchorPersisted(anchor: Anchor)
+    fun onAnchorPersisted(anchor: Anchor)
 
     /**
      * Detaches the given [Anchor] from this trackable.
@@ -40,5 +38,5 @@ public interface AnchorHolder {
      *
      * @param anchor the [Anchor] to detach
      */
-    public fun detachAnchor(anchor: Anchor)
+    fun detachAnchor(anchor: Anchor)
 }

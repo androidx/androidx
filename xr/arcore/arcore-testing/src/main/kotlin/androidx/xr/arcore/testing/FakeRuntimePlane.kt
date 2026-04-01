@@ -56,6 +56,7 @@ import androidx.xr.runtime.math.Vector2
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )
 @Suppress("DEPRECATION")
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FakeRuntimePlane(
     override val type: Type = RuntimePlane.Type.HORIZONTAL_UPWARD_FACING,
     override val label: Label = RuntimePlane.Label.FLOOR,
