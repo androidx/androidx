@@ -68,13 +68,11 @@ import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresFlag;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
-import androidx.core.flagging.Flags;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.BundleCompat;
 import androidx.core.text.BidiFormatter;
@@ -2995,9 +2993,6 @@ public class NotificationCompat {
             return constructStyleForExtras(extras);
         }
 
-        // TODO: b/469030926 - Remove suppression on API final or when Lint understands flag checks
-        //  and annotations.
-        @SuppressLint("NewApi")
         private static @Nullable Style constructCompatStyleByPlatformName(
                 @Nullable String platformTemplateClass) {
             if (platformTemplateClass == null) {
@@ -3026,8 +3021,7 @@ public class NotificationCompat {
                     return new DecoratedCustomViewStyle();
                 }
             }
-            if (Flags.getBooleanFlagValue(AndroidAppFlags.PACKAGE,
-                    AndroidAppFlags.FLAG_API_METRIC_STYLE)) {
+            if (Build.VERSION.SDK_INT >= 37) {
                 if (platformTemplateClass.equals(Notification.MetricStyle.class.getName())) {
                     return new MetricStyle();
                 }
@@ -5353,10 +5347,9 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             validate();
-            if (Flags.getBooleanFlagValue(AndroidAppFlags.PACKAGE,
-                    AndroidAppFlags.FLAG_API_METRIC_STYLE)) {
+            if (Build.VERSION.SDK_INT >= 37) {
                 final Notification.Builder builder1 = builder.getBuilder();
-                builder1.setStyle(Api37FlaggedImpl.toPlatformStyle(this));
+                builder1.setStyle(Api37Impl.toPlatformStyle(this));
             }
         }
 
@@ -5367,9 +5360,8 @@ public class NotificationCompat {
         }
 
         @RequiresApi(37)
-        @RequiresFlag("android.app.api_metric_style")
-        private static final class Api37FlaggedImpl {
-            private Api37FlaggedImpl() { }
+        private static final class Api37Impl {
+            private Api37Impl() {}
 
             private static Notification.Style toPlatformStyle(@NonNull MetricStyle style) {
                 Notification.MetricStyle platformStyle = new Notification.MetricStyle();
@@ -5382,33 +5374,13 @@ public class NotificationCompat {
             }
 
             private static Notification.@NonNull Metric toPlatformMetric(@NonNull Metric metric) {
-                if (Flags.getBooleanFlagValue(AndroidAppFlags.PACKAGE,
-                        AndroidAppFlags.FLAG_API_NOTIFICATION_SEMANTIC_STYLE)) {
-                    return Api37FlaggedSemanticStyleImpl.toPlatformMetric(metric);
-                } else {
-                    return new Notification.Metric(
-                            toPlatformMetricValue(metric.getValue()),
-                            metric.getLabel());
-                }
+                return new Notification.Metric(
+                        toPlatformMetricValue(metric.getValue()),
+                        metric.getLabel(),
+                        metric.getSemanticStyle());
             }
 
-            @RequiresApi(37)
-            @RequiresFlag("android.app.api_notification_semantic_style")
-            private static class Api37FlaggedSemanticStyleImpl {
-                private Api37FlaggedSemanticStyleImpl() { }
-
-                private static Notification.@NonNull Metric toPlatformMetric(
-                        @NonNull Metric metric) {
-                    return new Notification.Metric(
-                            toPlatformMetricValue(metric.getValue()),
-                            metric.getLabel(),
-                            metric.getSemanticStyle());
-                }
-            }
-
-            // TODO: b/469030926 - Remove NewApi on API final or when Lint understands flag
-            //  checks and annotations.
-            @SuppressLint({"NewApi", "WrongConstant"})
+            @SuppressLint({"WrongConstant"})
             private static Notification.Metric.@NonNull MetricValue toPlatformMetricValue(
                     Metric.@NonNull MetricValue metricValue) {
                 if (metricValue instanceof Metric.TimeDifference) {
@@ -5464,8 +5436,7 @@ public class NotificationCompat {
         @Override
         public void addCompatExtras(@NonNull Bundle extras) {
             super.addCompatExtras(extras);
-            if (Flags.getBooleanFlagValue(AndroidAppFlags.PACKAGE,
-                    AndroidAppFlags.FLAG_API_NOTIFICATION_SEMANTIC_STYLE)) {
+            if (Build.VERSION.SDK_INT >= 37) {
                 return; // No changes to MetricStyle since its introduction.
             }
 
@@ -6937,11 +6908,9 @@ public class NotificationCompat {
                 }
                 Api36Impl.setProgressTrackerIcon(progressStyle, trackerIcon);
 
-                if (Flags.getBooleanFlagValue(
-                        AndroidAppFlags.PACKAGE,
-                        AndroidAppFlags.FLAG_API_NOTIFICATION_SEMANTIC_STYLE)) {
-                    Api37FlaggedImpl.setProgressPoints(progressStyle, mProgressPoints);
-                    Api37FlaggedImpl.setProgressSegments(progressStyle, mProgressSegments);
+                if (Build.VERSION.SDK_INT >= 37) {
+                    Api37Impl.setProgressPoints(progressStyle, mProgressPoints);
+                    Api37Impl.setProgressSegments(progressStyle, mProgressSegments);
                 } else {
                     Api36Impl.setProgressPoints(progressStyle, mProgressPoints);
                     Api36Impl.setProgressSegments(progressStyle, mProgressSegments);
@@ -6962,20 +6931,17 @@ public class NotificationCompat {
         public void addCompatExtras(@NonNull Bundle extras) {
             super.addCompatExtras(extras);
 
-            if (Build.VERSION.SDK_INT == 36 && !Flags.getBooleanFlagValue(AndroidAppFlags.PACKAGE,
-                    AndroidAppFlags.FLAG_API_NOTIFICATION_SEMANTIC_STYLE)) {
-                // We need to overwrite the points and segments written via the platform's
-                // ProgressStyle because that one does not support semanticStyle.
-                extras.putParcelableArrayList(EXTRA_PROGRESS_SEGMENTS,
+            if (Build.VERSION.SDK_INT <= 36) {
+                // ProgressStyle segments and points are supported by the platform on SDK 36,
+                // but new properties were added to them on SDK 37, so we need to include their
+                // compat versions on, 36 too.
+                extras.putParcelableArrayList(
+                        EXTRA_PROGRESS_SEGMENTS,
                         getProgressSegmentsAsBundleList(mProgressSegments));
                 extras.putParcelableArrayList(EXTRA_PROGRESS_POINTS,
                         getProgressPointsAsBundleList(mProgressPoints));
-            } else if (Build.VERSION.SDK_INT < 36) {
-                extras.putParcelableArrayList(EXTRA_PROGRESS_SEGMENTS,
-                        getProgressSegmentsAsBundleList(mProgressSegments));
-                extras.putParcelableArrayList(EXTRA_PROGRESS_POINTS,
-                        getProgressPointsAsBundleList(mProgressPoints));
-
+            }
+            if (Build.VERSION.SDK_INT < 36) {
                 extras.putInt(EXTRA_PROGRESS, mProgress);
                 extras.putBoolean(EXTRA_PROGRESS_INDETERMINATE, mIndeterminate);
                 extras.putInt(EXTRA_PROGRESS_MAX, getProgressMax());
@@ -7428,11 +7394,8 @@ public class NotificationCompat {
             }
         }
 
-        // TODO: b/469030926 - Remove suppression on API final or when Lint understands flag
-        //  checks and annotations.
-        @SuppressLint("NewApi")
-        @RequiresFlag("android.app.api_notification_semantic_style")
-        private static final class Api37FlaggedImpl {
+        @RequiresApi(37)
+        private static final class Api37Impl {
             static void setProgressPoints(
                     Notification.ProgressStyle progressStyle,
                     @NonNull List<Point> progressPoints) {
@@ -8153,11 +8116,9 @@ public class NotificationCompat {
                 if (Build.VERSION.SDK_INT >= 31) {
                     builder.setAuthenticationRequired(Api31Impl.isAuthenticationRequired(action));
                 }
-                if (Flags.getBooleanFlagValue(
-                        AndroidAppFlags.PACKAGE,
-                        AndroidAppFlags.FLAG_API_NOTIFICATION_ACTION_CUSTOM)) {
-                    builder.setStyleHint(Api37FlaggedImpl.getStyleHint(action));
-                    builder.setEmphasisHint(Api37FlaggedImpl.getEmphasisHint(action));
+                if (Build.VERSION.SDK_INT >= 37) {
+                    builder.setStyleHint(Api37Impl.getStyleHint(action));
+                    builder.setEmphasisHint(Api37Impl.getEmphasisHint(action));
                 }
                 builder.addExtras(action.getExtras());
                 return builder;
@@ -8462,14 +8423,13 @@ public class NotificationCompat {
             }
 
             /**
-             * A class for wrapping calls to {@link Notification.Action} methods which
-             * were flag-added in API 37; these calls must be wrapped to avoid performance issues.
-             * See the UnsafeNewApiCall lint rule for more details.
+             * A class for wrapping calls to {@link Notification.Action} methods which were added in
+             * API 37; these calls must be wrapped to avoid performance issues. See the
+             * UnsafeNewApiCall lint rule for more details.
              */
             @RequiresApi(37)
-            @RequiresFlag("android.app.api_notification_action_custom")
-            static class Api37FlaggedImpl {
-                private Api37FlaggedImpl() { }
+            static class Api37Impl {
+                private Api37Impl() {}
 
                 static int getEmphasisHint(Notification.Action action) {
                     return action.getEmphasisHint();
@@ -11234,11 +11194,9 @@ public class NotificationCompat {
 
         final @Action.Style int styleHint;
         final @Action.Emphasis int emphasisHint;
-        if (Flags.getBooleanFlagValue(
-                AndroidAppFlags.PACKAGE,
-                AndroidAppFlags.FLAG_API_NOTIFICATION_ACTION_CUSTOM)) {
-            emphasisHint = Action.Builder.Api37FlaggedImpl.getEmphasisHint(action);
-            styleHint = Action.Builder.Api37FlaggedImpl.getStyleHint(action);
+        if (Build.VERSION.SDK_INT >= 37) {
+            emphasisHint = Action.Builder.Api37Impl.getEmphasisHint(action);
+            styleHint = Action.Builder.Api37Impl.getStyleHint(action);
         } else {
             emphasisHint = Action.EMPHASIS_AUTO;
             styleHint = Action.STYLE_AUTO;

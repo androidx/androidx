@@ -35,10 +35,8 @@ import android.text.TextUtils;
 import android.widget.RemoteViews;
 
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresFlag;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
-import androidx.core.flagging.Flags;
 import androidx.core.graphics.drawable.IconCompat;
 
 import org.jspecify.annotations.Nullable;
@@ -365,11 +363,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             Api31Impl.setAuthenticationRequired(actionBuilder,
                     action.isAuthenticationRequired());
         }
-        if (Flags.getBooleanFlagValue(
-                AndroidAppFlags.PACKAGE,
-                AndroidAppFlags.FLAG_API_NOTIFICATION_ACTION_CUSTOM)) {
-            Api37FlaggedImpl.setEmphasisHint(actionBuilder, action.getEmphasisHint());
-            Api37FlaggedImpl.setStyleHint(actionBuilder, action.getStyleHint());
+        if (Build.VERSION.SDK_INT >= 37) {
+            Api37Impl.setEmphasisHint(actionBuilder, action.getEmphasisHint());
+            Api37Impl.setStyleHint(actionBuilder, action.getStyleHint());
         }
 
         actionExtras.putBoolean(NotificationCompat.Action.EXTRA_SHOWS_USER_INTERFACE,
@@ -603,10 +599,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     }
 
     @RequiresApi(37)
-    @RequiresFlag("android.app.api_notification_action_custom")
     @SuppressLint("WrongConstant") // Platform <-> Compat @IntDef with same values.
-    static final class Api37FlaggedImpl {
-        private Api37FlaggedImpl() { }
+    static final class Api37Impl {
+        private Api37Impl() {}
 
         static Notification.Action.Builder setEmphasisHint(Notification.Action.Builder builder,
                 @NotificationCompat.Action.Emphasis int emphasis) {
