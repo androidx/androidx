@@ -24,6 +24,8 @@ import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
+import androidx.tracing.traceAsync
+import java.util.concurrent.ThreadLocalRandom
 
 /**
  * Capture a RemoteCompose document by rendering the specified [content] Composable in a virtual
@@ -54,14 +56,19 @@ public suspend fun captureSingleRemoteDocument(
     val remoteDensity =
         RemoteDensity(creationDisplayInfo.density.rf, context.resources.configuration.fontScale.rf)
 
-    return captureSingleRemoteDocumentV2(
-        creationDisplayInfo = remoteCreationDisplayInfo,
-        remoteDensity = remoteDensity,
-        layoutDirection = layoutDirection,
-        profile = profile,
-        content = content,
-        context = context,
-    )
+    return traceAsync(
+        "CaptureRemoteDocument:captureSingleRemoteDocument",
+        ThreadLocalRandom.current().nextInt(),
+    ) {
+        captureSingleRemoteDocumentV2(
+            creationDisplayInfo = remoteCreationDisplayInfo,
+            remoteDensity = remoteDensity,
+            layoutDirection = layoutDirection,
+            profile = profile,
+            content = content,
+            context = context,
+        )
+    }
 }
 
 private fun CreationDisplayInfo.toRemote(): RemoteCreationDisplayInfo =
