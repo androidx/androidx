@@ -183,8 +183,11 @@ public class ProcessGlobalConfig {
      *                               {@link WebViewFeature#STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS}
      *                                       feature is not supported.
      * @throws IllegalArgumentException if the paths supplied do not have the right permissions
-     * @deprecated Please use {@link #setDataDirectorySuffix(Context, String)}
-     *              to set the suffix instead.
+     * @deprecated Deprecated due to the lack of usage and the added maintenance complexity. In
+     *     order to support more than one process running WebView,
+     *     {@link #setDataDirectorySuffix(Context, String)} can be used instead to set the
+     *     data directory suffix. There is no utility expected in setting the base
+     *     directory base paths.
      */
     @Deprecated
     @SuppressWarnings("StreamFiles")
