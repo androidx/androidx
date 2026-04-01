@@ -46,5 +46,7 @@
         <attr name="fastScrollVerticalTrackDrawable" format="reference" />
         <attr name="fastScrollHorizontalThumbDrawable" format="reference" />
         <attr name="fastScrollHorizontalTrackDrawable" format="reference" />
+        <!-- Defines whether the RecyclerView should consume scroll-to-top events or not. -->
+        <attr name="isScrollToTopEnabled" format="boolean" />
     </declare-styleable>
 </resources>
