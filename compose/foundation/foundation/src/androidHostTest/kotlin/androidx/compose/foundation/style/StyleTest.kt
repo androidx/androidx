@@ -20,6 +20,7 @@ package androidx.compose.foundation.style
 
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -254,6 +255,12 @@ class StyleTest {
             changes and DrawFlag,
             "DrawFlag should be set when foregroundColor changes",
         )
+    }
+
+    @Test
+    fun resolve_colorFilter() {
+        val filter = ColorFilter.tint(Color.Red)
+        resolved(Style { colorFilter(filter) }) { assertEquals(filter, colorFilter) }
     }
 
     @Test

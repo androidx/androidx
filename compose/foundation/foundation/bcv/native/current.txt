@@ -745,6 +745,7 @@ sealed interface androidx.compose.foundation.style/StyleScope : androidx.compose
     abstract fun borderWidth(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.borderWidth|borderWidth(androidx.compose.ui.unit.Dp){}[0]
     abstract fun bottom(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.bottom|bottom(androidx.compose.ui.unit.Dp){}[0]
     abstract fun clip(kotlin/Boolean = ...) // androidx.compose.foundation.style/StyleScope.clip|clip(kotlin.Boolean){}[0]
+    abstract fun colorFilter(androidx.compose.ui.graphics/ColorFilter?) // androidx.compose.foundation.style/StyleScope.colorFilter|colorFilter(androidx.compose.ui.graphics.ColorFilter?){}[0]
     abstract fun contentBrush(androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/StyleScope.contentBrush|contentBrush(androidx.compose.ui.graphics.Brush){}[0]
     abstract fun contentColor(androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/StyleScope.contentColor|contentColor(androidx.compose.ui.graphics.Color){}[0]
     abstract fun contentPadding(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPadding|contentPadding(androidx.compose.ui.unit.Dp){}[0]

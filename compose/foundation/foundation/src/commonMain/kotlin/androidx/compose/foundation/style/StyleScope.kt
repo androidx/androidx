@@ -25,6 +25,7 @@ import androidx.compose.runtime.CompositionLocalAccessorScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -877,6 +878,16 @@ sealed interface StyleScope : CompositionLocalAccessorScope, Density {
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
     fun rotationZ(value: Float)
+
+    /**
+     * Sets the [ColorFilter] to apply to the component.
+     *
+     * This property is *not* inherited
+     *
+     * @param value The color filter to apply.
+     * @see androidx.compose.ui.graphics.graphicsLayer
+     */
+    fun colorFilter(value: ColorFilter?)
 
     /**
      * Offset percentage along the x and y axis for which contents are rotated and scaled. The

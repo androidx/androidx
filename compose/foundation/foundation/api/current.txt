@@ -2255,6 +2255,7 @@ package androidx.compose.foundation.style {
     method @BytecodeOnly public void bottom-0680j_4(float);
     method public void clip(optional boolean value);
     method @BytecodeOnly public static void clip$default(androidx.compose.foundation.style.StyleScope!, boolean, int, Object!);
+    method public void colorFilter(androidx.compose.ui.graphics.ColorFilter? value);
     method public void contentBrush(androidx.compose.ui.graphics.Brush value);
     method @KotlinOnly public void contentColor(androidx.compose.ui.graphics.Color value);
     method @BytecodeOnly public void contentColor-8_81llA(long);
