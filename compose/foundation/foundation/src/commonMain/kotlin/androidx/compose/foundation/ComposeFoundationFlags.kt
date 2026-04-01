@@ -147,6 +147,15 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isReverseLayoutNestedScrollConnectionInPagerFixEnabled = true
+
+    /**
+     * This flag controls the fix where text selection is constrained to the text length to prevent
+     * crashes during concurrent text updates.
+     */
+    // TODO: Remove this flag once it has soaked (b/495840275)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isConcurrentTextFieldSelectionFixEnabled = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
