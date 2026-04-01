@@ -17,8 +17,6 @@
 package androidx.xr.scenecore
 
 import android.content.Context
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.media3.exoplayer.audio.AudioOutputProvider
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.SceneRuntime
@@ -32,7 +30,6 @@ import androidx.xr.scenecore.runtime.SceneRuntime
  * This component can only be attached to one [Entity] at a time. If the component is detached from
  * an [Entity], the audio will become head-locked.
  */
-@RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public class PositionalAudioComponent
 internal constructor(context: Context, sceneRuntime: SceneRuntime, params: PointSourceParams) :
     Component {
@@ -71,12 +68,11 @@ internal constructor(context: Context, sceneRuntime: SceneRuntime, params: Point
     }
 
     /**
-     * Returns an [AudioOutputProvider] that can be used to configure an
+     * An [AudioOutputProvider] that can be used to configure an
      * [androidx.media3.exoplayer.ExoPlayer.Builder] for positional audio playback.
      */
-    public fun getAudioOutputProvider(): AudioOutputProvider {
-        return rtComponent.getAudioOutputProvider()
-    }
+    public val audioOutputProvider: AudioOutputProvider
+        get() = rtComponent.getAudioOutputProvider()
 
     public companion object {
         /**

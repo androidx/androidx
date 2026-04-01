@@ -701,6 +701,20 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState STOPPED;
   }
 
+  public final class PositionalAudioComponent implements androidx.xr.scenecore.Component {
+    method public static androidx.xr.scenecore.PositionalAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.PointSourceParams params);
+    method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method public void setPointSourceParams(androidx.xr.scenecore.PointSourceParams params);
+    property public androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
+    field public static final androidx.xr.scenecore.PositionalAudioComponent.Companion Companion;
+  }
+
+  public static final class PositionalAudioComponent.Companion {
+    method public androidx.xr.scenecore.PositionalAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.PointSourceParams params);
+  }
+
   public final class ResizableComponent implements androidx.xr.scenecore.Component {
     method public void addResizeEventListener(optional java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.ResizeEvent> resizeEventListener);
     method public void addResizeEventListener(java.util.function.Consumer<androidx.xr.scenecore.ResizeEvent> resizeEventListener);
@@ -823,10 +837,73 @@ package androidx.xr.scenecore {
     property public static androidx.xr.scenecore.Scene androidx.xr.runtime.Session.scene;
   }
 
+  public final class SoundEffect {
+  }
+
+  public interface SoundEffectPlayer {
+    method public void pause(androidx.xr.scenecore.Stream stream);
+    method public androidx.xr.scenecore.Stream play(androidx.xr.scenecore.SoundEffect soundEffect, @FloatRange(from=0.0, to=1.0) float volume, @IntRange(from=0L) int priority, boolean isLooping);
+    method public void resume(androidx.xr.scenecore.Stream stream);
+    method public void setLooping(androidx.xr.scenecore.Stream stream, boolean isLooping);
+    method public void setVolume(androidx.xr.scenecore.Stream stream, @FloatRange(from=0.0, to=1.0) float volume);
+    method public void stop(androidx.xr.scenecore.Stream stream);
+  }
+
+  public final class SoundEffectPool implements java.lang.AutoCloseable {
+    method public void clearOnLoadCompleteListener();
+    method public void close();
+    method public static androidx.xr.scenecore.SoundEffectPool create(androidx.xr.runtime.Session session, int maxStreams);
+    method public androidx.xr.scenecore.SoundEffect load(android.content.Context context, int resId);
+    method public androidx.xr.scenecore.SoundEffect load(android.content.res.AssetFileDescriptor assetFileDescriptor);
+    method public void release();
+    method public void setOnLoadCompleteListener(androidx.xr.scenecore.SoundEffectPool.LoadCompleteListener listener);
+    method public void setOnLoadCompleteListener(java.util.concurrent.Executor executor, androidx.xr.scenecore.SoundEffectPool.LoadCompleteListener listener);
+    method public boolean unload(androidx.xr.scenecore.SoundEffect soundEffect);
+    field public static final androidx.xr.scenecore.SoundEffectPool.Companion Companion;
+  }
+
+  public static final class SoundEffectPool.Companion {
+    method public androidx.xr.scenecore.SoundEffectPool create(androidx.xr.runtime.Session session, int maxStreams);
+  }
+
+  public static fun interface SoundEffectPool.LoadCompleteListener {
+    method public void onLoadComplete(androidx.xr.scenecore.SoundEffect soundEffect, boolean success);
+  }
+
+  public final class SoundEffectPoolComponent implements androidx.xr.scenecore.Component androidx.xr.scenecore.SoundEffectPlayer {
+    method public static androidx.xr.scenecore.SoundEffectPoolComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundEffectPool soundEffectPool, androidx.xr.scenecore.PointSourceParams params);
+    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method public void pause(androidx.xr.scenecore.Stream stream);
+    method public androidx.xr.scenecore.Stream play(androidx.xr.scenecore.SoundEffect soundEffect, @FloatRange(from=0.0, to=1.0) float volume, @IntRange(from=0L) int priority, boolean isLooping);
+    method public void resume(androidx.xr.scenecore.Stream stream);
+    method public void setLooping(androidx.xr.scenecore.Stream stream, boolean isLooping);
+    method public void setVolume(androidx.xr.scenecore.Stream stream, @FloatRange(from=0.0, to=1.0) float volume);
+    method public void stop(androidx.xr.scenecore.Stream stream);
+    field public static final androidx.xr.scenecore.SoundEffectPoolComponent.Companion Companion;
+  }
+
+  public static final class SoundEffectPoolComponent.Companion {
+    method public androidx.xr.scenecore.SoundEffectPoolComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundEffectPool soundEffectPool, androidx.xr.scenecore.PointSourceParams params);
+  }
+
   public final class SoundFieldAttributes {
     ctor public SoundFieldAttributes(androidx.xr.scenecore.SpatializerConstants.AmbisonicsOrder order);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatializerConstants.AmbisonicsOrder getOrder();
     property public androidx.xr.scenecore.SpatializerConstants.AmbisonicsOrder order;
+  }
+
+  public final class SoundFieldAudioComponent implements androidx.xr.scenecore.Component {
+    method public static androidx.xr.scenecore.SoundFieldAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundFieldAttributes attributes);
+    method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    property public androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
+    field public static final androidx.xr.scenecore.SoundFieldAudioComponent.Companion Companion;
+  }
+
+  public static final class SoundFieldAudioComponent.Companion {
+    method public androidx.xr.scenecore.SoundFieldAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundFieldAttributes attributes);
   }
 
   public final class Space {
@@ -1017,6 +1094,9 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.SpatializerConstants.SourceType POINT_SOURCE;
     property public androidx.xr.scenecore.SpatializerConstants.SourceType SOUND_FIELD;
     property public static int SOURCE_TYPE_SOUND_FIELD;
+  }
+
+  public final class Stream {
   }
 
   public final class SurfaceEntity extends androidx.xr.scenecore.BaseEntity<androidx.xr.scenecore.runtime.SurfaceEntity> {

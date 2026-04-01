@@ -129,4 +129,18 @@ class SoundEffectPoolTest {
         assertThat(loadedSoundEffect?.id).isEqualTo(123)
         assertThat(loadedSuccess).isTrue()
     }
+
+    @Test
+    fun clearOnLoadCompleteListener_callsRuntime() {
+        val soundEffectPool = SoundEffectPool.create(session, 1)
+        val listener = SoundEffectPool.LoadCompleteListener { _, _ -> }
+        soundEffectPool.setOnLoadCompleteListener(listener)
+
+        val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
+        assertThat(fakePool.loadCompleteListener).isNotNull()
+
+        soundEffectPool.clearOnLoadCompleteListener()
+
+        assertThat(fakePool.loadCompleteListener).isNull()
+    }
 }

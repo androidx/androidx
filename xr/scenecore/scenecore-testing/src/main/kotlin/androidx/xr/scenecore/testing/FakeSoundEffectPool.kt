@@ -39,6 +39,10 @@ public class FakeSoundEffectPool : SoundEffectPool {
         loadCompleteListener = listener
     }
 
+    override fun clearOnLoadCompleteListener() {
+        loadCompleteListener = null
+    }
+
     override fun load(context: Context, resId: Int): SoundEffect {
         loadedResId = resId
         return SoundEffect(resId)

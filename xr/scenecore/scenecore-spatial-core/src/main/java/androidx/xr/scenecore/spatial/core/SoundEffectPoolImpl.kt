@@ -47,6 +47,10 @@ internal class SoundEffectPoolImpl(
         }
     }
 
+    public override fun clearOnLoadCompleteListener() {
+        soundPool.setOnLoadCompleteListener(null)
+    }
+
     override fun load(context: Context, resId: Int): SoundEffect {
         return SoundEffect(soundPool.load(context, resId, /* priority= */ 1))
     }
@@ -93,6 +97,10 @@ internal class SoundEffectPoolImpl(
                     loopCount,
                     PLAYBACK_RATE,
                 )
+
+            if (playbackId == 0) {
+                throw RuntimeException("Failed to play sound effect")
+            }
             return Stream(playbackId)
         }
 

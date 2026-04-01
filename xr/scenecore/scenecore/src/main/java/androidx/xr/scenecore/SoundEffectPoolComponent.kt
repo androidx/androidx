@@ -16,7 +16,8 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.RestrictTo
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.SceneRuntime
 
@@ -29,7 +30,6 @@ import androidx.xr.scenecore.runtime.SceneRuntime
  * This component can only be attached to one [Entity] at a time. If the component is detached from
  * an [Entity], the audio will become head-locked until re-attached.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Suppress("NotCloseable")
 public class SoundEffectPoolComponent
 private constructor(
@@ -64,8 +64,8 @@ private constructor(
 
     override fun play(
         soundEffect: SoundEffect,
-        volume: Float,
-        priority: Int,
+        @FloatRange(from = 0.0, to = 1.0) volume: Float,
+        @IntRange(from = 0) priority: Int,
         isLooping: Boolean,
     ): Stream {
         val rtEntity = (attachedEntity as? BaseEntity<*>)?.rtEntity
@@ -93,7 +93,7 @@ private constructor(
         rtComponent.stop(stream.toRtStream())
     }
 
-    override fun setVolume(stream: Stream, volume: Float) {
+    override fun setVolume(stream: Stream, @FloatRange(from = 0.0, to = 1.0) volume: Float) {
         rtComponent.setVolume(stream.toRtStream(), volume)
     }
 
@@ -105,10 +105,10 @@ private constructor(
         /**
          * Creates a [SoundEffectPoolComponent].
          *
-         * @param session The active XR session.
-         * @param soundEffectPool The pool that manages the loaded sound assets.
-         * @param params The initial spatial audio parameters for this source.
-         * @return A new instance of [SoundEffectPoolComponent].
+         * @param session the active XR session
+         * @param soundEffectPool pool that manages the loaded sound assets
+         * @param params initial spatial audio parameters for this source
+         * @return new instance of [SoundEffectPoolComponent]
          */
         @JvmStatic
         public fun create(

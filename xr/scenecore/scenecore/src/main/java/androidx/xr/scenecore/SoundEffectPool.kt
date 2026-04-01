@@ -18,8 +18,6 @@ package androidx.xr.scenecore
 
 import android.content.Context
 import android.content.res.AssetFileDescriptor
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SoundEffect as RtSoundEffect
@@ -32,14 +30,12 @@ import java.util.concurrent.Executor
  * [SoundEffectPlayer] that was created with that [SoundEffectPool]. The SoundEffect can be released
  * with [SoundEffectPool.unload] when no longer needed.
  */
-@RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public class SoundEffect internal constructor(internal val id: Int) {
     internal fun toRtSoundEffect(): RtSoundEffect {
         return RtSoundEffect(id)
     }
 }
 
-@RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 internal fun RtSoundEffect.toSoundEffect(): SoundEffect {
     return SoundEffect(this.id)
 }
@@ -49,10 +45,7 @@ internal fun RtSoundEffect.toSoundEffect(): SoundEffect {
  *
  * If the value of the [maxStreams] parameter exceeds the capabilities for the platform then the
  * value will be clamped to the platform's max number of supported streams.
- *
- * @param maxStreams The maximum number of simultaneous streams that can be played by this pool.
  */
-@RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, maxStreams: Int) :
     AutoCloseable {
 
@@ -63,8 +56,8 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
         /**
          * Called when a sound effect has finished loading.
          *
-         * @param soundEffect The handle to the loaded sound effect.
-         * @param success True if the load operation was successful, false otherwise.
+         * @param soundEffect handle to the loaded sound effect
+         * @param success true if the load operation was successful, false otherwise
          */
         public fun onLoadComplete(soundEffect: SoundEffect, success: Boolean)
     }
@@ -75,9 +68,9 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
      * Note: Loading is asynchronous. The sound may not be ready to play immediately after this
      * method returns. Use [LoadCompleteListener] to be notified when it is ready.
      *
-     * @param context The application context.
-     * @param resId The resource ID of the sound (e.g., R.raw.sound).
-     * @return A [SoundEffect] handle for the loaded sound.
+     * @param context the application context
+     * @param resId resource ID of the sound (e.g., R.raw.sound)
+     * @return a [SoundEffect] handle for the loaded sound
      */
     public fun load(context: Context, resId: Int): SoundEffect {
         return rtSoundEffectPool.load(context, resId).toSoundEffect()
@@ -89,8 +82,8 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
      * Note: Loading is asynchronous. The sound may not be ready to play immediately after this
      * method returns. Use [LoadCompleteListener] to be notified when it is ready.
      *
-     * @param assetFileDescriptor The asset file descriptor for the sound file.
-     * @return A [SoundEffect] handle for the loaded sound.
+     * @param assetFileDescriptor the [AssetFileDescriptor] for the sound file
+     * @return a [SoundEffect] handle for the loaded sound
      */
     public fun load(assetFileDescriptor: AssetFileDescriptor): SoundEffect {
         return rtSoundEffectPool.load(assetFileDescriptor).toSoundEffect()
@@ -99,8 +92,8 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
     /**
      * Unloads a sound from memory to release resources.
      *
-     * @param soundEffect The [SoundEffect] to unload.
-     * @return True if the sound was successfully unloaded.
+     * @param soundEffect the [SoundEffect] to unload
+     * @return true if the sound was successfully unloaded
      */
     public fun unload(soundEffect: SoundEffect): Boolean {
         return rtSoundEffectPool.unload(soundEffect.toRtSoundEffect())
@@ -125,6 +118,11 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
         }
     }
 
+    /** Clears any listener previously set with [setOnLoadCompleteListener]. */
+    public fun clearOnLoadCompleteListener() {
+        rtSoundEffectPool.clearOnLoadCompleteListener()
+    }
+
     /** Releases all native resources associated with this pool. */
     public fun release() {
         return rtSoundEffectPool.release()
@@ -140,7 +138,15 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
             return SoundEffectPool(sceneRuntime, maxStreams)
         }
 
-        /** Creates a [SoundEffectPool] with the given [session] and [maxStreams]. */
+        /**
+         * Creates a [SoundEffectPool] with the given [session] and [maxStreams].
+         *
+         * If the value of the [maxStreams] parameter exceeds the capabilities for the platform then
+         * the value will be clamped to the platform's max number of supported streams.
+         *
+         * @param session the XR session associated with this sound effect pool
+         * @param maxStreams maximum number of simultaneous streams that can be played by this pool
+         */
         @JvmStatic
         public fun create(session: Session, maxStreams: Int): SoundEffectPool {
             return create(session.sceneRuntime, maxStreams)

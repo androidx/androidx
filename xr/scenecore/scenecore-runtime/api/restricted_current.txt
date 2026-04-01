@@ -856,6 +856,7 @@ package androidx.xr.scenecore.runtime {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SoundEffectPool {
+    method public void clearOnLoadCompleteListener();
     method public androidx.xr.scenecore.runtime.SoundEffect load(android.content.Context context, int resId);
     method public androidx.xr.scenecore.runtime.SoundEffect load(android.content.res.AssetFileDescriptor assetFileDescriptor);
     method public void release();
