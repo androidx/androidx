@@ -89,7 +89,7 @@ private class MacOsUtilities(projectRoot: File, intellijInstallationDir: File) :
 
     override val IntelliJTask.launchCommandArguments: List<String>
         get() {
-            val intellijBinary = File(binaryDirectory.absolutePath, "Contents/MacOS/intellij")
+            val intellijBinary = File(binaryDirectory.absolutePath, "Contents/MacOS/idea")
             return listOf(intellijBinary.absolutePath, projectRoot.absolutePath)
         }
 
