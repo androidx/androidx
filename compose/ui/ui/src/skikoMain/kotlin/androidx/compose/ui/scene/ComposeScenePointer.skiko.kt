@@ -158,11 +158,17 @@ value class PointerEventResult internal constructor(internal val value: Int) {
 
     constructor(
         anyMovementConsumed: Boolean = false,
-        anyChangeConsumed: Boolean = false
+        anyChangeConsumed: Boolean = false,
+        dispatchedToAPointerInputModifier: Boolean = false,
     ) : this(
-        value = (anyMovementConsumed.toInt() shl 1) or
+        value =
+            dispatchedToAPointerInputModifier.toInt() or
+            (anyMovementConsumed.toInt() shl 1) or
             (anyChangeConsumed.toInt() shl 2)
     )
+
+    internal val dispatchedToAPointerInputModifier
+        inline get() = (value and 0x1) != 0
 
     /** It's true when [PointerInputChange] was consumed and Pointer's position was changed */
     internal val anyMovementConsumed

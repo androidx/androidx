@@ -247,6 +247,8 @@ private class CanvasLayersComposeSceneImpl(
             PointerEventType.ScaleStart,
             PointerEventType.ScaleChange,
             PointerEventType.ScaleEnd -> processHoveredEvent(event)
+            PointerEventType.Unknown ->
+                return processUnknownEvent(event)  // We don't want any side effects from it
             else -> PointerEventResult(anyMovementConsumed = false)
         }
 
@@ -428,6 +430,16 @@ private class CanvasLayersComposeSceneImpl(
             owner.onPointerInput(event)
         } else {
             PointerEventResult(anyMovementConsumed = false)
+        }
+    }
+
+    private fun processUnknownEvent(event: PointerInputEvent): PointerEventResult {
+        val gestureOwner = gestureOwner
+        @Suppress("IfThenToElvis")
+        return if (gestureOwner != null) {
+            gestureOwner.onPointerInput(event)
+        } else {
+            processHoveredEvent(event)
         }
     }
 

@@ -247,6 +247,7 @@ internal fun mouseEvent(
     scrollDelta: Offset = Offset.Zero,
     scaleGestureFactor: Float = 1f,
     panGestureOffset:Offset = Offset.Zero,
+    nativeEvent: Any? = null
 ) = PointerInputEvent(
     type,
     0,
@@ -266,7 +267,8 @@ internal fun mouseEvent(
             panGestureOffset = panGestureOffset,
         )
     ),
-    buttons = PointerButtons(isPrimaryPressed = pressed)
+    buttons = PointerButtons(isPrimaryPressed = pressed),
+    nativeEvent = nativeEvent
 )
 
 internal infix fun List<PointerInputEvent>.positionAndDownShouldEqual(

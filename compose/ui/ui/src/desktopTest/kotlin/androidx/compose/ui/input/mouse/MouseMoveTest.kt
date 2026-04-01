@@ -19,9 +19,11 @@
 package androidx.compose.ui.input.mouse
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,7 +43,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
@@ -63,6 +67,8 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.Executors
 import kotlin.random.Random
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
@@ -733,6 +739,65 @@ class MouseMoveTest {
         scene.sendPointerEvent(PointerEventType.Exit, Offset(0f, 50f))
 
         assertNull(composeScene.lastKnownPointerPosition)
+    }
+
+    // https://youtrack.jetbrains.com/issue/CMP-9964
+    @Test
+    fun magicMouseScenario() = ImageComposeScene(
+        width = 100,
+        height = 100,
+    ).useInUiThread { scene ->
+        var clicksCount = 0
+        scene.setContent {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .clickable {
+                    clicksCount++
+                }
+            )
+        }
+
+        // The bug in this scenario is that no mouse-release event was generated
+        // - SyntheticEventSender.sendMissingReleases didn't include the last released pointer
+        //   when receiving the 3rd event.
+        // - HitPathTracker ignores the 3rd event because it's a Move event at the same
+        //   coordinates as the previous (2nd) event.
+        // - CanvasLayersComposeScene.processPointerInputEvent clears `gestureOwner` after
+        //   receiving the 3rd event, so when it receives the 4th event, it doesn't send it.
+        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f), buttons = PointerButtons(isPrimaryPressed = true))
+        scene.sendPointerEvent(PointerEventType.Move, Offset(10f, 10f), buttons = PointerButtons(isPrimaryPressed = true))
+        scene.sendPointerEvent(PointerEventType.Move, Offset(10f, 10f), buttons = PointerButtons(isPrimaryPressed = false))
+        scene.sendPointerEvent(PointerEventType.Release, Offset(10f, 10f))
+
+        assertEquals(1, clicksCount)
+    }
+
+    @Test
+    fun allNativeMouseEventsAreSent1() = ImageComposeScene(
+        width = 100,
+        height = 100,
+    ).useInUiThread { scene ->
+        val nativeEventsReceived = mutableListOf<Any>()
+        scene.setContent {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Main)
+                            event.nativeEvent?.let { nativeEventsReceived.add(it) }
+                        }
+                    }
+                }
+            )
+        }
+
+        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f), buttons = PointerButtons(isPrimaryPressed = true), nativeEvent = 1)
+        scene.sendPointerEvent(PointerEventType.Move, Offset(10f, 10f), buttons = PointerButtons(isPrimaryPressed = true), nativeEvent = 2)
+        scene.sendPointerEvent(PointerEventType.Move, Offset(10f, 10f), buttons = PointerButtons(isPrimaryPressed = false), nativeEvent = 3)
+        scene.sendPointerEvent(PointerEventType.Release, Offset(10f, 10f), nativeEvent = 4)
+
+        assertContentEquals(listOf(1, 2, 3, 4), nativeEventsReceived)
     }
 }
 
