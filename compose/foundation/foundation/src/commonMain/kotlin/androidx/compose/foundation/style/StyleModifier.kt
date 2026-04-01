@@ -419,6 +419,7 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
         rotationY = resolved.rotationY
         rotationZ = resolved.rotationZ
         transformOrigin = resolved.transformOrigin
+        colorFilter = resolved.colorFilter
         clip = resolved.clip
         shape = resolved.shape
     }

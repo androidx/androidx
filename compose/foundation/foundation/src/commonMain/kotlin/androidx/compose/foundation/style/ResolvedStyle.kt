@@ -24,9 +24,12 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendModeColorFilter
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Interpolatable
+import androidx.compose.ui.graphics.LightingColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
@@ -143,6 +146,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     internal var transformOrigin: TransformOrigin = TransformOrigin.Center
     internal var cameraDistance: Float = 1.0f
     internal var zIndex: Float = 0f
+    internal var colorFilter: ColorFilter? = null
 
     // text style, affects draw only
     internal var contentColor: Color = Color.Unspecified
@@ -235,6 +239,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
                     rotationY != other.rotationY ||
                     rotationZ != other.rotationZ ||
                     transformOrigin != other.transformOrigin ||
+                    colorFilter != other.colorFilter ||
                     //            cameraDistance != other.cameraDistance ||
                     //            zIndex != other.zIndex ||
                     clip != other.clip
@@ -325,6 +330,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         target.rotationY = rotationY
         target.rotationZ = rotationZ
         target.transformOrigin = transformOrigin
+        target.colorFilter = colorFilter
         target.zIndex = zIndex
         target.cameraDistance = cameraDistance
         target.borderColor = borderColor
@@ -469,6 +475,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
             if (default.rotationY != rotationY) add("rotationY", rotationY)
             if (default.rotationZ != rotationZ) add("rotationZ", rotationZ)
             if (default.transformOrigin != transformOrigin) add("transformOrigin", transformOrigin)
+            if (default.colorFilter != colorFilter) add("colorFilter", colorFilter)
             if (default.zIndex != zIndex) add("zIndex", zIndex)
             if (default.cameraDistance != cameraDistance) add("cameraDistance", cameraDistance)
             if (default.borderColor != borderColor) add("borderColor", borderColor)
@@ -842,6 +849,11 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     override fun transformOrigin(value: TransformOrigin) {
         flags = flags or LayerFlag
         transformOrigin = value
+    }
+
+    override fun colorFilter(value: ColorFilter?) {
+        flags = flags or LayerFlag
+        colorFilter = value
     }
 
     override fun clip(value: Boolean) {
@@ -1261,6 +1273,7 @@ internal fun lerpLayer(a: ResolvedStyle, b: ResolvedStyle, t: Float, result: Res
             )
         zIndex = lerp(a.zIndex, b.zIndex, t)
         shape = lerp(a.shape, b.shape, t)
+        colorFilter = lerp(a.colorFilter, b.colorFilter, t)
         clip = if (t < 0.5f) a.clip else b.clip
     }
 }
@@ -1313,6 +1326,37 @@ internal fun lerp(a: ResolvedStyle, b: ResolvedStyle, t: Float, flags: Int, resu
     if (flagsToRun and LayerFlag != 0) lerpLayer(a, b, t, result)
     if (flagsToRun and TextDrawFlag != 0) lerpTextDraw(a, b, t, result)
     if (flagsToRun and TextLayoutFlag != 0) lerpTextLayout(a, b, t, result)
+}
+
+internal fun lerp(start: ColorFilter?, stop: ColorFilter?, fraction: Float): ColorFilter? {
+    if (start is BlendModeColorFilter && stop is BlendModeColorFilter) {
+        return lerp(start, stop, fraction)
+    }
+    if (start is LightingColorFilter && stop is LightingColorFilter) {
+        return lerp(start, stop, fraction)
+    }
+
+    return if (fraction <= 0.5f) start else stop
+}
+
+private fun lerp(
+    start: BlendModeColorFilter,
+    stop: BlendModeColorFilter,
+    fraction: Float,
+): ColorFilter {
+    val mode = if (fraction <= 0.5f) start.blendMode else stop.blendMode
+    return ColorFilter.tint(color = lerp(start.color, stop.color, fraction), blendMode = mode)
+}
+
+private fun lerp(
+    start: LightingColorFilter,
+    stop: LightingColorFilter,
+    fraction: Float,
+): ColorFilter {
+    return ColorFilter.lighting(
+        multiply = lerp(start.multiply, stop.multiply, fraction),
+        add = lerp(start.add, stop.add, fraction),
+    )
 }
 
 private inline fun Int.floorToNearest100(): Int {
