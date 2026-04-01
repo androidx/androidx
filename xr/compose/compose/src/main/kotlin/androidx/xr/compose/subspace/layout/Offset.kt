@@ -114,11 +114,7 @@ private class OffsetNode(var x: Dp, var y: Dp, var z: Dp, var rtlAware: Boolean)
         constraints: VolumeConstraints,
     ): SubspaceMeasureResult {
         val subspacePlaceable = measurable.measure(constraints)
-        return layout(
-            subspacePlaceable.measuredWidth,
-            subspacePlaceable.measuredHeight,
-            subspacePlaceable.measuredDepth,
-        ) {
+        return layout(subspacePlaceable.width, subspacePlaceable.height, subspacePlaceable.depth) {
             val pose =
                 Pose(
                     Vector3(

@@ -128,7 +128,7 @@ internal class RotateToLookAtUserNode(var upDirection: Vector3) :
     ): SubspaceMeasureResult {
         val placeable = measurable.measure(constraints)
 
-        return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        return layout(placeable.width, placeable.height, placeable.depth) {
             // Calculate the node's current position in activity space.
             val rootActivitySpaceTransformation =
                 currentValueOf(LocalSubspaceRootNode)?.getPose(Space.ACTIVITY) ?: Pose.Identity

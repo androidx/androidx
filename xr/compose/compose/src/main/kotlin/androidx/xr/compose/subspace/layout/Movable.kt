@@ -188,7 +188,7 @@ internal class MovableNode(
         // before measurement
         updateState()
         val placeable = measurable.measure(constraints)
-        return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
+        return layout(placeable.width, placeable.height, placeable.depth) {
             placeable.place(userPose)
         }
     }

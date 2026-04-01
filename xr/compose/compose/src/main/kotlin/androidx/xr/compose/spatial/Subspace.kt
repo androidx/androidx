@@ -308,9 +308,9 @@ public fun PlanarEmbeddedSubspace(
                     }
                 val measuredContentVolume =
                     IntVolumeSize(
-                            width = placeables.maxOf { it.measuredWidth },
-                            height = placeables.maxOf { it.measuredHeight },
-                            depth = placeables.maxOf { it.measuredDepth },
+                            width = placeables.maxOf { it.width },
+                            height = placeables.maxOf { it.height },
+                            depth = placeables.maxOf { it.depth },
                         )
                         .apply { subspaceContentPixelSize = IntSize(width, height) }
                 layout(
