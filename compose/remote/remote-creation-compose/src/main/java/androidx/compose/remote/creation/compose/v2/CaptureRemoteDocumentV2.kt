@@ -45,8 +45,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.trace
 import androidx.core.graphics.createBitmap
+import androidx.tracing.traceAsync
+import java.util.concurrent.ThreadLocalRandom
 import kotlin.coroutines.CoroutineContext
+import kotlin.random.nextInt
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -134,18 +138,26 @@ public suspend fun captureSingleRemoteDocumentV2(
         // are properly cancelled when the flow execution finishes.
         coroutineScope {
             try {
-                lateinit var frameClock: BroadcastFrameClock
-                frameClock = BroadcastFrameClock {
-                    // Automatically send a frame when the recomposer starts waiting.
-                    // This avoids a race condition where sendFrame is called before runRecompose is
-                    // ready.
-                    launch(recomposerContext) { frameClock.sendFrame(clock.nanoTime()) }
+                traceAsync(
+                    "CaptureRemoteDocument:captureSingleRemoteDocument:compositionInitialization",
+                    ThreadLocalRandom.current().nextInt(),
+                ) {
+                    lateinit var frameClock: BroadcastFrameClock
+                    frameClock = BroadcastFrameClock {
+                        // Automatically send a frame when the recomposer starts waiting.
+                        // This avoids a race condition where sendFrame is called before
+                        // runRecompose is
+                        // ready.
+                        launch(recomposerContext) { frameClock.sendFrame(clock.nanoTime()) }
+                    }
+                    launch(recomposerContext + frameClock) {
+                        recomposer.runRecomposeAndApplyChanges()
+                    }
+
+                    // Wait for the first idle state.
+                    val unused =
+                        recomposer.currentState.filter { it == Recomposer.State.Idle }.first()
                 }
-
-                launch(recomposerContext + frameClock) { recomposer.runRecomposeAndApplyChanges() }
-
-                // Wait for the first idle state.
-                val unused = recomposer.currentState.filter { it == Recomposer.State.Idle }.first()
             } finally {
                 // nothing for now
                 recomposer.cancel()
@@ -160,16 +172,19 @@ public suspend fun captureSingleRemoteDocumentV2(
                     }
 
                 val remoteCanvas = RemoteCanvas(recordingCanvas)
-
-                rootNode.render(creationState, remoteCanvas)
-
+                trace("CaptureRemoteDocument:captureSingleRemoteDocument:rootNodeRender") {
+                    rootNode.render(creationState, remoteCanvas)
+                }
                 // This is only safe for the first document
                 // since some ids might be generated early
-                creationState.document.encodeToByteArray()
+                trace("CaptureRemoteDocument:captureSingleRemoteDocument:toByteArray") {
+                    creationState.document.encodeToByteArray()
+                }
             }
 
         return CapturedDocument(document, writerEvents.pendingIntents)
     } finally {
+
         // Ensure the composition is always disposed and cancelled to avoid leaks.
         composition.dispose()
     }

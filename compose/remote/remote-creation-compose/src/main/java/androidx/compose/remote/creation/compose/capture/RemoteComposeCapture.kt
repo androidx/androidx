@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
+import androidx.tracing.trace
 import java.io.ByteArrayInputStream
 
 @Composable
@@ -59,9 +60,11 @@ public fun rememberRemoteDocument(
             )
         val coreDocument =
             CoreDocument().apply {
-                initFromBuffer(
-                    RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(document.bytes))
-                )
+                trace("CreateRemoteDocument:parsing") {
+                    initFromBuffer(
+                        RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(document.bytes))
+                    )
+                }
             }
         if (onCreate != null) {
             onCreate(coreDocument)
