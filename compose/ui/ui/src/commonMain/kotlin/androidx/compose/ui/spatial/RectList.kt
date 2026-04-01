@@ -289,7 +289,7 @@ internal class RectList {
      * more efficient than calling update() for all of the rectangles included in the subhierarchy
      * of the item.
      */
-    fun moveAt(id: Int, index: Int, l: Int, t: Int, r: Int, b: Int) {
+    fun moveAt(index: Int, l: Int, t: Int, r: Int, b: Int) {
         val prevLT = items[index + 0]
         items[index + 0] = packXY(l, t)
         items[index + 1] = packXY(r, b)
@@ -299,26 +299,23 @@ internal class RectList {
         val deltaY = t - unpackY(prevLT)
 
         if (deltaX != 0 || deltaY != 0) {
-            updateSubhierarchy(id, index, deltaX, deltaY)
+            updateSubhierarchy(meta, index, deltaX, deltaY)
         }
     }
 
-    fun updateSubhierarchy(id: Int, index: Int, deltaX: Int, deltaY: Int) {
-        updateSubhierarchy(
-            stackMeta =
-                packMeta(
-                    itemId = id,
-                    // item index is in parent id slot for this case
-                    parentId = index,
-                    lastChildOffset = itemsSize / LongsPerItem,
-                    updated = false,
-                    focusable = false,
-                    gesturable = false,
-                    hasCallbacks = false,
-                ),
-            deltaX = deltaX,
-            deltaY = deltaY,
-        )
+    fun updateSubhierarchy(meta: Long, index: Int, deltaX: Int, deltaY: Int) {
+        if (unpackMetaLastChildOffset(meta) > 0) {
+            updateSubhierarchy(
+                stackMeta =
+                    metaWithParentId(
+                        meta = meta,
+                        // item index is in parent id slot for this case
+                        parentId = index,
+                    ),
+                deltaX = deltaX,
+                deltaY = deltaY,
+            )
+        }
     }
 
     /**
@@ -354,7 +351,7 @@ internal class RectList {
                 if (offset == MaxSupportedLastChildOffset) size else i + (offset * LongsPerItem)
             if (i < 0) break
             while (i < size - 2) {
-                if (i >= endIndex) break
+                if (i > endIndex) break
                 val meta = items[i + 2]
                 if (unpackMetaParentId(meta) == parentId) {
                     val topLeft = items[i + 0]
@@ -380,7 +377,6 @@ internal class RectList {
      * method allows to both find the parent offset and return the new child offset in one pass.
      */
     fun moveBasedOnParentOffset(
-        id: Int,
         index: Int,
         parentIndex: Int,
         offsetFromParentX: Int,
@@ -407,7 +403,7 @@ internal class RectList {
         items[index + 2] = metaMarkUpdatedIfHasCallbacks(meta)
 
         if (deltaX != 0 || deltaY != 0) {
-            updateSubhierarchy(id, index, deltaX, deltaY)
+            updateSubhierarchy(meta, index, deltaX, deltaY)
         }
     }
 
