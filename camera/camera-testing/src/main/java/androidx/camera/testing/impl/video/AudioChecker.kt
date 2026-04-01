@@ -20,7 +20,7 @@ import android.annotation.SuppressLint
 import androidx.camera.core.Logger
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.internal.audio.AudioStreamImpl
-import androidx.camera.video.internal.config.AudioSettingsDefaultResolver
+import androidx.camera.video.internal.config.AudioConfigUtil
 import kotlinx.coroutines.runBlocking
 
 public class AudioChecker {
@@ -43,7 +43,7 @@ public class AudioChecker {
         private fun checkAudioStreamCanBeStarted() = runBlocking {
             val audioSpec = AudioSpec.builder().build()
             // Get a config using the default audio spec.
-            val audioSettings = AudioSettingsDefaultResolver(audioSpec, null).get()
+            val audioSettings = AudioConfigUtil.resolveAudioSettings(audioSpec)
             with(AudioStreamImpl(audioSettings, null)) {
                 try {
                     start()

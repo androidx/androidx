@@ -23,7 +23,6 @@ import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange.SDR
-import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.AudioUtil
 import androidx.camera.testing.impl.CameraUtil
@@ -39,9 +38,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeFalse
@@ -52,16 +50,13 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Test used to verify AudioSettingsAudioProfileResolver works as expected.
+ * Test used to verify AudioConfigUtil works as expected.
  *
  * Only standard dynamic range is checked, since video and audio should be independent.
  */
 @RunWith(Parameterized::class)
 @SmallTest
-class AudioSettingsAudioProfileResolverTest(
-    private val implName: String,
-    private val cameraConfig: CameraXConfig,
-) {
+class AudioConfigUtilTest(private val implName: String, private val cameraConfig: CameraXConfig) {
 
     // Ignore problematic device for b/277176784
     @get:Rule val ignoreProblematicDeviceRule = IgnoreAudioProblematicDeviceRule()
@@ -79,7 +74,6 @@ class AudioSettingsAudioProfileResolverTest(
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val defaultAudioSpec = AudioSpec.builder().build()
 
-    private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private lateinit var profilesResolver: EncoderProfilesResolver
 
     @Before
@@ -110,17 +104,24 @@ class AudioSettingsAudioProfileResolverTest(
 
     @After
     fun tearDown() {
-        if (this::cameraUseCaseAdapter.isInitialized) {
-            runBlocking(Dispatchers.Main) {
-                cameraUseCaseAdapter.removeUseCases(cameraUseCaseAdapter.useCases)
-            }
-        }
-
         CameraXUtil.shutdown().get(10, TimeUnit.SECONDS)
     }
 
     @Test
-    fun defaultAudioSpecResolvesToSupportedSettings() {
+    fun resolveAudioSettings_defaultAudioSpecWithoutProfile_resolvesToSupportedSettings() {
+        val audioSettings = AudioConfigUtil.resolveAudioSettings(defaultAudioSpec)
+        assertThat(
+                AudioSource.isSettingsSupported(
+                    audioSettings.captureSampleRate,
+                    audioSettings.channelCount,
+                    audioSettings.audioFormat,
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun resolveAudioSettings_defaultAudioSpecWithProfile_resolvesToSupportedSettings() {
         val resolvedSettings =
             profilesResolver.getSupportedQualities(SDR).mapNotNull {
                 val encoderProfiles = profilesResolver.getProfiles(it, SDR)!!
@@ -128,7 +129,7 @@ class AudioSettingsAudioProfileResolverTest(
                 if (audioProfile == null) {
                     null
                 } else {
-                    AudioSettingsAudioProfileResolver(defaultAudioSpec, audioProfile, null).get()
+                    AudioConfigUtil.resolveAudioSettings(defaultAudioSpec, audioProfile)
                 }
             }
 
@@ -145,12 +146,23 @@ class AudioSettingsAudioProfileResolverTest(
     }
 
     @Test
-    fun nonDefaultAudioSpecResolvesToSupportedSampleRate() {
+    fun resolveAudioSettings_nonDefaultAudioSpec_resolvesToSupportedSettings() {
         val audioSpecs =
             listOf(
                 AudioSpec.builder().setSampleRate(1000).build(),
                 AudioSpec.builder().setSampleRate(10000).build(),
+                AudioSpec.builder().setSampleRate(44100).build(),
+                AudioSpec.builder().setSampleRate(48000).build(),
                 AudioSpec.builder().setSampleRate(100000).build(),
+                AudioSpec.builder().setChannelCount(1).build(),
+                AudioSpec.builder().setChannelCount(2).build(),
+                AudioSpec.builder().setSampleRate(1000).setChannelCount(1).build(),
+                AudioSpec.builder().setSampleRate(10000).setChannelCount(2).build(),
+                AudioSpec.builder().setSampleRate(44100).setChannelCount(1).build(),
+                AudioSpec.builder().setSampleRate(44100).setChannelCount(2).build(),
+                AudioSpec.builder().setSampleRate(48000).setChannelCount(1).build(),
+                AudioSpec.builder().setSampleRate(48000).setChannelCount(2).build(),
+                AudioSpec.builder().setSampleRate(100000).setChannelCount(2).build(),
             )
 
         val resolvedSettings =
@@ -160,18 +172,25 @@ class AudioSettingsAudioProfileResolverTest(
                 if (audioProfile == null) {
                     emptyList()
                 } else {
-                    audioSpecs.map {
-                        AudioSettingsAudioProfileResolver(it, audioProfile, null).get()
+                    audioSpecs.map { spec ->
+                        spec to AudioConfigUtil.resolveAudioSettings(spec, audioProfile)
                     }
                 }
             }
 
-        resolvedSettings.forEach {
-            assertThat(
+        resolvedSettings.forEach { (spec, settings) ->
+            assertWithMessage(
+                    "Combination failed: spec[sampleRate=${spec.sampleRate}, " +
+                        "channelCount=${spec.channelCount}], " +
+                        "resolved[captureSampleRate=${settings.captureSampleRate}, " +
+                        "channelCount=${settings.channelCount}, " +
+                        "audioFormat=${settings.audioFormat}]"
+                )
+                .that(
                     AudioSource.isSettingsSupported(
-                        it.captureSampleRate,
-                        it.channelCount,
-                        it.audioFormat,
+                        settings.captureSampleRate,
+                        settings.channelCount,
+                        settings.audioFormat,
                     )
                 )
                 .isTrue()
@@ -179,7 +198,7 @@ class AudioSettingsAudioProfileResolverTest(
     }
 
     @Test
-    fun sampleRateCanOverrideEncoderProfiles_ifSupported() {
+    fun resolveAudioSettings_sampleRateCanOverrideEncoderProfiles_ifSupported() {
         val encoderProfiles = profilesResolver.getProfiles(Quality.HIGHEST, SDR)!!
         val audioProfile = encoderProfiles.defaultAudioProfile
         Assume.assumeTrue(audioProfile != null)
@@ -189,7 +208,7 @@ class AudioSettingsAudioProfileResolverTest(
         // If a dependency between the two is introduced, this will stop working and will
         // need to be rewritten.
         val autoEncoderProfileConfig =
-            AudioSettingsAudioProfileResolver(defaultAudioSpec, audioProfile!!, null).get()
+            AudioConfigUtil.resolveAudioSettings(defaultAudioSpec, audioProfile!!)
         // Try to find a sample rate that is supported, but not the
         // sample rate advertised by EncoderProfiles
         val nonReportedSampleRate =
@@ -208,36 +227,52 @@ class AudioSettingsAudioProfileResolverTest(
 
         // Create an audio spec that overrides the auto sample rate behavior
         val audioSpec = AudioSpec.builder().setSampleRate(nonReportedSampleRate!!).build()
-        val resolvedAudioSettings =
-            AudioSettingsAudioProfileResolver(audioSpec, audioProfile, null).get()
+        val resolvedAudioSettings = AudioConfigUtil.resolveAudioSettings(audioSpec, audioProfile)
 
         assertThat(resolvedAudioSettings.encodeSampleRate).isNotEqualTo(audioProfile.sampleRate)
         assertThat(resolvedAudioSettings.encodeSampleRate).isEqualTo(nonReportedSampleRate)
     }
 
     @Test
-    fun audioSpecDefaultProducesValidSourceEnum() {
+    fun resolveAudioSettings_defaultAudioSpecWithProfile_producesValidSourceEnum() {
         val encoderProfiles = profilesResolver.getProfiles(Quality.HIGHEST, SDR)!!
         val audioProfile = encoderProfiles.defaultAudioProfile
         Assume.assumeTrue(audioProfile != null)
 
         val audioSpec = AudioSpec.builder().build()
         val resolvedAudioSourceEnum =
-            AudioSettingsAudioProfileResolver(audioSpec, audioProfile!!, null).get().audioSource
+            AudioConfigUtil.resolveAudioSettings(audioSpec, audioProfile!!).audioSource
 
         assertThat(resolvedAudioSourceEnum)
             .isAnyOf(MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.MIC)
     }
 
     @Test
-    fun audioSpecDefaultProducesValidSourceFormat() {
+    fun resolveAudioSettings_defaultAudioSpecWithoutProfile_producesValidSourceEnum() {
+        val resolvedAudioSourceEnum =
+            AudioConfigUtil.resolveAudioSettings(defaultAudioSpec).audioSource
+
+        assertThat(resolvedAudioSourceEnum)
+            .isAnyOf(MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.MIC)
+    }
+
+    @Test
+    fun resolveAudioSettings_defaultAudioSpecWithProfile_producesValidSourceFormat() {
         val encoderProfiles = profilesResolver.getProfiles(Quality.HIGHEST, SDR)!!
         val audioProfile = encoderProfiles.defaultAudioProfile
         Assume.assumeTrue(audioProfile != null)
 
         val audioSpec = AudioSpec.builder().build()
         val resolvedAudioSourceFormat =
-            AudioSettingsAudioProfileResolver(audioSpec, audioProfile!!, null).get().audioFormat
+            AudioConfigUtil.resolveAudioSettings(audioSpec, audioProfile!!).audioFormat
+
+        assertThat(resolvedAudioSourceFormat).isNotEqualTo(AudioFormat.ENCODING_INVALID)
+    }
+
+    @Test
+    fun resolveAudioSettings_defaultAudioSpecWithoutProfile_producesValidSourceFormat() {
+        val resolvedAudioSourceFormat =
+            AudioConfigUtil.resolveAudioSettings(defaultAudioSpec).audioFormat
 
         assertThat(resolvedAudioSourceFormat).isNotEqualTo(AudioFormat.ENCODING_INVALID)
     }
