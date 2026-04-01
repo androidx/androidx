@@ -55,7 +55,9 @@ import androidx.appfunctions.integration.test.agent.TestUtil.assertReadInaccessi
 import androidx.appfunctions.integration.test.agent.TestUtil.assertWriteAccessible
 import androidx.appfunctions.integration.test.agent.TestUtil.assertWriteInaccessible
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
+import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.retryAssert
+import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
@@ -96,6 +98,8 @@ class IntegrationTest {
 
     @Before
     fun setup() = doBlocking {
+        uiAutomation.grantAppFunctionAccess(targetContext, TARGET_APP_PACKAGE)
+
         appFunctionCaller = AppFunctionCaller(targetContext)
 
         uiAutomation.apply {
@@ -110,6 +114,7 @@ class IntegrationTest {
 
     @After
     fun tearDown() {
+        uiAutomation.revokeAppFunctionAccess()
         InstallHelper.uninstall(TARGET_APP_PACKAGE)
         uiAutomation.dropShellPermissionIdentity()
     }
