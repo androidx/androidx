@@ -668,12 +668,10 @@ internal var areWindowInsetsRulersEnabled = true
 
 /**
  * Used to disable [androidx.compose.ui.layout.WindowInsetsRulers]. This can be used when UI never
- * reads WindowInsets across the process and having WindowInsets callbacks cause frame generation
- * when no content is updated. Applications typically would not use this method, but it may be
- * necessary for system UI. This should be called before the first [ComposeView] is created to avoid
- * insets calls.
+ * reads WindowInsets across all ComposeViews to reduce the overhead of requesting WindowInsets
+ * updates. Only call this when no ComposeViews will ever need to handle insets over the lifetime of
+ * the application. This should be called before the first [ComposeView] is created.
  */
-@ExperimentalComposeUiApi
 fun ComposeView.Companion.disableWindowInsetsRulers() {
     areWindowInsetsRulersEnabled = false
 }
