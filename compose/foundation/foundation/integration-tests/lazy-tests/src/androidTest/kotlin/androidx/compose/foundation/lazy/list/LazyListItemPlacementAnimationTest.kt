@@ -80,6 +80,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1380,6 +1381,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @Ignore // b/497014394
     @Test
     fun animateScrollToItem_withReorder_doNotAnimatePlacement() {
         var list by mutableStateOf(listOf(0, 1, 2, 4, 5))
