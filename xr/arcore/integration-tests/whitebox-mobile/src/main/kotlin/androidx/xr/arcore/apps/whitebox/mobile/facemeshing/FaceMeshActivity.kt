@@ -58,8 +58,9 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Framebuffer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.SampleRender
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.maybeThrowGLException
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.BackgroundRenderer
-import androidx.xr.arcore.playservices.ArCoreRuntime
+import androidx.xr.arcore.playservices.ExperimentalCameraApi
 import androidx.xr.arcore.playservices.cameraState
+import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.CameraFacingDirection
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.FaceTrackingMode
@@ -211,15 +212,17 @@ class FaceMeshActivity : ComponentActivity(), SampleRender.Companion.Renderer {
     }
 
     override fun onSurfaceChanged(render: SampleRender, width: Int, height: Int) {
-        (session.runtimes.first() as ArCoreRuntime)
+        session.runtimes
+            .filterIsInstance<PerceptionRuntime>()
+            .first()
             .perceptionManager
             .setDisplayRotation(Surface.ROTATION_0, width, height)
         framebuffer.resize(width, height)
     }
 
+    @OptIn(ExperimentalCameraApi::class)
     override fun onDrawFrame(render: SampleRender) {
         val cameraState = session.state.value.cameraState
-        val perceptionManager = (session.runtimes.first() as ArCoreRuntime).perceptionManager
 
         if (cameraState?.hardwareBuffer == null) {
             return

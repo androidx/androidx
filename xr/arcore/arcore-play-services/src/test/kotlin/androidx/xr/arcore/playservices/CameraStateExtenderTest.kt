@@ -46,6 +46,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCameraApi::class)
 @RunWith(AndroidJUnit4::class)
 class CameraStateExtenderTest {
 

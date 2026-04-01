@@ -39,7 +39,7 @@ import java.util.Queue
  * @property smoothDepthMap the smooth depth map
  * @property smoothConfidenceMap the smooth confidence map
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ArCoreDepthMap internal constructor() : DepthMap {
     override val width: Int
         get() = resolution.width

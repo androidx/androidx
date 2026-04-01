@@ -70,9 +70,9 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.maybeThrowGLExceptio
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.BackgroundRenderer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.PlaneRenderer
 import androidx.xr.arcore.hitTest
-import androidx.xr.arcore.playservices.ArCoreRuntime
-import androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi
+import androidx.xr.arcore.playservices.ExperimentalCameraApi
 import androidx.xr.arcore.playservices.cameraState
+import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
@@ -219,11 +219,15 @@ class AnchorsPlanesHitTestActivity :
     }
 
     override fun onSurfaceChanged(render: SampleRender, width: Int, height: Int) {
-        (session.runtimes.filterIsInstance<ArCoreRuntime>().first().perceptionManager)
+        session.runtimes
+            .filterIsInstance<PerceptionRuntime>()
+            .first()
+            .perceptionManager
             .setDisplayRotation(Surface.ROTATION_0, width, height)
         virtualSceneFramebuffer.resize(width, height)
     }
 
+    @OptIn(ExperimentalCameraApi::class)
     override fun onDrawFrame(render: SampleRender) {
         try {
             backgroundRenderer.setUseDepthVisualization(render, false)
@@ -322,6 +326,7 @@ class AnchorsPlanesHitTestActivity :
     }
 
     @Composable
+    @OptIn(ExperimentalCameraApi::class)
     private fun MainPanel() {
         val state by session.state.collectAsStateWithLifecycle()
         val cameraState = state.cameraState
@@ -399,7 +404,7 @@ class AnchorsPlanesHitTestActivity :
         anchors.clear()
     }
 
-    @OptIn(UnsupportedArCoreCompatApi::class)
+    @OptIn(ExperimentalCameraApi::class)
     private fun getHits(x: Float, y: Float) {
         if (lifecycle.currentStateFlow.value != Lifecycle.State.RESUMED) {
             return

@@ -42,7 +42,7 @@ import com.google.ar.core.exceptions.NotTrackingException
  * @property type the [Plane.Type] of the plane
  * @property vertices the vertices of the plane
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ArCorePlane
 internal constructor(internal val _arCorePlane: ARCorePlane, private val resources: XrResources) :
     Plane, Trackable {

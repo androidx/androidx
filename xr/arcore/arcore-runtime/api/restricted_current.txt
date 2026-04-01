@@ -235,6 +235,7 @@ package androidx.xr.arcore.runtime {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.Face? getUserFace();
     method public java.util.List<androidx.xr.arcore.runtime.HitResult> hitTest(androidx.xr.runtime.math.Ray ray);
     method public androidx.xr.arcore.runtime.Anchor loadAnchor(java.util.UUID uuid);
+    method public default void setDisplayRotation(int rotation, int width, int height);
     method public void unpersistAnchor(java.util.UUID uuid);
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.ArDevice arDevice;
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.DepthMap? leftDepthMap;

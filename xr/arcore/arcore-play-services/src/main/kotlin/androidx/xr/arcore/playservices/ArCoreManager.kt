@@ -59,7 +59,7 @@ import kotlinx.coroutines.delay
  * @property config the current [Config] of the session
  */
 @Suppress("NotCloseable")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ArCoreManager
 internal constructor(
     private val context: Context,
