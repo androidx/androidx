@@ -1298,8 +1298,10 @@ public interface ImpressApi {
         maxVertices: Int,
         maxIndices: Int,
         vertexData: Array<ByteBuffer>?,
+        vertexDataOffsets: IntArray?,
         vertexDataSizes: IntArray?,
         indexData: ByteBuffer?,
+        indexDataOffset: Int,
         indexDataSize: Int,
     ): MeshBuffer
 

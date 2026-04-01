@@ -553,8 +553,10 @@ public class FakeRenderingRuntime(
         maxVertices: Int,
         maxIndices: Int,
         vertexData: Array<ByteBuffer>?,
+        vertexDataOffsets: IntArray?,
         vertexDataSizes: IntArray?,
         indexData: ByteBuffer?,
+        indexDataOffset: Int,
         indexDataSize: Int,
     ): MeshBufferResource = object : MeshBufferResource {}
 

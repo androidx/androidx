@@ -1114,8 +1114,10 @@ public class FakeImpressApiImpl : ImpressApi {
         maxVertices: Int,
         maxIndices: Int,
         vertexData: Array<java.nio.ByteBuffer>?,
+        vertexDataOffsets: IntArray?,
         vertexDataSizes: IntArray?,
         indexData: java.nio.ByteBuffer?,
+        indexDataOffset: Int,
         indexDataSize: Int,
     ): MeshBuffer {
         val handle = nextMeshBufferId++

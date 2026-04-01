@@ -71,10 +71,8 @@ class MeshEntityTest {
             MeshBuffer.create(
                 session,
                 vertexLayout,
-                arrayOf(vertexBuffer),
-                intArrayOf(12),
-                indexBuffer,
-                12,
+                arrayOf(ByteBufferRegion(vertexBuffer, 0, 12)),
+                ByteBufferRegion(indexBuffer, 0, 12),
             )
         customMesh =
             CustomMesh.create(

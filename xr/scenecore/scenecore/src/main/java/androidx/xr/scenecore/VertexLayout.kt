@@ -24,7 +24,7 @@ import androidx.annotation.RestrictTo
  * This class is used to define the semantic meaning of a vertex attribute in a
  * [VertexAttributeDescriptor].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VertexAttribute private constructor(private val name: String) {
     public companion object {
         /** The position of the vertex. Must be a FLOAT3. */
@@ -60,7 +60,7 @@ public class VertexAttribute private constructor(private val name: String) {
  *
  * This specifies the data type and component count for an attribute in the vertex buffer.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VertexAttributeType private constructor(private val name: String) {
     public companion object {
         /** A single 32-bit floating point value. */
@@ -94,7 +94,7 @@ public class VertexAttributeType private constructor(private val name: String) {
  * @param type The [VertexAttributeType] data type of the attribute.
  * @param bufferIndex The index of the vertex buffer where this attribute is stored.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VertexAttributeDescriptor(
     public val attribute: VertexAttribute,
     public val type: VertexAttributeType,
@@ -129,7 +129,7 @@ public class VertexAttributeDescriptor(
  *
  * @param attributes List of [VertexAttributeDescriptor]s defining the vertex layout.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VertexLayout(public val attributes: List<VertexAttributeDescriptor>) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
