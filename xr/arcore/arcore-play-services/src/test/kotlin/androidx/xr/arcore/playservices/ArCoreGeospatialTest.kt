@@ -96,6 +96,7 @@ class ArCoreGeospatialTest {
         check(underTest.state == Geospatial.State.NOT_RUNNING) {
             "Geospatial should initially be NotRunning."
         }
+        underTest.arCoreSession = mockSession
     }
 
     private fun setupGeospatialTracking() {

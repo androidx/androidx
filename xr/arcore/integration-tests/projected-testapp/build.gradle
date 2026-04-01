@@ -35,7 +35,7 @@ dependencies {
     implementation(project(":xr:projected:projected"))
     implementation(project(":xr:arcore:arcore"))
     implementation(project(":xr:assets"))
-    implementation(project(":xr:arcore:arcore-projected"))
+    implementation(project(":xr:arcore:arcore-play-services"))
     implementation(project(":xr:glimmer:glimmer"))
 
     implementation("androidx.activity:activity:1.12.1")

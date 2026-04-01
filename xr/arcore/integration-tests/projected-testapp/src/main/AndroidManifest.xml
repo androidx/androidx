@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application android:label="JXR ARCore Projected Tests">
+        <meta-data android:name="com.google.ar.core" android:value="optional" />
         <activity
             android:name="androidx.xr.arcore.projected.testapp.ProjectedTestAppActivity"
             android:exported="true"

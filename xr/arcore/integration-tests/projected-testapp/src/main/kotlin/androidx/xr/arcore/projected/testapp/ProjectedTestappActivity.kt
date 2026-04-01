@@ -67,7 +67,6 @@ class ProjectedTestAppActivity : ComponentActivity() {
     private var vpsStatusMessage: String = "VPS status: checking..."
     private val sessionInitialized = CompletableDeferred<Unit>()
     private var exceptionMessage: String? = null
-    private val TAG = "ProjectedTestAppActivity"
     private val configs =
         listOf(
             "Geospatial On, 6DoF On" to
@@ -237,6 +236,10 @@ class ProjectedTestAppActivity : ComponentActivity() {
     private fun getGeospatialPoseText(): String {
         val devicePose = ArDevice.getInstance(session).state.value.devicePose
         val geospatialState = Geospatial.getInstance(session).state.value
+        if (geospatialState != GeospatialState.RUNNING) {
+            return "\nGeospatial State: ${getGeospatialStateMessage(geospatialState)} (Waiting for Earth...)"
+        }
+
         when (val geospatialPoseResult = geospatial.createGeospatialPoseFromPose(devicePose)) {
             is CreateGeospatialPoseFromPoseSuccess -> {
                 val currentGeospatialPose = geospatialPoseResult.pose

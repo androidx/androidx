@@ -246,7 +246,6 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
     }
 
     public fun update(session: Session) {
-        this.arCoreSession = session
         this.arCoreEarth = session.earth
 
         when (arCoreEarth?.earthState) {
