@@ -63,7 +63,7 @@ public class TraceSink(
      *
      * Value must be greater than 0.
      */
-    @IntRange(from = 1) sequenceId: Int,
+    @param:IntRange(from = 1) private val sequenceId: Int,
 
     /** Output [BufferedSink] the trace will be written to. */
     private val bufferedSink: BufferedSink,

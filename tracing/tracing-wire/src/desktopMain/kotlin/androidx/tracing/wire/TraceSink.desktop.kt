@@ -18,23 +18,11 @@
 
 package androidx.tracing.wire
 
-import androidx.tracing.AbstractTraceSink
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import okio.appendingSink
 import okio.buffer
-
-private fun File.perfettoTraceFile(): File {
-    val formatter = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
-    formatter.timeZone = TimeZone.getTimeZone("UTC")
-    val traceFile = File(this, "perfetto-${formatter.format(Date())}.perfetto-trace")
-    return traceFile
-}
 
 // StreamFiles is not relevant because the provided File represents a directory
 // in which new trace files are dynamically created, rather than a specific file to read/write.
@@ -44,7 +32,7 @@ public fun TraceSink(
     directory: File,
     sequenceId: Int,
     coroutineContext: CoroutineContext = Dispatchers.IO,
-): AbstractTraceSink =
+): TraceSink =
     TraceSink(
         sequenceId = sequenceId,
         bufferedSink = directory.perfettoTraceFile().appendingSink().buffer(),

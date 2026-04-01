@@ -35,10 +35,10 @@ package androidx.tracing.wire {
   }
 
   public final class TraceSinkUtils {
-    method public static androidx.tracing.AbstractTraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext);
-    method public static androidx.tracing.AbstractTraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext, optional java.io.File traceFile);
-    method public static androidx.tracing.AbstractTraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext, java.io.OutputStream outputStream);
-    method @BytecodeOnly public static androidx.tracing.AbstractTraceSink! TraceSink$default(android.content.Context!, int, kotlin.coroutines.CoroutineContext!, java.io.File!, int, Object!);
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext);
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext, optional java.io.File traceFile);
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext, java.io.OutputStream outputStream);
+    method @BytecodeOnly public static androidx.tracing.wire.TraceSink! TraceSink$default(android.content.Context!, int, kotlin.coroutines.CoroutineContext!, java.io.File!, int, Object!);
   }
 
 }
