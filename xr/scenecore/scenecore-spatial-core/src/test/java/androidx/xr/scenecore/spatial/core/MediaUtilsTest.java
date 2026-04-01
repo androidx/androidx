@@ -54,6 +54,16 @@ public final class MediaUtilsTest {
     }
 
     @Test
+    public void convertPointSourceParams_withNullEntity_returnsExtensionsParamsWithDefaultNode() {
+        PointSourceParams rtParams = new PointSourceParams();
+
+        com.android.extensions.xr.media.PointSourceParams result =
+                MediaUtils.convertPointSourceParamsToExtensions(rtParams, null);
+
+        assertThat(result.getNode()).isNotNull();
+    }
+
+    @Test
     public void convertSoundFieldAttributes_returnsExtensionsAttributes() {
         int extAmbisonicsOrder = SpatializerExtensions.AMBISONICS_ORDER_THIRD_ORDER;
 
