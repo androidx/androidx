@@ -313,13 +313,10 @@ package androidx.compose.remote.creation.compose.modifier {
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! border$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, Object!);
   }
 
-  public final class ClickActionModifierKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action... actions, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role);
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, java.util.List<androidx.compose.remote.creation.compose.action.Action> actions, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-NVUIbCQ(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action![], boolean, androidx.compose.ui.semantics.Role?);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-NVUIbCQ(androidx.compose.remote.creation.compose.modifier.RemoteModifier, java.util.List<? extends androidx.compose.remote.creation.compose.action.Action!>, boolean, androidx.compose.ui.semantics.Role?);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-NVUIbCQ$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.Action![]!, boolean, androidx.compose.ui.semantics.Role!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-NVUIbCQ$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, java.util.List!, boolean, androidx.compose.ui.semantics.Role!, int, Object!);
+  public final class ClickableModifierKt {
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.action.Action? action, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-NVUIbCQ(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action?, boolean, androidx.compose.ui.semantics.Role?);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-NVUIbCQ$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.Action!, boolean, androidx.compose.ui.semantics.Role!, int, Object!);
   }
 
   public final class ClipModifierKt {

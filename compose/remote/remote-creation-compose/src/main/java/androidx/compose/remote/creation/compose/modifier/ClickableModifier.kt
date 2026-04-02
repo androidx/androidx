@@ -19,11 +19,12 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.CombinedAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.ui.semantics.Role
 
-internal class ClickActionModifier(
+internal class ClickableModifier(
     public val actions: List<Action>,
     public val clickType: Int = MultiClickModifier.CLICK_TYPE_SINGLE,
 ) : RemoteModifier.Element {
@@ -38,18 +39,22 @@ internal class ClickActionModifier(
 
 // TODO provide an onClickLabel
 public fun RemoteModifier.clickable(
-    vararg actions: Action,
-    enabled: Boolean = true,
-    role: Role? = Role.Button,
-): RemoteModifier = clickable(actions.toList(), enabled, role)
-
-// TODO provide an onClickLabel
-public fun RemoteModifier.clickable(
-    actions: List<Action>,
+    action: Action? = null,
     enabled: Boolean = true,
     role: Role? = Role.Button,
 ): RemoteModifier =
-    then(if (enabled) ClickActionModifier(actions) else RemoteModifier)
+    then(
+            if (enabled) {
+                val actions =
+                    when (action) {
+                        is CombinedAction -> action.actions.toList()
+                        else -> listOfNotNull(action)
+                    }
+                if (actions.isNotEmpty()) ClickableModifier(actions) else RemoteModifier
+            } else {
+                RemoteModifier
+            }
+        )
         .then(
             if (role != null)
                 RemoteModifier.semantics {
