@@ -23,7 +23,7 @@ import androidx.xr.scenecore.runtime.SpatialPointerIcon
 import androidx.xr.scenecore.runtime.SpatialPointerIconType
 
 /** Test-only implementation of [FakeSpatialPointerComponent] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSpatialPointerComponent : FakeComponent(), SpatialPointerComponent {
 
     @SpatialPointerIconType override var spatialPointerIcon: Int = SpatialPointerIcon.TYPE_NONE

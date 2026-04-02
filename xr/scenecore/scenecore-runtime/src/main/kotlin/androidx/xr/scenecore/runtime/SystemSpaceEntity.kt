@@ -21,7 +21,7 @@ import androidx.xr.runtime.math.Pose
 import java.util.concurrent.Executor
 
 /** Interface for a system-controlled SceneCore Entity that defines its own coordinate space. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SystemSpaceEntity : Entity {
     /**
      * Registers a listener to be called when the underlying space's origin has moved or changed.

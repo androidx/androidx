@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import java.util.concurrent.Executor
 
 /** Component to enable resize semantics. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ResizableComponent : Component {
     /**
      * Sets the size of the entity.

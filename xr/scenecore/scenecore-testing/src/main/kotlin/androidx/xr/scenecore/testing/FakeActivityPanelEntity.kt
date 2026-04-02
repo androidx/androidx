@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.ActivityPanelEntity] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeActivityPanelEntity(name: String = "") :
     FakePanelEntity(name = name), ActivityPanelEntity {
 

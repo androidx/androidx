@@ -23,7 +23,7 @@ import androidx.xr.runtime.math.Vector3
 
 /** Interface for an XR Runtime ScenePose. */
 // TODO: b/420684433 This interface name no longer matches the public SceneCore interface name.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ScenePose {
     /** Returns the pose for this entity, relative to the activity space root. */
     public val activitySpacePose: Pose

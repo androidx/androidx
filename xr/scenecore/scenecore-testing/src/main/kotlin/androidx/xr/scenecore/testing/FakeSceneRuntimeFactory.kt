@@ -22,7 +22,7 @@ import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.SceneRuntimeFactory
 
 /** Factory for creating test-only instances of [androidx.xr.scenecore.runtime.SceneRuntime]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSceneRuntimeFactory : SceneRuntimeFactory {
     override val requirements: Set<Feature> = emptySet()
 

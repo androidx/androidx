@@ -39,7 +39,7 @@ import java.util.function.Consumer
  *
  * This API is intended for internal use only and is not a public API.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SceneRuntime : JxrRuntime {
     /** Return the Spatial Capabilities set that are currently supported by the platform. */
     public val spatialCapabilities: SpatialCapabilities

@@ -26,7 +26,7 @@ import java.util.concurrent.Executor
  * A test double for [androidx.xr.scenecore.runtime.SystemSpaceEntity], designed for use in unit or
  * integration tests.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakeSystemSpaceEntity() : FakeEntity(), SystemSpaceEntity {
 
     private var openXrReferenceSpaceTransform: Matrix4? = null

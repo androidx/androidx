@@ -22,7 +22,7 @@ import androidx.xr.scenecore.runtime.SpatialEnvironment.SpatialEnvironmentPrefer
 import androidx.xr.scenecore.runtime.SpatialEnvironmentFeature
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.SpatialEnvironmentFeature]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSpatialEnvironmentFeature :
     FakeBaseRenderingFeature(NodeHolder<FakeNode>(object : FakeNode {}, FakeNode::class.java)),
     SpatialEnvironmentFeature {

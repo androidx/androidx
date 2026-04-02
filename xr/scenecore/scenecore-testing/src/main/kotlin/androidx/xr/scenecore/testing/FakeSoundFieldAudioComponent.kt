@@ -23,7 +23,7 @@ import androidx.media3.exoplayer.audio.AudioTrackAudioOutputProvider
 import androidx.xr.scenecore.runtime.SoundFieldAudioComponent
 
 /** Test-only implementation of [SoundFieldAudioComponent]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSoundFieldAudioComponent(private val context: Context) :
     FakeComponent(), SoundFieldAudioComponent {
     override fun getAudioOutputProvider(): AudioOutputProvider {

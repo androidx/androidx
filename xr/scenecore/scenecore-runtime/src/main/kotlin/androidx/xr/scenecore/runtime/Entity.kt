@@ -22,7 +22,7 @@ import androidx.xr.runtime.math.Vector3
 import java.util.concurrent.Executor
 
 /** Interface for an XR Runtime Entity. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Entity : ScenePose {
 
     /** Sets the provided Entities to be children of the Entity. */

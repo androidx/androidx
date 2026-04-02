@@ -19,25 +19,25 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Interface for a resource. A resource represents a loadable resource. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Resource {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface Resource {}
 
 /**
  * Interface for an EXR resource. These HDR images can be used for image based lighting and
  * skyboxes.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface ExrImageResource : Resource {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface ExrImageResource : Resource {}
 
 /** Interface for a glTF resource. This can be used for creating glTF entities. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface GltfModelResource : Resource {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface GltfModelResource : Resource {}
 
 /** Interface for a texture resource. This can be used alongside materials. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface TextureResource : Resource {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface TextureResource : Resource {}
 
 /** Interface for a material resource. This can be used to override materials on meshes. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface MaterialResource : Resource {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface MaterialResource : Resource {}
 
 /** Interface for a MeshBuffer resource. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MeshBufferResource : Resource {
     /** Specifies the attribute of a vertex. */
     public annotation class VertexAttribute {
@@ -66,7 +66,7 @@ public interface MeshBufferResource : Resource {
 }
 
 /** Interface for a CustomMesh resource. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CustomMeshResource : Resource {
     /** Specifies the topology of the indices in a MeshSubset. */
     public annotation class Topology {

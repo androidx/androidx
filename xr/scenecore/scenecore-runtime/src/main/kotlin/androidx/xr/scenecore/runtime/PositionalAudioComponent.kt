@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.media3.exoplayer.audio.AudioOutputProvider
 
 /** A Component that provides positional spatial audio playback for an [Entity]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface PositionalAudioComponent : Component {
 
     /**

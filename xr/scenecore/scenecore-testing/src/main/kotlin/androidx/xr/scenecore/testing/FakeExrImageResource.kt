@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.ExrImageResource
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.ExrImageResource] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeExrImageResource(public val mToken: Long) : ExrImageResource {
     /**
      * The asset name that was used to "load" this fake resource.

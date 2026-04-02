@@ -24,6 +24,6 @@ import androidx.xr.scenecore.runtime.Resource
 import androidx.xr.scenecore.runtime.TextureResource
 
 /** Fake implementation of [androidx.xr.scenecore.runtime.Resource] for testing. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class FakeResource(internal val token: Long = 0) :
     Resource, ExrImageResource, GltfModelResource, TextureResource, MaterialResource {}

@@ -21,7 +21,7 @@ import androidx.xr.runtime.math.BoundingBox
 import java.util.function.Consumer
 
 /** Interface for a XR Runtime [GltfEntity]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GltfEntity : Entity {
 
     /** The flattened list of all nodes contained within this glTF model entity. */

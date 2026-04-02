@@ -30,7 +30,7 @@ import androidx.xr.runtime.math.Pose
  * The intended usage is for a [RenderingRuntime] to cast its [SceneRuntime] instance to
  * `RenderingEntityFactory` to access these factory methods.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RenderingEntityFactory {
     /**
      * A factory function to create a SceneCore GltfEntity. The parent may be the activity space or

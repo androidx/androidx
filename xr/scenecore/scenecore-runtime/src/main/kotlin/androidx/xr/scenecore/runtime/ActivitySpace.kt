@@ -24,7 +24,7 @@ import androidx.xr.runtime.math.Vector3
  * Interface for a SceneCore activity space. There is one activity space and it is the ancestor for
  * all elements in the scene. The activity space does not have a parent.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ActivitySpace : SystemSpaceEntity {
     /** Returns the bounds of this ActivitySpace. */
     public val bounds: Dimensions

@@ -24,7 +24,7 @@ import androidx.annotation.RestrictTo
  * sealed class encapsulates the different states: success with the calculated dimensions, or
  * specific failure reasons.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed class PerceivedResolutionResult {
 
     /**

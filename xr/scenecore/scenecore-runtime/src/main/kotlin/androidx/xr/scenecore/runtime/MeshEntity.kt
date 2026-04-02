@@ -19,7 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Interface for a Mesh entity. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MeshEntity : Entity {
     /**
      * Sets a material for a mesh subset.
@@ -31,7 +31,7 @@ public interface MeshEntity : Entity {
 }
 
 /** Provide the rendering implementation for [MeshEntity] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MeshFeature : RenderingFeature {
     /**
      * Sets a material for a mesh subset.

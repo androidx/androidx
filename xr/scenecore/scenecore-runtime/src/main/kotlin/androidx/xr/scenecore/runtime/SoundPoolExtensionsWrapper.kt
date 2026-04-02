@@ -20,7 +20,7 @@ import android.media.SoundPool
 import androidx.annotation.RestrictTo
 
 /** Interface for a XR Runtime SoundPoolExtensionsWrapper. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SoundPoolExtensionsWrapper {
     /**
      * Plays a sound as a point source.

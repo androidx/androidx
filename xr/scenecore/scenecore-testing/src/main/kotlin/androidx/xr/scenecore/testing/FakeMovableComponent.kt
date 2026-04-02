@@ -26,7 +26,7 @@ import androidx.xr.scenecore.runtime.MoveEventListener
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MovableComponent] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeMovableComponent : FakeComponent(), MovableComponent {
 
     /**

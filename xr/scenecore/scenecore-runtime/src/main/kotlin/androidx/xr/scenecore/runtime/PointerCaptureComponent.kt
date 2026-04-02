@@ -19,10 +19,10 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Component to enable pointer capture. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface PointerCaptureComponent : Component {
     /** The possible states of pointer capture. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public annotation class PointerCaptureState {
         public companion object {
             public const val POINTER_CAPTURE_STATE_PAUSED: Int = 0

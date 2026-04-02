@@ -22,7 +22,7 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 
 /** Interface for a XR Runtime ActivityPanel entity. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ActivityPanelEntity : PanelEntity {
     /**
      * Launches the given activity into the panel.

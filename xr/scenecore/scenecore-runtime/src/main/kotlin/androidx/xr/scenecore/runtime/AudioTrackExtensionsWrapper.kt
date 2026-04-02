@@ -20,7 +20,7 @@ import android.media.AudioTrack
 import androidx.annotation.RestrictTo
 
 /** Interface for a XR Runtime AudioTrackExtensionsWrapper */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AudioTrackExtensionsWrapper {
     /**
      * Returns the [PointSourceParams] of the AudioTrack.

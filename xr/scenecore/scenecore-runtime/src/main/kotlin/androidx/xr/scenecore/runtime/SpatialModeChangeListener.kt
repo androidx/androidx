@@ -24,7 +24,7 @@ import androidx.xr.runtime.math.Vector3
  * The SpatialModeChangeListener is used to handle scenegraph updates when the spatial mode for the
  * scene changes.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface SpatialModeChangeListener {
     /**
      * Called when the activity encounters spatial mode change.

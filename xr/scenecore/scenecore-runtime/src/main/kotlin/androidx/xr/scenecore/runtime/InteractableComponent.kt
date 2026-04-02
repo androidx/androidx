@@ -19,5 +19,4 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Component to enable input interactions. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface InteractableComponent : Component {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface InteractableComponent : Component {}

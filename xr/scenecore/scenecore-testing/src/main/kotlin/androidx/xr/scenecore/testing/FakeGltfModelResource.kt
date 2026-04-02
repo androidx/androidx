@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.GltfModelResource
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.GltfModelResource] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeGltfModelResource(public val mToken: Long) : GltfModelResource {
     /**
      * The asset name that was used to "load" this fake resource.

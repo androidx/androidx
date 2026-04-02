@@ -27,7 +27,7 @@ import androidx.xr.scenecore.runtime.ScenePose
  *
  * <p>A ScenePose is an object that has a pose in the world space.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class BaseScenePose : ScenePose {
     override val activitySpacePose: Pose
         get() =

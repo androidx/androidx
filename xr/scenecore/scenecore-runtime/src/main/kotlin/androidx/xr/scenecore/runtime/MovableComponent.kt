@@ -21,7 +21,7 @@ import androidx.xr.runtime.math.Pose
 import java.util.concurrent.Executor
 
 /** Component to enable a high level user movement affordance. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MovableComponent : Component {
 
     /**
@@ -73,7 +73,7 @@ public interface MovableComponent : Component {
      *
      * <p>DMM: The panel scales in a way that the user-perceived panel size never changes.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public annotation class ScaleWithDistanceMode {
         public companion object {
             public const val DEFAULT: Int = 3

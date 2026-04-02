@@ -36,7 +36,7 @@ import androidx.xr.runtime.math.Vector3
  * @param disposedEntity reports an entity that was disposed and needs to be removed from the sdk
  *   EntityManager.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MoveEvent(
     @MoveState public val moveState: Int,
     public val initialInputRay: Ray,

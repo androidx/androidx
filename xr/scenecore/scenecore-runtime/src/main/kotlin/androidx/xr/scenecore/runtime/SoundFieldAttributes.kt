@@ -19,7 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Represents a XR Runtime SoundFieldAttributes */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SoundFieldAttributes(
     @get:SpatializerConstants.AmbisonicsOrder public val ambisonicsOrder: Int
 ) {}

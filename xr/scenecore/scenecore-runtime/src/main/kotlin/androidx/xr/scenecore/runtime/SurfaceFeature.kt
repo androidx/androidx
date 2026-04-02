@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo
  * If the Entity is disposed, attempting to set any values on it will result in
  * [kotlin.IllegalStateException].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SurfaceFeature : RenderingFeature {
     /**
      * Specifies how the surface content will be routed for stereo viewing. Applications must render

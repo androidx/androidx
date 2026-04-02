@@ -24,4 +24,4 @@ import androidx.annotation.RestrictTo
  * <p>This is used to set possible conditions in which an entity with a MovableComponent can be
  * anchored. This can be set with createAnchorPlacementForPlanes.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface AnchorPlacement {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface AnchorPlacement {}

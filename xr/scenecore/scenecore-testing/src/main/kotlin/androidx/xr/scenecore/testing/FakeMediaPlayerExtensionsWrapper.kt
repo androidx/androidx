@@ -24,7 +24,7 @@ import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundFieldAttributes
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeMediaPlayerExtensionsWrapper : MediaPlayerExtensionsWrapper {
     private var _paramsWithEntity: MutableMap<MediaPlayer, Pair<PointSourceParams, Entity>> =
         mutableMapOf()

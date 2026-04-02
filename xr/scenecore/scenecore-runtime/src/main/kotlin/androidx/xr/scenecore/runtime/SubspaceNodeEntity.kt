@@ -19,7 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Represents an entity that manages a subspace node. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SubspaceNodeEntity : Entity {
     /** The size of the [SubspaceNodeEntity] in meters, in unscaled local space. */
     public var size: Dimensions
