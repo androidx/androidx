@@ -108,7 +108,7 @@ if run ./gradlew --ci -Pandroidx.allowLockfileMismatch=false "$@"; then
   echo "build passed"
   if [[ "$IS_POSTSUBMIT" == "true" && "$ENABLE_PRESUBMIT_COMPATIBLE_CC_STORE" == "true" ]]; then
     echo "Caching configuration for reuse in presubmit."
-    run IS_POSTSUBMIT=false ./gradlew --ci "$@" --dry-run
+    run IS_POSTSUBMIT=false ./gradlew --ci -Pandroidx.allowLockfileMismatch=false "$@" --dry-run
   fi
 else
   if [ "$DIAGNOSE" == "true" ]; then
