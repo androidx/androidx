@@ -71,11 +71,13 @@ public final class FontRequest {
      *         signed with. This is used to verify the identity of the provider. Each set in the
      *         list represents one collection of signature hashes. Refer to your font provider's
      *         documentation for these values.
-     * @param variationSettings String specifying the font variation settings (e.g. standard axes
-     *         like weight, width, and slant, or custom axes) to be applied to a variable font
-     *         when it is loaded. Supported on API 26 (Android O) and above. Note that these
-     *         settings will only be effective if the font provider actually returns a variable
-     *         font.
+     * @param variationSettings {@link String} specifying the font variation settings (e.g. standard
+     *         axes like weight, width, and slant, or custom axes) to be applied to a variable font
+     *         when it is loaded. See
+     *         {@link android.graphics.Paint#setFontVariationSettings(String)} for more information
+     *         about the format of the string. Supported on API 26 (Android O) and above. Note that
+     *         these settings will only be effective if the font provider actually returns a
+     *         variable font.
      */
     public FontRequest(
             @NonNull String providerAuthority, @NonNull String providerPackage,
@@ -110,11 +112,13 @@ public final class FontRequest {
      *         provider should be signed with. This is used to verify the identity of the provider.
      *         Each set in the list represents one collection of signature hashes. Refer to your
      *         font provider's documentation for these values.
-     * @param variationSettings String specifying the font variation settings (e.g. standard axes
-     *         like weight, width, and slant, or custom axes) to be applied to a variable font
-     *         when it is loaded. Supported on API 26 (Android O) and above. Note that these
-     *         settings will only be effective if the font provider actually returns a variable
-     *         font.
+     * @param variationSettings {@link String} specifying the font variation settings (e.g. standard
+     *         axes like weight, width, and slant, or custom axes) to be applied to a variable font
+     *         when it is loaded. See
+     *         {@link android.graphics.Paint#setFontVariationSettings(String)} for more information
+     *         about the format of the string. Supported on API 26 (Android O) and above. Note that
+     *         these settings will only be effective if the font provider actually returns a
+     *         variable font.
      */
     public FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
             @NonNull String query, @ArrayRes int certificates, @Nullable String variationSettings) {
@@ -239,6 +243,12 @@ public final class FontRequest {
         return mSystemFont;
     }
 
+    /**
+     * Returns the font variation settings.
+     *
+     * See {@link android.graphics.Paint#setFontVariationSettings(String)} for more information
+     * about the format of the string.
+     */
     @RestrictTo(LIBRARY)
     public @Nullable String getVariationSettings() {
         return mVariationSettings;
