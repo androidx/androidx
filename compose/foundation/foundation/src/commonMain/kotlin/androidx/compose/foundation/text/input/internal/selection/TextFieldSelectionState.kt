@@ -1342,9 +1342,11 @@ internal class TextFieldSelectionState(
             textLayoutCoordinates
                 .localToRoot(Offset(0f, layoutResult.getCursorRect(text.selection.end).top))
                 .y
+        val left = min(startOffset.x, endOffset.x)
+        val right = max(startOffset.x, endOffset.x)
         return Rect(
-            left = min(startOffset.x, endOffset.x),
-            right = max(startOffset.x, endOffset.x),
+            left = left,
+            right = if (left == right) right + 1f else right,
             top = min(startTop, endTop),
             bottom = max(startOffset.y, endOffset.y),
         )
