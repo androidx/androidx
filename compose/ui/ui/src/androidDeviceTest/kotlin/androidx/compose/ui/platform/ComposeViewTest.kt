@@ -50,7 +50,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalComposeViewContextApi::class)
 class ComposeViewTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
