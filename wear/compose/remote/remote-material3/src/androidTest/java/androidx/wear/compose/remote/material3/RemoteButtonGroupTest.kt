@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -53,6 +54,17 @@ class RemoteButtonGroupTest {
         remoteComposeTestRule.runScreenshotTest(
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
+        ) {
+            Center { RemoteButtonGroupThreeButtons() }
+        }
+    }
+
+    @Test
+    fun buttonGroup_threeButton_rtl() {
+        remoteComposeTestRule.runScreenshotTest(
+            backgroundColor = Color.Black,
+            creationDisplayInfo = creationDisplayInfo,
+            layoutDirection = LayoutDirection.Rtl,
         ) {
             Center { RemoteButtonGroupThreeButtons() }
         }

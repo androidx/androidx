@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -72,6 +73,17 @@ class RemoteCompactButtonTest {
                     label = { RemoteText("disabled".rs) },
                 )
             }
+        }
+    }
+
+    @Test
+    fun compact_button_icon_and_label_rtl() {
+        remoteComposeTestRule.runScreenshotTest(
+            backgroundColor = Color.Black,
+            creationDisplayInfo = creationDisplayInfo,
+            layoutDirection = LayoutDirection.Rtl,
+        ) {
+            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithIconAndLabel() }
         }
     }
 
