@@ -16,6 +16,8 @@
 
 package androidx.pdf.selection
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Point
 import android.graphics.RectF
 import android.net.Uri
@@ -30,6 +32,7 @@ import androidx.pdf.view.FakePdfDocument
 import androidx.pdf.view.PdfView
 import androidx.pdf.view.PdfViewTestActivity
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.doubleClick
 import androidx.test.espresso.action.ViewActions.longClick
@@ -40,7 +43,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import kotlin.test.Ignore
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -139,11 +141,11 @@ class SelectionContextualMenuTest {
         }
     }
 
-    @Ignore(
-        "TODO: b/473956136 - Fails on devices without email clients (failing 100% Cuttlefish in post-submit). Update test, then re-enable."
-    )
     @Test
     fun testEmailSelection_showsEmailAddOptions() {
+        // Pre-requisite check: ensure an email client is available on the device.
+        if (!hasEmailClient()) return
+
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
                 // Create a selection by long-pressing the center of the view.
@@ -237,5 +239,12 @@ class SelectionContextualMenuTest {
             )
         val FAKE_PAGE_TEXT =
             listOf<String>(EMAIL, LINK, PHONE_NUMBER, BACKTOEMAIL, GOOGLE, EMAIL_LINK)
+
+        /** Verifies an email client exists on device. */
+        private fun hasEmailClient(): Boolean {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+            return intent.resolveActivity(context.packageManager) != null
+        }
     }
 }
