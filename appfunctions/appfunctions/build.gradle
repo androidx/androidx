@@ -77,7 +77,7 @@ kapt {
 }
 
 android {
-    compileSdk { version = release(36) }
+    compileSdk { version = release(37) }
     namespace = "androidx.appfunctions"
 }
 

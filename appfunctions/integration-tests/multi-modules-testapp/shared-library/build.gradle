@@ -21,7 +21,7 @@ plugins {
 
 android {
     namespace = "androidx.appfunctions.integration.testapp.shared_library"
-    compileSdk { version = release(36) }
+    compileSdk { version = release(37) }
 
     defaultConfig {
         minSdk { version = release(33) }

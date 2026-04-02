@@ -16,6 +16,7 @@
 
 package androidx.appfunctions
 
+import android.app.AppInteractionAttribution
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
@@ -41,12 +42,40 @@ constructor(
     public val functionParameters: AppFunctionData,
     /** Whether the parameters in this request is encoded in the jetpack format or not. */
     @get:RestrictTo(LIBRARY_GROUP) public val useJetpackSchema: Boolean,
+    /**
+     * The attribution that can be used by the privacy setting to provide transparency to the user
+     * about why an app function was invoked.
+     */
+    @get:RestrictTo(LIBRARY_GROUP)
+    @get:RequiresApi(37)
+    public val attribution: AppInteractionAttribution? = null,
 ) {
     public constructor(
         targetPackageName: String,
         functionIdentifier: String,
         functionParameters: AppFunctionData,
-    ) : this(targetPackageName, functionIdentifier, functionParameters, useJetpackSchema = true)
+    ) : this(
+        targetPackageName,
+        functionIdentifier,
+        functionParameters,
+        useJetpackSchema = true,
+        attribution = null,
+    )
+
+    @RestrictTo(LIBRARY_GROUP)
+    @RequiresApi(37)
+    public constructor(
+        targetPackageName: String,
+        functionIdentifier: String,
+        functionParameters: AppFunctionData,
+        attribution: AppInteractionAttribution,
+    ) : this(
+        targetPackageName,
+        functionIdentifier,
+        functionParameters,
+        useJetpackSchema = true,
+        attribution = attribution,
+    )
 
     internal fun toPlatformExtensionClass():
         com.android.extensions.appfunctions.ExecuteAppFunctionRequest {
@@ -84,6 +113,11 @@ constructor(
                     putBoolean(EXTRA_USE_JETPACK_SCHEMA, useJetpackSchema)
                 }
             )
+            .apply {
+                if (Build.VERSION.SDK_INT >= 37 && attribution != null) {
+                    setAttribution(attribution)
+                }
+            }
             .build()
     }
 
@@ -104,6 +138,7 @@ constructor(
             functionIdentifier,
             functionParameters,
             useJetpackSchema,
+            attribution,
         )
 
     public companion object {
@@ -157,6 +192,12 @@ constructor(
                         ),
                     ),
                 useJetpackSchema = this.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA, false),
+                attribution =
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        this.attribution
+                    } else {
+                        null
+                    },
             )
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
