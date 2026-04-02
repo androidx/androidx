@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import android.graphics.Rect
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
@@ -33,8 +34,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixels
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
@@ -43,11 +46,13 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.window.Popup
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -180,6 +185,131 @@ class BitmapCapturingTest(val config: TestConfig) {
         rule.onNode(isPopup()).captureToImage().let {
             assertThat(IntSize(it.width, it.height)).isEqualTo(IntSize(boxSizePx, boxSizePx))
         }
+    }
+
+    @Test
+    fun capturePopupWithAnchor_verifySize() {
+        val boxSize = 200.dp
+        val popUpSizePx = boxSize.toPixel(rule.density).roundToInt()
+        setContent {
+            Box(Modifier.size(boxSize).background(Color.Yellow)) { Popup { Box { Text("Hello") } } }
+        }
+        rule.onRoot().captureToImage().let {
+            assertThat(IntSize(it.width, it.height)).isEqualTo(IntSize(popUpSizePx, popUpSizePx))
+        }
+    }
+
+    @Test
+    fun captureDialogWithAnchor_verifySize() {
+        val boxSize = 200.dp
+
+        setContent {
+            Box(Modifier.size(boxSize).background(Color.Red)) {
+                Dialog(onDismissRequest = {}) {
+                    Box(Modifier.background(Color.Yellow)) { Text("Hello") }
+                }
+            }
+        }
+
+        val visibleFrame = Rect()
+        rule.activity.window.decorView.getWindowVisibleDisplayFrame(visibleFrame)
+        val expectedWidthPx = visibleFrame.width()
+        val expectedHeightPx = visibleFrame.height()
+
+        rule.onRoot().captureToImage().let {
+            assertThat(IntSize(it.width, it.height))
+                .isEqualTo(IntSize(expectedWidthPx, expectedHeightPx))
+        }
+    }
+
+    @Test
+    fun capturePopupWithAnchor_verifyColors() {
+        setContent {
+            Box(Modifier.size(200.dp).background(Color.Yellow)) {
+                Popup(alignment = Alignment.Center) {
+                    Box(Modifier.size(50.dp).background(Color.Red))
+                }
+            }
+        }
+
+        rule.onRoot().captureToImage().let { bitmap ->
+            bitmap.assertContainsColor(Color.Yellow)
+            bitmap.assertContainsColor(Color.Red)
+        }
+    }
+
+    @Test
+    fun captureDialogWithAnchor_verifyColors() {
+        setContent {
+            Box(Modifier.size(200.dp).background(Color.Red)) {
+                Dialog(onDismissRequest = {}) {
+                    val view = LocalView.current
+                    val window = (view.parent as? DialogWindowProvider)?.window
+                    window?.setDimAmount(0f)
+                    Box(Modifier.size(50.dp).background(Color.Yellow))
+                }
+            }
+        }
+
+        rule.onRoot().captureToImage().let { bitmap ->
+            bitmap.assertContainsColor(Color.Red)
+            bitmap.assertContainsColor(Color.Yellow)
+        }
+    }
+
+    @Test
+    fun capturePopup_partiallyOffScreen_doesNotCrash() {
+        setContent {
+            Box(Modifier.size(100.dp)) {
+                // Offset aggressively so the popup attempts to draw outside the top-left of the
+                // screen
+                Popup(alignment = Alignment.TopStart, offset = IntOffset(-1000, -1000)) {
+                    Box(Modifier.size(2000.dp).background(Color.Red))
+                }
+            }
+        }
+
+        val bitmap = rule.onRoot().captureToImage()
+
+        assertThat(bitmap.width).isGreaterThan(0)
+        assertThat(bitmap.height).isGreaterThan(0)
+    }
+
+    @Test
+    fun captureMultiplePopups_verifyColors() {
+        setContent {
+            Box(Modifier.size(200.dp).background(Color.White)) {
+                Popup(alignment = Alignment.TopStart) {
+                    Box(Modifier.size(50.dp).background(Color.Red))
+                }
+                Popup(alignment = Alignment.BottomEnd) {
+                    Box(Modifier.size(50.dp).background(Color.Blue))
+                }
+            }
+        }
+
+        rule.onRoot().captureToImage().let { bitmap ->
+            bitmap.assertContainsColor(Color.White)
+            bitmap.assertContainsColor(Color.Red)
+            bitmap.assertContainsColor(Color.Blue)
+        }
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
+    fun captureDialog_apiBelow28_throwsException() {
+        setContent {
+            Dialog(onDismissRequest = {}) { Box(Modifier.size(100.dp).background(Color.Red)) }
+        }
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                rule.onNode(isDialog()).captureToImage()
+            }
+
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Cannot currently capture dialogs on API lower than 28")
     }
 
     private fun Dp.toPixel(density: Density) = this.value * density.density
