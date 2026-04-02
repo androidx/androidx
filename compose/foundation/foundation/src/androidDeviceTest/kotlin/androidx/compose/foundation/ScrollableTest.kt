@@ -63,7 +63,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
@@ -156,7 +155,6 @@ import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.After
 import org.junit.Assert
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -285,10 +283,8 @@ class ScrollableTest {
         assertThat(total).isEqualTo(0)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun scrollable_trackpadHorizontalDragDoesNotScroll() {
-        assumeTrue(ComposeUiFlags.isTrackpadGestureHandlingEnabled)
         var total = 0f
         val scrollableState =
             ScrollableState(
@@ -774,11 +770,8 @@ class ScrollableTest {
         assertThat(total).isEqualTo(0)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun scrollable_trackpadVerticalDragDoesNotScroll() {
-        assumeTrue(ComposeUiFlags.isTrackpadGestureHandlingEnabled)
-
         var total = 0f
         val scrollableState =
             ScrollableState(
@@ -2503,7 +2496,6 @@ class ScrollableTest {
         assertThat(childDeltas).isEqualTo(dragged - touchSlop)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_nestedFling_shouldCancelWhenHitTheBounds_ifRemoved() {
         var shouldEmit by mutableStateOf(true)
@@ -2546,7 +2538,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(latestScroll).isEqualTo(Offset.Zero) }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_nestedFling_shouldContinueSendingDeltasWhenHitBounds() {
         var flingDeltas = Offset.Zero

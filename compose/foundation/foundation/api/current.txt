@@ -160,7 +160,6 @@ package androidx.compose.foundation {
     property public boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
     property public boolean isSkipItemPlacementAnimationFixEnabled;
     property public boolean isSmartSelectionEnabled;
-    property public boolean isTrackpadGestureHandlingEnabled;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
     field public static boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     field public static boolean isBasicTextFieldMinSizeOptimizationEnabled;
@@ -172,7 +171,6 @@ package androidx.compose.foundation {
     field public static boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
     field public static boolean isSkipItemPlacementAnimationFixEnabled;
     field public static boolean isSmartSelectionEnabled;
-    field public static boolean isTrackpadGestureHandlingEnabled;
   }
 
   public final class DarkThemeKt {
