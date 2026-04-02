@@ -152,9 +152,9 @@ public final class CheckFlagsRule implements TestRule {
         if (flagName.startsWith(Flags.FLAG_PREFIX)) {
             flagClass = Flags.class;
             methodNameStartIndex = Flags.FLAG_PREFIX.length();
-        } else if (flagName.startsWith(android.app.appfunctions.flags.Flags.FLAG_PREFIX)) {
-            flagClass = android.app.appfunctions.flags.Flags.class;
-            methodNameStartIndex = android.app.appfunctions.flags.Flags.FLAG_PREFIX.length();
+        } else if (flagName.startsWith(androidx.appsearch.flags.appfunctions.Flags.FLAG_PREFIX)) {
+            flagClass = androidx.appsearch.flags.appfunctions.Flags.class;
+            methodNameStartIndex = androidx.appsearch.flags.appfunctions.Flags.FLAG_PREFIX.length();
         } else {
             throw new IllegalArgumentException("Invalid flag name");
         }

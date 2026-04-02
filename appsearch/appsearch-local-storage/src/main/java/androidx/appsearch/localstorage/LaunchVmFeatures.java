@@ -26,24 +26,24 @@ import androidx.annotation.RestrictTo;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LaunchVMFeatures {
+public class LaunchVmFeatures {
     /*** Indicates if the primary Virtual Machine feature is enabled.*/
-    private boolean mIsVMEnabled1;
+    private boolean mIsVmEnabled;
 
     /**
      * Indicates if the second iteration of the Virtual Machine integration is requested.
      *
-     * Note: This is only applied if {@link #mIsVMEnabled1} is also true.
+     * Note: This is only applied if {@link #mIsVmEnabled} is also true.
      */
-    private boolean mIsVMEnabled2;
+    private boolean mIsAiSealEnabled;
 
     /**
      * Returns whether the primary VM feature is enabled.
      *
      * @return {@code true} if the VM feature is enabled.
      */
-    public boolean isVMEnabled1() {
-        return mIsVMEnabled1;
+    public boolean isVmEnabled() {
+        return mIsVmEnabled;
     }
 
     /**
@@ -51,25 +51,25 @@ public class LaunchVMFeatures {
      *
      * @return {@code true} if both the primary and secondary VM feature is enabled.
      */
-    public boolean isVMEnabled2() {
-        return mIsVMEnabled1 && mIsVMEnabled2;
+    public boolean isAiSealEnabled() {
+        return mIsVmEnabled && mIsAiSealEnabled;
     }
 
     /**
      * Sets the enablement state of the primary VM feature.
      *
-     * @param isVMEnabled1 {@code true} to enable the primary VM feature.
+     * @param isVMEnabled {@code true} to enable the primary VM feature.
      */
-    public void setVMEnabled1(boolean isVMEnabled1) {
-        mIsVMEnabled1 = isVMEnabled1;
+    public void setVmEnabled(boolean isVMEnabled) {
+        mIsVmEnabled = isVMEnabled;
     }
 
     /**
-     * Sets the requested state of the secondary VM feature.
+     * Sets the requested state of the Ai seal feature.
      *
-     * @param isVMEnabled2 {@code true} to request the secondary VM feature.
+     * @param isAiSealEnabled {@code true} to request the secondary Vm Ai seal feature.
      */
-    public void setVMEnabled2(boolean isVMEnabled2) {
-        mIsVMEnabled2 = isVMEnabled2;
+    public void setAiSealEnabled(boolean isAiSealEnabled) {
+        mIsAiSealEnabled = isAiSealEnabled;
     }
 }

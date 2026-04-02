@@ -679,7 +679,7 @@ public class AppSearchImplTest {
 
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         // Initializing with a custom icing instance will cause AppSearch to assume
-        // isVMEnabled. This will enable both database-scoped operations and init retries.
+        // isVmEnabled. This will enable both database-scoped operations and init retries.
         mAppSearchImpl =
                 AppSearchImpl.create(
                         mAppSearchDir,
@@ -708,7 +708,7 @@ public class AppSearchImplTest {
 
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         // Initializing with a custom icing instance will cause AppSearch to assume
-        // isVMEnabled. This will enable both database-scoped operations and init retries.
+        // isVmEnabled. This will enable both database-scoped operations and init retries.
         mAppSearchImpl =
                 AppSearchImpl.create(
                         mAppSearchDir,
@@ -739,7 +739,7 @@ public class AppSearchImplTest {
 
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         // Initializing with a custom icing instance will cause AppSearch to assume
-        // isVMEnabled. This will enable both database-scoped operations and init retries.
+        // isVmEnabled. This will enable both database-scoped operations and init retries.
         mAppSearchImpl =
                 AppSearchImpl.create(
                         mAppSearchDir,
@@ -770,7 +770,7 @@ public class AppSearchImplTest {
 
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         // Initializing with a custom icing instance will cause AppSearch to assume
-        // isVMEnabled. This will enable both database-scoped operations and init retries.
+        // isVmEnabled. This will enable both database-scoped operations and init retries.
         mAppSearchImpl =
                 AppSearchImpl.create(
                         mAppSearchDir,
@@ -800,7 +800,7 @@ public class AppSearchImplTest {
 
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         // Initializing with a custom icing instance will cause AppSearch to assume
-        // isVMEnabled. This will enable both database-scoped operations and init retries.
+        // isVmEnabled. This will enable both database-scoped operations and init retries.
         mAppSearchImpl =
                 AppSearchImpl.create(
                         mAppSearchDir,
@@ -833,7 +833,7 @@ public class AppSearchImplTest {
 
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         // Initializing with a custom icing instance will cause AppSearch to assume
-        // isVMEnabled. This will enable both database-scoped operations and init retries.
+        // isVmEnabled. This will enable both database-scoped operations and init retries.
         mAppSearchImpl =
                 AppSearchImpl.create(
                         mAppSearchDir,
@@ -877,7 +877,7 @@ public class AppSearchImplTest {
 
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         // Initializing with a custom icing instance will cause AppSearch to assume
-        // isVMEnabled. This will enable both database-scoped operations and init retries.
+        // isVmEnabled. This will enable both database-scoped operations and init retries.
         mAppSearchImpl =
                 AppSearchImpl.create(
                         mAppSearchDir,
@@ -1098,7 +1098,7 @@ public class AppSearchImplTest {
     public void testResetWithSchemaDatabaseMigration() throws Exception {
         IcingSearchEngineOptions.Builder optionsBuilder =
                 IcingSearchEngineOptions.newBuilder(mUnlimitedConfig.toIcingSearchEngineOptions(
-                        mAppSearchDir.getAbsolutePath(),  /* isVMEnabled= */ false));
+                        mAppSearchDir.getAbsolutePath(),  /* isVmEnabled= */ false));
         // Initialize Icing without schema database enabled.
         IcingSearchEngine icingSearchEngine = new IcingSearchEngine(
                 optionsBuilder.setEnableSchemaDatabase(false).build());
@@ -1107,7 +1107,7 @@ public class AppSearchImplTest {
                 mUnlimitedConfig,
                 new AppSearchUserPlugins.Builder()
                         // Initializing with a custom icing instance will cause AppSearch to assume
-                        // isVMEnabled. Therefore we cannot call AppSearch::setSchema below since
+                        // isVmEnabled. Therefore we cannot call AppSearch::setSchema below since
                         // it'll still use database-scoped operations.
                         .setIcingSearchEngine(icingSearchEngine).build(),
                 ALWAYS_OPTIMIZE);
@@ -1273,7 +1273,7 @@ public class AppSearchImplTest {
 
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         // Initializing with a custom icing instance will cause AppSearch to assume
-        // isVMEnabled. This will enable both database-scoped operations and init retries.
+        // isVmEnabled. This will enable both database-scoped operations and init retries.
         mAppSearchImpl =
                 AppSearchImpl.create(
                         mAppSearchDir,
@@ -1305,7 +1305,7 @@ public class AppSearchImplTest {
     public void testQueryWithPageSizeLimit() throws Exception {
         IcingSearchEngineOptions icingOptions =
                 IcingSearchEngineOptions.newBuilder(mUnlimitedConfig.toIcingSearchEngineOptions(
-                                mAppSearchDir.getAbsolutePath(),  /* isVMEnabled= */ false))
+                                mAppSearchDir.getAbsolutePath(),  /* isVmEnabled= */ false))
                         .setEnableStrictPageByteSizeLimit(true)
                         // We need to enable schema database as by passing in a custom Icing
                         // instance, AppSearch assumes that the VM is enabled and will use
@@ -6415,27 +6415,27 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testStatsIsLaunchVM() throws Exception {
+    public void testStatsIsLaunchVm() throws Exception {
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         IcingSearchEngineOptions options = mUnlimitedConfig.toIcingSearchEngineOptions(
-                mAppSearchDir.getAbsolutePath(), /* isVMEnabled= */ true);
+                mAppSearchDir.getAbsolutePath(), /* isVmEnabled= */ true);
         IcingSearchEngine icingSearchEngine = new IcingSearchEngine(options);
         // the bit mask for only enable launch VM feature.
-        int onlyLaunchVMFeature = 1;
-        LaunchVMFeatures launchVMFeatures = new LaunchVMFeatures();
-        launchVMFeatures.setVMEnabled1(true);
+        int onlyLaunchVmFeature = 1;
+        LaunchVmFeatures launchVmFeatures = new LaunchVmFeatures();
+        launchVmFeatures.setVmEnabled(true);
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
                 mUnlimitedConfig,
                 new AppSearchUserPlugins.Builder()
                         .setInitStatsBuilder(initStatsBuilder)
                         .setIcingSearchEngine(icingSearchEngine)
-                        .setLaunchVMFeatures(launchVMFeatures).build(),
+                        .setLaunchVmFeatures(launchVmFeatures).build(),
                 ALWAYS_OPTIMIZE);
 
         // Initialization and check initStats
         InitializeStats initStats = initStatsBuilder.build();
-        assertThat(initStats.getEnabledFeatures()).isEqualTo(onlyLaunchVMFeature);
+        assertThat(initStats.getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
 
         // Set a schema and check SetSchemaStats
         List<AppSearchSchema> schemas =
@@ -6454,18 +6454,18 @@ public class AppSearchImplTest {
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         SetSchemaStats setSchemaStats = setSchemaStatsBuilder.build();
-        assertThat(setSchemaStats.getEnabledFeatures()).isEqualTo(onlyLaunchVMFeature);
+        assertThat(setSchemaStats.getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
 
         // Add documents and test putDocumentStats.
         AppSearchLogger fakeLogger = new AppSearchLogger() {
             @Override
             public void logStats(@NonNull PutDocumentStats stats) {
-                assertThat(stats.getEnabledFeatures()).isEqualTo(onlyLaunchVMFeature);
+                assertThat(stats.getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
             }
 
             @Override
             public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getEnabledFeatures()).isEqualTo(onlyLaunchVMFeature);
+                assertThat(stats.getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
             }
         };
         GenericDocument document =
@@ -6508,30 +6508,28 @@ public class AppSearchImplTest {
         assertThat(deletedIds).containsKey("namespace1");
         assertThat(deletedIds.get("namespace1")).containsExactly("id1");
         RemoveStats removeStats = removeStatsBuilder.build();
-        assertThat(removeStats.getEnabledFeatures()).isEqualTo(onlyLaunchVMFeature);
+        assertThat(removeStats.getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
 
         // Trigger optimize and check optimize stats
         OptimizeStats.Builder optimizeStatsBuilder = new OptimizeStats.Builder();
         mAppSearchImpl.optimize(optimizeStatsBuilder, /*callStatsBuilder=*/ null);
         OptimizeStats optimizeStats = optimizeStatsBuilder.build();
-        assertThat(optimizeStats.getEnabledFeatures()).isEqualTo(onlyLaunchVMFeature);
+        assertThat(optimizeStats.getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
     }
 
     @Test
-    public void testStatsOnlyVM2Enabled() throws Exception {
+    public void testStatsOnlyAiSealEnabled() throws Exception {
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
-        IcingSearchEngineOptions options = mUnlimitedConfig.toIcingSearchEngineOptions(
-                mAppSearchDir.getAbsolutePath(), /* isVMEnabled= */ true);
         // the bit mask for only enable launch VM feature.
         int noLaunchFeature = 0;
-        LaunchVMFeatures launchVMFeatures = new LaunchVMFeatures();
-        launchVMFeatures.setVMEnabled2(true);
+        LaunchVmFeatures launchVmFeatures = new LaunchVmFeatures();
+        launchVmFeatures.setAiSealEnabled(true);
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
                 mUnlimitedConfig,
                 new AppSearchUserPlugins.Builder()
                         .setInitStatsBuilder(initStatsBuilder)
-                        .setLaunchVMFeatures(launchVMFeatures)
+                        .setLaunchVmFeatures(launchVmFeatures)
                         .build(),
                 ALWAYS_OPTIMIZE);
 
@@ -6621,28 +6619,25 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testStatsVM1andVM2Enabled() throws Exception {
+    public void testStatsVmAndAiSealEnabled() throws Exception {
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
-        IcingSearchEngineOptions options = mUnlimitedConfig.toIcingSearchEngineOptions(
-                mAppSearchDir.getAbsolutePath(), /* isVMEnabled= */ true);
-        IcingSearchEngine icingSearchEngine = new IcingSearchEngine(options);
         // the bit mask for only enable launch VM feature.
-        int launchVM1andVM2Feature = 3;
-        LaunchVMFeatures launchVMFeatures = new LaunchVMFeatures();
-        launchVMFeatures.setVMEnabled1(true);
-        launchVMFeatures.setVMEnabled2(true);
+        int launchVmAndAiSealFeature = 3;
+        LaunchVmFeatures launchVmFeatures = new LaunchVmFeatures();
+        launchVmFeatures.setVmEnabled(true);
+        launchVmFeatures.setAiSealEnabled(true);
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
                 mUnlimitedConfig,
                 new AppSearchUserPlugins.Builder()
                         .setInitStatsBuilder(initStatsBuilder)
-                        .setLaunchVMFeatures(launchVMFeatures)
+                        .setLaunchVmFeatures(launchVmFeatures)
                         .build(),
                 ALWAYS_OPTIMIZE);
 
         // Initialization and check initStats
         InitializeStats initStats = initStatsBuilder.build();
-        assertThat(initStats.getEnabledFeatures()).isEqualTo(launchVM1andVM2Feature);
+        assertThat(initStats.getEnabledFeatures()).isEqualTo(launchVmAndAiSealFeature);
 
         // Set a schema and check SetSchemaStats
         List<AppSearchSchema> schemas =
@@ -6661,18 +6656,18 @@ public class AppSearchImplTest {
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         SetSchemaStats setSchemaStats = setSchemaStatsBuilder.build();
-        assertThat(setSchemaStats.getEnabledFeatures()).isEqualTo(launchVM1andVM2Feature);
+        assertThat(setSchemaStats.getEnabledFeatures()).isEqualTo(launchVmAndAiSealFeature);
 
         // Add documents and test putDocumentStats.
         AppSearchLogger fakeLogger = new AppSearchLogger() {
             @Override
             public void logStats(@NonNull PutDocumentStats stats) {
-                assertThat(stats.getEnabledFeatures()).isEqualTo(launchVM1andVM2Feature);
+                assertThat(stats.getEnabledFeatures()).isEqualTo(launchVmAndAiSealFeature);
             }
 
             @Override
             public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getEnabledFeatures()).isEqualTo(launchVM1andVM2Feature);
+                assertThat(stats.getEnabledFeatures()).isEqualTo(launchVmAndAiSealFeature);
             }
         };
         GenericDocument document =
@@ -6715,13 +6710,13 @@ public class AppSearchImplTest {
         assertThat(deletedIds).containsKey("namespace1");
         assertThat(deletedIds.get("namespace1")).containsExactly("id1");
         RemoveStats removeStats = removeStatsBuilder.build();
-        assertThat(removeStats.getEnabledFeatures()).isEqualTo(launchVM1andVM2Feature);
+        assertThat(removeStats.getEnabledFeatures()).isEqualTo(launchVmAndAiSealFeature);
 
         // Trigger optimize and check optimize stats
         OptimizeStats.Builder optimizeStatsBuilder = new OptimizeStats.Builder();
         mAppSearchImpl.optimize(optimizeStatsBuilder, /*callStatsBuilder=*/ null);
         OptimizeStats optimizeStats = optimizeStatsBuilder.build();
-        assertThat(optimizeStats.getEnabledFeatures()).isEqualTo(launchVM1andVM2Feature);
+        assertThat(optimizeStats.getEnabledFeatures()).isEqualTo(launchVmAndAiSealFeature);
     }
 
     @Test
@@ -11508,7 +11503,7 @@ public class AppSearchImplTest {
                 .setVersion(0).build();
         IcingSearchEngineInterface modifiedIcingInstance = new IcingSearchEngine(
                 mUnlimitedConfig.toIcingSearchEngineOptions(
-                        mAppSearchDir.getAbsolutePath(), /* isVMEnabled= */ true)) {
+                        mAppSearchDir.getAbsolutePath(), /* isVmEnabled= */ true)) {
             @Override
             public GetSchemaResultProto getSchema() {
                 GetSchemaResultProto.Builder resultBuilder = super.getSchema().toBuilder();

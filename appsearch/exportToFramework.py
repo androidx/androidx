@@ -177,6 +177,9 @@ class ExportToFramework:
             .replace(
                     'androidx.appsearch.annotation.SystemApi',
                     'android.annotation.SystemApi')
+            .replace(
+                    'androidx.appsearch.flags.appfunctions.Flags.',
+                    'android.app.appfunctions.flags.Flags.')
             .replace('androidx.appsearch', 'android.app.appsearch')
             .replace(
                     'androidx.annotation.GuardedBy',

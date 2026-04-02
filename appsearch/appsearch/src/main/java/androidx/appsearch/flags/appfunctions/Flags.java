@@ -15,7 +15,7 @@
  */
 
 // @exportToFramework:skipFile()
-package android.app.appfunctions.flags;
+package androidx.appsearch.flags.appfunctions;
 
 import androidx.annotation.RestrictTo;
 

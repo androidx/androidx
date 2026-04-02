@@ -232,7 +232,7 @@ public final class SearchSessionStatsExtractor {
             if (searchSessionStatsBuilder == null) {
                 searchSessionStatsBuilder =
                         new SearchSessionStats.Builder(packageName).setDatabase(database)
-                                .setLaunchVMEnabled(isVMEnabled);
+                                .setLaunchVmEnabled(isVMEnabled);
             }
             searchSessionStatsBuilder.addSearchIntentsStats(
                     createSearchIntentStats(
@@ -267,7 +267,7 @@ public final class SearchSessionStatsExtractor {
                 .setCurrQuery(currSearchAction.getQuery())
                 .setNumResultsFetched(currSearchAction.getFetchedResultCount())
                 .setQueryCorrectionType(getQueryCorrectionType(currSearchAction, prevSearchAction))
-                .setLaunchVMEnabled(isVMEnabled);
+                .setLaunchVmEnabled(isVMEnabled);
         if (prevSearchAction != null) {
             builder.setPrevQuery(prevSearchAction.getQuery());
         }
@@ -295,7 +295,7 @@ public final class SearchSessionStatsExtractor {
                 .setResultRankGlobal(clickAction.getResultRankGlobal())
                 .setTimeStayOnResultMillis(clickAction.getTimeStayOnResultMillis())
                 .setIsGoodClick(isGoodClick)
-                .setLaunchVMEnabled(isVMEnabled)
+                .setLaunchVmEnabled(isVMEnabled)
                 .build();
     }
 
