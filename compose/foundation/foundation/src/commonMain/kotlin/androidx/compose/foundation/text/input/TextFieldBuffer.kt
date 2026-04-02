@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
@@ -23,6 +24,7 @@ import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text.input.internal.ChangeTracker
 import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
 import androidx.compose.foundation.text.input.internal.PartialGapBuffer
+import androidx.compose.foundation.text.input.internal.TextStyleBuffer
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.AnnotatedString
@@ -61,6 +63,13 @@ internal constructor(
 ) : Appendable {
 
     private val buffer = PartialGapBuffer(initialValue)
+
+    internal var textStyleBuffer: TextStyleBuffer<AnnotatedString.Annotation>? =
+        if (initialValue.textStyleBuffer != null) {
+            TextStyleBuffer(initialValue.textStyleBuffer)
+        } else {
+            null
+        }
 
     private var backingChangeTracker: ChangeTracker? =
         initialChanges?.let { ChangeTracker(initialChanges) }
@@ -374,6 +383,7 @@ internal constructor(
         // or desktop APIs. So, we make sure that the selection is placed at a reasonable place
         // after any kind of edit.
         selectionInChars = adjustTextRange(selection, replaceStart, replaceEnd, newLength)
+        textStyleBuffer?.replaceText(replaceStart, replaceEnd, newLength)
     }
 
     // endregion
@@ -399,10 +409,18 @@ internal constructor(
      * After calling this method, this object will be in the same state it was when it was initially
      * created, and [changes] will be empty.
      */
+    @OptIn(ExperimentalFoundationApi::class)
     fun revertAllChanges() {
         replace(0, length, originalValue.toString())
         selection = originalValue.selection
         clearChangeList()
+        if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+            if (originalValue.textStyleBuffer != null) {
+                requireTextFieldBuffer().syncTo(originalValue.textStyleBuffer)
+            } else {
+                textStyleBuffer?.clear()
+            }
+        }
     }
 
     /**
@@ -453,6 +471,7 @@ internal constructor(
      * @param composition The composition range for the returned [TextFieldCharSequence]. Default
      *   value is this buffer's current composition.
      */
+    @OptIn(ExperimentalFoundationApi::class)
     internal fun toTextFieldCharSequence(
         selection: TextRange = this.selection,
         composition: TextRange? = this.composition,
@@ -466,6 +485,12 @@ internal constructor(
             composition = composition,
             composingAnnotations = composingAnnotations,
             outputAnnotations = outputAnnotations,
+            textStyleBuffer =
+                if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+                    textStyleBuffer?.toImmutable()
+                } else {
+                    null
+                },
         )
 
     private fun requireValidIndex(index: Int, startExclusive: Boolean, endExclusive: Boolean) {
@@ -497,6 +522,21 @@ internal constructor(
         outputTransformationAnnotations?.add(AnnotatedString.Range(annotation, start, end))
     }
 
+    private fun requireTextFieldBuffer(): TextStyleBuffer<AnnotatedString.Annotation> {
+        return textStyleBuffer
+            ?: TextStyleBuffer<AnnotatedString.Annotation>().also { textStyleBuffer = it }
+    }
+
+    internal fun addAnnotationToBuffer(
+        annotation: AnnotatedString.Annotation,
+        start: Int,
+        end: Int,
+    ) {
+        // We treat it as replace the original text with newly styled text.
+        changeTracker.trackChange(start, end, end - start)
+        requireTextFieldBuffer().addStyle(annotation, start, end)
+    }
+
     /**
      * Adds the given [spanStyle] to the text between [start] and [end] on this buffer.
      *
@@ -507,8 +547,13 @@ internal constructor(
      * Also, the added styling is not tracked by this [TextFieldBuffer] if further edits are made.
      * Please call this function after text content is finalized.
      */
+    @OptIn(ExperimentalFoundationApi::class)
     fun addStyle(spanStyle: SpanStyle, start: Int, end: Int) {
-        addAnnotation(spanStyle, start, end)
+        if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+            addAnnotationToBuffer(spanStyle, start, end)
+        } else {
+            addAnnotation(spanStyle, start, end)
+        }
     }
 
     /**
@@ -521,8 +566,26 @@ internal constructor(
      * Also, the added styling is not tracked by this [TextFieldBuffer] if further edits are made.
      * Please call this function after text content is finalized.
      */
+    @OptIn(ExperimentalFoundationApi::class)
     fun addStyle(paragraphStyle: ParagraphStyle, start: Int, end: Int) {
-        addAnnotation(paragraphStyle, start, end)
+        if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+            addAnnotationToBuffer(paragraphStyle, start, end)
+        } else {
+            addAnnotation(paragraphStyle, start, end)
+        }
+    }
+
+    /** Returns the [SpanStyle]s that are applied to the text between [start] and [end]. */
+    internal fun getSpanStyles(start: Int, end: Int): List<AnnotatedString.Range<SpanStyle>> {
+        return textStyleBuffer?.getStyles<SpanStyle>(start, end) ?: emptyList()
+    }
+
+    /** Returns the [ParagraphStyle]s that are applied to the text between [start] and [end]. */
+    internal fun getParagraphStyles(
+        start: Int,
+        end: Int,
+    ): List<AnnotatedString.Range<ParagraphStyle>> {
+        return textStyleBuffer?.getStyles(start, end) ?: emptyList()
     }
 
     /**

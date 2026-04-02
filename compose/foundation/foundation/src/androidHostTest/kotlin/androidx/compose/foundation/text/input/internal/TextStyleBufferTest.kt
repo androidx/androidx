@@ -56,7 +56,7 @@ class TextStyleBufferTest {
         buffer.addStyle(3, 5, 15)
 
         // Verifies that styles are returned in insertion order, regardless of their ranges.
-        assertThat(buffer.getStyles(0, 30).map { it.item }).containsExactly(1, 2, 3).inOrder()
+        assertThat(buffer.getStyles<Int>(0, 30).map { it.item }).containsExactly(1, 2, 3).inOrder()
     }
 
     @Test
@@ -82,6 +82,14 @@ class TextStyleBufferTest {
 
         // Order matters for equality because it affects the rendered result.
         assertThat(buffer1).isNotEqualTo(buffer3)
+
+        // Inserts 1 character at buffer1's gap.
+        // This operation only updates the gap and does not modify the internal interval tree.
+        // Note that the equals() and hashCode() methods must account for the difference
+        // in gap state.
+        buffer1.replaceText(buffer1.gapStart, buffer1.gapStart, 1)
+        assertThat(buffer1).isNotEqualTo(buffer2)
+        assertThat(buffer1.hashCode()).isNotEqualTo(buffer2.hashCode())
     }
 
     @Test
@@ -248,7 +256,7 @@ class TextStyleBufferTest {
 
                     // query styles right at the gap to surface any bugs related to gap logic
                     val gapIndex = start + newLength
-                    val actual = buffer.getStyles(gapIndex, gapIndex)
+                    val actual = buffer.getStyles<Int>(gapIndex, gapIndex)
                     val expected = reference.getStyles(gapIndex, gapIndex)
                     assertThat(actual).isEqualTo(expected)
                 }

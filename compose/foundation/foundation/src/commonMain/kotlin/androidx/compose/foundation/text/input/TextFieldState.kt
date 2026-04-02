@@ -98,9 +98,9 @@ internal constructor(
     private var isEditing: Boolean by mutableStateOf(false)
 
     /**
-     * The current text, selection, and composing region. This value will automatically update when
-     * the user enters text or otherwise changes the text field contents. To change it
-     * programmatically, call [edit].
+     * The current text, selection, composing region and style information. This value will
+     * automatically update when the user enters text or otherwise changes the text field contents.
+     * To change it programmatically, call [edit].
      *
      * This is backed by snapshot state, so reading this property in a restartable function (e.g. a
      * composable function) will cause the function to restart when the text field's value changes.
@@ -221,6 +221,7 @@ internal constructor(
     internal fun commitEdit(newValue: TextFieldBuffer) {
         val textChanged = newValue.changes.changeCount > 0
         val selectionChanged = newValue.selection != mainBuffer.selection
+        val styleChanged = newValue.textStyleBuffer != mainBuffer.textStyleBuffer
 
         // TODO(135556699): Remove this when [TextFieldBuffer.addStyle] is supported by all
         //  TextFieldBuffer instances when multi styled editing is implemented.
@@ -246,6 +247,7 @@ internal constructor(
             temporaryBuffer = newValue,
             textChanged = textChanged,
             selectionChanged = selectionChanged,
+            styleChanged = styleChanged,
         )
     }
 
@@ -355,6 +357,7 @@ internal constructor(
                                     composition = mainBuffer.composition,
                                     annotationList = mainBuffer.composingAnnotations,
                                 ),
+                            textStyleBuffer = beforeEditValue.textStyleBuffer,
                         ),
                     restartImeIfContentChanges = restartImeIfContentChanges,
                 )
@@ -384,6 +387,7 @@ internal constructor(
                         composition = mainBuffer.composition,
                         annotationList = mainBuffer.composingAnnotations,
                     ),
+                textStyleBuffer = mainBuffer.textStyleBuffer?.toImmutable(),
             )
 
         // if there's no filter; just record the undo, update the snapshot value, end.
@@ -421,11 +425,13 @@ internal constructor(
 
         val textChangedByFilter = !textFieldBuffer.asCharSequence().contentEquals(afterEditValue)
         val selectionChangedByFilter = textFieldBuffer.selection != afterEditValue.selection
-        if (textChangedByFilter || selectionChangedByFilter) {
+        val styleChangedByFilter = textFieldBuffer.textStyleBuffer != afterEditValue.textStyleBuffer
+        if (textChangedByFilter || selectionChangedByFilter || styleChangedByFilter) {
             syncMainBufferToTemporaryBuffer(
                 temporaryBuffer = textFieldBuffer,
                 textChanged = textChangedByFilter,
                 selectionChanged = selectionChangedByFilter,
+                styleChanged = styleChangedByFilter,
             )
         } else {
             updateValueAndNotifyListeners(
@@ -580,10 +586,11 @@ internal constructor(
         temporaryBuffer: TextFieldBuffer,
         textChanged: Boolean,
         selectionChanged: Boolean,
+        styleChanged: Boolean,
     ) {
         val oldValue = mainBuffer.toTextFieldCharSequence()
 
-        if (textChanged) {
+        if (textChanged || styleChanged) {
             // reset the buffer in its entirety
             mainBuffer =
                 TextFieldBuffer(
@@ -591,6 +598,7 @@ internal constructor(
                         TextFieldCharSequence(
                             text = temporaryBuffer.toString(),
                             selection = temporaryBuffer.selection,
+                            textStyleBuffer = temporaryBuffer.textStyleBuffer?.toImmutable(),
                         )
                 )
         } else if (selectionChanged) {

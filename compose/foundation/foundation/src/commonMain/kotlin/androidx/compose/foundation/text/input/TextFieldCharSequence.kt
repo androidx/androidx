@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.compose.foundation.text.input.internal.TextStyleBuffer
 import androidx.compose.foundation.text.input.internal.addExactOrElse
 import androidx.compose.foundation.text.input.internal.subtractExactOrElse
 import androidx.compose.foundation.text.input.internal.toCharArray
@@ -50,6 +51,7 @@ internal class TextFieldCharSequence(
     highlight: Pair<TextHighlightType, TextRange>? = null,
     val composingAnnotations: List<PlacedAnnotation>? = null,
     val outputAnnotations: List<PlacedAnnotation>? = null,
+    val textStyleBuffer: TextStyleBuffer<AnnotatedString.Annotation>? = null,
 ) : CharSequence {
 
     override val length: Int
@@ -126,6 +128,7 @@ internal class TextFieldCharSequence(
         if (highlight != other.highlight) return false
         if (composingAnnotations != other.composingAnnotations) return false
         if (!contentEquals(other.text)) return false
+        if (textStyleBuffer != other.textStyleBuffer) return false
 
         return true
     }
@@ -136,6 +139,7 @@ internal class TextFieldCharSequence(
         result = 31 * result + (composition?.hashCode() ?: 0)
         result = 31 * result + highlight.hashCode()
         result = 31 * result + composingAnnotations.hashCode()
+        result = 31 * result + textStyleBuffer.hashCode()
         return result
     }
 }
