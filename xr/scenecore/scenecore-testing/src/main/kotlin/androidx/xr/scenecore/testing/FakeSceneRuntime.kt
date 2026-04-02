@@ -67,7 +67,7 @@ import java.util.function.Consumer
  *
  * @param executor This used to input [executor] for tests.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSceneRuntime(public val executor: Executor? = null) :
     SceneRuntime, RenderingEntityFactory {
 

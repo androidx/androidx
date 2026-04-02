@@ -38,7 +38,7 @@ import java.util.concurrent.Executor
  *
  * @see androidx.xr.scenecore.runtime.Entity
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakeEntity(public val name: String = "") : FakeScenePose(), Entity {
 
     private val _children = mutableSetOf<Entity>()

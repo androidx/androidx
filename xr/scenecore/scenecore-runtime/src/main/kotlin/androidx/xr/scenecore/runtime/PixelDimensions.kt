@@ -19,7 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** The dimensions of a UI element in pixels. These are always two dimensional. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PixelDimensions(@JvmField public val width: Int, @JvmField public val height: Int) {
 
     override fun equals(other: Any?): Boolean {

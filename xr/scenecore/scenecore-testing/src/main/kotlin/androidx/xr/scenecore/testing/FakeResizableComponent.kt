@@ -25,7 +25,7 @@ import androidx.xr.scenecore.runtime.ResizeEventListener
 import java.util.concurrent.Executor
 
 /** Fake implementation of [androidx.xr.scenecore.runtime.ResizableComponent] for testing. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeResizableComponent(
     override var size: Dimensions = Dimensions(2.0f, 2.0f, 2.0f),
     override var minimumSize: Dimensions = Dimensions(1.0f, 1.0f, 1.0f),

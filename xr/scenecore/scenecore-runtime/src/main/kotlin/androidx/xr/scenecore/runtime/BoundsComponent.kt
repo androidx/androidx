@@ -21,7 +21,7 @@ import androidx.xr.runtime.math.BoundingBox
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface BoundsComponent : Component {
 
     /**

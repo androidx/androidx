@@ -19,4 +19,4 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Represents a XR Runtime PointSourceParams */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PointSourceParams() {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public class PointSourceParams() {}

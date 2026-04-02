@@ -28,7 +28,7 @@ import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /** Test-only implementation of [BoundsComponent] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeBoundsComponent : FakeComponent(), BoundsComponent {
     public var entity: GltfEntity? = null
         private set

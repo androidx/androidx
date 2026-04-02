@@ -19,7 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** SpatialEnvironment implement this interface to provide additional functionality. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SpatialEnvironmentExt {
     /**
      * When RenderingRuntime is available, inject a [SpatialEnvironmentFeature] instance into the

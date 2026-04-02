@@ -113,7 +113,6 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.InputEvent.Action
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.SurfaceEntity
-import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.scene
 import java.io.File
 import kotlin.math.roundToInt
@@ -819,8 +818,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     // Resize the canvas to match the video aspect ratio - accounting for the stereo
                     // mode.
                     var dimensions = getCanvasAspectRatio(surfaceEntity!!.stereoMode, width, height)
-                    surfaceEntity!!.shape =
-                        SurfaceEntity.Shape.Quad(FloatSize2d(dimensions.width, dimensions.height))
+                    surfaceEntity!!.shape = SurfaceEntity.Shape.Quad(dimensions)
 
                     // Resize the MovableComponent to match the canvas dimensions.
                     movableComponent!!.size = surfaceEntity!!.dimensions
@@ -1005,14 +1003,14 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
         stereoMode: SurfaceEntity.StereoMode,
         videoWidth: Int,
         videoHeight: Int,
-    ): Dimensions {
+    ): FloatSize2d {
         when (stereoMode) {
             SurfaceEntity.StereoMode.MONO ->
-                return Dimensions(1.0f, videoHeight.toFloat() / videoWidth, 0.0f)
+                return FloatSize2d(1.0f, videoHeight.toFloat() / videoWidth)
             SurfaceEntity.StereoMode.TOP_BOTTOM ->
-                return Dimensions(1.0f, 0.5f * videoHeight.toFloat() / videoWidth, 0.0f)
+                return FloatSize2d(1.0f, 0.5f * videoHeight.toFloat() / videoWidth)
             SurfaceEntity.StereoMode.SIDE_BY_SIDE ->
-                return Dimensions(1.0f, 2.0f * videoHeight.toFloat() / videoWidth, 0.0f)
+                return FloatSize2d(1.0f, 2.0f * videoHeight.toFloat() / videoWidth)
             else -> throw IllegalArgumentException("Unsupported stereo mode: $stereoMode")
         }
     }

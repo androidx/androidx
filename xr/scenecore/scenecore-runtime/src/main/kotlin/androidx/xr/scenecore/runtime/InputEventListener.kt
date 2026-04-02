@@ -19,7 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Interface for an Input Listener. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface InputEventListener {
     /**
      * Called when an input event occurs.

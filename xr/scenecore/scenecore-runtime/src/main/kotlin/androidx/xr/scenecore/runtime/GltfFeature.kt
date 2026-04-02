@@ -24,7 +24,7 @@ import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /** Provide the rendering implementation for [GltfEntity] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GltfFeature : RenderingFeature {
 
     /** The flattened list of all nodes contained within this glTF model. */

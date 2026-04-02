@@ -36,7 +36,7 @@ import java.nio.ByteBuffer
  *
  * This API is not intended to be used by applications.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RenderingRuntime : JxrRuntime {
     /**
      * Loads glTF Asset for the given asset name from the assets folder. The Coroutine returned by

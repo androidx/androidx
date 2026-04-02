@@ -19,7 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** The dimensions of a UI element in meters. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Dimensions(
     // TODO: b/332588978 - Add a TypeAlias for Meters here.
     @JvmField public val width: Float,

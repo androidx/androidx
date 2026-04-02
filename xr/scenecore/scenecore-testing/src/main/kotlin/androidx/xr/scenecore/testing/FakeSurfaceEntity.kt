@@ -40,7 +40,7 @@ import androidx.xr.scenecore.runtime.TextureResource
  * can render stereoscopic content into the Surface and specify how it is routed to the User's eyes
  * for stereo viewing using the [stereoMode] property.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSurfaceEntity(private val feature: SurfaceFeature? = null) :
     FakeEntity(), SurfaceEntity {
     private var _stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE

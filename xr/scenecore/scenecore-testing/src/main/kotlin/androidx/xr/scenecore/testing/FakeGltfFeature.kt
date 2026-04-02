@@ -29,7 +29,7 @@ import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.GltfFeature] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
     FakeBaseRenderingFeature(nodeHolder), GltfFeature {
     private var mockGltfFeature: GltfFeature? = null

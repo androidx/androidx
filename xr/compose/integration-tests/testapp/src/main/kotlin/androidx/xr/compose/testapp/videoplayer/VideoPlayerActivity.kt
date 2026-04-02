@@ -98,7 +98,6 @@ import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.Texture
-import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.scene
 import java.io.File
 import java.nio.file.Paths
@@ -755,8 +754,7 @@ class VideoPlayerActivity : ComponentActivity() {
                                 FloatSize2d(dimensions.width, dimensions.height)
                             )
                         movableComponent?.size =
-                            (surfaceEntity?.dimensions ?: Dimensions(1.0f, 1.0f, 1.0f))
-                                as FloatSize3d
+                            (surfaceEntity?.dimensions ?: FloatSize3d(1.0f, 1.0f, 1.0f))
                     }
                 }
 

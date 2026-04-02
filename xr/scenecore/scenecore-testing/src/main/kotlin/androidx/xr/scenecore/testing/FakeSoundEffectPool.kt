@@ -24,7 +24,7 @@ import androidx.xr.scenecore.runtime.SoundEffectPool
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [SoundEffectPool]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSoundEffectPool : SoundEffectPool {
     public var loadedResId: Int? = null
     public var loadedAfd: AssetFileDescriptor? = null

@@ -24,7 +24,7 @@ import androidx.annotation.RestrictTo
  *
  * @param capabilities the set of capabilities enabled for the platform.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SpatialCapabilities(@property:SpatialCapability public val capabilities: Int) {
 
     /** Spatial Capabilities for SceneCore Platform. */

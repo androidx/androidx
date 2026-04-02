@@ -19,7 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Interface for ResizeEvent listener. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface ResizeEventListener {
     /**
      * Called when a resize event occurs.

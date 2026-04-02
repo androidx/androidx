@@ -22,5 +22,4 @@ import androidx.annotation.RestrictTo
  * Interface for the perception space ScenePose. This is the origin of the space used by ARCore for
  * XR.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface PerceptionSpaceScenePose : ScenePose {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface PerceptionSpaceScenePose : ScenePose {}

@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
  * @param newSize proposed (width, height, depth) size in meters. The resize event listener must use
  *   this proposed size to resize the content.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ResizeEvent(@ResizeState public val resizeState: Int, public val newSize: Dimensions) {
 
     /** States of the Resize action. */

@@ -31,7 +31,7 @@ import java.util.function.Consumer
  * visibility by enabling or disabling passthrough. The skybox and geometry will be remembered
  * across passthrough mode changes.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSpatialEnvironment : SpatialEnvironment, SpatialEnvironmentExt {
     private var _currentPassthroughOpacity: Float = 0.0f
     private var _isPreferredSpatialEnvironmentActive: Boolean = false

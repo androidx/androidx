@@ -33,7 +33,7 @@ import androidx.xr.runtime.math.Vector3
  * @property distance the distance from the origin to the hit location. If nothing was hit the
  *   distance will be POSITIVE_INFINITY.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HitTestResult(
     public val hitPosition: Vector3?,
     public val surfaceNormal: Vector3?,

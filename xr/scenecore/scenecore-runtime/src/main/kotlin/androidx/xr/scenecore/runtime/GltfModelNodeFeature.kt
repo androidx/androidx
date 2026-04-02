@@ -22,9 +22,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 
 /** Provide the rendering implementation for [androidx.xr.scenecore.GltfModelNode] */
-// TODO(b/481429599): Audit usage of LIBRARY_GROUP_PREFIX in SceneCore and migrate it over to
-// LIBRARY_GROUP.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GltfModelNodeFeature {
 
     /**

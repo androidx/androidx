@@ -22,7 +22,7 @@ import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 
 /** Interface for a XR Runtime Panel entity */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface PanelEntity : Entity {
     /**
      * Sets the pixel (not Dp) dimensions of the view underlying this PanelEntity. Calling this

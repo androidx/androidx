@@ -32,7 +32,7 @@ import androidx.annotation.RestrictTo
  * This API will be re-designed once it goes through local AXR API council review (b/420551533).
  */
 // TODO(b/422251760): Use POKO pattern for internal inline value class.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class KhronosPbrMaterialSpec(
     @LightingModel public val lightingModel: Int,
     @BlendMode public val blendMode: Int,

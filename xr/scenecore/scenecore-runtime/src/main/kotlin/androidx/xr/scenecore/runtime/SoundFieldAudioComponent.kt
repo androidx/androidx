@@ -19,7 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 import androidx.media3.exoplayer.audio.AudioOutputProvider
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SoundFieldAudioComponent : Component {
     public fun getAudioOutputProvider(): AudioOutputProvider
 }

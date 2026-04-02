@@ -22,7 +22,7 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener
 
 @Suppress("ListenerInterface")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSpatialModeChangeListener : SpatialModeChangeListener {
     public var lastRecommendedPose: Pose? = null
     public var lastRecommendedScale: Vector3? = null

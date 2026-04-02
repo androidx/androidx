@@ -20,5 +20,5 @@ import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 
 /** A fake ScenePose representing a perception space. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakePerceptionSpaceScenePose() : FakeScenePose(), PerceptionSpaceScenePose

@@ -19,4 +19,4 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Interface for a XR Runtime Entity that only logs the pose. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface LoggingEntity : Entity {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface LoggingEntity : Entity {}

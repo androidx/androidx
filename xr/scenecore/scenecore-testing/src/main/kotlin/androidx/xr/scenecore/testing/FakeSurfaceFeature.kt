@@ -29,7 +29,7 @@ import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TextureResource
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.SurfaceFeature] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSurfaceFeature(nodeHolder: NodeHolder<*>) :
     FakeBaseRenderingFeature(nodeHolder), SurfaceFeature {
 

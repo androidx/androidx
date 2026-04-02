@@ -24,7 +24,7 @@ import androidx.xr.scenecore.runtime.SoundEffectPoolComponent
 import androidx.xr.scenecore.runtime.Stream
 
 /** Test-only implementation of [SoundEffectPoolComponent]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSoundEffectPoolComponent : FakeComponent(), SoundEffectPoolComponent {
     public var lastPlayedSoundEffect: SoundEffect? = null
     public var lastPlayedParams: PointSourceParams? = null

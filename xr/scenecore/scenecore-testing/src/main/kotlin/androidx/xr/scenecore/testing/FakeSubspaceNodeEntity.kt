@@ -21,7 +21,7 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.SubspaceNodeEntity]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSubspaceNodeEntity(
     /**
      * The size of the [androidx.xr.scenecore.runtime.SubspaceNodeEntity] in meters, in unscaled

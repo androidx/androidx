@@ -20,10 +20,10 @@ import androidx.annotation.RestrictTo
 import androidx.xr.runtime.NodeHolder
 
 /** Test-only interface for XrExtensions Node. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface FakeNode
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface FakeNode
 
 /** Test-only interface for Impress SubspaceNode. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface FakeSubspaceNode {
     public val nodeHolder: NodeHolder<*>
 }

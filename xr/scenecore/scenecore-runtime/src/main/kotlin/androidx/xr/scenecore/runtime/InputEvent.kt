@@ -41,7 +41,7 @@ import androidx.xr.runtime.math.Vector3
  *   that this first hit entity remains the same during an ongoing DOWN -> MOVE -> UP action, even
  *   if the pointer stops hitting the entity during the action.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class InputEvent(
     @SourceValue public val source: Int,
     @PointerType public val pointerType: Int,

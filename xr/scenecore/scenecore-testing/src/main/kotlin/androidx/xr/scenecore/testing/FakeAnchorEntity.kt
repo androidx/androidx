@@ -23,7 +23,7 @@ import androidx.xr.scenecore.runtime.AnchorEntity
 import androidx.xr.scenecore.runtime.AnchorEntity.OnStateChangedListener
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.AnchorEntity] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
     /**
      * The underlying [androidx.xr.arcore.runtime.Anchor] instance that this fake entity represents,

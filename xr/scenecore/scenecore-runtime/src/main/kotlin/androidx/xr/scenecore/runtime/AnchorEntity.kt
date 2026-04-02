@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.arcore.Anchor
 
 /** Interface for Anchor entity. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AnchorEntity : SystemSpaceEntity {
     /** The current state of the anchor. */
     public val state: @State Int

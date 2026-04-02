@@ -21,7 +21,7 @@ import androidx.xr.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.RenderingFeature
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.RenderingFeature] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakeBaseRenderingFeature(private val _nodeHolder: NodeHolder<*>) :
     RenderingFeature {
 

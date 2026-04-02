@@ -19,5 +19,5 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 
 /** Provides positional sound pool audio playback for an [Entity]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SoundEffectPoolComponent : Component, SoundEffectPlayer

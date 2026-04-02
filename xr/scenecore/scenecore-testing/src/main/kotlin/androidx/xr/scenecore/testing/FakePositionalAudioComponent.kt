@@ -24,7 +24,7 @@ import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.PositionalAudioComponent
 
 /** Test-only implementation of [PositionalAudioComponent]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakePositionalAudioComponent(
     internal val context: Context,
     public var params: PointSourceParams,

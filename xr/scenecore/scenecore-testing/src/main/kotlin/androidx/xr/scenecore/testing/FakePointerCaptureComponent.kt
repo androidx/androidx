@@ -25,7 +25,7 @@ import androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [FakePointerCaptureComponent] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakePointerCaptureComponent(
     /**
      * The executor on which to invoke the

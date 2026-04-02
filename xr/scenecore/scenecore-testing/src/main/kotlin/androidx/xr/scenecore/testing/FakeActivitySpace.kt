@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference
  * A test double for [androidx.xr.scenecore.runtime.ActivitySpace], designed for use in unit or
  * integration tests.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeActivitySpace() : FakeSystemSpaceEntity(), ActivitySpace {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Deprecated(
