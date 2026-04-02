@@ -51,7 +51,7 @@ def prepareTargetApkTaskProvider = tasks.register("prepareTargetApk", PrepareTar
 
 android {
     namespace = "androidx.appfunctions.integration.test.agent"
-    compileSdk { version = release(36) }
+    compileSdk { version = release(37) }
     defaultConfig {
         minSdk { version = release(33) }
 

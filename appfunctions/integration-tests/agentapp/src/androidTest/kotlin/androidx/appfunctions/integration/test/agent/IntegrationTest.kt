@@ -17,6 +17,7 @@
 package androidx.appfunctions.integration.test.agent
 
 import android.Manifest
+import android.app.AppInteractionAttribution
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -134,6 +135,34 @@ class IntegrationTest {
                         AppFunctionData.Builder(metadata.parameters, metadata.components)
                             .setLong("num1", 1)
                             .setLong("num2", 2)
+                            .build(),
+                    )
+            )
+
+        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(successResponse.returnValue.getLong(PROPERTY_RETURN_VALUE)).isEqualTo(3)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun executeAppFunctionWithAttribution_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        val metadata =
+            findAppFunctionMetadata("androidx.appfunctions.integration.testapp.TestFunctions#add")
+
+        val response =
+            appFunctionCaller.executeAppFunction(
+                request =
+                    ExecuteAppFunctionRequest(
+                        metadata.packageName,
+                        metadata.id,
+                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            .setLong("num1", 1)
+                            .setLong("num2", 2)
+                            .build(),
+                        AppInteractionAttribution.Builder(
+                                AppInteractionAttribution.INTERACTION_TYPE_USER_QUERY
+                            )
                             .build(),
                     )
             )
