@@ -27,7 +27,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -241,14 +240,13 @@ class GestureTrackerTest {
         verifyNoMoreInteractions(gestureHandlerSpy)
     }
 
-    @Ignore // b/376314114
     @Test
     fun testZoomOut_pinch() {
-        // Drag pointer 1 in the negative Y direction from (500, 500) at the same time as dragging
-        // pointer 2 in the positive Y direction from (500, 500)
+        // Drag pointer 1 in the negative Y direction from (500, 100) at the same time as dragging
+        // pointer 2 in the positive Y direction from (500, 900)
         val velocity = ViewConfiguration.get(context).scaledMinimumFlingVelocity / 2
-        val start1 = PointF(500f, 500f)
-        val start2 = PointF(500f, 500f)
+        val start1 = PointF(500f, 100f)
+        val start2 = PointF(500f, 900f)
         val velocity1 = Point(0, -velocity)
         val velocity2 = Point(0, velocity)
         for (event in twoFingerDrag(start1, start2, velocity1, velocity2)) {
