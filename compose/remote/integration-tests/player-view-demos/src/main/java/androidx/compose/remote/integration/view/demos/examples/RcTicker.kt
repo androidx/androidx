@@ -80,7 +80,7 @@ fun RcTicker(context: Context): RemoteComposeContext {
         root {
             column(Modifier.fillMaxWidth().backgroundId(color.backgroundId)) {
                 row(Modifier.padding(32f)) {
-                    val imageId = addBitmap(refresh)
+                    //  val imageId = addBitmap(refresh)
                     text(
                         "Watchlist",
                         Modifier.padding(24),

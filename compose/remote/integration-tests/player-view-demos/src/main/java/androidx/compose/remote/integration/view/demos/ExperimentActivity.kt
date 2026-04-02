@@ -75,6 +75,9 @@ import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.integration.view.demos.dsl.RcDslClock
+import androidx.compose.remote.integration.view.demos.dsl.RcDslDemo
+import androidx.compose.remote.integration.view.demos.dsl.RcDslTicker
 import androidx.compose.remote.integration.view.demos.examples.DemoPaths.pathTest
 import androidx.compose.remote.integration.view.demos.examples.LayoutModifierDemo1
 import androidx.compose.remote.integration.view.demos.examples.LayoutModifierDemo2
@@ -314,6 +317,9 @@ class ExperimentActivity : ComponentActivity() {
                 ),
             "Procedural..." to
                 listOf(
+                    getb("Rc DSL Clock Demo") { RcDslClock() },
+                    getb("Rc DSL Ticker Demo") { RcDslTicker() },
+                    getb("Rc DSL Demo") { RcDslDemo() },
                     getpc("RcClicks") { RcClicksDemo() },
                     getpc("RcRatio") { RcRatio() },
                     getpc("RcScrollViewport") { RcScrollview() },
@@ -355,6 +361,40 @@ class ExperimentActivity : ComponentActivity() {
         gen: () -> RemoteComposeContext,
     ): RemoteComposeFunc {
         return getp(name, color) { gen().mRemoteWriter }
+    }
+
+    fun getb(
+        name: String,
+        color: Color = toRcColor(name, 0.1f),
+        gen: () -> ByteArray,
+    ): RemoteComposeFunc {
+        return object : RemoteComposeFunc {
+            private var buildTime: Float = 0f
+
+            @Composable override fun Run() {}
+
+            @Composable
+            override fun getDoc(): MutableState<CoreDocument?> {
+                val time = System.nanoTime()
+                val data = gen()
+                val doc = RemoteDocument(ByteArrayInputStream(data))
+                val doc2: MutableState<CoreDocument?> = remember { mutableStateOf(doc.document) }
+                buildTime = (System.nanoTime() - time) * 1E-6f
+                return doc2
+            }
+
+            override fun getBuildTime(): Float {
+                return buildTime
+            }
+
+            override fun getColor(): Color {
+                return color
+            }
+
+            override fun toString(): String {
+                return name
+            }
+        }
     }
 
     fun getp(
