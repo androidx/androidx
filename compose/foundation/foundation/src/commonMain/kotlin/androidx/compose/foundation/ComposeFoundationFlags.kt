@@ -156,6 +156,15 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isConcurrentTextFieldSelectionFixEnabled = true
+
+    /**
+     * This flag controls whether [androidx.compose.foundation.text.BasicTextField]'s formatted text
+     * features are enabled.
+     */
+    // TODO: Remove this flag once it has soaked (b/494340211)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    internal var isBasicTextFieldStyledTextEnabled = false
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
