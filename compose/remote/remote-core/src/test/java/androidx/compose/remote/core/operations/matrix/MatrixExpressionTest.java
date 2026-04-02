@@ -19,15 +19,53 @@ package androidx.compose.remote.core.operations.matrix;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RunWith(JUnit4.class)
 public class MatrixExpressionTest {
+
+    @Test
+    public void testSerialization() {
+        RemoteContext context = mock(RemoteContext.class);
+        float[] exp = new float[]{60f, MatrixOperations.ROT_X};
+        MatrixExpression original = new MatrixExpression(1, 0, exp);
+
+        // Evaluate the expression to populate mValues
+        original.updateVariables(context);
+        original.apply(context);
+
+        String originalString = original.toString();
+
+        // Serialize
+        WireBuffer buffer = new WireBuffer(1024);
+        original.write(buffer);
+        buffer.setIndex(0);
+
+        // Deserialize
+        // Skip opcode (read by Operations.java usually, but here we test the read() method)
+        assertEquals(MatrixExpression.id(), buffer.readByte());
+        List<Operation> operations = new ArrayList<>();
+        MatrixExpression.read(buffer, operations);
+        MatrixExpression deserialized = (MatrixExpression) operations.get(0);
+
+        // Evaluate the deserialized expression
+        deserialized.updateVariables(context);
+        deserialized.apply(context);
+
+        // Verify the expression and evaluated values are preserved
+        assertEquals(originalString, deserialized.toString());
+    }
+
 
     @Test
     public void testRotation() {

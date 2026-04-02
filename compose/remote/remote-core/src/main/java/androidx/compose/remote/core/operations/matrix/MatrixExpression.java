@@ -93,7 +93,7 @@ public class MatrixExpression extends Operation
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mMatrixId, mType, mValues);
+        apply(buffer, mMatrixId, mType, mExpression);
     }
 
     @NonNull
@@ -126,19 +126,19 @@ public class MatrixExpression extends Operation
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer   write command to this buffer
-     * @param matrixId the id
-     * @param type     the type of matrix it is
-     * @param values   the value of the float
+     * @param buffer     write command to this buffer
+     * @param matrixId   the id
+     * @param type       the type of matrix it is
+     * @param expression the value of the float
      */
     public static void apply(
-            @NonNull WireBuffer buffer, int matrixId, int type, float @NonNull [] values) {
+            @NonNull WireBuffer buffer, int matrixId, int type, float @NonNull [] expression) {
         buffer.start(OP_CODE);
         buffer.writeInt(matrixId);
         buffer.writeInt(type);
-        buffer.writeInt(values.length);
-        for (int i = 0; i < values.length; i++) {
-            buffer.writeFloat(values[i]);
+        buffer.writeInt(expression.length);
+        for (int i = 0; i < expression.length; i++) {
+            buffer.writeFloat(expression[i]);
         }
     }
 
