@@ -51,7 +51,6 @@ import androidx.xr.scenecore.ResizeEvent
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
-import androidx.xr.scenecore.testapp.common.format
 import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -69,7 +68,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
     private var resizablePanelActive = false
     private var mainPanelMovableActive = false
     private var mainPanelResizableActive = false
-    private lateinit var defaultPanelSize: FloatSize2d
+    private lateinit var defaultPanelSize: IntSize2d
 
     private val moveListener =
         object : EntityMoveListener {
@@ -399,17 +398,17 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
             this.finish()
         } else {
             if (savedInstanceState != null) {
-                val width = savedInstanceState.getFloat("defaultPanelSizeWidth")
-                val height = savedInstanceState.getFloat("defaultPanelSizeHeight")
-                defaultPanelSize = FloatSize2d(width, height)
+                val width = savedInstanceState.getInt("defaultPanelSizeWidth")
+                val height = savedInstanceState.getInt("defaultPanelSizeHeight")
+                defaultPanelSize = IntSize2d(width, height)
             } else {
-                defaultPanelSize = session!!.scene.mainPanelEntity.size
+                defaultPanelSize = session!!.scene.mainPanelEntity.sizeInPixels
             }
             Log.d(
                 TAG,
                 "defaultPanelSize: " +
-                    "w ${defaultPanelSize.width.format(2)} x " +
-                    "h ${defaultPanelSize.height.format(2)}",
+                    "w ${defaultPanelSize.width} x " +
+                    "h ${defaultPanelSize.height}",
             )
         }
 
@@ -654,7 +653,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putFloat("defaultPanelSizeWidth", defaultPanelSize.width)
-        outState.putFloat("defaultPanelSizeHeight", defaultPanelSize.height)
+        outState.putInt("defaultPanelSizeWidth", defaultPanelSize.width)
+        outState.putInt("defaultPanelSizeHeight", defaultPanelSize.height)
     }
 }
