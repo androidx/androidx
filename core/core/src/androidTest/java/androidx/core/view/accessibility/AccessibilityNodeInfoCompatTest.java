@@ -38,7 +38,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 import android.widget.TextView;
 
-import androidx.core.flagging.Flags;
 import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompatActivity;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
@@ -172,7 +171,7 @@ public class AccessibilityNodeInfoCompatTest extends
         assertThat(collectionItemInfoCompat.isHeading()).isTrue();
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
     @Test
     public void testStructuredDataInfoCompatEquals() {
         MathInfoCompat division = new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION);
@@ -191,17 +190,10 @@ public class AccessibilityNodeInfoCompatTest extends
         assertThat(division).isNotEqualTo(anotherDivision);
         assertThat(division).isNotEqualTo(sqrt);
         assertThat(division).isNotEqualTo(anotherSqrt);
-
-        // When the flag is on, it depends on the platform implementation; when it's off, it just
-        // checks if it's the same wrapper.
-        if (Flags.getBooleanFlagValue("android.view.accessibility", "a11y_math_api")) {
-            assertThat(sqrt).isEqualTo(anotherSqrt);
-        } else {
-            assertThat(sqrt).isNotEqualTo(anotherSqrt);
-        }
+        assertThat(sqrt).isEqualTo(anotherSqrt);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
     @Test
     public void testGetSetMathInfo() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -212,16 +204,11 @@ public class AccessibilityNodeInfoCompatTest extends
         nodeCompat.setStructuredDataInfo(mathInfoCompat);
         MathInfoCompat retrievedMathInfoCompat =
                 (MathInfoCompat) nodeCompat.getStructuredDataInfo();
-        if (Flags.getBooleanFlagValue("android.view.accessibility", "a11y_math_api")) {
-            assertThat(retrievedMathInfoCompat).isNotNull();
-            assertThat(retrievedMathInfoCompat.getTag())
-                    .isEqualTo(MathInfoCompat.MATH_TAG_FRACTION);
-            assertThat(retrievedMathInfoCompat.getAttributes().size()).isEqualTo(1);
-            assertThat(retrievedMathInfoCompat.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT))
-                    .isEqualTo("division");
-        } else {
-            assertThat(retrievedMathInfoCompat).isNull();
-        }
+        assertThat(retrievedMathInfoCompat).isNotNull();
+        assertThat(retrievedMathInfoCompat.getTag()).isEqualTo(MathInfoCompat.MATH_TAG_FRACTION);
+        assertThat(retrievedMathInfoCompat.getAttributes().size()).isEqualTo(1);
+        assertThat(retrievedMathInfoCompat.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT))
+                .isEqualTo("division");
 
         // Verify the behavior for a node without math info.
         nodeCompat.setStructuredDataInfo(null);
