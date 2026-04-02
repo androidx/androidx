@@ -24,6 +24,11 @@ import androidx.xr.scenecore.runtime.GltfModelNodeFeature as RtGltfModelNode
 /**
  * [GltfModelNode] represents a node in a [GltfModelEntity].
  *
+ * Nodes are the fundamental structural elements of a glTF scene. A [GltfModelNode] defines a
+ * spatial transformation and can be associated with other components such as a mesh. This class
+ * allows you to manipulate these spatial properties and, if a mesh is attached, override its
+ * rendering materials.
+ *
  * The lifecycle of a glTF node is tied to the glTF model itself. Trying to use the [GltfModelNode]
  * after the [GltfModelEntity] is disposed will throw an [IllegalStateException].
  */
@@ -31,12 +36,18 @@ public class GltfModelNode
 internal constructor(
     private val modelEntity: GltfModelEntity,
     private val rtFeature: RtGltfModelNode,
-    /** The index of this node in the flattened list of child nodes of the glTF model. */
+    /** The index of this node in the flattened list of nodes of the glTF model. */
     public val index: Int,
     /** The name of the node as defined in the glTF file. Returns `null` if the node has no name. */
     public val name: String?,
 ) {
-    /** The [Pose] of this node relative to its immediate parent [GltfModelNode]. */
+    /**
+     * The [Pose] of this node relative to its direct parent as defined in the source glTF asset.
+     *
+     * Even though the API exposes nodes as a flattened list, their local transforms still respect
+     * the structure of the original glTF asset. If this node has no parent in the source asset,
+     * this pose is relative to the [GltfModelEntity] root.
+     */
     @get:MainThread
     @set:MainThread
     public var localPose: Pose
@@ -49,7 +60,7 @@ internal constructor(
             rtFeature.localPose = value
         }
 
-    /** The scale of this node relative to its immediate parent [GltfModelNode]. */
+    /** The scale of this node relative to its direct parent as defined in the source glTF asset. */
     @get:MainThread
     @set:MainThread
     public var localScale: Vector3
@@ -62,7 +73,12 @@ internal constructor(
             rtFeature.localScale = value
         }
 
-    /** The [Pose] of this node relative to the [GltfModelEntity] root. */
+    /**
+     * The [Pose] of this node relative to the [GltfModelEntity] root.
+     *
+     * Unlike [localPose], which is strictly relative to the node's parent in the glTF file, the
+     * model pose represents the node's final, accumulated transformation within the model.
+     */
     @get:MainThread
     @set:MainThread
     public var modelPose: Pose
@@ -89,17 +105,21 @@ internal constructor(
         }
 
     /**
-     * Sets a material override for a primitive of a node within the glTF graph.
+     * Sets a material override for a primitive of the mesh associated with this node.
      *
-     * The override is then applied to a primitive of that node's mesh at the specified
-     * [primitiveIndex].
+     * In a glTF model, a node may be associated with a mesh. A mesh consists of one or more
+     * geometric surfaces called primitives (such as a collection of triangles) that are rendered
+     * using a single material. This method applies a material override to a specific primitive
+     * within this node's associated mesh.
      *
      * @param material The new [Material] to apply to the primitive.
-     * @param primitiveIndex The zero-based index for the primitive of the specified node, as
-     *   defined in the glTF graph. Default is the first primitive of that node.
+     * @param primitiveIndex The zero-based index for the primitive of the associated mesh. The
+     *   valid range is from `0` to `(primitiveCount - 1)`, where `primitiveCount` is the total
+     *   number of primitives defined for the mesh in the source glTF asset.
      * @throws IllegalArgumentException if the provided [Material] is invalid.
-     * @throws IllegalStateException if the node does not have a mesh.
-     * @throws IndexOutOfBoundsException if the [primitiveIndex] is out of bounds.
+     * @throws IllegalStateException if this node is not associated with a mesh.
+     * @throws IndexOutOfBoundsException if the [primitiveIndex] is out of bounds for the associated
+     *   mesh.
      * @see clearMaterialOverride
      */
     @JvmOverloads
@@ -110,15 +130,17 @@ internal constructor(
     }
 
     /**
-     * Clears a previously set material override for a specific primitive of a node's mesh within
-     * the glTF graph.
+     * Clears a previously set material override for a specific primitive of the mesh associated
+     * with this node.
      *
      * If no override was previously set for that primitive, this call has no effect.
      *
-     * @param primitiveIndex The zero-based index for the primitive of the specified node, as
-     *   defined in the glTF graph. Default is the first primitive of that node.
-     * @throws IllegalStateException if the node does not have a mesh.
-     * @throws IndexOutOfBoundsException if the [primitiveIndex] is out of bounds.
+     * @param primitiveIndex The zero-based index for the primitive of the associated mesh. The
+     *   valid range is from `0` to `(primitiveCount - 1)`, where `primitiveCount` is the total
+     *   number of primitives defined for the mesh in the source glTF asset.
+     * @throws IllegalStateException if this node is not associated with a mesh.
+     * @throws IndexOutOfBoundsException if the [primitiveIndex] is out of bounds for the associated
+     *   mesh.
      * @see setMaterialOverride
      */
     @JvmOverloads
