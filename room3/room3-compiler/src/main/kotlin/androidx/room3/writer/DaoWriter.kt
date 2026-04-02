@@ -108,6 +108,7 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
 
         builder.apply {
             addOriginatingElement(dbElement)
+            addOriginatingElement(dao.element)
             setVisibility(VisibilityModifier.INTERNAL)
             if (dao.element.isInterface()) {
                 addSuperinterface(dao.typeName)

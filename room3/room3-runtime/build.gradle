@@ -207,14 +207,6 @@ androidx {
     description = "Android Room-Runtime"
 }
 
-// TODO(b/430983364): Workaround KSP incremental issue
-tasks.withType(KotlinCompile).configureEach {
-    incremental = false
-}
-tasks.withType(KspAATask).configureEach {
-    it.kspConfig.incremental.set(false)
-}
-
 // b/446711395
 // IDE Sync only error:
 // Reason: Task ':sqlite:sqlite-framework:linuxArm64TestCinterop-sqliteSharedArchiveKlib' uses this output of task ':sqlite:sqlite-framework:cinteropTestSqliteSharedArchiveLinuxArm64'
