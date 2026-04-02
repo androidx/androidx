@@ -61,6 +61,7 @@ class SpatialSoundPoolTest {
     private lateinit var session: Session
 
     @Before
+    @SuppressWarnings("RestrictTo")
     fun setUp() {
         mockSceneRuntime.stub {
             on { spatialEnvironment } doReturn mock()

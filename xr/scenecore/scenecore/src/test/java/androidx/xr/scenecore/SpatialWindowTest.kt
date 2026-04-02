@@ -44,6 +44,7 @@ class SpatialWindowTest {
     private lateinit var session: Session
 
     @Before
+    @SuppressWarnings("RestrictTo")
     fun setUp() {
         // A minimal setup is needed to create a Session instance.
         // The session needs access to the mockSceneRuntime.

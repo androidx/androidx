@@ -106,6 +106,7 @@ fun AndroidComposeTestRule<*, *>.configureFakeSession(
  */
 @CanIgnoreReturnValue
 @Suppress("DEPRECATION")
+@SuppressWarnings("RestrictTo")
 // TODO: b/494305963 Remove references to arcore-testing Fakes
 fun Activity.configureFakeSession(
     sceneRuntime: (SceneRuntime) -> SceneRuntime = { it },
