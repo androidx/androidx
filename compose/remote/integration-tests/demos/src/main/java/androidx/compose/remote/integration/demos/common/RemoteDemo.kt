@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ fun RemoteDemo(
     init: (RemoteComposePlayer) -> Unit = {},
     update: (RemoteComposePlayer) -> Unit = {},
     onNamedAction: (String, Any?, StateUpdater) -> Unit = { _, _, _ -> },
+    bitmapLoader: BitmapLoader? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
@@ -75,6 +77,7 @@ fun RemoteDemo(
                 init = init,
                 update = update,
                 onNamedAction = onNamedAction,
+                bitmapLoader = bitmapLoader,
             )
         }
     }
