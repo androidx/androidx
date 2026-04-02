@@ -47,7 +47,7 @@ public object SpatialApiVersions {
 
     /** The latest stable Spatial API version. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public const val LATEST_STABLE_API_LEVEL: Int = SPATIAL_API_V2
+    public const val LATEST_STABLE_API_LEVEL: Int = SPATIAL_API_V3
 }
 
 /**
@@ -70,7 +70,7 @@ public object SpatialApiVersions {
  * }
  *
  * fun callNewApi() {
- *     if (XrApiVersionHelper.spatialApiVersion >= SpatialApiVersions.SPATIAL_API_V2) {
+ *     if (SpatialApiVersionHelper.spatialApiVersion >= SpatialApiVersions.SPATIAL_API_V2) {
  *         newApiForV2()
  *     } else {
  *         // Handle the case where the API is not available.
