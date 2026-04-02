@@ -65,6 +65,7 @@ class BoundsComponentTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Before
+    @SuppressWarnings("RestrictTo")
     fun setup() = runBlocking {
         val runtimes = mutableListOf<JxrRuntime>()
         val fakeRuntimeFactory = FakeSceneRuntimeFactory()

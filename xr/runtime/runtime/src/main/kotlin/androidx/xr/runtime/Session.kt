@@ -64,7 +64,7 @@ import kotlinx.coroutines.sync.withLock
  */
 @Suppress("NotCloseable")
 public class Session
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @JvmOverloads
 public constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val context: Context,

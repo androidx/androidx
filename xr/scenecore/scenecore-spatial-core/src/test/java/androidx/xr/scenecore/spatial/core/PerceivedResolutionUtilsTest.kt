@@ -61,6 +61,7 @@ class PerceivedResolutionUtilsTest {
         androidx.xr.arcore.testing.FakePerceptionRuntimeFactory()
 
     @Before
+    @SuppressWarnings("RestrictTo")
     fun setUp() {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
