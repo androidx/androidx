@@ -167,6 +167,12 @@ fi
 if [ "$projectSubset" != "" ]; then
   unset PROJECT_PREFIX
   export ANDROIDX_PROJECTS=$projectSubset
+  echo "Tip: Opening a full project subset ('$projectSubset') can be slow and memory-intensive."
+  echo "     If you only need a specific module or set of modules, specify them using project prefixes to speed up launch time."
+  echo "     Studiow will automatically load all required dependencies for you."
+  echo "     Example: ./studiow :compose:material"
+  echo "     Example: ./studiow :compose:material,:paging:paging-common"
+  echo
 else
   unset ANDROIDX_PROJECTS
   export PROJECT_PREFIX=$projectPrefix
