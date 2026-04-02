@@ -316,10 +316,7 @@ internal fun RemoteCardImpl(
         modifier
             .remoteCardSizeModifier()
             .clip(shape = shape)
-            .clickable(
-                actions = buildList { add(onClick) },
-                enabled = enabled.constantValueOrNull ?: false,
-            )
+            .clickable(action = onClick, enabled = enabled.constantValueOrNull ?: false)
             .drawWithContent {
                 drawShapedBackground(
                     shape = shape,

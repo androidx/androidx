@@ -44,7 +44,7 @@ public fun RemoteModifier.combinedClickable(
                 if (onClickActions.isNotEmpty()) {
                     modifier =
                         modifier.then(
-                            ClickActionModifier(
+                            ClickableModifier(
                                 onClickActions,
                                 clickType = MultiClickModifier.CLICK_TYPE_SINGLE,
                             )
@@ -55,7 +55,7 @@ public fun RemoteModifier.combinedClickable(
                 if (onLongClickActions.isNotEmpty()) {
                     modifier =
                         modifier.then(
-                            ClickActionModifier(
+                            ClickableModifier(
                                 onLongClickActions,
                                 clickType = MultiClickModifier.CLICK_TYPE_LONG,
                             )
@@ -66,7 +66,7 @@ public fun RemoteModifier.combinedClickable(
                 if (onDoubleClickActions.isNotEmpty()) {
                     modifier =
                         modifier.then(
-                            ClickActionModifier(
+                            ClickableModifier(
                                 onDoubleClickActions,
                                 clickType = MultiClickModifier.CLICK_TYPE_DOUBLE,
                             )
