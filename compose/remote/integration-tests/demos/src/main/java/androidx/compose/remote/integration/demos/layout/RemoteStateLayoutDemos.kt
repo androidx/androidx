@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
-fun StateLayoutSimpleDemo() {
+fun RemoteStateLayoutSimpleDemo() {
     val stateId = "stateId"
     val states = intArrayOf(0, 1, 2)
     var selectedState by remember { mutableIntStateOf(states[0]) }
@@ -112,6 +112,6 @@ fun StateLayoutSimpleDemo() {
 
 @Preview
 @Composable
-private fun StateLayoutSimpleDemoPreview() {
-    StateLayoutSimpleDemo()
+private fun RemoteStateLayoutSimpleDemoPreview() {
+    RemoteStateLayoutSimpleDemo()
 }

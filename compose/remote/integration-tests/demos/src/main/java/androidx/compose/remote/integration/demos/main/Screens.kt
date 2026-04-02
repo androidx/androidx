@@ -18,21 +18,24 @@ package androidx.compose.remote.integration.demos.main
 
 import androidx.compose.material3.Text
 import androidx.compose.remote.integration.demos.layout.RemoteBoxAlignmentsDemo
-import androidx.compose.remote.integration.demos.layout.StateLayoutSimpleDemo
+import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSimpleDemo
+import androidx.compose.remote.integration.demos.modifier.ClickableDemo
 import androidx.compose.remote.integration.demos.settings.SettingsScreen
 import androidx.compose.runtime.Composable
 
 private object ScreenKeys {
-    const val REMOTE_BOX_ALIGNMENT = "RemoteBox alignment"
-    const val STATE_LAYOUT = "StateLayout"
-    const val SETTINGS = "Settings"
+    const val REMOTE_BOX_ALIGNMENT = "REMOTE_BOX_ALIGNMENT"
+    const val REMOTE_STATE_LAYOUT = "REMOTE_STATE_LAYOUT"
+    const val CLICKABLE = "CLICKABLE"
+    const val SETTINGS = "SETTINGS"
 }
 
 @Composable
 fun ComposableScreenNavigation(key: String, onNavigateUp: () -> Unit) {
     when (key) {
         ScreenKeys.REMOTE_BOX_ALIGNMENT -> RemoteBoxAlignmentsDemo()
-        ScreenKeys.STATE_LAYOUT -> StateLayoutSimpleDemo()
+        ScreenKeys.REMOTE_STATE_LAYOUT -> RemoteStateLayoutSimpleDemo()
+        ScreenKeys.CLICKABLE -> ClickableDemo()
         ScreenKeys.SETTINGS -> SettingsScreen()
         else -> Text("Unknown screen: $key")
     }
@@ -53,9 +56,18 @@ val Screens =
                                 key = ScreenKeys.REMOTE_BOX_ALIGNMENT,
                                 title = "RemoteBox alignment",
                             ),
-                            ComposableScreen(key = ScreenKeys.STATE_LAYOUT, title = "StateLayout"),
+                            ComposableScreen(
+                                key = ScreenKeys.REMOTE_STATE_LAYOUT,
+                                title = "RemoteStateLayout",
+                            ),
                         ),
-                )
+                ),
+                Category(
+                    key = "action_category",
+                    title = "Modifier",
+                    screens =
+                        listOf(ComposableScreen(key = ScreenKeys.CLICKABLE, title = "Clickable")),
+                ),
             ),
     )
 
