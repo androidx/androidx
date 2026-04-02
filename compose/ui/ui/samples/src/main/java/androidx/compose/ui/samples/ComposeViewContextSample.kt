@@ -25,10 +25,8 @@ import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ComposeViewContext
-import androidx.compose.ui.platform.ExperimentalComposeViewContextApi
 import androidx.compose.ui.platform.findViewTreeComposeViewContext
 
-@OptIn(ExperimentalComposeViewContextApi::class)
 @Sampled
 fun ComposeViewContextPrewarmSample() {
     // The developer will call this when the user is expected to need to see this content within
@@ -51,7 +49,6 @@ fun ComposeViewContextPrewarmSample() {
     }
 }
 
-@OptIn(ExperimentalComposeViewContextApi::class)
 @Sampled
 fun ComposeViewContextUnattachedSample(attachedView: View) {
     val composeView = ComposeView(attachedView.context)

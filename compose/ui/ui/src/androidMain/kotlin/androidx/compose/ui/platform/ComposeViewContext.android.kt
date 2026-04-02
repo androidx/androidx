@@ -76,7 +76,6 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
  *
  * @sample androidx.compose.ui.samples.ComposeViewContextUnattachedSample
  */
-@ExperimentalComposeViewContextApi
 class ComposeViewContext
 private constructor(
     composeViewContext: ComposeViewContext?,

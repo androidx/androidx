@@ -60,7 +60,6 @@ import java.lang.ref.WeakReference
  * it set up correctly as [androidx.activity.ComponentActivity], [androidx.fragment.app.Fragment]
  * and [androidx.navigation.NavController] will provide the correct values.
  */
-@OptIn(ExperimentalComposeViewContextApi::class)
 abstract class AbstractComposeView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -128,7 +127,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * compose its content when not attached to the view hierarchy. Changing this to `null` will
      * result in any existing composition being disposed.
      */
-    @ExperimentalComposeViewContextApi
     internal var composeViewContext: ComposeViewContext? = null
         set(value) {
             val existing = field
@@ -272,7 +270,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * @param composeViewContext The [ComposeViewContext] to use for the composition. The
      *   [ComposeViewContext.view] must be attached to the hierarchy.
      */
-    @ExperimentalComposeViewContextApi
     fun createComposition(composeViewContext: ComposeViewContext) {
         check(composeViewContext.view.isAttachedToWindow) {
             "createComposition requires the ComposeViewContext's view to be attached to a window."
@@ -629,7 +626,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * view becomes attached to a window or when [createComposition] is called, whichever comes
      * first.
      */
-    @OptIn(ExperimentalComposeViewContextApi::class)
     fun setContent(content: @Composable () -> Unit) {
         shouldCreateCompositionOnAttachedToWindow = true
         this.content.value = content
@@ -676,7 +672,7 @@ fun ComposeView.Companion.disableWindowInsetsRulers() {
     areWindowInsetsRulersEnabled = false
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalComposeViewContextApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 private fun View.findViewTreeComposeViewRoot(): View {
     if (!isAttachedToWindow) return this
 
@@ -757,7 +753,6 @@ private fun View.findDepthToTag(tag: Int): Int {
  * @sample androidx.compose.ui.samples.ComposeViewContextUnattachedSample
  * @see View.composeViewContext
  */
-@ExperimentalComposeViewContextApi
 fun View.findViewTreeComposeViewContext(): ComposeViewContext? {
     return findViewTreeComposeViewRoot().composeViewContext
 }
@@ -769,7 +764,6 @@ fun View.findViewTreeComposeViewContext(): ComposeViewContext? {
  * @see View.findViewTreeComposeViewContext
  */
 @Suppress("UNCHECKED_CAST")
-@OptIn(ExperimentalComposeViewContextApi::class)
 internal var View.composeViewContext: ComposeViewContext?
     get() =
         (getTag(R.id.androidx_compose_ui_view_compose_view_context)

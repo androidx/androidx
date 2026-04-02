@@ -3987,7 +3987,7 @@ package androidx.compose.ui.platform {
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public abstract void Content();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public abstract void Content(androidx.compose.runtime.Composer?, int);
     method public final void createComposition();
-    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeViewContextApi public final void createComposition(androidx.compose.ui.platform.ComposeViewContext composeViewContext);
+    method public final void createComposition(androidx.compose.ui.platform.ComposeViewContext composeViewContext);
     method public final void disposeComposition();
     method @BytecodeOnly public final int getAutoClearFocusBehavior-4UtRPd4();
     method @InaccessibleFromKotlin public final boolean getHasComposition();
@@ -4150,7 +4150,7 @@ package androidx.compose.ui.platform {
   public static final class ComposeView.Companion {
   }
 
-  @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeViewContextApi public final class ComposeViewContext {
+  public final class ComposeViewContext {
     ctor public ComposeViewContext(android.view.View view, optional androidx.compose.runtime.CompositionContext compositionContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
     ctor @BytecodeOnly public ComposeViewContext(android.view.View!, androidx.compose.runtime.CompositionContext!, androidx.lifecycle.LifecycleOwner!, androidx.savedstate.SavedStateRegistryOwner!, androidx.lifecycle.ViewModelStoreOwner!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.compose.ui.platform.ComposeViewContext copy(optional android.view.View view, optional androidx.compose.runtime.CompositionContext compositionContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
@@ -4159,7 +4159,7 @@ package androidx.compose.ui.platform {
 
   public final class ComposeView_androidKt {
     method public static void disableWindowInsetsRulers(androidx.compose.ui.platform.ComposeView.Companion);
-    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeViewContextApi public static androidx.compose.ui.platform.ComposeViewContext? findViewTreeComposeViewContext(android.view.View);
+    method public static androidx.compose.ui.platform.ComposeViewContext? findViewTreeComposeViewContext(android.view.View);
     method public static void setAutofillDebugEnabled(androidx.compose.ui.platform.ComposeView.Companion, boolean enabled);
   }
 
@@ -4210,9 +4210,6 @@ package androidx.compose.ui.platform {
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> LocalUriHandler;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ViewConfiguration> LocalViewConfiguration;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.WindowInfo> LocalWindowInfo;
-  }
-
-  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose and is likely to change before becoming stable.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExperimentalComposeViewContextApi {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface InfiniteAnimationPolicy extends kotlin.coroutines.CoroutineContext.Element {
