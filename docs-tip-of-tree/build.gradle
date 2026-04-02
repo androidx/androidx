@@ -337,6 +337,7 @@ dependencies {
     kmpDocs(project(":sqlite:sqlite-async"))
     kmpDocs(project(":sqlite:sqlite-bundled"))
     kmpDocs(project(":sqlite:sqlite-framework"))
+    kmpDocsWithoutApiSince(project(":sqlite:sqlite-web"))
     docs(project(":sqlite:sqlite-ktx"))
     docs(project(":startup:startup-runtime"))
     docs(project(":swiperefreshlayout:swiperefreshlayout"))

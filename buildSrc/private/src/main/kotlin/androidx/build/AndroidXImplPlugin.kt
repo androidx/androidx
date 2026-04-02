@@ -186,6 +186,10 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         project.configureKotlinVersion()
         project.configureJavaFormat()
 
+        // We want to set up the check docs task for all projects. For more information, see
+        // b/491430873
+        project.setUpCheckDocsTask(androidXExtension)
+
         // Avoid conflicts between full Guava and LF-only Guava.
         project.configureGuavaUpgradeHandler()
 
@@ -656,7 +660,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
 
         project.disableStrictVersionConstraints()
         project.configureJavaCompilationWarnings(androidXExtension)
-        project.setUpCheckDocsTask(androidXExtension)
     }
 
     private fun KotlinSourceSet.includesSourceSet(otherName: String): Boolean =
@@ -944,7 +947,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
 
         project.configureProjectForApiTasks(apiTaskConfig, androidXExtension)
         project.configureProjectForKzipTasks(apiTaskConfig, androidXExtension)
-        project.setUpCheckDocsTask(androidXExtension)
 
         if (project.multiplatformExtension == null) {
             project.addToBuildOnServer("jar")
@@ -1638,6 +1640,9 @@ internal fun KotlinMultiplatformExtension.hasJavaEnabled(): Boolean =
 
 internal fun KotlinMultiplatformExtension.hasJvmTarget(): Boolean =
     targets.withType(KotlinJvmTarget::class.java).isEmpty().not()
+
+internal fun KotlinMultiplatformExtension.hasAndroidTarget(): Boolean =
+    targets.withType(KotlinMultiplatformAndroidLibraryTarget::class.java).isEmpty().not()
 
 internal fun String.camelCase() = replaceFirstChar {
     if (it.isLowerCase()) it.titlecase() else it.toString()
