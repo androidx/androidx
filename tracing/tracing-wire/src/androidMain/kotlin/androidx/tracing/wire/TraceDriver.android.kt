@@ -23,6 +23,7 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.os.Process
+import androidx.annotation.RestrictTo
 import androidx.tracing.AbstractTraceDriver
 import androidx.tracing.AbstractTraceSink
 import androidx.tracing.EmptyTraceContext
@@ -59,7 +60,9 @@ constructor(
 ) : AbstractTraceDriver(sink = sink, isEnabled = isEnabled) {
 
     private val applicationContext = context.applicationContext
-    private val context =
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val context: TraceContext =
         if (isEnabled) {
             TraceContext(sink = sink, isEnabled = isEnabled)
         } else {
