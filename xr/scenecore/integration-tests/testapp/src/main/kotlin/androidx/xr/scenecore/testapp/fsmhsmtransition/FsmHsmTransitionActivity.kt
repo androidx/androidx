@@ -33,7 +33,6 @@ import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.ExrImage
 import androidx.xr.scenecore.MovableComponent
@@ -66,7 +65,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
     private var skybox: ExrImage? = null
     private var spatialEnvironmentPreference: SpatialEnvironment.SpatialEnvironmentPreference? =
         null
-    private lateinit var defaultPanelSize: FloatSize2d
+    private lateinit var defaultPanelSize: IntSize2d
 
     private fun mainPanelPixelDimensionsString(): String {
         val width = session!!.scene.mainPanelEntity.size.width.format(2)
@@ -83,17 +82,17 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
             this.finish()
         } else {
             if (savedInstanceState != null) {
-                val width = savedInstanceState.getFloat("defaultPanelSizeWidth")
-                val height = savedInstanceState.getFloat("defaultPanelSizeHeight")
-                defaultPanelSize = FloatSize2d(width, height)
+                val width = savedInstanceState.getInt("defaultPanelSizeWidth")
+                val height = savedInstanceState.getInt("defaultPanelSizeHeight")
+                defaultPanelSize = IntSize2d(width, height)
             } else {
-                defaultPanelSize = session!!.scene.mainPanelEntity.size
+                defaultPanelSize = session!!.scene.mainPanelEntity.sizeInPixels
             }
             Log.d(
                 TAG,
                 "defaultPanelSize: " +
-                    "w ${defaultPanelSize.width.format(2)} x " +
-                    "h ${defaultPanelSize.height.format(2)}",
+                    "w ${defaultPanelSize.width} x " +
+                    "h ${defaultPanelSize.height}",
             )
         }
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
@@ -310,8 +309,8 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putFloat("defaultPanelSizeWidth", defaultPanelSize.width)
-        outState.putFloat("defaultPanelSizeHeight", defaultPanelSize.height)
+        outState.putInt("defaultPanelSizeWidth", defaultPanelSize.width)
+        outState.putInt("defaultPanelSizeHeight", defaultPanelSize.height)
     }
 
     private fun componentVisibility() {
