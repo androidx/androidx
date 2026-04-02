@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontVariation.Settings
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import java.text.DecimalFormat
@@ -62,6 +63,43 @@ class RemoteTextTest {
         remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
             val text = "text_withDefaultColor".rs
             RemoteText(text, fontSize = 32.rsp)
+        }
+    }
+
+    @Test
+    fun text_withColorAndTextAlign_rtl() {
+        remoteComposeTestRule.runScreenshotTest(
+            backgroundColor = Color.Black,
+            layoutDirection = LayoutDirection.Rtl,
+        ) {
+            val left = "LEFT".rs
+            val center = "CENTER".rs
+            val right = "RIGHT".rs
+            val color = rememberNamedRemoteColor("TestColor5_rtl", Color.Green)
+
+            RemoteColumn(RemoteModifier.fillMaxSize()) {
+                RemoteText(
+                    text = left,
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 32.rsp,
+                    color = color,
+                    textAlign = TextAlign.Left,
+                )
+                RemoteText(
+                    text = center,
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 32.rsp,
+                    color = color,
+                    textAlign = TextAlign.Center,
+                )
+                RemoteText(
+                    text = right,
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 32.rsp,
+                    color = color,
+                    textAlign = TextAlign.Right,
+                )
+            }
         }
     }
 

@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -52,6 +53,16 @@ class RemoteCircularProgressIndicatorTest {
     @Test
     fun indicator_enabled() {
         remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
+            Center { RemoteCircularProgressEnabled() }
+        }
+    }
+
+    @Test
+    fun indicator_enabled_rtl() {
+        remoteComposeTestRule.runScreenshotTest(
+            creationDisplayInfo = creationDisplayInfo,
+            layoutDirection = LayoutDirection.Rtl,
+        ) {
             Center { RemoteCircularProgressEnabled() }
         }
     }

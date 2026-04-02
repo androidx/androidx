@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -53,6 +54,17 @@ class RemoteTitleCardTest {
             creationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardDefault()
+        }
+    }
+
+    @Test
+    fun title_card_rtl() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            creationDisplayInfo = creationDisplayInfo,
+            layoutDirection = LayoutDirection.Rtl,
+        ) {
+            RemoteTitleCardWithTitleSubtitle()
         }
     }
 

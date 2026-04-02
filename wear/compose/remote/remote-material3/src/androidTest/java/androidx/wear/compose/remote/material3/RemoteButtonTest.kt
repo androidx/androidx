@@ -41,6 +41,7 @@ import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteC
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -78,6 +79,18 @@ class RemoteButtonTest {
             creationDisplayInfo = creationDisplayInfo,
         ) {
             Center(RemoteModifier.fillMaxSize()) { RemoteButtonEnabled() }
+        }
+    }
+
+    @Test
+    fun button_with_icon_and_label_and_secondary_label_rtl() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            backgroundColor = Color.Black,
+            creationDisplayInfo = creationDisplayInfo,
+            layoutDirection = LayoutDirection.Rtl,
+        ) {
+            Center(RemoteModifier.fillMaxSize()) { RemoteButtonWithIconAndSecondaryLabel() }
         }
     }
 

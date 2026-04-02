@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -61,6 +62,17 @@ class RemoteIconButtonTest {
         remoteComposeTestRule.runScreenshotTest(
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
+        ) {
+            Center(RemoteModifier.fillMaxSize()) { RemoteIconButtonEnabled() }
+        }
+    }
+
+    @Test
+    fun remote_icon_button_rtl() {
+        remoteComposeTestRule.runScreenshotTest(
+            backgroundColor = Color.Black,
+            creationDisplayInfo = creationDisplayInfo,
+            layoutDirection = LayoutDirection.Rtl,
         ) {
             Center(RemoteModifier.fillMaxSize()) { RemoteIconButtonEnabled() }
         }

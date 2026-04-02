@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -52,6 +53,21 @@ class RemoteIconFromResTest {
     @Test
     fun iconsFromRes() {
         remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
+            RemoteRow {
+                Icon(resId = R.drawable.gs_map_wght500rond100_vd_theme_24)
+                Icon(resId = R.drawable.gs_work_wght500rond100_vd_theme_24)
+                Icon(resId = R.drawable.gs_category_search_wght500rond100_vd_theme_24)
+                Icon(resId = R.drawable.test_vector)
+            }
+        }
+    }
+
+    @Test
+    fun iconsFromRes_rtl() {
+        remoteComposeTestRule.runScreenshotTest(
+            creationDisplayInfo = creationDisplayInfo,
+            layoutDirection = LayoutDirection.Rtl,
+        ) {
             RemoteRow {
                 Icon(resId = R.drawable.gs_map_wght500rond100_vd_theme_24)
                 Icon(resId = R.drawable.gs_work_wght500rond100_vd_theme_24)
