@@ -112,17 +112,6 @@ object ComposeFoundationFlags {
     var isAnchoredDraggableTargetValueCalculationFixEnabled = true
 
     /**
-     * Enables support of trackpad gesture events in foundation components.
-     *
-     * This uses the additional trackpad gesture information enabled by
-     * `ComposeUiFlags.isTrackpadGestureHandlingEnabled`
-     */
-    // TODO: b/475634969 remove the temporary flag
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isTrackpadGestureHandlingEnabled: Boolean = true
-
-    /**
      * This flag controls performance optimizations related to
      * [androidx.compose.foundation.text.BasicTextField]'s internal min height calculations.
      */

@@ -27,8 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -70,7 +68,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -980,10 +977,8 @@ class TooltipTest {
         assertThat(state.isVisible).isFalse()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun tooltipTrackpadHover_notPersistentState_dismiss() {
-        assumeTrue(ComposeUiFlags.isTrackpadGestureHandlingEnabled)
 
         lateinit var state: TooltipState
         rule.setContent {
@@ -1073,10 +1068,8 @@ class TooltipTest {
         assertThat(state.isVisible).isTrue()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun tooltipTrackpadHover_persistentState_persistent() {
-        assumeTrue(ComposeUiFlags.isTrackpadGestureHandlingEnabled)
 
         lateinit var state: TooltipState
         rule.setContent {

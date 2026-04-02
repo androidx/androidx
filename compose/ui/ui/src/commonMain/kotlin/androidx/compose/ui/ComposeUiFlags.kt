@@ -110,22 +110,6 @@ object ComposeUiFlags {
     var isAccessibilityShouldIncludeOffscreenChildrenEnabled: Boolean = true
 
     /**
-     * Enables support of trackpad gesture events.
-     *
-     * If enabled, [androidx.compose.ui.input.pointer.PointerEvent]s can have type of
-     * [androidx.compose.ui.input.pointer.PointerEventType.PanMove] and
-     * [androidx.compose.ui.input.pointer.PointerEventType.ScaleChange], corresponding to
-     * system-recognized gestures on a trackpad.
-     *
-     * These trackpad gestures will also generally be treated as mouse, with the exact behavior
-     * depending on platform specifics.
-     */
-    // TODO: b/475634969 remove the temporary flag
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isTrackpadGestureHandlingEnabled: Boolean = true
-
-    /**
      * If enabled, [androidx.compose.ui.graphics.vector.VectorPainter] will use a shared
      * [androidx.compose.ui.platform.GraphicsResourceCache] to reuse
      * [androidx.compose.ui.graphics.vector.DrawCache] instances across different painters using the
