@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +39,10 @@ import org.junit.runner.RunWith
 class HeightInModifierScreenshotTest {
     @get:Rule
     val composeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteComposeScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            matcher = MSSIMMatcher(threshold = 0.999),
+        )
     }
 
     private val gridScreenshotUI = GridScreenshotUI()
@@ -90,6 +95,23 @@ class HeightInModifierScreenshotTest {
                             ) {
                                 RemoteBox(
                                     modifier = RemoteModifier.size(80.rdp).background(Color.Blue)
+                                )
+                            }
+                        },
+                    "min 100, parent 80" to
+                        @RemoteComposable @Composable {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.size(80.rdp)
+                                        .border(2.rdp, Color.Red.rc)
+                                        .background(Color(0xFFCFD8DC))
+                            ) {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.heightIn(min = 100.rdp)
+                                            .width(50.rdp)
+                                            .background(Color.Blue)
+                                            .border(2.rdp, Color.Cyan.rc)
                                 )
                             }
                         },
