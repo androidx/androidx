@@ -19,19 +19,20 @@ package androidx.compose.remote.creation;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.paint.PaintPathEffects;
+import androidx.compose.remote.creation.dsl.RcColor;
+import androidx.compose.remote.creation.dsl.RcFloat;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RcPaint {
-    protected @NonNull PaintBundle mPaint = new PaintBundle();
-    @NonNull
-    RemoteComposeWriter mBuilder;
-    public static int FONT_TYPE_DEFAULT = PaintBundle.FONT_TYPE_DEFAULT;
-    public static int FONT_TYPE_SANS_SERIF = PaintBundle.FONT_TYPE_SANS_SERIF;
-    public static int FONT_TYPE_SERIF = PaintBundle.FONT_TYPE_SERIF;
-    public static int FONT_TYPE_MONOSPACE = PaintBundle.FONT_TYPE_MONOSPACE;
+    private final @NonNull PaintBundle mPaint = new PaintBundle();
+    private final @NonNull RemoteComposeWriter mBuilder;
+    public static final int FONT_TYPE_DEFAULT = PaintBundle.FONT_TYPE_DEFAULT;
+    public static final int FONT_TYPE_SANS_SERIF = PaintBundle.FONT_TYPE_SANS_SERIF;
+    public static final int FONT_TYPE_SERIF = PaintBundle.FONT_TYPE_SERIF;
+    public static final int FONT_TYPE_MONOSPACE = PaintBundle.FONT_TYPE_MONOSPACE;
     private static final int NORMAL_WEIGHT = 400;
 
     RcPaint(@NonNull RemoteComposeWriter builder) {
@@ -80,6 +81,17 @@ public class RcPaint {
     }
 
     /**
+     * Set the Color based on RcColor
+     *
+     * @param color the id of the color
+     * @return the painter object
+     */
+    public @NonNull RcPaint setColor(@NonNull RcColor color) {
+        mPaint.setColorId(color.getId());
+        return this;
+    }
+
+    /**
      * Set the paint's Join.
      * set the paint's Join, used whenever the paint's style is Stroke or StrokeAndFill.
      *
@@ -100,6 +112,12 @@ public class RcPaint {
 //    @SuppressWarnings("unchecked")
     public @NonNull RcPaint setStrokeWidth(float width) {
         mPaint.setStrokeWidth(width);
+        return this;
+    }
+
+    /** Sets the stroke width from an RcFloat. */
+    public @NonNull RcPaint setStrokeWidth(@NonNull RcFloat width) {
+        mPaint.setStrokeWidth(width.withWriter(mBuilder).toFloat());
         return this;
     }
 
@@ -219,7 +237,7 @@ public class RcPaint {
             float endY,
             int @NonNull [] colors,
             int mask,
-            float @NonNull [] positions,
+            float @Nullable [] positions,
             int tileMode) {
         mPaint.setLinearGradient(
                 colors, mask, positions, startX, startY, endX, endY, tileMode);
@@ -348,6 +366,12 @@ public class RcPaint {
      */
     public @NonNull RcPaint setTextSize(float size) {
         mPaint.setTextSize(size);
+        return this;
+    }
+
+    /** Sets the text size from an RcFloat. */
+    public @NonNull RcPaint setTextSize(@NonNull RcFloat size) {
+        mPaint.setTextSize(size.withWriter(mBuilder).toFloat());
         return this;
     }
 
@@ -493,6 +517,12 @@ public class RcPaint {
      */
     public @NonNull RcPaint setPathEffect(float @Nullable [] pathEffectData) {
         mPaint.setPathEffect(pathEffectData);
+        return this;
+    }
+
+    /** Sets the alpha from an RcFloat. */
+    public @NonNull RcPaint setAlpha(@NonNull RcFloat alpha) {
+        mPaint.setAlpha(alpha.withWriter(mBuilder).toFloat());
         return this;
     }
 }

@@ -642,6 +642,17 @@ public class RemoteComposeWriter {
             mValue = value;
         }
 
+        /** Returns the tag ID. */
+        public short getTag() {
+            return mTag;
+        }
+
+        /** Returns the tag value. */
+        @NonNull
+        public Object getValue() {
+            return mValue;
+        }
+
         /**
          * Returns the profiles bitmask
          *
