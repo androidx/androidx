@@ -44,6 +44,9 @@ class DebugTextLinearView(context: Context, attrs: AttributeSet? = null) :
 
     private val colorFromResource = ContextCompat.getColor(context, R.color.purple_gray_80)
 
+    private val pendingUpdates = mutableMapOf<String, String>()
+    private var isUpdatePosted = false
+
     init {
         LayoutInflater.from(context).inflate(R.layout.debug_text_panel, this, true)
         linearLayout = findViewById(R.id.debugTextPanel)
@@ -64,7 +67,7 @@ class DebugTextLinearView(context: Context, attrs: AttributeSet? = null) :
         newTextLine.tag = key
         newTextLine.setAutoSizeTextTypeUniformWithConfiguration(
             /* autoSizeMinTextSize= */ 1,
-            /* autoSizeMaxTextSize= */ 10000,
+            /* autoSizeMaxTextSize= */ 2000,
             /* autoSizeStepGranularity= */ 1,
             /* autoSizeUnit= */ TypedValue.COMPLEX_UNIT_DIP,
         )
@@ -76,10 +79,28 @@ class DebugTextLinearView(context: Context, attrs: AttributeSet? = null) :
         textLines[key] = newTextLine
     }
 
+    private val updateRunnable = Runnable {
+        isUpdatePosted = false
+        for ((key, newText) in pendingUpdates) {
+            val textView = textLines[key] ?: continue
+            val newLine = "$key: $newText"
+            if (textView.text != newLine) {
+                textView.text = newLine
+            }
+        }
+        pendingUpdates.clear()
+    }
+
     @SuppressLint("SetTextI18n")
     fun editLine(key: String, newText: String): Boolean {
         if (textLines.containsKey(key)) {
-            textLines[key]?.text = "$key: $newText"
+            pendingUpdates[key] = newText
+
+            // Post the runnable only once per frame
+            if (!isUpdatePosted) {
+                post(updateRunnable)
+                isUpdatePosted = true
+            }
             return true
         }
         return false
