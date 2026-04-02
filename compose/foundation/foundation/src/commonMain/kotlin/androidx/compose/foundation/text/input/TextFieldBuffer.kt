@@ -22,6 +22,7 @@ import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text.input.internal.ChangeTracker
+import androidx.compose.foundation.text.input.internal.Interval
 import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
 import androidx.compose.foundation.text.input.internal.PartialGapBuffer
 import androidx.compose.foundation.text.input.internal.TextStyleBuffer
@@ -553,7 +554,8 @@ internal constructor(
     ) {
         // We treat it as replace the original text with newly styled text.
         changeTracker.trackChange(start, end, end - start, false)
-        requireTextFieldBuffer().addStyle(annotation, start, end)
+
+        requireTextFieldBuffer().addStyle(annotation, Interval(start, end, false, true))
     }
 
     /**
