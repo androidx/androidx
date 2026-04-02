@@ -28,7 +28,7 @@ sealed class Screen : NavKey {
     override fun toString() = title
 }
 
-/** Screen that displays [Composable] content when selected. */
+/** Screen that displays [androidx.compose.runtime.Composable] content when selected. */
 @Serializable
 data class ComposableScreen(override val key: String, override val title: String) : Screen()
 

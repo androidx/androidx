@@ -21,6 +21,7 @@ import androidx.compose.remote.integration.demos.layout.RemoteBoxAlignmentsDemo
 import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSimpleDemo
 import androidx.compose.remote.integration.demos.modifier.ClickableDemo
 import androidx.compose.remote.integration.demos.modifier.CombinedClickableDemo
+import androidx.compose.remote.integration.demos.player.BitmapLoaderDemo
 import androidx.compose.remote.integration.demos.settings.SettingsScreen
 import androidx.compose.runtime.Composable
 
@@ -29,6 +30,7 @@ private object ScreenKeys {
     const val REMOTE_STATE_LAYOUT = "REMOTE_STATE_LAYOUT"
     const val CLICKABLE = "CLICKABLE"
     const val COMBINED_CLICKABLE = "COMBINED_CLICKABLE"
+    const val BITMAP_LOADER = "BITMAP_LOADER"
     const val SETTINGS = "SETTINGS"
 }
 
@@ -39,6 +41,7 @@ fun ComposableScreenNavigation(key: String, onNavigateUp: () -> Unit) {
         ScreenKeys.REMOTE_STATE_LAYOUT -> RemoteStateLayoutSimpleDemo()
         ScreenKeys.CLICKABLE -> ClickableDemo()
         ScreenKeys.COMBINED_CLICKABLE -> CombinedClickableDemo()
+        ScreenKeys.BITMAP_LOADER -> BitmapLoaderDemo()
         ScreenKeys.SETTINGS -> SettingsScreen()
         else -> Text("Unknown screen: $key")
     }
@@ -75,6 +78,14 @@ val Screens =
                                 key = ScreenKeys.COMBINED_CLICKABLE,
                                 title = "CombinedClickable",
                             ),
+                        ),
+                ),
+                Category(
+                    key = "player_category",
+                    title = "Player",
+                    screens =
+                        listOf(
+                            ComposableScreen(key = ScreenKeys.BITMAP_LOADER, title = "BitmapLoader")
                         ),
                 ),
             ),
