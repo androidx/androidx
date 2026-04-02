@@ -39,6 +39,7 @@ val Demos =
             ComposableDemo("Icons") { IconSampleUsage() },
             ComposableDemo("Cards") { CardSampleUsage() },
             DemoCategory("Buttons", ButtonDemos),
+            DemoCategory("ButtonGroups", ButtonGroupDemos),
             ComposableDemo("ListItems") { ListItemSampleUsage() },
             ComposableDemo("TitleChips") { TitleChipSampleUsage() },
             DemoCategory("Focus", FocusDemos),
