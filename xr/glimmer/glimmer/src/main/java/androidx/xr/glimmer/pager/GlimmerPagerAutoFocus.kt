@@ -138,7 +138,7 @@ private class PagerAutoFocusNode(private var state: GlimmerPagerState) :
         val currentPageScrollOffset = state.currentPageOffsetFraction * pageSize
 
         val pageLeftX =
-            if (requireLayoutDirection() == LayoutDirection.Rtl || layoutInfo.reverseLayout) {
+            if ((requireLayoutDirection() == LayoutDirection.Rtl) xor layoutInfo.reverseLayout) {
                 rootTopLeft.x + currentPageScrollOffset
             } else {
                 rootTopLeft.x - currentPageScrollOffset
