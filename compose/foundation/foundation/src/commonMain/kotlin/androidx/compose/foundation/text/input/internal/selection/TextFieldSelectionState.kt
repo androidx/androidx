@@ -1567,11 +1567,14 @@ internal class TextFieldSelectionState(
      */
     @Suppress("NOTHING_TO_INLINE") inline fun isPasteAllowed(): Boolean = editable
 
-    suspend fun paste() {
+    suspend fun paste(isFromHardwareSource: Boolean = false) {
         val receiveContentConfiguration =
-            receiveContentConfiguration?.invoke() ?: return pasteAsPlainText()
+            receiveContentConfiguration?.invoke()
+                ?: return pasteAsPlainText(isFromHardwareSource = isFromHardwareSource)
 
-        val clipEntry = clipboard.getClipEntry() ?: return pasteAsPlainText()
+        val clipEntry =
+            clipboard.getClipEntry()
+                ?: return pasteAsPlainText(isFromHardwareSource = isFromHardwareSource)
         val clipMetadata = clipEntry.clipMetadata
 
         val remaining =
@@ -1589,6 +1592,7 @@ internal class TextFieldSelectionState(
             textFieldState.replaceSelectedText(
                 clipboardText,
                 undoBehavior = TextFieldEditUndoBehavior.NeverMerge,
+                isFromHardwareSource = isFromHardwareSource,
             )
         }
     }
@@ -1601,12 +1605,13 @@ internal class TextFieldSelectionState(
      * selected text. Then the selection should collapse, and the new cursor offset should be at the
      * end of the newly added text.
      */
-    private suspend fun pasteAsPlainText() {
+    private suspend fun pasteAsPlainText(isFromHardwareSource: Boolean) {
         val clipboardText = clipboard.getClipEntry()?.readText() ?: return
 
         textFieldState.replaceSelectedText(
             clipboardText,
             undoBehavior = TextFieldEditUndoBehavior.NeverMerge,
+            isFromHardwareSource = isFromHardwareSource,
         )
     }
 
@@ -1619,11 +1624,12 @@ internal class TextFieldSelectionState(
      * This overload doesn't interact with the Clipboard directly. It covers the case when handling
      * a 'paste' ClipboardEvent.
      */
-    internal fun onPasteEvent(value: AnnotatedString) {
+    internal fun onPasteEvent(value: AnnotatedString, isFromHardwareSource: Boolean = false) {
         if (!isPasteAllowed()) return
         textFieldState.replaceSelectedText(
             value.text,
             undoBehavior = TextFieldEditUndoBehavior.NeverMerge,
+            isFromHardwareSource = isFromHardwareSource,
         )
     }
 

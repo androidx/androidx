@@ -22,5 +22,8 @@ import androidx.compose.ui.input.key.KeyEvent
 internal actual fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler =
     implementedInJetBrainsFork()
 
+internal actual val KeyEvent.isFromHardwareSource: Boolean
+    get() = implementedInJetBrainsFork()
+
 internal actual val KeyEvent.isFromSoftKeyboard: Boolean
     get() = implementedInJetBrainsFork()

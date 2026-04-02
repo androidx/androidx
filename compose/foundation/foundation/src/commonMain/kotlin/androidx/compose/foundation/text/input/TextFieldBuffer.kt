@@ -313,6 +313,12 @@ internal constructor(
         text: CharSequence,
         textStart: Int = 0,
         textEnd: Int = text.length,
+        // Defaulting to false for isFromHardwareSource means the edit is not treated as
+        // originating from a physical hardware source. This maintains similar default behavior
+        // as the previous default of true for isFromSoftKeyboard, following the usage prior to
+        // b/453647445. The source parameter should not need to be optional in the future, the
+        // larger source information work is tracked in b/502914003.
+        isFromHardwareSource: Boolean = false,
     ) {
         requirePrecondition(start <= end) { "Expected start=$start <= end=$end" }
         requirePrecondition(textStart <= textEnd) {
@@ -324,7 +330,12 @@ internal constructor(
         val coercedTextStart = textStart.coerceIn(0, text.length)
         val coercedTextEnd = textEnd.coerceIn(0, text.length)
 
-        onTextWillChange(coercedStart, coercedEnd, coercedTextEnd - coercedTextStart)
+        onTextWillChange(
+            coercedStart,
+            coercedEnd,
+            coercedTextEnd - coercedTextStart,
+            isFromHardwareSource,
+        )
         buffer.replace(coercedStart, coercedEnd, text, coercedTextStart, coercedTextEnd)
 
         commitComposition()
@@ -346,7 +357,7 @@ internal constructor(
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun append(text: CharSequence?): Appendable = apply {
         if (text != null) {
-            onTextWillChange(length, length, text.length)
+            onTextWillChange(length, length, text.length, false)
             buffer.replace(buffer.length, buffer.length, text)
         }
     }
@@ -355,7 +366,7 @@ internal constructor(
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun append(text: CharSequence?, start: Int, end: Int): Appendable = apply {
         if (text != null) {
-            onTextWillChange(length, length, end - start)
+            onTextWillChange(length, length, end - start, false)
             buffer.replace(buffer.length, buffer.length, text.subSequence(start, end))
         }
     }
@@ -363,7 +374,7 @@ internal constructor(
     // Doc inherited from Appendable.
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun append(char: Char): Appendable = apply {
-        onTextWillChange(length, length, 1)
+        onTextWillChange(length, length, 1, false)
         buffer.replace(buffer.length, buffer.length, char.toString())
     }
 
@@ -374,8 +385,16 @@ internal constructor(
      * @param replaceEnd The last offset to be replaced (exclusive).
      * @param newLength The length of the replacement.
      */
-    private fun onTextWillChange(replaceStart: Int, replaceEnd: Int, newLength: Int) {
-        changeTracker.trackChange(replaceStart, replaceEnd, newLength)
+    private fun onTextWillChange(
+        replaceStart: Int,
+        replaceEnd: Int,
+        newLength: Int,
+        // Defaulting to false for isFromHardwareSource means the edit is not treated as
+        // originating from a physical hardware source. This follows the usage prior to
+        // b/453647445.
+        isFromHardwareSource: Boolean = false,
+    ) {
+        changeTracker.trackChange(replaceStart, replaceEnd, newLength, isFromHardwareSource)
         offsetMappingCalculator?.recordEditOperation(replaceStart, replaceEnd, newLength)
         // On Android, IME calls are usually followed with an explicit change to selection.
         // Therefore it might seem unnecessary to adjust the selection here. However, this sort of
@@ -533,7 +552,7 @@ internal constructor(
         end: Int,
     ) {
         // We treat it as replace the original text with newly styled text.
-        changeTracker.trackChange(start, end, end - start)
+        changeTracker.trackChange(start, end, end - start, false)
         requireTextFieldBuffer().addStyle(annotation, start, end)
     }
 
