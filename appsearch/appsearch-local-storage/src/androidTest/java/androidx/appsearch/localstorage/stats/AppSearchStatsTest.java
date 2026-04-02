@@ -65,8 +65,8 @@ public class AppSearchStatsTest {
                 .setEstimatedBinderLatencyMillis(estimatedBinderLatencyMillis)
                 .setNumOperationsSucceeded(numOperationsSucceeded)
                 .setNumOperationsFailed(numOperationsFailed)
-                .setLaunchVMEnabled(true)
-                .setLaunchVM2Enabled(true)
+                .setLaunchVmEnabled(true)
+                .setLaunchAiSealEnabled(true)
                 .setJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
                 .setLastBlockingOperation(lastBlockingOperation)
                 .setLastBlockingOperationLatencyMillis(lastBlockingOperationLatencyMillis)
@@ -173,7 +173,7 @@ public class AppSearchStatsTest {
                 .setDatabase(TEST_DATA_BASE)
                 .setStatusCode(TEST_STATUS_CODE)
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
-                .setLaunchVMEnabled(false)
+                .setLaunchVmEnabled(false)
                 .build();
 
         assertThat(cStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
@@ -191,7 +191,7 @@ public class AppSearchStatsTest {
                 .setDatabase(TEST_DATA_BASE)
                 .setStatusCode(TEST_STATUS_CODE)
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
-                .setLaunchVM2Enabled(false)
+                .setLaunchAiSealEnabled(false)
                 .build();
 
         assertThat(cStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
@@ -256,8 +256,8 @@ public class AppSearchStatsTest {
                         .setNativeQualifiedIdJoinIndexLatencyMillis(
                                 nativeQualifiedIdJoinIndexLatencyMillis)
                         .setNativeLiteIndexSortLatencyMillis(nativeLiteIndexSortLatencyMillis)
-                        .setLaunchVMEnabled(true)
-                        .setLaunchVM2Enabled(true)
+                        .setLaunchVmEnabled(true)
+                        .setLaunchAiSealEnabled(true)
                         .setMetadataTermIndexLatencyMillis(metadataTermIndexLatencyMillis)
                         .setEmbeddingIndexLatencyMillis(embeddingIndexLatencyMillis)
                         .setJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
@@ -380,8 +380,8 @@ public class AppSearchStatsTest {
                 .setNativeSchemaTypeCount(nativeNumSchemaTypes)
                 .setHasReset(true)
                 .setResetStatusCode(AppSearchResult.RESULT_INVALID_SCHEMA)
-                .setLaunchVMEnabled(true)
-                .setLaunchVM2Enabled(true)
+                .setLaunchVmEnabled(true)
+                .setLaunchAiSealEnabled(true)
                 .setNativeNumPreviousInitFailures(numPreviousInitFailures)
                 .setNativeIntegerIndexRestorationCause(integerIndexRestorationCause)
                 .setNativeQualifiedIdJoinIndexRestorationCause(qualifiedIdJoinIndexRestorationCause)
@@ -655,8 +655,8 @@ public class AppSearchStatsTest {
                 TEST_PACKAGE_NAME)
                 .setDatabase(TEST_DATA_BASE)
                 .setStatusCode(TEST_STATUS_CODE)
-                .setLaunchVMEnabled(true)
-                .setLaunchVM2Enabled(true)
+                .setLaunchVmEnabled(true)
+                .setLaunchAiSealEnabled(true)
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
                 .setRewriteSearchSpecLatencyMillis(rewriteSearchSpecLatencyMillis)
                 .setRewriteSearchResultLatencyMillis(rewriteSearchResultLatencyMillis)
@@ -900,8 +900,8 @@ public class AppSearchStatsTest {
                 .setGetObserverLatencyMillis(getObserverLatencyMillis)
                 .setPreparingChangeNotificationLatencyMillis(sendNotificationLatencyMillis)
                 .setSchemaMigrationCallType(SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA)
-                .setLaunchVMEnabled(true)
-                .setLaunchVM2Enabled(true)
+                .setLaunchVmEnabled(true)
+                .setLaunchAiSealEnabled(true)
                 .setJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
                 .setLastBlockingOperation(lastBlockingOperation)
                 .setLastBlockingOperationLatencyMillis(lastBlockingOperationLatencyMillis)
@@ -1108,7 +1108,7 @@ public class AppSearchStatsTest {
                 .setNativeLatencyMillis(nativeLatencyMillis)
                 .setDeleteType(deleteType)
                 .setDeletedDocumentCount(documentDeletedCount)
-                .setLaunchVMEnabled(true)
+                .setLaunchVmEnabled(true)
                 .setQueryLength(queryLength)
                 .setNumTerms(numTerms)
                 .setNumNamespacesFiltered(numNamespacesFiltered)
@@ -1200,7 +1200,7 @@ public class AppSearchStatsTest {
                 .setStorageSizeBeforeBytes(nativeStorageSizeBeforeBytes)
                 .setStorageSizeAfterBytes(nativeStorageSizeAfterBytes)
                 .setTimeSinceLastOptimizeMillis(nativeTimeSinceLastOptimizeMillis)
-                .setLaunchVMEnabled(true)
+                .setLaunchVmEnabled(true)
                 .setIndexRestorationMode(indexRestorationMode)
                 .setNumOriginalNamespaces(numOriginalNamespaces)
                 .setNumDeletedNamespaces(numDeletedNamespaces)
@@ -1323,7 +1323,7 @@ public class AppSearchStatsTest {
                 .setLastBlockingOperation(lastBlockingOperation)
                 .setLastBlockingOperationLatencyMillis(lastBlockingOperationLatencyMillis)
                 .addGetVmLatencyMillis(getVmLatencyMillis)
-                .setLaunchVMEnabled(true)
+                .setLaunchVmEnabled(true)
                 .build();
 
         assertThat(pStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);

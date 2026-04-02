@@ -723,7 +723,7 @@ public final class SetSchemaRequest {
                         "The set of required permissions cannot be empty");
             }
             for (int permission : permissions) {
-                if (android.app.appfunctions.flags.Flags.enableAppFunctionPermissionV2()) {
+                if (androidx.appsearch.flags.appfunctions.Flags.enableAppFunctionPermissionV2()) {
                     Preconditions.checkArgumentInRange(
                             permission, READ_SMS, EXECUTE_APP_FUNCTIONS_SYSTEM, "permission");
                 } else {
