@@ -21,6 +21,7 @@ import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -206,6 +207,7 @@ class ProjectedManagerTest {
     }
 
     @Test
+    @OptIn(PreviewSpatialApi::class)
     fun configure_inertialLastKnownWithoutGeo_sends3DofAndGeoDisabled() {
         underTest.create()
         underTest.running.set(true)
@@ -226,6 +228,7 @@ class ProjectedManagerTest {
     }
 
     @Test
+    @OptIn(PreviewSpatialApi::class)
     fun configure_inertialLastKnownWithGeo_sendsExpectedConfig() {
         underTest.create()
         underTest.running.set(true)

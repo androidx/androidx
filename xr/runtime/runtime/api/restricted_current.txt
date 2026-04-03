@@ -122,14 +122,14 @@ package androidx.xr.runtime {
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
     field public static final androidx.xr.runtime.DeviceTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.DeviceTrackingMode DISABLED;
-    field public static final androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
+    field @SuppressCompatibility @androidx.xr.runtime.PreviewSpatialApi public static final androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
     field @Deprecated public static final androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
     field public static final androidx.xr.runtime.DeviceTrackingMode SPATIAL_LAST_KNOWN;
   }
 
   public static final class DeviceTrackingMode.Companion {
     property public androidx.xr.runtime.DeviceTrackingMode DISABLED;
-    property public androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
+    property @SuppressCompatibility @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
     property @Deprecated public androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
     property public androidx.xr.runtime.DeviceTrackingMode SPATIAL_LAST_KNOWN;
   }

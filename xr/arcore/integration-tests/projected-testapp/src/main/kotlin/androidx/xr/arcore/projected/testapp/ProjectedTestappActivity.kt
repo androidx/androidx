@@ -44,6 +44,7 @@ import androidx.xr.projected.permissions.ProjectedPermissionsResultContract
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionConfigureLibraryNotLinked
 import androidx.xr.runtime.SessionConfigureSuccess
@@ -59,6 +60,7 @@ import kotlinx.coroutines.launch
 
 /** Test app which tests projected perception API surface. */
 @Suppress("DEPRECATION")
+@OptIn(PreviewSpatialApi::class)
 class ProjectedTestAppActivity : ComponentActivity() {
     private lateinit var session: Session
     private lateinit var geospatial: Geospatial
