@@ -121,6 +121,20 @@ class TracingDemoTest {
     }
 
     @Test
+    internal fun testContextSwitching(): Unit = runBlocking {
+        var index = 0
+        driver.use {
+            tracer.traceCoroutine(category = "category", name = "switch") {
+                repeat(100) {
+                    index += 1
+                    val dispatcher = if (index % 2 == 0) Dispatchers.Default else Dispatchers.IO
+                    withContext(dispatcher) { delay(100) }
+                }
+            }
+        }
+    }
+
+    @Test
     // The amount of time spent sleeping does not affect the outcome of the test.
     @Suppress("BanThreadSleep")
     @OptIn(ExperimentalContextPropagation::class)

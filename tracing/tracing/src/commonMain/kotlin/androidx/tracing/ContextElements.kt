@@ -16,6 +16,8 @@
 
 package androidx.tracing
 
+import androidx.collection.MutableLongIntMap
+import androidx.collection.mutableLongIntMapOf
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
@@ -40,14 +42,30 @@ internal constructor(
      */
     public open val flowIds: List<Long>,
 ) : AbstractCoroutineContextElement(key = KEY), PropagationToken, AutoCloseable {
-    // Always starts in a `begin` state.
-    @JvmField internal var started: Int = STATE_BEGIN
+
+    // Calls to update and restore will happen concurrently on multiple threads, if we happen
+    // to jump threads between suspends and resumes. Therefore, it's important for us to track
+    // begin and end per thread id. For more information refer to the `Reentrancy and thread-safety`
+    // section in the documentation for `CopyableThreadContextElement`.
+    @JvmField internal val started: MutableLongIntMap = mutableLongIntMapOf()
+
+    init {
+        synchronized(this) {
+            // Always starts in a `begin` state.
+            started[currentThreadId()] = STATE_BEGIN
+        }
+    }
 
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun synchronizedCompareAndSet(expected: Int, newValue: Int): Boolean {
         return synchronized(this) {
-            if (started == expected) {
-                started = newValue
+            // Treat the absence of an entry here as `STATE_END` given we have not emitted a
+            // trace packet yet on this Thread. This is true for every child coroutine, but
+            // **not** for the coroutine that kicked things off (handled by the init block).
+            val id = currentThreadId()
+            val current = started.getOrDefault(key = id, defaultValue = STATE_END)
+            if (current == expected) {
+                started[id] = newValue
                 true
             } else {
                 false
