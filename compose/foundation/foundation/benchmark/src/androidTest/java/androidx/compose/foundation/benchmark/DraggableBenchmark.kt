@@ -55,8 +55,8 @@ class DraggableBenchmark {
             val motionEventHelper = MotionEventHelper(rootView)
             var overallDrag = 0f
             var expectedDragged = case.draggedDelta
+            val viewCenter = Offset(rootView.measuredWidth / 2f, rootView.measuredHeight / 2f)
             benchmarkRule.measureRepeatedOnUiThread {
-                val viewCenter = Offset(rootView.measuredWidth / 2f, rootView.measuredHeight / 2f)
                 motionEventHelper.sendEvent(MotionEvent.ACTION_DOWN, viewCenter)
                 motionEventHelper.sendEvent(
                     MotionEvent.ACTION_MOVE,

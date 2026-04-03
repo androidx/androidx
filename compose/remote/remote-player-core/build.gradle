@@ -30,7 +30,7 @@ androidx {
 
 android {
     namespace = "androidx.compose.remote.player.core"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(35) }
     defaultConfig {
         minSdk { version = release(29) }
     }

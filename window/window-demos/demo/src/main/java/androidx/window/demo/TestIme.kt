@@ -44,7 +44,7 @@ internal class TestIme : InputMethodService() {
             }
 
             findViewById<Button>(R.id.button_close).setOnClickListener {
-                @Suppress("DEPRECATION") requestHideSelf(InputMethodManager.HIDE_NOT_ALWAYS)
+                requestHideSelf(InputMethodManager.HIDE_NOT_ALWAYS)
             }
 
             displayCurrentWindowMetrics()

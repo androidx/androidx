@@ -30,7 +30,7 @@ plugins {
 }
 
 android {
-    compileSdk { version = release(37) }
+    compileSdk { version = release(35) }
     defaultConfig {
         applicationId = "androidx.window.demo"
     }

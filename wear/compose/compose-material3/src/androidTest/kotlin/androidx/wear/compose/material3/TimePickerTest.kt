@@ -623,8 +623,8 @@ class TimePickerTest {
     ) {
         val initialTime = LocalTime.of(10, 20, 30)
         val newLocale =
-            if (isAmPmFirst) Locale.forLanguageTag("ko-Kr") // "a h:mm"
-            else Locale.forLanguageTag("us-US")
+            if (isAmPmFirst) Locale("ko", "Kr") // "a h:mm"
+            else Locale("us", "US")
         val timePickerType = TimePickerType.HoursMinutesAmPm12H
 
         rule.setContentWithTheme {
@@ -674,8 +674,8 @@ class TimePickerTest {
     ) {
         val initialTime = LocalTime.of(10, 20, 30)
         val newLocale =
-            if (isAmPmFirst) Locale.forLanguageTag("ko-Kr") // "a h:mm"
-            else Locale.forLanguageTag("us-US")
+            if (isAmPmFirst) Locale("ko", "Kr") // "a h:mm"
+            else Locale("us", "US")
         val timePickerType = TimePickerType.HoursMinutesAmPm12H
 
         rule.setContentWithTheme {

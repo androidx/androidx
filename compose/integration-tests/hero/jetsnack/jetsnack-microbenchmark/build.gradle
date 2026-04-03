@@ -53,7 +53,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
 }
 
 android {
-    compileSdk { version = release(37) }
+    compileSdk { version = release(35) }
 
     namespace = "androidx.compose.integration.hero.jetsnack.microbenchmark"
 }

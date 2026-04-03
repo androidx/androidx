@@ -49,5 +49,5 @@ androidx {
 
 android {
     namespace = "androidx.glance.appwidget.samples"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(35) }
 }

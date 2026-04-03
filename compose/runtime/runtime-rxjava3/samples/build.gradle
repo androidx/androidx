@@ -45,6 +45,6 @@ androidx {
 }
 
 android {
-    compileSdk { version = release(37) }
+    compileSdk { version = release(35) }
     namespace = "androidx.compose.runtime.rxjava3.samples"
 }
