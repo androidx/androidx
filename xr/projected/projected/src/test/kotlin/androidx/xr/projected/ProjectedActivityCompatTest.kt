@@ -61,7 +61,7 @@ class ProjectedActivityCompatTest {
 
     @Test
     fun create_withContext_throwsIllegalStateException() {
-        projectedTestRule.throwIllegalStateExceptionWhenCreatingControllers = true
+        projectedTestRule.shouldThrowIllegalStateExceptionWhenCreatingControllers = true
 
         assertFailsWith<IllegalStateException> {
             runBlocking { ProjectedActivityCompat.create(context) }
@@ -89,7 +89,7 @@ class ProjectedActivityCompatTest {
     @Test
     fun create_withProjectedActivity_throwsIllegalStateException() =
         projectedTestRule.launchTestProjectedDeviceActivity { activity ->
-            projectedTestRule.throwIllegalStateExceptionWhenCreatingControllers = true
+            projectedTestRule.shouldThrowIllegalStateExceptionWhenCreatingControllers = true
 
             assertFailsWith<IllegalStateException> {
                 runBlocking { ProjectedActivityCompat.create(activity) }

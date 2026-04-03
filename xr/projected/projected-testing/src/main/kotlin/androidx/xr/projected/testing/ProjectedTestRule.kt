@@ -33,7 +33,6 @@ import android.hardware.display.VirtualDisplayConfig
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -104,7 +103,6 @@ import org.robolectric.shadows.ShadowVirtualDeviceManager
  * be controlled via the [isDeviceConnected] property.
  */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @ExperimentalProjectedApi
 public class ProjectedTestRule : TestRule {
 
@@ -127,7 +125,8 @@ public class ProjectedTestRule : TestRule {
      * [androidx.xr.projected.ProjectedDeviceController.create] throw an [IllegalStateException]
      * when called. By default, the exception is not being thrown.
      */
-    public var throwIllegalStateExceptionWhenCreatingControllers: Boolean = false
+    @get:JvmName("shouldThrowIllegalStateExceptionWhenCreatingControllers")
+    public var shouldThrowIllegalStateExceptionWhenCreatingControllers: Boolean = false
         set(value) {
             if (value) {
                 disableProjectedService()
@@ -243,7 +242,7 @@ public class ProjectedTestRule : TestRule {
     override fun apply(base: Statement?, description: Description?): Statement =
         object : Statement() {
             override fun evaluate() {
-                throwIllegalStateExceptionWhenCreatingControllers = false
+                shouldThrowIllegalStateExceptionWhenCreatingControllers = false
                 isDeviceConnected = true
                 capabilities = setOf(Capability.CAPABILITY_VISUAL_UI)
                 base?.evaluate()

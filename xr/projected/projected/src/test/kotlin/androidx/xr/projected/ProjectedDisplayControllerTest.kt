@@ -70,7 +70,7 @@ class ProjectedDisplayControllerTest {
     @Test
     fun create_throwsIllegalStateException() =
         projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
-            projectedTestRule.throwIllegalStateExceptionWhenCreatingControllers = true
+            projectedTestRule.shouldThrowIllegalStateExceptionWhenCreatingControllers = true
 
             assertFailsWith<IllegalStateException> {
                 runBlocking {
