@@ -33,19 +33,27 @@ class NativeDataExtTest {
 
     // TODO(b/467096822) : Have these tests use the FakePerceptionRuntime once it is implemented.
     @Test
-    fun getNativeData_unsupportedPerceptionRuntime_throwsIllegalStateException() =
+    fun getNativeSessionData_unsupportedPerceptionRuntime_throwsIllegalStateException() =
         createTestSessionAndRunTest {
-            assertThrows<IllegalStateException> { session.getNativeData() }
+            assertThrows<IllegalStateException> { session.getNativeSessionData() }
         }
 
-    private fun createTestSessionAndRunTest(testBody: () -> Unit) {
+    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
+    @Test
+    fun getNativeInstanceData_unsupportedDeviceContext_throwsIllegalStateException() =
+        createTestSessionAndRunTest { activity ->
+            val xrDevice = XrDevice.getCurrentDevice(activity)
+            assertThrows<IllegalStateException> { xrDevice.getNativeInstanceData(activity) }
+        }
+
+    private fun createTestSessionAndRunTest(testBody: (ComponentActivity) -> Unit) {
         ActivityScenario.launch(ComponentActivity::class.java).use {
             it.onActivity { activity ->
                 session =
                     (Session.create(activity, StandardTestDispatcher()) as SessionCreateSuccess)
                         .session
 
-                testBody()
+                testBody(activity)
             }
         }
     }

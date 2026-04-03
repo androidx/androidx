@@ -179,17 +179,21 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.HandTrackingMode DISABLED;
   }
 
-  public final class NativeData {
-    method @InaccessibleFromKotlin public Long? getNativeFunctionTablePointer();
-    method @InaccessibleFromKotlin public Long? getNativeInstancePointer();
-    method @InaccessibleFromKotlin public long getNativeSessionPointer();
-    property public Long? nativeFunctionTablePointer;
-    property public Long? nativeInstancePointer;
-    property public long nativeSessionPointer;
+  @SuppressCompatibility public final class NativeDataExt {
+    method @SuppressCompatibility @androidx.xr.runtime.UnstableNativeResourceApi public static androidx.xr.runtime.NativeInstanceData getNativeInstanceData(androidx.xr.runtime.XrDevice, android.content.Context context);
+    method @SuppressCompatibility @androidx.xr.runtime.UnstableNativeResourceApi public static androidx.xr.runtime.NativeSessionData getNativeSessionData(androidx.xr.runtime.Session);
   }
 
-  @SuppressCompatibility public final class NativeDataExt {
-    method @SuppressCompatibility @androidx.xr.runtime.UnstableNativeResourceApi public static androidx.xr.runtime.NativeData getNativeData(androidx.xr.runtime.Session);
+  public final class NativeInstanceData {
+    method @InaccessibleFromKotlin public long getFunctionTablePointer();
+    method @InaccessibleFromKotlin public long getInstancePointer();
+    property public long functionTablePointer;
+    property public long instancePointer;
+  }
+
+  public final class NativeSessionData {
+    method @InaccessibleFromKotlin public long getSessionPointer();
+    property public long sessionPointer;
   }
 
   public final class PlaneTrackingMode extends androidx.xr.runtime.Config.ConfigMode {

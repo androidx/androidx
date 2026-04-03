@@ -159,7 +159,8 @@ internal fun getDeviceContextFeatures(context: Context): Set<Feature> {
     // TODO(b/398957058): Remove emulator check once the emulator has the system feature.
     if (
         packageManager.hasSystemFeature(FEATURE_XR_API_OPENXR) ||
-            Build.FINGERPRINT.contains("emulator")
+            Build.FINGERPRINT.contains("emulator") ||
+            Build.FINGERPRINT.contains("emu64")
     ) {
         features.add(Feature.OPEN_XR)
     }
