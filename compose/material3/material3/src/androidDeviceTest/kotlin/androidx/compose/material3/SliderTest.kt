@@ -1347,6 +1347,18 @@ class SliderTest {
             Truth.assertThat(sliderPosition.value.start).isEqualTo(0f)
         }
     }
+
+    @Test
+    fun rangeSlider_initialValueOutsideOfRange_doesNotCrash() {
+        rule.setMaterialContent(lightColorScheme()) {
+            RangeSlider(
+                modifier = Modifier.testTag(tag),
+                value = -1f..-1f,
+                onValueChange = {},
+                valueRange = 0f..1f,
+            )
+        }
+    }
 }
 
 @Stable

@@ -3232,8 +3232,10 @@ class RangeSliderState(
     var onValueChangeFinished: (() -> Unit)? = null,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
 ) {
-    private var activeRangeStartState by mutableFloatStateOf(activeRangeStart)
-    private var activeRangeEndState by mutableFloatStateOf(activeRangeEnd)
+    private val coercedStart = activeRangeStart.coerceIn(valueRange)
+    private val coercedEnd = activeRangeEnd.coerceIn(valueRange)
+    private var activeRangeStartState by mutableFloatStateOf(minOf(coercedStart, coercedEnd))
+    private var activeRangeEndState by mutableFloatStateOf(maxOf(coercedStart, coercedEnd))
 
     /** [Float] that indicates the start of the current active range for the [RangeSlider]. */
     var activeRangeStart: Float
