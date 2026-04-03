@@ -2547,6 +2547,30 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         updated = getChildCount() > childCount;
         childCount = getChildCount();
 
+        if (mBaseGridView.isInTouchMode() && mFocusPosition >= 0) {
+            // In touch mode, we keep adjusting mFocusedPosition to the view that is closest
+            // to the aligned center.
+            int minimalScrollValue = Integer.MAX_VALUE;
+            int minimalScrollViewIndex = -1;
+            for (int i = 0; i < childCount; i++) {
+                getScrollPosition(mBaseGridView.getChildAt(i), null, sTwoInts);
+                int scrollValue = sTwoInts[0];
+                if (scrollValue < 0) {
+                    scrollValue = -scrollValue;
+                }
+                if (scrollValue < minimalScrollValue) {
+                    minimalScrollValue = scrollValue;
+                    minimalScrollViewIndex = i;
+                }
+            }
+            if (minimalScrollViewIndex != -1) {
+                View view = mBaseGridView.getChildAt(minimalScrollViewIndex);
+                mFocusPosition = getAdapterPositionByView(view);
+                if (mBaseGridView.hasFocus() && !view.hasFocus()) {
+                    view.requestFocus();
+                }
+            }
+        }
         if ((mFlag & PF_REVERSE_FLOW_PRIMARY) != 0 ? da > 0 : da < 0) {
             removeInvisibleViewsAtEnd();
         } else {
@@ -2560,6 +2584,14 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         mBaseGridView.invalidate();
         updateScrollLimits();
         return da;
+    }
+
+    @Override
+    public void onScrollStateChanged(int state) {
+        if (state == SCROLL_STATE_IDLE && mBaseGridView.isInTouchMode()) {
+            dispatchChildSelected();
+            dispatchChildSelectedAndPositioned();
+        }
     }
 
     // scroll in second direction will not add/prune views
