@@ -561,13 +561,13 @@ public object Intersection {
 
     /**
      * Returns true when the [PartitionedMesh] intersects with [point]. [meshToPoint] transforms the
-     * coordinate space of [mesh] to the coordinate space that the intersection should be checked in
-     * (that of the [point]). All points along the boundary of the [mesh] and the [mesh]s interior
+     * coordinate space of the mesh to the coordinate space that the intersection should be checked
+     * in (that of the [point]). All points along the boundary of the mesh and the mesh's interior
      * are considered for intersection.
      *
      * Performance note: it is expensive to apply a transform to a mesh. To avoid unnecessary
      * calculations, the inverse of [meshToPoint] is used to perform the mathematically equivalent
-     * intersection of the point in [mesh]'s object coordinates.
+     * intersection of the point in mesh's object coordinates.
      */
     @JvmStatic
     public fun PartitionedMesh.intersects(point: Vec, meshToPoint: AffineTransform): Boolean =
