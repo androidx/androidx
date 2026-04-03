@@ -31,11 +31,12 @@ import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.PreviewSpatialApi
+import androidx.xr.runtime.XrDevice
 import androidx.xr.runtime.XrLog
+import androidx.xr.runtime.getNativeInstanceData
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.manifest.HAND_TRACKING
-import androidx.xr.runtime.openxr.OpenXrInstanceManager
 import kotlin.time.ComparableTimeMark
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
@@ -80,10 +81,15 @@ internal constructor(
     internal var instanceProcAddr: Long = 0L
         private set
 
+    @OptIn(
+        androidx.xr.runtime.UnstableNativeResourceApi::class,
+        androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi::class,
+    )
     override fun create() {
         nativePointer = nativeGetPointer()
-        instancePointer = OpenXrInstanceManager.getXrInstanceHandle(context)
-        instanceProcAddr = OpenXrInstanceManager.getXrInstanceProcAddr()
+        val nativeInstanceData = XrDevice.getCurrentDevice(context).getNativeInstanceData(context)
+        instancePointer = nativeInstanceData.instancePointer
+        instanceProcAddr = nativeInstanceData.functionTablePointer
         // Only initialize the OpenXrManager and bring up resources.
         check(nativeInit(context, startPollingThread = false, instancePointer, instanceProcAddr))
         contextList.add(context)
