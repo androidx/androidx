@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import kotlin.jvm.JvmInline
+import kotlin.jvm.JvmName
 
 /** Contains the default values for all four icon and icon toggle button types. */
 object IconButtonDefaults {
@@ -863,127 +864,111 @@ object IconButtonDefaults {
     val outlinedShape: Shape
         @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default round shape for any extra small icon button. */
     val extraSmallRoundShape: Shape
         @Composable get() = XSmallIconButtonTokens.ContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default square shape for any extra small icon button. */
     val extraSmallSquareShape: Shape
         @Composable get() = XSmallIconButtonTokens.ContainerShapeSquare.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default pressed shape for any extra small icon button. */
     val extraSmallPressedShape: Shape
         @Composable get() = XSmallIconButtonTokens.PressedContainerShape.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any extra small icon button. */
     val extraSmallSelectedRoundShape: Shape
         @Composable get() = XSmallIconButtonTokens.SelectedContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any extra small, square icon button. */
     val extraSmallSelectedSquareShape: Shape
         @Composable get() = XSmallIconButtonTokens.SelectedContainerShapeSquare.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any small icon button. */
     val smallRoundShape: Shape
         @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default square shape for any small icon button. */
     val smallSquareShape: Shape
         @Composable get() = SmallIconButtonTokens.ContainerShapeSquare.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default pressed shape for any small icon button. */
     val smallPressedShape: Shape
         @Composable get() = SmallIconButtonTokens.PressedContainerShape.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any small icon button. */
     val smallSelectedRoundShape: Shape
         @Composable get() = SmallIconButtonTokens.SelectedContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any small, square icon button. */
+    val smallSelectedSquareShape: Shape
+        @Composable get() = SmallIconButtonTokens.SelectedContainerShapeSquare.value
+
+    @Deprecated(
+        message = "Use the camel case version",
+        replaceWith = ReplaceWith("smallSelectedSquareShape"),
+        level = DeprecationLevel.HIDDEN,
+    )
+    @get:JvmName("getSmallSelectedSquareShape_pascalName") // Renames the JVM signature
     val SmallSelectedSquareShape: Shape
         @Composable get() = SmallIconButtonTokens.SelectedContainerShapeSquare.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any medium icon button. */
     val mediumRoundShape: Shape
         @Composable get() = MediumIconButtonTokens.ContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any medium icon button. */
     val mediumSquareShape: Shape
         @Composable get() = MediumIconButtonTokens.ContainerShapeSquare.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default pressed shape for any medium icon button. */
     val mediumPressedShape: Shape
         @Composable get() = MediumIconButtonTokens.PressedContainerShape.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any medium icon button. */
     val mediumSelectedRoundShape: Shape
         @Composable get() = MediumIconButtonTokens.SelectedContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any medium, square icon button. */
     val mediumSelectedSquareShape: Shape
         @Composable get() = MediumIconButtonTokens.SelectedContainerShapeSquare.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any large icon button. */
     val largeRoundShape: Shape
         @Composable get() = LargeIconButtonTokens.ContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any large icon button. */
     val largeSquareShape: Shape
         @Composable get() = LargeIconButtonTokens.ContainerShapeSquare.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default pressed shape for any large icon button. */
     val largePressedShape: Shape
         @Composable get() = LargeIconButtonTokens.PressedContainerShape.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any large icon button. */
     val largeSelectedRoundShape: Shape
         @Composable get() = LargeIconButtonTokens.SelectedContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any large, square icon button. */
     val largeSelectedSquareShape: Shape
         @Composable get() = LargeIconButtonTokens.SelectedContainerShapeSquare.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any extra large icon button. */
     val extraLargeRoundShape: Shape
         @Composable get() = XLargeIconButtonTokens.ContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any extra large icon button. */
     val extraLargeSquareShape: Shape
         @Composable get() = XLargeIconButtonTokens.ContainerShapeSquare.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default pressed shape for any extra large icon button. */
     val extraLargePressedShape: Shape
         @Composable get() = XLargeIconButtonTokens.PressedContainerShape.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any extra large icon button. */
     val extraLargeSelectedRoundShape: Shape
         @Composable get() = XLargeIconButtonTokens.SelectedContainerShapeRound.value
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default selected shape for any extra large, square icon button. */
     val extraLargeSelectedSquareShape: Shape
         @Composable get() = XLargeIconButtonTokens.SelectedContainerShapeSquare.value
@@ -996,7 +981,6 @@ object IconButtonDefaults {
      * @param shape the unchecked shape for [ButtonShapes]
      * @param pressedShape the unchecked shape for [ButtonShapes]
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun shapes(shape: Shape? = null, pressedShape: Shape? = null): IconButtonShapes =
         MaterialTheme.shapes.defaultIconButtonShapes.copy(
@@ -1009,9 +993,7 @@ object IconButtonDefaults {
      * pressed states. [IconButton] will morph between these shapes as long as the shapes are all
      * [CornerBasedShape]s.
      */
-    @ExperimentalMaterial3ExpressiveApi
-    @Composable
-    fun shapes(): IconButtonShapes = MaterialTheme.shapes.defaultIconButtonShapes
+    @Composable fun shapes(): IconButtonShapes = MaterialTheme.shapes.defaultIconButtonShapes
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultIconButtonShapes: IconButtonShapes
@@ -1033,7 +1015,6 @@ object IconButtonDefaults {
      * @param pressedShape the pressed shape for [IconToggleButtonShapes]
      * @param checkedShape the checked shape for [IconToggleButtonShapes]
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun toggleableShapes(
         shape: Shape? = null,
@@ -1051,7 +1032,6 @@ object IconButtonDefaults {
      * pressed and selected states. [IconToggleButton] will morph between these shapes as long as
      * the shapes are all [CornerBasedShape]s.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun toggleableShapes(): IconToggleButtonShapes =
         MaterialTheme.shapes.defaultIconToggleButtonShapes
@@ -1068,31 +1048,26 @@ object IconButtonDefaults {
                     .also { defaultIconToggleButtonShapesCached = it }
         }
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default container for any extra small icon button. */
     val extraSmallIconSize: Dp = XSmallIconButtonTokens.IconSize
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default size for any small icon button. */
     val smallIconSize: Dp = SmallIconButtonTokens.IconSize
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default container size for any medium icon button. */
     val mediumIconSize: Dp = MediumIconButtonTokens.IconSize
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Default size for any large icon button. */
     val largeIconSize: Dp = LargeIconButtonTokens.IconSize
 
     /** Default size for any xlarge icon button. */
-    @ExperimentalMaterial3ExpressiveApi val extraLargeIconSize: Dp = XLargeIconButtonTokens.IconSize
+    val extraLargeIconSize: Dp = XLargeIconButtonTokens.IconSize
 
     /**
      * Default container size for any extra small icon button.
      *
      * @param widthOption the width of the container
      */
-    @ExperimentalMaterial3ExpressiveApi
     fun extraSmallContainerSize(
         widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
     ): DpSize {
@@ -1120,7 +1095,6 @@ object IconButtonDefaults {
      *
      * @param widthOption the width of the container
      */
-    @ExperimentalMaterial3ExpressiveApi
     fun smallContainerSize(
         widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
     ): DpSize {
@@ -1147,7 +1121,6 @@ object IconButtonDefaults {
      *
      * @param widthOption the width of the container
      */
-    @ExperimentalMaterial3ExpressiveApi
     fun mediumContainerSize(
         widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
     ): DpSize {
@@ -1175,7 +1148,6 @@ object IconButtonDefaults {
      *
      * @param widthOption the width of the container
      */
-    @ExperimentalMaterial3ExpressiveApi
     fun largeContainerSize(
         widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
     ): DpSize {
@@ -1202,7 +1174,6 @@ object IconButtonDefaults {
      *
      * @param widthOption the width of the container
      */
-    @ExperimentalMaterial3ExpressiveApi
     fun extraLargeContainerSize(
         widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
     ): DpSize {
