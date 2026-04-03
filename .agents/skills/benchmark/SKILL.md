@@ -24,6 +24,9 @@ Microbenchmarks measure fine-grained performance (e.g., individual component mea
 ### Location & Execution
 - **Location:** `<module-name>/benchmark` (e.g., `compose/ui/ui/benchmark`).
 - **Command:** Run as an Android test (e.g., `:compose:ui:ui-benchmark:connectedReleaseAndroidTest`).
+- **Filter Tests:** Use `-Pandroid.testInstrumentationRunnerArguments.tests_regex` to run specific tests. This is especially useful for parameterized tests where `class#method` filtering might not work as expected.
+    - **Example:** `./gradlew :compose:ui:ui-benchmark:connectedReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.tests_regex=.*MyBenchmark.myMethod.*`
+    - **Validation:** Always verify the console output to ensure only the intended number of tests were executed (e.g., `Finished 1 tests`). If more tests ran than expected, refine your regex.
 - **Preparation:**
     1. Run `./benchmark/gradle-plugin/src/main/resources/scripts/lockClocks.sh`.
     2. Run `./benchmark/gradle-plugin/src/main/resources/scripts/disableJit.sh` to stabilize the platform.
@@ -53,6 +56,9 @@ Macrobenchmarks measure high-level interactions (startup, scrolling) using UI Au
 
 ### Execution & Metrics
 - **Command:** Run with `connectedReleaseAndroidTest`.
+- **Filter Tests:** Use `-Pandroid.testInstrumentationRunnerArguments.tests_regex` to run specific tests. This is especially useful for parameterized tests where `class#method` filtering might not work as expected.
+  - **Example:** `./gradlew :compose:ui:ui-benchmark:connectedReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.tests_regex=.*MyBenchmark.myMethod.*`
+  - **Validation:** Always verify the console output to ensure only the intended number of tests were executed (e.g., `Finished 1 tests`). If more tests ran than expected, refine your regex.
 - **Metrics:**
     - **Startup:** `timeToInitialDisplayMs`, `timeToFullDisplayMs`.
     - **Scroll:** Frame duration and frame overrun.
@@ -66,11 +72,4 @@ Macrobenchmarks measure high-level interactions (startup, scrolling) using UI Au
   trace("name") {
       // target code block
   }
-  ```
-- **Local Iteration:** To speed up local runs, reduce parameterized variants (e.g., compilation modes). Use `CompilationMode.Partial`:
-  ```kotlin
-  CompilationMode.Partial(
-      baselineProfileMode = BaselineProfileMode.Disable,
-      warmupIterations = 3,
-  )
   ```
