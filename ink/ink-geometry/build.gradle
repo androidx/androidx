@@ -23,6 +23,7 @@ plugins {
 
 androidXMultiplatform {
   jvm()
+  ios()
   androidLibrary {
     namespace = "androidx.ink.geometry"
   }

@@ -1,0 +1,381 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.ink:ink-geometry>
+open annotation class androidx.ink.geometry/AngleDegreesFloat : kotlin/Annotation { // androidx.ink.geometry/AngleDegreesFloat|null[0]
+    constructor <init>() // androidx.ink.geometry/AngleDegreesFloat.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.ink.geometry/AngleRadiansFloat : kotlin/Annotation { // androidx.ink.geometry/AngleRadiansFloat|null[0]
+    constructor <init>() // androidx.ink.geometry/AngleRadiansFloat.<init>|<init>(){}[0]
+}
+
+abstract class androidx.ink.geometry/Box { // androidx.ink.geometry/Box|null[0]
+    abstract val xMax // androidx.ink.geometry/Box.xMax|{}xMax[0]
+        abstract fun <get-xMax>(): kotlin/Float // androidx.ink.geometry/Box.xMax.<get-xMax>|<get-xMax>(){}[0]
+    abstract val xMin // androidx.ink.geometry/Box.xMin|{}xMin[0]
+        abstract fun <get-xMin>(): kotlin/Float // androidx.ink.geometry/Box.xMin.<get-xMin>|<get-xMin>(){}[0]
+    abstract val yMax // androidx.ink.geometry/Box.yMax|{}yMax[0]
+        abstract fun <get-yMax>(): kotlin/Float // androidx.ink.geometry/Box.yMax.<get-yMax>|<get-yMax>(){}[0]
+    abstract val yMin // androidx.ink.geometry/Box.yMin|{}yMin[0]
+        abstract fun <get-yMin>(): kotlin/Float // androidx.ink.geometry/Box.yMin.<get-yMin>|<get-yMin>(){}[0]
+    final val height // androidx.ink.geometry/Box.height|{}height[0]
+        final fun <get-height>(): kotlin/Float // androidx.ink.geometry/Box.height.<get-height>|<get-height>(){}[0]
+    final val width // androidx.ink.geometry/Box.width|{}width[0]
+        final fun <get-width>(): kotlin/Float // androidx.ink.geometry/Box.width.<get-width>|<get-width>(){}[0]
+
+    abstract fun toImmutable(): androidx.ink.geometry/ImmutableBox // androidx.ink.geometry/Box.toImmutable|toImmutable(){}[0]
+    final fun computeCenter(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/Box.computeCenter|computeCenter(){}[0]
+    final fun computeCenter(androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/Box.computeCenter|computeCenter(androidx.ink.geometry.MutableVec){}[0]
+    final fun computeCorners(): kotlin.collections/List<androidx.ink.geometry/ImmutableVec> // androidx.ink.geometry/Box.computeCorners|computeCorners(){}[0]
+    final fun computeCorners(androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/Box.computeCorners|computeCorners(androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec){}[0]
+    final fun contains(androidx.ink.geometry/Box): kotlin/Boolean // androidx.ink.geometry/Box.contains|contains(androidx.ink.geometry.Box){}[0]
+    final fun contains(androidx.ink.geometry/Vec): kotlin/Boolean // androidx.ink.geometry/Box.contains|contains(androidx.ink.geometry.Vec){}[0]
+    final fun isAlmostEqual(androidx.ink.geometry/Box, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Box.isAlmostEqual|isAlmostEqual(androidx.ink.geometry.Box;kotlin.Float){}[0]
+}
+
+abstract class androidx.ink.geometry/Parallelogram { // androidx.ink.geometry/Parallelogram|null[0]
+    abstract val center // androidx.ink.geometry/Parallelogram.center|{}center[0]
+        abstract fun <get-center>(): androidx.ink.geometry/Vec // androidx.ink.geometry/Parallelogram.center.<get-center>|<get-center>(){}[0]
+    abstract val height // androidx.ink.geometry/Parallelogram.height|{}height[0]
+        abstract fun <get-height>(): kotlin/Float // androidx.ink.geometry/Parallelogram.height.<get-height>|<get-height>(){}[0]
+    abstract val rotationDegrees // androidx.ink.geometry/Parallelogram.rotationDegrees|{}rotationDegrees[0]
+        abstract fun <get-rotationDegrees>(): kotlin/Float // androidx.ink.geometry/Parallelogram.rotationDegrees.<get-rotationDegrees>|<get-rotationDegrees>(){}[0]
+    abstract val skew // androidx.ink.geometry/Parallelogram.skew|{}skew[0]
+        abstract fun <get-skew>(): kotlin/Float // androidx.ink.geometry/Parallelogram.skew.<get-skew>|<get-skew>(){}[0]
+    abstract val width // androidx.ink.geometry/Parallelogram.width|{}width[0]
+        abstract fun <get-width>(): kotlin/Float // androidx.ink.geometry/Parallelogram.width.<get-width>|<get-width>(){}[0]
+
+    abstract fun toImmutable(): androidx.ink.geometry/ImmutableParallelogram // androidx.ink.geometry/Parallelogram.toImmutable|toImmutable(){}[0]
+    final fun computeBoundingBox(): androidx.ink.geometry/ImmutableBox // androidx.ink.geometry/Parallelogram.computeBoundingBox|computeBoundingBox(){}[0]
+    final fun computeBoundingBox(androidx.ink.geometry/MutableBox): androidx.ink.geometry/MutableBox // androidx.ink.geometry/Parallelogram.computeBoundingBox|computeBoundingBox(androidx.ink.geometry.MutableBox){}[0]
+    final fun computeCorners(): kotlin.collections/List<androidx.ink.geometry/ImmutableVec> // androidx.ink.geometry/Parallelogram.computeCorners|computeCorners(){}[0]
+    final fun computeCorners(androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/Parallelogram.computeCorners|computeCorners(androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec){}[0]
+    final fun computeSemiAxes(): kotlin.collections/List<androidx.ink.geometry/ImmutableVec> // androidx.ink.geometry/Parallelogram.computeSemiAxes|computeSemiAxes(){}[0]
+    final fun computeSemiAxes(androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/Parallelogram.computeSemiAxes|computeSemiAxes(androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec){}[0]
+    final fun computeSignedArea(): kotlin/Float // androidx.ink.geometry/Parallelogram.computeSignedArea|computeSignedArea(){}[0]
+    final fun contains(androidx.ink.geometry/ImmutableVec): kotlin/Boolean // androidx.ink.geometry/Parallelogram.contains|contains(androidx.ink.geometry.ImmutableVec){}[0]
+    final fun isAlmostEqual(androidx.ink.geometry/Parallelogram, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Parallelogram.isAlmostEqual|isAlmostEqual(androidx.ink.geometry.Parallelogram;kotlin.Float){}[0]
+
+    final object Companion // androidx.ink.geometry/Parallelogram.Companion|null[0]
+}
+
+abstract class androidx.ink.geometry/Segment { // androidx.ink.geometry/Segment|null[0]
+    abstract val end // androidx.ink.geometry/Segment.end|{}end[0]
+        abstract fun <get-end>(): androidx.ink.geometry/Vec // androidx.ink.geometry/Segment.end.<get-end>|<get-end>(){}[0]
+    abstract val start // androidx.ink.geometry/Segment.start|{}start[0]
+        abstract fun <get-start>(): androidx.ink.geometry/Vec // androidx.ink.geometry/Segment.start.<get-start>|<get-start>(){}[0]
+
+    abstract fun toImmutable(): androidx.ink.geometry/ImmutableSegment // androidx.ink.geometry/Segment.toImmutable|toImmutable(){}[0]
+    final fun computeBoundingBox(): androidx.ink.geometry/ImmutableBox // androidx.ink.geometry/Segment.computeBoundingBox|computeBoundingBox(){}[0]
+    final fun computeBoundingBox(androidx.ink.geometry/MutableBox): androidx.ink.geometry/MutableBox // androidx.ink.geometry/Segment.computeBoundingBox|computeBoundingBox(androidx.ink.geometry.MutableBox){}[0]
+    final fun computeDisplacement(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/Segment.computeDisplacement|computeDisplacement(){}[0]
+    final fun computeDisplacement(androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/Segment.computeDisplacement|computeDisplacement(androidx.ink.geometry.MutableVec){}[0]
+    final fun computeLength(): kotlin/Float // androidx.ink.geometry/Segment.computeLength|computeLength(){}[0]
+    final fun computeLerpPoint(kotlin/Float): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/Segment.computeLerpPoint|computeLerpPoint(kotlin.Float){}[0]
+    final fun computeLerpPoint(kotlin/Float, androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/Segment.computeLerpPoint|computeLerpPoint(kotlin.Float;androidx.ink.geometry.MutableVec){}[0]
+    final fun computeMidpoint(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/Segment.computeMidpoint|computeMidpoint(){}[0]
+    final fun computeMidpoint(androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/Segment.computeMidpoint|computeMidpoint(androidx.ink.geometry.MutableVec){}[0]
+    final fun isAlmostEqual(androidx.ink.geometry/Segment, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Segment.isAlmostEqual|isAlmostEqual(androidx.ink.geometry.Segment;kotlin.Float){}[0]
+    final fun project(androidx.ink.geometry/Vec): kotlin/Float // androidx.ink.geometry/Segment.project|project(androidx.ink.geometry.Vec){}[0]
+
+    final object Companion // androidx.ink.geometry/Segment.Companion|null[0]
+}
+
+abstract class androidx.ink.geometry/Triangle { // androidx.ink.geometry/Triangle|null[0]
+    abstract val p0 // androidx.ink.geometry/Triangle.p0|{}p0[0]
+        abstract fun <get-p0>(): androidx.ink.geometry/Vec // androidx.ink.geometry/Triangle.p0.<get-p0>|<get-p0>(){}[0]
+    abstract val p1 // androidx.ink.geometry/Triangle.p1|{}p1[0]
+        abstract fun <get-p1>(): androidx.ink.geometry/Vec // androidx.ink.geometry/Triangle.p1.<get-p1>|<get-p1>(){}[0]
+    abstract val p2 // androidx.ink.geometry/Triangle.p2|{}p2[0]
+        abstract fun <get-p2>(): androidx.ink.geometry/Vec // androidx.ink.geometry/Triangle.p2.<get-p2>|<get-p2>(){}[0]
+
+    abstract fun toImmutable(): androidx.ink.geometry/ImmutableTriangle // androidx.ink.geometry/Triangle.toImmutable|toImmutable(){}[0]
+    final fun computeBoundingBox(): androidx.ink.geometry/ImmutableBox // androidx.ink.geometry/Triangle.computeBoundingBox|computeBoundingBox(){}[0]
+    final fun computeBoundingBox(androidx.ink.geometry/MutableBox): androidx.ink.geometry/MutableBox // androidx.ink.geometry/Triangle.computeBoundingBox|computeBoundingBox(androidx.ink.geometry.MutableBox){}[0]
+    final fun computeEdge(kotlin/Int): androidx.ink.geometry/ImmutableSegment // androidx.ink.geometry/Triangle.computeEdge|computeEdge(kotlin.Int){}[0]
+    final fun computeEdge(kotlin/Int, androidx.ink.geometry/MutableSegment): androidx.ink.geometry/MutableSegment // androidx.ink.geometry/Triangle.computeEdge|computeEdge(kotlin.Int;androidx.ink.geometry.MutableSegment){}[0]
+    final fun computeSignedArea(): kotlin/Float // androidx.ink.geometry/Triangle.computeSignedArea|computeSignedArea(){}[0]
+    final fun contains(androidx.ink.geometry/Vec): kotlin/Boolean // androidx.ink.geometry/Triangle.contains|contains(androidx.ink.geometry.Vec){}[0]
+    final fun isAlmostEqual(androidx.ink.geometry/Triangle, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Triangle.isAlmostEqual|isAlmostEqual(androidx.ink.geometry.Triangle;kotlin.Float){}[0]
+
+    final object Companion // androidx.ink.geometry/Triangle.Companion|null[0]
+}
+
+abstract class androidx.ink.geometry/Vec { // androidx.ink.geometry/Vec|null[0]
+    abstract val x // androidx.ink.geometry/Vec.x|{}x[0]
+        abstract fun <get-x>(): kotlin/Float // androidx.ink.geometry/Vec.x.<get-x>|<get-x>(){}[0]
+    abstract val y // androidx.ink.geometry/Vec.y|{}y[0]
+        abstract fun <get-y>(): kotlin/Float // androidx.ink.geometry/Vec.y.<get-y>|<get-y>(){}[0]
+
+    abstract fun toImmutable(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/Vec.toImmutable|toImmutable(){}[0]
+    final fun computeDirectionDegrees(): kotlin/Float // androidx.ink.geometry/Vec.computeDirectionDegrees|computeDirectionDegrees(){}[0]
+    final fun computeMagnitude(): kotlin/Float // androidx.ink.geometry/Vec.computeMagnitude|computeMagnitude(){}[0]
+    final fun computeMagnitudeSquared(): kotlin/Float // androidx.ink.geometry/Vec.computeMagnitudeSquared|computeMagnitudeSquared(){}[0]
+    final fun computeNegation(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/Vec.computeNegation|computeNegation(){}[0]
+    final fun computeNegation(androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/Vec.computeNegation|computeNegation(androidx.ink.geometry.MutableVec){}[0]
+    final fun computeOrthogonal(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/Vec.computeOrthogonal|computeOrthogonal(){}[0]
+    final fun computeOrthogonal(androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/Vec.computeOrthogonal|computeOrthogonal(androidx.ink.geometry.MutableVec){}[0]
+    final fun computeUnitVec(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/Vec.computeUnitVec|computeUnitVec(){}[0]
+    final fun computeUnitVec(androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/Vec.computeUnitVec|computeUnitVec(androidx.ink.geometry.MutableVec){}[0]
+    final fun isAlmostEqual(androidx.ink.geometry/Vec, kotlin/Float = ...): kotlin/Boolean // androidx.ink.geometry/Vec.isAlmostEqual|isAlmostEqual(androidx.ink.geometry.Vec;kotlin.Float){}[0]
+    final fun isParallelTo(androidx.ink.geometry/Vec, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Vec.isParallelTo|isParallelTo(androidx.ink.geometry.Vec;kotlin.Float){}[0]
+    final fun isPerpendicularTo(androidx.ink.geometry/Vec, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Vec.isPerpendicularTo|isPerpendicularTo(androidx.ink.geometry.Vec;kotlin.Float){}[0]
+
+    final object Companion { // androidx.ink.geometry/Vec.Companion|null[0]
+        final val ORIGIN // androidx.ink.geometry/Vec.Companion.ORIGIN|{}ORIGIN[0]
+            final fun <get-ORIGIN>(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/Vec.Companion.ORIGIN.<get-ORIGIN>|<get-ORIGIN>(){}[0]
+
+        final fun absoluteAngleBetweenInDegrees(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec): kotlin/Float // androidx.ink.geometry/Vec.Companion.absoluteAngleBetweenInDegrees|absoluteAngleBetweenInDegrees(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec){}[0]
+        final fun add(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/Vec.Companion.add|add(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec;androidx.ink.geometry.MutableVec){}[0]
+        final fun determinant(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec): kotlin/Float // androidx.ink.geometry/Vec.Companion.determinant|determinant(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec){}[0]
+        final fun determinant(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float): kotlin/Float // androidx.ink.geometry/Vec.Companion.determinant|determinant(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+        final fun divide(androidx.ink.geometry/Vec, kotlin/Float, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/Vec.Companion.divide|divide(androidx.ink.geometry.Vec;kotlin.Float;androidx.ink.geometry.MutableVec){}[0]
+        final fun dotProduct(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec): kotlin/Float // androidx.ink.geometry/Vec.Companion.dotProduct|dotProduct(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec){}[0]
+        final fun multiply(androidx.ink.geometry/Vec, kotlin/Float, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/Vec.Companion.multiply|multiply(androidx.ink.geometry.Vec;kotlin.Float;androidx.ink.geometry.MutableVec){}[0]
+        final fun multiply(kotlin/Float, androidx.ink.geometry/Vec, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/Vec.Companion.multiply|multiply(kotlin.Float;androidx.ink.geometry.Vec;androidx.ink.geometry.MutableVec){}[0]
+        final fun signedAngleBetweenInDegrees(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec): kotlin/Float // androidx.ink.geometry/Vec.Companion.signedAngleBetweenInDegrees|signedAngleBetweenInDegrees(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec){}[0]
+        final fun subtract(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/Vec.Companion.subtract|subtract(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec;androidx.ink.geometry.MutableVec){}[0]
+    }
+}
+
+final class androidx.ink.geometry/ImmutableBox : androidx.ink.geometry/Box { // androidx.ink.geometry/ImmutableBox|null[0]
+    final val xMax // androidx.ink.geometry/ImmutableBox.xMax|{}xMax[0]
+        final fun <get-xMax>(): kotlin/Float // androidx.ink.geometry/ImmutableBox.xMax.<get-xMax>|<get-xMax>(){}[0]
+    final val xMin // androidx.ink.geometry/ImmutableBox.xMin|{}xMin[0]
+        final fun <get-xMin>(): kotlin/Float // androidx.ink.geometry/ImmutableBox.xMin.<get-xMin>|<get-xMin>(){}[0]
+    final val yMax // androidx.ink.geometry/ImmutableBox.yMax|{}yMax[0]
+        final fun <get-yMax>(): kotlin/Float // androidx.ink.geometry/ImmutableBox.yMax.<get-yMax>|<get-yMax>(){}[0]
+    final val yMin // androidx.ink.geometry/ImmutableBox.yMin|{}yMin[0]
+        final fun <get-yMin>(): kotlin/Float // androidx.ink.geometry/ImmutableBox.yMin.<get-yMin>|<get-yMin>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/ImmutableBox.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/ImmutableBox.hashCode|hashCode(){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableBox // androidx.ink.geometry/ImmutableBox.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/ImmutableBox.toString|toString(){}[0]
+
+    final object Companion { // androidx.ink.geometry/ImmutableBox.Companion|null[0]
+        final fun fromCenterAndDimensions(androidx.ink.geometry/Vec, kotlin/Float, kotlin/Float): androidx.ink.geometry/ImmutableBox // androidx.ink.geometry/ImmutableBox.Companion.fromCenterAndDimensions|fromCenterAndDimensions(androidx.ink.geometry.Vec;kotlin.Float;kotlin.Float){}[0]
+        final fun fromTwoPoints(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec): androidx.ink.geometry/ImmutableBox // androidx.ink.geometry/ImmutableBox.Companion.fromTwoPoints|fromTwoPoints(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec){}[0]
+        final fun fromTwoPoints(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float): androidx.ink.geometry/ImmutableBox // androidx.ink.geometry/ImmutableBox.Companion.fromTwoPoints|fromTwoPoints(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    }
+}
+
+final class androidx.ink.geometry/ImmutableParallelogram : androidx.ink.geometry/Parallelogram { // androidx.ink.geometry/ImmutableParallelogram|null[0]
+    final val center // androidx.ink.geometry/ImmutableParallelogram.center|{}center[0]
+        final fun <get-center>(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/ImmutableParallelogram.center.<get-center>|<get-center>(){}[0]
+    final val height // androidx.ink.geometry/ImmutableParallelogram.height|{}height[0]
+        final fun <get-height>(): kotlin/Float // androidx.ink.geometry/ImmutableParallelogram.height.<get-height>|<get-height>(){}[0]
+    final val rotationDegrees // androidx.ink.geometry/ImmutableParallelogram.rotationDegrees|{}rotationDegrees[0]
+        final fun <get-rotationDegrees>(): kotlin/Float // androidx.ink.geometry/ImmutableParallelogram.rotationDegrees.<get-rotationDegrees>|<get-rotationDegrees>(){}[0]
+    final val skew // androidx.ink.geometry/ImmutableParallelogram.skew|{}skew[0]
+        final fun <get-skew>(): kotlin/Float // androidx.ink.geometry/ImmutableParallelogram.skew.<get-skew>|<get-skew>(){}[0]
+    final val width // androidx.ink.geometry/ImmutableParallelogram.width|{}width[0]
+        final fun <get-width>(): kotlin/Float // androidx.ink.geometry/ImmutableParallelogram.width.<get-width>|<get-width>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/ImmutableParallelogram.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/ImmutableParallelogram.hashCode|hashCode(){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableParallelogram // androidx.ink.geometry/ImmutableParallelogram.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/ImmutableParallelogram.toString|toString(){}[0]
+
+    final object Companion { // androidx.ink.geometry/ImmutableParallelogram.Companion|null[0]
+        final fun fromCenterAndDimensions(androidx.ink.geometry/ImmutableVec, kotlin/Float, kotlin/Float): androidx.ink.geometry/ImmutableParallelogram // androidx.ink.geometry/ImmutableParallelogram.Companion.fromCenterAndDimensions|fromCenterAndDimensions(androidx.ink.geometry.ImmutableVec;kotlin.Float;kotlin.Float){}[0]
+        final fun fromCenterDimensionsAndRotationInDegrees(androidx.ink.geometry/ImmutableVec, kotlin/Float, kotlin/Float, kotlin/Float): androidx.ink.geometry/ImmutableParallelogram // androidx.ink.geometry/ImmutableParallelogram.Companion.fromCenterDimensionsAndRotationInDegrees|fromCenterDimensionsAndRotationInDegrees(androidx.ink.geometry.ImmutableVec;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+        final fun fromCenterDimensionsRotationInDegreesAndSkew(androidx.ink.geometry/ImmutableVec, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float): androidx.ink.geometry/ImmutableParallelogram // androidx.ink.geometry/ImmutableParallelogram.Companion.fromCenterDimensionsRotationInDegreesAndSkew|fromCenterDimensionsRotationInDegreesAndSkew(androidx.ink.geometry.ImmutableVec;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+        final fun fromSegmentAndPadding(androidx.ink.geometry/Segment, kotlin/Float): androidx.ink.geometry/ImmutableParallelogram // androidx.ink.geometry/ImmutableParallelogram.Companion.fromSegmentAndPadding|fromSegmentAndPadding(androidx.ink.geometry.Segment;kotlin.Float){}[0]
+    }
+}
+
+final class androidx.ink.geometry/ImmutableSegment : androidx.ink.geometry/Segment { // androidx.ink.geometry/ImmutableSegment|null[0]
+    constructor <init>(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec) // androidx.ink.geometry/ImmutableSegment.<init>|<init>(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec){}[0]
+
+    final val end // androidx.ink.geometry/ImmutableSegment.end|{}end[0]
+        final fun <get-end>(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/ImmutableSegment.end.<get-end>|<get-end>(){}[0]
+    final val start // androidx.ink.geometry/ImmutableSegment.start|{}start[0]
+        final fun <get-start>(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/ImmutableSegment.start.<get-start>|<get-start>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/ImmutableSegment.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/ImmutableSegment.hashCode|hashCode(){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableSegment // androidx.ink.geometry/ImmutableSegment.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/ImmutableSegment.toString|toString(){}[0]
+}
+
+final class androidx.ink.geometry/ImmutableTriangle : androidx.ink.geometry/Triangle { // androidx.ink.geometry/ImmutableTriangle|null[0]
+    constructor <init>(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec, androidx.ink.geometry/Vec) // androidx.ink.geometry/ImmutableTriangle.<init>|<init>(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec;androidx.ink.geometry.Vec){}[0]
+
+    final val p0 // androidx.ink.geometry/ImmutableTriangle.p0|{}p0[0]
+        final fun <get-p0>(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/ImmutableTriangle.p0.<get-p0>|<get-p0>(){}[0]
+    final val p1 // androidx.ink.geometry/ImmutableTriangle.p1|{}p1[0]
+        final fun <get-p1>(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/ImmutableTriangle.p1.<get-p1>|<get-p1>(){}[0]
+    final val p2 // androidx.ink.geometry/ImmutableTriangle.p2|{}p2[0]
+        final fun <get-p2>(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/ImmutableTriangle.p2.<get-p2>|<get-p2>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/ImmutableTriangle.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/ImmutableTriangle.hashCode|hashCode(){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableTriangle // androidx.ink.geometry/ImmutableTriangle.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/ImmutableTriangle.toString|toString(){}[0]
+}
+
+final class androidx.ink.geometry/ImmutableVec : androidx.ink.geometry/Vec { // androidx.ink.geometry/ImmutableVec|null[0]
+    constructor <init>(kotlin/Float, kotlin/Float) // androidx.ink.geometry/ImmutableVec.<init>|<init>(kotlin.Float;kotlin.Float){}[0]
+
+    final val x // androidx.ink.geometry/ImmutableVec.x|{}x[0]
+        final fun <get-x>(): kotlin/Float // androidx.ink.geometry/ImmutableVec.x.<get-x>|<get-x>(){}[0]
+    final val y // androidx.ink.geometry/ImmutableVec.y|{}y[0]
+        final fun <get-y>(): kotlin/Float // androidx.ink.geometry/ImmutableVec.y.<get-y>|<get-y>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/ImmutableVec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/ImmutableVec.hashCode|hashCode(){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/ImmutableVec.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/ImmutableVec.toString|toString(){}[0]
+
+    final object Companion { // androidx.ink.geometry/ImmutableVec.Companion|null[0]
+        final fun fromDirectionInDegreesAndMagnitude(kotlin/Float, kotlin/Float): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/ImmutableVec.Companion.fromDirectionInDegreesAndMagnitude|fromDirectionInDegreesAndMagnitude(kotlin.Float;kotlin.Float){}[0]
+    }
+}
+
+final class androidx.ink.geometry/MutableBox : androidx.ink.geometry/Box { // androidx.ink.geometry/MutableBox|null[0]
+    constructor <init>() // androidx.ink.geometry/MutableBox.<init>|<init>(){}[0]
+
+    final var xMax // androidx.ink.geometry/MutableBox.xMax|{}xMax[0]
+        final fun <get-xMax>(): kotlin/Float // androidx.ink.geometry/MutableBox.xMax.<get-xMax>|<get-xMax>(){}[0]
+    final var xMin // androidx.ink.geometry/MutableBox.xMin|{}xMin[0]
+        final fun <get-xMin>(): kotlin/Float // androidx.ink.geometry/MutableBox.xMin.<get-xMin>|<get-xMin>(){}[0]
+    final var yMax // androidx.ink.geometry/MutableBox.yMax|{}yMax[0]
+        final fun <get-yMax>(): kotlin/Float // androidx.ink.geometry/MutableBox.yMax.<get-yMax>|<get-yMax>(){}[0]
+    final var yMin // androidx.ink.geometry/MutableBox.yMin|{}yMin[0]
+        final fun <get-yMin>(): kotlin/Float // androidx.ink.geometry/MutableBox.yMin.<get-yMin>|<get-yMin>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/MutableBox.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/MutableBox.hashCode|hashCode(){}[0]
+    final fun populateFrom(androidx.ink.geometry/Box): androidx.ink.geometry/MutableBox // androidx.ink.geometry/MutableBox.populateFrom|populateFrom(androidx.ink.geometry.Box){}[0]
+    final fun populateFromCenterAndDimensions(androidx.ink.geometry/Vec, kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableBox // androidx.ink.geometry/MutableBox.populateFromCenterAndDimensions|populateFromCenterAndDimensions(androidx.ink.geometry.Vec;kotlin.Float;kotlin.Float){}[0]
+    final fun populateFromTwoPoints(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec): androidx.ink.geometry/MutableBox // androidx.ink.geometry/MutableBox.populateFromTwoPoints|populateFromTwoPoints(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec){}[0]
+    final fun setXBounds(kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableBox // androidx.ink.geometry/MutableBox.setXBounds|setXBounds(kotlin.Float;kotlin.Float){}[0]
+    final fun setYBounds(kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableBox // androidx.ink.geometry/MutableBox.setYBounds|setYBounds(kotlin.Float;kotlin.Float){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableBox // androidx.ink.geometry/MutableBox.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/MutableBox.toString|toString(){}[0]
+}
+
+final class androidx.ink.geometry/MutableParallelogram : androidx.ink.geometry/Parallelogram { // androidx.ink.geometry/MutableParallelogram|null[0]
+    constructor <init>() // androidx.ink.geometry/MutableParallelogram.<init>|<init>(){}[0]
+
+    final var center // androidx.ink.geometry/MutableParallelogram.center|{}center[0]
+        final fun <get-center>(): androidx.ink.geometry/MutableVec // androidx.ink.geometry/MutableParallelogram.center.<get-center>|<get-center>(){}[0]
+        final fun <set-center>(androidx.ink.geometry/MutableVec) // androidx.ink.geometry/MutableParallelogram.center.<set-center>|<set-center>(androidx.ink.geometry.MutableVec){}[0]
+    final var height // androidx.ink.geometry/MutableParallelogram.height|{}height[0]
+        final fun <get-height>(): kotlin/Float // androidx.ink.geometry/MutableParallelogram.height.<get-height>|<get-height>(){}[0]
+        final fun <set-height>(kotlin/Float) // androidx.ink.geometry/MutableParallelogram.height.<set-height>|<set-height>(kotlin.Float){}[0]
+    final var rotationDegrees // androidx.ink.geometry/MutableParallelogram.rotationDegrees|{}rotationDegrees[0]
+        final fun <get-rotationDegrees>(): kotlin/Float // androidx.ink.geometry/MutableParallelogram.rotationDegrees.<get-rotationDegrees>|<get-rotationDegrees>(){}[0]
+        final fun <set-rotationDegrees>(kotlin/Float) // androidx.ink.geometry/MutableParallelogram.rotationDegrees.<set-rotationDegrees>|<set-rotationDegrees>(kotlin.Float){}[0]
+    final var skew // androidx.ink.geometry/MutableParallelogram.skew|{}skew[0]
+        final fun <get-skew>(): kotlin/Float // androidx.ink.geometry/MutableParallelogram.skew.<get-skew>|<get-skew>(){}[0]
+        final fun <set-skew>(kotlin/Float) // androidx.ink.geometry/MutableParallelogram.skew.<set-skew>|<set-skew>(kotlin.Float){}[0]
+    final var width // androidx.ink.geometry/MutableParallelogram.width|{}width[0]
+        final fun <get-width>(): kotlin/Float // androidx.ink.geometry/MutableParallelogram.width.<get-width>|<get-width>(){}[0]
+        final fun <set-width>(kotlin/Float) // androidx.ink.geometry/MutableParallelogram.width.<set-width>|<set-width>(kotlin.Float){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/MutableParallelogram.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/MutableParallelogram.hashCode|hashCode(){}[0]
+    final fun populateFrom(androidx.ink.geometry/Parallelogram): androidx.ink.geometry/MutableParallelogram // androidx.ink.geometry/MutableParallelogram.populateFrom|populateFrom(androidx.ink.geometry.Parallelogram){}[0]
+    final fun populateFromCenterAndDimensions(androidx.ink.geometry/MutableVec, kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableParallelogram // androidx.ink.geometry/MutableParallelogram.populateFromCenterAndDimensions|populateFromCenterAndDimensions(androidx.ink.geometry.MutableVec;kotlin.Float;kotlin.Float){}[0]
+    final fun populateFromCenterDimensionsAndRotationInDegrees(androidx.ink.geometry/MutableVec, kotlin/Float, kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableParallelogram // androidx.ink.geometry/MutableParallelogram.populateFromCenterDimensionsAndRotationInDegrees|populateFromCenterDimensionsAndRotationInDegrees(androidx.ink.geometry.MutableVec;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    final fun populateFromCenterDimensionsRotationInDegreesAndSkew(androidx.ink.geometry/MutableVec, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableParallelogram // androidx.ink.geometry/MutableParallelogram.populateFromCenterDimensionsRotationInDegreesAndSkew|populateFromCenterDimensionsRotationInDegreesAndSkew(androidx.ink.geometry.MutableVec;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    final fun populateFromSegmentAndPadding(androidx.ink.geometry/Segment, kotlin/Float): androidx.ink.geometry/MutableParallelogram // androidx.ink.geometry/MutableParallelogram.populateFromSegmentAndPadding|populateFromSegmentAndPadding(androidx.ink.geometry.Segment;kotlin.Float){}[0]
+    final fun setCenterDimensionsRotationInDegreesAndSkew(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableParallelogram // androidx.ink.geometry/MutableParallelogram.setCenterDimensionsRotationInDegreesAndSkew|setCenterDimensionsRotationInDegreesAndSkew(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableParallelogram // androidx.ink.geometry/MutableParallelogram.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/MutableParallelogram.toString|toString(){}[0]
+
+    final object Companion // androidx.ink.geometry/MutableParallelogram.Companion|null[0]
+}
+
+final class androidx.ink.geometry/MutableSegment : androidx.ink.geometry/Segment { // androidx.ink.geometry/MutableSegment|null[0]
+    constructor <init>() // androidx.ink.geometry/MutableSegment.<init>|<init>(){}[0]
+    constructor <init>(androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/MutableSegment.<init>|<init>(androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec){}[0]
+
+    final var end // androidx.ink.geometry/MutableSegment.end|{}end[0]
+        final fun <get-end>(): androidx.ink.geometry/MutableVec // androidx.ink.geometry/MutableSegment.end.<get-end>|<get-end>(){}[0]
+        final fun <set-end>(androidx.ink.geometry/MutableVec) // androidx.ink.geometry/MutableSegment.end.<set-end>|<set-end>(androidx.ink.geometry.MutableVec){}[0]
+    final var start // androidx.ink.geometry/MutableSegment.start|{}start[0]
+        final fun <get-start>(): androidx.ink.geometry/MutableVec // androidx.ink.geometry/MutableSegment.start.<get-start>|<get-start>(){}[0]
+        final fun <set-start>(androidx.ink.geometry/MutableVec) // androidx.ink.geometry/MutableSegment.start.<set-start>|<set-start>(androidx.ink.geometry.MutableVec){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/MutableSegment.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/MutableSegment.hashCode|hashCode(){}[0]
+    final fun populateFrom(androidx.ink.geometry/Segment): androidx.ink.geometry/MutableSegment // androidx.ink.geometry/MutableSegment.populateFrom|populateFrom(androidx.ink.geometry.Segment){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableSegment // androidx.ink.geometry/MutableSegment.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/MutableSegment.toString|toString(){}[0]
+}
+
+final class androidx.ink.geometry/MutableTriangle : androidx.ink.geometry/Triangle { // androidx.ink.geometry/MutableTriangle|null[0]
+    constructor <init>() // androidx.ink.geometry/MutableTriangle.<init>|<init>(){}[0]
+    constructor <init>(androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/MutableTriangle.<init>|<init>(androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec;androidx.ink.geometry.MutableVec){}[0]
+
+    final var p0 // androidx.ink.geometry/MutableTriangle.p0|{}p0[0]
+        final fun <get-p0>(): androidx.ink.geometry/MutableVec // androidx.ink.geometry/MutableTriangle.p0.<get-p0>|<get-p0>(){}[0]
+        final fun <set-p0>(androidx.ink.geometry/MutableVec) // androidx.ink.geometry/MutableTriangle.p0.<set-p0>|<set-p0>(androidx.ink.geometry.MutableVec){}[0]
+    final var p1 // androidx.ink.geometry/MutableTriangle.p1|{}p1[0]
+        final fun <get-p1>(): androidx.ink.geometry/MutableVec // androidx.ink.geometry/MutableTriangle.p1.<get-p1>|<get-p1>(){}[0]
+        final fun <set-p1>(androidx.ink.geometry/MutableVec) // androidx.ink.geometry/MutableTriangle.p1.<set-p1>|<set-p1>(androidx.ink.geometry.MutableVec){}[0]
+    final var p2 // androidx.ink.geometry/MutableTriangle.p2|{}p2[0]
+        final fun <get-p2>(): androidx.ink.geometry/MutableVec // androidx.ink.geometry/MutableTriangle.p2.<get-p2>|<get-p2>(){}[0]
+        final fun <set-p2>(androidx.ink.geometry/MutableVec) // androidx.ink.geometry/MutableTriangle.p2.<set-p2>|<set-p2>(androidx.ink.geometry.MutableVec){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/MutableTriangle.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/MutableTriangle.hashCode|hashCode(){}[0]
+    final fun populateFrom(androidx.ink.geometry/Triangle): androidx.ink.geometry/MutableTriangle // androidx.ink.geometry/MutableTriangle.populateFrom|populateFrom(androidx.ink.geometry.Triangle){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableTriangle // androidx.ink.geometry/MutableTriangle.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/MutableTriangle.toString|toString(){}[0]
+}
+
+final class androidx.ink.geometry/MutableVec : androidx.ink.geometry/Vec { // androidx.ink.geometry/MutableVec|null[0]
+    constructor <init>() // androidx.ink.geometry/MutableVec.<init>|<init>(){}[0]
+    constructor <init>(kotlin/Float, kotlin/Float) // androidx.ink.geometry/MutableVec.<init>|<init>(kotlin.Float;kotlin.Float){}[0]
+
+    final var x // androidx.ink.geometry/MutableVec.x|{}x[0]
+        final fun <get-x>(): kotlin/Float // androidx.ink.geometry/MutableVec.x.<get-x>|<get-x>(){}[0]
+        final fun <set-x>(kotlin/Float) // androidx.ink.geometry/MutableVec.x.<set-x>|<set-x>(kotlin.Float){}[0]
+    final var y // androidx.ink.geometry/MutableVec.y|{}y[0]
+        final fun <get-y>(): kotlin/Float // androidx.ink.geometry/MutableVec.y.<get-y>|<get-y>(){}[0]
+        final fun <set-y>(kotlin/Float) // androidx.ink.geometry/MutableVec.y.<set-y>|<set-y>(kotlin.Float){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/MutableVec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/MutableVec.hashCode|hashCode(){}[0]
+    final fun populateFrom(androidx.ink.geometry/Vec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/MutableVec.populateFrom|populateFrom(androidx.ink.geometry.Vec){}[0]
+    final fun populateFromDirectionInDegreesAndMagnitude(kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableVec // androidx.ink.geometry/MutableVec.populateFromDirectionInDegreesAndMagnitude|populateFromDirectionInDegreesAndMagnitude(kotlin.Float;kotlin.Float){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/MutableVec.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/MutableVec.toString|toString(){}[0]
+
+    final object Companion // androidx.ink.geometry/MutableVec.Companion|null[0]
+}
+
+final object androidx.ink.geometry/Angle { // androidx.ink.geometry/Angle|null[0]
+    final val FULL_TURN_DEGREES // androidx.ink.geometry/Angle.FULL_TURN_DEGREES|{}FULL_TURN_DEGREES[0]
+        final fun <get-FULL_TURN_DEGREES>(): kotlin/Float // androidx.ink.geometry/Angle.FULL_TURN_DEGREES.<get-FULL_TURN_DEGREES>|<get-FULL_TURN_DEGREES>(){}[0]
+    final val FULL_TURN_RADIANS // androidx.ink.geometry/Angle.FULL_TURN_RADIANS|{}FULL_TURN_RADIANS[0]
+        final fun <get-FULL_TURN_RADIANS>(): kotlin/Float // androidx.ink.geometry/Angle.FULL_TURN_RADIANS.<get-FULL_TURN_RADIANS>|<get-FULL_TURN_RADIANS>(){}[0]
+    final val HALF_TURN_DEGREES // androidx.ink.geometry/Angle.HALF_TURN_DEGREES|{}HALF_TURN_DEGREES[0]
+        final fun <get-HALF_TURN_DEGREES>(): kotlin/Float // androidx.ink.geometry/Angle.HALF_TURN_DEGREES.<get-HALF_TURN_DEGREES>|<get-HALF_TURN_DEGREES>(){}[0]
+    final val HALF_TURN_RADIANS // androidx.ink.geometry/Angle.HALF_TURN_RADIANS|{}HALF_TURN_RADIANS[0]
+        final fun <get-HALF_TURN_RADIANS>(): kotlin/Float // androidx.ink.geometry/Angle.HALF_TURN_RADIANS.<get-HALF_TURN_RADIANS>|<get-HALF_TURN_RADIANS>(){}[0]
+    final val QUARTER_TURN_DEGREES // androidx.ink.geometry/Angle.QUARTER_TURN_DEGREES|{}QUARTER_TURN_DEGREES[0]
+        final fun <get-QUARTER_TURN_DEGREES>(): kotlin/Float // androidx.ink.geometry/Angle.QUARTER_TURN_DEGREES.<get-QUARTER_TURN_DEGREES>|<get-QUARTER_TURN_DEGREES>(){}[0]
+    final val QUARTER_TURN_RADIANS // androidx.ink.geometry/Angle.QUARTER_TURN_RADIANS|{}QUARTER_TURN_RADIANS[0]
+        final fun <get-QUARTER_TURN_RADIANS>(): kotlin/Float // androidx.ink.geometry/Angle.QUARTER_TURN_RADIANS.<get-QUARTER_TURN_RADIANS>|<get-QUARTER_TURN_RADIANS>(){}[0]
+    final val ZERO_DEGREES // androidx.ink.geometry/Angle.ZERO_DEGREES|{}ZERO_DEGREES[0]
+        final fun <get-ZERO_DEGREES>(): kotlin/Float // androidx.ink.geometry/Angle.ZERO_DEGREES.<get-ZERO_DEGREES>|<get-ZERO_DEGREES>(){}[0]
+    final val ZERO_RADIANS // androidx.ink.geometry/Angle.ZERO_RADIANS|{}ZERO_RADIANS[0]
+        final fun <get-ZERO_RADIANS>(): kotlin/Float // androidx.ink.geometry/Angle.ZERO_RADIANS.<get-ZERO_RADIANS>|<get-ZERO_RADIANS>(){}[0]
+
+    final fun degreesToRadians(kotlin/Float): kotlin/Float // androidx.ink.geometry/Angle.degreesToRadians|degreesToRadians(kotlin.Float){}[0]
+    final fun normalizedAboutZeroDegrees(kotlin/Float): kotlin/Float // androidx.ink.geometry/Angle.normalizedAboutZeroDegrees|normalizedAboutZeroDegrees(kotlin.Float){}[0]
+    final fun normalizedAboutZeroRadians(kotlin/Float): kotlin/Float // androidx.ink.geometry/Angle.normalizedAboutZeroRadians|normalizedAboutZeroRadians(kotlin.Float){}[0]
+    final fun normalizedDegrees(kotlin/Float): kotlin/Float // androidx.ink.geometry/Angle.normalizedDegrees|normalizedDegrees(kotlin.Float){}[0]
+    final fun normalizedRadians(kotlin/Float): kotlin/Float // androidx.ink.geometry/Angle.normalizedRadians|normalizedRadians(kotlin.Float){}[0]
+    final fun radiansToDegrees(kotlin/Float): kotlin/Float // androidx.ink.geometry/Angle.radiansToDegrees|radiansToDegrees(kotlin.Float){}[0]
+}
