@@ -34,7 +34,7 @@ dependencies {
 }
 
 android {
-    compileSdk { version = release(37) }
+    compileSdk { version = release(35) }
     namespace = "androidx.xr.glimmer.benchmark"
     defaultConfig {
         // TODO: b/448363874 - Revert to 35 once API 35 devices are available for microbenchmarking.

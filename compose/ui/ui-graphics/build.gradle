@@ -33,7 +33,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk { version = release(37) }
+        compileSdk { version = release(35) }
         namespace = "androidx.compose.ui.graphics"
         androidResources.enable = true
         optimization {

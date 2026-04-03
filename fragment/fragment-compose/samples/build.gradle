@@ -41,6 +41,6 @@ androidx {
 }
 
 android {
-    compileSdk { version = release(37) }
+    compileSdk { version = release(35) }
     namespace = "androidx.fragment.compose.samples"
 }

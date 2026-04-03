@@ -22,6 +22,6 @@ internal actual fun String.toCharArray(
     startIndex: Int,
     endIndex: Int,
 ) {
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "DEPRECATION")
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     (this as java.lang.String).getChars(startIndex, endIndex, destination, destinationOffset)
 }

@@ -34,7 +34,7 @@ androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'r
 
 android {
     namespace = "androidx.compose.integration.hero.sysui.macrobenchmark.target"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(36) }
     defaultConfig {
         minSdk { version = release(31) } // This benchmark does not run below API 31
     }

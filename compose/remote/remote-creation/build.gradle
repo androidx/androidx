@@ -33,7 +33,7 @@ androidXMultiplatform {
     androidLibrary {
         withJava()
         namespace = "androidx.compose.remote.creation"
-        compileSdk { version = release(37) }
+        compileSdk { version = release(35) }
         minSdk { version = release(23) }
     }
     jvm()

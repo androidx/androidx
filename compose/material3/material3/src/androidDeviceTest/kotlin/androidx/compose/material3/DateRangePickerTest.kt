@@ -73,7 +73,7 @@ class DateRangePickerTest {
 
     @Test
     fun state_initWithoutRemember() {
-        val locale = Locale.forLanguageTag("en-US")
+        val locale = Locale("en", "US")
         val dateRangePickerState =
             DateRangePickerState(
                 locale = locale,
@@ -861,7 +861,7 @@ class DateRangePickerTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun state_initWithJavaTimeApi_withoutRemember() {
-        val locale = Locale.forLanguageTag("en-US")
+        val locale = Locale("en", "US")
         val startDateInUtcMillis = dayInUtcMilliseconds(year = 2022, month = 4, dayOfMonth = 12)
         val endDateInUtcMillis = dayInUtcMilliseconds(year = 2022, month = 6, dayOfMonth = 20)
         val monthInUtcMillis = dayInUtcMilliseconds(year = 2024, month = 1, dayOfMonth = 1)

@@ -80,7 +80,7 @@ wire {
 
 android {
     namespace = "androidx.glance.wear"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(36) }
     defaultConfig {
         minSdk { version = release(29) }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
