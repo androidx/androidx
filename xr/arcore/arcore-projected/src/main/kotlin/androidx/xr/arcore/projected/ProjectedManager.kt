@@ -28,6 +28,7 @@ import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.Pose
@@ -95,6 +96,7 @@ internal constructor(
         }
     }
 
+    @OptIn(PreviewSpatialApi::class)
     private fun serviceRequired(config: Config): Boolean {
         // The service is required if tracking or geospatial are enabled.
         // I.E. if no features are needed from the service we don't require it.
@@ -188,6 +190,7 @@ internal constructor(
         disconnect()
     }
 
+    @OptIn(PreviewSpatialApi::class)
     private fun startServiceInternal(config: Config) {
         val service = perceptionManager.xrResources.service ?: return
         val serviceConfig = ProjectedConfig()

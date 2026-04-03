@@ -30,6 +30,7 @@ import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
+import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import androidx.xr.runtime.internal.LifecycleManager
@@ -100,6 +101,7 @@ internal constructor(
         )
         private set
 
+    @OptIn(PreviewSpatialApi::class)
     override fun configure(config: Config) {
         if (config.deviceTracking == DeviceTrackingMode.INERTIAL_LAST_KNOWN) {
             throw UnsupportedOperationException(
