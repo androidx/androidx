@@ -70,7 +70,7 @@ private constructor(
          */
         public class Quad : Shape {
             public val extents: FloatSize2d
-            @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val cornerRadius: Float
+            @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val cornerRadius: Float
 
             /**
              * A Quadrilateral-shaped canvas.
@@ -88,7 +88,7 @@ private constructor(
              * @param cornerRadius The radius of the rounded corners of the Quad in the local
              *   spatial coordinate system of the entity. If set to 0.0f, the corners will be sharp.
              */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public constructor(extents: FloatSize2d, cornerRadius: Float) {
                 require(extents.width >= 0.0f && extents.height >= 0.0f) {
                     "extents must be non-negative"
@@ -146,7 +146,7 @@ private constructor(
          *   geometry will be assembled (according to the [DrawMode]) from the vertex data
          *   sequentially.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public class TriangleMesh(
             public val positions: FloatBuffer,
             public val texCoords: FloatBuffer,
@@ -179,7 +179,7 @@ private constructor(
          * @property drawMode The [DrawMode] to use when drawing the mesh. Default is
          *   [DrawMode.TRIANGLES].
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public class CustomMesh(
             public val leftEye: TriangleMesh,
             public val rightEye: TriangleMesh? = null,
@@ -259,7 +259,7 @@ private constructor(
     }
 
     /** Specifies the drawing mode for a [Shape.TriangleMesh]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class DrawMode private constructor(private val name: String) {
         public companion object {
             /** Draw the mesh as a list of triangles. */
@@ -306,7 +306,7 @@ private constructor(
     }
 
     /** Specifies the blending mode of the content. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class MediaBlendingMode private constructor(private val name: String) {
         public companion object {
             /** Content is alpha-blended with the background. */
@@ -328,7 +328,7 @@ private constructor(
      * @property colorRange The color range of the content.
      * @property maxContentLightLevel The maximum brightness of the content (in nits).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class ContentColorMetadata(
         public val colorSpace: ColorSpace = ColorSpace.BT709,
         public val colorTransfer: ColorTransfer = ColorTransfer.SRGB,
@@ -723,7 +723,7 @@ private constructor(
          */
         @MainThread
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun create(
             session: Session,
             pose: Pose = Pose.Identity,
@@ -777,14 +777,14 @@ private constructor(
      * @throws IllegalStateException when setting this value if the Entity has been disposed.
      */
     public var mediaBlendingMode: MediaBlendingMode
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() {
             checkNotDisposed()
             return getMediaBlendingModeFromRt(rtEntity!!.mediaBlendingMode)
         }
         @MainThread
         @SuppressLint("HiddenTypeParameter")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
             checkNotDisposed()
             rtEntity!!.mediaBlendingMode = getRtMediaBlendingMode(value)
@@ -835,16 +835,16 @@ private constructor(
      *
      * @throws IllegalStateException when setting this value if the Entity has been disposed.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var primaryAlphaMaskTexture: Texture? = null
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() {
             checkNotDisposed()
             return field
         }
         @MainThread
         @SuppressLint("HiddenTypeParameter")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
             checkNotDisposed()
             rtEntity!!.setPrimaryAlphaMaskTexture(value?.texture)
@@ -857,16 +857,16 @@ private constructor(
      *
      * @throws IllegalStateException when setting this value if the Entity has been disposed.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var auxiliaryAlphaMaskTexture: Texture? = null
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() {
             checkNotDisposed()
             return field
         }
         @MainThread
         @SuppressLint("HiddenTypeParameter")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
             checkNotDisposed()
             rtEntity!!.setAuxiliaryAlphaMaskTexture(value?.texture)
@@ -916,9 +916,9 @@ private constructor(
      *
      * @throws IllegalStateException when setting this value if the Entity has been disposed.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var contentColorMetadata: ContentColorMetadata? = null
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() {
             checkNotDisposed()
             return if (!rtEntity!!.contentColorMetadataSet) {
@@ -935,7 +935,7 @@ private constructor(
         }
         @MainThread
         @SuppressLint("HiddenTypeParameter")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
             checkNotDisposed()
             if (value == null) {

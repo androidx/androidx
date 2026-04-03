@@ -21,6 +21,7 @@
 
 package androidx.xr.scenecore.testapp.surfaceplayback
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -114,6 +115,7 @@ object VideoButtonColors {
 }
 
 // Previously known as VideoPlayerTestActivity
+@SuppressLint("RestrictedApiAndroidX") // using ContentColorMetadata
 class SurfaceEntityPlaybackActivity : ComponentActivity() {
     private var exoPlayer: ExoPlayer? = null
     private val activity = this
