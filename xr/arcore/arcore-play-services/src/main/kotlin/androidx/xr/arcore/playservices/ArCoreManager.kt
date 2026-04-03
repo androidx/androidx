@@ -178,10 +178,8 @@ internal constructor(
 
     override suspend fun update(): ComparableTimeMark {
         // Delay for average time between frames based on camera config fps setting. This frees up
-        // the
-        // thread this method is scheduled to run on to do other work. Note that this can result in
-        // the
-        // emission of duplicated CoreStates by the core Session if the underlying ARCore 1.x
+        // the thread this method is scheduled to run on to do other work. Note that this can result
+        // in the emission of duplicated CoreStates by the core Session if the underlying ARCore 1.x
         // Session has not produced a new frame by the time the delay has expired.
         val avgFps =
             (_session.cameraConfig.fpsRange.lower + _session.cameraConfig.fpsRange.upper) / 2

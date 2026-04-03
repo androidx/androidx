@@ -67,7 +67,7 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
     public override var state: Geospatial.State = Geospatial.State.NOT_RUNNING
         private set
 
-    override public fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
+    public override fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
         validateGeospatialTracking()
 
         try {
@@ -85,8 +85,7 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
             return arCorePose.toRuntimePose()
         } catch (e: NotTrackingException) {
             // Since Jetpack updates are async, it's possible that the Earth becomes not tracking
-            // even
-            // after validation.
+            // even after validation.
             throw GeospatialPoseNotTrackingException(e)
         }
     }
