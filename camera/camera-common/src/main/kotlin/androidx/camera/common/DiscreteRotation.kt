@@ -32,7 +32,7 @@ public value class DiscreteRotation @PublishedApi internal constructor(public va
     public inline operator fun plus(other: DiscreteRotation): DiscreteRotation =
         DiscreteRotation((this.degrees + other.degrees) % 360)
 
-    /** Add a [DiscreteRotation] from this, modding the result by 360. */
+    /** Add [degrees] to this, modding the result by 360. */
     @Suppress("ValueClassUsageWithoutJvmName")
     public inline operator fun plus(degrees: Int): DiscreteRotation = this.plus(from(degrees))
 
@@ -41,7 +41,7 @@ public value class DiscreteRotation @PublishedApi internal constructor(public va
     public inline operator fun minus(other: DiscreteRotation): DiscreteRotation =
         DiscreteRotation((this.degrees - other.degrees + 360) % 360)
 
-    /** Subtract a [DiscreteRotation] from this, modding the result by 360. */
+    /** Subtract [degrees] from this, modding the result by 360. */
     @Suppress("ValueClassUsageWithoutJvmName")
     public inline operator fun minus(degrees: Int): DiscreteRotation = this.minus(from(degrees))
 
@@ -57,8 +57,11 @@ public value class DiscreteRotation @PublishedApi internal constructor(public va
         }
 
         /**
-         * Round [degrees] to the nearest [DiscreteRotation] (0, 90, 180, 270). Negative values are
-         * rounded to the nearest positive [DiscreteRotation].
+         * Round [degrees] to the nearest [DiscreteRotation] (0, 90, 180, 270).
+         *
+         * Negative values are rounded to the nearest positive [DiscreteRotation] (e.g. -90 rounds
+         * to 270). Boundary values (e.g. 45) are rounded up to the nearest 90-degree increment
+         * (e.g. 45 rounds to 90).
          *
          * @see DiscreteRotationMath.round
          */
@@ -67,8 +70,11 @@ public value class DiscreteRotation @PublishedApi internal constructor(public va
             DiscreteRotation(DiscreteRotationMath.round(degrees))
 
         /**
-         * Round [degrees] to the nearest [DiscreteRotation] (0, 90, 180, 270). Negative values are
-         * rounded to the nearest positive [DiscreteRotation].
+         * Round [degrees] to the nearest [DiscreteRotation] (0, 90, 180, 270).
+         *
+         * Negative values are rounded to the nearest positive [DiscreteRotation] (e.g. -90 rounds
+         * to 270). Boundary values (e.g. 45.0) are rounded up to the nearest 90-degree increment
+         * (e.g. 45.0 rounds to 90).
          *
          * @see DiscreteRotationMath.round
          */
@@ -76,9 +82,13 @@ public value class DiscreteRotation @PublishedApi internal constructor(public va
         public fun round(degrees: Float): DiscreteRotation =
             DiscreteRotation(DiscreteRotationMath.round(degrees))
 
-        /** Get a [DiscreteRotation] from [Surface] rotation values. */
+        /**
+         * Get a [DiscreteRotation] from [Surface] rotation values.
+         *
+         * Rotation values are relative to the device's "natural" rotation, [Surface.ROTATION_0].
+         */
         @Suppress("ValueClassUsageWithoutJvmName", "MissingJvmstatic")
-        public fun fromSurfaceRotation(surfaceRotation: Int): DiscreteRotation =
+        public fun fromSurfaceRotation(@SurfaceRotation surfaceRotation: Int): DiscreteRotation =
             DiscreteRotation(DiscreteRotationMath.fromSurfaceRotation(surfaceRotation))
     }
 }

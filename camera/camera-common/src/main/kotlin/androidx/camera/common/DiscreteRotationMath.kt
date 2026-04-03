@@ -31,14 +31,19 @@ public object DiscreteRotationMath {
     }
 
     /**
-     * Round [degrees] to the nearest discrete rotation (0, 90, 180, 270). Negative values are
-     * rounded to the nearest positive discrete rotation value.
+     * Round [degrees] to the nearest discrete rotation (0, 90, 180, 270).
+     *
+     * Negative values are rounded to the nearest positive discrete rotation value (e.g. -90 rounds
+     * to 270). Boundary values (e.g. 45) are rounded up to the nearest 90-degree increment (e.g. 45
+     * rounds to 90).
      *
      * Example(s):
      * - `40 => 0°`
      * - `50 => 90°`
+     * - `45 => 90°`
      * - `-40 => 0°` (Equivalent to -40 + 360 => round(320) => 0)
      * - `-50 => 270°` (Equivalent to -50 + 360 => round(310) => 270°)
+     * - `-90 => 270°` (Equivalent to -90 + 360 => round(270) => 270°)
      */
     @JvmStatic
     public fun round(degrees: Int): Int {
@@ -53,15 +58,19 @@ public object DiscreteRotationMath {
     }
 
     /**
-     * Round [degrees] to the nearest discrete rotation (0, 90, 180, 270). Negative values are
-     * rounded to the nearest positive discrete rotation value.
+     * Round [degrees] to the nearest discrete rotation (0, 90, 180, 270).
+     *
+     * Negative values are rounded to the nearest positive discrete rotation value (e.g. -90.0f
+     * rounds to 270). Boundary values (e.g. 45.0f) are rounded up to the nearest 90-degree
+     * increment (e.g. 45.0f rounds to 90).
      *
      * Example(s):
      * - `40.000f => 0°`
      * - `44.990f => 0°`
-     * - `45.001f => 90°`
-     * - `-40.00f° => 0°` (Equivalent to -40.000f + 360 => round(320) => 0)
-     * - `-50.00f° => 270°` (Equivalent to -50.000f + 360 => round(310) => 270)
+     * - `45.000f => 90°`
+     * - `-40.00f => 0°` (Equivalent to -40.000f + 360 => round(320.0f) => 0)
+     * - `-50.00f => 270°` (Equivalent to -50.000f + 360 => round(310.0f) => 270)
+     * - `-90.00f => 270°` (Equivalent to -90.000f + 360 => round(270.0f) => 270)
      */
     @JvmStatic
     public fun round(degrees: Float): Int {
@@ -72,9 +81,13 @@ public object DiscreteRotationMath {
         return (Math.round(degrees % 360 / 90) * 90 + 360) % 360
     }
 
-    /** Get a [DiscreteRotation] from [Surface] rotation values. */
+    /**
+     * Get a [DiscreteRotation] from [Surface] rotation values.
+     *
+     * Rotation values are relative to the device's "natural" rotation, [Surface.ROTATION_0].
+     */
     @JvmStatic
-    public fun fromSurfaceRotation(surfaceRotation: Int): Int =
+    public fun fromSurfaceRotation(@SurfaceRotation surfaceRotation: Int): Int =
         when (surfaceRotation) {
             Surface.ROTATION_0 -> 0
             Surface.ROTATION_90 -> 90
