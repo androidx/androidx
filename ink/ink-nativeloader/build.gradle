@@ -14,26 +14,48 @@
  * limitations under the License.
  */
 
-import androidx.build.SoftwareType
-import androidx.build.PlatformIdentifier
 import androidx.build.AndroidXConfig
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.KonanTarget
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
 }
 
+def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
+def nativePrebuiltsDir = new File(prebuiltsRoot, "androidx/ink/native").path
+def nativeHeadersDir = new File(nativePrebuiltsDir, "headers").path
+
 androidXMultiplatform {
   jvm()
+  ios()
   androidLibrary {
     namespace = "androidx.ink.nativeloader"
     optimization {
       it.consumerKeepRules.publish = true
-      it.consumerKeepRules.files.add(new File("ink_jni.pgcfg"))
+      it.consumerKeepRules.files.add(file("ink_jni.pgcfg"))
     }
     androidResources.enable = true
   }
 
   defaultPlatform(PlatformIdentifier.JVM)
+
+  targets.configureEach { target ->
+    if (target.platformType == KotlinPlatformType.native) {
+      target.compilations.main.cinterops.register("ink") {
+          def platformName
+          if (target.konanTarget instanceof KonanTarget.IOS_ARM64) {
+            platformName = "IosArm64"
+          } else if (target.konanTarget instanceof KonanTarget.IOS_SIMULATOR_ARM64) {
+            platformName = "IosSimArm64"
+          }
+          definitionFile = file("src/nativeInterop/cinterop/ink${platformName}.def")
+          includeDirs(nativeHeadersDir)
+      }
+    }
+  }
 
   sourceSets {
     commonMain.dependencies {
@@ -41,9 +63,7 @@ androidXMultiplatform {
     }
 
     jvmMain {
-      resources.srcDir(new File(
-          AndroidXConfig.getPrebuiltsRoot(project),
-          "androidx/ink/jvm"))
+      resources.srcDir(new File(prebuiltsRoot, "androidx/ink/jvm"))
     }
 
     jvmAndAndroidTest.dependencies {
@@ -61,9 +81,7 @@ androidXMultiplatform {
 androidComponents {
   onVariants(selector().all()) { variant ->
     variant.sources.jniLibs.addStaticSourceDirectory(
-            new File(
-                    AndroidXConfig.getPrebuiltsRoot(project),
-                    "androidx/ink/android").absolutePath
+            new File(prebuiltsRoot, "androidx/ink/android").absolutePath
     )
   }
 }
