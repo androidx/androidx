@@ -56,8 +56,14 @@ public open class ProcessTrack(
                     )
                 )
                 dispatchTraceEvent(event, immediateDispatch = true)
+                preamble = true
             }
         }
+    }
+
+    override fun preamblePacket(): TraceEvent? {
+        // We eagerly emit the process track preamble packet. So nothing to do here.
+        return null
     }
 
     /**

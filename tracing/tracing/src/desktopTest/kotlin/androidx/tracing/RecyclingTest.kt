@@ -28,7 +28,7 @@ class RecyclingTest {
     private val category: String = "Tests"
 
     fun TraceContext.validateEachTrackHasOnePoolable() {
-        validateTrackPools { track -> assertEquals(1, track.pool.poolableCount()) }
+        validateTrackPools { track -> assertEquals(1, track.protoPool().poolableCount()) }
     }
 
     @Test

@@ -94,15 +94,15 @@ internal constructor(
             return 0L
         }
         var count = 0L
-        count += process.pool.poolableCount()
+        count += process.protoPool().poolableCount()
         synchronized(process.threads) {
             process.threads.forEachValue { threadTrack ->
-                count += threadTrack.pool.poolableCount()
+                count += threadTrack.protoPool().poolableCount()
             }
         }
         synchronized(process.counters) {
             process.counters.forEachValue { counterTrack ->
-                count += counterTrack.pool.poolableCount()
+                count += counterTrack.protoPool().poolableCount()
             }
         }
         return count
