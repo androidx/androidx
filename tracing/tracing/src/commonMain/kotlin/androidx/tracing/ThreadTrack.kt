@@ -30,7 +30,7 @@ public open class ThreadTrack(
     public val process: ProcessTrack,
 ) : SliceTrack(context = process.context, uuid = monotonicId()) {
 
-    init {
+    override fun preamblePacket(): TraceEvent? {
         val event = obtainTraceEvent()
         event?.setPreamble(
             TrackDescriptor(
@@ -42,7 +42,7 @@ public open class ThreadTrack(
                 type = TRACK_DESCRIPTOR_TYPE_THREAD,
             )
         )
-        dispatchTraceEvent(event, immediateDispatch = true)
+        return event
     }
 }
 
@@ -52,4 +52,4 @@ private const val EMPTY_THREAD_ID = -1
 private const val EMPTY_THREAD_NAME = "Empty Thread"
 
 internal class EmptyThreadTrack(process: EmptyProcessTrack) :
-    ThreadTrack(id = EMPTY_THREAD_ID, name = EMPTY_THREAD_NAME, process = process) {}
+    ThreadTrack(id = EMPTY_THREAD_ID, name = EMPTY_THREAD_NAME, process = process)

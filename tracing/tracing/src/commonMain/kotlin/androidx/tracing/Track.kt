@@ -17,6 +17,7 @@
 package androidx.tracing
 
 import androidx.annotation.RestrictTo
+import kotlin.concurrent.Volatile
 
 /**
  * Tracks are a horizontal track of time in the trace that contains trace events - often counters
@@ -49,6 +50,10 @@ public abstract class Track(
     @PublishedApi
     internal val uuid: Long,
 ) : AutoCloseable {
+
+    @JvmField // avoid getter generation
+    internal val lock = Any()
+
     /**
      * Any time we emit trace packets relevant to this process. We need to make sure the necessary
      * preamble packets that describe the process and threads are also emitted. This is used to make
@@ -57,27 +62,38 @@ public abstract class Track(
     // Every poolable that is obtained from the pool, keeps track of its owner.
     // The underlying poolable, if eventually recycled by the Sink after an emit() is complete.
     @JvmField // avoid getter generation
-    internal val pool: ProtoPool = ProtoPool(isDebug = context.isDebug)
+    @Volatile
+    internal var pool: ProtoPool? = null
+
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun protoPool(): ProtoPool {
+        val pool = this.pool
+        if (pool != null) return pool
+
+        return synchronized(lock) {
+            this.pool ?: ProtoPool(isDebug = context.isDebug).also { this.pool = it }
+        }
+    }
 
     // this would be private, but internal prevents getters from being created
     @JvmField // avoid getter generation
     @Volatile
-    internal var currentPacketArray: PooledTracePacketArray? = pool.obtainTracePacketArray()
+    internal var currentPacketArray: PooledTracePacketArray? = null
 
     internal fun flush() {
         val currentPacketArray = this.currentPacketArray
         if (currentPacketArray != null) {
             context.sink.enqueue(currentPacketArray)
             // Try obtaining a new pooled trace packet.
-            this.currentPacketArray = pool.obtainTracePacketArray()
+            this.currentPacketArray = protoPool().obtainTracePacketArray()
         }
     }
 
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun obtainTraceEvent(): TraceEvent? {
         if (currentPacketArray == null) {
-            // Try obtaining another pooled trace packet array.
-            currentPacketArray = pool.obtainTracePacketArray()
+            // Try obtaining a pooled trace packet array.
+            currentPacketArray = protoPool().obtainTracePacketArray()
         }
         // If we still cannot obtain a PooledTracePacketArray, then just mark the trace event
         // as lost.
@@ -100,7 +116,7 @@ public abstract class Track(
             if (fillCount == currentPacketArraySize || immediateDispatch) {
                 context.sink.enqueue(pooledPacketArray = this)
                 // greedy reset / reallocate array
-                this@Track.currentPacketArray = pool.obtainTracePacketArray()
+                this@Track.currentPacketArray = protoPool().obtainTracePacketArray()
             }
         }
     }

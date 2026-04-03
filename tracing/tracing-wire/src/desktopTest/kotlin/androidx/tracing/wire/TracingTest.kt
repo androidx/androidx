@@ -16,7 +16,6 @@
 
 package androidx.tracing.wire
 
-import androidx.tracing.AbstractTraceDriver
 import androidx.tracing.AbstractTraceSink
 import androidx.tracing.DEFAULT_LONG
 import androidx.tracing.ExperimentalContextPropagation
@@ -102,7 +101,7 @@ class TestSink : AbstractTraceSink() {
 
 class TracingTest {
     private val sink = TestSink()
-    lateinit var driver: AbstractTraceDriver
+    lateinit var driver: TraceDriver
     lateinit var tracer: Tracer
 
     @Before
@@ -310,7 +309,11 @@ class TracingTest {
     @Test
     internal fun testCounterTrackEvents() {
         driver.use { tracer.counter(category = "counter", "counter").setValue(10L) }
-        assertEquals(4, sink.packets.size)
+        // We expect 3 packets
+        // 2 Preamble packets (process + counter tracks)
+        // Importantly **no** thread preamble packets
+        // 1 counter packet.
+        assertEquals(3, sink.packets.size)
         val packet =
             sink.packets.firstOrNull { packet ->
                 packet.track_event?.type == MutableTrackEvent.Type.TYPE_COUNTER
@@ -359,6 +362,31 @@ class TracingTest {
             }
         assertTrue(message = "Expecting the same number of SLICE_BEGIN and SLICE_END packets") {
             starts.size == ends.size
+        }
+    }
+
+    internal class TraceSinkDelegate(private val sink: AbstractTraceSink) : AbstractTraceSink() {
+        internal var reportDroppedTracePacket = false
+        internal var packetCount: Int = 0
+
+        internal var packetCountOnDroppedTracePacket = 0
+
+        override fun enqueue(pooledPacketArray: PooledTracePacketArray) {
+            sink.enqueue(pooledPacketArray)
+            packetCount += pooledPacketArray.packets.size
+        }
+
+        override fun onDroppedTraceEvent() {
+            reportDroppedTracePacket = true
+            packetCountOnDroppedTracePacket = packetCount
+        }
+
+        override fun flush() {
+            sink.flush()
+        }
+
+        override fun close() {
+            sink.close()
         }
     }
 
@@ -439,30 +467,6 @@ class TracingTest {
         }
     }
 
-    internal class TraceSinkDelegate(private val sink: AbstractTraceSink) : AbstractTraceSink() {
-        internal var reportDroppedTracePacket = false
-        internal var packetCount: Int = 0
-        internal var packetCountOnDroppedTracePacket = 0
-
-        override fun enqueue(pooledPacketArray: PooledTracePacketArray) {
-            sink.enqueue(pooledPacketArray)
-            packetCount += pooledPacketArray.packets.size
-        }
-
-        override fun onDroppedTraceEvent() {
-            reportDroppedTracePacket = true
-            packetCountOnDroppedTracePacket = packetCount
-        }
-
-        override fun flush() {
-            sink.flush()
-        }
-
-        override fun close() {
-            sink.close()
-        }
-    }
-
     @Test
     internal fun testDisabledTracerWritesNoBytes() = runTest {
         val testSink = TestSink()
@@ -477,6 +481,13 @@ class TracingTest {
             driver.flush()
 
             assertTrue(testSink.packets.isEmpty(), "Sink should be empty when tracer is disabled")
+        }
+    }
+
+    @Test
+    internal fun manyTracksShouldNotCauseOutOfMemory() {
+        driver.use {
+            repeat(1000) { driver.context.process.getOrCreateThreadTrack(it, "Thread $it") }
         }
     }
 }
