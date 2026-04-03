@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testapp.surfaceimage
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -98,6 +99,7 @@ object VideoButtonColors {
     val DefaultButton = Color(0xFF42A5F5) // Blue 400
 }
 
+@SuppressLint("RestrictedApiAndroidX") // using MediaBlendingMode & Shape.Quad
 class SurfaceEntityImageActivity : ComponentActivity() {
     private val activity = this
 

@@ -105,6 +105,7 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "JXR-SurfaceEntity-VideoPlayerActivity"
 
+@SuppressLint("RestrictedApiAndroidX") // SurfaceEntity.primaryAlphaMaskTexture
 class VideoPlayerActivity : ComponentActivity() {
     private var exoPlayer: ExoPlayer? = null
     private val activity = this

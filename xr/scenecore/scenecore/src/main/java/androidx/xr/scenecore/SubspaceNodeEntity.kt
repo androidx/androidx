@@ -31,7 +31,7 @@ import com.android.extensions.xr.node.Node
  * for Entity features (such as managing parents and children or attaching user input Components) to
  * be used with split-engine SubspaceNodes.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SubspaceNodeEntity
 private constructor(rtEntity: RtSubspaceNodeEntity, entityRegistry: EntityRegistry) :
     BaseEntity<RtSubspaceNodeEntity>(rtEntity, entityRegistry) {

@@ -21,6 +21,7 @@
 
 package androidx.xr.scenecore.testapp.surfacecustommesh
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -109,6 +110,7 @@ object VideoButtonColors {
     val DefaultButton = Color(0xFF42A5F5) // Blue 400
 }
 
+@SuppressLint("RestrictedApiAndroidX") // using TriangleMesh directly
 class SurfaceEntityCustomMeshActivity : ComponentActivity() {
     private var exoPlayer: ExoPlayer? = null
     private val activity = this
