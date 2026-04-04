@@ -288,14 +288,12 @@ internal open class FakeEditablePdfDocument(
 
     override fun addOnEditsAppliedListener(
         executor: Executor,
-        listener: EditablePdfDocument.OnEditsAppliedListener,
+        listener: PdfDocument.OnEditsAppliedListener,
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun removeOnEditsAppliedListener(
-        listener: EditablePdfDocument.OnEditsAppliedListener
-    ) {
+    override fun removeOnEditsAppliedListener(listener: PdfDocument.OnEditsAppliedListener) {
         TODO("Not yet implemented")
     }
 
