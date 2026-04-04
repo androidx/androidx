@@ -47,7 +47,6 @@ android {
     buildTypes.release {
         androidTest {
             enableMinification = false
-            testProguardFiles "proguard-rules.pro"
         }
     }
 }
