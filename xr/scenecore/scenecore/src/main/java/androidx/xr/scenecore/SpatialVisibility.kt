@@ -17,27 +17,20 @@
 package androidx.xr.scenecore
 
 /** Spatial Visibility states of content within the user's field of view. */
-public class SpatialVisibility private constructor(private val name: String) {
+public class SpatialVisibility private constructor(private val value: Int) {
 
     public companion object {
         /** Unknown spatial visibility state. */
-        @JvmField public val UNKNOWN: SpatialVisibility = SpatialVisibility("UNKNOWN")
+        @JvmField public val UNKNOWN: SpatialVisibility = SpatialVisibility(1)
 
         /** The content is fully outside the user's field of view. */
-        @JvmField
-        public val OUTSIDE_FIELD_OF_VIEW: SpatialVisibility =
-            SpatialVisibility("OUTSIDE_FIELD_OF_VIEW")
+        @JvmField public val OUTSIDE_FIELD_OF_VIEW: SpatialVisibility = SpatialVisibility(2)
 
         /** The content is partially within the user's field of view, but not fully inside of it. */
         @JvmField
-        public val PARTIALLY_WITHIN_FIELD_OF_VIEW: SpatialVisibility =
-            SpatialVisibility("PARTIALLY_WITHIN_FIELD_OF_VIEW")
+        public val PARTIALLY_WITHIN_FIELD_OF_VIEW: SpatialVisibility = SpatialVisibility(3)
 
         /** The content is fully within the user's field of view. */
-        @JvmField
-        public val WITHIN_FIELD_OF_VIEW: SpatialVisibility =
-            SpatialVisibility("WITHIN_FIELD_OF_VIEW")
+        @JvmField public val WITHIN_FIELD_OF_VIEW: SpatialVisibility = SpatialVisibility(4)
     }
-
-    override fun toString(): String = name
 }

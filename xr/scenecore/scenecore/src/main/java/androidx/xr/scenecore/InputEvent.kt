@@ -84,11 +84,11 @@ public class InputEvent(
     // TODO: b/343468347 - Implement version check for xr extensions when loading runtime impl
 
     /** Specifies the source (e.g. hands, controller, head) of the input event. */
-    public class Source private constructor(private val name: String) {
+    public class Source private constructor(private val value: Int) {
 
         public companion object {
             /** Unknown source. */
-            @JvmField public val UNKNOWN: Source = Source("UNKNOWN")
+            @JvmField public val UNKNOWN: Source = Source(1)
 
             /**
              * Event is based on the user's head. Ray origin is at average between eyes, pushed out
@@ -97,21 +97,21 @@ public class InputEvent(
              *
              * Events from this source are considered sensitive and hover events are never sent.
              */
-            @JvmField public val HEAD: Source = Source("HEAD")
+            @JvmField public val HEAD: Source = Source(2)
 
             /**
              * Event is based on (one of) the user's controller(s). Ray origin and direction are for
              * a controller aim pose. Action state is based on the primary button on the controller,
              * usually the bottom-most face button.
              */
-            @JvmField public val CONTROLLER: Source = Source("CONTROLLER")
+            @JvmField public val CONTROLLER: Source = Source(3)
 
             /**
              * Event is based on one of the user's hands. Ray is a hand aim pose, with origin
              * between thumb and forefinger and points in direction based on hand orientation.
              * Action state is based on a pinch gesture.
              */
-            @JvmField public val HANDS: Source = Source("HANDS")
+            @JvmField public val HANDS: Source = Source(4)
 
             /**
              * Event is based on a 2D mouse pointing device. Ray origin behaves the same as for
@@ -119,7 +119,7 @@ public class InputEvent(
              * origin moves approximating hand motion. The scroll wheel moves the ray away from /
              * towards the user. Action state is based on the primary mouse button.
              */
-            @JvmField public val MOUSE: Source = Source("MOUSE")
+            @JvmField public val MOUSE: Source = Source(5)
 
             /**
              * Event is based on a mix of the head, eyes, and hands. Ray origin is at average
@@ -130,47 +130,43 @@ public class InputEvent(
              *
              * Events from this source are considered sensitive and hover events are never sent.
              */
-            @JvmField public val GAZE_AND_GESTURE: Source = Source("GAZE_AND_GESTURE")
+            @JvmField public val GAZE_AND_GESTURE: Source = Source(6)
         }
-
-        public override fun toString(): String = name
     }
 
     /** Specifies the pointer type (e.g. left, right or default) of the input event. */
-    public class Pointer private constructor(private val name: String) {
+    public class Pointer private constructor(private val value: Int) {
         public companion object {
             /**
              * Default pointer type for the source (no handedness). Occurs for [Source.UNKNOWN],
              * [Source.HEAD], [Source.MOUSE], and [Source.GAZE_AND_GESTURE].
              */
-            @JvmField public val DEFAULT: Pointer = Pointer("DEFAULT")
+            @JvmField public val DEFAULT: Pointer = Pointer(1)
             /**
              * Left hand / controller pointer. Occurs for [Source.CONTROLLER], [Source.HANDS], and
              * [Source.GAZE_AND_GESTURE].
              */
-            @JvmField public val LEFT: Pointer = Pointer("LEFT")
+            @JvmField public val LEFT: Pointer = Pointer(2)
             /**
              * Right hand / controller pointer. Occurs for [Source.CONTROLLER], [Source.HANDS], and
              * [Source.GAZE_AND_GESTURE].
              */
-            @JvmField public val RIGHT: Pointer = Pointer("RIGHT")
+            @JvmField public val RIGHT: Pointer = Pointer(3)
         }
-
-        override fun toString(): String = name
     }
 
     /** Specifies the action (e.g. down, up, move, etc.) of the input event. */
-    public class Action private constructor(private val name: String) {
+    public class Action private constructor(private val value: Int) {
         public companion object {
             /** The primary action button or gesture was just pressed / started. */
-            @JvmField public val DOWN: Action = Action("DOWN")
+            @JvmField public val DOWN: Action = Action(1)
 
             /**
              * The primary action button or gesture was just released / stopped. The hit info
              * represents the node that was originally hit (ie, as provided in the [Action.DOWN]
              * event).
              */
-            @JvmField public val UP: Action = Action("UP")
+            @JvmField public val UP: Action = Action(2)
 
             /**
              * The primary action button or gesture was pressed/active in the previous event, and is
@@ -178,14 +174,14 @@ public class InputEvent(
              * as provided in the [Action.DOWN] event). The hit position may be null if the pointer
              * is no longer hitting that node.
              */
-            @JvmField public val MOVE: Action = Action("MOVE")
+            @JvmField public val MOVE: Action = Action(3)
 
             /**
              * While the primary action button or gesture was held, the pointer was disabled. This
              * happens if you are using controllers and the battery runs out, or if you are using a
              * source that transitions to a new pointer type, eg [Source.GAZE_AND_GESTURE].
              */
-            @JvmField public val CANCEL: Action = Action("CANCEL")
+            @JvmField public val CANCEL: Action = Action(4)
 
             /**
              * The primary action button or gesture is not pressed, and the pointer ray continued to
@@ -194,7 +190,7 @@ public class InputEvent(
              *
              * Hover input events are never provided for sensitive source types.
              */
-            @JvmField public val HOVER_MOVE: Action = Action("HOVER_MOVE")
+            @JvmField public val HOVER_MOVE: Action = Action(5)
 
             /**
              * The primary action button or gesture is not pressed, and the pointer ray started to
@@ -203,7 +199,7 @@ public class InputEvent(
              *
              * Hover input events are never provided for sensitive source types.
              */
-            @JvmField public val HOVER_ENTER: Action = Action("HOVER_ENTER")
+            @JvmField public val HOVER_ENTER: Action = Action(6)
 
             /**
              * The primary action button or gesture is not pressed, and the pointer ray stopped
@@ -212,10 +208,8 @@ public class InputEvent(
              *
              * Hover input events are never provided for sensitive source types.
              */
-            @JvmField public val HOVER_EXIT: Action = Action("HOVER_EXIT")
+            @JvmField public val HOVER_EXIT: Action = Action(7)
         }
-
-        override fun toString(): String = name
     }
 
     /**

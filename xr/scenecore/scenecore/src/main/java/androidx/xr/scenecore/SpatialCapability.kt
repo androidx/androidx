@@ -17,29 +17,25 @@
 package androidx.xr.scenecore
 
 /** Constants representing the spatial capabilities of a [Scene]. */
-public class SpatialCapability private constructor(private val name: String) {
+public class SpatialCapability private constructor(private val value: Int) {
 
     public companion object {
         /** The activity can spatialize itself by e.g. adding a spatial panel. */
-        @JvmField public val SPATIAL_UI: SpatialCapability = SpatialCapability("UI")
+        @JvmField public val SPATIAL_UI: SpatialCapability = SpatialCapability(1)
 
         /** The activity can create 3D content. */
-        @JvmField public val SPATIAL_3D_CONTENT: SpatialCapability = SpatialCapability("3D_CONTENT")
+        @JvmField public val SPATIAL_3D_CONTENT: SpatialCapability = SpatialCapability(2)
 
         /** The activity can enable or disable passthrough. */
-        @JvmField
-        public val PASSTHROUGH_CONTROL: SpatialCapability = SpatialCapability("PASSTHROUGH_CONTROL")
+        @JvmField public val PASSTHROUGH_CONTROL: SpatialCapability = SpatialCapability(3)
 
         /** The activity can set its own spatial environment. */
-        @JvmField
-        public val APP_ENVIRONMENT: SpatialCapability = SpatialCapability("APP_ENVIRONMENT")
+        @JvmField public val APP_ENVIRONMENT: SpatialCapability = SpatialCapability(4)
 
         /** The activity can use spatial audio. */
-        @JvmField public val SPATIAL_AUDIO: SpatialCapability = SpatialCapability("SPATIAL_AUDIO")
+        @JvmField public val SPATIAL_AUDIO: SpatialCapability = SpatialCapability(5)
 
         /** The activity can spatially embed another activity. */
-        @JvmField public val EMBED_ACTIVITY: SpatialCapability = SpatialCapability("EMBED_ACTIVITY")
+        @JvmField public val EMBED_ACTIVITY: SpatialCapability = SpatialCapability(6)
     }
-
-    override fun toString(): String = name
 }

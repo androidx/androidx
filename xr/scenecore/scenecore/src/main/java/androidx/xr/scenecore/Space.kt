@@ -19,16 +19,16 @@ package androidx.xr.scenecore
 import androidx.annotation.RestrictTo
 
 /** Coordinate spaces in which to apply transformation values. */
-public class Space private constructor(private val name: String) {
+public class Space private constructor(private val value: Int) {
     public companion object {
         /**
          * The coordinate space of an [Entity]'s parent, such that the child Entity's pose, scale,
          * etc., are expressed relative to the parent.
          */
-        @JvmField public val PARENT: Space = Space("PARENT")
+        @JvmField public val PARENT: Space = Space(1)
 
         /** The global coordinate space, at the root of the scene graph for the activity. */
-        @JvmField public val ACTIVITY: Space = Space("ACTIVITY")
+        @JvmField public val ACTIVITY: Space = Space(2)
 
         /**
          * The global coordinate space, unscaled, at the root of the scene graph of the activity.
@@ -36,8 +36,6 @@ public class Space private constructor(private val name: String) {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         // TODO - b/415320653: This will be removed, for now restrict it for internal use.
         @JvmField
-        public val REAL_WORLD: Space = Space("REAL WORLD")
+        public val REAL_WORLD: Space = Space(3)
     }
-
-    public override fun toString(): String = name
 }

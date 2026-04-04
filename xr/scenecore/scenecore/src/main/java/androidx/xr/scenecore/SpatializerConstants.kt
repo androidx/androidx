@@ -22,38 +22,33 @@ import androidx.xr.scenecore.runtime.SpatializerConstants as RtSpatializerConsta
 public interface SpatializerConstants {
 
     /** Specifies the Ambisonics order of a [SoundFieldAttributes] */
-    public class AmbisonicsOrder private constructor(private val name: String) {
+    public class AmbisonicsOrder private constructor(private val value: Int) {
         public companion object {
             /** Specifies spatial rendering using First Order Ambisonics */
-            @JvmField public val FIRST_ORDER: AmbisonicsOrder = AmbisonicsOrder("FIRST")
+            @JvmField public val FIRST_ORDER: AmbisonicsOrder = AmbisonicsOrder(1)
 
             /** Specifies spatial rendering using Second Order Ambisonics */
-            @JvmField public val SECOND_ORDER: AmbisonicsOrder = AmbisonicsOrder("SECOND")
+            @JvmField public val SECOND_ORDER: AmbisonicsOrder = AmbisonicsOrder(2)
 
             /** Specifies spatial rendering using Third Order Ambisonics */
-            @JvmField public val THIRD_ORDER: AmbisonicsOrder = AmbisonicsOrder("THIRD")
+            @JvmField public val THIRD_ORDER: AmbisonicsOrder = AmbisonicsOrder(3)
         }
-
-        override fun toString(): String = name
     }
 
     /** Represents the type of spatialization for an audio source. */
-    public class SourceType private constructor(private val name: String) {
+    public class SourceType private constructor(private val value: Int) {
 
         public companion object {
 
             /** The sound source has not been spatialized with SceneCore APIs. */
-            @JvmField public val DEFAULT: SourceType = SourceType("DEFAULT")
+            @JvmField public val DEFAULT: SourceType = SourceType(1)
 
             /** The sound source has been spatialized as a 3D point source. */
-            @JvmField public val POINT_SOURCE: SourceType = SourceType("POINT_SOURCE")
+            @JvmField public val POINT_SOURCE: SourceType = SourceType(2)
 
             /** The sound source is an ambisonics sound field. */
-            public const val SOURCE_TYPE_SOUND_FIELD: Int = 2
-            @JvmField public val SOUND_FIELD: SourceType = SourceType("SOUND_FIELD")
+            @JvmField public val SOUND_FIELD: SourceType = SourceType(3)
         }
-
-        override fun toString(): String = name
     }
 }
 

@@ -23,20 +23,16 @@ package androidx.xr.scenecore
 public class SpatialPointerIcon private constructor(private val value: Int) {
 
     public companion object {
-        private const val NONE_VALUE = 0
-        private const val DEFAULT_VALUE = 1
-        private const val CIRCLE_VALUE = 2
-
         /**
          * Do not render an icon for the pointer; this option can be used to hide the pointer icon,
          * either because the client wants it to be invisible or to implement custom icon rendering.
          */
-        @JvmField public val NONE: SpatialPointerIcon = SpatialPointerIcon(NONE_VALUE)
+        @JvmField public val NONE: SpatialPointerIcon = SpatialPointerIcon(0)
 
         /** Use the default pointer icon, as determined by the system. */
-        @JvmField public val DEFAULT: SpatialPointerIcon = SpatialPointerIcon(DEFAULT_VALUE)
+        @JvmField public val DEFAULT: SpatialPointerIcon = SpatialPointerIcon(1)
 
         /** Renders the icon for the pointer as a circle. */
-        @JvmField public val CIRCLE: SpatialPointerIcon = SpatialPointerIcon(CIRCLE_VALUE)
+        @JvmField public val CIRCLE: SpatialPointerIcon = SpatialPointerIcon(2)
     }
 }

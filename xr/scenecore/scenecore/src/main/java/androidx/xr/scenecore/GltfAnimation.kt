@@ -57,24 +57,22 @@ internal constructor(
         Collections.synchronizedMap(mutableMapOf())
 
     /** Specifies the current animation state of this [GltfAnimation]. */
-    public class AnimationState private constructor(private val name: String) {
+    public class AnimationState private constructor(private val value: Int) {
         public companion object {
             /** The animation is currently playing. */
-            @JvmField public val PLAYING: AnimationState = AnimationState("PLAYING")
+            @JvmField public val PLAYING: AnimationState = AnimationState(1)
             /**
              * The animation is currently stopped. When in this state, the animation playback time
              * is reset to the beginning. The animation must be [start]ed to play again.
              */
-            @JvmField public val STOPPED: AnimationState = AnimationState("STOPPED")
+            @JvmField public val STOPPED: AnimationState = AnimationState(2)
             /**
              * The animation is currently paused. When in this state, the animation is frozen at the
              * current frame. The animation can be [resume]d to continue playback from the paused
              * point.
              */
-            @JvmField public val PAUSED: AnimationState = AnimationState("PAUSED")
+            @JvmField public val PAUSED: AnimationState = AnimationState(3)
         }
-
-        public override fun toString(): String = name
     }
 
     /**
