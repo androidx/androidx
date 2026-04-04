@@ -17,6 +17,7 @@
 package androidx.xr.arcore.playservices
 
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException
+import androidx.xr.arcore.runtime.AnchorRuntimeFailureException
 import androidx.xr.arcore.runtime.AnchorUnsupportedLocationException
 import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
@@ -223,6 +224,7 @@ class ArCoreGeospatialTest {
 
     @Test
     fun createPoseFromGeospatialPose_whenArCoreEarthNull_throwsIllegalStateException() {
+        whenever(mockArCoreEarth.earthState).thenReturn(ARCore1xEarth.EarthState.ENABLED)
         whenever(mockSession.earth).thenReturn(null)
 
         underTest.update(mockSession)
@@ -559,7 +561,7 @@ class ArCoreGeospatialTest {
         }
 
     @Test
-    fun createAnchorOnSurface_terrainErrorInternal_throwsIllegalStateException(): Unit =
+    fun createAnchorOnSurface_terrainErrorInternal_throwsAnchorRuntimeFailureException(): Unit =
         runBlocking(testDispatcher.scheduler) {
             setupGeospatialTracking()
             whenever(
@@ -585,7 +587,7 @@ class ArCoreGeospatialTest {
                     mockTerrainFuture
                 }
 
-            assertFailsWith<IllegalStateException> {
+            assertFailsWith<AnchorRuntimeFailureException> {
                 underTest.createAnchorOnSurface(
                     LATITUDE,
                     LONGITUDE,

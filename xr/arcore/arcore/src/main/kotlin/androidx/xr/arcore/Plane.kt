@@ -214,7 +214,7 @@ internal constructor(
      * @param pose the initial [Pose] of the [Anchor]
      * @throws [IllegalStateException] if [Session.config] is set to [PlaneTrackingMode.DISABLED]
      */
-    override fun createAnchor(pose: Pose): AnchorCreateResult {
+    override fun createAnchor(pose: Pose): AnchorResult {
         check(
             xrResourceManager.lifecycleManager.config.planeTracking != PlaneTrackingMode.DISABLED
         ) {

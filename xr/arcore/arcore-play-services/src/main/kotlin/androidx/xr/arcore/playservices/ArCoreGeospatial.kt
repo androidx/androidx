@@ -19,6 +19,9 @@ package androidx.xr.arcore.playservices
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException
+import androidx.xr.arcore.runtime.AnchorNotTrackingException
+import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
+import androidx.xr.arcore.runtime.AnchorRuntimeFailureException
 import androidx.xr.arcore.runtime.AnchorUnsupportedLocationException
 import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
@@ -105,8 +108,7 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
             )
         } catch (e: NotTrackingException) {
             // Since Jetpack updates are async, it's possible that Geospatial becomes not tracking
-            // even
-            // after validation.
+            // even after validation.
             throw GeospatialPoseNotTrackingException(e)
         }
     }
@@ -117,7 +119,7 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
         altitude: Double,
         eastUpSouthQuaternion: Quaternion,
     ): RuntimeAnchor {
-        validateGeospatialEnabled()
+        validateGeospatialForAnchorCreation()
 
         val arCoreAnchor =
             checkNotNull(arCoreEarth)
@@ -140,7 +142,7 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
         eastUpSouthQuaternion: Quaternion,
         surface: Geospatial.Surface,
     ): RuntimeAnchor {
-        validateGeospatialEnabled()
+        validateGeospatialForAnchorCreation()
 
         return suspendCancellableCoroutine { continuation ->
             val future: ARCore1xFuture =
@@ -181,22 +183,17 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
                                     )
                                 },
                             )
-                    else -> throw IllegalStateException("Unknown surface type.")
+                    else -> throw IllegalArgumentException("Unknown surface type.")
                 }
 
             continuation.invokeOnCancellation {
                 if (!future.cancel()) {
                     // The future was already completed, so it could not be cancelled. We need to
-                    // clean up by
-                    // deleting the anchor. Note that due to the "prompt cancellation guarantee", if
-                    // the
-                    // coroutine is cancelled, that means it will not be resumed with a result, so
-                    // the user
-                    // will never see the created anchor.
-                    // Also note that ArCore1xFuture cancellation is thread-safe, so if we
-                    // successfully
-                    // cancel the future, the callback was not invoked and the anchor is already
-                    // deleted.
+                    // clean up by deleting the anchor. Note that due to the "prompt cancellation
+                    // guarantee", if the coroutine is cancelled, that means it will not be resumed
+                    // with a result, so the user will never see the created anchor. Also note that
+                    // ArCore1xFuture cancellation is thread-safe, so if we successfully cancel the
+                    // future, the callback was not invoked and the anchor is already deleted.
                     when (future) {
                         is ARCore1xTerrainAnchorFuture -> {
                             future.resultAnchor?.detach()
@@ -205,7 +202,7 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
                             future.resultAnchor?.detach()
                         }
                         else -> {
-                            throw IllegalStateException("Unknown future type.")
+                            throw IllegalArgumentException("Unknown future type.")
                         }
                     }
                 }
@@ -274,20 +271,46 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
     /**
      * Validates that Geospatial is tracking and available.
      *
-     * @throws IllegalStateException if Geospatial is not tracking or not available.
+     * @throws [IllegalStateException] if Geospatial is not available.
+     * @throws [GeospatialPoseNotTrackingException] if Geospatial is not tracking.
      */
     private fun validateGeospatialTracking() {
-        validateGeospatialEnabled()
+        // TODO: b/408482647 - Without locking this doesn't guarantee that the state won't change
+        // between the check and the call.
+        check(state == Geospatial.State.RUNNING)
+        check(checkNotNull(arCoreEarth).earthState == ARCore1xEarth.EarthState.ENABLED)
         if (checkNotNull(arCoreEarth).trackingState != ARCore1xTrackingState.TRACKING) {
             throw GeospatialPoseNotTrackingException()
         }
     }
 
-    private fun validateGeospatialEnabled() {
+    private fun validateGeospatialForAnchorCreation() {
         // TODO: b/408482647 - Without locking this doesn't guarantee that the state won't change
         // between the check and the call.
-        check(state == Geospatial.State.RUNNING)
         check(checkNotNull(arCoreEarth).earthState == ARCore1xEarth.EarthState.ENABLED)
+        state.let {
+            when (it) {
+                Geospatial.State.NOT_RUNNING -> {
+                    throw AnchorNotTrackingException(
+                        Throwable("Geospatial must be enabled to create an Anchor.")
+                    )
+                }
+                Geospatial.State.PAUSED -> {
+                    throw AnchorNotTrackingException(
+                        Throwable("Geospatial is currently not tracking. Try again later.")
+                    )
+                }
+                Geospatial.State.ERROR_INTERNAL -> {
+                    throw AnchorRuntimeFailureException(Throwable("Internal error in runtime."))
+                }
+                Geospatial.State.ERROR_NOT_AUTHORIZED -> {
+                    throw AnchorNotAuthorizedException()
+                }
+                Geospatial.State.ERROR_RESOURCE_EXHAUSTED -> {
+                    throw AnchorResourcesExhaustedException()
+                }
+            }
+        }
     }
 
     /**
@@ -305,18 +328,24 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
             }
             ARCore1xTerrainAnchorState.NONE -> {
                 continuation.resumeWithException(
-                    IllegalStateException("Anchor creation failed: Unknown Error.")
+                    AnchorRuntimeFailureException(
+                        Throwable("Anchor creation failed: Unknown Error.")
+                    )
                 )
             }
             ARCore1xTerrainAnchorState.TASK_IN_PROGRESS -> {
                 // TASK_IN_PROGRESS should not be possible when called from the Anchor callback.
                 continuation.resumeWithException(
-                    IllegalStateException("Callback resumed on incomplete Terrain Anchor Future.")
+                    AnchorRuntimeFailureException(
+                        Throwable("Callback resumed on incomplete Terrain Anchor Future.")
+                    )
                 )
             }
             ARCore1xTerrainAnchorState.ERROR_INTERNAL -> {
                 continuation.resumeWithException(
-                    IllegalStateException("Anchor creation failed: Unknown Error.")
+                    AnchorRuntimeFailureException(
+                        Throwable("Anchor creation failed: Unknown Error.")
+                    )
                 )
             }
             ARCore1xTerrainAnchorState.ERROR_NOT_AUTHORIZED -> {
@@ -343,12 +372,16 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
             }
             ARCore1xRooftopAnchorState.NONE -> {
                 continuation.resumeWithException(
-                    IllegalStateException("Anchor creation failed: Unknown Error.")
+                    AnchorRuntimeFailureException(
+                        Throwable("Anchor creation failed: Unknown Error.")
+                    )
                 )
             }
             ARCore1xRooftopAnchorState.ERROR_INTERNAL -> {
                 continuation.resumeWithException(
-                    IllegalStateException("Anchor creation failed: Unknown Error.")
+                    AnchorRuntimeFailureException(
+                        Throwable("Anchor creation failed: Unknown Error.")
+                    )
                 )
             }
             ARCore1xRooftopAnchorState.ERROR_NOT_AUTHORIZED -> {

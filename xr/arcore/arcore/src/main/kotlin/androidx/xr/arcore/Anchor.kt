@@ -18,9 +18,11 @@ package androidx.xr.arcore
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
-import androidx.xr.arcore.runtime.AnchorInvalidUuidException
-import androidx.xr.arcore.runtime.AnchorNotTrackingException
-import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
+import androidx.xr.arcore.runtime.AnchorInvalidUuidException as RtAnchorInvalidUuidException
+import androidx.xr.arcore.runtime.AnchorNotAuthorizedException as RtAnchorNotAuthorizedException
+import androidx.xr.arcore.runtime.AnchorNotTrackingException as RtAnchorNotTrackingException
+import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException as RtAnchorResourcesExhaustedException
+import androidx.xr.arcore.runtime.AnchorRuntimeFailureException as RtAnchorRuntimeFailureException
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
@@ -52,21 +54,27 @@ internal constructor(
          *
          * @param session the [Session] that is used to create the anchor
          * @param pose the [Pose] that describes the location and orientation of the anchor
-         * @return a subtype of [AnchorCreateResult] based on the result of the operation
+         * @return a subtype of [AnchorResult] based on the result of the operation
+         * @throws [AnchorCreateResourcesExhausted] if the runtime has run out of resources while
+         *   attempting to create the anchor
+         * @throws [AnchorCreateTrackingUnavailable] if tracking was unavailable while attempting to
+         *   create the anchor
+         * @throws [AnchorRuntimeFailureException] if an unspecified error occurred in the runtime
+         *   while attempting to create the anchor
          * @sample androidx.xr.arcore.samples.callCreateAnchor
          */
         @JvmStatic
-        public fun create(session: Session, pose: Pose): AnchorCreateResult {
+        public fun create(session: Session, pose: Pose): AnchorResult {
             val perceptionStateExtender = getPerceptionStateExtender(session)
             val runtimeAnchor: RuntimeAnchor
             try {
                 runtimeAnchor = session.perceptionRuntime.perceptionManager.createAnchor(pose)
-            } catch (e: AnchorResourcesExhaustedException) {
+            } catch (e: RtAnchorResourcesExhaustedException) {
                 return AnchorCreateResourcesExhausted()
-            } catch (e: AnchorNotTrackingException) {
+            } catch (e: RtAnchorNotTrackingException) {
                 return AnchorCreateTrackingUnavailable()
-            } catch (e: IllegalStateException) {
-                return AnchorCreateIllegalState()
+            } catch (e: RtAnchorRuntimeFailureException) {
+                throw AnchorRuntimeFailureException()
             }
             val anchor = generateAnchor(runtimeAnchor, perceptionStateExtender.xrResourcesManager)
             return AnchorCreateSuccess(anchor)
@@ -99,9 +107,17 @@ internal constructor(
          * @param uuid the [UUID] of the anchor to load
          * @throws [IllegalStateException] if [Session.config] is set to
          *   [AnchorPersistenceMode.DISABLED]
+         * @throws [AnchorInvalidUuidException] if [uuid] is not a [UUID] currently being tracked by
+         *   the [Session]
+         * @throws [AnchorCreateResourcesExhausted] if the runtime has run out of resources while
+         *   attempting to create the anchor
+         * @throws [AnchorNotAuthorizedException] if an authorization error occurred while
+         *   attempting to create the anchor
+         * @throws [AnchorRuntimeFailureException] if an unspecified error occurred in the runtime
+         *   while attempting to create the anchor
          */
         @JvmStatic
-        public fun load(session: Session, uuid: UUID): AnchorCreateResult {
+        public fun load(session: Session, uuid: UUID): AnchorResult {
             check(session.config.anchorPersistence != AnchorPersistenceMode.DISABLED) {
                 "Config.AnchorPersistenceMode is set to DISABLED."
             }
@@ -110,10 +126,14 @@ internal constructor(
             val runtimeAnchor: RuntimeAnchor
             try {
                 runtimeAnchor = session.perceptionRuntime.perceptionManager.loadAnchor(uuid)
-            } catch (e: AnchorInvalidUuidException) {
-                return AnchorLoadInvalidUuid()
-            } catch (e: AnchorResourcesExhaustedException) {
+            } catch (e: RtAnchorResourcesExhaustedException) {
                 return AnchorCreateResourcesExhausted()
+            } catch (e: RtAnchorNotAuthorizedException) {
+                throw AnchorNotAuthorizedException()
+            } catch (e: RtAnchorInvalidUuidException) {
+                throw AnchorInvalidUuidException()
+            } catch (e: RtAnchorRuntimeFailureException) {
+                throw AnchorRuntimeFailureException()
             }
             val anchor = generateAnchor(runtimeAnchor, perceptionStateExtender.xrResourcesManager)
             return AnchorCreateSuccess(anchor)
@@ -125,14 +145,19 @@ internal constructor(
          * @param session the [Session] to unpersist the anchor from
          * @param uuid the [UUID] of the anchor to unpersist
          * @throws [IllegalStateException] if [Session.config] is set to
-         *   [AnchorPersistenceMode.DISABLED] or the provided [uuid] is invalid
+         *   [AnchorPersistenceMode.DISABLED]
+         * @throws [AnchorInvalidUuidException] if the provided [uuid] is invalid
          */
         @JvmStatic
         public fun unpersist(session: Session, uuid: UUID) {
             check(session.config.anchorPersistence != AnchorPersistenceMode.DISABLED) {
                 "Config.AnchorPersistenceMode is set to DISABLED."
             }
-            session.perceptionRuntime.perceptionManager.unpersistAnchor(uuid)
+            try {
+                session.perceptionRuntime.perceptionManager.unpersistAnchor(uuid)
+            } catch (e: RtAnchorInvalidUuidException) {
+                throw AnchorInvalidUuidException()
+            }
         }
 
         private fun getPerceptionStateExtender(session: Session): PerceptionStateExtender {

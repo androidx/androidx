@@ -18,14 +18,12 @@ package androidx.xr.arcore.samples
 
 import androidx.annotation.Sampled
 import androidx.xr.arcore.Anchor
-import androidx.xr.arcore.AnchorCreateIllegalState
-import androidx.xr.arcore.AnchorCreateNotAuthorized
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.AnchorCreateTrackingUnavailable
-import androidx.xr.arcore.AnchorCreateUnsupportedLocation
-import androidx.xr.arcore.AnchorCreateUnsupportedObject
-import androidx.xr.arcore.AnchorLoadInvalidUuid
+import androidx.xr.arcore.AnchorRuntimeFailureException
+import androidx.xr.arcore.AnchorUnsupportedLocationException
+import androidx.xr.arcore.AnchorUnsupportedObjectException
 import androidx.xr.arcore.TrackingState
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
@@ -45,68 +43,58 @@ fun callCreateAnchor(session: Session, pose: Pose) {
 
     // Now we can try and create the anchor.
     // Anchor creation can fail for a variety of reasons, so we need to handle those various cases.
-    when (val anchorResult = Anchor.create(session, perceptionPose)) {
-        is AnchorCreateSuccess -> {
-            // Our call succeeded, and we can now make use of our new anchor. In this example,
-            // we are simply going to convert our pose back to activity space and then pass it to a
-            // rendering function for rendering.
-            val anchor = anchorResult.anchor
-            yourCoroutineScope.launch {
-                anchor.state.collect {
-                    // Early out if tracking is lost on the anchor; we only want to render it when
-                    // we have confidence it is in the correct position.
-                    if (it.trackingState != TrackingState.TRACKING) return@collect
+    try {
+        when (val anchorResult = Anchor.create(session, perceptionPose)) {
+            is AnchorCreateSuccess -> {
+                // Our call succeeded, and we can now make use of our new anchor. In this example,
+                // we are simply going to convert our pose back to activity space and then pass it
+                // to a rendering function for rendering.
+                val anchor = anchorResult.anchor
+                yourCoroutineScope.launch {
+                    anchor.state.collect {
+                        // Early out if tracking is lost on the anchor; we only want to render it
+                        // when we have confidence it is in the correct position.
+                        if (it.trackingState != TrackingState.TRACKING) return@collect
 
-                    // Convert our anchor pose back into activity space.
-                    val activityPose =
-                        session.scene.perceptionSpace.transformPoseTo(
-                            it.pose,
-                            session.scene.activitySpace,
-                        )
+                        // Convert our anchor pose back into activity space.
+                        val activityPose =
+                            session.scene.perceptionSpace.transformPoseTo(
+                                it.pose,
+                                session.scene.activitySpace,
+                            )
 
-                    // Render the anchor.
-                    yourAnchorRenderingFunction(activityPose)
+                        // Render the anchor.
+                        yourAnchorRenderingFunction(activityPose)
+                    }
                 }
             }
+            is AnchorCreateResourcesExhausted -> {
+                // In order to conserve resources, runtimes impose a limit on how many anchors may
+                // be in use concurrently. When that limit is reached, subsequent `Anchor.create()`
+                // will fail with this result. Depending on your use case, you can either notify the
+                // user that no more anchors can be created, or you can try and free up resources by
+                // removing older anchors if they're no longer necessary.
+            }
+            is AnchorCreateTrackingUnavailable -> {
+                // This result indicates that tracking is currently unavailable. Depending on the
+                // situation, tracking may or may not return, so this result could just indicate a
+                // temporary problem. Repeatedly getting this result for a prolonged period of time
+                // may indicate a non-recoverable loss of tracking, which will likely severely
+                // impact application functionality.
+            }
+            else -> {
+                // Exhaustive when not allowed for AnchorResult.
+            }
         }
-        is AnchorCreateIllegalState -> {
-            // This result indicates the session was in an invalid state, which usually means that
-            // the session has been paused or destroyed.
-        }
-        is AnchorCreateNotAuthorized -> {
-            // This result indicates that the activity is lacking sufficient permissions to create
-            // an anchor. It is recommended that applications both check for appropriate permissions
-            // before attempting to create an Anchor as well as handling this result; it is possible
-            // for permissions to be granted initially and then revoked at runtime, so even
-            // applications that check for permission in advance can still potentially get this
-            // result.
-        }
-        is AnchorCreateResourcesExhausted -> {
-            // In order to conserve resources, runtimes impose a limit on how many anchors may be
-            // in use concurrently. When that limit is reached, subsequent `Anchor.create()` will
-            // fail with this result. Depending on your use case, you can either notify the user
-            // that no more anchors can be created, or you can try and free up resources by removing
-            // older anchors if they're no longer necessary.
-        }
-        is AnchorCreateTrackingUnavailable -> {
-            // This result indicates that tracking is currently unavailable. Depending on the
-            // situation, tracking may or may not return, so this result could just indicate a
-            // temporary problem. Repeatedly getting this result for a prolonged period of time may
-            // indicate a non-recoverable loss of tracking, which will likely severely impact
-            // application functionality.
-        }
-        is AnchorCreateUnsupportedLocation -> {
-            // This result indicates that the underlying runtime does not support creating anchors
-            // in this particular location.
-        }
-        is AnchorLoadInvalidUuid -> {
-            // This result only occurs when calling `Anchor.load()` to load a persistent anchor with
-            // an invalid UUID.
-        }
-        is AnchorCreateUnsupportedObject -> {
-            // This result occurs when calling `createAnchor()` with a `HitResult` against a
-            // `Trackable` that doesn't implement `Anchorable`.
-        }
+    } catch (e: AnchorUnsupportedLocationException) {
+        // This exception is thrown when the underlying runtime does not support creating an anchor
+        // at the provided location.
+    } catch (e: AnchorUnsupportedObjectException) {
+        // This exception is thrown when attempting to create an anchor from an object that does not
+        // implement the Anchorable interface.
+    } catch (e: AnchorRuntimeFailureException) {
+        // This exception is thrown when an unspecified error was encountered in the runtime while
+        // attempting to create the anchor.
     }
 }
 

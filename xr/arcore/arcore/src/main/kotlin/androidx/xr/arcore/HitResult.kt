@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore
 
+import androidx.xr.arcore.runtime.AnchorUnsupportedObjectException
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 
@@ -43,15 +44,17 @@ internal constructor(
      * Creates an [Anchor] that is attached to this trackable, using the given initial [hitPose] in
      * the world coordinate space.
      *
-     * @return an [AnchorCreateResult] with the result of the anchor creation
+     * @return an [AnchorResult] with the result of the anchor creation
      * @throws [IllegalStateException] if [Session.config] is set to
      *   [androidx.xr.runtime.PlaneTrackingMode.DISABLED]
+     * @throws [AnchorUnsupportedObjectException] if [trackable] is not an instance of [Anchorable].
      */
-    public fun createAnchor(): AnchorCreateResult {
+    public fun createAnchor(): AnchorResult {
         if (trackable is Anchorable) {
             return trackable.createAnchor(hitPose)
+        } else {
+            throw AnchorUnsupportedObjectException()
         }
-        return AnchorCreateUnsupportedObject()
     }
 
     override fun equals(other: Any?): Boolean {

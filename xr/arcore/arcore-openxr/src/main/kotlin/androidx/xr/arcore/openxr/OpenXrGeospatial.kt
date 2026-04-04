@@ -19,7 +19,6 @@ package androidx.xr.arcore.openxr
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
-import androidx.xr.arcore.runtime.AnchorUnsupportedLocationException
 import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
 import androidx.xr.arcore.runtime.VpsAvailabilityResult
@@ -124,9 +123,11 @@ internal constructor(
         when (nativeAnchor) {
             -2L -> throw IllegalStateException("Failed to create anchor.") // kErrorRuntimeFailure
             -10L -> throw AnchorResourcesExhaustedException() // kErrorLimitReached
-            -1000789002L -> AnchorNotAuthorizedException() // kErrorCloudAuthFailed
+            -1000789002L -> throw AnchorNotAuthorizedException() // kErrorCloudAuthFailed
             -1000797000L ->
-                AnchorUnsupportedLocationException() // kErrorSurfaceAnchorLocationUnsupported
+                throw IllegalArgumentException(
+                    "Anchor location is not supported."
+                ) // kErrorSurfaceAnchorLocationUnsupported
         }
     }
 

@@ -35,7 +35,7 @@ class HitResultTest {
                 }
             )
 
-        override fun createAnchor(pose: Pose): AnchorCreateResult {
+        override fun createAnchor(pose: Pose): AnchorResult {
             throw NotImplementedError()
         }
     }

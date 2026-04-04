@@ -59,7 +59,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
-import androidx.xr.arcore.AnchorLoadInvalidUuid
+import androidx.xr.arcore.AnchorInvalidUuidException
 import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.arcore.TrackingState
@@ -506,6 +506,8 @@ class PersistentAnchorsActivity : ComponentActivity() {
             } catch (e: IllegalStateException) {
                 XrLog.error(e) { "Failed to create anchor: ${e.message}" }
                 return
+            } catch (e: AnchorInvalidUuidException) {
+                XrLog.error(e) { "Failed to create anchor: ${e.message}" }
             }
 
         when (anchorResult) {
@@ -519,10 +521,6 @@ class PersistentAnchorsActivity : ComponentActivity() {
             is AnchorCreateResourcesExhausted -> {
                 XrLog.error { "Failed to load anchor: anchor resources exhausted." }
                 Toast.makeText(this, "Anchor limit has been reached.", Toast.LENGTH_LONG).show()
-            }
-            is AnchorLoadInvalidUuid -> {
-                XrLog.error { "Failed to load anchor: invalid UUID." }
-                Toast.makeText(this, "Invalid UUID.", Toast.LENGTH_LONG).show()
             }
             else -> {
                 XrLog.error { "Failed to load anchor: ${anchorResult::class.simpleName}" }
