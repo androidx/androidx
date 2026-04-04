@@ -24,5 +24,5 @@ public interface Anchorable<out T> : Trackable<T> {
      * Creates an [Anchor] that is attached to this trackable, using the given initial [pose] in the
      * world coordinate space.
      */
-    public fun createAnchor(pose: Pose): AnchorCreateResult
+    public fun createAnchor(pose: Pose): AnchorResult
 }

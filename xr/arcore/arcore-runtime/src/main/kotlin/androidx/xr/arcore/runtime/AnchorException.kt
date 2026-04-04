@@ -19,31 +19,41 @@ package androidx.xr.arcore.runtime
 import androidx.annotation.RestrictTo
 
 /** Custom class for exceptions related to [Anchor] APIs. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-open public class AnchorException(message: String, cause: Throwable? = null) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public open class AnchorException(message: String, cause: Throwable? = null) :
     Exception(message, cause)
 
 /** Anchor resource limit was reached when attempting to create an anchor. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnchorResourcesExhaustedException(cause: Throwable? = null) :
     AnchorException("Unable to create anchor. Anchor resources exhausted.", cause)
 
 /** Camera is not tracking when attempting to create an anchor. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnchorNotTrackingException(cause: Throwable? = null) :
     AnchorException("Unable to create anchor. Camera is not tracking.", cause)
 
 /** Anchor was not loaded from a valid UUID. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnchorInvalidUuidException(cause: Throwable? = null) :
     AnchorException("Unable to create anchor. Invalid UUID provided.", cause)
 
 /** Anchor was not created due to an authorization error. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnchorNotAuthorizedException(cause: Throwable? = null) :
     AnchorException("Unable to create anchor. Not authorized.", cause)
 
 /** Anchor was not created due to an unsupported location. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnchorUnsupportedLocationException(cause: Throwable? = null) :
     AnchorException("Unable to create anchor. Unsupported location.", cause)
+
+/** Anchor was not created due to a runtime failure. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class AnchorRuntimeFailureException(cause: Throwable? = null) :
+    AnchorException("Unable to create anchor due to failure in the runtime.", cause)
+
+/** Anchor was not created because the object is not anchorable. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class AnchorUnsupportedObjectException(cause: Throwable? = null) :
+    AnchorException("Unable to create anchor. Object is not anchorable.", cause)

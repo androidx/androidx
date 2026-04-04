@@ -2,11 +2,11 @@
 package androidx.xr.arcore {
 
   public final class Anchor {
-    method public static androidx.xr.arcore.AnchorCreateResult create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Pose pose);
+    method public static androidx.xr.arcore.AnchorResult create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Pose pose);
     method public void detach();
     method public static java.util.List<java.util.UUID> getPersistedAnchorUuids(androidx.xr.runtime.Session session);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Anchor.State> getState();
-    method public static androidx.xr.arcore.AnchorCreateResult load(androidx.xr.runtime.Session session, java.util.UUID uuid);
+    method public static androidx.xr.arcore.AnchorResult load(androidx.xr.runtime.Session session, java.util.UUID uuid);
     method public suspend Object? persist(kotlin.coroutines.Continuation<? super java.util.UUID>);
     method public static void unpersist(androidx.xr.runtime.Session session, java.util.UUID uuid);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Anchor.State> state;
@@ -14,9 +14,9 @@ package androidx.xr.arcore {
   }
 
   public static final class Anchor.Companion {
-    method public androidx.xr.arcore.AnchorCreateResult create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.arcore.AnchorResult create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Pose pose);
     method public java.util.List<java.util.UUID> getPersistedAnchorUuids(androidx.xr.runtime.Session session);
-    method public androidx.xr.arcore.AnchorCreateResult load(androidx.xr.runtime.Session session, java.util.UUID uuid);
+    method public androidx.xr.arcore.AnchorResult load(androidx.xr.runtime.Session session, java.util.UUID uuid);
     method public void unpersist(androidx.xr.runtime.Session session, java.util.UUID uuid);
   }
 
@@ -27,45 +27,58 @@ package androidx.xr.arcore {
     property public androidx.xr.runtime.TrackingState trackingState;
   }
 
-  public final class AnchorCreateIllegalState extends androidx.xr.arcore.AnchorCreateResult {
-    ctor public AnchorCreateIllegalState();
-  }
-
-  public final class AnchorCreateNotAuthorized extends androidx.xr.arcore.AnchorCreateResult {
-    ctor public AnchorCreateNotAuthorized();
-  }
-
-  public final class AnchorCreateResourcesExhausted extends androidx.xr.arcore.AnchorCreateResult {
+  public final class AnchorCreateResourcesExhausted extends androidx.xr.arcore.AnchorResult {
     ctor public AnchorCreateResourcesExhausted();
   }
 
-  public abstract sealed exhaustive class AnchorCreateResult {
-  }
-
-  public final class AnchorCreateSuccess extends androidx.xr.arcore.AnchorCreateResult {
+  public final class AnchorCreateSuccess extends androidx.xr.arcore.AnchorResult {
     ctor public AnchorCreateSuccess(androidx.xr.arcore.Anchor anchor);
     method @InaccessibleFromKotlin public androidx.xr.arcore.Anchor getAnchor();
     property public androidx.xr.arcore.Anchor anchor;
   }
 
-  public final class AnchorCreateTrackingUnavailable extends androidx.xr.arcore.AnchorCreateResult {
+  public final class AnchorCreateTrackingUnavailable extends androidx.xr.arcore.AnchorResult {
     ctor public AnchorCreateTrackingUnavailable();
   }
 
-  public final class AnchorCreateUnsupportedLocation extends androidx.xr.arcore.AnchorCreateResult {
-    ctor public AnchorCreateUnsupportedLocation();
+  public abstract sealed nonexhaustive class AnchorException extends java.lang.Exception {
   }
 
-  public final class AnchorCreateUnsupportedObject extends androidx.xr.arcore.AnchorCreateResult {
-    ctor public AnchorCreateUnsupportedObject();
+  public final class AnchorInvalidUuidException extends androidx.xr.arcore.AnchorException {
+    ctor public AnchorInvalidUuidException();
+    ctor public AnchorInvalidUuidException(optional String message, optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorInvalidUuidException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public final class AnchorLoadInvalidUuid extends androidx.xr.arcore.AnchorCreateResult {
-    ctor public AnchorLoadInvalidUuid();
+  public final class AnchorNotAuthorizedException extends androidx.xr.arcore.AnchorException {
+    ctor public AnchorNotAuthorizedException();
+    ctor public AnchorNotAuthorizedException(optional String message, optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorNotAuthorizedException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+  public abstract sealed nonexhaustive class AnchorResult {
+  }
+
+  public final class AnchorRuntimeFailureException extends androidx.xr.arcore.AnchorException {
+    ctor public AnchorRuntimeFailureException();
+    ctor public AnchorRuntimeFailureException(optional String message, optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorRuntimeFailureException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+  public final class AnchorUnsupportedLocationException extends androidx.xr.arcore.AnchorException {
+    ctor public AnchorUnsupportedLocationException();
+    ctor public AnchorUnsupportedLocationException(optional String message, optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorUnsupportedLocationException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+  public final class AnchorUnsupportedObjectException extends androidx.xr.arcore.AnchorException {
+    ctor public AnchorUnsupportedObjectException();
+    ctor public AnchorUnsupportedObjectException(optional String message, optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorUnsupportedObjectException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public interface Anchorable<T> extends androidx.xr.arcore.Trackable<T> {
-    method public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.arcore.AnchorResult createAnchor(androidx.xr.runtime.math.Pose pose);
   }
 
   public final class ArDevice {
@@ -404,8 +417,8 @@ package androidx.xr.arcore {
 
   public final class Geospatial {
     method public suspend Object? checkVpsAvailability(double latitude, double longitude, kotlin.coroutines.Continuation<? super androidx.xr.arcore.VpsAvailabilityResult>);
-    method public androidx.xr.arcore.AnchorCreateResult createAnchor(double latitude, double longitude, double altitude, androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion);
-    method public suspend Object? createAnchorOnSurface(double latitude, double longitude, double altitudeAboveSurface, androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion, androidx.xr.arcore.GeospatialSurface surface, kotlin.coroutines.Continuation<? super androidx.xr.arcore.AnchorCreateResult>);
+    method public androidx.xr.arcore.AnchorResult createAnchor(double latitude, double longitude, double altitude, androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion);
+    method public suspend Object? createAnchorOnSurface(double latitude, double longitude, double altitudeAboveSurface, androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion, androidx.xr.arcore.GeospatialSurface surface, kotlin.coroutines.Continuation<? super androidx.xr.arcore.AnchorResult>);
     method public androidx.xr.arcore.CreateGeospatialPoseFromPoseResult createGeospatialPoseFromPose(androidx.xr.runtime.math.Pose pose);
     method public androidx.xr.arcore.CreatePoseFromGeospatialPoseResult createPoseFromGeospatialPose(androidx.xr.runtime.math.GeospatialPose geospatialPose);
     method public static androidx.xr.arcore.Geospatial getInstance(androidx.xr.runtime.Session session);
@@ -522,7 +535,7 @@ package androidx.xr.arcore {
   }
 
   public final class HitResult {
-    method public androidx.xr.arcore.AnchorCreateResult createAnchor();
+    method public androidx.xr.arcore.AnchorResult createAnchor();
     method @InaccessibleFromKotlin public float getDistance();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getHitPose();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State> getTrackable();
@@ -563,7 +576,7 @@ package androidx.xr.arcore {
   }
 
   public final class Plane implements androidx.xr.arcore.Anchorable<androidx.xr.arcore.Plane.State> {
-    method public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.arcore.AnchorResult createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Plane.State> getState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Plane.Type getType();
     method public static kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.Plane>> subscribe(androidx.xr.runtime.Session session);

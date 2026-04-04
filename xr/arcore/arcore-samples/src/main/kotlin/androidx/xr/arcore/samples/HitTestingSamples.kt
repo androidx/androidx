@@ -19,7 +19,7 @@ package androidx.xr.arcore.samples
 
 import androidx.annotation.Sampled
 import androidx.xr.arcore.Anchor
-import androidx.xr.arcore.AnchorCreateResult
+import androidx.xr.arcore.AnchorResult
 import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.PlaneLabel
@@ -81,6 +81,6 @@ fun callHitTest(session: Session, hitOrigin: Vector3, hitDirection: Vector3) {
         }
 }
 
-private fun yourAnchorResultHandler(result: AnchorCreateResult) {}
+private fun yourAnchorResultHandler(result: AnchorResult) {}
 
 private fun renderSomething(pose: Pose) {}

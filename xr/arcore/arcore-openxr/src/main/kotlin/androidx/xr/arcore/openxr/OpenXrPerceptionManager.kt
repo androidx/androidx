@@ -19,6 +19,7 @@ package androidx.xr.arcore.openxr
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
+import androidx.xr.arcore.runtime.AnchorRuntimeFailureException
 import androidx.xr.arcore.runtime.DepthMap
 import androidx.xr.arcore.runtime.Eye
 import androidx.xr.arcore.runtime.Face
@@ -248,7 +249,7 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
 
     private fun checkNativeAnchorIsValid(nativeAnchor: Long) {
         when (nativeAnchor) {
-            -2L -> throw IllegalStateException("Failed to create anchor.") // kErrorRuntimeFailure
+            -2L -> throw AnchorRuntimeFailureException() // kErrorRuntimeFailure
             -10L -> throw AnchorResourcesExhaustedException() // kErrorLimitReached
         }
     }

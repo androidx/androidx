@@ -22,7 +22,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
-import androidx.xr.arcore.runtime.AnchorInvalidUuidException
 import androidx.xr.arcore.testing.FakePerceptionManager
 import androidx.xr.arcore.testing.FakeRuntimeAnchor
 import androidx.xr.arcore.testing.FakeRuntimePlane
@@ -41,6 +40,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -235,12 +235,14 @@ class AnchorTest {
     }
 
     @Test
-    fun load_invalidUuid_returnsAnchorLoadInvalidUuid() = createTestSessionAndRunTest {
+    fun load_invalidUuid_throwsInvalidUuidException() = createTestSessionAndRunTest {
         runTest {
-            assertThat(Anchor.load(session, UUID.randomUUID()))
-                .isInstanceOf(AnchorLoadInvalidUuid::class.java)
-            assertThat(Anchor.load(session, UUID(0L, 0L)))
-                .isInstanceOf(AnchorLoadInvalidUuid::class.java)
+            assertThrows(AnchorInvalidUuidException::class.java) {
+                Anchor.load(session, UUID.randomUUID())
+            }
+            assertThrows(AnchorInvalidUuidException::class.java) {
+                Anchor.load(session, UUID(0L, 0L))
+            }
         }
     }
 
