@@ -20,28 +20,26 @@ package androidx.xr.scenecore
  * Defines the constants for a [Material]'s alpha mode, which corresponds to the
  * [glTF specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html).
  */
-public class AlphaMode private constructor(private val name: String) {
+public class AlphaMode private constructor(private val value: Int) {
 
     public companion object {
         /**
          * The material is fully opaque and the alpha channel is ignored. Corresponds to glTF's
          * [OPAQUE alpha mode](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material-alphamode).
          */
-        @JvmField public val OPAQUE: AlphaMode = AlphaMode("OPAQUE")
+        @JvmField public val OPAQUE: AlphaMode = AlphaMode(1)
 
         /**
          * The material is opaque where alpha is greater than or equal to cutoff, otherwise it is
          * discarded. Corresponds to glTF's
          * [MASK alpha mode](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material-alphamode).
          */
-        @JvmField public val MASK: AlphaMode = AlphaMode("MASK")
+        @JvmField public val MASK: AlphaMode = AlphaMode(2)
 
         /**
          * The material is alpha-blended with the background. Corresponds to glTF's
          * [BLEND alpha mode](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material-alphamode).
          */
-        @JvmField public val BLEND: AlphaMode = AlphaMode("BLEND")
+        @JvmField public val BLEND: AlphaMode = AlphaMode(3)
     }
-
-    public override fun toString(): String = name
 }

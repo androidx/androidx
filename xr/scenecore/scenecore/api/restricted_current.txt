@@ -1098,14 +1098,12 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.SpatializerConstants.SourceType DEFAULT;
     field public static final androidx.xr.scenecore.SpatializerConstants.SourceType POINT_SOURCE;
     field public static final androidx.xr.scenecore.SpatializerConstants.SourceType SOUND_FIELD;
-    field public static final int SOURCE_TYPE_SOUND_FIELD = 2; // 0x2
   }
 
   public static final class SpatializerConstants.SourceType.Companion {
     property public androidx.xr.scenecore.SpatializerConstants.SourceType DEFAULT;
     property public androidx.xr.scenecore.SpatializerConstants.SourceType POINT_SOURCE;
     property public androidx.xr.scenecore.SpatializerConstants.SourceType SOUND_FIELD;
-    property public static int SOURCE_TYPE_SOUND_FIELD;
   }
 
   public final class Stream {

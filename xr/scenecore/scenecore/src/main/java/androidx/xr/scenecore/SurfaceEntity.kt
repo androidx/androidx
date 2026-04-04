@@ -218,59 +218,53 @@ private constructor(
      * See [MediaDrm](https://developer.android.com/reference/android/media/MediaDrm) for more
      * details.
      */
-    public class SurfaceProtection private constructor(private val name: String) {
+    public class SurfaceProtection private constructor(private val value: Int) {
         public companion object {
             /**
              * The Surface content is not protected. Non-protected content can be decoded into this
              * surface. Protected content can not be decoded into this Surface. Screen captures of
              * the SurfaceEntity will show the Surface content.
              */
-            @JvmField public val NONE: SurfaceProtection = SurfaceProtection("NONE")
+            @JvmField public val NONE: SurfaceProtection = SurfaceProtection(0)
 
             /**
              * The Surface content is protected. Non-protected content can be decoded into this
              * surface. Protected content can be decoded into this Surface. Screen captures of the
              * SurfaceEntity will redact the Surface content.
              */
-            @JvmField public val PROTECTED: SurfaceProtection = SurfaceProtection("PROTECTED")
+            @JvmField public val PROTECTED: SurfaceProtection = SurfaceProtection(1)
         }
-
-        override fun toString(): String = name
     }
 
     /**
      * Specifies whether super sampling should be enabled for this surface. Super sampling can
      * improve text clarity at a performance cost.
      */
-    public class SuperSampling private constructor(private val name: String) {
+    public class SuperSampling private constructor(private val value: Int) {
         public companion object {
 
             /** Super sampling is disabled. */
-            @JvmField public val NONE: SuperSampling = SuperSampling("NONE")
+            @JvmField public val NONE: SuperSampling = SuperSampling(0)
 
             /**
              * Super sampling is enabled with a default sampling pattern. This is the value that is
              * set if SuperSampling is not specified when the Entity is created.
              */
-            @JvmField public val PENTAGON: SuperSampling = SuperSampling("PENTAGON")
+            @JvmField public val PENTAGON: SuperSampling = SuperSampling(1)
         }
-
-        override fun toString(): String = name
     }
 
     /** Specifies the drawing mode for a [Shape.TriangleMesh]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public class DrawMode private constructor(private val name: String) {
+    public class DrawMode private constructor(private val value: Int) {
         public companion object {
             /** Draw the mesh as a list of triangles. */
-            @JvmField public val TRIANGLES: DrawMode = DrawMode("TRIANGLES")
+            @JvmField public val TRIANGLES: DrawMode = DrawMode(1)
             /** Draw the mesh as a triangle strip. */
-            @JvmField public val TRIANGLE_STRIP: DrawMode = DrawMode("TRIANGLE_STRIP")
+            @JvmField public val TRIANGLE_STRIP: DrawMode = DrawMode(2)
             /** Draw the mesh as a triangle fan. */
-            @JvmField public val TRIANGLE_FAN: DrawMode = DrawMode("TRIANGLE_FAN")
+            @JvmField public val TRIANGLE_FAN: DrawMode = DrawMode(3)
         }
-
-        override fun toString(): String = name
     }
 
     /**
@@ -281,42 +275,36 @@ private constructor(
      * Values here match values from
      * [androidx.media3.common.C.StereoMode](https://developer.android.com/reference/androidx/media3/common/C.StereoMode).
      */
-    public class StereoMode private constructor(private val name: String) {
+    public class StereoMode private constructor(private val value: Int) {
         public companion object {
 
             /** Each eye will see the entire surface (no separation) */
-            @JvmField public val MONO: StereoMode = StereoMode("MONO")
+            @JvmField public val MONO: StereoMode = StereoMode(1)
 
             /** The [top, bottom] halves of the surface will map to [left, right] eyes */
-            @JvmField public val TOP_BOTTOM: StereoMode = StereoMode("TOP_BOTTOM")
+            @JvmField public val TOP_BOTTOM: StereoMode = StereoMode(2)
 
             /** The [left, right] halves of the surface will map to [left, right] eyes */
-            @JvmField public val SIDE_BY_SIDE: StereoMode = StereoMode("SIDE_BY_SIDE")
+            @JvmField public val SIDE_BY_SIDE: StereoMode = StereoMode(3)
 
             /** Multiview video, [primary, auxiliary] views will map to [left, right] eyes */
-            @JvmField
-            public val MULTIVIEW_LEFT_PRIMARY: StereoMode = StereoMode("MULTIVIEW_LEFT_PRIMARY")
+            @JvmField public val MULTIVIEW_LEFT_PRIMARY: StereoMode = StereoMode(4)
 
             /** Multiview video, [primary, auxiliary] views will map to [right, left] eyes */
-            @JvmField
-            public val MULTIVIEW_RIGHT_PRIMARY: StereoMode = StereoMode("MULTIVIEW_RIGHT_PRIMARY")
+            @JvmField public val MULTIVIEW_RIGHT_PRIMARY: StereoMode = StereoMode(5)
         }
-
-        override fun toString(): String = name
     }
 
     /** Specifies the blending mode of the content. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public class MediaBlendingMode private constructor(private val name: String) {
+    public class MediaBlendingMode private constructor(private val value: Int) {
         public companion object {
             /** Content is alpha-blended with the background. */
-            @JvmField public val TRANSPARENT: MediaBlendingMode = MediaBlendingMode("TRANSPARENT")
+            @JvmField public val TRANSPARENT: MediaBlendingMode = MediaBlendingMode(1)
 
             /** Content is opaque and does not blend with the background. */
-            @JvmField public val OPAQUE: MediaBlendingMode = MediaBlendingMode("OPAQUE")
+            @JvmField public val OPAQUE: MediaBlendingMode = MediaBlendingMode(2)
         }
-
-        override fun toString(): String = name
     }
 
     /**
@@ -341,31 +329,29 @@ private constructor(
          *
          * These values are a superset of androidx.media3.common.C.ColorSpace.
          */
-        public class ColorSpace private constructor(private val name: String) {
+        public class ColorSpace private constructor(private val value: Int) {
             public companion object {
                 /** Please see androidx.media3.common.C.COLOR_SPACE_BT709 (1) */
-                @JvmField public val BT709: ColorSpace = ColorSpace("BT709")
+                @JvmField public val BT709: ColorSpace = ColorSpace(1)
 
                 /** Please see androidx.media3.common.C.COLOR_SPACE_BT601 (2) */
-                @JvmField public val BT601_PAL: ColorSpace = ColorSpace("BT601_PAL")
+                @JvmField public val BT601_PAL: ColorSpace = ColorSpace(2)
 
                 /** Please see androidx.media3.common.C.COLOR_SPACE_BT2020 (6) */
-                @JvmField public val BT2020: ColorSpace = ColorSpace("BT2020")
+                @JvmField public val BT2020: ColorSpace = ColorSpace(6)
 
                 /** Please see ADataSpace::ADATASPACE_BT601_525 (0xf0) */
-                @JvmField public val BT601_525: ColorSpace = ColorSpace("BT601_525")
+                @JvmField public val BT601_525: ColorSpace = ColorSpace(0xf0)
 
                 /** Please see ADataSpace::ADATASPACE_DISPLAY_P3 (0xf1) */
-                @JvmField public val DISPLAY_P3: ColorSpace = ColorSpace("DISPLAY_P3")
+                @JvmField public val DISPLAY_P3: ColorSpace = ColorSpace(0xf1)
 
                 /** Please see ADataSpace::ADATASPACE_DCI_P3 (0xf2) */
-                @JvmField public val DCI_P3: ColorSpace = ColorSpace("DCI_P3")
+                @JvmField public val DCI_P3: ColorSpace = ColorSpace(0xf2)
 
                 /** Please see ADataSpace::ADATASPACE_ADOBE_RGB (0xf3) */
-                @JvmField public val ADOBE_RGB: ColorSpace = ColorSpace("ADOBE_RGB")
+                @JvmField public val ADOBE_RGB: ColorSpace = ColorSpace(0xf3)
             }
-
-            override fun toString(): String = name
         }
 
         /**
@@ -374,39 +360,37 @@ private constructor(
          * Enum members cover the transfer functions available in android::ADataSpace Enum values
          * match values from androidx.media3.common.C.ColorTransfer.
          */
-        public class ColorTransfer private constructor(private val name: String) {
+        public class ColorTransfer private constructor(private val value: Int) {
             public companion object {
 
                 /** Linear transfer characteristic curve. */
-                @JvmField public val LINEAR: ColorTransfer = ColorTransfer("LINEAR")
+                @JvmField public val LINEAR: ColorTransfer = ColorTransfer(1)
 
                 /**
                  * The standard RGB transfer function, used for some SDR use-cases like image input.
                  */
-                @JvmField public val SRGB: ColorTransfer = ColorTransfer("SRGB")
+                @JvmField public val SRGB: ColorTransfer = ColorTransfer(2)
 
                 /**
                  * SMPTE 170M transfer characteristic curve used by BT.601/BT.709/BT.2020. This is
                  * the curve used by most non-HDR video content.
                  */
-                @JvmField public val SDR: ColorTransfer = ColorTransfer("SDR")
+                @JvmField public val SDR: ColorTransfer = ColorTransfer(3)
 
                 /**
                  * The Gamma 2.2 transfer function, used for some SDR use-cases like tone-mapping.
                  */
-                @JvmField public val GAMMA_2_2: ColorTransfer = ColorTransfer("GAMMA_2_2")
+                @JvmField public val GAMMA_2_2: ColorTransfer = ColorTransfer(4)
 
                 /** SMPTE ST 2084 transfer function. This is used by some HDR video content. */
-                @JvmField public val ST2084: ColorTransfer = ColorTransfer("ST2084")
+                @JvmField public val ST2084: ColorTransfer = ColorTransfer(5)
 
                 /**
                  * ARIB STD-B67 hybrid-log-gamma transfer function. This is used by some HDR video
                  * content.
                  */
-                @JvmField public val HLG: ColorTransfer = ColorTransfer("HLG")
+                @JvmField public val HLG: ColorTransfer = ColorTransfer(6)
             }
-
-            override fun toString(): String = name
         }
 
         /**
@@ -414,16 +398,14 @@ private constructor(
          *
          * Enum values match values from androidx.media3.common.C.ColorRange.
          */
-        public class ColorRange private constructor(private val name: String) {
+        public class ColorRange private constructor(private val value: Int) {
             public companion object {
                 /** Please see android.media.MediaFormat.COLOR_RANGE_FULL */
-                @JvmField public val FULL: ColorRange = ColorRange("FULL")
+                @JvmField public val FULL: ColorRange = ColorRange(1)
 
                 /** Please see android.media.MedaiFormat.COLOR_RANGE_LIMITED */
-                @JvmField public val LIMITED: ColorRange = ColorRange("LIMITED")
+                @JvmField public val LIMITED: ColorRange = ColorRange(2)
             }
-
-            override fun toString(): String = name
         }
 
         public companion object {

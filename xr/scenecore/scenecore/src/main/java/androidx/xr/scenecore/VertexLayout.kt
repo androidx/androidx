@@ -25,34 +25,32 @@ import androidx.annotation.RestrictTo
  * [VertexAttributeDescriptor].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class VertexAttribute private constructor(private val name: String) {
+public class VertexAttribute private constructor(private val value: Int) {
     public companion object {
         /** The position of the vertex. Must be a FLOAT3. */
-        @JvmField public val POSITION: VertexAttribute = VertexAttribute("POSITION")
+        @JvmField public val POSITION: VertexAttribute = VertexAttribute(1)
 
         /**
          * The normal of the vertex. Must be a FLOAT3 normal, or a FLOAT4 quaternion representing
          * the entire tangent frame.
          */
-        @JvmField public val NORMAL: VertexAttribute = VertexAttribute("NORMAL")
+        @JvmField public val NORMAL: VertexAttribute = VertexAttribute(2)
 
         /** The color of the vertex. Must be a UBYTE4_NORM. */
-        @JvmField public val COLOR: VertexAttribute = VertexAttribute("COLOR")
+        @JvmField public val COLOR: VertexAttribute = VertexAttribute(3)
 
         /** The first set of texture coordinates. Must be a FLOAT2. */
-        @JvmField public val UV0: VertexAttribute = VertexAttribute("UV0")
+        @JvmField public val UV0: VertexAttribute = VertexAttribute(4)
 
         /** The second set of texture coordinates. Must be a FLOAT2. */
-        @JvmField public val UV1: VertexAttribute = VertexAttribute("UV1")
+        @JvmField public val UV1: VertexAttribute = VertexAttribute(5)
 
         /** The indices of the bones that affect this vertex. Must be a UBYTE4. */
-        @JvmField public val BONE_INDICES: VertexAttribute = VertexAttribute("BONE_INDICES")
+        @JvmField public val BONE_INDICES: VertexAttribute = VertexAttribute(6)
 
         /** The weights of the bones that affect this vertex. Must be a UBYTE4_NORM. */
-        @JvmField public val BONE_WEIGHTS: VertexAttribute = VertexAttribute("BONE_WEIGHTS")
+        @JvmField public val BONE_WEIGHTS: VertexAttribute = VertexAttribute(7)
     }
-
-    public override fun toString(): String = name
 }
 
 /**
@@ -61,28 +59,26 @@ public class VertexAttribute private constructor(private val name: String) {
  * This specifies the data type and component count for an attribute in the vertex buffer.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class VertexAttributeType private constructor(private val name: String) {
+public class VertexAttributeType private constructor(private val value: Int) {
     public companion object {
         /** A single 32-bit floating point value. */
-        @JvmField public val FLOAT: VertexAttributeType = VertexAttributeType("FLOAT")
+        @JvmField public val FLOAT: VertexAttributeType = VertexAttributeType(1)
 
         /** Two 32-bit floating point values. */
-        @JvmField public val FLOAT2: VertexAttributeType = VertexAttributeType("FLOAT2")
+        @JvmField public val FLOAT2: VertexAttributeType = VertexAttributeType(2)
 
         /** Three 32-bit floating point values. */
-        @JvmField public val FLOAT3: VertexAttributeType = VertexAttributeType("FLOAT3")
+        @JvmField public val FLOAT3: VertexAttributeType = VertexAttributeType(3)
 
         /** Four 32-bit floating point values. */
-        @JvmField public val FLOAT4: VertexAttributeType = VertexAttributeType("FLOAT4")
+        @JvmField public val FLOAT4: VertexAttributeType = VertexAttributeType(4)
 
         /** Four unsigned 8-bit integers, normalized to [0, 1]. */
-        @JvmField public val UBYTE4_NORM: VertexAttributeType = VertexAttributeType("UBYTE4_NORM")
+        @JvmField public val UBYTE4_NORM: VertexAttributeType = VertexAttributeType(5)
 
         /** Four unsigned 8-bit integers. */
-        @JvmField public val UBYTE4: VertexAttributeType = VertexAttributeType("UBYTE4")
+        @JvmField public val UBYTE4: VertexAttributeType = VertexAttributeType(6)
     }
-
-    public override fun toString(): String = name
 }
 
 /**

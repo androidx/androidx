@@ -80,7 +80,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
             onStateChangedExecutor.execute { onStateChangedListener?.accept(value) }
         }
 
-    public class State private constructor(private val name: String) {
+    public class State private constructor(private val value: Int) {
 
         public companion object {
             /**
@@ -88,7 +88,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
              * perception stack. Children of the AnchorEntity will maintain their relative
              * positioning to the system's best understanding of a pose in the real world.
              */
-            @JvmField public val ANCHORED: State = State("ANCHORED")
+            @JvmField public val ANCHORED: State = State(1)
 
             /**
              * An AnchorEntity in the UNANCHORED state does not currently have a real-world pose
@@ -96,24 +96,22 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
              * anchorable position, and can also occur if the perception system has lost tracking of
              * the real-world location.
              */
-            @JvmField public val UNANCHORED: State = State("UNANCHORED")
+            @JvmField public val UNANCHORED: State = State(2)
 
             /**
              * An AnchorEntity in the TIMEOUT state indicates that the perception system timed out
              * while searching for an underlying anchorable position in the real world. The
              * AnchorEntity cannot recover from this state.
              */
-            @JvmField public val TIMEDOUT: State = State("TIMEOUT")
+            @JvmField public val TIMEDOUT: State = State(3)
 
             /**
              * An AnchorEntity in the ERROR state indicates that an unexpected error has occurred
              * and this AnchorEntity is invalid, without the possibility of recovery. Logcat may
              * include additional information about the error.
              */
-            @JvmField public val ERROR: State = State("ERROR")
+            @JvmField public val ERROR: State = State(-1)
         }
-
-        override fun toString(): String = name
     }
 
     internal data class PlaneFindingInfo(

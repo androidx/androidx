@@ -42,27 +42,25 @@ private constructor(
 ) : Component {
 
     /** Defines the possible states of a [PointerCaptureComponent]. */
-    public class PointerCaptureState private constructor(private val name: String) {
+    public class PointerCaptureState private constructor(private val value: Int) {
 
         public companion object {
             /**
              * Pointer Capture is temporarily disabled for this component. The component can resume
              * capture from this state.
              */
-            @JvmField public val PAUSED: PointerCaptureState = PointerCaptureState("PAUSED")
+            @JvmField public val PAUSED: PointerCaptureState = PointerCaptureState(1)
 
             /** Pointer Capture is enabled for this component. */
-            @JvmField public val ACTIVE: PointerCaptureState = PointerCaptureState("STOPPED")
+            @JvmField public val ACTIVE: PointerCaptureState = PointerCaptureState(2)
 
             /**
              * Pointer Capture has been stopped for this component and no more callbacks will get
              * triggered. The component will not recover from this state. This can occur if the
              * underlying system replaces this pointer capture request by another one.
              */
-            @JvmField public val STOPPED: PointerCaptureState = PointerCaptureState("STOPPED")
+            @JvmField public val STOPPED: PointerCaptureState = PointerCaptureState(3)
         }
-
-        override fun toString(): String = name
     }
 
     private var attachedEntity: Entity? = null
