@@ -251,6 +251,24 @@ public interface PdfDocument : Closeable {
     public fun removeOnPdfContentInvalidatedListener(listener: OnPdfContentInvalidatedListener)
 
     /**
+     * Adds a listener to be notified when an edit is applied on the document. Remove the listener
+     * using [removeOnEditsAppliedListener].
+     *
+     * @param executor The executor on which the listener's methods will be called.
+     * @param listener the listener to add.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public fun addOnEditsAppliedListener(executor: Executor, listener: OnEditsAppliedListener) {}
+
+    /**
+     * Remove a listener for applied edits.
+     *
+     * @param listener the listener for notification of applied edit.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public fun removeOnEditsAppliedListener(listener: OnEditsAppliedListener) {}
+
+    /**
      * Represents information about a single page in the PDF document.
      *
      * @property pageNum The page number (0-based).
@@ -369,6 +387,23 @@ public interface PdfDocument : Closeable {
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public annotation class LinearizationStatus
+
+    /**
+     * Interface definition for a callback that notifies when an edit is applied using the
+     * [EditablePdfDocument.applyEdits] method.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public interface OnEditsAppliedListener {
+        /**
+         * Called when an edit is applied on the document. The order of the callback is preserved
+         * according to the order of the sorted list returned by
+         * [EditsDraft.getOperationsSortedByPage].
+         *
+         * @param pageNum page number where the annotation is applied.
+         * @param editId id of the annotation that was applied.
+         */
+        public fun onEditApplied(pageNum: Int, editId: String)
+    }
 
     public companion object {
         /** Represents a PDF with no form fields */

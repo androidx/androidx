@@ -638,7 +638,7 @@ class SandboxedPdfDocumentTest {
 
         val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
         val listener =
-            object : EditablePdfDocument.OnEditsAppliedListener {
+            object : PdfDocument.OnEditsAppliedListener {
                 override fun onEditApplied(pageNum: Int, editId: String) {
                     appliedEdits.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
                 }
@@ -671,13 +671,13 @@ class SandboxedPdfDocumentTest {
         val appliedEdits2 = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
 
         val listener1 =
-            object : EditablePdfDocument.OnEditsAppliedListener {
+            object : PdfDocument.OnEditsAppliedListener {
                 override fun onEditApplied(pageNum: Int, editId: String) {
                     appliedEdits1.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
                 }
             }
         val listener2 =
-            object : EditablePdfDocument.OnEditsAppliedListener {
+            object : PdfDocument.OnEditsAppliedListener {
                 override fun onEditApplied(pageNum: Int, editId: String) {
                     appliedEdits2.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
                 }
@@ -710,7 +710,7 @@ class SandboxedPdfDocumentTest {
 
         val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
         val listener =
-            object : EditablePdfDocument.OnEditsAppliedListener {
+            object : PdfDocument.OnEditsAppliedListener {
                 override fun onEditApplied(pageNum: Int, editId: String) {
                     appliedEdits.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
                 }
