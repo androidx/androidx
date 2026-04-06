@@ -145,9 +145,6 @@ private constructor(
     internal val resourceIdCache: ResourceIdCache =
         composeViewContext?.resourceIdCache ?: ResourceIdCache()
 
-    /** [GraphicsResourceCache] provided by [LocalGraphicsResourceCache] */
-    internal val graphicsResourceCache = GraphicsResourceCache()
-
     /**
      * [Configuration] that was last received. Used to determine if there has been an update to the
      * configuration or if we don't have to update the [configuration] instance.
@@ -286,13 +283,11 @@ private constructor(
             override fun onLowMemory() {
                 imageVectorCache.clear()
                 resourceIdCache.clear()
-                graphicsResourceCache.clear()
             }
 
             override fun onTrimMemory(level: Int) {
                 imageVectorCache.clear()
                 resourceIdCache.clear()
-                graphicsResourceCache.clear()
             }
 
             override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -437,7 +432,6 @@ private constructor(
             LocalProvidableScrollCaptureInProgress provides scrollCaptureInProgress,
             LocalViewConfiguration provides owner.viewConfiguration,
             LocalHostDefaultProvider provides hostDefaultProvider,
-            LocalGraphicsResourceCache provides graphicsResourceCache,
         ) {
             if (isMediaQueryIntegrationEnabled) {
                 val mediaScope = obtainUiMediaScope(owner.context, owner.view, owner.windowInfo)

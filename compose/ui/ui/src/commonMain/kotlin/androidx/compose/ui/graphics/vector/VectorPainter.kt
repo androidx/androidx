@@ -26,8 +26,6 @@ import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -40,7 +38,6 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalGraphicsResourceCache
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -169,25 +166,15 @@ fun rememberVectorPainter(
  *
  * @param [image] ImageVector used to create a vector graphic sub-composition
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun rememberVectorPainter(image: ImageVector): VectorPainter {
     val density = LocalDensity.current
     val key = packFloats(image.genId.toFloat(), density.density)
-    val cache =
-        if (ComposeUiFlags.isVectorDrawCacheSharingEnabled) {
-            LocalGraphicsResourceCache.current
-        } else {
-            null
-        }
-    val drawCache = remember(key) { cache?.acquire(key) { DrawCache() } ?: DrawCache() }
-
     return remember(key) {
         createVectorPainterFromImageVector(
-            density = density,
-            imageVector = image,
-            root = GroupComponent().apply { createGroupComponent(image.root) },
-            cacheDrawScope = drawCache,
+            density,
+            image,
+            GroupComponent().apply { createGroupComponent(image.root) },
         )
     }
 }
@@ -196,11 +183,7 @@ fun rememberVectorPainter(image: ImageVector): VectorPainter {
  * [Painter] implementation that abstracts the drawing of a Vector graphic. This can be represented
  * by either a [ImageVector] or a programmatic composition of a vector
  */
-class VectorPainter
-internal constructor(
-    root: GroupComponent = GroupComponent(),
-    cacheDrawScope: DrawCache = DrawCache(),
-) : Painter() {
+class VectorPainter internal constructor(root: GroupComponent = GroupComponent()) : Painter() {
 
     internal var size by mutableStateOf(Size.Zero)
 
@@ -226,7 +209,7 @@ internal constructor(
         }
 
     internal val vector =
-        VectorComponent(root, cacheDrawScope = cacheDrawScope).apply {
+        VectorComponent(root).apply {
             invalidateCallback = {
                 // Trigger redraw
                 drawInvalidation = Unit
@@ -369,12 +352,11 @@ internal fun createVectorPainterFromImageVector(
     density: Density,
     imageVector: ImageVector,
     root: GroupComponent,
-    cacheDrawScope: DrawCache,
 ): VectorPainter {
     val defaultSize = density.obtainSizePx(imageVector.defaultWidth, imageVector.defaultHeight)
     val viewport =
         obtainViewportSize(defaultSize, imageVector.viewportWidth, imageVector.viewportHeight)
-    return VectorPainter(root, cacheDrawScope)
+    return VectorPainter(root)
         .configureVectorPainter(
             defaultSize = defaultSize,
             viewportSize = viewport,

@@ -110,20 +110,6 @@ object ComposeUiFlags {
     var isAccessibilityShouldIncludeOffscreenChildrenEnabled: Boolean = true
 
     /**
-     * If enabled, [androidx.compose.ui.graphics.vector.VectorPainter] will use a shared
-     * [androidx.compose.ui.platform.GraphicsResourceCache] to reuse
-     * [androidx.compose.ui.graphics.vector.DrawCache] instances across different painters using the
-     * same [androidx.compose.ui.graphics.vector.ImageVector].
-     *
-     * This reduces redundant Texture uploads and improves performance when the same vector is used
-     * multiple times within a composition tree, such as in a LazyColumn.
-     */
-    // TODO: b/493138866
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isVectorDrawCacheSharingEnabled: Boolean = true
-
-    /**
      * Enable the integration of [LocalUiMediaScope] at the root compose view which provides various
      * signals for adapting the UI across different devices.
      *
