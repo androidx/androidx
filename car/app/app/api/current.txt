@@ -1431,6 +1431,20 @@ package androidx.car.app.model {
     method public androidx.car.app.model.OnClickDelegate getOnClickDelegate();
   }
 
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(8) public final class CondensedItem implements androidx.car.app.model.Item {
+    method public androidx.car.app.model.CarIcon? getLeadingImage();
+    method public androidx.car.app.model.CarText? getText();
+    method public androidx.car.app.model.CarText? getTitle();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class CondensedItem.Builder {
+    ctor public CondensedItem.Builder();
+    method public androidx.car.app.model.CondensedItem build();
+    method public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.CondensedItem.Builder setText(CharSequence);
+    method public androidx.car.app.model.CondensedItem.Builder setTitle(CharSequence);
+  }
+
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public interface Content {
     method public String getContentId();
   }
@@ -1961,6 +1975,17 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setLoading(boolean);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setScrollStatePersistenceStrategy(int);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSections(java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!>);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(8) public final class SpotlightSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
+    method public androidx.car.app.model.CarIcon getImage();
+    method public androidx.car.app.model.OnClickDelegate? getImageOnClickDelegate();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SpotlightSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.SpotlightSection.Builder!> {
+    ctor public SpotlightSection.Builder(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.SpotlightSection build();
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SpotlightSection.Builder setImageOnClickListener(androidx.car.app.model.OnClickListener);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {

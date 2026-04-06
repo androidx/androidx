@@ -493,10 +493,11 @@ public final class SectionedItemTemplate implements Template {
                                         + "SectionedItemTemplate.");
                     }
                     hasChipSection = true;
-                } else if (!(section instanceof RowSection) && !(section instanceof GridSection)) {
+                } else if (!(section instanceof RowSection) && !(section instanceof GridSection)
+                        && !(section instanceof SpotlightSection)) {
                     throw new IllegalArgumentException(
-                            "Only ChipSections, RowSections and GridSections are allowed in "
-                                    + "SectionedItemTemplate.");
+                            "Only ChipSections, RowSections, GridSections and SpotlightSections "
+                                    + "are allowed in SectionedItemTemplate.");
                 }
             }
 
