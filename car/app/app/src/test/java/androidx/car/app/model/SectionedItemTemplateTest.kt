@@ -169,6 +169,18 @@ class SectionedItemTemplateTest {
     }
 
     @Test
+    fun build_allowsSpotlightSection() {
+        val section =
+            SpotlightSection.Builder(CarIcon.APP_ICON)
+                .setTitle("Spotlight")
+                .addItem(CondensedItem.Builder().setTitle("Item").build())
+                .build()
+        val template = SectionedItemTemplate.Builder().addSection(section).build()
+
+        assertThat(template.sections).containsExactly(section)
+    }
+
+    @Test
     fun build_throwsException_whenChipSectionIsNotFirst() {
         try {
             SectionedItemTemplate.Builder()
