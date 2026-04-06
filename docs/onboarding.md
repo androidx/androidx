@@ -533,24 +533,132 @@ will always generate `current.txt` API files.
 
 Historical API surfaces are tracked for compatibility and docs generation
 purposes. For each version -- including `current` to represent the tip-of-tree
-version -- we record three different types of API surfaces.
+version -- we record two different types of API surfaces.
 
-*   `<version>.txt`: Public API surface, tracked for compatibility
+*   `<version>.txt`: Public API surface, tracked for compatibility. This file
+    includes `@RequiresOptIn` experimental API surfaces (see
+    [Experimental APIs](/docs/api_guidelines/index.md#experimental-api))
+    for API review, but experimental APIs are not checked for compatibility.
 *   `restricted_<version>.txt`: `@RestrictTo` API surface, tracked for
     compatibility where necessary (see
     [Restricted APIs](/docs/api_guidelines/index.md#restricted-api))
-*   `public_plus_experimental_<version>.txt`: Public API surface plus
-    `@RequiresOptIn` experimental API surfaces used for documentation (see
-    [Experimental APIs](/docs/api_guidelines/index.md#experimental-api))
-    and API review
 
-NOTE: Experimental API tracking for KLib is enabled by default for KMP projects
-via parallel `updateAbi` and `checkAbi` tasks. If you have a problem with these
-tools,
+#### KMP API Tracking
+
+For a [KMP library](/docs/kmp), the API files described above
+track the API surface for the Android or JVM target of the library. If the
+library has separate Android and JVM targets, only the Android target API
+surface is included in the API files.
+
+Metalava runs API lint for the API surfaces of all targets.
+
+##### Native ABI Files
+
+The binary ABI surface for native targets is tracked via parallel `updateAbi`
+and `checkAbi` tasks. These ABI files are in a separate `bcv` directory. If you
+have a problem with these tools,
 [please file an issue](https://issuetracker.google.com/issues/new?component=1102332&template=1780493).
-As a workaround, you may opt-out by setting
-`enableBinaryCompatibilityValidator = false` under
-`AndroidxMultiplatformExtension` in your library's `build.gradle` file.
+
+##### Multiplatform API Files
+
+If a KMP library does not have an Android or JVM target, multiplatform API files
+are created instead of the API files described above. These API files track the
+source API surface of each source set (binary signatures are not included) for
+API review and source compatibility checks.
+
+The multiplatform API files include
+[experimental APIs](/docs/api_guidelines/index.md#experimental-api)
+for API review but not compatibility tracking.
+[Restricted APIs](/docs/api_guidelines/index.md#restricted-api)
+are not included: these are only tracked in Android/JVM API files to maintain
+binary compatibility, but multiplatform API files are checked for source
+compatibility, not binary compatibility.
+
+The signature files for the current multiplatform API surface are tracked under
+a `multiplatform-current` subdirectory of the `api` directory. Each source set
+API file is named based on the source set, e.g. `commonMain.txt`, `jsMain.txt`,
+etc.
+
+For each stable released API surface, there is an additional
+`multiplatform-<version>` subdirectory of the `api` directory containing the
+source set signature files for that version, e.g. a `1.0.0-beta01` subdirectory
+with `commonMain.txt`, `jsMain.txt`, etc.
+
+The signature file for the `commonMain` source set of a project lists all common
+APIs. For each other source set, the signature file is a delta from
+`commonMain`, which means it contains any APIs present in the source set which
+are not present in `commonMain`, as well as any APIs which are present in both
+source sets but are different between the source sets.
+
+###### Sample Multiplatform API
+
+`commonMain` source:
+
+```
+package test.pkg
+class Common
+expect class ExpectActualWithAdditionalMember()
+expect class ExpectActualWithChange()
+expect class ExpectActualWithNoChange()
+```
+
+`jsMain` source:
+
+```
+package test.pkg
+annotation class JsAnno
+actual class ExpectActualWithAdditionalMember {
+    fun jsFun() = Unit
+}
+@JsAnno actual class ExpectActualWithChange
+actual class ExpectActualWithNoChange
+```
+
+`commonMain.txt` API file:
+
+```
+package test.pkg {
+  public final class Common extends kotlin.Any {
+    ctor public Common();
+  }
+  public final class ExpectActualWithAdditionalMember extends kotlin.Any {
+    ctor public ExpectActualWithAdditionalMember();
+  }
+  public final class ExpectActualWithChange extends kotlin.Any {
+    ctor public ExpectActualWithChange();
+  }
+  public final class ExpectActualWithNoChange extends kotlin.Any {
+    ctor public ExpectActualWithNoChange();
+  }
+}
+```
+
+This API file includes all APIs from the `commonMain` source.
+
+`jsMain.txt`:
+
+```
+package test.pkg {
+  public final class ExpectActualWithAdditionalMember extends kotlin.Any {
+    method public void jsFun();
+  }
+  @test.pkg.JsAnno public final class ExpectActualWithChange extends kotlin.Any {
+  }
+  public @interface JsAnno {
+    ctor public JsAnno();
+  }
+}
+```
+
+This API file contains the API delta of the `jsMain` source from `commonMain`:
+
+*   APIs which are not present in `commonMain` (`JsAnno` and
+    `ExpectActualWithAdditionalMember.jsFun`)
+*   APIs with a different signature from `commonMain` (`ExpectActualWithChange`,
+    which has an additional annotation)
+*   Classes with additional members compared to `commonMain`
+    (`ExpectActualWithAdditionalMember`, which must be listed to include
+    `jsFun`)
 
 ## Testing {#testing}
 
