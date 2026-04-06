@@ -35,7 +35,6 @@ androidXMultiplatform {
     namespace = "androidx.ink.nativeloader"
     optimization {
       it.consumerKeepRules.publish = true
-      it.consumerKeepRules.files.add(file("ink_jni.pgcfg"))
     }
     androidResources.enable = true
   }
