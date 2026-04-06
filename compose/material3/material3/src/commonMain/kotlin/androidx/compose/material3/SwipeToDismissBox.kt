@@ -18,16 +18,14 @@ package androidx.compose.material3
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
-import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.gestures.animateTo
-import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.internal.ConfirmValueChangeDeprecated
+import androidx.compose.material3.internal.MaterialAnchoredDraggableState
+import androidx.compose.material3.internal.anchoredDraggable
 import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +34,9 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 
@@ -68,8 +68,15 @@ class SwipeToDismissBoxState {
         initialValue: SwipeToDismissBoxValue,
         positionalThreshold: (totalDistance: Float) -> Float,
     ) {
-        this.anchoredDraggableState = AnchoredDraggableState(initialValue)
-        this.positionalThreshold = positionalThreshold
+        this.anchoredDraggableState =
+            MaterialAnchoredDraggableState(
+                initialValue = initialValue,
+                confirmValueChange = { true },
+                velocityThreshold = { 0f },
+                positionalThreshold = positionalThreshold,
+                animationSpec = AnchoredDraggableDefaults.SnapAnimationSpec,
+                decayAnimationSpec = AnchoredDraggableDefaults.DecayAnimationSpec,
+            )
     }
 
     /**
@@ -99,17 +106,17 @@ class SwipeToDismissBoxState {
         positionalThreshold: (totalDistance: Float) -> Float,
     ) {
         this.anchoredDraggableState =
-            AnchoredDraggableState(
+            MaterialAnchoredDraggableState(
                 initialValue = initialValue,
                 confirmValueChange = confirmValueChange,
                 velocityThreshold = { with(density) { DismissVelocityThreshold.toPx() } },
                 positionalThreshold = positionalThreshold,
-                snapAnimationSpec = AnchoredDraggableDefaults.SnapAnimationSpec,
+                animationSpec = AnchoredDraggableDefaults.SnapAnimationSpec,
                 decayAnimationSpec = AnchoredDraggableDefaults.DecayAnimationSpec,
             )
     }
 
-    internal val anchoredDraggableState: AnchoredDraggableState<SwipeToDismissBoxValue>
+    internal val anchoredDraggableState: MaterialAnchoredDraggableState<SwipeToDismissBoxValue>
 
     internal lateinit var positionalThreshold: (Float) -> Float
 
@@ -150,7 +157,6 @@ class SwipeToDismissBoxState {
      * The fraction of the progress going from currentValue to targetValue, within [0f..1f] bounds.
      */
     @get:FloatRange(from = 0.0, to = 1.0)
-    @Suppress("Deprecation")
     val progress: Float
         get() = anchoredDraggableState.progress
 
@@ -312,19 +318,14 @@ fun SwipeToDismissBox(
     onDismiss: (SwipeToDismissBoxValue) -> Unit = {},
     content: @Composable RowScope.() -> Unit,
 ) {
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Box(
         modifier =
             modifier.anchoredDraggable(
                 state = state.anchoredDraggableState,
                 orientation = Orientation.Horizontal,
                 enabled = gesturesEnabled && state.settledValue == SwipeToDismissBoxValue.Settled,
-                flingBehavior =
-                    if (state.useFlingBehavior)
-                        AnchoredDraggableDefaults.flingBehavior(
-                            state = state.anchoredDraggableState,
-                            positionalThreshold = state.positionalThreshold,
-                        )
-                    else null,
+                reverseDirection = isRtl,
             ),
         propagateMinConstraints = true,
     ) {
