@@ -16,17 +16,48 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.RestrictTo
 import java.nio.ByteBuffer
 
 /**
  * A container holding a reference to a [ByteBuffer], along with an offset and size.
  *
  * This is used to define a specific slice or region within a buffer.
+ *
+ * @property buffer containing the data
+ * @property offset starting position within the buffer in bytes
+ * @property size number of bytes in the region
+ * @throws IllegalArgumentException if `offset` or `size` is negative, or if `offset + size` exceeds
+ *   `buffer.capacity()`.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalCustomMeshApi
 public class ByteBufferRegion(
     public val buffer: ByteBuffer,
     public val offset: Int,
     public val size: Int,
-)
+) {
+    init {
+        require(offset >= 0) { "offset must not be negative" }
+        require(size >= 0) { "size must not be negative" }
+        require(size <= buffer.capacity() - offset) { "size + offset must not exceed capacity" }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ByteBufferRegion
+
+        if (buffer !== other.buffer) return false
+        if (offset != other.offset) return false
+        if (size != other.size) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = System.identityHashCode(buffer)
+        result = 31 * result + offset
+        result = 31 * result + size
+        return result
+    }
+}

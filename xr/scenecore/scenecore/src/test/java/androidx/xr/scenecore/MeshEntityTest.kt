@@ -35,6 +35,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCustomMeshApi::class)
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class MeshEntityTest {
@@ -71,15 +72,14 @@ class MeshEntityTest {
             MeshBuffer.create(
                 session,
                 vertexLayout,
-                arrayOf(ByteBufferRegion(vertexBuffer, 0, 12)),
+                listOf(ByteBufferRegion(vertexBuffer, 0, 12)),
                 ByteBufferRegion(indexBuffer, 0, 12),
             )
         customMesh =
-            CustomMesh.create(
-                session,
-                meshBuffer,
-                listOf(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3)),
-            )
+            CustomMesh.Builder(session)
+                .setMeshBuffer(meshBuffer)
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
+                .build()
         material = KhronosPbrMaterial.create(session, AlphaMode.OPAQUE)
     }
 
@@ -94,6 +94,21 @@ class MeshEntityTest {
     }
 
     @Test
+    fun create_withMismatchedMaterialCount_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            MeshEntity.create(session, customMesh, emptyList())
+        }
+    }
+
+    @Test
+    fun create_withNullMaterial_throwsException() {
+        @Suppress("UNCHECKED_CAST") val materialsWithNull = listOf(null) as List<Material>
+        assertThrows(IllegalArgumentException::class.java) {
+            MeshEntity.create(session, customMesh, materialsWithNull)
+        }
+    }
+
+    @Test
     fun create_withBoneCountAndPose_createsMeshEntity() {
         val pose = Pose(Vector3(1f, 2f, 3f))
         val entity =
@@ -103,6 +118,17 @@ class MeshEntityTest {
         assertThat(entity.mesh).isEqualTo(customMesh)
         assertThat(entity.materials).containsExactly(material)
         assertThat(entity.getPose()).isEqualTo(pose)
+    }
+
+    @Test
+    fun create_withParent_createsMeshEntity() {
+        val parentEntity = Entity.create(session)
+        val entity = MeshEntity.create(session, customMesh, listOf(material), parent = parentEntity)
+
+        assertThat(entity).isNotNull()
+        assertThat(entity.mesh).isEqualTo(customMesh)
+        assertThat(entity.materials).containsExactly(material)
+        assertThat(entity.parent).isEqualTo(parentEntity)
     }
 
     @Test

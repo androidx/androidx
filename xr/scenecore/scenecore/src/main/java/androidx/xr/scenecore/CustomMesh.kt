@@ -16,8 +16,8 @@
 
 package androidx.xr.scenecore
 
+import android.annotation.SuppressLint
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.scenecore.runtime.CustomMeshResource as RtCustomMeshResource
@@ -25,10 +25,14 @@ import androidx.xr.scenecore.runtime.CustomMeshResource as RtCustomMeshResource
 /**
  * An immutable resource that defines the structure of a renderable mesh.
  *
- * A `CustomMesh` is composed of a [MeshBuffer] and a list of [MeshSubset]s. Each `MeshSubset`
- * defines a part of the mesh that can be rendered with a single [Material].
+ * A `CustomMesh` is composed of a [MeshBuffer] and a list of [MeshSubsets][MeshSubset]. Each
+ * `MeshSubset` defines a part of the mesh that can be rendered with a single [Material].
+ *
+ * @property meshBuffer The [MeshBuffer] containing the vertex and index data for this mesh.
+ * @property subsets The list of [MeshSubsets][MeshSubset] defining the parts of the mesh.
+ * @property bounds The bounding box of the mesh, used for culling.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalCustomMeshApi
 public class CustomMesh
 private constructor(
     private val resource: RtCustomMeshResource,
@@ -66,18 +70,8 @@ private constructor(
                 else -> throw IllegalArgumentException("Unknown MeshSubsetTopology")
             }
 
-        /**
-         * Creates a new [CustomMesh].
-         *
-         * @param session The session to use for creating the CustomMesh.
-         * @param meshBuffer The [MeshBuffer] containing the vertex and index data.
-         * @param subsets The list of [MeshSubset]s defining the parts of the mesh.
-         * @param boundingBox Optional user-supplied bounding box for culling. If not provided, the
-         *   auto-computed bounding box of the entire [MeshBuffer] will be used.
-         * @return A new [CustomMesh].
-         */
         @MainThread
-        public fun create(
+        private fun internalCreate(
             session: Session,
             meshBuffer: MeshBuffer,
             subsets: List<MeshSubset>,
@@ -121,62 +115,214 @@ private constructor(
             val finalBounds = runtime.getCustomMeshBoundingBox(resource)
             return CustomMesh(resource, meshBuffer, subsets.toList(), finalBounds, session)
         }
+    }
+
+    /**
+     * Builder for [CustomMesh].
+     *
+     * There are two general ways to build a `CustomMesh`:
+     * 1. **Using an existing [MeshBuffer]:** This is useful if you are sharing a single buffer
+     *    across multiple meshes. You provide the `MeshBuffer` and a list of `MeshSubset`s.
+     *
+     *    <pre><code class="lang-kotlin">
+     *    val mesh = CustomMesh.Builder(session)
+     *        .setMeshBuffer(myMeshBuffer)
+     *        .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, indexCount))
+     *        .build()
+     *    </code></pre>
+     * 2. **Providing raw data directly:** This will implicitly create a `MeshBuffer` for you. You
+     *    provide the [VertexLayout] along with the raw vertex and index data. When using this
+     *    approach, you have two options for defining the mesh topology:
+     *     - You can explicitly add one or more subsets:
+     *
+     *      <pre><code class="lang-kotlin">
+     *      val mesh = CustomMesh.Builder(session)
+     *          .setVertexLayout(myLayout)
+     *          .addVertexBufferData(myVertexData)
+     *          .setIndexData(myIndexData)
+     *          .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, subset1Count))
+     *          .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, subset1Count, subset2Count))
+     *          .build()
+     *      </code></pre>
+     *     - Or, if the entire mesh uses the same topology, you can define a single subset that
+     *       spans all the provided index data:
+     *      <pre><code class="lang-kotlin">
+     *      val mesh = CustomMesh.Builder(session)
+     *          .setVertexLayout(myLayout)
+     *          .addVertexBufferData(myVertexData)
+     *          .setIndexData(myIndexData)
+     *          .setSingleSubsetTopology(MeshSubsetTopology.TRIANGLES)
+     *          .build()
+     *      </code></pre>
+     *
+     * These approaches are mutually exclusive. Providing raw data alongside an existing
+     * `MeshBuffer` will result in an [IllegalStateException].
+     */
+    public class Builder(private val session: Session) {
+        private var meshBuffer: MeshBuffer? = null
+
+        private var vertexLayout: VertexLayout? = null
+        private val vertexDataList = mutableListOf<ByteBufferRegion>()
+        private var indexData: ByteBufferRegion? = null
+
+        private val subsets = mutableListOf<MeshSubset>()
+        private var topology: MeshSubsetTopology? = null
+
+        private var boundingBox: BoundingBox? = null
 
         /**
-         * Creates a new [CustomMesh], along with its underlying [MeshBuffer].
+         * Sets the [MeshBuffer] containing the vertex and index data.
          *
-         * @param session The session to use for creating the CustomMesh.
-         * @param vertexLayout The layout of the vertices in the vertex buffer(s).
-         * @param vertexData The vertex data regions, one for each buffer index used in the layout.
-         *   The data is copied, so the original ByteBuffers can be modified or released without
-         *   affecting the [MeshBuffer].
-         * @param indexData The index data region. The data is copied, so the original ByteBuffer
-         *   can be modified or released without affecting the [MeshBuffer].
-         * @param subsets The list of [MeshSubset]s defining the parts of the mesh.
-         * @param boundingBox Optional user-supplied bounding box for culling. If not provided, the
-         *   auto-computed bounding box of the entire [MeshBuffer] will be used.
-         * @return A new [CustomMesh].
+         * This cannot be used in combination with [setVertexLayout], [addVertexBufferData],
+         * [setIndexData], or [setSingleSubsetTopology].
+         *
+         * @throws IllegalStateException if vertex layout, vertex data, index data, or topology have
+         *   already been set
          */
-        @MainThread
-        public fun create(
-            session: Session,
-            vertexLayout: VertexLayout,
-            vertexData: Array<ByteBufferRegion>,
-            indexData: ByteBufferRegion,
-            subsets: List<MeshSubset>,
-            boundingBox: BoundingBox? = null,
-        ): CustomMesh {
-            val meshBuffer = MeshBuffer.create(session, vertexLayout, vertexData, indexData)
-            return create(session, meshBuffer, subsets, boundingBox)
+        public fun setMeshBuffer(meshBuffer: MeshBuffer): Builder = apply {
+            check(
+                vertexLayout == null &&
+                    vertexDataList.isEmpty() &&
+                    indexData == null &&
+                    topology == null
+            ) {
+                "Cannot set MeshBuffer after setting vertex, index data, or topology."
+            }
+            this.meshBuffer = meshBuffer
         }
 
         /**
-         * Creates a new [CustomMesh] with a single subset, along with its underlying [MeshBuffer].
+         * Sets the layout of the vertices in the vertex buffer(s).
          *
-         * @param session The session to use for creating the CustomMesh.
-         * @param vertexLayout The layout of the vertices in the vertex buffer(s).
-         * @param vertexData The vertex data regions, one for each buffer index used in the layout.
-         *   The data is copied, so the original ByteBuffers can be modified or released without
-         *   affecting the [MeshBuffer].
-         * @param indexData The index data region. The data is copied, so the original ByteBuffer
-         *   can be modified or released without affecting the [MeshBuffer].
-         * @param topology The [MeshSubsetTopology] of the primitives to draw.
-         * @param boundingBox Optional user-supplied bounding box for culling. If not provided, the
-         *   auto-computed bounding box of the entire [MeshBuffer] will be used.
-         * @return A new [CustomMesh].
+         * This cannot be used in combination with [setMeshBuffer].
+         *
+         * @throws IllegalStateException if a [MeshBuffer] has already been set
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public fun setVertexLayout(vertexLayout: VertexLayout): Builder = apply {
+            check(meshBuffer == null) { "Cannot set vertex layout after setting MeshBuffer." }
+            this.vertexLayout = vertexLayout
+        }
+
+        /**
+         * Adds vertex data for a single buffer.
+         *
+         * The order in which this method is called determines the buffer index. The first call
+         * provides data for buffer index 0, the second for buffer index 1, etc. The data is copied,
+         * so the original [java.nio.ByteBuffer] can be modified or released without affecting the
+         * underlying [MeshBuffer].
+         *
+         * This cannot be used in combination with [setMeshBuffer].
+         *
+         * @throws IllegalStateException if a [MeshBuffer] has already been set
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public fun addVertexBufferData(vertexData: ByteBufferRegion): Builder = apply {
+            check(meshBuffer == null) { "Cannot set vertex data after setting MeshBuffer." }
+            this.vertexDataList.add(vertexData)
+        }
+
+        /**
+         * Sets the index data.
+         *
+         * The data is copied, so the original [java.nio.ByteBuffer] can be modified or released
+         * without affecting the underlying [MeshBuffer].
+         *
+         * This cannot be used in combination with [setMeshBuffer].
+         *
+         * @throws IllegalStateException if a [MeshBuffer] has already been set
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public fun setIndexData(indexData: ByteBufferRegion): Builder = apply {
+            check(meshBuffer == null) { "Cannot set index data after setting MeshBuffer." }
+            this.indexData = indexData
+        }
+
+        /**
+         * Adds a [MeshSubset] defining a part of the mesh.
+         *
+         * This cannot be used in combination with [setSingleSubsetTopology].
+         *
+         * @throws IllegalStateException if a topology has already been set
+         */
+        public fun addSubset(subset: MeshSubset): Builder = apply {
+            check(topology == null) { "Cannot add subset after setting a single topology." }
+            this.subsets.add(subset)
+        }
+
+        /**
+         * Sets the [MeshSubsetTopology] to use for the entire mesh, defining a single subset that
+         * spans all provided index data.
+         *
+         * This cannot be used in combination with [setMeshBuffer] or [addSubset].
+         *
+         * @throws IllegalStateException if a [MeshBuffer] has been set, or if subsets have already
+         *   been added
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public fun setSingleSubsetTopology(topology: MeshSubsetTopology): Builder = apply {
+            check(meshBuffer == null) { "Cannot set topology after setting MeshBuffer." }
+            check(subsets.isEmpty()) { "Cannot set topology after adding subsets." }
+            this.topology = topology
+        }
+
+        /**
+         * Sets an optional user-supplied bounding box for culling.
+         *
+         * If not provided, the auto-computed bounding box of the entire [MeshBuffer] will be used.
+         */
+        public fun setBounds(bounds: BoundingBox): Builder = apply { this.boundingBox = bounds }
+
+        /**
+         * Builds a new [CustomMesh].
+         *
+         * @throws IllegalStateException if both or neither of `MeshBuffer` and vertex/index data
+         *   are provided, or if both or neither of subsets and topology are provided.
          */
         @MainThread
-        public fun create(
-            session: Session,
-            vertexLayout: VertexLayout,
-            vertexData: Array<ByteBufferRegion>,
-            indexData: ByteBufferRegion,
-            topology: MeshSubsetTopology,
-            boundingBox: BoundingBox? = null,
-        ): CustomMesh {
-            val indexCount = indexData.size / BYTES_PER_INDEX
-            val subsets = listOf(MeshSubset(topology, 0, indexCount))
-            return create(session, vertexLayout, vertexData, indexData, subsets, boundingBox)
+        public fun build(): CustomMesh {
+            val hasMeshBuffer = meshBuffer != null
+            val hasVertexLayout = vertexLayout != null
+            val hasIndexData = indexData != null
+            val hasVertexData = vertexDataList.isNotEmpty()
+
+            check(hasMeshBuffer != (hasVertexLayout || hasIndexData || hasVertexData)) {
+                "CustomMesh requires exactly one of a MeshBuffer or vertex/index data."
+            }
+
+            val finalMeshBuffer =
+                if (hasMeshBuffer) {
+                    meshBuffer!!
+                } else {
+                    val layout = checkNotNull(vertexLayout) { "VertexLayout must be provided." }
+                    val indices = checkNotNull(indexData) { "Index data must be provided." }
+                    check(hasVertexData) {
+                        "At least one vertex buffer data region must be provided."
+                    }
+                    MeshBuffer.create(session, layout, vertexDataList, indices)
+                }
+
+            val hasSubsets = subsets.isNotEmpty()
+            val hasTopology = topology != null
+
+            check(hasSubsets != hasTopology) {
+                "CustomMesh requires either subsets or a single topology, but not both."
+            }
+
+            val finalSubsets =
+                if (hasSubsets) {
+                    subsets.toList()
+                } else {
+                    val indices =
+                        checkNotNull(indexData) {
+                            "Using setSingleSubsetTopology requires setting index data directly. If using an existing MeshBuffer, use addSubset instead."
+                        }
+                    val indexCount = indices.size / BYTES_PER_INDEX
+                    val singleTopology = checkNotNull(topology) { "Topology must be provided." }
+                    listOf(MeshSubset(singleTopology, 0, indexCount))
+                }
+
+            return internalCreate(session, finalMeshBuffer, finalSubsets, boundingBox)
         }
     }
 }
