@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo.Scope
  * Denotes that the annotated element should only be accessed from within a specific scope (as
  * defined by [Scope]).
  *
- * Example of restricting usage within a library (based on gradle group ID):
+ * Example of restricting usage within a library (based on Gradle group ID):
  * ```
  * @RestrictTo(GROUP_ID)
  * public void resetPaddingToInitialValues() { ...
@@ -39,6 +39,10 @@ import androidx.annotation.RestrictTo.Scope
  * @RestrictTo(Scope.SUBCLASSES)
  * public void onDrawForeground(Canvas canvas) { ...
  * ```
+ *
+ * Note, this enforcement is done via Android Lint RestrictedApi check. This check is automatically
+ * run for Android projects and can be optionally enabled on JVM projects using the com.android.lint
+ * Gradle plugin.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
