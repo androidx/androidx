@@ -170,6 +170,18 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
         super.dispose()
     }
 
+    override var contentDescription: CharSequence = ""
+        set(text) {
+            field = text
+            val view: View? = surfaceControlViewHost.view
+            if (view != null) {
+                if (text.isNotEmpty()) {
+                    view.isFocusable = true
+                }
+                view.contentDescription = text
+            }
+        }
+
     companion object {
         // Adds a FrameLayout as a parent of the contentView if it doesn't already have one. Adding
         // the FrameLayout ensures compatibility with LayoutInspector without visually impacting the

@@ -170,6 +170,14 @@ internal sealed class CoreEntity(initialEntity: Entity? = null) : OpaqueEntity {
             entityActionQueue.executeWhenAvailable { it.parent = value?.entity ?: originalParent }
         }
 
+    open var contentDescription: String?
+        get() = entity?.contentDescription.toString().takeIf { it.isNotEmpty() }
+        set(value) {
+            if (contentDescription == value) return
+
+            entityActionQueue.executeWhenAvailable { it.contentDescription = value ?: "" }
+        }
+
     fun updatePoseFromLayout() {
         // Compose XR uses pixels, SceneCore uses meters.
         poseInMeters = layoutPoseInPixels.convertPixelsToMeters(density ?: return)

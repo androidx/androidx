@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
@@ -345,6 +346,10 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         val entityNodes = mutableListOf<CoreEntityNode>()
         nodes.forEachOf(SubspaceNodes.CoreEntity) { entityNodes.add(it) }
         coreEntity?.applyCoreEntityNodes(entityNodes.asSequence())
+
+        val contentDescription =
+            measurableLayout.config.getOrNull(SemanticsProperties.ContentDescription)?.firstOrNull()
+        coreEntity?.contentDescription = contentDescription
 
         entityUpdatePending = false
     }

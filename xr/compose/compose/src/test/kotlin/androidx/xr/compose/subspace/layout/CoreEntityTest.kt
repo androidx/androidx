@@ -319,4 +319,40 @@ class CoreEntityTest {
 
         assertThat(testEntity.getAlpha()).isEqualTo(newAlpha)
     }
+
+    @Test
+    fun contentDescription_setContentDescription_updatesEntityContentDescription() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(testEntity)
+        val description = "Test Description"
+
+        coreEntity.contentDescription = description
+
+        assertThat(coreEntity.contentDescription).isEqualTo(description)
+        assertThat(testEntity.contentDescription).isEqualTo(description)
+    }
+
+    @Test
+    fun contentDescription_setNull_updatesEntityWithEmptyStringAndReturnsNull() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(testEntity)
+
+        coreEntity.contentDescription = null
+
+        assertThat(testEntity.contentDescription).isEqualTo("")
+        assertThat(coreEntity.contentDescription).isNull()
+    }
+
+    @Test
+    fun contentDescription_returnsNull_whenUnderlyingEntityHasEmptyString() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(testEntity)
+
+        testEntity.contentDescription = ""
+
+        assertThat(coreEntity.contentDescription).isNull()
+    }
 }

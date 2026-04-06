@@ -34,6 +34,7 @@ import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
 import kotlin.math.atan
+import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -84,11 +85,15 @@ class PanelEntityImplTest {
         sceneNodeRegistry.clear()
     }
 
-    private fun createPanelEntity(surfaceDimensionsPx: Dimensions): PanelEntityImpl {
+    private fun createPanelEntity(
+        surfaceDimensionsPx: Dimensions,
+        overriddenView: View? = null,
+    ): PanelEntityImpl {
         val display = activity.getSystemService(DisplayManager::class.java).displays[0]
         val displayContext = activity.createDisplayContext(display!!)
-        val view = View(displayContext)
-        view.setLayoutParams(ViewGroup.LayoutParams(640, 480))
+        val view =
+            overriddenView
+                ?: View(displayContext).apply { layoutParams = ViewGroup.LayoutParams(640, 480) }
         val node = xrExtensions!!.createNode()
 
         val panelEntity =
@@ -362,5 +367,38 @@ class PanelEntityImplTest {
     companion object {
         private val K_VGA_RESOLUTION_PX = Dimensions(640f, 480f, 0f)
         private val K_HD_RESOLUTION_PX = Dimensions(1280f, 720f, 0f)
+    }
+
+    @Test
+    fun setContentDescription_updatesRootView() {
+        val display = activity.getSystemService(DisplayManager::class.java).displays[0]
+        val testView = View(activity.createDisplayContext(display))
+        val panelEntity =
+            createPanelEntity(surfaceDimensionsPx = K_VGA_RESOLUTION_PX, overriddenView = testView)
+
+        val label = "Panel Entity"
+        panelEntity.contentDescription = label
+
+        val rootView = testView.parent as? View ?: testView
+
+        Truth.assertThat(panelEntity.contentDescription.toString()).isEqualTo(label)
+        Truth.assertThat(rootView.contentDescription?.toString()).isEqualTo(label)
+        assertTrue(rootView.isFocusable)
+    }
+
+    @Test
+    fun setContentDescription_whenViewIsNull_updatesFieldWithoutCrashing() {
+        val panelEntity = createPanelEntity(K_VGA_RESOLUTION_PX)
+        panelEntity.dispose()
+        val label = "Label after dispose"
+
+        // This call should NOT crash even though the view is null
+        try {
+            panelEntity.contentDescription = label
+        } catch (e: Exception) {
+            Assert.fail("Setting contentDescription threw an exception after dispose: ${e.message}")
+        }
+
+        Truth.assertThat(panelEntity.contentDescription.toString()).isEqualTo(label)
     }
 }
