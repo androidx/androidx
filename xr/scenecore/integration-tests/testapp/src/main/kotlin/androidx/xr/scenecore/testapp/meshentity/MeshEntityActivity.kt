@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore.testapp.meshentity
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -47,6 +46,7 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.ByteBufferRegion
 import androidx.xr.scenecore.CustomMesh
+import androidx.xr.scenecore.ExperimentalCustomMeshApi
 import androidx.xr.scenecore.KhronosPbrMaterial
 import androidx.xr.scenecore.MeshBuffer
 import androidx.xr.scenecore.MeshEntity
@@ -65,7 +65,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@SuppressLint("RestrictedApiAndroidX")
+@OptIn(ExperimentalCustomMeshApi::class)
 class MeshEntityActivity : ComponentActivity() {
     private var session: Session? = null
     private var material: KhronosPbrMaterial? = null
@@ -325,13 +325,12 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(sharedBuffer, 0)
 
         val cubeMesh =
-            CustomMesh.create(
-                currentSession,
-                vertexLayout,
-                arrayOf(ByteBufferRegion(sharedBuffer, 0, vertexSize)),
-                ByteBufferRegion(sharedBuffer, vertexSize, indexSize),
-                MeshSubsetTopology.TRIANGLES,
-            )
+            CustomMesh.Builder(currentSession)
+                .setVertexLayout(vertexLayout)
+                .addVertexBufferData(ByteBufferRegion(sharedBuffer, 0, vertexSize))
+                .setIndexData(ByteBufferRegion(sharedBuffer, vertexSize, indexSize))
+                .setSingleSubsetTopology(MeshSubsetTopology.TRIANGLES)
+                .build()
         cubeEntity =
             MeshEntity.create(
                 currentSession,
@@ -364,16 +363,13 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(indexBuffer, 24)
 
         val twoSubsetsMesh =
-            CustomMesh.create(
-                currentSession,
-                vertexLayout,
-                arrayOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
-                ByteBufferRegion(indexBuffer, 0, 72 * 4),
-                listOf(
-                    MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36),
-                    MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36),
-                ),
-            )
+            CustomMesh.Builder(currentSession)
+                .setVertexLayout(vertexLayout)
+                .addVertexBufferData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
+                .setIndexData(ByteBufferRegion(indexBuffer, 0, 72 * 4))
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
+                .build()
         twoSubsetsEntity =
             MeshEntity.create(
                 currentSession,
@@ -407,22 +403,20 @@ class MeshEntityActivity : ComponentActivity() {
             MeshBuffer.create(
                 currentSession,
                 vertexLayout,
-                arrayOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
+                listOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
                 ByteBufferRegion(indexBuffer, 0, 72 * 4),
             )
 
         val bottomCubeMesh =
-            CustomMesh.create(
-                currentSession,
-                meshBuffer,
-                listOf(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36)),
-            )
+            CustomMesh.Builder(currentSession)
+                .setMeshBuffer(meshBuffer)
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
+                .build()
         val topCubeMesh =
-            CustomMesh.create(
-                currentSession,
-                meshBuffer,
-                listOf(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36)),
-            )
+            CustomMesh.Builder(currentSession)
+                .setMeshBuffer(meshBuffer)
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
+                .build()
         sharedBufferBottomEntity =
             MeshEntity.create(
                 currentSession,
@@ -460,13 +454,12 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndicesStrip(indexBuffer, 0)
 
         val cubeMesh =
-            CustomMesh.create(
-                currentSession,
-                vertexLayout,
-                arrayOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
-                ByteBufferRegion(indexBuffer, 0, stripIndexCount * 4),
-                MeshSubsetTopology.TRIANGLE_STRIP,
-            )
+            CustomMesh.Builder(currentSession)
+                .setVertexLayout(vertexLayout)
+                .addVertexBufferData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
+                .setIndexData(ByteBufferRegion(indexBuffer, 0, stripIndexCount * 4))
+                .setSingleSubsetTopology(MeshSubsetTopology.TRIANGLE_STRIP)
+                .build()
         triangleStripEntity =
             MeshEntity.create(
                 currentSession,
@@ -540,16 +533,13 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(indexBuffer, 24)
 
         val cubeMesh =
-            CustomMesh.create(
-                currentSession,
-                vertexLayout,
-                arrayOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
-                ByteBufferRegion(indexBuffer, 0, 72 * 4),
-                listOf(
-                    MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36),
-                    MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36),
-                ),
-            )
+            CustomMesh.Builder(currentSession)
+                .setVertexLayout(vertexLayout)
+                .addVertexBufferData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
+                .setIndexData(ByteBufferRegion(indexBuffer, 0, 72 * 4))
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
+                .build()
         twoMaterialsEntity =
             MeshEntity.create(
                 currentSession,
