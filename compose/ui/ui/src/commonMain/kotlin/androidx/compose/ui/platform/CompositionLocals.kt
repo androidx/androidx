@@ -208,8 +208,6 @@ internal val LocalPointerIconService = staticCompositionLocalOf<PointerIconServi
 /** @see LocalScrollCaptureInProgress */
 internal val LocalProvidableScrollCaptureInProgress = compositionLocalOf { false }
 
-internal val LocalGraphicsResourceCache = staticCompositionLocalOf<GraphicsResourceCache?> { null }
-
 /**
  * True when the system is currently capturing the contents of a scrollable in this compose view or
  * any parent compose view.

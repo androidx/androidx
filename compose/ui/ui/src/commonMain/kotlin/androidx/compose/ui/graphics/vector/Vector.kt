@@ -96,7 +96,7 @@ sealed class VNode {
     abstract fun DrawScope.draw()
 }
 
-internal class VectorComponent(val root: GroupComponent, val cacheDrawScope: DrawCache) : VNode() {
+internal class VectorComponent(val root: GroupComponent) : VNode() {
 
     init {
         root.invalidateListener = { doInvalidate() }
@@ -110,6 +110,8 @@ internal class VectorComponent(val root: GroupComponent, val cacheDrawScope: Dra
     }
 
     private var isDirty = true
+
+    private val cacheDrawScope = DrawCache()
 
     internal val cacheBitmapConfig: ImageBitmapConfig
         get() = cacheDrawScope.mCachedImage?.config ?: ImageBitmapConfig.Argb8888
