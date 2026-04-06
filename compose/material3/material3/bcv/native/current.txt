@@ -18,6 +18,10 @@ open annotation class androidx.compose.material3/ExperimentalMaterial3Expressive
     constructor <init>() // androidx.compose.material3/ExperimentalMaterial3ExpressiveApi.<init>|<init>(){}[0]
 }
 
+open annotation class androidx.compose.material3/Material3ExpressiveApi : kotlin/Annotation { // androidx.compose.material3/Material3ExpressiveApi|null[0]
+    constructor <init>() // androidx.compose.material3/Material3ExpressiveApi.<init>|<init>(){}[0]
+}
+
 final enum class androidx.compose.material3/DrawerValue : kotlin/Enum<androidx.compose.material3/DrawerValue> { // androidx.compose.material3/DrawerValue|null[0]
     enum entry Closed // androidx.compose.material3/DrawerValue.Closed|null[0]
     enum entry Open // androidx.compose.material3/DrawerValue.Open|null[0]
