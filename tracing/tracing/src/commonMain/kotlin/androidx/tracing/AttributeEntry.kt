@@ -39,6 +39,12 @@ internal constructor(
     // public / mutable to minimize overhead
     @field:Suppress("MutableBareField") @JvmField public var stringValue: String? = null,
 ) {
+    /**
+     * Resets the fields of the [androidx.tracing.AttributeEntry]. This is done before reusing the
+     * object instance in a pool. [AbstractTraceSink] authors are not expected to call this method
+     * directly; this is automatically done when calling [PooledTracePacketArray.recycle] once the
+     * [TraceEvent] is serialized.
+     */
     public fun reset() {
         name = null
         longValue = null
