@@ -25,13 +25,15 @@ import androidx.xr.runtime.math.Pose
  * @property isValid a flag indicating if the Face is valid
  * @property blendShapeValues the values measuring the blend shapes of the face
  * @property confidenceValues the confidence values of the face tracker at different regions
- * @property centerPose the [Pose] at the geometric center of the [mesh] if it exists
+ * @property centerPose the [Pose] at the center of the [mesh] if it exists, relative to perception
+ *   space
  * @property mesh a [Mesh] representation of the Face
- * @property noseTipPose the [Pose] located at the tip of the nose on the [mesh] if it exists
- * @property foreheadLeftPose the [Pose] located at the left side of the forehead on the [mesh] if
- *   it exists
- * @property foreheadRightPose the [Pose] located at the right side of the forehead on the [mesh] if
- *   it exists
+ * @property noseTipPose the [Pose] located at the tip of the nose on the [mesh] if it exists,
+ *   relative to perception space
+ * @property foreheadLeftPose the [Pose] located on the left side of the forehead on the [mesh] if
+ *   it exists, relative to perception space
+ * @property foreheadRightPose the [Pose] located on the right side of the forehead on the [mesh] if
+ *   it exists, relative to perception space
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface Face : Trackable {
