@@ -38,4 +38,9 @@ val AllSamples =
         DumperSample.Context("PressureGauge") { RemoteComposeContext(demoPressureGauge()) },
         DumperSample.Context("Countdown") { countDown() },
         DumperSample.Context("ParticleShader") { shaderFireworks() },
+        DumperSample.Context("Ride Share") {
+            val rideShare =
+                checkNotNull(DumperActivity.getRideShare()) { "ride share not initialized" }
+            rideShare.rideShare()
+        },
     )

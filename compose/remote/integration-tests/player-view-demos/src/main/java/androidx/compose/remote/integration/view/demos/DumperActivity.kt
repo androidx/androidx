@@ -17,6 +17,8 @@
 package androidx.compose.remote.integration.view.demos
 
 import android.content.Context
+import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,6 +39,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.remote.integration.view.demos.examples.RideShare
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,6 +56,7 @@ class DumperActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        initRideShare(getResources())
         val initialMode = RenderMode.fromString(intent.getStringExtra("mode"))
 
         setContent {
@@ -64,6 +68,27 @@ class DumperActivity : ComponentActivity() {
                     DumperScreen(this, initialMode)
                 }
             }
+        }
+    }
+
+    companion object {
+        private var rideShare: RideShare? = null
+
+        private fun initRideShare(resources: Resources) {
+            if (rideShare != null) {
+                return
+            }
+
+            val carLogo = BitmapFactory.decodeResource(resources, R.drawable.car_logo)
+            val carDriver = BitmapFactory.decodeResource(resources, R.drawable.car_driver)
+            val carIcon = BitmapFactory.decodeResource(resources, R.drawable.car_icon)
+
+            rideShare = RideShare()
+            rideShare?.setBitmaps(carLogo, carDriver, carIcon)
+        }
+
+        public fun getRideShare(): RideShare? {
+            return rideShare
         }
     }
 }
