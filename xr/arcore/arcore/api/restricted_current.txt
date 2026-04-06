@@ -201,6 +201,9 @@ package androidx.xr.arcore {
     property public int width;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalFaceApi {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGesturesApi {
   }
 
@@ -230,27 +233,19 @@ package androidx.xr.arcore {
   public final class Face implements androidx.xr.arcore.Trackable<androidx.xr.arcore.Face.State> {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> getState();
     method public static androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
-    method public static kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.Face>> subscribe(androidx.xr.runtime.Session session);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> state;
     field public static final androidx.xr.arcore.Face.Companion Companion;
   }
 
   public static final class Face.Companion {
     method public androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
-    method public kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.Face>> subscribe(androidx.xr.runtime.Session session);
   }
 
   public static final class Face.State implements androidx.xr.arcore.Trackable.State {
     method @InaccessibleFromKotlin public java.util.Map<androidx.xr.arcore.FaceBlendShapeType,java.lang.Float> getBlendShapes();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCenterPose();
     method @FloatRange(from=0.0, to=1.0, fromInclusive=true, toInclusive=true) public float getConfidence(androidx.xr.arcore.FaceConfidenceRegion region);
-    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Mesh? getMesh();
-    method @InaccessibleFromKotlin public java.util.Map<androidx.xr.arcore.FaceMeshRegion,androidx.xr.runtime.math.Pose?> getRegionPoses();
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     property public java.util.Map<androidx.xr.arcore.FaceBlendShapeType,java.lang.Float> blendShapes;
-    property public androidx.xr.runtime.math.Pose? centerPose;
-    property public androidx.xr.arcore.runtime.Mesh? mesh;
-    property public java.util.Map<androidx.xr.arcore.FaceMeshRegion,androidx.xr.runtime.math.Pose?> regionPoses;
     property public androidx.xr.runtime.TrackingState trackingState;
   }
 

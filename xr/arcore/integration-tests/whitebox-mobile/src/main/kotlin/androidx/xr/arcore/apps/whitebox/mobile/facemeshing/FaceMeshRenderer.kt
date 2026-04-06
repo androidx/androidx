@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore.apps.whitebox.mobile.facemeshing
 
+import androidx.xr.arcore.ExperimentalFaceApi
 import androidx.xr.arcore.Face
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Framebuffer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.IndexBuffer
@@ -62,6 +63,8 @@ class FaceMeshRenderer(val render: SampleRender, textureAssetPath: String) {
         }
     }
 
+    @OptIn(ExperimentalFaceApi::class)
+    @Suppress("RestrictedApiAndroidX")
     fun draw(
         faceMesh: Face,
         viewMatrix: Matrix4,
@@ -73,16 +76,16 @@ class FaceMeshRenderer(val render: SampleRender, textureAssetPath: String) {
             Mesh(
                 render,
                 Mesh.PrimitiveMode.TRIANGLES,
-                IndexBuffer(render, faceState.mesh!!.triangleIndices),
+                IndexBuffer(render, faceState.getMeshData()?.triangleIndices),
                 arrayOf(
-                    VertexBuffer(3, faceState.mesh!!.vertices),
-                    VertexBuffer(3, faceState.mesh!!.normals),
-                    VertexBuffer(2, faceState.mesh!!.textureCoordinates),
+                    VertexBuffer(3, faceState.getMeshData()?.vertices),
+                    VertexBuffer(3, faceState.getMeshData()?.normals),
+                    VertexBuffer(2, faceState.getMeshData()?.textureCoordinates),
                 ),
             )
 
         // render the face mesh
-        modelMatrix = Matrix4.fromPose(faceState.centerPose!!)
+        modelMatrix = Matrix4.fromPose(faceState.getMeshCenterPose()!!)
         modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix
         modelViewMatrix = viewMatrix * modelMatrix
 

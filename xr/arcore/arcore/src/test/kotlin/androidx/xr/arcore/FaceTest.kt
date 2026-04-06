@@ -134,7 +134,7 @@ class FaceTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalFaceApi::class)
     @Test
     fun collect_collectReturnsFaceMeshes() =
         runTest(testDispatcher) {
@@ -207,6 +207,7 @@ class FaceTest {
         assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
     }
 
+    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun update_centerPoseMatchesRuntime() = runBlocking {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
@@ -262,6 +263,7 @@ class FaceTest {
         assertThat(underTest.state.value.foreheadRightPose).isEqualTo(newPose)
     }
 
+    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun update_mesh_matchesRuntime() = runBlocking {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
