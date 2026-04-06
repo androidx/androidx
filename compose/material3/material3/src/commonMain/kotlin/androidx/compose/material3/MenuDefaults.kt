@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.internal.DropdownMenuPositionProvider
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.material3.tokens.MenuTokens
@@ -31,11 +32,16 @@ import androidx.compose.material3.tokens.ShapeTokens
 import androidx.compose.material3.tokens.StandardMenuTokens
 import androidx.compose.material3.tokens.VibrantMenuTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
 /** Contains default values used for [DropdownMenu] and [DropdownMenuItem]. */
@@ -519,6 +525,38 @@ object MenuDefaults {
             selectedLeadingIconColor = selectedLeadingIconColor,
             selectedTrailingIconColor = selectedTrailingIconColor,
         )
+
+    /**
+     * Creates and remembers a [DropdownMenuPopupPositionProvider] that positions a dropdown menu
+     * relative to its anchor.
+     *
+     * @param dropdownMenuAnchorPosition The positioning strategy to use. This determines the
+     *   preferred alignment of the menu relative to the anchor. There are predefined positions,
+     *   please see [MenuAnchorPosition.Above], [MenuAnchorPosition.Below],
+     *   [MenuAnchorPosition.Left], [MenuAnchorPosition.Right], [MenuAnchorPosition.Start], and
+     *   [MenuAnchorPosition.End]. A custom positioning can also be defined through the use of
+     *   [MenuAnchorPosition.Custom].
+     * @param offset An optional [DpOffset] to apply to the final calculated position.
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun rememberDropdownMenuPopupPositionProvider(
+        dropdownMenuAnchorPosition: MenuAnchorPosition,
+        offset: DpOffset = DpOffset(0.dp, 0.dp),
+    ): DropdownMenuPopupPositionProvider {
+        val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
+        val density = LocalDensity.current
+        return remember(dropdownMenuAnchorPosition, offset, density) {
+            DropdownMenuPositionProvider(
+                transformOriginState = transformOriginState,
+                dropdownMenuAnchorPosition = dropdownMenuAnchorPosition,
+                contentOffset = offset,
+                density = density,
+            ) { parentBounds, menuBounds ->
+                transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+            }
+        }
+    }
 
     internal val ColorScheme.defaultMenuItemColors: MenuItemColors
         get() {
