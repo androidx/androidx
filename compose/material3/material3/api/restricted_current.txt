@@ -2247,6 +2247,9 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void LoadingIndicator-cf5BqRc(kotlin.jvm.functions.Function0<java.lang.Float!>, androidx.compose.ui.Modifier?, long, java.util.List<androidx.graphics.shapes.RoundedPolygon!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface Material3ExpressiveApi {
+  }
+
   public abstract sealed exhaustive class MaterialShapes {
     field public static final androidx.compose.material3.MaterialShapes.Companion Companion;
   }
