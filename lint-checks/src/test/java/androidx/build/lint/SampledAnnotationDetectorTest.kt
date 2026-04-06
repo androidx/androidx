@@ -675,4 +675,125 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
         lint().projects(sampleProject).run().expect(expected)
     }
+
+    @Test // b/496863565
+    fun unresolvedSampleLink_ExpectInterfaceMethod() {
+        val commonFile =
+            kotlin(
+                "src/commonMain/kotlin/foo/Bar.kt",
+                """
+            package foo
+
+            expect sealed interface Bar {
+              /**
+               * @sample foo.samples.sampleBar
+               */
+              fun bar()
+            }
+            """,
+            )
+
+        val actualFile =
+            kotlin(
+                "src/androidMain/kotlin/foo/Bar.kt",
+                """
+            package foo
+
+            actual sealed interface Bar {
+              actual fun bar()
+            }
+            """,
+            )
+
+        val commonProject =
+            ProjectDescription().apply {
+                name = "common"
+                type = ProjectDescription.Type.LIBRARY
+                addFile(commonFile)
+            }
+
+        val actualProject =
+            ProjectDescription().apply {
+                name = "android"
+                type = ProjectDescription.Type.LIBRARY
+                dependsOn(commonProject)
+                addFile(actualFile)
+            }
+
+        val sampleProject =
+            ProjectDescription().apply {
+                name = sampleModuleName
+                type = ProjectDescription.Type.LIBRARY
+                files = arrayOf(emptySampleFile, sampledStub)
+            }
+
+        val expected =
+            """src/commonMain/kotlin/foo/Bar.kt:6: Error: Couldn't find a valid @Sampled function matching foo.samples.sampleBar [UnresolvedSampleLink]
+               * @sample foo.samples.sampleBar
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error
+        """
+
+        lint()
+            .projects(commonProject, actualProject, sampleProject)
+            .testModes(TestMode.PARTIAL)
+            .run()
+            .expect(expected)
+    }
+
+    @Test // b/496863565
+    fun correctlyAnnotatedSampleFunction_ExpectInterfaceMethod() {
+        val commonFile =
+            kotlin(
+                    "src/commonMain/kotlin/foo/Bar.kt",
+                    """
+            package foo
+
+            expect sealed interface Bar {
+              /**
+               * @sample foo.samples.sampleBar
+               */
+              fun bar()
+            }
+            """,
+                )
+                .indented()
+
+        val actualFile =
+            kotlin(
+                    "src/androidMain/kotlin/foo/Bar.kt",
+                    """
+            package foo
+
+            actual sealed interface Bar {
+              actual fun bar()
+            }
+            """,
+                )
+                .indented()
+
+        val commonProject =
+            ProjectDescription().apply {
+                name = "common"
+                type = ProjectDescription.Type.LIBRARY
+                addFile(commonFile)
+            }
+
+        val actualProject =
+            ProjectDescription().apply {
+                name = "android"
+                type = ProjectDescription.Type.LIBRARY
+                dependsOn(commonProject)
+                addFile(actualFile)
+            }
+
+        val sampleProject =
+            ProjectDescription().apply {
+                name = sampleModuleName
+                type = ProjectDescription.Type.LIBRARY
+                files = arrayOf(correctlyAnnotatedSampleFile, sampledStub)
+            }
+
+        lint().projects(commonProject, actualProject, sampleProject).run().expectClean()
+    }
 }

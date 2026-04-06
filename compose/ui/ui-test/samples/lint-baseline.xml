@@ -19,31 +19,4 @@
             file="src/main/java/androidx/compose/ui/test/samples/DeviceConfigurationOverrideSamples.kt"/>
     </issue>
 
-    <issue
-        id="ObsoleteSampledAnnotation"
-        message="androidx.compose.ui.test.samples.hasPendingWorkSample is annotated with @Sampled, but is not linked to from a @sample tag."
-        errorLine1="fun hasPendingWorkSample() = runComposeUiTest {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/test/samples/HasPendingWorkSamples.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSampledAnnotation"
-        message="androidx.compose.ui.test.samples.runWhenIdleSample is annotated with @Sampled, but is not linked to from a @sample tag."
-        errorLine1="fun runWhenIdleSample() = runComposeUiTest {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/test/samples/RunWhenIdleSamples.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSampledAnnotation"
-        message="androidx.compose.ui.test.samples.awaitAndRunWhenIdleSample is annotated with @Sampled, but is not linked to from a @sample tag."
-        errorLine1="fun awaitAndRunWhenIdleSample() = runComposeUiTest {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/test/samples/RunWhenIdleSamples.kt"/>
-    </issue>
-
 </issues>
