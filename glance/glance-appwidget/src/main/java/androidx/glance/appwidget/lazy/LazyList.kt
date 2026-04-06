@@ -25,9 +25,11 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.GlanceTheme
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.wrapContentHeight
+import androidx.glance.unit.ColorProvider
 
 /**
  * A vertical scrolling list that only lays out the currently visible items. The [content] block
@@ -71,12 +73,16 @@ public fun LazyColumn(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: LazyListScope.() -> Unit,
 ) {
+    val dotPrimary = GlanceTheme.colors.onSurface
+    val dotSecondary = GlanceTheme.colors.outline
     GlanceNode(
         factory = ::EmittableLazyColumn,
         update = {
             this.set(modifier) { this.modifier = it }
             this.set(verticalScrollMode) { this.verticalScrollMode = it }
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
+            this.set(dotPrimary) { this.paginationDotColorPrimary = it }
+            this.set(dotSecondary) { this.paginationDotColorSecondary = it }
         },
         content =
             applyListScope(
@@ -315,6 +321,8 @@ internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthFor
     var horizontalAlignment: Alignment.Horizontal = Alignment.Start
     var activityOptions: Bundle? = null
     var verticalScrollMode: VerticalScrollMode = VerticalScrollMode.Normal
+    var paginationDotColorPrimary: ColorProvider? = null // for snap scrolling
+    var paginationDotColorSecondary: ColorProvider? = null // for snap scrolling
 
     override fun toString() =
         "EmittableLazyList(modifier=$modifier, horizontalAlignment=$horizontalAlignment, " +
@@ -350,6 +358,8 @@ internal class EmittableLazyColumn : EmittableLazyList() {
             it.verticalScrollMode = verticalScrollMode
             it.horizontalAlignment = horizontalAlignment
             it.activityOptions = activityOptions
+            it.paginationDotColorPrimary = paginationDotColorPrimary
+            it.paginationDotColorSecondary = paginationDotColorSecondary
             it.children.addAll(children.map { it.copy() })
         }
 }
