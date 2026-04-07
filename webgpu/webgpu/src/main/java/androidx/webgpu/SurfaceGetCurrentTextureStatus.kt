@@ -28,29 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            SurfaceGetCurrentTextureStatus.SuccessOptimal,
-            SurfaceGetCurrentTextureStatus.SuccessSuboptimal,
-            SurfaceGetCurrentTextureStatus.Timeout,
-            SurfaceGetCurrentTextureStatus.Outdated,
-            SurfaceGetCurrentTextureStatus.Lost,
-            SurfaceGetCurrentTextureStatus.Error,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Status codes for retrieving the current texture from a surface. */
-public annotation class SurfaceGetCurrentTextureStatus {
+public class SurfaceGetCurrentTextureStatus private constructor() {
+
     public companion object {
 
         /** The texture was acquired successfully and is optimal for presentation. */
@@ -83,7 +65,17 @@ public annotation class SurfaceGetCurrentTextureStatus {
                 0x00000006 to "Error",
             )
 
-        public fun toString(@SurfaceGetCurrentTextureStatus value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [SuccessOptimal, SuccessSuboptimal, Timeout, Outdated, Lost, Error])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

@@ -28,22 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    flag = true,
-    value = [ShaderStage.None, ShaderStage.Vertex, ShaderStage.Fragment, ShaderStage.Compute],
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** A bitmask that specifies the shader stages where a resource is accessible. */
-public annotation class ShaderStage {
+public class ShaderStage private constructor() {
+
     public companion object {
 
         /** No shader stage is specified. */
@@ -65,6 +54,17 @@ public annotation class ShaderStage {
                 0x00000004 to "Compute",
             )
 
-        public fun toString(@ShaderStage value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(flag = true, value = [None, Vertex, Fragment, Compute])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

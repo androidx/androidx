@@ -54,7 +54,7 @@ public class GPUInstance private constructor(public val handle: Long) : AutoClos
      */
     @FastNative
     @JvmName("hasWGSLLanguageFeature")
-    public external fun hasWGSLLanguageFeature(@WGSLLanguageFeatureName feature: Int): Boolean
+    public external fun hasWGSLLanguageFeature(@WGSLLanguageFeatureName.Type feature: Int): Boolean
 
     /** Processes pending asynchronous events and invokes their callbacks. */
     @FastNative @JvmName("processEvents") public external fun processEvents(): Unit

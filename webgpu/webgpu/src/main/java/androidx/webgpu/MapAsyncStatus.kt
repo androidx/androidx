@@ -28,27 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            MapAsyncStatus.Success,
-            MapAsyncStatus.CallbackCancelled,
-            MapAsyncStatus.Error,
-            MapAsyncStatus.Aborted,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Indicates the status of an asynchronous buffer map operation. */
-public annotation class MapAsyncStatus {
+public class MapAsyncStatus private constructor() {
+
     public companion object {
 
         /** The buffer was successfully mapped. */
@@ -73,6 +57,17 @@ public annotation class MapAsyncStatus {
                 0x00000004 to "Aborted",
             )
 
-        public fun toString(@MapAsyncStatus value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Success, CallbackCancelled, Error, Aborted])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

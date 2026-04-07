@@ -28,26 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            InstanceFeatureName.TimedWaitAny,
-            InstanceFeatureName.ShaderSourceSPIRV,
-            InstanceFeatureName.MultipleDevicesPerAdapter,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** An enumeration of optional features that an instance may support. */
-public annotation class InstanceFeatureName {
+public class InstanceFeatureName private constructor() {
+
     public companion object {
 
         /** Enables the use of `timeoutNS > 0` with @see [GPUInstance.waitAny]. */
@@ -68,7 +53,17 @@ public annotation class InstanceFeatureName {
                 0x00000003 to "MultipleDevicesPerAdapter",
             )
 
-        public fun toString(@InstanceFeatureName value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [TimedWaitAny, ShaderSourceSPIRV, MultipleDevicesPerAdapter])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

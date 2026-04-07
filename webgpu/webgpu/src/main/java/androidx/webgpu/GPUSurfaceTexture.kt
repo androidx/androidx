@@ -28,5 +28,5 @@ public class GPUSurfaceTexture(
     /** The texture for the current frame. */
     public var texture: GPUTexture,
     /** The status of the texture acquisition. */
-    @SurfaceGetCurrentTextureStatus public var status: Int,
+    @SurfaceGetCurrentTextureStatus.Type public var status: Int,
 )

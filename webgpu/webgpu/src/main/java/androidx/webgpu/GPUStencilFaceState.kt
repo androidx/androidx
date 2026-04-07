@@ -26,32 +26,32 @@ package androidx.webgpu
 /** Describes the stencil state for a single face of a primitive. */
 public class GPUStencilFaceState(
     /** The comparison function for the stencil test. Defaults to @see [CompareFunction.Always]. */
-    @CompareFunction public var compare: Int = CompareFunction.Always,
-    @StencilOperation public var failOp: Int = StencilOperation.Keep,
-    @StencilOperation public var depthFailOp: Int = StencilOperation.Keep,
-    @StencilOperation public var passOp: Int = StencilOperation.Keep,
+    @CompareFunction.Type public var compare: Int = CompareFunction.Always,
+    @StencilOperation.Type public var failOp: Int = StencilOperation.Keep,
+    @StencilOperation.Type public var depthFailOp: Int = StencilOperation.Keep,
+    @StencilOperation.Type public var passOp: Int = StencilOperation.Keep,
 ) {
 
     /** Builder for [GPUStencilFaceState]. */
     public class Builder() {
-        @CompareFunction private var compare: Int = CompareFunction.Always
-        @StencilOperation private var failOp: Int = StencilOperation.Keep
-        @StencilOperation private var depthFailOp: Int = StencilOperation.Keep
-        @StencilOperation private var passOp: Int = StencilOperation.Keep
+        @CompareFunction.Type private var compare: Int = CompareFunction.Always
+        @StencilOperation.Type private var failOp: Int = StencilOperation.Keep
+        @StencilOperation.Type private var depthFailOp: Int = StencilOperation.Keep
+        @StencilOperation.Type private var passOp: Int = StencilOperation.Keep
 
-        public fun setCompare(@CompareFunction compare: Int): Builder = apply {
+        public fun setCompare(@CompareFunction.Type compare: Int): Builder = apply {
             this.compare = compare
         }
 
-        public fun setFailOp(@StencilOperation failOp: Int): Builder = apply {
+        public fun setFailOp(@StencilOperation.Type failOp: Int): Builder = apply {
             this.failOp = failOp
         }
 
-        public fun setDepthFailOp(@StencilOperation depthFailOp: Int): Builder = apply {
+        public fun setDepthFailOp(@StencilOperation.Type depthFailOp: Int): Builder = apply {
             this.depthFailOp = depthFailOp
         }
 
-        public fun setPassOp(@StencilOperation passOp: Int): Builder = apply {
+        public fun setPassOp(@StencilOperation.Type passOp: Int): Builder = apply {
             this.passOp = passOp
         }
 

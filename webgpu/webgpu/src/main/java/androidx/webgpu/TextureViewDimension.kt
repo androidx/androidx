@@ -28,30 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            TextureViewDimension.Undefined,
-            TextureViewDimension._1D,
-            TextureViewDimension._2D,
-            TextureViewDimension._2DArray,
-            TextureViewDimension.Cube,
-            TextureViewDimension.CubeArray,
-            TextureViewDimension._3D,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the dimensionality of a texture view. */
-public annotation class TextureViewDimension {
+public class TextureViewDimension private constructor() {
+
     public companion object {
 
         /** Indicates that no texture view dimension is specified. */
@@ -85,7 +66,17 @@ public annotation class TextureViewDimension {
                 0x00000006 to "_3D",
             )
 
-        public fun toString(@TextureViewDimension value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, _1D, _2D, _2DArray, Cube, CubeArray, _3D])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

@@ -28,28 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            PresentMode.Undefined,
-            PresentMode.Fifo,
-            PresentMode.FifoRelaxed,
-            PresentMode.Immediate,
-            PresentMode.Mailbox,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the behavior of frame presentation for a surface. */
-public annotation class PresentMode {
+public class PresentMode private constructor() {
+
     public companion object {
 
         /** The present mode is not specified; uses a default. */
@@ -75,6 +58,17 @@ public annotation class PresentMode {
                 0x00000004 to "Mailbox",
             )
 
-        public fun toString(@PresentMode value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, Fifo, FifoRelaxed, Immediate, Mailbox])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

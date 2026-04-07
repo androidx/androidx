@@ -28,28 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            ErrorType.NoError,
-            ErrorType.Validation,
-            ErrorType.OutOfMemory,
-            ErrorType.Internal,
-            ErrorType.Unknown,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies the type of a WebGPU error. */
-public annotation class ErrorType {
+public class ErrorType private constructor() {
+
     public companion object {
 
         /** No error occurred. */
@@ -75,6 +58,17 @@ public annotation class ErrorType {
                 0x00000005 to "Unknown",
             )
 
-        public fun toString(@ErrorType value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [NoError, Validation, OutOfMemory, Internal, Unknown])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

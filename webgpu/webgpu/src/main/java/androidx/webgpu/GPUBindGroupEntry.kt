@@ -36,6 +36,7 @@ public class GPUBindGroupEntry(
     /** The sampler to bind. Must be {@code null} if `buffer` or `textureView` is set. */
     public var sampler: GPUSampler? = null,
     public var textureView: GPUTextureView? = null,
+    public var externalTextureBindingEntry: GPUExternalTextureBindingEntry? = null,
 ) {
 
     /** Builder for [GPUBindGroupEntry]. */
@@ -45,6 +46,7 @@ public class GPUBindGroupEntry(
         private var size: Long = Constants.WHOLE_SIZE
         private var sampler: GPUSampler? = null
         private var textureView: GPUTextureView? = null
+        private var externalTextureBindingEntry: GPUExternalTextureBindingEntry? = null
 
         public fun setBuffer(buffer: GPUBuffer?): Builder = apply { this.buffer = buffer }
 
@@ -58,6 +60,10 @@ public class GPUBindGroupEntry(
             this.textureView = textureView
         }
 
+        public fun setExternalTextureBindingEntry(
+            externalTextureBindingEntry: GPUExternalTextureBindingEntry?
+        ): Builder = apply { this.externalTextureBindingEntry = externalTextureBindingEntry }
+
         /** Builds the [GPUBindGroupEntry]. */
         public fun build(): GPUBindGroupEntry =
             GPUBindGroupEntry(
@@ -67,6 +73,7 @@ public class GPUBindGroupEntry(
                 size = size,
                 sampler = sampler,
                 textureView = textureView,
+                externalTextureBindingEntry = externalTextureBindingEntry,
             )
     }
 }

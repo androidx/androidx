@@ -35,7 +35,7 @@ public object GPU {
      * @param descriptor The descriptor for the instance.
      * @return A handle to the created instance.
      */
-    @Suppress("MissingJvmstatic")
+    @JvmOverloads
     @FastNative
     public external fun createInstance(descriptor: GPUInstanceDescriptor? = null): GPUInstance
 
@@ -55,7 +55,7 @@ public object GPU {
      * @param limits A structure to be filled with the supported limits.
      * @return The status of the operation.
      */
-    @Suppress("MissingJvmstatic")
+    @JvmOverloads
     @FastNative
     @Throws(WebGpuException::class)
     public external fun getInstanceLimits(
@@ -68,5 +68,6 @@ public object GPU {
      * @param feature The feature to check for.
      * @return {@code true} if the feature is supported, {@code false} otherwise.
      */
-    @FastNative public external fun hasInstanceFeature(@InstanceFeatureName feature: Int): Boolean
+    @FastNative
+    public external fun hasInstanceFeature(@InstanceFeatureName.Type feature: Int): Boolean
 }

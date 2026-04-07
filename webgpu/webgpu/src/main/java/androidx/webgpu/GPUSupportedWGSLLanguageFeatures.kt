@@ -28,5 +28,5 @@ public class GPUSupportedWGSLLanguageFeatures
 @JvmOverloads
 constructor(
     /** An array of supported WGSL language feature names. */
-    @WGSLLanguageFeatureName public var features: IntArray = intArrayOf()
+    @WGSLLanguageFeatureName.Type public var features: IntArray = intArrayOf()
 )

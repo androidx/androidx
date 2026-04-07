@@ -28,5 +28,5 @@ public class GPUSupportedInstanceFeatures
 @JvmOverloads
 constructor(
     /** An array of supported instance feature names. */
-    @InstanceFeatureName public var features: IntArray = intArrayOf()
+    @InstanceFeatureName.Type public var features: IntArray = intArrayOf()
 )

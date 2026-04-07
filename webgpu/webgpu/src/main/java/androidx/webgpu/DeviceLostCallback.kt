@@ -33,7 +33,7 @@ public fun interface DeviceLostCallback {
      */
     @Suppress("INAPPLICABLE_JVM_NAME")
     @JvmName("onDeviceLost")
-    public fun onDeviceLost(device: GPUDevice, @DeviceLostReason reason: Int, message: String)
+    public fun onDeviceLost(device: GPUDevice, @DeviceLostReason.Type reason: Int, message: String)
 }
 
 internal class DeviceLostCallbackRunnable(

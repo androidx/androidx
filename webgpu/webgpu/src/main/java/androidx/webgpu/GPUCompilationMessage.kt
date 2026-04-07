@@ -28,7 +28,7 @@ public class GPUCompilationMessage(
     /** The compilation message string. */
     public var message: String,
     /** The severity of the message (error, warning, or info). */
-    @CompilationMessageType public var type: Int,
+    @CompilationMessageType.Type public var type: Int,
     public var lineNum: Long,
     public var linePos: Long,
     /** The byte offset from the beginning of the shader source. */

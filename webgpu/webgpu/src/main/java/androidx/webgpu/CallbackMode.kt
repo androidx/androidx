@@ -28,22 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [CallbackMode.WaitAnyOnly, CallbackMode.AllowProcessEvents, CallbackMode.AllowSpontaneous]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Controls how and when asynchronous operation callbacks are invoked. */
-public annotation class CallbackMode {
+public class CallbackMode private constructor() {
+
     public companion object {
 
         /** Callbacks fire only within a call to @see [GPUInstance.waitAny]. */
@@ -63,6 +52,17 @@ public annotation class CallbackMode {
                 0x00000003 to "AllowSpontaneous",
             )
 
-        public fun toString(@CallbackMode value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [WaitAnyOnly, AllowProcessEvents, AllowSpontaneous])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

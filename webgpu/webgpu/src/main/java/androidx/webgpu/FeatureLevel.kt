@@ -28,19 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(value = [FeatureLevel.Undefined, FeatureLevel.Compatibility, FeatureLevel.Core])
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies a feature level for adapter requests. @see [RequestAdapterOptions.featureLevel]. */
-public annotation class FeatureLevel {
+public class FeatureLevel private constructor() {
+
     public companion object {
 
         /** Indicates no specific feature level is requested. */
@@ -56,6 +48,17 @@ public annotation class FeatureLevel {
         internal val names: Map<Int, String> =
             mapOf(0x00000000 to "Undefined", 0x00000001 to "Compatibility", 0x00000002 to "Core")
 
-        public fun toString(@FeatureLevel value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, Compatibility, Core])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

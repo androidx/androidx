@@ -28,35 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            SType.ShaderSourceSPIRV,
-            SType.ShaderSourceWGSL,
-            SType.RenderPassMaxDrawCount,
-            SType.SurfaceSourceMetalLayer,
-            SType.SurfaceSourceWindowsHWND,
-            SType.SurfaceSourceXlibWindow,
-            SType.SurfaceSourceWaylandSurface,
-            SType.SurfaceSourceAndroidNativeWindow,
-            SType.SurfaceSourceXCBWindow,
-            SType.SurfaceColorManagement,
-            SType.RequestAdapterWebXROptions,
-            SType.TextureComponentSwizzleDescriptor,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Identifies the type of a structure in an extensible structure chain. */
-public annotation class SType {
+public class SType private constructor() {
+
     public companion object {
 
         /** A SPIR-V shader source. */
@@ -92,6 +68,10 @@ public annotation class SType {
         /** An extension for WebXR interop adapter options. */
         public const val RequestAdapterWebXROptions: Int = 0x0000000b
         public const val TextureComponentSwizzleDescriptor: Int = 0x0000000c
+        public const val ExternalTextureBindingLayout: Int = 0x0000000d
+        public const val ExternalTextureBindingEntry: Int = 0x0000000e
+        public const val CompatibilityModeLimits: Int = 0x0000000f
+        public const val TextureBindingViewDimension: Int = 0x00000010
         internal val names: Map<Int, String> =
             mapOf(
                 0x00000001 to "ShaderSourceSPIRV",
@@ -106,8 +86,43 @@ public annotation class SType {
                 0x0000000a to "SurfaceColorManagement",
                 0x0000000b to "RequestAdapterWebXROptions",
                 0x0000000c to "TextureComponentSwizzleDescriptor",
+                0x0000000d to "ExternalTextureBindingLayout",
+                0x0000000e to "ExternalTextureBindingEntry",
+                0x0000000f to "CompatibilityModeLimits",
+                0x00000010 to "TextureBindingViewDimension",
             )
 
-        public fun toString(@SType value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(
+        value =
+            [
+                ShaderSourceSPIRV,
+                ShaderSourceWGSL,
+                RenderPassMaxDrawCount,
+                SurfaceSourceMetalLayer,
+                SurfaceSourceWindowsHWND,
+                SurfaceSourceXlibWindow,
+                SurfaceSourceWaylandSurface,
+                SurfaceSourceAndroidNativeWindow,
+                SurfaceSourceXCBWindow,
+                SurfaceColorManagement,
+                RequestAdapterWebXROptions,
+                TextureComponentSwizzleDescriptor,
+                ExternalTextureBindingLayout,
+                ExternalTextureBindingEntry,
+                CompatibilityModeLimits,
+                TextureBindingViewDimension,
+            ]
+    )
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

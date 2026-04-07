@@ -28,7 +28,7 @@ public class GPUBlendComponent
 @JvmOverloads
 constructor(
     /** The blend operation to perform. Defaults to @see [BlendOperation.Add] if `undefined`. */
-    @BlendOperation public var operation: Int = BlendOperation.Add,
-    @BlendFactor public var srcFactor: Int = BlendFactor.One,
-    @BlendFactor public var dstFactor: Int = BlendFactor.Zero,
+    @BlendOperation.Type public var operation: Int = BlendOperation.Add,
+    @BlendFactor.Type public var srcFactor: Int = BlendFactor.One,
+    @BlendFactor.Type public var dstFactor: Int = BlendFactor.Zero,
 )

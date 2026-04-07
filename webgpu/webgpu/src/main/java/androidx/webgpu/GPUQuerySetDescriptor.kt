@@ -28,7 +28,7 @@ public class GPUQuerySetDescriptor
 @JvmOverloads
 constructor(
     /** The type of queries in the set. */
-    @QueryType public var type: Int,
+    @QueryType.Type public var type: Int,
     /** The number of queries in the set. */
     public var count: Int,
     /** A human-readable label for debugging. */

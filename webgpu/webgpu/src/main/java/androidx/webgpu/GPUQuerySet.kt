@@ -46,7 +46,7 @@ public class GPUQuerySet private constructor(public val handle: Long) : AutoClos
      *
      * @return The query type.
      */
-    @FastNative @JvmName("getType") @QueryType public external fun getType(): Int
+    @FastNative @JvmName("getType") @QueryType.Type public external fun getType(): Int
 
     @get:JvmName("type")
     public val type: Int

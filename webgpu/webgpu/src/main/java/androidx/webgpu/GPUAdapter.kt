@@ -59,7 +59,7 @@ public class GPUAdapter private constructor(public val handle: Long) : AutoClose
      */
     @FastNative
     @JvmName("hasFeature")
-    public external fun hasFeature(@FeatureName feature: Int): Boolean
+    public external fun hasFeature(@FeatureName.Type feature: Int): Boolean
 
     /** Asynchronously requests a device from the adapter. */
     @FastNative

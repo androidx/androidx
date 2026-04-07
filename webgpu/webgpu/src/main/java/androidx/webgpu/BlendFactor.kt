@@ -28,41 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            BlendFactor.Undefined,
-            BlendFactor.Zero,
-            BlendFactor.One,
-            BlendFactor.Src,
-            BlendFactor.OneMinusSrc,
-            BlendFactor.SrcAlpha,
-            BlendFactor.OneMinusSrcAlpha,
-            BlendFactor.Dst,
-            BlendFactor.OneMinusDst,
-            BlendFactor.DstAlpha,
-            BlendFactor.OneMinusDstAlpha,
-            BlendFactor.SrcAlphaSaturated,
-            BlendFactor.Constant,
-            BlendFactor.OneMinusConstant,
-            BlendFactor.Src1,
-            BlendFactor.OneMinusSrc1,
-            BlendFactor.Src1Alpha,
-            BlendFactor.OneMinusSrc1Alpha,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the factors used in blend operations. */
-public annotation class BlendFactor {
+public class BlendFactor private constructor() {
+
     public companion object {
 
         /** Indicates that no blend factor is specified. */
@@ -153,6 +123,39 @@ public annotation class BlendFactor {
                 0x00000011 to "OneMinusSrc1Alpha",
             )
 
-        public fun toString(@BlendFactor value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Zero,
+                One,
+                Src,
+                OneMinusSrc,
+                SrcAlpha,
+                OneMinusSrcAlpha,
+                Dst,
+                OneMinusDst,
+                DstAlpha,
+                OneMinusDstAlpha,
+                SrcAlphaSaturated,
+                Constant,
+                OneMinusConstant,
+                Src1,
+                OneMinusSrc1,
+                Src1Alpha,
+                OneMinusSrc1Alpha,
+            ]
+    )
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

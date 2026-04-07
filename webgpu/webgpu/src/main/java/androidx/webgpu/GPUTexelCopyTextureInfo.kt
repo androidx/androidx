@@ -33,5 +33,5 @@ constructor(
     /** The origin of the copy region in the texture. */
     public var origin: GPUOrigin3D = GPUOrigin3D(),
     /** The texture aspect to use. Defaults to @see [TextureAspect.All]. */
-    @TextureAspect public var aspect: Int = TextureAspect.All,
+    @TextureAspect.Type public var aspect: Int = TextureAspect.All,
 )

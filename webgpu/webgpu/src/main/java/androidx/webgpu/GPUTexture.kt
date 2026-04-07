@@ -57,7 +57,10 @@ public class GPUTexture private constructor(public val handle: Long) : AutoClose
      *
      * @return The texture dimension.
      */
-    @FastNative @JvmName("getDimension") @TextureDimension public external fun getDimension(): Int
+    @FastNative
+    @JvmName("getDimension")
+    @TextureDimension.Type
+    public external fun getDimension(): Int
 
     @get:JvmName("dimension")
     public val dimension: Int
@@ -68,7 +71,7 @@ public class GPUTexture private constructor(public val handle: Long) : AutoClose
      *
      * @return The texture format.
      */
-    @FastNative @JvmName("getFormat") @TextureFormat public external fun getFormat(): Int
+    @FastNative @JvmName("getFormat") @TextureFormat.Type public external fun getFormat(): Int
 
     @get:JvmName("format")
     public val format: Int
@@ -109,7 +112,7 @@ public class GPUTexture private constructor(public val handle: Long) : AutoClose
 
     @FastNative
     @JvmName("getTextureBindingViewDimension")
-    @TextureViewDimension
+    @TextureViewDimension.Type
     public external fun getTextureBindingViewDimension(): Int
 
     @get:JvmName("textureBindingViewDimension")
@@ -121,7 +124,7 @@ public class GPUTexture private constructor(public val handle: Long) : AutoClose
      *
      * @return The texture usage flags.
      */
-    @FastNative @JvmName("getUsage") @TextureUsage public external fun getUsage(): Int
+    @FastNative @JvmName("getUsage") @TextureUsage.Type public external fun getUsage(): Int
 
     @get:JvmName("usage")
     public val usage: Int

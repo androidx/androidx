@@ -28,28 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            BufferBindingType.BindingNotUsed,
-            BufferBindingType.Undefined,
-            BufferBindingType.Uniform,
-            BufferBindingType.Storage,
-            BufferBindingType.ReadOnlyStorage,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies the type of a buffer binding in a bind group layout. */
-public annotation class BufferBindingType {
+public class BufferBindingType private constructor() {
+
     public companion object {
 
         /** Indicates that this binding is not used. */
@@ -75,7 +58,17 @@ public annotation class BufferBindingType {
                 0x00000004 to "ReadOnlyStorage",
             )
 
-        public fun toString(@BufferBindingType value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [BindingNotUsed, Undefined, Uniform, Storage, ReadOnlyStorage])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

@@ -25,10 +25,10 @@ package androidx.webgpu
 
 /** Options for requesting a graphics adapter. */
 public class GPURequestAdapterOptions(
-    @FeatureLevel public var featureLevel: Int = FeatureLevel.Core,
-    @PowerPreference public var powerPreference: Int = PowerPreference.Undefined,
+    @FeatureLevel.Type public var featureLevel: Int = FeatureLevel.Core,
+    @PowerPreference.Type public var powerPreference: Int = PowerPreference.Undefined,
     @get:JvmName("isForceFallbackAdapter") public var forceFallbackAdapter: Boolean = false,
-    @BackendType public var backendType: Int = BackendType.Undefined,
+    @BackendType.Type public var backendType: Int = BackendType.Undefined,
     public var compatibleSurface: GPUSurface? = null,
     /** Extension for WebXR interop options when requesting an adapter. */
     public var requestAdapterWebXROptions: GPURequestAdapterWebXROptions? = null,
@@ -36,18 +36,18 @@ public class GPURequestAdapterOptions(
 
     /** Builder for [GPURequestAdapterOptions]. */
     public class Builder() {
-        @FeatureLevel private var featureLevel: Int = FeatureLevel.Core
-        @PowerPreference private var powerPreference: Int = PowerPreference.Undefined
+        @FeatureLevel.Type private var featureLevel: Int = FeatureLevel.Core
+        @PowerPreference.Type private var powerPreference: Int = PowerPreference.Undefined
         private var forceFallbackAdapter: Boolean = false
-        @BackendType private var backendType: Int = BackendType.Undefined
+        @BackendType.Type private var backendType: Int = BackendType.Undefined
         private var compatibleSurface: GPUSurface? = null
         private var requestAdapterWebXROptions: GPURequestAdapterWebXROptions? = null
 
-        public fun setFeatureLevel(@FeatureLevel featureLevel: Int): Builder = apply {
+        public fun setFeatureLevel(@FeatureLevel.Type featureLevel: Int): Builder = apply {
             this.featureLevel = featureLevel
         }
 
-        public fun setPowerPreference(@PowerPreference powerPreference: Int): Builder = apply {
+        public fun setPowerPreference(@PowerPreference.Type powerPreference: Int): Builder = apply {
             this.powerPreference = powerPreference
         }
 
@@ -55,7 +55,7 @@ public class GPURequestAdapterOptions(
             this.forceFallbackAdapter = forceFallbackAdapter
         }
 
-        public fun setBackendType(@BackendType backendType: Int): Builder = apply {
+        public fun setBackendType(@BackendType.Type backendType: Int): Builder = apply {
             this.backendType = backendType
         }
 

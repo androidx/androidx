@@ -47,6 +47,8 @@ AcronymName: androidx.webgpu.GPUCommandEncoder:
     Acronyms should not be capitalized in class names: was `GPUCommandEncoder`, should this be `GpuCommandEncoder`?
 AcronymName: androidx.webgpu.GPUCommandEncoderDescriptor:
     Acronyms should not be capitalized in class names: was `GPUCommandEncoderDescriptor`, should this be `GpuCommandEncoderDescriptor`?
+AcronymName: androidx.webgpu.GPUCompatibilityModeLimits:
+    Acronyms should not be capitalized in class names: was `GPUCompatibilityModeLimits`, should this be `GpuCompatibilityModeLimits`?
 AcronymName: androidx.webgpu.GPUCompilationInfo:
     Acronyms should not be capitalized in class names: was `GPUCompilationInfo`, should this be `GpuCompilationInfo`?
 AcronymName: androidx.webgpu.GPUCompilationMessage:
@@ -71,6 +73,12 @@ AcronymName: androidx.webgpu.GPUDeviceDescriptor:
     Acronyms should not be capitalized in class names: was `GPUDeviceDescriptor`, should this be `GpuDeviceDescriptor`?
 AcronymName: androidx.webgpu.GPUExtent3D:
     Acronyms should not be capitalized in class names: was `GPUExtent3D`, should this be `GpuExtent3D`?
+AcronymName: androidx.webgpu.GPUExternalTexture:
+    Acronyms should not be capitalized in class names: was `GPUExternalTexture`, should this be `GpuExternalTexture`?
+AcronymName: androidx.webgpu.GPUExternalTextureBindingEntry:
+    Acronyms should not be capitalized in class names: was `GPUExternalTextureBindingEntry`, should this be `GpuExternalTextureBindingEntry`?
+AcronymName: androidx.webgpu.GPUExternalTextureBindingLayout:
+    Acronyms should not be capitalized in class names: was `GPUExternalTextureBindingLayout`, should this be `GpuExternalTextureBindingLayout`?
 AcronymName: androidx.webgpu.GPUFragmentState:
     Acronyms should not be capitalized in class names: was `GPUFragmentState`, should this be `GpuFragmentState`?
 AcronymName: androidx.webgpu.GPUInstance:
@@ -199,6 +207,8 @@ AcronymName: androidx.webgpu.GPUTexture:
     Acronyms should not be capitalized in class names: was `GPUTexture`, should this be `GpuTexture`?
 AcronymName: androidx.webgpu.GPUTextureBindingLayout:
     Acronyms should not be capitalized in class names: was `GPUTextureBindingLayout`, should this be `GpuTextureBindingLayout`?
+AcronymName: androidx.webgpu.GPUTextureBindingViewDimension:
+    Acronyms should not be capitalized in class names: was `GPUTextureBindingViewDimension`, should this be `GpuTextureBindingViewDimension`?
 AcronymName: androidx.webgpu.GPUTextureComponentSwizzle:
     Acronyms should not be capitalized in class names: was `GPUTextureComponentSwizzle`, should this be `GpuTextureComponentSwizzle`?
 AcronymName: androidx.webgpu.GPUTextureComponentSwizzleDescriptor:
@@ -215,6 +225,8 @@ AcronymName: androidx.webgpu.GPUVertexBufferLayout:
     Acronyms should not be capitalized in class names: was `GPUVertexBufferLayout`, should this be `GpuVertexBufferLayout`?
 AcronymName: androidx.webgpu.GPUVertexState:
     Acronyms should not be capitalized in class names: was `GPUVertexState`, should this be `GpuVertexState`?
+AcronymName: androidx.webgpu.WGSLLanguageFeatureName:
+    Acronyms should not be capitalized in class names: was `WGSLLanguageFeatureName`, should this be `WgslLanguageFeatureName`?
 AcronymName: androidx.webgpu.helper.ExtensionsKt#toGPUColor(int):
     Acronyms should not be capitalized in method names: was `toGPUColor`, should this be `toGpuColor`?
 AcronymName: androidx.webgpu.helper.ExtensionsKt#toGPUColor(long):

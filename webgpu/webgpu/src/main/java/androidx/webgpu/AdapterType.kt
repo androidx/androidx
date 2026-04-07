@@ -28,22 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [AdapterType.DiscreteGPU, AdapterType.IntegratedGPU, AdapterType.CPU, AdapterType.Unknown]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Describes the physical characteristics of a graphics adapter. */
-public annotation class AdapterType {
+public class AdapterType private constructor() {
+
     public companion object {
 
         /** A separate, dedicated graphics card. */
@@ -65,6 +54,17 @@ public annotation class AdapterType {
                 0x00000004 to "Unknown",
             )
 
-        public fun toString(@AdapterType value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [DiscreteGPU, IntegratedGPU, CPU, Unknown])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

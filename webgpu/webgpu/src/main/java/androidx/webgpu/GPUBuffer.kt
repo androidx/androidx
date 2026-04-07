@@ -67,7 +67,7 @@ public class GPUBuffer private constructor(public val handle: Long) : AutoClosea
      *
      * @return The buffer map state.
      */
-    @FastNative @JvmName("getMapState") @BufferMapState public external fun getMapState(): Int
+    @FastNative @JvmName("getMapState") @BufferMapState.Type public external fun getMapState(): Int
 
     @get:JvmName("mapState")
     public val mapState: Int
@@ -89,7 +89,7 @@ public class GPUBuffer private constructor(public val handle: Long) : AutoClosea
      *
      * @return The buffer usage flags.
      */
-    @FastNative @JvmName("getUsage") @BufferUsage public external fun getUsage(): Int
+    @FastNative @JvmName("getUsage") @BufferUsage.Type public external fun getUsage(): Int
 
     @get:JvmName("usage")
     public val usage: Int
@@ -99,7 +99,7 @@ public class GPUBuffer private constructor(public val handle: Long) : AutoClosea
     @FastNative
     @JvmName("mapAsync")
     public external fun mapAsync(
-        @MapMode mode: Int,
+        @MapMode.Type mode: Int,
         offset: Long,
         size: Long,
         callbackExecutor: java.util.concurrent.Executor,
@@ -114,7 +114,7 @@ public class GPUBuffer private constructor(public val handle: Long) : AutoClosea
      * @param size The size in bytes of the range to map.
      */
     @Throws(WebGpuException::class)
-    public suspend fun mapAndAwait(@MapMode mode: Int, offset: Long, size: Long): Unit =
+    public suspend fun mapAndAwait(@MapMode.Type mode: Int, offset: Long, size: Long): Unit =
         awaitGPURequest { callback ->
             mapAsync(mode, offset, size, Executor(Runnable::run), callback)
         }

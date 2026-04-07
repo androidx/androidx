@@ -25,20 +25,20 @@ package androidx.webgpu
 
 /** Describes a texture view. */
 public class GPUTextureViewDescriptor(
-    /** The usage of the texture view. */
-    @TextureUsage public var usage: Int,
     /** A human-readable label for debugging. */
     public var label: String? = null,
     /** The format of the texture view. */
-    @TextureFormat public var format: Int = TextureFormat.Undefined,
+    @TextureFormat.Type public var format: Int = TextureFormat.Undefined,
     /** The dimension of the texture view. */
-    @TextureViewDimension public var dimension: Int = TextureViewDimension.Undefined,
+    @TextureViewDimension.Type public var dimension: Int = TextureViewDimension.Undefined,
     public var baseMipLevel: Int = 0,
     public var mipLevelCount: Int = Constants.MIP_LEVEL_COUNT_UNDEFINED,
     public var baseArrayLayer: Int = 0,
     public var arrayLayerCount: Int = Constants.ARRAY_LAYER_COUNT_UNDEFINED,
     /** The texture aspect for the view. Defaults to @see [TextureAspect.All]. */
-    @TextureAspect public var aspect: Int = TextureAspect.All,
+    @TextureAspect.Type public var aspect: Int = TextureAspect.All,
+    /** The usage of the texture view. */
+    @TextureUsage.Type public var usage: Int = TextureUsage.None,
     /**
      * An extension chained to a texture view descriptor to define a custom component swizzle. This
      * allows remapping or forcing specific values for the R, G, B, and A channels when accessing
@@ -48,22 +48,25 @@ public class GPUTextureViewDescriptor(
 ) {
 
     /** Builder for [GPUTextureViewDescriptor]. */
-    public class Builder(@TextureUsage private val usage: Int) {
+    public class Builder() {
         private var label: String? = null
-        @TextureFormat private var format: Int = TextureFormat.Undefined
-        @TextureViewDimension private var dimension: Int = TextureViewDimension.Undefined
+        @TextureFormat.Type private var format: Int = TextureFormat.Undefined
+        @TextureViewDimension.Type private var dimension: Int = TextureViewDimension.Undefined
         private var baseMipLevel: Int = 0
         private var mipLevelCount: Int = Constants.MIP_LEVEL_COUNT_UNDEFINED
         private var baseArrayLayer: Int = 0
         private var arrayLayerCount: Int = Constants.ARRAY_LAYER_COUNT_UNDEFINED
-        @TextureAspect private var aspect: Int = TextureAspect.All
+        @TextureAspect.Type private var aspect: Int = TextureAspect.All
+        @TextureUsage.Type private var usage: Int = TextureUsage.None
         private var textureComponentSwizzleDescriptor: GPUTextureComponentSwizzleDescriptor? = null
 
         public fun setLabel(label: String?): Builder = apply { this.label = label }
 
-        public fun setFormat(@TextureFormat format: Int): Builder = apply { this.format = format }
+        public fun setFormat(@TextureFormat.Type format: Int): Builder = apply {
+            this.format = format
+        }
 
-        public fun setDimension(@TextureViewDimension dimension: Int): Builder = apply {
+        public fun setDimension(@TextureViewDimension.Type dimension: Int): Builder = apply {
             this.dimension = dimension
         }
 
@@ -83,7 +86,11 @@ public class GPUTextureViewDescriptor(
             this.arrayLayerCount = arrayLayerCount
         }
 
-        public fun setAspect(@TextureAspect aspect: Int): Builder = apply { this.aspect = aspect }
+        public fun setAspect(@TextureAspect.Type aspect: Int): Builder = apply {
+            this.aspect = aspect
+        }
+
+        public fun setUsage(@TextureUsage.Type usage: Int): Builder = apply { this.usage = usage }
 
         public fun setTextureComponentSwizzleDescriptor(
             textureComponentSwizzleDescriptor: GPUTextureComponentSwizzleDescriptor?
@@ -94,7 +101,6 @@ public class GPUTextureViewDescriptor(
         /** Builds the [GPUTextureViewDescriptor]. */
         public fun build(): GPUTextureViewDescriptor =
             GPUTextureViewDescriptor(
-                usage = usage,
                 label = label,
                 format = format,
                 dimension = dimension,
@@ -103,6 +109,7 @@ public class GPUTextureViewDescriptor(
                 baseArrayLayer = baseArrayLayer,
                 arrayLayerCount = arrayLayerCount,
                 aspect = aspect,
+                usage = usage,
                 textureComponentSwizzleDescriptor = textureComponentSwizzleDescriptor,
             )
     }

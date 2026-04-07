@@ -253,19 +253,19 @@ public class GPUDevice private constructor(public val handle: Long) : AutoClosea
      */
     @FastNative
     @JvmName("hasFeature")
-    public external fun hasFeature(@FeatureName feature: Int): Boolean
+    public external fun hasFeature(@FeatureName.Type feature: Int): Boolean
 
     /** Asynchronously pops an error scope from the error scope stack. */
     @FastNative
     @JvmName("popErrorScope")
     public external fun popErrorScope(
         callbackExecutor: java.util.concurrent.Executor,
-        callback: GPURequestCallback<@ErrorType Int>,
+        callback: GPURequestCallback<@ErrorType.Type Int>,
     ): Unit
 
     /** Asynchronously pops an error scope from the error scope stack. */
     @Throws(WebGpuException::class, WebGpuRuntimeException::class)
-    public suspend fun popErrorScope(): @ErrorType Int = awaitGPURequest { callback ->
+    public suspend fun popErrorScope(): @ErrorType.Type Int = awaitGPURequest { callback ->
         popErrorScope(Executor(Runnable::run), callback)
     }
 
@@ -276,7 +276,7 @@ public class GPUDevice private constructor(public val handle: Long) : AutoClosea
      */
     @FastNative
     @JvmName("pushErrorScope")
-    public external fun pushErrorScope(@ErrorFilter filter: Int): Unit
+    public external fun pushErrorScope(@ErrorFilter.Type filter: Int): Unit
 
     /**
      * Sets a human-readable label for debugging.

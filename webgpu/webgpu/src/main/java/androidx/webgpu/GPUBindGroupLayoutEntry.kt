@@ -28,7 +28,7 @@ public class GPUBindGroupLayoutEntry(
     /** The binding index. */
     public var binding: Int,
     /** The shader stages in which the binding is visible. */
-    @ShaderStage public var visibility: Int,
+    @ShaderStage.Type public var visibility: Int,
     public var bindingArraySize: Int = 0,
     /** The buffer binding layout. */
     public var buffer: GPUBufferBindingLayout =
@@ -48,10 +48,11 @@ public class GPUBindGroupLayoutEntry(
             format = TextureFormat.Undefined,
             viewDimension = TextureViewDimension.Undefined,
         ),
+    public var externalTextureBindingLayout: GPUExternalTextureBindingLayout? = null,
 ) {
 
     /** Builder for [GPUBindGroupLayoutEntry]. */
-    public class Builder(private val binding: Int, @ShaderStage private val visibility: Int) {
+    public class Builder(private val binding: Int, @ShaderStage.Type private val visibility: Int) {
         private var bindingArraySize: Int = 0
         private var buffer: GPUBufferBindingLayout =
             GPUBufferBindingLayout(type = BufferBindingType.BindingNotUsed)
@@ -68,6 +69,7 @@ public class GPUBindGroupLayoutEntry(
                 format = TextureFormat.Undefined,
                 viewDimension = TextureViewDimension.Undefined,
             )
+        private var externalTextureBindingLayout: GPUExternalTextureBindingLayout? = null
 
         public fun setBindingArraySize(bindingArraySize: Int): Builder = apply {
             this.bindingArraySize = bindingArraySize
@@ -90,6 +92,10 @@ public class GPUBindGroupLayoutEntry(
                 this.storageTexture = storageTexture
             }
 
+        public fun setExternalTextureBindingLayout(
+            externalTextureBindingLayout: GPUExternalTextureBindingLayout?
+        ): Builder = apply { this.externalTextureBindingLayout = externalTextureBindingLayout }
+
         /** Builds the [GPUBindGroupLayoutEntry]. */
         public fun build(): GPUBindGroupLayoutEntry =
             GPUBindGroupLayoutEntry(
@@ -100,6 +106,7 @@ public class GPUBindGroupLayoutEntry(
                 sampler = sampler,
                 texture = texture,
                 storageTexture = storageTexture,
+                externalTextureBindingLayout = externalTextureBindingLayout,
             )
     }
 }

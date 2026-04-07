@@ -23,14 +23,21 @@
  */
 package androidx.webgpu
 
-/** Describes the layout of a buffer binding. */
-public class GPUBufferBindingLayout
-@JvmOverloads
-constructor(
+import dalvik.annotation.optimization.FastNative
+
+public class GPUExternalTexture private constructor(public val handle: Long) : AutoCloseable {
+    @FastNative @JvmName("setLabel") public external fun setLabel(label: String): Unit
+
     /**
-     * The type of the buffer binding. Defaults to @see [BufferBindingType.Uniform] if `undefined`.
+     * Decrements the reference count of the object and frees resources when the count reaches zero.
+     *
+     * This is the standard way to manage object lifetimes and should be used in `use` blocks. After
+     * calling this, the object is no longer usable.
      */
-    @BufferBindingType.Type public var type: Int = BufferBindingType.Uniform,
-    @get:JvmName("isHasDynamicOffset") public var hasDynamicOffset: Boolean = false,
-    public var minBindingSize: Long = 0,
-)
+    external override fun close()
+
+    override fun equals(other: Any?): Boolean =
+        other is GPUExternalTexture && other.handle == handle
+
+    override fun hashCode(): Int = handle.hashCode()
+}

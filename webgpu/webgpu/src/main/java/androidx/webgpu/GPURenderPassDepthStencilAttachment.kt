@@ -27,32 +27,32 @@ package androidx.webgpu
 public class GPURenderPassDepthStencilAttachment(
     /** The texture view for the depth-stencil attachment. */
     public var view: GPUTextureView,
-    @LoadOp public var depthLoadOp: Int = LoadOp.Undefined,
-    @StoreOp public var depthStoreOp: Int = StoreOp.Undefined,
+    @LoadOp.Type public var depthLoadOp: Int = LoadOp.Undefined,
+    @StoreOp.Type public var depthStoreOp: Int = StoreOp.Undefined,
     public var depthClearValue: Float = Constants.DEPTH_CLEAR_VALUE_UNDEFINED,
     @get:JvmName("isDepthReadOnly") public var depthReadOnly: Boolean = false,
-    @LoadOp public var stencilLoadOp: Int = LoadOp.Undefined,
-    @StoreOp public var stencilStoreOp: Int = StoreOp.Undefined,
+    @LoadOp.Type public var stencilLoadOp: Int = LoadOp.Undefined,
+    @StoreOp.Type public var stencilStoreOp: Int = StoreOp.Undefined,
     public var stencilClearValue: Int = 0,
     @get:JvmName("isStencilReadOnly") public var stencilReadOnly: Boolean = false,
 ) {
 
     /** Builder for [GPURenderPassDepthStencilAttachment]. */
     public class Builder(private val view: GPUTextureView) {
-        @LoadOp private var depthLoadOp: Int = LoadOp.Undefined
-        @StoreOp private var depthStoreOp: Int = StoreOp.Undefined
+        @LoadOp.Type private var depthLoadOp: Int = LoadOp.Undefined
+        @StoreOp.Type private var depthStoreOp: Int = StoreOp.Undefined
         private var depthClearValue: Float = Constants.DEPTH_CLEAR_VALUE_UNDEFINED
         private var depthReadOnly: Boolean = false
-        @LoadOp private var stencilLoadOp: Int = LoadOp.Undefined
-        @StoreOp private var stencilStoreOp: Int = StoreOp.Undefined
+        @LoadOp.Type private var stencilLoadOp: Int = LoadOp.Undefined
+        @StoreOp.Type private var stencilStoreOp: Int = StoreOp.Undefined
         private var stencilClearValue: Int = 0
         private var stencilReadOnly: Boolean = false
 
-        public fun setDepthLoadOp(@LoadOp depthLoadOp: Int): Builder = apply {
+        public fun setDepthLoadOp(@LoadOp.Type depthLoadOp: Int): Builder = apply {
             this.depthLoadOp = depthLoadOp
         }
 
-        public fun setDepthStoreOp(@StoreOp depthStoreOp: Int): Builder = apply {
+        public fun setDepthStoreOp(@StoreOp.Type depthStoreOp: Int): Builder = apply {
             this.depthStoreOp = depthStoreOp
         }
 
@@ -64,11 +64,11 @@ public class GPURenderPassDepthStencilAttachment(
             this.depthReadOnly = depthReadOnly
         }
 
-        public fun setStencilLoadOp(@LoadOp stencilLoadOp: Int): Builder = apply {
+        public fun setStencilLoadOp(@LoadOp.Type stencilLoadOp: Int): Builder = apply {
             this.stencilLoadOp = stencilLoadOp
         }
 
-        public fun setStencilStoreOp(@StoreOp stencilStoreOp: Int): Builder = apply {
+        public fun setStencilStoreOp(@StoreOp.Type stencilStoreOp: Int): Builder = apply {
             this.stencilStoreOp = stencilStoreOp
         }
 

@@ -29,33 +29,33 @@ package androidx.webgpu
  */
 public class GPUTextureComponentSwizzle(
     /** Specifies the source component or constant value to use for the red channel of the view. */
-    @ComponentSwizzle public var r: Int = ComponentSwizzle.R,
+    @ComponentSwizzle.Type public var r: Int = ComponentSwizzle.R,
     /**
      * Specifies the source component or constant value to use for the green channel of the view.
      */
-    @ComponentSwizzle public var g: Int = ComponentSwizzle.G,
+    @ComponentSwizzle.Type public var g: Int = ComponentSwizzle.G,
     /** Specifies the source component or constant value to use for the blue channel of the view. */
-    @ComponentSwizzle public var b: Int = ComponentSwizzle.B,
+    @ComponentSwizzle.Type public var b: Int = ComponentSwizzle.B,
     /**
      * Specifies the source component or constant value to use for the alpha channel of the view.
      */
-    @ComponentSwizzle public var a: Int = ComponentSwizzle.A,
+    @ComponentSwizzle.Type public var a: Int = ComponentSwizzle.A,
 ) {
 
     /** Builder for [GPUTextureComponentSwizzle]. */
     public class Builder() {
-        @ComponentSwizzle private var r: Int = ComponentSwizzle.R
-        @ComponentSwizzle private var g: Int = ComponentSwizzle.G
-        @ComponentSwizzle private var b: Int = ComponentSwizzle.B
-        @ComponentSwizzle private var a: Int = ComponentSwizzle.A
+        @ComponentSwizzle.Type private var r: Int = ComponentSwizzle.R
+        @ComponentSwizzle.Type private var g: Int = ComponentSwizzle.G
+        @ComponentSwizzle.Type private var b: Int = ComponentSwizzle.B
+        @ComponentSwizzle.Type private var a: Int = ComponentSwizzle.A
 
-        public fun setR(@ComponentSwizzle r: Int): Builder = apply { this.r = r }
+        public fun setR(@ComponentSwizzle.Type r: Int): Builder = apply { this.r = r }
 
-        public fun setG(@ComponentSwizzle g: Int): Builder = apply { this.g = g }
+        public fun setG(@ComponentSwizzle.Type g: Int): Builder = apply { this.g = g }
 
-        public fun setB(@ComponentSwizzle b: Int): Builder = apply { this.b = b }
+        public fun setB(@ComponentSwizzle.Type b: Int): Builder = apply { this.b = b }
 
-        public fun setA(@ComponentSwizzle a: Int): Builder = apply { this.a = a }
+        public fun setA(@ComponentSwizzle.Type a: Int): Builder = apply { this.a = a }
 
         /** Builds the [GPUTextureComponentSwizzle]. */
         public fun build(): GPUTextureComponentSwizzle =

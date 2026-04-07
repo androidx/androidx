@@ -28,30 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    flag = true,
-    value =
-        [
-            ColorWriteMask.None,
-            ColorWriteMask.Red,
-            ColorWriteMask.Green,
-            ColorWriteMask.Blue,
-            ColorWriteMask.Alpha,
-            ColorWriteMask.All,
-        ],
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** A bitmask that controls which color channels are written to a render target. */
-public annotation class ColorWriteMask {
+public class ColorWriteMask private constructor() {
+
     public companion object {
 
         /** No color channels are written. */
@@ -81,6 +62,17 @@ public annotation class ColorWriteMask {
                 0x0000000f to "All",
             )
 
-        public fun toString(@ColorWriteMask value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(flag = true, value = [None, Red, Green, Blue, Alpha, All])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

@@ -28,27 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            CreatePipelineAsyncStatus.Success,
-            CreatePipelineAsyncStatus.CallbackCancelled,
-            CreatePipelineAsyncStatus.ValidationError,
-            CreatePipelineAsyncStatus.InternalError,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Indicates the status of an asynchronous pipeline creation request. */
-public annotation class CreatePipelineAsyncStatus {
+public class CreatePipelineAsyncStatus private constructor() {
+
     public companion object {
 
         /** Pipeline creation was successful. */
@@ -73,7 +57,17 @@ public annotation class CreatePipelineAsyncStatus {
                 0x00000004 to "InternalError",
             )
 
-        public fun toString(@CreatePipelineAsyncStatus value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Success, CallbackCancelled, ValidationError, InternalError])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

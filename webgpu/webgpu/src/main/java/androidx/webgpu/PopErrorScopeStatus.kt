@@ -28,26 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            PopErrorScopeStatus.Success,
-            PopErrorScopeStatus.CallbackCancelled,
-            PopErrorScopeStatus.Error,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Indicates the status of a pop error scope operation. */
-public annotation class PopErrorScopeStatus {
+public class PopErrorScopeStatus private constructor() {
+
     public companion object {
 
         /** The error scope was popped successfully. */
@@ -64,7 +49,17 @@ public annotation class PopErrorScopeStatus {
         internal val names: Map<Int, String> =
             mapOf(0x00000001 to "Success", 0x00000002 to "CallbackCancelled", 0x00000003 to "Error")
 
-        public fun toString(@PopErrorScopeStatus value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Success, CallbackCancelled, Error])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

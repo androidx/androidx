@@ -27,8 +27,8 @@ package androidx.webgpu
 public class GPUTextureBindingLayout
 @JvmOverloads
 constructor(
-    @TextureSampleType public var sampleType: Int = TextureSampleType.Float,
-    @TextureViewDimension public var viewDimension: Int = TextureViewDimension._2D,
+    @TextureSampleType.Type public var sampleType: Int = TextureSampleType.Float,
+    @TextureViewDimension.Type public var viewDimension: Int = TextureViewDimension._2D,
     /** Specifies if the texture is multisampled. */
     @get:JvmName("isMultisampled") public var multisampled: Boolean = false,
 )

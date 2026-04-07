@@ -26,34 +26,34 @@ package androidx.webgpu
 /** Describes the primitive assembly and rasterization state for a render pipeline. */
 public class GPUPrimitiveState(
     /** The primitive topology. Defaults to @see [PrimitiveTopology.TriangleList] if `undefined`. */
-    @PrimitiveTopology public var topology: Int = PrimitiveTopology.TriangleList,
-    @IndexFormat public var stripIndexFormat: Int = IndexFormat.Undefined,
-    @FrontFace public var frontFace: Int = FrontFace.CCW,
-    @CullMode public var cullMode: Int = CullMode.None,
+    @PrimitiveTopology.Type public var topology: Int = PrimitiveTopology.TriangleList,
+    @IndexFormat.Type public var stripIndexFormat: Int = IndexFormat.Undefined,
+    @FrontFace.Type public var frontFace: Int = FrontFace.CCW,
+    @CullMode.Type public var cullMode: Int = CullMode.None,
     @get:JvmName("isUnclippedDepth") public var unclippedDepth: Boolean = false,
 ) {
 
     /** Builder for [GPUPrimitiveState]. */
     public class Builder() {
-        @PrimitiveTopology private var topology: Int = PrimitiveTopology.TriangleList
-        @IndexFormat private var stripIndexFormat: Int = IndexFormat.Undefined
-        @FrontFace private var frontFace: Int = FrontFace.CCW
-        @CullMode private var cullMode: Int = CullMode.None
+        @PrimitiveTopology.Type private var topology: Int = PrimitiveTopology.TriangleList
+        @IndexFormat.Type private var stripIndexFormat: Int = IndexFormat.Undefined
+        @FrontFace.Type private var frontFace: Int = FrontFace.CCW
+        @CullMode.Type private var cullMode: Int = CullMode.None
         private var unclippedDepth: Boolean = false
 
-        public fun setTopology(@PrimitiveTopology topology: Int): Builder = apply {
+        public fun setTopology(@PrimitiveTopology.Type topology: Int): Builder = apply {
             this.topology = topology
         }
 
-        public fun setStripIndexFormat(@IndexFormat stripIndexFormat: Int): Builder = apply {
+        public fun setStripIndexFormat(@IndexFormat.Type stripIndexFormat: Int): Builder = apply {
             this.stripIndexFormat = stripIndexFormat
         }
 
-        public fun setFrontFace(@FrontFace frontFace: Int): Builder = apply {
+        public fun setFrontFace(@FrontFace.Type frontFace: Int): Builder = apply {
             this.frontFace = frontFace
         }
 
-        public fun setCullMode(@CullMode cullMode: Int): Builder = apply {
+        public fun setCullMode(@CullMode.Type cullMode: Int): Builder = apply {
             this.cullMode = cullMode
         }
 
