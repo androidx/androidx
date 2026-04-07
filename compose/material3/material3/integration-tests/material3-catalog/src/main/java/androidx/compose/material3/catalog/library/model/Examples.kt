@@ -177,6 +177,7 @@ import androidx.compose.material3.samples.OutlinedButtonWithAnimatedShapeSample
 import androidx.compose.material3.samples.OutlinedCardSample
 import androidx.compose.material3.samples.OutlinedIconButtonSample
 import androidx.compose.material3.samples.OutlinedIconToggleButtonSample
+import androidx.compose.material3.samples.OutlinedIconToggleButtonWithAnimatedShapeSample
 import androidx.compose.material3.samples.OutlinedSplitButtonSample
 import androidx.compose.material3.samples.OutlinedTextFieldWithInitialValueAndSelection
 import androidx.compose.material3.samples.OutlinedToggleButtonSample
@@ -1578,6 +1579,14 @@ val IconButtonExamples =
             isExpressive = false,
         ) {
             OutlinedIconToggleButtonSample()
+        },
+        Example(
+            name = "OutlinedIconToggleButtonWithAnimatedShapeSample",
+            description = IconButtonExampleDescription,
+            sourceUrl = IconButtonExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            OutlinedIconToggleButtonWithAnimatedShapeSample()
         },
         Example(
             name = "XSmallNarrowSquareIconButtonsSample",
