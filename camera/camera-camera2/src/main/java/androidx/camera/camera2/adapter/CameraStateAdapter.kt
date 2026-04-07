@@ -226,10 +226,14 @@ public class CameraStateAdapter @Inject constructor() {
                     GraphStateStopped -> graphState.handleStateStop(isGraphActive, currentError)
                     GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
                     is GraphStateError ->
-                        CombinedCameraState(
-                            CameraInternal.State.CLOSING,
-                            graphState.cameraError.toCameraStateError(),
-                        )
+                        if (isGraphActive && graphState.willAttemptRetry) {
+                            resolveErrorEvent(graphState, CameraInternal.State.OPENING)
+                        } else {
+                            CombinedCameraState(
+                                CameraInternal.State.CLOSING,
+                                graphState.cameraError.toCameraStateError(),
+                            )
+                        }
                     else -> null
                 }
             CameraInternal.State.PENDING_OPEN ->
