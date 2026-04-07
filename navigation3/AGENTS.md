@@ -20,7 +20,6 @@
 
 ## Description of sub-projects:
 
-- navigation3-common: Contains the common Navigation3 APIs.
 - navigation3-runtime: Contains the runtime Navigation3 APIs.
 - navigation3-compose: Contains the Compose integration for Navigation3.
 - navigation3-ui: Contains the UI integration for Navigation3.
