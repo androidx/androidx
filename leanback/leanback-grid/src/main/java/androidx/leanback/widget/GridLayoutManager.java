@@ -18,6 +18,7 @@ package androidx.leanback.widget;
 import static androidx.recyclerview.widget.RecyclerView.HORIZONTAL;
 import static androidx.recyclerview.widget.RecyclerView.NO_ID;
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
+import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
 
@@ -559,6 +560,9 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     static final int PF_REVERSE_FLOW_SECONDARY = 1 << 19;
 
     static final int PF_REVERSE_FLOW_MASK = PF_REVERSE_FLOW_PRIMARY | PF_REVERSE_FLOW_SECONDARY;
+
+    /** When it's during dragging or settling after dragging. */
+    static final int PF_IN_DRAGGING_AND_SETTLING = 1 << 20;
 
     int mFlag = PF_LAYOUT_ENABLED
             | PF_FOCUS_OUT_SIDE_START | PF_FOCUS_OUT_SIDE_END
@@ -2547,7 +2551,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         updated = getChildCount() > childCount;
         childCount = getChildCount();
 
-        if (mBaseGridView.isInTouchMode() && mFocusPosition >= 0) {
+        if ((mFlag & PF_IN_DRAGGING_AND_SETTLING) == PF_IN_DRAGGING_AND_SETTLING
+                && mFocusPosition >= 0) {
             // In touch mode, we keep adjusting mFocusedPosition to the view that is closest
             // to the aligned center.
             int minimalScrollValue = Integer.MAX_VALUE;
@@ -2588,7 +2593,11 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onScrollStateChanged(int state) {
-        if (state == SCROLL_STATE_IDLE && mBaseGridView.isInTouchMode()) {
+        if (state == SCROLL_STATE_DRAGGING) {
+            mFlag |= PF_IN_DRAGGING_AND_SETTLING;
+        } else if (state == SCROLL_STATE_IDLE
+                && (mFlag & PF_IN_DRAGGING_AND_SETTLING) == PF_IN_DRAGGING_AND_SETTLING) {
+            mFlag &= ~PF_IN_DRAGGING_AND_SETTLING;
             dispatchChildSelected();
             dispatchChildSelectedAndPositioned();
         }
