@@ -43,7 +43,6 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import kotlin.jvm.JvmName
 
 /**
  * <a href="https://material.io/components/menus#dropdown-menu" class="external" target="_blank">Material Design dropdown menu</a>.
@@ -112,8 +111,8 @@ actual fun DropdownMenu(
             transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
         }
 
-        var focusManager: FocusManager? by mutableStateOf(null)
-        var inputModeManager: InputModeManager? by mutableStateOf(null)
+        var focusManager: FocusManager? by remember { mutableStateOf(null) }
+        var inputModeManager: InputModeManager? by remember { mutableStateOf(null) }
         Popup(
             onDismissRequest = onDismissRequest,
             popupPositionProvider = popupPositionProvider,

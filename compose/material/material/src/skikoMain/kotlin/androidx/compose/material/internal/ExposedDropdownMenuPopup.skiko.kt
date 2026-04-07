@@ -20,6 +20,7 @@ import androidx.compose.material.handlePopupOnKeyEvent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.InputModeManager
@@ -35,15 +36,16 @@ internal actual fun ExposedDropdownMenuPopup(
     popupPositionProvider: PopupPositionProvider,
     content: @Composable () -> Unit
 ) {
-    var focusManager: FocusManager? by mutableStateOf(null)
-    var inputModeManager: InputModeManager? by mutableStateOf(null)
+    var focusManager: FocusManager? by remember { mutableStateOf(null) }
+    var inputModeManager: InputModeManager? by remember { mutableStateOf(null) }
     Popup(
         popupPositionProvider = popupPositionProvider,
         onDismissRequest = onDismissRequest,
-        properties =  PopupProperties(),
+        properties = PopupProperties(),
         onKeyEvent = {
             handlePopupOnKeyEvent(it, focusManager, inputModeManager)
-        }) {
+        }
+    ) {
         focusManager = LocalFocusManager.current
         inputModeManager = LocalInputModeManager.current
         content()

@@ -17,6 +17,7 @@
 package androidx.compose.foundation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
@@ -30,11 +31,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
@@ -46,16 +49,20 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTextInputSelection
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.rightClick
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -320,7 +327,59 @@ class ContextMenuTest {
             onNode(ContextMenuMatcher).assertDoesNotExist()
         }
 
-    private fun runContextMenuTest(block: ComposeUiTest.() -> Unit) = runComposeUiTest {
+    // https://youtrack.jetbrains.com/issue/CMP-10043
+    @Test
+    fun `press up and down in context menu`() = runComposeUiTest {
+        var clickedItem: String? = null
+        setContent {
+            val state = remember { ContextMenuState() }
+            ContextMenuArea(
+                items = {
+                    listOf(
+                        ContextMenuItem("Item 1") { clickedItem = "Item 1" },
+                        ContextMenuItem("Item 2") { clickedItem = "Item 2" },
+                    )
+                },
+                state = state,
+                content = {
+                    Box(Modifier.fillMaxSize().testTag("content"))
+                }
+            )
+        }
+
+        fun showContextMenu() {
+            onNodeWithTag("content").performMouseInput {
+                click(button = MouseButton.Secondary)
+            }
+        }
+
+        showContextMenu()
+        onNodeWithText("Item 1").assertExists()
+        onNode(isPopup()).performKeyInput {
+            pressKey(Key.DirectionDown)
+            pressKey(Key.Enter)
+        }
+        assertEquals("Item 1", clickedItem)
+
+        showContextMenu()
+        onNode(isPopup()).performKeyInput {
+            pressKey(Key.DirectionDown)
+            pressKey(Key.DirectionDown)
+            pressKey(Key.Enter)
+        }
+        assertEquals("Item 2", clickedItem)
+
+        showContextMenu()
+        onNode(isPopup()).performKeyInput {
+            pressKey(Key.DirectionDown)
+            pressKey(Key.DirectionDown)
+            pressKey(Key.DirectionUp)
+            pressKey(Key.Enter)
+        }
+        assertEquals("Item 1", clickedItem)
+    }
+
+    private fun runContextMenuTest(block: ComposeUiTest.() -> Unit) = androidx.compose.ui.test.runComposeUiTest {
         DesktopPlatform.withOverriddenCurrent(DesktopPlatform.Unknown) {
             block()
         }

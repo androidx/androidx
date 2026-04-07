@@ -52,10 +52,11 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
@@ -71,8 +72,8 @@ internal fun DefaultOpenContextMenu(
     popupPositionProvider: PopupPositionProvider,
     colors: ContextMenuColors = DefaultContextMenuColors,
 ) {
-    var focusManager: FocusManager? by mutableStateOf(null)
-    var inputModeManager: InputModeManager? by mutableStateOf(null)
+    var focusManager: FocusManager? by remember { mutableStateOf(null) }
+    var inputModeManager: InputModeManager? by remember { mutableStateOf(null) }
 
     Popup(
         properties = PopupProperties(focusable = true),
@@ -82,13 +83,13 @@ internal fun DefaultOpenContextMenu(
             if (it.type == KeyEventType.KeyDown) {
                 when (it.key) {
                     Key.DirectionDown, Key.NumPadDirectionUp  -> {
-                        inputModeManager!!.requestInputMode(InputMode.Keyboard)
-                        focusManager!!.moveFocus(FocusDirection.Next)
+                        inputModeManager?.requestInputMode(InputMode.Keyboard)
+                        focusManager?.moveFocus(FocusDirection.Next)
                         true
                     }
                     Key.DirectionUp, Key.NumPadDirectionDown -> {
-                        inputModeManager!!.requestInputMode(InputMode.Keyboard)
-                        focusManager!!.moveFocus(FocusDirection.Previous)
+                        inputModeManager?.requestInputMode(InputMode.Keyboard)
+                        focusManager?.moveFocus(FocusDirection.Previous)
                         true
                     }
                     else -> false
@@ -98,6 +99,8 @@ internal fun DefaultOpenContextMenu(
             }
         },
     ) {
+        focusManager = LocalFocusManager.current
+        inputModeManager = LocalInputModeManager.current
         Column(
             modifier = Modifier
                 .shadow(8.dp)
@@ -106,7 +109,7 @@ internal fun DefaultOpenContextMenu(
                 .width(IntrinsicSize.Max)
                 .verticalScroll(rememberScrollState())
         ) {
-            components.fastForEach { component ->
+            components.forEach { component ->
                 when (component) {
                     is TextContextMenuSeparator ->
                         MenuSeparator(colors.textColor)
