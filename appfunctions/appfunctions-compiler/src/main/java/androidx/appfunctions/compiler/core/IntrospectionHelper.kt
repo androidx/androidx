@@ -42,6 +42,12 @@ object IntrospectionHelper {
         const val PROPERTY_IS_DESCRIBED_BY_KDOC = "isDescribedByKDoc"
     }
 
+    object AppFunctionEntryPointAnnotation {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_SERVICE_PACKAGE_NAME, "AppFunctionEntryPoint")
+        const val PROPERTY_SERVICE_NAME = "serviceName"
+        const val PROPERTY_APP_FUNCTION_XML_FILE_NAME = "appFunctionXmlFileName"
+    }
+
     object AppFunctionSchemaDefinitionAnnotation {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionSchemaDefinition")
         const val PROPERTY_CATEGORY = "category"
@@ -167,6 +173,23 @@ object IntrospectionHelper {
     object AppFunctionContextClass {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionContext")
         const val CONTEXT_PROPERTY_NAME = "context"
+    }
+
+    object AppFunctionServiceClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionService")
+
+        object ExecuteFunctionMethod {
+            const val METHOD_NAME = "executeFunction"
+            const val REQUEST_PARAM_NAME = "request"
+        }
+    }
+
+    object ExecuteAppFunctionRequestClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "ExecuteAppFunctionRequest")
+    }
+
+    object ExecuteAppFunctionResponseClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "ExecuteAppFunctionResponse")
     }
 
     object AppFunctionInvokerClass {

@@ -31,7 +31,7 @@ class AppFunctionSerializableProcessorTest {
             CompilationTestHelper(
                 testFileSrcDir = File("src/test/test-data/input"),
                 goldenFileSrcDir = File("src/test/test-data/output"), // unused
-                proxySourceFileNames =
+                stubSourceFileNames =
                     listOf(
                         "androidx/appfunctions/internal/serializableproxies/AppFunctionLocalDateTime.KT",
                         "androidx/appfunctions/internal/serializableproxies/AppFunctionUri.KT",

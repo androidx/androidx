@@ -40,8 +40,8 @@ class CompilationTestHelper(
     private val testFileSrcDir: File,
     /** The root directory containing the source golden files. */
     private val goldenFileSrcDir: File,
-    /** A list of proxy source files to be compiled with the test sources. */
-    private val proxySourceFileNames: List<String>,
+    /** A list of stub source files to be compiled with the test sources. */
+    private val stubSourceFileNames: List<String>,
     /** A list of [com.google.devtools.ksp.processing.SymbolProcessorProvider] under test. */
     private val symbolProcessorProviders: List<SymbolProcessorProvider>,
 ) {
@@ -78,11 +78,11 @@ class CompilationTestHelper(
                     sourceFile.readText(),
                 )
             } +
-                proxySourceFileNames.map { proxySourceFileName ->
-                    val proxySourceFile = getTestSourceFile(proxySourceFileName)
+                stubSourceFileNames.map { stubSourceFileName ->
+                    val stubSourceFile = getTestSourceFile(stubSourceFileName)
                     Source.Companion.kotlin(
-                        ensureKotlinFileNameFormat(proxySourceFile.name),
-                        proxySourceFile.readText(),
+                        ensureKotlinFileNameFormat(stubSourceFile.name),
+                        stubSourceFile.readText(),
                     )
                 }
 

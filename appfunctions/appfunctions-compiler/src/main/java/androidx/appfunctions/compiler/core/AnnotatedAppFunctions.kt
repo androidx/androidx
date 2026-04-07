@@ -68,7 +68,7 @@ data class AnnotatedAppFunctions(
      *
      * @throws SymbolNotReadyException if any related nodes are not ready for processing yet.
      */
-    fun validate(): AnnotatedAppFunctions {
+    fun validate(skipFirstParameterValidation: Boolean = false): AnnotatedAppFunctions {
         for (appFunction in appFunctionDeclarations) {
             for (parameter in appFunction.parameters) {
                 if (!parameter.validate()) {
@@ -86,7 +86,9 @@ data class AnnotatedAppFunctions(
                 )
             }
         }
-        validateFirstParameter()
+        if (!skipFirstParameterValidation) {
+            validateFirstParameter()
+        }
         validateParameterTypes()
         return this
     }

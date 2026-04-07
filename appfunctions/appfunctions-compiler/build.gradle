@@ -29,6 +29,9 @@ plugins {
     id("kotlin")
 }
 
+// Ensure that the runtime SDK contains AppFunction framework APIs to prevent
+// compilation errors.
+project.ext.set("androidx.compileSdk", 36)
 androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {

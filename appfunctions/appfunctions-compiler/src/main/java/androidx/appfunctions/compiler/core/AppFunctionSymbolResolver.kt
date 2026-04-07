@@ -19,17 +19,54 @@ package androidx.appfunctions.compiler.core
 import androidx.appfunctions.compiler.core.IntrospectionHelper.APP_FUNCTIONS_AGGREGATED_DEPS_PACKAGE_NAME
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionComponentRegistryAnnotation
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionEntryPointAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchemaDefinitionAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableProxyAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.SERIALIZABLE_PROXY_PACKAGE_NAME
 import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /** The helper class to resolve AppFunction related symbols. */
 class AppFunctionSymbolResolver(private val resolver: Resolver) {
+
+    /** Resolves symbols annotated with @AppFunctionEntryPoint. */
+    fun resolveAnnotatedAppFunctionEntryPoints(): List<AnnotatedAppFunctionEntryPoint> {
+        return resolver
+            .getSymbolsWithAnnotation(AppFunctionEntryPointAnnotation.CLASS_NAME.canonicalName)
+            .map { declaration ->
+                if (declaration !is KSClassDeclaration) {
+                    throw ProcessingException(
+                        "Only classes can be annotated with @AppFunctionEntryPoint",
+                        declaration,
+                    )
+                }
+                declaration
+            }
+            .sortedBy { checkNotNull(it.qualifiedName).asString() }
+            .map { declaration ->
+                val appFunctionDeclarations =
+                    declaration
+                        .getDeclaredFunctions()
+                        .filter {
+                            it.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME) != null
+                        }
+                        .toList()
+                val annotatedAppFunctions =
+                    if (appFunctionDeclarations.isNotEmpty()) {
+                        // TODO(b/463909015): Separate AppFunction from AnnotatedAppFunction
+                        AnnotatedAppFunctions(declaration, appFunctionDeclarations)
+                    } else {
+                        AnnotatedAppFunctions(declaration, emptyList())
+                    }
+
+                AnnotatedAppFunctionEntryPoint(declaration, annotatedAppFunctions)
+            }
+            .toList()
+    }
 
     /** Resolves symbols annotated with @AppFunctionSchemaDefinition. */
     fun resolveAnnotatedAppFunctionSchemaDefinitions(): List<AnnotatedAppFunctionSchemaDefinition> {
