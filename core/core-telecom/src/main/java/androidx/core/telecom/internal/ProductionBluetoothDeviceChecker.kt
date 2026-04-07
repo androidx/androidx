@@ -38,8 +38,8 @@ internal class ProductionBluetoothDeviceChecker(private val context: Context) :
 
     override fun hasAvailableNonWatchDevice(availableEndpoints: List<CallEndpointCompat>): Boolean {
         if (!EndpointUtils.hasSufficientBluetoothPermission(context)) {
-            Log.w(TAG, "Permission denied. Assuming a BT device could be present.")
-            return true
+            Log.i(TAG, "Permission denied. Falling back to name heuristic.")
+            return EndpointUtils.isNonWearableDeviceByHeuristic(availableEndpoints)
         }
 
         return try {
@@ -51,8 +51,8 @@ internal class ProductionBluetoothDeviceChecker(private val context: Context) :
                 getBluetoothDevice(context, endpoint, bluetoothAdapter)
             }
         } catch (e: SecurityException) {
-            Log.w(TAG, "Security Exception hit. Assuming a BT device could be present.", e)
-            return true
+            Log.i(TAG, "Security Exception hit. Falling back to name heuristic.")
+            return EndpointUtils.isNonWearableDeviceByHeuristic(availableEndpoints)
         }
     }
 
