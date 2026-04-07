@@ -34,6 +34,7 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Texture
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.maybeThrowGLException
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.BackgroundRenderer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.PlaneRenderer
+import androidx.xr.arcore.perceptionState
 import androidx.xr.arcore.playservices.ExperimentalCameraApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.arcore.runtime.PerceptionRuntime
@@ -113,18 +114,20 @@ class GeospatialRenderer(private val session: Session, private val anchors: List
             return
         }
 
-        val cameraState = session.state.value.cameraState
+        val sessionState = session.state.value
+        val perceptionState = sessionState.perceptionState
+        val cameraState = sessionState.cameraState
         if (cameraState != null && cameraState.transformCoordinates2D != null) {
             backgroundRenderer.updateDisplayGeometry(cameraState.transformCoordinates2D!!)
         }
-        if (cameraState?.trackingState == TrackingState.TRACKING) {
+        if (perceptionState?.arDevice?.state?.value?.trackingState == TrackingState.TRACKING) {
             if (image != null) {
                 EGLExt.eglDestroyImageKHR(EGL14.eglGetCurrentDisplay(), image!!)
             }
             image =
                 EGLExt.eglCreateImageFromHardwareBuffer(
                     EGL14.eglGetCurrentDisplay(),
-                    cameraState.hardwareBuffer!!,
+                    cameraState?.hardwareBuffer!!,
                 )
             maybeThrowGLException(
                 "Failed to create image from hardware buffer",
@@ -146,12 +149,12 @@ class GeospatialRenderer(private val session: Session, private val anchors: List
         }
 
         render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
-        if (cameraState?.trackingState != TrackingState.TRACKING) {
+        if (perceptionState?.arDevice?.state?.value?.trackingState != TrackingState.TRACKING) {
             return
         }
 
         projectionMatrix =
-            checkNotNull(cameraState.projectionMatrix) { "cameraState.projectionMatrix is null" }
+            checkNotNull(cameraState?.projectionMatrix) { "cameraState.projectionMatrix is null" }
                 .copy()
                 .data
         val viewMatrix =
