@@ -68,6 +68,17 @@ public interface DraftEditOperation : Parcelable {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class InsertDraftEditOperation(public val annotation: PdfAnnotation) : DraftEditOperation {
 
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is InsertDraftEditOperation) return false
+
+        if (other.annotation != annotation) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return annotation.hashCode()
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(TAG_INSERT)
         annotation.writeToParcel(parcel, flags)
@@ -96,6 +107,21 @@ public class InsertDraftEditOperation(public val annotation: PdfAnnotation) : Dr
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class UpdateDraftEditOperation(public val id: String, public val annotation: PdfAnnotation) :
     DraftEditOperation {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is UpdateDraftEditOperation) return false
+
+        if (other.annotation != annotation) return false
+        if (other.id != id) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + annotation.hashCode()
+        return result
+    }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(TAG_UPDATE)
@@ -127,6 +153,21 @@ public class UpdateDraftEditOperation(public val id: String, public val annotati
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoveDraftEditOperation(public val id: String, public val pageNum: Int) :
     DraftEditOperation {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is RemoveDraftEditOperation) return false
+
+        if (other.pageNum != pageNum) return false
+        if (other.id != id) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + pageNum.hashCode()
+        return result
+    }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(TAG_REMOVE)
