@@ -172,7 +172,7 @@ WEAR_TOOLING_PREVIEW = "1.0.0-rc01"
 WEAR_WATCHFACE = "1.4.0-alpha01"
 WEAR_WATCHFACEPUSH = "1.0.0-rc01"
 WEBGPU = "1.0.0-alpha04"
-WEBKIT = "1.16.0-rc01"
+WEBKIT = "1.17.0-alpha01"
 # Adding a comment to prevent merge conflicts for Window artifact
 WINDOW = "1.6.0-alpha03"
 WINDOW_EXTENSIONS = "1.6.0-alpha01"
