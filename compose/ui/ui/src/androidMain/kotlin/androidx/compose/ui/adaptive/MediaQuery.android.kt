@@ -222,16 +222,24 @@ private fun hasPhysicalKeyboard(inputManager: InputManager?): Boolean {
  * Resolves the highest precision pointer type available based on all connected input devices.
  *
  * Priority: Fine > Coarse > Blunt > None.
+ *
+ * The resolution is evaluated using a two-tiered approach:
+ * 1. Valid Hardware Sources: Pointer input devices reporting valid X/Y axes motion ranges.
+ * 2. Emulator fallback heuristics: Emulated input devices reporting composite sources with
+ *    different precision classes are further evaluated on secondary axes (touch, scroll).
+ *
+ * A valid hardware source is always preferred over the fallback heuristic to avoid false positives.
  */
 private fun resolvePointerPrecision(inputManager: InputManager?): PointerPrecision {
     if (inputManager == null) return PointerPrecision.None
 
     var pointerPrecision = PointerPrecision.None
+    var fallbackPrecision = PointerPrecision.None
 
     for (id in inputManager.inputDeviceIds) {
         val device = inputManager.getInputDevice(id) ?: continue
 
-        // High Precision (Fine)
+        // Relies on input devices reporting primary X/Y motion ranges.
         if (
             device.hasValidPointerSource(InputDevice.SOURCE_MOUSE) ||
                 device.hasValidPointerSource(InputDevice.SOURCE_STYLUS) ||
@@ -240,23 +248,32 @@ private fun resolvePointerPrecision(inputManager: InputManager?): PointerPrecisi
             return PointerPrecision.Fine
         }
 
-        // Limited Precision (Coarse)
         if (device.hasValidPointerSource(InputDevice.SOURCE_TOUCHSCREEN)) {
             pointerPrecision = PointerPrecision.Coarse
-            continue
-        }
-
-        // Low Precision (Blunt)
-        if (
+        } else if (
             pointerPrecision == PointerPrecision.None &&
                 (device.hasValidPointerSource(InputDevice.SOURCE_JOYSTICK) ||
                     device.hasValidPointerSource(InputDevice.SOURCE_GAMEPAD))
         ) {
             pointerPrecision = PointerPrecision.Blunt
         }
+
+        // Fallback heuristic for emulators: Tracked separately to ensure precision evaluated from
+        // a valid hardware source is not overridden by this fallback heuristic.
+        if (device.hasFallbackFinePointer()) {
+            fallbackPrecision = PointerPrecision.Fine
+        } else if (
+            fallbackPrecision != PointerPrecision.Fine && device.hasFallbackCoarsePointer()
+        ) {
+            fallbackPrecision = PointerPrecision.Coarse
+        }
     }
 
-    return pointerPrecision
+    if (pointerPrecision != PointerPrecision.None) {
+        return pointerPrecision
+    }
+
+    return fallbackPrecision
 }
 
 /**
@@ -268,6 +285,30 @@ private fun InputDevice.hasValidPointerSource(
     axis: Int = MotionEvent.AXIS_X,
 ): Boolean {
     return (sources and source == source) && getMotionRange(axis, source) != null
+}
+
+/**
+ * Checks for a fine pointer precision using a fallback mechanism for emulated devices.
+ *
+ * Some environments, such as Desktop or XR emulators, may not correctly report standard primary
+ * motion ranges for X/Y axes but do expose vertical scroll axes with composite sources.
+ */
+private fun InputDevice.hasFallbackFinePointer(): Boolean {
+    return getMotionRange(MotionEvent.AXIS_X)?.isFromSource(InputDevice.SOURCE_MOUSE) == true &&
+        getMotionRange(MotionEvent.AXIS_VSCROLL) != null
+}
+
+/**
+ * Checks for a coarse pointer precision using a fallback mechanism for emulated devices.
+ *
+ * Some environments, such as Phone & Tablet emulators, may not correctly report standard primary
+ * motion ranges for X/Y axes but do expose touch axes with composite sources.
+ */
+private fun InputDevice.hasFallbackCoarsePointer(): Boolean {
+    return getMotionRange(MotionEvent.AXIS_X)?.isFromSource(InputDevice.SOURCE_TOUCHSCREEN) ==
+        true &&
+        (getMotionRange(MotionEvent.AXIS_TOUCH_MAJOR) != null ||
+            getMotionRange(MotionEvent.AXIS_TOUCH_MINOR) != null)
 }
 
 private val WindowInsetsCompat?.isImeVisible: Boolean
