@@ -89,14 +89,18 @@ internal class WindowAreaControllerImpl(private val windowAreaComponent: WindowA
         }
 
     override fun addWindowAreasListener(executor: Executor, listener: Consumer<List<WindowArea>>) {
+        var listenersWasEmpty = false
         synchronized(lock) {
-            if (listeners.isEmpty()) {
-                listeners.add(Pair(executor, listener))
-                initializeExtensionListeners()
-            } else {
-                listeners.add(Pair(executor, listener))
-                executor.execute { listener.accept(currentWindowAreaMap.values.toList()) }
+            listenersWasEmpty = listeners.isEmpty()
+            for (listenerPair in listeners) {
+                if (listenerPair.second == listener) return
             }
+            listeners.add(Pair(executor, listener))
+        }
+        if (listenersWasEmpty) {
+            initializeExtensionListeners()
+        } else {
+            executor.execute { listener.accept(currentWindowAreaMap.values.toList()) }
         }
     }
 
