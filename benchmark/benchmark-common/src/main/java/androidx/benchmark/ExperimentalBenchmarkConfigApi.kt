@@ -28,15 +28,35 @@ import androidx.benchmark.perfetto.PerfettoConfig
 @Retention(AnnotationRetention.BINARY)
 public annotation class ExperimentalBenchmarkConfigApi
 
+/**
+ * Experimental configuration options for a benchmark.
+ *
+ * Currently used to override the default [PerfettoConfig], or to enable Startup
+ * [Insights][androidx.benchmark.traceprocessor.Insight]s.
+ */
 @ExperimentalBenchmarkConfigApi
 public class ExperimentalConfig(
+    /** The PerfettoConfig for the benchmark - `null` to use the default config. */
     val perfettoConfig: PerfettoConfig? = null,
+
+    /** The StartupInsightsConfig for the benchmark - `null` to not enable insights reporting. */
     val startupInsightsConfig: StartupInsightsConfig? = null,
 )
 
-/** Configuration for startup insights. */
+/**
+ * Configuration for Startup Insights.
+ *
+ * By passing this object to a `MacrobenchmarkRule`, you can enable reporting of Startup
+ * [Insights][androidx.benchmark.traceprocessor.Insight]s - problems patterns discovered during your
+ * application startup.
+ *
+ * These will be output both in the Studio output report, as well in the Benchmark JSON output file.
+ */
 @ExperimentalBenchmarkConfigApi
-public class StartupInsightsConfig(val isEnabled: Boolean) {
+public class StartupInsightsConfig(
+    /** Set to true to enable reporting of Startup Insights. */
+    val isEnabled: Boolean
+) {
     /**
      * Base URL for linking to more information about specific startup reasons. This URL should
      * accept a reason ID as a direct suffix. For example, a base URL of
