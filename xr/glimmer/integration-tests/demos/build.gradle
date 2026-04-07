@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":navigation3:navigation3-runtime"))
     implementation(project(":navigation3:navigation3-ui"))
     implementation(project(":xr:glimmer:glimmer"))
+    implementation(project(":xr:glimmer:glimmer-google-fonts"))
     implementation(project(":xr:glimmer:glimmer:glimmer-samples"))
     implementation(project(":xr:projected:projected"))
 }
@@ -49,7 +50,7 @@ dependencies {
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 android {
-    compileSdk { version = release(36) }
+    compileSdk { version = release(37) }
     defaultConfig {
         minSdk { version = release(35) }
     }

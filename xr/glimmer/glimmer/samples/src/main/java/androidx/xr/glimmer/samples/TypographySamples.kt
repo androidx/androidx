@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Text
+import androidx.xr.glimmer.googlefonts.createGoogleSansFlexTypography
 import androidx.xr.glimmer.list.VerticalList
 
 @Composable
@@ -48,7 +49,7 @@ fun TypographySample() {
 @Preview
 @Composable
 private fun TypographyPreview() {
-    GlimmerTheme { TypographySample() }
+    GlimmerTheme(typography = createGoogleSansFlexTypography()) { TypographySample() }
 }
 
 @Composable
@@ -58,8 +59,7 @@ private fun TypeItem(name: String, style: TextStyle, modifier: Modifier = Modifi
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text(name, style = style)
-        val typeInformation =
-            with(style) { "$fontSize / $lineHeight • ${fontWeight?.weight} • $letterSpacing" }
+        val typeInformation = with(style) { "$fontSize / $lineHeight" }
         Text(typeInformation, fontSize = 16.sp, fontWeight = FontWeight.Normal)
     }
 }

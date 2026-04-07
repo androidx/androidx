@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.sp
  * The Jetpack Compose Glimmer type scale includes a range of contrasting styles that support the
  * needs of your product and its content.
  *
+ * It is recommended to use `createGoogleSansFlexTypography()` from
+ * `androidx.xr.glimmer:glimmer-google-fonts` to create your [Typography] instance.
+ *
  * @property titleLarge titleLarge is the largest title, and is typically reserved for emphasized
  *   text that is shorter in length.
  * @property titleMedium titleMedium is the second largest title, and is typically reserved for

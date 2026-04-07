@@ -1,0 +1,42 @@
+// Signature format: 4.0
+package androidx.xr.glimmer.googlefonts {
+
+  public final class GoogleSansFlexTypographyDefaults {
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getBodyLarge();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings getBodyLargeVariationSettings();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getBodyMedium();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings getBodyMediumVariationSettings();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getBodySmall();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings getBodySmallVariationSettings();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getCaption();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings getCaptionVariationSettings();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getTitleLarge();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings getTitleLargeVariationSettings();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getTitleMedium();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings getTitleMediumVariationSettings();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getTitleSmall();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings getTitleSmallVariationSettings();
+    property public androidx.compose.ui.text.TextStyle BodyLarge;
+    property public androidx.compose.ui.text.font.FontVariation.Settings BodyLargeVariationSettings;
+    property public androidx.compose.ui.text.TextStyle BodyMedium;
+    property public androidx.compose.ui.text.font.FontVariation.Settings BodyMediumVariationSettings;
+    property public androidx.compose.ui.text.TextStyle BodySmall;
+    property public androidx.compose.ui.text.font.FontVariation.Settings BodySmallVariationSettings;
+    property public androidx.compose.ui.text.TextStyle Caption;
+    property public androidx.compose.ui.text.font.FontVariation.Settings CaptionVariationSettings;
+    property public androidx.compose.ui.text.TextStyle TitleLarge;
+    property public androidx.compose.ui.text.font.FontVariation.Settings TitleLargeVariationSettings;
+    property public androidx.compose.ui.text.TextStyle TitleMedium;
+    property public androidx.compose.ui.text.font.FontVariation.Settings TitleMediumVariationSettings;
+    property public androidx.compose.ui.text.TextStyle TitleSmall;
+    property public androidx.compose.ui.text.font.FontVariation.Settings TitleSmallVariationSettings;
+    field public static final androidx.xr.glimmer.googlefonts.GoogleSansFlexTypographyDefaults INSTANCE;
+  }
+
+  public final class GoogleSansFlexTypographyKt {
+    method public static androidx.xr.glimmer.Typography createGoogleSansFlexTypography(optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.font.FontVariation.Settings titleLargeVariationSettings, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.font.FontVariation.Settings titleMediumVariationSettings, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.font.FontVariation.Settings titleSmallVariationSettings, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.font.FontVariation.Settings bodyLargeVariationSettings, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.font.FontVariation.Settings bodyMediumVariationSettings, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.font.FontVariation.Settings bodySmallVariationSettings, optional androidx.compose.ui.text.TextStyle caption, optional androidx.compose.ui.text.font.FontVariation.Settings captionVariationSettings);
+    method @BytecodeOnly public static androidx.xr.glimmer.Typography! createGoogleSansFlexTypography$default(androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.font.FontVariation.Settings!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.font.FontVariation.Settings!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.font.FontVariation.Settings!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.font.FontVariation.Settings!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.font.FontVariation.Settings!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.font.FontVariation.Settings!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.font.FontVariation.Settings!, int, Object!);
+  }
+
+}
+

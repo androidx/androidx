@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * This file was created using the `createProject` gradle task (./gradlew createProject)
- *
- * Please use the task when creating a new project, rather than copying an existing project and
- * modifying its settings.
  */
 
 import androidx.build.SoftwareType
@@ -39,13 +32,13 @@ dependencies {
 }
 
 androidx {
-    name = "Compose Glimmer Samples"
+    name = "Compose Glimmer Google Fonts Samples"
     type = SoftwareType.SAMPLES
-    inceptionYear = "2025"
-    description = "Contains the sample code for Jetpack Compose Glimmer"
+    inceptionYear = "2026"
+    description = "Sample code for Jetpack Compose Glimmer Google Fonts"
 }
 
 android {
     compileSdk { version = release(37) }
-    namespace = "androidx.xr.glimmer.samples"
+    namespace = "androidx.xr.glimmer.googlefonts.samples"
 }
