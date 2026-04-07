@@ -243,7 +243,7 @@ class GridTest : LayoutTest() {
         }
 
     @Test
-    fun testGrid_fractionTracks() =
+    fun testGrid_percentageTracks() =
         with(density) {
             val totalSize = 200
             val totalSizeDp = totalSize.toDp()

@@ -158,7 +158,7 @@ private fun AutoPlacementDemo() {
 
 @Composable
 private fun MixedSizingDemo() {
-    DemoHeader("Mixed Sizing: Fixed vs Fraction vs Flex")
+    DemoHeader("Mixed Sizing: Fixed vs Percentage vs Flex")
     Grid(
         config = {
             columns(
@@ -171,7 +171,7 @@ private fun MixedSizingDemo() {
         modifier = Modifier.demoContainer(),
     ) {
         GridDemoItem(text = "Fixed\n100dp", color = Color.Red, row = 1, column = 1)
-        GridDemoItem(text = "Fraction\n30% of Total", color = Color.Blue, row = 1, column = 2)
+        GridDemoItem(text = "Percentage\n30% of Total", color = Color.Blue, row = 1, column = 2)
         GridDemoItem(text = "Flex\nRest of Space", color = Color.Green, row = 1, column = 3)
     }
 }
