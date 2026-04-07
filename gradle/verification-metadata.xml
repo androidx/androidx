@@ -366,6 +366,7 @@
          <trusted-key id="6BDACA2C0493CCA133B372D09C4F7E9D98B1CC53" group="org.apache"/>
          <trusted-key id="6CB87B18A453990EAC9453F87D713008CC07E9AD" group="xerces" name="xercesImpl"/>
          <trusted-key id="6D98490C6F1ACDDD448E45954F77679369475BAA" group="com.yarnpkg"/>
+         <trusted-key id="72ECF46A56B4AD39C907BBB71646B01B86E50310" group="com.yarnpkg"/>
          <trusted-key id="6DD3B8C64EF75253BEB2C53AD908A43FB7EC07AC">
             <trusting group="com.sun.activation"/>
             <trusting group="jakarta.activation"/>
