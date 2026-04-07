@@ -75,7 +75,7 @@ android {
 
 androidComponents {
     def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
-    def nativeTestPath = new File(prebuiltsRoot, "androidx/xr/native/androidTest").absolutePath
+    def nativeTestPath = new File(prebuiltsRoot, "androidx/xr/native/scenecore-spatial/androidTest").absolutePath
     def fakeAssetsPath = layout.projectDirectory
             .dir("src/test/java/androidx/xr/scenecore/spatial/rendering/fake_assets")
             .asFile

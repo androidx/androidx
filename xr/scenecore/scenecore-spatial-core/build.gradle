@@ -79,7 +79,7 @@ android {
 }
 
 androidComponents {
-    def nativeTestPath = new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/androidTest")
+    def nativeTestPath = new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/scenecore-spatial/androidTest")
             .absolutePath
 
     onVariants(selector().all()) { variant ->

@@ -61,12 +61,14 @@ android {
 
 androidComponents {
     def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
-    def mainNativePath = new File(prebuiltsRoot, "androidx/xr/native/android").absolutePath
-    def testNativePath = new File(prebuiltsRoot, "androidx/xr/native/androidTest").absolutePath
+    def mainNativePath = new File(prebuiltsRoot, "androidx/xr/native/arcore-openxr/android").absolutePath
+    def testArCoreNativePath = new File(prebuiltsRoot, "androidx/xr/native/arcore-openxr/androidTest").absolutePath
+    def testRuntimeNativePath = new File(prebuiltsRoot, "androidx/xr/native/runtime-openxr/androidTest").absolutePath
 
     onVariants(selector().all()) { variant ->
         variant.sources.jniLibs.addStaticSourceDirectory(mainNativePath)
-        (variant as HasAndroidTest).androidTest.sources.jniLibs.addStaticSourceDirectory(testNativePath)
+        (variant as HasAndroidTest).androidTest.sources.jniLibs.addStaticSourceDirectory(testArCoreNativePath)
+        (variant as HasAndroidTest).androidTest.sources.jniLibs.addStaticSourceDirectory(testRuntimeNativePath)
     }
 }
 
