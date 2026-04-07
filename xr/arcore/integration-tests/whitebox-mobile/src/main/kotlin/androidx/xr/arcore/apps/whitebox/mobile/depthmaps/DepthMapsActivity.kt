@@ -58,6 +58,7 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Framebuffer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.SampleRender
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.maybeThrowGLException
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.BackgroundRenderer
+import androidx.xr.arcore.perceptionState
 import androidx.xr.arcore.playservices.ExperimentalCameraApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.arcore.runtime.PerceptionRuntime
@@ -204,18 +205,20 @@ class DepthMapsActivity :
             return
         }
 
-        val cameraState = session.state.value.cameraState
+        val sessionState = session.state.value
+        val perceptionState = sessionState.perceptionState
+        val cameraState = sessionState.cameraState
         if (cameraState != null && cameraState.transformCoordinates2D != null) {
             backgroundRenderer.updateDisplayGeometry(cameraState.transformCoordinates2D!!)
         }
-        if (cameraState?.trackingState == TrackingState.TRACKING) {
+        if (perceptionState?.arDevice?.state?.value?.trackingState == TrackingState.TRACKING) {
             if (image != null) {
                 EGLExt.eglDestroyImageKHR(EGL14.eglGetCurrentDisplay(), image!!)
             }
             image =
                 EGLExt.eglCreateImageFromHardwareBuffer(
                     EGL14.eglGetCurrentDisplay(),
-                    cameraState.hardwareBuffer!!,
+                    cameraState?.hardwareBuffer!!,
                 )
             maybeThrowGLException(
                 "Failed to create image from hardware buffer",
@@ -234,7 +237,7 @@ class DepthMapsActivity :
             backgroundRenderer.drawBackground(render)
 
             // If not tracking, don't draw 3D objects.
-            if (cameraState.trackingState == TrackingState.PAUSED) {
+            if (perceptionState.arDevice.state.value.trackingState == TrackingState.PAUSED) {
                 return
             }
         }
@@ -244,8 +247,9 @@ class DepthMapsActivity :
     @OptIn(ExperimentalCameraApi::class)
     private fun MainPanel() {
         val state by session.state.collectAsStateWithLifecycle()
-        val cameraState = state.cameraState
-        val hasCameraTracking = cameraState?.trackingState == TrackingState.TRACKING
+        val perceptionState = state.perceptionState
+        val hasCameraTracking =
+            perceptionState?.arDevice?.state?.value?.trackingState == TrackingState.TRACKING
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
