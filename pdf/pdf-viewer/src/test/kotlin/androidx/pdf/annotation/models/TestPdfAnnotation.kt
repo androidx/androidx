@@ -16,4 +16,18 @@
 
 package androidx.pdf.annotation.models
 
-class TestPdfAnnotation(override val pageNum: Int) : PdfAnnotation(pageNum)
+class TestPdfAnnotation(override val pageNum: Int) : PdfAnnotation(pageNum) {
+    override fun equals(other: Any?): Boolean {
+        if (!super.equals(other)) return false
+        if (other == null || other !is TestPdfAnnotation) return false
+
+        if (other.pageNum != pageNum) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + pageNum
+        return result
+    }
+}

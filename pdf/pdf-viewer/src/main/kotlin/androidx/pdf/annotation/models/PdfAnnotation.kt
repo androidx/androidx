@@ -51,6 +51,22 @@ public abstract class PdfAnnotation(public open val pageNum: Int) : Parcelable {
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+
+        if (javaClass != other?.javaClass) return false
+
+        other as PdfAnnotation
+
+        if (pageNum != other.pageNum) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return pageNum
+    }
+
     public companion object {
         /** Unknown annotation type. */
         internal const val UNKNOWN_TYPE: Int = -1

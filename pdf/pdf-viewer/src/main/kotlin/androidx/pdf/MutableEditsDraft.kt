@@ -72,5 +72,7 @@ private constructor(private val mutableOperations: MutableList<DraftEditOperatio
      *
      * @return An [EditsDraft] containing the accumulated operations.
      */
-    public fun toEditsDraft(): EditsDraft = this
+    public fun toEditsDraft(): EditsDraft {
+        return EditsDraft(mutableOperations.toList())
+    }
 }
