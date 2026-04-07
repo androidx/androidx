@@ -32,7 +32,7 @@ val Demos =
         "Jetpack Compose Glimmer Demos",
         listOf(
             ComposableDemo("Colors") { ColorsSample() },
-            ComposableDemo("Typography") { TypographySample() },
+            ComposableDemo("GSFlex Typography") { TypographySample() },
             ComposableDemo("Shapes") { ShapesSample() },
             ComposableDemo("DepthEffect Levels") { DepthEffectLevelsSample() },
             ComposableDemo("Surface") { SurfaceSampleUsage() },

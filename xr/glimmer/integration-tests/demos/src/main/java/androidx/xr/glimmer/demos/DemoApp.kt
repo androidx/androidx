@@ -38,12 +38,13 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
+import androidx.xr.glimmer.googlefonts.createGoogleSansFlexTypography
 import androidx.xr.glimmer.list.VerticalList
 
 @Composable
 fun DemoApp(demoAppState: DemoAppState) {
     val overlayOnBackground = OverlayOnBackgroundSetting.asState().value
-    GlimmerTheme {
+    GlimmerTheme(typography = createGoogleSansFlexTypography()) {
         Column(
             Modifier.demoBackground(overlayOnBackground)
                 .windowInsetsPadding(WindowInsets.systemBars)

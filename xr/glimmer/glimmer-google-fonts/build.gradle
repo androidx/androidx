@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `createProject` gradle task (./gradlew createProject)
- *
- * Please use the task when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.SoftwareType
 
 plugins {
@@ -29,19 +23,14 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.runtime:runtime:1.10.0")
-    api("androidx.compose.ui:ui:1.10.0")
-    api("androidx.compose.foundation:foundation:1.10.0")
-    api("androidx.annotation:annotation:1.9.1")
+    api(project(":xr:glimmer:glimmer"))
+    implementation(project(":compose:ui:ui-text-google-fonts"))
 
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":xr:glimmer:glimmer:glimmer-samples"))
-    androidTestImplementation(project(":xr:glimmer:test-utils"))
+    androidTestImplementation(project(":xr:glimmer:glimmer-google-fonts:glimmer-google-fonts-samples"))
 
-    androidTestImplementation("androidx.core:core:1.16.0")
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
@@ -50,18 +39,15 @@ dependencies {
 }
 
 android {
-    namespace = "androidx.xr.glimmer"
+    namespace = "androidx.xr.glimmer.googlefonts"
     compileSdk { version = release(37) }
-    defaultConfig {
-        testInstrumentationRunner "androidx.xr.glimmer.GlimmerTestRunner"
-    }
 }
 
 androidx {
-    name = "Compose Glimmer"
+    name = "Compose Glimmer Fonts"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    inceptionYear = "2025"
-    description = "Jetpack Compose Glimmer, the UI library for augmented Android XR experiences"
+    inceptionYear = "2026"
+    description = "Jetpack Compose Glimmer integration with fonts"
     addGoldenImageAssets()
-    samples(project(":xr:glimmer:glimmer:glimmer-samples"))
+    samples(project(":xr:glimmer:glimmer-google-fonts:glimmer-google-fonts-samples"))
 }

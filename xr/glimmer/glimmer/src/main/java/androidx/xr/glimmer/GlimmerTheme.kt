@@ -75,7 +75,9 @@ public fun GlimmerTheme(
  * Components use properties provided here when retrieving default values.
  *
  * @property colors [Colors] used by Jetpack Compose Glimmer components
- * @property typography [Typography] used by Jetpack Compose Glimmer components
+ * @property typography [Typography] used by Jetpack Compose Glimmer components. It is recommended
+ *   to use `createGoogleSansFlexTypography()` from `androidx.xr.glimmer:glimmer-google-fonts` to
+ *   create this.
  * @property componentSpacingValues [ComponentSpacingValues] used by Jetpack Compose Glimmer
  *   components
  * @property shapes [Shapes] used by Jetpack Compose Glimmer components
