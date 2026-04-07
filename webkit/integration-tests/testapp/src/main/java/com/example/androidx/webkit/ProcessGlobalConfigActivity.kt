@@ -36,7 +36,7 @@ class ProcessGlobalConfigActivity : AppCompatActivity() {
 
         findViewById<MenuListView>(R.id.top_level_list)
             .setItems(
-                arrayOf(
+                listOf(
                     MenuListView.MenuItem(
                         getResources().getString(R.string.data_directory_suffix_activity_title),
                         Intent(this, DataDirectorySuffixActivity::class.java),
