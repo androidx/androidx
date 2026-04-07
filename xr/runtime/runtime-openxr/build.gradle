@@ -51,10 +51,10 @@ dependencies {
 android {
     namespace = "androidx.xr.runtime.openxr"
     sourceSets.main {
-        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/android")
+        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/runtime-openxr/android")
     }
     sourceSets.androidTest {
-        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/androidTest")
+        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/runtime-openxr/androidTest")
     }
 }
 
