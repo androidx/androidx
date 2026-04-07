@@ -46,6 +46,7 @@
     <string name="cuj_spatial_audio_test">Spatial Audio Point Source Test Case</string>
     <string name="cuj_spatial_audio_ambisonic_test">Spatial Audio Ambisonic/SoundField Test Case</string>
     <string name="cuj_spatial_audio_setting_pointsourceparams_test">Spatial Audio Setting PointSourceParams Test Case</string>
+    <string name="cuj_spatial_audio_components_test">Spatial Audio Components Test Case</string>
     <string name="cuj_field_of_view_visibility_test">Field Of View Visibility Test Case</string>
     <string name="cuj_hit_test">Digital Hit Test Case</string>
     <string name="cuj_accessibility_test">Accessibility Test Case</string>

@@ -90,6 +90,7 @@ import androidx.xr.scenecore.testapp.panelcoordinate.PanelCoordinateActivity
 import androidx.xr.scenecore.testapp.panelroundedcorner.PanelRoundedCornerActivity
 import androidx.xr.scenecore.testapp.sceneviewer.SceneViewerActivity
 import androidx.xr.scenecore.testapp.spatialaudio.SpatialAudioActivity
+import androidx.xr.scenecore.testapp.spatialaudio.SpatialAudioComponentsActivity
 import androidx.xr.scenecore.testapp.spatialcapabilities.SpatialCapabilitiesActivity
 import androidx.xr.scenecore.testapp.spatialuser.SpatialUserActivity
 import androidx.xr.scenecore.testapp.standalone.StandaloneActivity
@@ -419,6 +420,15 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
+            Tests.SPATIAL_AUDIO_COMPONENTS_TEST.test -> {
+                val intent = createIntent<SpatialAudioComponentsActivity>()
+                intent.putExtra(
+                    "MAIN_PANEL_TITLE",
+                    getString(R.string.cuj_spatial_audio_components_test),
+                )
+                startActivity(intent)
+            }
+
             Tests.PANEL_ROUNDED_CORNER_TEST.test ->
                 startActivity(createIntent<PanelRoundedCornerActivity>())
 
@@ -578,6 +588,10 @@ class MainActivity : AppCompatActivity() {
                             R.string.cuj_spatial_audio_setting_pointsourceparams_test,
                             Tests.SPATIAL_AUDIO_3_TEST.test,
                         ),
+                        TestCase(
+                            R.string.cuj_spatial_audio_components_test,
+                            Tests.SPATIAL_AUDIO_COMPONENTS_TEST.test,
+                        ),
                         TestCase(R.string.cuj_mesh_entity_test, Tests.MESH_ENTITY_TEST.test),
                     ),
                 "SYSTEM & CAPABILITIES" to
@@ -628,5 +642,6 @@ class MainActivity : AppCompatActivity() {
         GLTF_MODEL_ANIMATION_TEST(28),
         SURFACE_CUSTOM_MESH_TEST(29),
         MESH_ENTITY_TEST(30),
+        SPATIAL_AUDIO_COMPONENTS_TEST(31),
     }
 }
