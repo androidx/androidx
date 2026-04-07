@@ -31,7 +31,7 @@ class JsJavaInteractionActivity : AppCompatActivity() {
 
         findViewById<MenuListView>(R.id.js_java_interaction_list)
             .setItems(
-                arrayOf(
+                listOf(
                     MenuListView.MenuItem(
                         getResources().getString(R.string.web_message_listener_activity_title),
                         Intent(this, WebMessageListenerActivity::class.java),

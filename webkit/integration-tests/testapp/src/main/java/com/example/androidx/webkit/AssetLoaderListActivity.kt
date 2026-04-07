@@ -36,7 +36,7 @@ class AssetLoaderListActivity : AppCompatActivity() {
 
         findViewById<MenuListView>(R.id.asset_loader_list)
             .setItems(
-                arrayOf(
+                listOf(
                     MenuListView.MenuItem(
                         getResources().getString(R.string.asset_loader_simple_activity_title),
                         Intent(this, AssetLoaderSimpleActivity::class.java),

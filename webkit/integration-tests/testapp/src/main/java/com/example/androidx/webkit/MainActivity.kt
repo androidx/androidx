@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<MenuListView>(R.id.top_level_list)
             .setItems(
-                arrayOf(
+                listOf(
                     MenuListView.MenuItem(
                         getResources().getString(R.string.safebrowsing_activity_title),
                         Intent(this, SafeBrowsingActivity::class.java),

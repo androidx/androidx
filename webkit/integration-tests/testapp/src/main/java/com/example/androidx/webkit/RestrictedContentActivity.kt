@@ -32,7 +32,7 @@ class RestrictedContentActivity : AppCompatActivity() {
 
         findViewById<MenuListView>(R.id.restricted_content_list)
             .setItems(
-                arrayOf(
+                listOf(
                     MenuListView.MenuItem(
                         resources.getString(R.string.tiny_interstitial_activity_title),
                         Intent(this, TinyInterstitialActivity::class.java),

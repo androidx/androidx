@@ -32,7 +32,7 @@ class SafeBrowsingActivity : AppCompatActivity() {
 
         findViewById<MenuListView>(R.id.safe_browsing_list)
             .setItems(
-                arrayOf(
+                listOf(
                     MenuListView.MenuItem(
                         resources.getString(R.string.small_interstitial_activity_title),
                         Intent(this, SmallInterstitialActivity::class.java)
