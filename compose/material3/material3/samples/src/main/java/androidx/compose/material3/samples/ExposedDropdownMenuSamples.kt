@@ -94,6 +94,7 @@ fun ExposedDropdownMenuSample() {
                     onClick = {
                         textFieldState.setTextAndPlaceCursorAtEnd(option)
                         checkedIndex = index
+                        expanded = false
                     },
                     selectedLeadingIcon = {
                         Icon(
