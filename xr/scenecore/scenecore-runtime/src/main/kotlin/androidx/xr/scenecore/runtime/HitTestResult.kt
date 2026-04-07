@@ -66,7 +66,6 @@ public class HitTestResult(
         HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_OBJECT,
     )
     @Retention(AnnotationRetention.SOURCE)
-    @Suppress("PublicTypedef")
     public annotation class HitTestSurfaceTypeValue
 
     /** The type of the surface that was hit. */

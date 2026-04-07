@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo
     SpatialPointerIcon.TYPE_CIRCLE,
 )
 @Retention(AnnotationRetention.SOURCE)
-@Suppress("PublicTypedef")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public annotation class SpatialPointerIconType
 
