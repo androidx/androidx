@@ -28,8 +28,8 @@ public class GPUColorTargetState
 @JvmOverloads
 constructor(
     /** The texture format of the color target. */
-    @TextureFormat public var format: Int = TextureFormat.Undefined,
+    @TextureFormat.Type public var format: Int = TextureFormat.Undefined,
     /** The blending state for this target. */
     public var blend: GPUBlendState? = null,
-    @ColorWriteMask public var writeMask: Int = ColorWriteMask.All,
+    @ColorWriteMask.Type public var writeMask: Int = ColorWriteMask.All,
 )

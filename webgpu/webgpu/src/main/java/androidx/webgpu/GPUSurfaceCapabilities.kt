@@ -28,9 +28,9 @@ public class GPUSurfaceCapabilities
 @JvmOverloads
 constructor(
     /** The supported texture usages for the surface. */
-    @TextureUsage public var usages: Int,
+    @TextureUsage.Type public var usages: Int,
     /** An array of supported texture formats for the surface. */
-    @TextureFormat public var formats: IntArray = intArrayOf(),
-    @PresentMode public var presentModes: IntArray = intArrayOf(),
-    @CompositeAlphaMode public var alphaModes: IntArray = intArrayOf(),
+    @TextureFormat.Type public var formats: IntArray = intArrayOf(),
+    @PresentMode.Type public var presentModes: IntArray = intArrayOf(),
+    @CompositeAlphaMode.Type public var alphaModes: IntArray = intArrayOf(),
 )

@@ -26,7 +26,7 @@ package androidx.webgpu
 /** Describes a single vertex attribute. */
 public class GPUVertexAttribute(
     /** The format of the vertex attribute data. */
-    @VertexFormat public var format: Int,
+    @VertexFormat.Type public var format: Int,
     /** The offset in bytes from the beginning of the vertex. */
     public var offset: Long,
     public var shaderLocation: Int,

@@ -32,12 +32,12 @@ public class GPUSurfaceConfiguration(
     /** The height of the surface's textures. */
     public var height: Int,
     /** The texture format for the surface. */
-    @TextureFormat public var format: Int = TextureFormat.Undefined,
+    @TextureFormat.Type public var format: Int = TextureFormat.Undefined,
     /** The allowed usages for the surface's textures. */
-    @TextureUsage public var usage: Int = TextureUsage.RenderAttachment,
-    @TextureFormat public var viewFormats: IntArray = intArrayOf(),
-    @CompositeAlphaMode public var alphaMode: Int = CompositeAlphaMode.Auto,
-    @PresentMode public var presentMode: Int = PresentMode.Fifo,
+    @TextureUsage.Type public var usage: Int = TextureUsage.RenderAttachment,
+    @TextureFormat.Type public var viewFormats: IntArray = intArrayOf(),
+    @CompositeAlphaMode.Type public var alphaMode: Int = CompositeAlphaMode.Auto,
+    @PresentMode.Type public var presentMode: Int = PresentMode.Fifo,
 ) {
 
     /** Builder for [GPUSurfaceConfiguration]. */
@@ -46,25 +46,27 @@ public class GPUSurfaceConfiguration(
         private val width: Int,
         private val height: Int,
     ) {
-        @TextureFormat private var format: Int = TextureFormat.Undefined
-        @TextureUsage private var usage: Int = TextureUsage.RenderAttachment
-        @TextureFormat private var viewFormats: IntArray = intArrayOf()
-        @CompositeAlphaMode private var alphaMode: Int = CompositeAlphaMode.Auto
-        @PresentMode private var presentMode: Int = PresentMode.Fifo
+        @TextureFormat.Type private var format: Int = TextureFormat.Undefined
+        @TextureUsage.Type private var usage: Int = TextureUsage.RenderAttachment
+        @TextureFormat.Type private var viewFormats: IntArray = intArrayOf()
+        @CompositeAlphaMode.Type private var alphaMode: Int = CompositeAlphaMode.Auto
+        @PresentMode.Type private var presentMode: Int = PresentMode.Fifo
 
-        public fun setFormat(@TextureFormat format: Int): Builder = apply { this.format = format }
+        public fun setFormat(@TextureFormat.Type format: Int): Builder = apply {
+            this.format = format
+        }
 
-        public fun setUsage(@TextureUsage usage: Int): Builder = apply { this.usage = usage }
+        public fun setUsage(@TextureUsage.Type usage: Int): Builder = apply { this.usage = usage }
 
-        public fun setViewFormats(@TextureFormat viewFormats: IntArray): Builder = apply {
+        public fun setViewFormats(@TextureFormat.Type viewFormats: IntArray): Builder = apply {
             this.viewFormats = viewFormats
         }
 
-        public fun setAlphaMode(@CompositeAlphaMode alphaMode: Int): Builder = apply {
+        public fun setAlphaMode(@CompositeAlphaMode.Type alphaMode: Int): Builder = apply {
             this.alphaMode = alphaMode
         }
 
-        public fun setPresentMode(@PresentMode presentMode: Int): Builder = apply {
+        public fun setPresentMode(@PresentMode.Type presentMode: Int): Builder = apply {
             this.presentMode = presentMode
         }
 

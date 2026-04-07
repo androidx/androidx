@@ -28,27 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            RequestAdapterStatus.Success,
-            RequestAdapterStatus.CallbackCancelled,
-            RequestAdapterStatus.Unavailable,
-            RequestAdapterStatus.Error,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Indicates the status of an adapter request. */
-public annotation class RequestAdapterStatus {
+public class RequestAdapterStatus private constructor() {
+
     public companion object {
 
         /** An adapter was successfully found. */
@@ -73,7 +57,17 @@ public annotation class RequestAdapterStatus {
                 0x00000004 to "Error",
             )
 
-        public fun toString(@RequestAdapterStatus value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Success, CallbackCancelled, Unavailable, Error])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

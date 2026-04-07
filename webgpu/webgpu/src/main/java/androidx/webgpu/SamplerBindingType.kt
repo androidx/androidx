@@ -28,28 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            SamplerBindingType.BindingNotUsed,
-            SamplerBindingType.Undefined,
-            SamplerBindingType.Filtering,
-            SamplerBindingType.NonFiltering,
-            SamplerBindingType.Comparison,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies the type of a sampler binding in a bind group layout. */
-public annotation class SamplerBindingType {
+public class SamplerBindingType private constructor() {
+
     public companion object {
 
         /** Indicates that this binding is not used. */
@@ -75,7 +58,17 @@ public annotation class SamplerBindingType {
                 0x00000004 to "Comparison",
             )
 
-        public fun toString(@SamplerBindingType value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [BindingNotUsed, Undefined, Filtering, NonFiltering, Comparison])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

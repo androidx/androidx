@@ -27,56 +27,56 @@ package androidx.webgpu
 public class GPUSamplerDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null,
-    @AddressMode public var addressModeU: Int = AddressMode.ClampToEdge,
-    @AddressMode public var addressModeV: Int = AddressMode.ClampToEdge,
-    @AddressMode public var addressModeW: Int = AddressMode.ClampToEdge,
-    @FilterMode public var magFilter: Int = FilterMode.Nearest,
-    @FilterMode public var minFilter: Int = FilterMode.Nearest,
-    @MipmapFilterMode public var mipmapFilter: Int = MipmapFilterMode.Nearest,
+    @AddressMode.Type public var addressModeU: Int = AddressMode.ClampToEdge,
+    @AddressMode.Type public var addressModeV: Int = AddressMode.ClampToEdge,
+    @AddressMode.Type public var addressModeW: Int = AddressMode.ClampToEdge,
+    @FilterMode.Type public var magFilter: Int = FilterMode.Nearest,
+    @FilterMode.Type public var minFilter: Int = FilterMode.Nearest,
+    @MipmapFilterMode.Type public var mipmapFilter: Int = MipmapFilterMode.Nearest,
     public var lodMinClamp: Float = 0.0f,
     public var lodMaxClamp: Float = 32.0f,
     /** The comparison function for comparison samplers. */
-    @CompareFunction public var compare: Int = CompareFunction.Undefined,
+    @CompareFunction.Type public var compare: Int = CompareFunction.Undefined,
     public var maxAnisotropy: Short = 1,
 ) {
 
     /** Builder for [GPUSamplerDescriptor]. */
     public class Builder() {
         private var label: String? = null
-        @AddressMode private var addressModeU: Int = AddressMode.ClampToEdge
-        @AddressMode private var addressModeV: Int = AddressMode.ClampToEdge
-        @AddressMode private var addressModeW: Int = AddressMode.ClampToEdge
-        @FilterMode private var magFilter: Int = FilterMode.Nearest
-        @FilterMode private var minFilter: Int = FilterMode.Nearest
-        @MipmapFilterMode private var mipmapFilter: Int = MipmapFilterMode.Nearest
+        @AddressMode.Type private var addressModeU: Int = AddressMode.ClampToEdge
+        @AddressMode.Type private var addressModeV: Int = AddressMode.ClampToEdge
+        @AddressMode.Type private var addressModeW: Int = AddressMode.ClampToEdge
+        @FilterMode.Type private var magFilter: Int = FilterMode.Nearest
+        @FilterMode.Type private var minFilter: Int = FilterMode.Nearest
+        @MipmapFilterMode.Type private var mipmapFilter: Int = MipmapFilterMode.Nearest
         private var lodMinClamp: Float = 0.0f
         private var lodMaxClamp: Float = 32.0f
-        @CompareFunction private var compare: Int = CompareFunction.Undefined
+        @CompareFunction.Type private var compare: Int = CompareFunction.Undefined
         private var maxAnisotropy: Short = 1
 
         public fun setLabel(label: String?): Builder = apply { this.label = label }
 
-        public fun setAddressModeU(@AddressMode addressModeU: Int): Builder = apply {
+        public fun setAddressModeU(@AddressMode.Type addressModeU: Int): Builder = apply {
             this.addressModeU = addressModeU
         }
 
-        public fun setAddressModeV(@AddressMode addressModeV: Int): Builder = apply {
+        public fun setAddressModeV(@AddressMode.Type addressModeV: Int): Builder = apply {
             this.addressModeV = addressModeV
         }
 
-        public fun setAddressModeW(@AddressMode addressModeW: Int): Builder = apply {
+        public fun setAddressModeW(@AddressMode.Type addressModeW: Int): Builder = apply {
             this.addressModeW = addressModeW
         }
 
-        public fun setMagFilter(@FilterMode magFilter: Int): Builder = apply {
+        public fun setMagFilter(@FilterMode.Type magFilter: Int): Builder = apply {
             this.magFilter = magFilter
         }
 
-        public fun setMinFilter(@FilterMode minFilter: Int): Builder = apply {
+        public fun setMinFilter(@FilterMode.Type minFilter: Int): Builder = apply {
             this.minFilter = minFilter
         }
 
-        public fun setMipmapFilter(@MipmapFilterMode mipmapFilter: Int): Builder = apply {
+        public fun setMipmapFilter(@MipmapFilterMode.Type mipmapFilter: Int): Builder = apply {
             this.mipmapFilter = mipmapFilter
         }
 
@@ -88,7 +88,7 @@ public class GPUSamplerDescriptor(
             this.lodMaxClamp = lodMaxClamp
         }
 
-        public fun setCompare(@CompareFunction compare: Int): Builder = apply {
+        public fun setCompare(@CompareFunction.Type compare: Int): Builder = apply {
             this.compare = compare
         }
 

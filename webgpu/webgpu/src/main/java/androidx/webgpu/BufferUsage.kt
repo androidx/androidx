@@ -28,35 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    flag = true,
-    value =
-        [
-            BufferUsage.None,
-            BufferUsage.MapRead,
-            BufferUsage.MapWrite,
-            BufferUsage.CopySrc,
-            BufferUsage.CopyDst,
-            BufferUsage.Index,
-            BufferUsage.Vertex,
-            BufferUsage.Uniform,
-            BufferUsage.Storage,
-            BufferUsage.Indirect,
-            BufferUsage.QueryResolve,
-        ],
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the valid usages for a buffer. */
-public annotation class BufferUsage {
+public class BufferUsage private constructor() {
+
     public companion object {
 
         /** No usage is specified. */
@@ -106,6 +82,33 @@ public annotation class BufferUsage {
                 0x00000200 to "QueryResolve",
             )
 
-        public fun toString(@BufferUsage value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(
+        flag = true,
+        value =
+            [
+                None,
+                MapRead,
+                MapWrite,
+                CopySrc,
+                CopyDst,
+                Index,
+                Vertex,
+                Uniform,
+                Storage,
+                Indirect,
+                QueryResolve,
+            ],
+    )
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

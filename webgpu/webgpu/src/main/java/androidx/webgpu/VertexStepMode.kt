@@ -28,19 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(value = [VertexStepMode.Undefined, VertexStepMode.Vertex, VertexStepMode.Instance])
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines how frequently a vertex buffer is advanced. */
-public annotation class VertexStepMode {
+public class VertexStepMode private constructor() {
+
     public companion object {
 
         /** Indicates that no vertex step mode is specified. */
@@ -54,6 +46,17 @@ public annotation class VertexStepMode {
         internal val names: Map<Int, String> =
             mapOf(0x00000000 to "Undefined", 0x00000001 to "Vertex", 0x00000002 to "Instance")
 
-        public fun toString(@VertexStepMode value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, Vertex, Instance])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

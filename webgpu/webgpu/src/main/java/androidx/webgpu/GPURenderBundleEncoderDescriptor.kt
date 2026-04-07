@@ -27,8 +27,8 @@ package androidx.webgpu
 public class GPURenderBundleEncoderDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null,
-    @TextureFormat public var colorFormats: IntArray = intArrayOf(),
-    @TextureFormat public var depthStencilFormat: Int = TextureFormat.Undefined,
+    @TextureFormat.Type public var colorFormats: IntArray = intArrayOf(),
+    @TextureFormat.Type public var depthStencilFormat: Int = TextureFormat.Undefined,
     public var sampleCount: Int = 1,
     @get:JvmName("isDepthReadOnly") public var depthReadOnly: Boolean = false,
     @get:JvmName("isStencilReadOnly") public var stencilReadOnly: Boolean = false,
@@ -37,21 +37,22 @@ public class GPURenderBundleEncoderDescriptor(
     /** Builder for [GPURenderBundleEncoderDescriptor]. */
     public class Builder() {
         private var label: String? = null
-        @TextureFormat private var colorFormats: IntArray = intArrayOf()
-        @TextureFormat private var depthStencilFormat: Int = TextureFormat.Undefined
+        @TextureFormat.Type private var colorFormats: IntArray = intArrayOf()
+        @TextureFormat.Type private var depthStencilFormat: Int = TextureFormat.Undefined
         private var sampleCount: Int = 1
         private var depthReadOnly: Boolean = false
         private var stencilReadOnly: Boolean = false
 
         public fun setLabel(label: String?): Builder = apply { this.label = label }
 
-        public fun setColorFormats(@TextureFormat colorFormats: IntArray): Builder = apply {
+        public fun setColorFormats(@TextureFormat.Type colorFormats: IntArray): Builder = apply {
             this.colorFormats = colorFormats
         }
 
-        public fun setDepthStencilFormat(@TextureFormat depthStencilFormat: Int): Builder = apply {
-            this.depthStencilFormat = depthStencilFormat
-        }
+        public fun setDepthStencilFormat(@TextureFormat.Type depthStencilFormat: Int): Builder =
+            apply {
+                this.depthStencilFormat = depthStencilFormat
+            }
 
         public fun setSampleCount(sampleCount: Int): Builder = apply {
             this.sampleCount = sampleCount

@@ -28,30 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            ComponentSwizzle.Undefined,
-            ComponentSwizzle.Zero,
-            ComponentSwizzle.One,
-            ComponentSwizzle.R,
-            ComponentSwizzle.G,
-            ComponentSwizzle.B,
-            ComponentSwizzle.A,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines how component values are remapped when sampling a texture. */
-public annotation class ComponentSwizzle {
+public class ComponentSwizzle private constructor() {
+
     public companion object {
 
         /** Indicates no value is passed for this argument. */
@@ -85,6 +66,17 @@ public annotation class ComponentSwizzle {
                 0x00000006 to "A",
             )
 
-        public fun toString(@ComponentSwizzle value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, Zero, One, R, G, B, A])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

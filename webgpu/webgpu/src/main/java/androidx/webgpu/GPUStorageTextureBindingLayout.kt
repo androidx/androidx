@@ -30,8 +30,8 @@ constructor(
     /**
      * The access mode for the storage texture. Defaults to @see [StorageTextureAccess.WriteOnly].
      */
-    @StorageTextureAccess public var access: Int = StorageTextureAccess.WriteOnly,
+    @StorageTextureAccess.Type public var access: Int = StorageTextureAccess.WriteOnly,
     /** The format of the storage texture. */
-    @TextureFormat public var format: Int = TextureFormat.Undefined,
-    @TextureViewDimension public var viewDimension: Int = TextureViewDimension._2D,
+    @TextureFormat.Type public var format: Int = TextureFormat.Undefined,
+    @TextureViewDimension.Type public var viewDimension: Int = TextureViewDimension._2D,
 )

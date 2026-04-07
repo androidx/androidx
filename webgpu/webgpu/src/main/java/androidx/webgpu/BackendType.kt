@@ -28,32 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            BackendType.Undefined,
-            BackendType.Null,
-            BackendType.WebGPU,
-            BackendType.D3D11,
-            BackendType.D3D12,
-            BackendType.Metal,
-            BackendType.Vulkan,
-            BackendType.OpenGL,
-            BackendType.OpenGLES,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies the underlying graphics API used by the WebGPU implementation. */
-public annotation class BackendType {
+public class BackendType private constructor() {
+
     public companion object {
 
         /** Indicates that no backend type is specified. */
@@ -95,6 +74,17 @@ public annotation class BackendType {
                 0x00000008 to "OpenGLES",
             )
 
-        public fun toString(@BackendType value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, Null, WebGPU, D3D11, D3D12, Metal, Vulkan, OpenGL, OpenGLES])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

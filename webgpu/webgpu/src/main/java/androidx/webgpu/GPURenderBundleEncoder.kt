@@ -146,7 +146,7 @@ public class GPURenderBundleEncoder private constructor(public val handle: Long)
     @JvmOverloads
     public external fun setIndexBuffer(
         buffer: GPUBuffer,
-        @IndexFormat format: Int = IndexFormat.Undefined,
+        @IndexFormat.Type format: Int = IndexFormat.Undefined,
         offset: Long = 0,
         size: Long = Constants.WHOLE_SIZE,
     ): Unit

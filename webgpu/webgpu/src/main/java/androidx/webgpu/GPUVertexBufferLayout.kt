@@ -28,7 +28,7 @@ public class GPUVertexBufferLayout
 @JvmOverloads
 constructor(
     public var arrayStride: Long,
-    @VertexStepMode public var stepMode: Int = VertexStepMode.Undefined,
+    @VertexStepMode.Type public var stepMode: Int = VertexStepMode.Undefined,
     /** An array of vertex attributes sourced from this buffer. */
     public var attributes: Array<GPUVertexAttribute> = arrayOf(),
 )

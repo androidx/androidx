@@ -28,45 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            FeatureName.CoreFeaturesAndLimits,
-            FeatureName.DepthClipControl,
-            FeatureName.Depth32FloatStencil8,
-            FeatureName.TextureCompressionBC,
-            FeatureName.TextureCompressionBCSliced3D,
-            FeatureName.TextureCompressionETC2,
-            FeatureName.TextureCompressionASTC,
-            FeatureName.TextureCompressionASTCSliced3D,
-            FeatureName.TimestampQuery,
-            FeatureName.IndirectFirstInstance,
-            FeatureName.ShaderF16,
-            FeatureName.RG11B10UfloatRenderable,
-            FeatureName.BGRA8UnormStorage,
-            FeatureName.Float32Filterable,
-            FeatureName.Float32Blendable,
-            FeatureName.ClipDistances,
-            FeatureName.DualSourceBlending,
-            FeatureName.Subgroups,
-            FeatureName.TextureFormatsTier1,
-            FeatureName.TextureFormatsTier2,
-            FeatureName.PrimitiveIndex,
-            FeatureName.TextureComponentSwizzle,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** An enumeration of optional features that a device may support. */
-public annotation class FeatureName {
+public class FeatureName private constructor() {
+
     public companion object {
 
         /** Represents the baseline set of WebGPU features and limits. */
@@ -162,6 +128,43 @@ public annotation class FeatureName {
                 0x00000016 to "TextureComponentSwizzle",
             )
 
-        public fun toString(@FeatureName value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(
+        value =
+            [
+                CoreFeaturesAndLimits,
+                DepthClipControl,
+                Depth32FloatStencil8,
+                TextureCompressionBC,
+                TextureCompressionBCSliced3D,
+                TextureCompressionETC2,
+                TextureCompressionASTC,
+                TextureCompressionASTCSliced3D,
+                TimestampQuery,
+                IndirectFirstInstance,
+                ShaderF16,
+                RG11B10UfloatRenderable,
+                BGRA8UnormStorage,
+                Float32Filterable,
+                Float32Blendable,
+                ClipDistances,
+                DualSourceBlending,
+                Subgroups,
+                TextureFormatsTier1,
+                TextureFormatsTier2,
+                PrimitiveIndex,
+                TextureComponentSwizzle,
+            ]
+    )
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

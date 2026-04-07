@@ -33,7 +33,7 @@ public fun interface UncapturedErrorCallback {
      */
     @Suppress("INAPPLICABLE_JVM_NAME")
     @JvmName("onUncapturedError")
-    public fun onUncapturedError(device: GPUDevice, @ErrorType type: Int, message: String)
+    public fun onUncapturedError(device: GPUDevice, @ErrorType.Type type: Int, message: String)
 }
 
 internal class UncapturedErrorCallbackRunnable(

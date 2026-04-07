@@ -28,64 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            VertexFormat.Uint8,
-            VertexFormat.Uint8x2,
-            VertexFormat.Uint8x4,
-            VertexFormat.Sint8,
-            VertexFormat.Sint8x2,
-            VertexFormat.Sint8x4,
-            VertexFormat.Unorm8,
-            VertexFormat.Unorm8x2,
-            VertexFormat.Unorm8x4,
-            VertexFormat.Snorm8,
-            VertexFormat.Snorm8x2,
-            VertexFormat.Snorm8x4,
-            VertexFormat.Uint16,
-            VertexFormat.Uint16x2,
-            VertexFormat.Uint16x4,
-            VertexFormat.Sint16,
-            VertexFormat.Sint16x2,
-            VertexFormat.Sint16x4,
-            VertexFormat.Unorm16,
-            VertexFormat.Unorm16x2,
-            VertexFormat.Unorm16x4,
-            VertexFormat.Snorm16,
-            VertexFormat.Snorm16x2,
-            VertexFormat.Snorm16x4,
-            VertexFormat.Float16,
-            VertexFormat.Float16x2,
-            VertexFormat.Float16x4,
-            VertexFormat.Float32,
-            VertexFormat.Float32x2,
-            VertexFormat.Float32x3,
-            VertexFormat.Float32x4,
-            VertexFormat.Uint32,
-            VertexFormat.Uint32x2,
-            VertexFormat.Uint32x3,
-            VertexFormat.Uint32x4,
-            VertexFormat.Sint32,
-            VertexFormat.Sint32x2,
-            VertexFormat.Sint32x3,
-            VertexFormat.Sint32x4,
-            VertexFormat.Unorm10_10_10_2,
-            VertexFormat.Unorm8x4BGRA,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies the data format of a vertex attribute. */
-public annotation class VertexFormat {
+public class VertexFormat private constructor() {
+
     public companion object {
 
         /** Single-component, 8-bit unsigned integer. */
@@ -251,6 +198,62 @@ public annotation class VertexFormat {
                 0x00000029 to "Unorm8x4BGRA",
             )
 
-        public fun toString(@VertexFormat value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(
+        value =
+            [
+                Uint8,
+                Uint8x2,
+                Uint8x4,
+                Sint8,
+                Sint8x2,
+                Sint8x4,
+                Unorm8,
+                Unorm8x2,
+                Unorm8x4,
+                Snorm8,
+                Snorm8x2,
+                Snorm8x4,
+                Uint16,
+                Uint16x2,
+                Uint16x4,
+                Sint16,
+                Sint16x2,
+                Sint16x4,
+                Unorm16,
+                Unorm16x2,
+                Unorm16x4,
+                Snorm16,
+                Snorm16x2,
+                Snorm16x4,
+                Float16,
+                Float16x2,
+                Float16x4,
+                Float32,
+                Float32x2,
+                Float32x3,
+                Float32x4,
+                Uint32,
+                Uint32x2,
+                Uint32x3,
+                Uint32x4,
+                Sint32,
+                Sint32x2,
+                Sint32x3,
+                Sint32x4,
+                Unorm10_10_10_2,
+                Unorm8x4BGRA,
+            ]
+    )
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

@@ -28,27 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            TextureAspect.Undefined,
-            TextureAspect.All,
-            TextureAspect.StencilOnly,
-            TextureAspect.DepthOnly,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies which aspect of a texture is being referenced. */
-public annotation class TextureAspect {
+public class TextureAspect private constructor() {
+
     public companion object {
 
         /** Indicates that no texture aspect is specified. */
@@ -70,6 +54,17 @@ public annotation class TextureAspect {
                 0x00000003 to "DepthOnly",
             )
 
-        public fun toString(@TextureAspect value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, All, StencilOnly, DepthOnly])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

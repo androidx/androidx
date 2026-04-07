@@ -28,29 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            BlendOperation.Undefined,
-            BlendOperation.Add,
-            BlendOperation.Subtract,
-            BlendOperation.ReverseSubtract,
-            BlendOperation.Min,
-            BlendOperation.Max,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the operation to perform when blending color values. */
-public annotation class BlendOperation {
+public class BlendOperation private constructor() {
+
     public companion object {
 
         /** Indicates that no blend operation is specified. */
@@ -80,6 +62,17 @@ public annotation class BlendOperation {
                 0x00000005 to "Max",
             )
 
-        public fun toString(@BlendOperation value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, Add, Subtract, ReverseSubtract, Min, Max])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

@@ -29,7 +29,7 @@ public class GPUDeviceDescriptor(
     public var uncapturedErrorCallbackExecutor: java.util.concurrent.Executor,
     /** A human-readable label for debugging. */
     public var label: String? = null,
-    @FeatureName public var requiredFeatures: IntArray = intArrayOf(),
+    @FeatureName.Type public var requiredFeatures: IntArray = intArrayOf(),
     public var requiredLimits: GPULimits? = null,
     public var defaultQueue: GPUQueueDescriptor = GPUQueueDescriptor(),
     public var deviceLostCallback: DeviceLostCallback?,
@@ -59,15 +59,16 @@ public class GPUDeviceDescriptor(
         private val uncapturedErrorCallback: UncapturedErrorCallback?,
     ) {
         private var label: String? = null
-        @FeatureName private var requiredFeatures: IntArray = intArrayOf()
+        @FeatureName.Type private var requiredFeatures: IntArray = intArrayOf()
         private var requiredLimits: GPULimits? = null
         private var defaultQueue: GPUQueueDescriptor = GPUQueueDescriptor()
 
         public fun setLabel(label: String?): Builder = apply { this.label = label }
 
-        public fun setRequiredFeatures(@FeatureName requiredFeatures: IntArray): Builder = apply {
-            this.requiredFeatures = requiredFeatures
-        }
+        public fun setRequiredFeatures(@FeatureName.Type requiredFeatures: IntArray): Builder =
+            apply {
+                this.requiredFeatures = requiredFeatures
+            }
 
         public fun setRequiredLimits(requiredLimits: GPULimits?): Builder = apply {
             this.requiredLimits = requiredLimits

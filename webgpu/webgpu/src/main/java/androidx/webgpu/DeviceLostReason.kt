@@ -28,27 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            DeviceLostReason.Unknown,
-            DeviceLostReason.Destroyed,
-            DeviceLostReason.CallbackCancelled,
-            DeviceLostReason.FailedCreation,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies the reason why a device was lost. */
-public annotation class DeviceLostReason {
+public class DeviceLostReason private constructor() {
+
     public companion object {
 
         /** The reason for the device loss is unknown. */
@@ -73,6 +57,17 @@ public annotation class DeviceLostReason {
                 0x00000004 to "FailedCreation",
             )
 
-        public fun toString(@DeviceLostReason value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Unknown, Destroyed, CallbackCancelled, FailedCreation])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

@@ -28,19 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(value = [StoreOp.Undefined, StoreOp.Store, StoreOp.Discard])
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the operation to perform on a render attachment at the end of a pass. */
-public annotation class StoreOp {
+public class StoreOp private constructor() {
+
     public companion object {
 
         /** Indicates that no store operation is specified. */
@@ -54,6 +46,17 @@ public annotation class StoreOp {
         internal val names: Map<Int, String> =
             mapOf(0x00000000 to "Undefined", 0x00000001 to "Store", 0x00000002 to "Discard")
 
-        public fun toString(@StoreOp value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, Store, Discard])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

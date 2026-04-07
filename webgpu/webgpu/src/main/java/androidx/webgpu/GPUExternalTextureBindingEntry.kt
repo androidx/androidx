@@ -23,14 +23,4 @@
  */
 package androidx.webgpu
 
-/** Describes the layout of a buffer binding. */
-public class GPUBufferBindingLayout
-@JvmOverloads
-constructor(
-    /**
-     * The type of the buffer binding. Defaults to @see [BufferBindingType.Uniform] if `undefined`.
-     */
-    @BufferBindingType.Type public var type: Int = BufferBindingType.Uniform,
-    @get:JvmName("isHasDynamicOffset") public var hasDynamicOffset: Boolean = false,
-    public var minBindingSize: Long = 0,
-)
+public class GPUExternalTextureBindingEntry(public var externalTexture: GPUExternalTexture)

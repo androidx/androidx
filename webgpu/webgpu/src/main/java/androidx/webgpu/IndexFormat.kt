@@ -28,19 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(value = [IndexFormat.Undefined, IndexFormat.Uint16, IndexFormat.Uint32])
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies the data type of an index buffer. */
-public annotation class IndexFormat {
+public class IndexFormat private constructor() {
+
     public companion object {
 
         /** Indicates that no index format is specified. */
@@ -54,6 +46,17 @@ public annotation class IndexFormat {
         internal val names: Map<Int, String> =
             mapOf(0x00000000 to "Undefined", 0x00000001 to "Uint16", 0x00000002 to "Uint32")
 
-        public fun toString(@IndexFormat value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, Uint16, Uint32])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

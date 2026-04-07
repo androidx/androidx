@@ -1,6 +1,261 @@
 // Signature format: 4.0
 package androidx.webgpu {
 
+  public final class AdapterType {
+    method public static String toString(int value);
+    field public static final int CPU = 3; // 0x3
+    field public static final androidx.webgpu.AdapterType.Companion Companion;
+    field public static final int DiscreteGPU = 1; // 0x1
+    field public static final int IntegratedGPU = 2; // 0x2
+    field public static final int Unknown = 4; // 0x4
+  }
+
+  public static final class AdapterType.Companion {
+    method public String toString(int value);
+    property public static int CPU;
+    property public static int DiscreteGPU;
+    property public static int IntegratedGPU;
+    property public static int Unknown;
+  }
+
+  public final class AddressMode {
+    method public static String toString(int value);
+    field public static final int ClampToEdge = 1; // 0x1
+    field public static final androidx.webgpu.AddressMode.Companion Companion;
+    field public static final int MirrorRepeat = 3; // 0x3
+    field public static final int Repeat = 2; // 0x2
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class AddressMode.Companion {
+    method public String toString(int value);
+    property public static int ClampToEdge;
+    property public static int MirrorRepeat;
+    property public static int Repeat;
+    property public static int Undefined;
+  }
+
+  public final class BackendType {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.BackendType.Companion Companion;
+    field public static final int D3D11 = 3; // 0x3
+    field public static final int D3D12 = 4; // 0x4
+    field public static final int Metal = 5; // 0x5
+    field public static final int Null = 1; // 0x1
+    field public static final int OpenGL = 7; // 0x7
+    field public static final int OpenGLES = 8; // 0x8
+    field public static final int Undefined = 0; // 0x0
+    field public static final int Vulkan = 6; // 0x6
+    field public static final int WebGPU = 2; // 0x2
+  }
+
+  public static final class BackendType.Companion {
+    method public String toString(int value);
+    property public static int D3D11;
+    property public static int D3D12;
+    property public static int Metal;
+    property public static int Null;
+    property public static int OpenGL;
+    property public static int OpenGLES;
+    property public static int Undefined;
+    property public static int Vulkan;
+    property public static int WebGPU;
+  }
+
+  public final class BlendFactor {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.BlendFactor.Companion Companion;
+    field public static final int Constant = 12; // 0xc
+    field public static final int Dst = 7; // 0x7
+    field public static final int DstAlpha = 9; // 0x9
+    field public static final int One = 2; // 0x2
+    field public static final int OneMinusConstant = 13; // 0xd
+    field public static final int OneMinusDst = 8; // 0x8
+    field public static final int OneMinusDstAlpha = 10; // 0xa
+    field public static final int OneMinusSrc = 4; // 0x4
+    field public static final int OneMinusSrc1 = 15; // 0xf
+    field public static final int OneMinusSrc1Alpha = 17; // 0x11
+    field public static final int OneMinusSrcAlpha = 6; // 0x6
+    field public static final int Src = 3; // 0x3
+    field public static final int Src1 = 14; // 0xe
+    field public static final int Src1Alpha = 16; // 0x10
+    field public static final int SrcAlpha = 5; // 0x5
+    field public static final int SrcAlphaSaturated = 11; // 0xb
+    field public static final int Undefined = 0; // 0x0
+    field public static final int Zero = 1; // 0x1
+  }
+
+  public static final class BlendFactor.Companion {
+    method public String toString(int value);
+    property public static int Constant;
+    property public static int Dst;
+    property public static int DstAlpha;
+    property public static int One;
+    property public static int OneMinusConstant;
+    property public static int OneMinusDst;
+    property public static int OneMinusDstAlpha;
+    property public static int OneMinusSrc;
+    property public static int OneMinusSrc1;
+    property public static int OneMinusSrc1Alpha;
+    property public static int OneMinusSrcAlpha;
+    property public static int Src;
+    property public static int Src1;
+    property public static int Src1Alpha;
+    property public static int SrcAlpha;
+    property public static int SrcAlphaSaturated;
+    property public static int Undefined;
+    property public static int Zero;
+  }
+
+  public final class BlendOperation {
+    method public static String toString(int value);
+    field public static final int Add = 1; // 0x1
+    field public static final androidx.webgpu.BlendOperation.Companion Companion;
+    field public static final int Max = 5; // 0x5
+    field public static final int Min = 4; // 0x4
+    field public static final int ReverseSubtract = 3; // 0x3
+    field public static final int Subtract = 2; // 0x2
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class BlendOperation.Companion {
+    method public String toString(int value);
+    property public static int Add;
+    property public static int Max;
+    property public static int Min;
+    property public static int ReverseSubtract;
+    property public static int Subtract;
+    property public static int Undefined;
+  }
+
+  public final class BufferBindingType {
+    method public static String toString(int value);
+    field public static final int BindingNotUsed = 0; // 0x0
+    field public static final androidx.webgpu.BufferBindingType.Companion Companion;
+    field public static final int ReadOnlyStorage = 4; // 0x4
+    field public static final int Storage = 3; // 0x3
+    field public static final int Undefined = 1; // 0x1
+    field public static final int Uniform = 2; // 0x2
+  }
+
+  public static final class BufferBindingType.Companion {
+    method public String toString(int value);
+    property public static int BindingNotUsed;
+    property public static int ReadOnlyStorage;
+    property public static int Storage;
+    property public static int Undefined;
+    property public static int Uniform;
+  }
+
+  public final class BufferMapState {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.BufferMapState.Companion Companion;
+    field public static final int Mapped = 3; // 0x3
+    field public static final int Pending = 2; // 0x2
+    field public static final int Unmapped = 1; // 0x1
+  }
+
+  public static final class BufferMapState.Companion {
+    method public String toString(int value);
+    property public static int Mapped;
+    property public static int Pending;
+    property public static int Unmapped;
+  }
+
+  public final class BufferUsage {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.BufferUsage.Companion Companion;
+    field public static final int CopyDst = 8; // 0x8
+    field public static final int CopySrc = 4; // 0x4
+    field public static final int Index = 16; // 0x10
+    field public static final int Indirect = 256; // 0x100
+    field public static final int MapRead = 1; // 0x1
+    field public static final int MapWrite = 2; // 0x2
+    field public static final int None = 0; // 0x0
+    field public static final int QueryResolve = 512; // 0x200
+    field public static final int Storage = 128; // 0x80
+    field public static final int Uniform = 64; // 0x40
+    field public static final int Vertex = 32; // 0x20
+  }
+
+  public static final class BufferUsage.Companion {
+    method public String toString(int value);
+    property public static int CopyDst;
+    property public static int CopySrc;
+    property public static int Index;
+    property public static int Indirect;
+    property public static int MapRead;
+    property public static int MapWrite;
+    property public static int None;
+    property public static int QueryResolve;
+    property public static int Storage;
+    property public static int Uniform;
+    property public static int Vertex;
+  }
+
+  public final class CallbackMode {
+    method public static String toString(int value);
+    field public static final int AllowProcessEvents = 2; // 0x2
+    field public static final int AllowSpontaneous = 3; // 0x3
+    field public static final androidx.webgpu.CallbackMode.Companion Companion;
+    field public static final int WaitAnyOnly = 1; // 0x1
+  }
+
+  public static final class CallbackMode.Companion {
+    method public String toString(int value);
+    property public static int AllowProcessEvents;
+    property public static int AllowSpontaneous;
+    property public static int WaitAnyOnly;
+  }
+
+  public final class ColorWriteMask {
+    method public static String toString(int value);
+    field public static final int All = 15; // 0xf
+    field public static final int Alpha = 8; // 0x8
+    field public static final int Blue = 4; // 0x4
+    field public static final androidx.webgpu.ColorWriteMask.Companion Companion;
+    field public static final int Green = 2; // 0x2
+    field public static final int None = 0; // 0x0
+    field public static final int Red = 1; // 0x1
+  }
+
+  public static final class ColorWriteMask.Companion {
+    method public String toString(int value);
+    property public static int All;
+    property public static int Alpha;
+    property public static int Blue;
+    property public static int Green;
+    property public static int None;
+    property public static int Red;
+  }
+
+  public final class CompareFunction {
+    method public static String toString(int value);
+    field public static final int Always = 8; // 0x8
+    field public static final androidx.webgpu.CompareFunction.Companion Companion;
+    field public static final int Equal = 3; // 0x3
+    field public static final int Greater = 5; // 0x5
+    field public static final int GreaterEqual = 7; // 0x7
+    field public static final int Less = 2; // 0x2
+    field public static final int LessEqual = 4; // 0x4
+    field public static final int Never = 1; // 0x1
+    field public static final int NotEqual = 6; // 0x6
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class CompareFunction.Companion {
+    method public String toString(int value);
+    property public static int Always;
+    property public static int Equal;
+    property public static int Greater;
+    property public static int GreaterEqual;
+    property public static int Less;
+    property public static int LessEqual;
+    property public static int Never;
+    property public static int NotEqual;
+    property public static int Undefined;
+  }
+
   public final class CompilationInfoRequestException extends java.lang.Exception {
     ctor public CompilationInfoRequestException();
     ctor public CompilationInfoRequestException(optional String reason, optional int status);
@@ -9,6 +264,76 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getStatus();
     property public String reason;
     property public int status;
+  }
+
+  public final class CompilationInfoRequestStatus {
+    method public static String toString(int value);
+    field public static final int CallbackCancelled = 2; // 0x2
+    field public static final androidx.webgpu.CompilationInfoRequestStatus.Companion Companion;
+    field public static final int Success = 1; // 0x1
+  }
+
+  public static final class CompilationInfoRequestStatus.Companion {
+    method public String toString(int value);
+    property public static int CallbackCancelled;
+    property public static int Success;
+  }
+
+  public final class CompilationMessageType {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.CompilationMessageType.Companion Companion;
+    field public static final int Error = 1; // 0x1
+    field public static final int Info = 3; // 0x3
+    field public static final int Warning = 2; // 0x2
+  }
+
+  public static final class CompilationMessageType.Companion {
+    method public String toString(int value);
+    property public static int Error;
+    property public static int Info;
+    property public static int Warning;
+  }
+
+  public final class ComponentSwizzle {
+    method public static String toString(int value);
+    field public static final int A = 6; // 0x6
+    field public static final int B = 5; // 0x5
+    field public static final androidx.webgpu.ComponentSwizzle.Companion Companion;
+    field public static final int G = 4; // 0x4
+    field public static final int One = 2; // 0x2
+    field public static final int R = 3; // 0x3
+    field public static final int Undefined = 0; // 0x0
+    field public static final int Zero = 1; // 0x1
+  }
+
+  public static final class ComponentSwizzle.Companion {
+    method public String toString(int value);
+    property public static int A;
+    property public static int B;
+    property public static int G;
+    property public static int One;
+    property public static int R;
+    property public static int Undefined;
+    property public static int Zero;
+  }
+
+  public final class CompositeAlphaMode {
+    method public static String toString(int value);
+    field public static final int Auto = 0; // 0x0
+    field public static final androidx.webgpu.CompositeAlphaMode.Companion Companion;
+    field public static final int Inherit = 4; // 0x4
+    field public static final int Opaque = 1; // 0x1
+    field public static final int Premultiplied = 2; // 0x2
+    field public static final int Unpremultiplied = 3; // 0x3
+  }
+
+  public static final class CompositeAlphaMode.Companion {
+    method public String toString(int value);
+    property public static int Auto;
+    property public static int Inherit;
+    property public static int Opaque;
+    property public static int Premultiplied;
+    property public static int Unpremultiplied;
   }
 
   public final class Constants {
@@ -47,6 +372,40 @@ package androidx.webgpu {
     property public int status;
   }
 
+  public final class CreatePipelineAsyncStatus {
+    method public static String toString(int value);
+    field public static final int CallbackCancelled = 2; // 0x2
+    field public static final androidx.webgpu.CreatePipelineAsyncStatus.Companion Companion;
+    field public static final int InternalError = 4; // 0x4
+    field public static final int Success = 1; // 0x1
+    field public static final int ValidationError = 3; // 0x3
+  }
+
+  public static final class CreatePipelineAsyncStatus.Companion {
+    method public String toString(int value);
+    property public static int CallbackCancelled;
+    property public static int InternalError;
+    property public static int Success;
+    property public static int ValidationError;
+  }
+
+  public final class CullMode {
+    method public static String toString(int value);
+    field public static final int Back = 3; // 0x3
+    field public static final androidx.webgpu.CullMode.Companion Companion;
+    field public static final int Front = 2; // 0x2
+    field public static final int None = 1; // 0x1
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class CullMode.Companion {
+    method public String toString(int value);
+    property public static int Back;
+    property public static int Front;
+    property public static int None;
+    property public static int Undefined;
+  }
+
   public final class DawnException extends java.lang.Exception {
     ctor public DawnException(String message);
   }
@@ -63,10 +422,161 @@ package androidx.webgpu {
     property public int reason;
   }
 
+  public final class DeviceLostReason {
+    method public static String toString(int value);
+    field public static final int CallbackCancelled = 3; // 0x3
+    field public static final androidx.webgpu.DeviceLostReason.Companion Companion;
+    field public static final int Destroyed = 2; // 0x2
+    field public static final int FailedCreation = 4; // 0x4
+    field public static final int Unknown = 1; // 0x1
+  }
+
+  public static final class DeviceLostReason.Companion {
+    method public String toString(int value);
+    property public static int CallbackCancelled;
+    property public static int Destroyed;
+    property public static int FailedCreation;
+    property public static int Unknown;
+  }
+
+  public final class ErrorFilter {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.ErrorFilter.Companion Companion;
+    field public static final int Internal = 3; // 0x3
+    field public static final int OutOfMemory = 2; // 0x2
+    field public static final int Validation = 1; // 0x1
+  }
+
+  public static final class ErrorFilter.Companion {
+    method public String toString(int value);
+    property public static int Internal;
+    property public static int OutOfMemory;
+    property public static int Validation;
+  }
+
+  public final class ErrorType {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.ErrorType.Companion Companion;
+    field public static final int Internal = 4; // 0x4
+    field public static final int NoError = 1; // 0x1
+    field public static final int OutOfMemory = 3; // 0x3
+    field public static final int Unknown = 5; // 0x5
+    field public static final int Validation = 2; // 0x2
+  }
+
+  public static final class ErrorType.Companion {
+    method public String toString(int value);
+    property public static int Internal;
+    property public static int NoError;
+    property public static int OutOfMemory;
+    property public static int Unknown;
+    property public static int Validation;
+  }
+
+  public final class FeatureLevel {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.FeatureLevel.Companion Companion;
+    field public static final int Compatibility = 1; // 0x1
+    field public static final int Core = 2; // 0x2
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class FeatureLevel.Companion {
+    method public String toString(int value);
+    property public static int Compatibility;
+    property public static int Core;
+    property public static int Undefined;
+  }
+
+  public final class FeatureName {
+    method public static String toString(int value);
+    field public static final int BGRA8UnormStorage = 13; // 0xd
+    field public static final int ClipDistances = 16; // 0x10
+    field public static final androidx.webgpu.FeatureName.Companion Companion;
+    field public static final int CoreFeaturesAndLimits = 1; // 0x1
+    field public static final int Depth32FloatStencil8 = 3; // 0x3
+    field public static final int DepthClipControl = 2; // 0x2
+    field public static final int DualSourceBlending = 17; // 0x11
+    field public static final int Float32Blendable = 15; // 0xf
+    field public static final int Float32Filterable = 14; // 0xe
+    field public static final int IndirectFirstInstance = 10; // 0xa
+    field public static final int PrimitiveIndex = 21; // 0x15
+    field public static final int RG11B10UfloatRenderable = 12; // 0xc
+    field public static final int ShaderF16 = 11; // 0xb
+    field public static final int Subgroups = 18; // 0x12
+    field public static final int TextureComponentSwizzle = 22; // 0x16
+    field public static final int TextureCompressionASTC = 7; // 0x7
+    field public static final int TextureCompressionASTCSliced3D = 8; // 0x8
+    field public static final int TextureCompressionBC = 4; // 0x4
+    field public static final int TextureCompressionBCSliced3D = 5; // 0x5
+    field public static final int TextureCompressionETC2 = 6; // 0x6
+    field public static final int TextureFormatsTier1 = 19; // 0x13
+    field public static final int TextureFormatsTier2 = 20; // 0x14
+    field public static final int TimestampQuery = 9; // 0x9
+  }
+
+  public static final class FeatureName.Companion {
+    method public String toString(int value);
+    property public static int BGRA8UnormStorage;
+    property public static int ClipDistances;
+    property public static int CoreFeaturesAndLimits;
+    property public static int Depth32FloatStencil8;
+    property public static int DepthClipControl;
+    property public static int DualSourceBlending;
+    property public static int Float32Blendable;
+    property public static int Float32Filterable;
+    property public static int IndirectFirstInstance;
+    property public static int PrimitiveIndex;
+    property public static int RG11B10UfloatRenderable;
+    property public static int ShaderF16;
+    property public static int Subgroups;
+    property public static int TextureComponentSwizzle;
+    property public static int TextureCompressionASTC;
+    property public static int TextureCompressionASTCSliced3D;
+    property public static int TextureCompressionBC;
+    property public static int TextureCompressionBCSliced3D;
+    property public static int TextureCompressionETC2;
+    property public static int TextureFormatsTier1;
+    property public static int TextureFormatsTier2;
+    property public static int TimestampQuery;
+  }
+
+  public final class FilterMode {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.FilterMode.Companion Companion;
+    field public static final int Linear = 2; // 0x2
+    field public static final int Nearest = 1; // 0x1
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class FilterMode.Companion {
+    method public String toString(int value);
+    property public static int Linear;
+    property public static int Nearest;
+    property public static int Undefined;
+  }
+
+  public final class FrontFace {
+    method public static String toString(int value);
+    field public static final int CCW = 1; // 0x1
+    field public static final int CW = 2; // 0x2
+    field public static final androidx.webgpu.FrontFace.Companion Companion;
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class FrontFace.Companion {
+    method public String toString(int value);
+    property public static int CCW;
+    property public static int CW;
+    property public static int Undefined;
+  }
+
   public final class GPU {
+    method public androidx.webgpu.GPUInstance createInstance();
     method public androidx.webgpu.GPUInstance createInstance(optional androidx.webgpu.GPUInstanceDescriptor? descriptor);
     method @BytecodeOnly public static androidx.webgpu.GPUInstance! createInstance$default(androidx.webgpu.GPU!, androidx.webgpu.GPUInstanceDescriptor!, int, Object!);
     method public androidx.webgpu.GPUSupportedInstanceFeatures getInstanceFeatures(androidx.webgpu.GPUSupportedInstanceFeatures features);
+    method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public androidx.webgpu.GPUInstanceLimits getInstanceLimits() throws androidx.webgpu.WebGpuException;
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public androidx.webgpu.GPUInstanceLimits getInstanceLimits(optional androidx.webgpu.GPUInstanceLimits limits) throws androidx.webgpu.WebGpuException;
     method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public static androidx.webgpu.GPUInstanceLimits! getInstanceLimits$default(androidx.webgpu.GPU!, androidx.webgpu.GPUInstanceLimits!, int, Object!) throws androidx.webgpu.WebGpuException;
     method public boolean hasInstanceFeature(int feature);
@@ -148,22 +658,25 @@ package androidx.webgpu {
   }
 
   public final class GPUBindGroupEntry {
-    ctor public GPUBindGroupEntry(int binding, optional androidx.webgpu.GPUBuffer? buffer, optional long offset, optional long size, optional androidx.webgpu.GPUSampler? sampler, optional androidx.webgpu.GPUTextureView? textureView);
-    ctor @BytecodeOnly public GPUBindGroupEntry(int, androidx.webgpu.GPUBuffer!, long, long, androidx.webgpu.GPUSampler!, androidx.webgpu.GPUTextureView!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public GPUBindGroupEntry(int binding, optional androidx.webgpu.GPUBuffer? buffer, optional long offset, optional long size, optional androidx.webgpu.GPUSampler? sampler, optional androidx.webgpu.GPUTextureView? textureView, optional androidx.webgpu.GPUExternalTextureBindingEntry? externalTextureBindingEntry);
+    ctor @BytecodeOnly public GPUBindGroupEntry(int, androidx.webgpu.GPUBuffer!, long, long, androidx.webgpu.GPUSampler!, androidx.webgpu.GPUTextureView!, androidx.webgpu.GPUExternalTextureBindingEntry!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getBinding();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUBuffer? getBuffer();
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUExternalTextureBindingEntry? getExternalTextureBindingEntry();
     method @InaccessibleFromKotlin public long getOffset();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUSampler? getSampler();
     method @InaccessibleFromKotlin public long getSize();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUTextureView? getTextureView();
     method @InaccessibleFromKotlin public void setBinding(int);
     method @InaccessibleFromKotlin public void setBuffer(androidx.webgpu.GPUBuffer?);
+    method @InaccessibleFromKotlin public void setExternalTextureBindingEntry(androidx.webgpu.GPUExternalTextureBindingEntry?);
     method @InaccessibleFromKotlin public void setOffset(long);
     method @InaccessibleFromKotlin public void setSampler(androidx.webgpu.GPUSampler?);
     method @InaccessibleFromKotlin public void setSize(long);
     method @InaccessibleFromKotlin public void setTextureView(androidx.webgpu.GPUTextureView?);
     property public int binding;
     property public androidx.webgpu.GPUBuffer? buffer;
+    property public androidx.webgpu.GPUExternalTextureBindingEntry? externalTextureBindingEntry;
     property public long offset;
     property public androidx.webgpu.GPUSampler? sampler;
     property public long size;
@@ -174,6 +687,7 @@ package androidx.webgpu {
     ctor public GPUBindGroupEntry.Builder(int binding);
     method public androidx.webgpu.GPUBindGroupEntry build();
     method public androidx.webgpu.GPUBindGroupEntry.Builder setBuffer(androidx.webgpu.GPUBuffer? buffer);
+    method public androidx.webgpu.GPUBindGroupEntry.Builder setExternalTextureBindingEntry(androidx.webgpu.GPUExternalTextureBindingEntry? externalTextureBindingEntry);
     method public androidx.webgpu.GPUBindGroupEntry.Builder setOffset(long offset);
     method public androidx.webgpu.GPUBindGroupEntry.Builder setSampler(androidx.webgpu.GPUSampler? sampler);
     method public androidx.webgpu.GPUBindGroupEntry.Builder setSize(long size);
@@ -201,11 +715,12 @@ package androidx.webgpu {
   }
 
   public final class GPUBindGroupLayoutEntry {
-    ctor public GPUBindGroupLayoutEntry(int binding, int visibility, optional int bindingArraySize, optional androidx.webgpu.GPUBufferBindingLayout buffer, optional androidx.webgpu.GPUSamplerBindingLayout sampler, optional androidx.webgpu.GPUTextureBindingLayout texture, optional androidx.webgpu.GPUStorageTextureBindingLayout storageTexture);
-    ctor @BytecodeOnly public GPUBindGroupLayoutEntry(int, int, int, androidx.webgpu.GPUBufferBindingLayout!, androidx.webgpu.GPUSamplerBindingLayout!, androidx.webgpu.GPUTextureBindingLayout!, androidx.webgpu.GPUStorageTextureBindingLayout!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public GPUBindGroupLayoutEntry(int binding, int visibility, optional int bindingArraySize, optional androidx.webgpu.GPUBufferBindingLayout buffer, optional androidx.webgpu.GPUSamplerBindingLayout sampler, optional androidx.webgpu.GPUTextureBindingLayout texture, optional androidx.webgpu.GPUStorageTextureBindingLayout storageTexture, optional androidx.webgpu.GPUExternalTextureBindingLayout? externalTextureBindingLayout);
+    ctor @BytecodeOnly public GPUBindGroupLayoutEntry(int, int, int, androidx.webgpu.GPUBufferBindingLayout!, androidx.webgpu.GPUSamplerBindingLayout!, androidx.webgpu.GPUTextureBindingLayout!, androidx.webgpu.GPUStorageTextureBindingLayout!, androidx.webgpu.GPUExternalTextureBindingLayout!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getBinding();
     method @InaccessibleFromKotlin public int getBindingArraySize();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUBufferBindingLayout getBuffer();
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUExternalTextureBindingLayout? getExternalTextureBindingLayout();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUSamplerBindingLayout getSampler();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUStorageTextureBindingLayout getStorageTexture();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUTextureBindingLayout getTexture();
@@ -213,6 +728,7 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setBinding(int);
     method @InaccessibleFromKotlin public void setBindingArraySize(int);
     method @InaccessibleFromKotlin public void setBuffer(androidx.webgpu.GPUBufferBindingLayout);
+    method @InaccessibleFromKotlin public void setExternalTextureBindingLayout(androidx.webgpu.GPUExternalTextureBindingLayout?);
     method @InaccessibleFromKotlin public void setSampler(androidx.webgpu.GPUSamplerBindingLayout);
     method @InaccessibleFromKotlin public void setStorageTexture(androidx.webgpu.GPUStorageTextureBindingLayout);
     method @InaccessibleFromKotlin public void setTexture(androidx.webgpu.GPUTextureBindingLayout);
@@ -220,6 +736,7 @@ package androidx.webgpu {
     property public int binding;
     property public int bindingArraySize;
     property public androidx.webgpu.GPUBufferBindingLayout buffer;
+    property public androidx.webgpu.GPUExternalTextureBindingLayout? externalTextureBindingLayout;
     property public androidx.webgpu.GPUSamplerBindingLayout sampler;
     property public androidx.webgpu.GPUStorageTextureBindingLayout storageTexture;
     property public androidx.webgpu.GPUTextureBindingLayout texture;
@@ -231,6 +748,7 @@ package androidx.webgpu {
     method public androidx.webgpu.GPUBindGroupLayoutEntry build();
     method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setBindingArraySize(int bindingArraySize);
     method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setBuffer(androidx.webgpu.GPUBufferBindingLayout buffer);
+    method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setExternalTextureBindingLayout(androidx.webgpu.GPUExternalTextureBindingLayout? externalTextureBindingLayout);
     method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setSampler(androidx.webgpu.GPUSamplerBindingLayout sampler);
     method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setStorageTexture(androidx.webgpu.GPUStorageTextureBindingLayout storageTexture);
     method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setTexture(androidx.webgpu.GPUTextureBindingLayout texture);
@@ -415,6 +933,33 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public String? getLabel();
     method @InaccessibleFromKotlin public void setLabel(String?);
     property public String? label;
+  }
+
+  public final class GPUCompatibilityModeLimits {
+    ctor public GPUCompatibilityModeLimits();
+    ctor public GPUCompatibilityModeLimits(optional int maxStorageBuffersInVertexStage, optional int maxStorageTexturesInVertexStage, optional int maxStorageBuffersInFragmentStage, optional int maxStorageTexturesInFragmentStage);
+    ctor @BytecodeOnly public GPUCompatibilityModeLimits(int, int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getMaxStorageBuffersInFragmentStage();
+    method @InaccessibleFromKotlin public int getMaxStorageBuffersInVertexStage();
+    method @InaccessibleFromKotlin public int getMaxStorageTexturesInFragmentStage();
+    method @InaccessibleFromKotlin public int getMaxStorageTexturesInVertexStage();
+    method @InaccessibleFromKotlin public void setMaxStorageBuffersInFragmentStage(int);
+    method @InaccessibleFromKotlin public void setMaxStorageBuffersInVertexStage(int);
+    method @InaccessibleFromKotlin public void setMaxStorageTexturesInFragmentStage(int);
+    method @InaccessibleFromKotlin public void setMaxStorageTexturesInVertexStage(int);
+    property public int maxStorageBuffersInFragmentStage;
+    property public int maxStorageBuffersInVertexStage;
+    property public int maxStorageTexturesInFragmentStage;
+    property public int maxStorageTexturesInVertexStage;
+  }
+
+  public static final class GPUCompatibilityModeLimits.Builder {
+    ctor public GPUCompatibilityModeLimits.Builder();
+    method public androidx.webgpu.GPUCompatibilityModeLimits build();
+    method public androidx.webgpu.GPUCompatibilityModeLimits.Builder setMaxStorageBuffersInFragmentStage(int maxStorageBuffersInFragmentStage);
+    method public androidx.webgpu.GPUCompatibilityModeLimits.Builder setMaxStorageBuffersInVertexStage(int maxStorageBuffersInVertexStage);
+    method public androidx.webgpu.GPUCompatibilityModeLimits.Builder setMaxStorageTexturesInFragmentStage(int maxStorageTexturesInFragmentStage);
+    method public androidx.webgpu.GPUCompatibilityModeLimits.Builder setMaxStorageTexturesInVertexStage(int maxStorageTexturesInVertexStage);
   }
 
   public final class GPUCompilationInfo {
@@ -681,6 +1226,24 @@ package androidx.webgpu {
     property public int width;
   }
 
+  public final class GPUExternalTexture implements java.lang.AutoCloseable {
+    method public void close();
+    method @InaccessibleFromKotlin public long getHandle();
+    method public void setLabel(String label);
+    property public long handle;
+  }
+
+  public final class GPUExternalTextureBindingEntry {
+    ctor public GPUExternalTextureBindingEntry(androidx.webgpu.GPUExternalTexture externalTexture);
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUExternalTexture getExternalTexture();
+    method @InaccessibleFromKotlin public void setExternalTexture(androidx.webgpu.GPUExternalTexture);
+    property public androidx.webgpu.GPUExternalTexture externalTexture;
+  }
+
+  public final class GPUExternalTextureBindingLayout {
+    ctor public GPUExternalTextureBindingLayout();
+  }
+
   public final class GPUFragmentState {
     ctor public GPUFragmentState(androidx.webgpu.GPUShaderModule module);
     ctor public GPUFragmentState(androidx.webgpu.GPUShaderModule module, optional String? entryPoint);
@@ -742,8 +1305,9 @@ package androidx.webgpu {
 
   public final class GPULimits {
     ctor public GPULimits();
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample, optional int maxComputeWorkgroupStorageSize, optional int maxComputeInvocationsPerWorkgroup, optional int maxComputeWorkgroupSizeX, optional int maxComputeWorkgroupSizeY, optional int maxComputeWorkgroupSizeZ, optional int maxComputeWorkgroupsPerDimension, optional int maxImmediateSize);
-    ctor @BytecodeOnly public GPULimits(int, int, int, int, int, int, int, int, int, int, int, int, int, int, long, long, int, int, int, long, int, int, int, int, int, int, int, int, int, int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample, optional int maxComputeWorkgroupStorageSize, optional int maxComputeInvocationsPerWorkgroup, optional int maxComputeWorkgroupSizeX, optional int maxComputeWorkgroupSizeY, optional int maxComputeWorkgroupSizeZ, optional int maxComputeWorkgroupsPerDimension, optional int maxImmediateSize, optional androidx.webgpu.GPUCompatibilityModeLimits? compatibilityModeLimits);
+    ctor @BytecodeOnly public GPULimits(int, int, int, int, int, int, int, int, int, int, int, int, int, int, long, long, int, int, int, long, int, int, int, int, int, int, int, int, int, int, int, int, androidx.webgpu.GPUCompatibilityModeLimits!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUCompatibilityModeLimits? getCompatibilityModeLimits();
     method @InaccessibleFromKotlin public int getMaxBindGroups();
     method @InaccessibleFromKotlin public int getMaxBindGroupsPlusVertexBuffers();
     method @InaccessibleFromKotlin public int getMaxBindingsPerBindGroup();
@@ -776,6 +1340,7 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getMaxVertexBuffers();
     method @InaccessibleFromKotlin public int getMinStorageBufferOffsetAlignment();
     method @InaccessibleFromKotlin public int getMinUniformBufferOffsetAlignment();
+    method @InaccessibleFromKotlin public void setCompatibilityModeLimits(androidx.webgpu.GPUCompatibilityModeLimits?);
     method @InaccessibleFromKotlin public void setMaxBindGroups(int);
     method @InaccessibleFromKotlin public void setMaxBindGroupsPlusVertexBuffers(int);
     method @InaccessibleFromKotlin public void setMaxBindingsPerBindGroup(int);
@@ -808,6 +1373,7 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setMaxVertexBuffers(int);
     method @InaccessibleFromKotlin public void setMinStorageBufferOffsetAlignment(int);
     method @InaccessibleFromKotlin public void setMinUniformBufferOffsetAlignment(int);
+    property public androidx.webgpu.GPUCompatibilityModeLimits? compatibilityModeLimits;
     property public int maxBindGroups;
     property public int maxBindGroupsPlusVertexBuffers;
     property public int maxBindingsPerBindGroup;
@@ -845,6 +1411,7 @@ package androidx.webgpu {
   public static final class GPULimits.Builder {
     ctor public GPULimits.Builder();
     method public androidx.webgpu.GPULimits build();
+    method public androidx.webgpu.GPULimits.Builder setCompatibilityModeLimits(androidx.webgpu.GPUCompatibilityModeLimits? compatibilityModeLimits);
     method public androidx.webgpu.GPULimits.Builder setMaxBindGroups(int maxBindGroups);
     method public androidx.webgpu.GPULimits.Builder setMaxBindGroupsPlusVertexBuffers(int maxBindGroupsPlusVertexBuffers);
     method public androidx.webgpu.GPULimits.Builder setMaxBindingsPerBindGroup(int maxBindingsPerBindGroup);
@@ -1799,6 +2366,15 @@ package androidx.webgpu {
     property public int viewDimension;
   }
 
+  public final class GPUTextureBindingViewDimension {
+    ctor public GPUTextureBindingViewDimension();
+    ctor public GPUTextureBindingViewDimension(optional int textureBindingViewDimension);
+    ctor @BytecodeOnly public GPUTextureBindingViewDimension(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getTextureBindingViewDimension();
+    method @InaccessibleFromKotlin public void setTextureBindingViewDimension(int);
+    property public int textureBindingViewDimension;
+  }
+
   public final class GPUTextureComponentSwizzle {
     ctor public GPUTextureComponentSwizzle();
     ctor public GPUTextureComponentSwizzle(optional int r, optional int g, optional int b, optional int a);
@@ -1836,14 +2412,15 @@ package androidx.webgpu {
   }
 
   public final class GPUTextureDescriptor {
-    ctor public GPUTextureDescriptor(int usage, androidx.webgpu.GPUExtent3D size, optional String? label, optional int dimension, optional int format, optional int mipLevelCount, optional int sampleCount, optional int[] viewFormats);
-    ctor @BytecodeOnly public GPUTextureDescriptor(int, androidx.webgpu.GPUExtent3D!, String!, int, int, int, int, int[]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public GPUTextureDescriptor(int usage, androidx.webgpu.GPUExtent3D size, optional String? label, optional int dimension, optional int format, optional int mipLevelCount, optional int sampleCount, optional int[] viewFormats, optional androidx.webgpu.GPUTextureBindingViewDimension? textureBindingViewDimension);
+    ctor @BytecodeOnly public GPUTextureDescriptor(int, androidx.webgpu.GPUExtent3D!, String!, int, int, int, int, int[]!, androidx.webgpu.GPUTextureBindingViewDimension!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDimension();
     method @InaccessibleFromKotlin public int getFormat();
     method @InaccessibleFromKotlin public String? getLabel();
     method @InaccessibleFromKotlin public int getMipLevelCount();
     method @InaccessibleFromKotlin public int getSampleCount();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUExtent3D getSize();
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUTextureBindingViewDimension? getTextureBindingViewDimension();
     method @InaccessibleFromKotlin public int getUsage();
     method @InaccessibleFromKotlin public int[] getViewFormats();
     method @InaccessibleFromKotlin public void setDimension(int);
@@ -1852,6 +2429,7 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setMipLevelCount(int);
     method @InaccessibleFromKotlin public void setSampleCount(int);
     method @InaccessibleFromKotlin public void setSize(androidx.webgpu.GPUExtent3D);
+    method @InaccessibleFromKotlin public void setTextureBindingViewDimension(androidx.webgpu.GPUTextureBindingViewDimension?);
     method @InaccessibleFromKotlin public void setUsage(int);
     method @InaccessibleFromKotlin public void setViewFormats(int[]);
     property public int dimension;
@@ -1860,6 +2438,7 @@ package androidx.webgpu {
     property public int mipLevelCount;
     property public int sampleCount;
     property public androidx.webgpu.GPUExtent3D size;
+    property public androidx.webgpu.GPUTextureBindingViewDimension? textureBindingViewDimension;
     property public int usage;
     property public int[] viewFormats;
   }
@@ -1872,6 +2451,7 @@ package androidx.webgpu {
     method public androidx.webgpu.GPUTextureDescriptor.Builder setLabel(String? label);
     method public androidx.webgpu.GPUTextureDescriptor.Builder setMipLevelCount(int mipLevelCount);
     method public androidx.webgpu.GPUTextureDescriptor.Builder setSampleCount(int sampleCount);
+    method public androidx.webgpu.GPUTextureDescriptor.Builder setTextureBindingViewDimension(androidx.webgpu.GPUTextureBindingViewDimension? textureBindingViewDimension);
     method public androidx.webgpu.GPUTextureDescriptor.Builder setViewFormats(int[] viewFormats);
   }
 
@@ -1883,8 +2463,9 @@ package androidx.webgpu {
   }
 
   public final class GPUTextureViewDescriptor {
-    ctor public GPUTextureViewDescriptor(int usage, optional String? label, optional int format, optional int dimension, optional int baseMipLevel, optional int mipLevelCount, optional int baseArrayLayer, optional int arrayLayerCount, optional int aspect, optional androidx.webgpu.GPUTextureComponentSwizzleDescriptor? textureComponentSwizzleDescriptor);
-    ctor @BytecodeOnly public GPUTextureViewDescriptor(int, String!, int, int, int, int, int, int, int, androidx.webgpu.GPUTextureComponentSwizzleDescriptor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public GPUTextureViewDescriptor();
+    ctor public GPUTextureViewDescriptor(optional String? label, optional int format, optional int dimension, optional int baseMipLevel, optional int mipLevelCount, optional int baseArrayLayer, optional int arrayLayerCount, optional int aspect, optional int usage, optional androidx.webgpu.GPUTextureComponentSwizzleDescriptor? textureComponentSwizzleDescriptor);
+    ctor @BytecodeOnly public GPUTextureViewDescriptor(String!, int, int, int, int, int, int, int, int, androidx.webgpu.GPUTextureComponentSwizzleDescriptor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getArrayLayerCount();
     method @InaccessibleFromKotlin public int getAspect();
     method @InaccessibleFromKotlin public int getBaseArrayLayer();
@@ -1918,7 +2499,7 @@ package androidx.webgpu {
   }
 
   public static final class GPUTextureViewDescriptor.Builder {
-    ctor public GPUTextureViewDescriptor.Builder(int usage);
+    ctor public GPUTextureViewDescriptor.Builder();
     method public androidx.webgpu.GPUTextureViewDescriptor build();
     method public androidx.webgpu.GPUTextureViewDescriptor.Builder setArrayLayerCount(int arrayLayerCount);
     method public androidx.webgpu.GPUTextureViewDescriptor.Builder setAspect(int aspect);
@@ -1929,6 +2510,7 @@ package androidx.webgpu {
     method public androidx.webgpu.GPUTextureViewDescriptor.Builder setLabel(String? label);
     method public androidx.webgpu.GPUTextureViewDescriptor.Builder setMipLevelCount(int mipLevelCount);
     method public androidx.webgpu.GPUTextureViewDescriptor.Builder setTextureComponentSwizzleDescriptor(androidx.webgpu.GPUTextureComponentSwizzleDescriptor? textureComponentSwizzleDescriptor);
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setUsage(int usage);
   }
 
   public final class GPUVertexAttribute {
@@ -1980,8 +2562,53 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUShaderModule module;
   }
 
+  public final class IndexFormat {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.IndexFormat.Companion Companion;
+    field public static final int Uint16 = 1; // 0x1
+    field public static final int Uint32 = 2; // 0x2
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class IndexFormat.Companion {
+    method public String toString(int value);
+    property public static int Uint16;
+    property public static int Uint32;
+    property public static int Undefined;
+  }
+
+  public final class InstanceFeatureName {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.InstanceFeatureName.Companion Companion;
+    field public static final int MultipleDevicesPerAdapter = 3; // 0x3
+    field public static final int ShaderSourceSPIRV = 2; // 0x2
+    field public static final int TimedWaitAny = 1; // 0x1
+  }
+
+  public static final class InstanceFeatureName.Companion {
+    method public String toString(int value);
+    property public static int MultipleDevicesPerAdapter;
+    property public static int ShaderSourceSPIRV;
+    property public static int TimedWaitAny;
+  }
+
   public final class InternalException extends androidx.webgpu.WebGpuRuntimeException {
     ctor public InternalException(String message);
+  }
+
+  public final class LoadOp {
+    method public static String toString(int value);
+    field public static final int Clear = 2; // 0x2
+    field public static final androidx.webgpu.LoadOp.Companion Companion;
+    field public static final int Load = 1; // 0x1
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class LoadOp.Companion {
+    method public String toString(int value);
+    property public static int Clear;
+    property public static int Load;
+    property public static int Undefined;
   }
 
   public final class MapAsyncException extends java.lang.Exception {
@@ -1992,6 +2619,68 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getStatus();
     property public String reason;
     property public int status;
+  }
+
+  public final class MapAsyncStatus {
+    method public static String toString(int value);
+    field public static final int Aborted = 4; // 0x4
+    field public static final int CallbackCancelled = 2; // 0x2
+    field public static final androidx.webgpu.MapAsyncStatus.Companion Companion;
+    field public static final int Error = 3; // 0x3
+    field public static final int Success = 1; // 0x1
+  }
+
+  public static final class MapAsyncStatus.Companion {
+    method public String toString(int value);
+    property public static int Aborted;
+    property public static int CallbackCancelled;
+    property public static int Error;
+    property public static int Success;
+  }
+
+  public final class MapMode {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.MapMode.Companion Companion;
+    field public static final int None = 0; // 0x0
+    field public static final int Read = 1; // 0x1
+    field public static final int Write = 2; // 0x2
+  }
+
+  public static final class MapMode.Companion {
+    method public String toString(int value);
+    property public static int None;
+    property public static int Read;
+    property public static int Write;
+  }
+
+  public final class MipmapFilterMode {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.MipmapFilterMode.Companion Companion;
+    field public static final int Linear = 2; // 0x2
+    field public static final int Nearest = 1; // 0x1
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class MipmapFilterMode.Companion {
+    method public String toString(int value);
+    property public static int Linear;
+    property public static int Nearest;
+    property public static int Undefined;
+  }
+
+  public final class OptionalBool {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.OptionalBool.Companion Companion;
+    field public static final int False = 0; // 0x0
+    field public static final int True = 1; // 0x1
+    field public static final int Undefined = 2; // 0x2
+  }
+
+  public static final class OptionalBool.Companion {
+    method public String toString(int value);
+    property public static int False;
+    property public static int True;
+    property public static int Undefined;
   }
 
   public final class OutOfMemoryException extends androidx.webgpu.WebGpuRuntimeException {
@@ -2008,6 +2697,102 @@ package androidx.webgpu {
     property public int status;
   }
 
+  public final class PopErrorScopeStatus {
+    method public static String toString(int value);
+    field public static final int CallbackCancelled = 2; // 0x2
+    field public static final androidx.webgpu.PopErrorScopeStatus.Companion Companion;
+    field public static final int Error = 3; // 0x3
+    field public static final int Success = 1; // 0x1
+  }
+
+  public static final class PopErrorScopeStatus.Companion {
+    method public String toString(int value);
+    property public static int CallbackCancelled;
+    property public static int Error;
+    property public static int Success;
+  }
+
+  public final class PowerPreference {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.PowerPreference.Companion Companion;
+    field public static final int HighPerformance = 2; // 0x2
+    field public static final int LowPower = 1; // 0x1
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class PowerPreference.Companion {
+    method public String toString(int value);
+    property public static int HighPerformance;
+    property public static int LowPower;
+    property public static int Undefined;
+  }
+
+  public final class PredefinedColorSpace {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.PredefinedColorSpace.Companion Companion;
+    field public static final int DisplayP3 = 2; // 0x2
+    field public static final int SRGB = 1; // 0x1
+  }
+
+  public static final class PredefinedColorSpace.Companion {
+    method public String toString(int value);
+    property public static int DisplayP3;
+    property public static int SRGB;
+  }
+
+  public final class PresentMode {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.PresentMode.Companion Companion;
+    field public static final int Fifo = 1; // 0x1
+    field public static final int FifoRelaxed = 2; // 0x2
+    field public static final int Immediate = 3; // 0x3
+    field public static final int Mailbox = 4; // 0x4
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class PresentMode.Companion {
+    method public String toString(int value);
+    property public static int Fifo;
+    property public static int FifoRelaxed;
+    property public static int Immediate;
+    property public static int Mailbox;
+    property public static int Undefined;
+  }
+
+  public final class PrimitiveTopology {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.PrimitiveTopology.Companion Companion;
+    field public static final int LineList = 2; // 0x2
+    field public static final int LineStrip = 3; // 0x3
+    field public static final int PointList = 1; // 0x1
+    field public static final int TriangleList = 4; // 0x4
+    field public static final int TriangleStrip = 5; // 0x5
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class PrimitiveTopology.Companion {
+    method public String toString(int value);
+    property public static int LineList;
+    property public static int LineStrip;
+    property public static int PointList;
+    property public static int TriangleList;
+    property public static int TriangleStrip;
+    property public static int Undefined;
+  }
+
+  public final class QueryType {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.QueryType.Companion Companion;
+    field public static final int Occlusion = 1; // 0x1
+    field public static final int Timestamp = 2; // 0x2
+  }
+
+  public static final class QueryType.Companion {
+    method public String toString(int value);
+    property public static int Occlusion;
+    property public static int Timestamp;
+  }
+
   public final class QueueWorkDoneException extends java.lang.Exception {
     ctor public QueueWorkDoneException();
     ctor public QueueWorkDoneException(optional String reason, optional int status);
@@ -2016,6 +2801,21 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getStatus();
     property public String reason;
     property public int status;
+  }
+
+  public final class QueueWorkDoneStatus {
+    method public static String toString(int value);
+    field public static final int CallbackCancelled = 2; // 0x2
+    field public static final androidx.webgpu.QueueWorkDoneStatus.Companion Companion;
+    field public static final int Error = 3; // 0x3
+    field public static final int Success = 1; // 0x1
+  }
+
+  public static final class QueueWorkDoneStatus.Companion {
+    method public String toString(int value);
+    property public static int CallbackCancelled;
+    property public static int Error;
+    property public static int Success;
   }
 
   public final class RequestAdapterException extends java.lang.Exception {
@@ -2028,6 +2828,23 @@ package androidx.webgpu {
     property public int status;
   }
 
+  public final class RequestAdapterStatus {
+    method public static String toString(int value);
+    field public static final int CallbackCancelled = 2; // 0x2
+    field public static final androidx.webgpu.RequestAdapterStatus.Companion Companion;
+    field public static final int Error = 4; // 0x4
+    field public static final int Success = 1; // 0x1
+    field public static final int Unavailable = 3; // 0x3
+  }
+
+  public static final class RequestAdapterStatus.Companion {
+    method public String toString(int value);
+    property public static int CallbackCancelled;
+    property public static int Error;
+    property public static int Success;
+    property public static int Unavailable;
+  }
+
   public final class RequestDeviceException extends java.lang.Exception {
     ctor public RequestDeviceException();
     ctor public RequestDeviceException(optional String reason, optional int status);
@@ -2036,6 +2853,172 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getStatus();
     property public String reason;
     property public int status;
+  }
+
+  public final class RequestDeviceStatus {
+    method public static String toString(int value);
+    field public static final int CallbackCancelled = 2; // 0x2
+    field public static final androidx.webgpu.RequestDeviceStatus.Companion Companion;
+    field public static final int Error = 3; // 0x3
+    field public static final int Success = 1; // 0x1
+  }
+
+  public static final class RequestDeviceStatus.Companion {
+    method public String toString(int value);
+    property public static int CallbackCancelled;
+    property public static int Error;
+    property public static int Success;
+  }
+
+  public final class SType {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.SType.Companion Companion;
+    field public static final int CompatibilityModeLimits = 15; // 0xf
+    field public static final int ExternalTextureBindingEntry = 14; // 0xe
+    field public static final int ExternalTextureBindingLayout = 13; // 0xd
+    field public static final int RenderPassMaxDrawCount = 3; // 0x3
+    field public static final int RequestAdapterWebXROptions = 11; // 0xb
+    field public static final int ShaderSourceSPIRV = 1; // 0x1
+    field public static final int ShaderSourceWGSL = 2; // 0x2
+    field public static final int SurfaceColorManagement = 10; // 0xa
+    field public static final int SurfaceSourceAndroidNativeWindow = 8; // 0x8
+    field public static final int SurfaceSourceMetalLayer = 4; // 0x4
+    field public static final int SurfaceSourceWaylandSurface = 7; // 0x7
+    field public static final int SurfaceSourceWindowsHWND = 5; // 0x5
+    field public static final int SurfaceSourceXCBWindow = 9; // 0x9
+    field public static final int SurfaceSourceXlibWindow = 6; // 0x6
+    field public static final int TextureBindingViewDimension = 16; // 0x10
+    field public static final int TextureComponentSwizzleDescriptor = 12; // 0xc
+  }
+
+  public static final class SType.Companion {
+    method public String toString(int value);
+    property public static int CompatibilityModeLimits;
+    property public static int ExternalTextureBindingEntry;
+    property public static int ExternalTextureBindingLayout;
+    property public static int RenderPassMaxDrawCount;
+    property public static int RequestAdapterWebXROptions;
+    property public static int ShaderSourceSPIRV;
+    property public static int ShaderSourceWGSL;
+    property public static int SurfaceColorManagement;
+    property public static int SurfaceSourceAndroidNativeWindow;
+    property public static int SurfaceSourceMetalLayer;
+    property public static int SurfaceSourceWaylandSurface;
+    property public static int SurfaceSourceWindowsHWND;
+    property public static int SurfaceSourceXCBWindow;
+    property public static int SurfaceSourceXlibWindow;
+    property public static int TextureBindingViewDimension;
+    property public static int TextureComponentSwizzleDescriptor;
+  }
+
+  public final class SamplerBindingType {
+    method public static String toString(int value);
+    field public static final int BindingNotUsed = 0; // 0x0
+    field public static final androidx.webgpu.SamplerBindingType.Companion Companion;
+    field public static final int Comparison = 4; // 0x4
+    field public static final int Filtering = 2; // 0x2
+    field public static final int NonFiltering = 3; // 0x3
+    field public static final int Undefined = 1; // 0x1
+  }
+
+  public static final class SamplerBindingType.Companion {
+    method public String toString(int value);
+    property public static int BindingNotUsed;
+    property public static int Comparison;
+    property public static int Filtering;
+    property public static int NonFiltering;
+    property public static int Undefined;
+  }
+
+  public final class ShaderStage {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.ShaderStage.Companion Companion;
+    field public static final int Compute = 4; // 0x4
+    field public static final int Fragment = 2; // 0x2
+    field public static final int None = 0; // 0x0
+    field public static final int Vertex = 1; // 0x1
+  }
+
+  public static final class ShaderStage.Companion {
+    method public String toString(int value);
+    property public static int Compute;
+    property public static int Fragment;
+    property public static int None;
+    property public static int Vertex;
+  }
+
+  public final class Status {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.Status.Companion Companion;
+    field public static final int Error = 2; // 0x2
+    field public static final int Success = 1; // 0x1
+  }
+
+  public static final class Status.Companion {
+    method public String toString(int value);
+    property public static int Error;
+    property public static int Success;
+  }
+
+  public final class StencilOperation {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.StencilOperation.Companion Companion;
+    field public static final int DecrementClamp = 6; // 0x6
+    field public static final int DecrementWrap = 8; // 0x8
+    field public static final int IncrementClamp = 5; // 0x5
+    field public static final int IncrementWrap = 7; // 0x7
+    field public static final int Invert = 4; // 0x4
+    field public static final int Keep = 1; // 0x1
+    field public static final int Replace = 3; // 0x3
+    field public static final int Undefined = 0; // 0x0
+    field public static final int Zero = 2; // 0x2
+  }
+
+  public static final class StencilOperation.Companion {
+    method public String toString(int value);
+    property public static int DecrementClamp;
+    property public static int DecrementWrap;
+    property public static int IncrementClamp;
+    property public static int IncrementWrap;
+    property public static int Invert;
+    property public static int Keep;
+    property public static int Replace;
+    property public static int Undefined;
+    property public static int Zero;
+  }
+
+  public final class StorageTextureAccess {
+    method public static String toString(int value);
+    field public static final int BindingNotUsed = 0; // 0x0
+    field public static final androidx.webgpu.StorageTextureAccess.Companion Companion;
+    field public static final int ReadOnly = 3; // 0x3
+    field public static final int ReadWrite = 4; // 0x4
+    field public static final int Undefined = 1; // 0x1
+    field public static final int WriteOnly = 2; // 0x2
+  }
+
+  public static final class StorageTextureAccess.Companion {
+    method public String toString(int value);
+    property public static int BindingNotUsed;
+    property public static int ReadOnly;
+    property public static int ReadWrite;
+    property public static int Undefined;
+    property public static int WriteOnly;
+  }
+
+  public final class StoreOp {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.StoreOp.Companion Companion;
+    field public static final int Discard = 2; // 0x2
+    field public static final int Store = 1; // 0x1
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class StoreOp.Companion {
+    method public String toString(int value);
+    property public static int Discard;
+    property public static int Store;
+    property public static int Undefined;
   }
 
   public final class SurfaceGetCurrentTextureException extends java.lang.Exception {
@@ -2048,6 +3031,356 @@ package androidx.webgpu {
     property public int status;
   }
 
+  public final class SurfaceGetCurrentTextureStatus {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.SurfaceGetCurrentTextureStatus.Companion Companion;
+    field public static final int Error = 6; // 0x6
+    field public static final int Lost = 5; // 0x5
+    field public static final int Outdated = 4; // 0x4
+    field public static final int SuccessOptimal = 1; // 0x1
+    field public static final int SuccessSuboptimal = 2; // 0x2
+    field public static final int Timeout = 3; // 0x3
+  }
+
+  public static final class SurfaceGetCurrentTextureStatus.Companion {
+    method public String toString(int value);
+    property public static int Error;
+    property public static int Lost;
+    property public static int Outdated;
+    property public static int SuccessOptimal;
+    property public static int SuccessSuboptimal;
+    property public static int Timeout;
+  }
+
+  public final class TextureAspect {
+    method public static String toString(int value);
+    field public static final int All = 1; // 0x1
+    field public static final androidx.webgpu.TextureAspect.Companion Companion;
+    field public static final int DepthOnly = 3; // 0x3
+    field public static final int StencilOnly = 2; // 0x2
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class TextureAspect.Companion {
+    method public String toString(int value);
+    property public static int All;
+    property public static int DepthOnly;
+    property public static int StencilOnly;
+    property public static int Undefined;
+  }
+
+  public final class TextureDimension {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.TextureDimension.Companion Companion;
+    field public static final int Undefined = 0; // 0x0
+    field public static final int _1D = 1; // 0x1
+    field public static final int _2D = 2; // 0x2
+    field public static final int _3D = 3; // 0x3
+  }
+
+  public static final class TextureDimension.Companion {
+    method public String toString(int value);
+    property public static int Undefined;
+    property public static int _1D;
+    property public static int _2D;
+    property public static int _3D;
+  }
+
+  public final class TextureFormat {
+    method public static String toString(int value);
+    field public static final int ASTC10x10Unorm = 96; // 0x60
+    field public static final int ASTC10x10UnormSrgb = 97; // 0x61
+    field public static final int ASTC10x5Unorm = 90; // 0x5a
+    field public static final int ASTC10x5UnormSrgb = 91; // 0x5b
+    field public static final int ASTC10x6Unorm = 92; // 0x5c
+    field public static final int ASTC10x6UnormSrgb = 93; // 0x5d
+    field public static final int ASTC10x8Unorm = 94; // 0x5e
+    field public static final int ASTC10x8UnormSrgb = 95; // 0x5f
+    field public static final int ASTC12x10Unorm = 98; // 0x62
+    field public static final int ASTC12x10UnormSrgb = 99; // 0x63
+    field public static final int ASTC12x12Unorm = 100; // 0x64
+    field public static final int ASTC12x12UnormSrgb = 101; // 0x65
+    field public static final int ASTC4x4Unorm = 74; // 0x4a
+    field public static final int ASTC4x4UnormSrgb = 75; // 0x4b
+    field public static final int ASTC5x4Unorm = 76; // 0x4c
+    field public static final int ASTC5x4UnormSrgb = 77; // 0x4d
+    field public static final int ASTC5x5Unorm = 78; // 0x4e
+    field public static final int ASTC5x5UnormSrgb = 79; // 0x4f
+    field public static final int ASTC6x5Unorm = 80; // 0x50
+    field public static final int ASTC6x5UnormSrgb = 81; // 0x51
+    field public static final int ASTC6x6Unorm = 82; // 0x52
+    field public static final int ASTC6x6UnormSrgb = 83; // 0x53
+    field public static final int ASTC8x5Unorm = 84; // 0x54
+    field public static final int ASTC8x5UnormSrgb = 85; // 0x55
+    field public static final int ASTC8x6Unorm = 86; // 0x56
+    field public static final int ASTC8x6UnormSrgb = 87; // 0x57
+    field public static final int ASTC8x8Unorm = 88; // 0x58
+    field public static final int ASTC8x8UnormSrgb = 89; // 0x59
+    field public static final int BC1RGBAUnorm = 50; // 0x32
+    field public static final int BC1RGBAUnormSrgb = 51; // 0x33
+    field public static final int BC2RGBAUnorm = 52; // 0x34
+    field public static final int BC2RGBAUnormSrgb = 53; // 0x35
+    field public static final int BC3RGBAUnorm = 54; // 0x36
+    field public static final int BC3RGBAUnormSrgb = 55; // 0x37
+    field public static final int BC4RSnorm = 57; // 0x39
+    field public static final int BC4RUnorm = 56; // 0x38
+    field public static final int BC5RGSnorm = 59; // 0x3b
+    field public static final int BC5RGUnorm = 58; // 0x3a
+    field public static final int BC6HRGBFloat = 61; // 0x3d
+    field public static final int BC6HRGBUfloat = 60; // 0x3c
+    field public static final int BC7RGBAUnorm = 62; // 0x3e
+    field public static final int BC7RGBAUnormSrgb = 63; // 0x3f
+    field public static final int BGRA8Unorm = 27; // 0x1b
+    field public static final int BGRA8UnormSrgb = 28; // 0x1c
+    field public static final androidx.webgpu.TextureFormat.Companion Companion;
+    field public static final int Depth16Unorm = 45; // 0x2d
+    field public static final int Depth24Plus = 46; // 0x2e
+    field public static final int Depth24PlusStencil8 = 47; // 0x2f
+    field public static final int Depth32Float = 48; // 0x30
+    field public static final int Depth32FloatStencil8 = 49; // 0x31
+    field public static final int EACR11Snorm = 71; // 0x47
+    field public static final int EACR11Unorm = 70; // 0x46
+    field public static final int EACRG11Snorm = 73; // 0x49
+    field public static final int EACRG11Unorm = 72; // 0x48
+    field public static final int ETC2RGB8A1Unorm = 66; // 0x42
+    field public static final int ETC2RGB8A1UnormSrgb = 67; // 0x43
+    field public static final int ETC2RGB8Unorm = 64; // 0x40
+    field public static final int ETC2RGB8UnormSrgb = 65; // 0x41
+    field public static final int ETC2RGBA8Unorm = 68; // 0x44
+    field public static final int ETC2RGBA8UnormSrgb = 69; // 0x45
+    field public static final int R16Float = 9; // 0x9
+    field public static final int R16Sint = 8; // 0x8
+    field public static final int R16Snorm = 6; // 0x6
+    field public static final int R16Uint = 7; // 0x7
+    field public static final int R16Unorm = 5; // 0x5
+    field public static final int R32Float = 14; // 0xe
+    field public static final int R32Sint = 16; // 0x10
+    field public static final int R32Uint = 15; // 0xf
+    field public static final int R8Sint = 4; // 0x4
+    field public static final int R8Snorm = 2; // 0x2
+    field public static final int R8Uint = 3; // 0x3
+    field public static final int R8Unorm = 1; // 0x1
+    field public static final int RG11B10Ufloat = 31; // 0x1f
+    field public static final int RG16Float = 21; // 0x15
+    field public static final int RG16Sint = 20; // 0x14
+    field public static final int RG16Snorm = 18; // 0x12
+    field public static final int RG16Uint = 19; // 0x13
+    field public static final int RG16Unorm = 17; // 0x11
+    field public static final int RG32Float = 33; // 0x21
+    field public static final int RG32Sint = 35; // 0x23
+    field public static final int RG32Uint = 34; // 0x22
+    field public static final int RG8Sint = 13; // 0xd
+    field public static final int RG8Snorm = 11; // 0xb
+    field public static final int RG8Uint = 12; // 0xc
+    field public static final int RG8Unorm = 10; // 0xa
+    field public static final int RGB10A2Uint = 29; // 0x1d
+    field public static final int RGB10A2Unorm = 30; // 0x1e
+    field public static final int RGB9E5Ufloat = 32; // 0x20
+    field public static final int RGBA16Float = 40; // 0x28
+    field public static final int RGBA16Sint = 39; // 0x27
+    field public static final int RGBA16Snorm = 37; // 0x25
+    field public static final int RGBA16Uint = 38; // 0x26
+    field public static final int RGBA16Unorm = 36; // 0x24
+    field public static final int RGBA32Float = 41; // 0x29
+    field public static final int RGBA32Sint = 43; // 0x2b
+    field public static final int RGBA32Uint = 42; // 0x2a
+    field public static final int RGBA8Sint = 26; // 0x1a
+    field public static final int RGBA8Snorm = 24; // 0x18
+    field public static final int RGBA8Uint = 25; // 0x19
+    field public static final int RGBA8Unorm = 22; // 0x16
+    field public static final int RGBA8UnormSrgb = 23; // 0x17
+    field public static final int Stencil8 = 44; // 0x2c
+    field public static final int Undefined = 0; // 0x0
+  }
+
+  public static final class TextureFormat.Companion {
+    method public String toString(int value);
+    property public static int ASTC10x10Unorm;
+    property public static int ASTC10x10UnormSrgb;
+    property public static int ASTC10x5Unorm;
+    property public static int ASTC10x5UnormSrgb;
+    property public static int ASTC10x6Unorm;
+    property public static int ASTC10x6UnormSrgb;
+    property public static int ASTC10x8Unorm;
+    property public static int ASTC10x8UnormSrgb;
+    property public static int ASTC12x10Unorm;
+    property public static int ASTC12x10UnormSrgb;
+    property public static int ASTC12x12Unorm;
+    property public static int ASTC12x12UnormSrgb;
+    property public static int ASTC4x4Unorm;
+    property public static int ASTC4x4UnormSrgb;
+    property public static int ASTC5x4Unorm;
+    property public static int ASTC5x4UnormSrgb;
+    property public static int ASTC5x5Unorm;
+    property public static int ASTC5x5UnormSrgb;
+    property public static int ASTC6x5Unorm;
+    property public static int ASTC6x5UnormSrgb;
+    property public static int ASTC6x6Unorm;
+    property public static int ASTC6x6UnormSrgb;
+    property public static int ASTC8x5Unorm;
+    property public static int ASTC8x5UnormSrgb;
+    property public static int ASTC8x6Unorm;
+    property public static int ASTC8x6UnormSrgb;
+    property public static int ASTC8x8Unorm;
+    property public static int ASTC8x8UnormSrgb;
+    property public static int BC1RGBAUnorm;
+    property public static int BC1RGBAUnormSrgb;
+    property public static int BC2RGBAUnorm;
+    property public static int BC2RGBAUnormSrgb;
+    property public static int BC3RGBAUnorm;
+    property public static int BC3RGBAUnormSrgb;
+    property public static int BC4RSnorm;
+    property public static int BC4RUnorm;
+    property public static int BC5RGSnorm;
+    property public static int BC5RGUnorm;
+    property public static int BC6HRGBFloat;
+    property public static int BC6HRGBUfloat;
+    property public static int BC7RGBAUnorm;
+    property public static int BC7RGBAUnormSrgb;
+    property public static int BGRA8Unorm;
+    property public static int BGRA8UnormSrgb;
+    property public static int Depth16Unorm;
+    property public static int Depth24Plus;
+    property public static int Depth24PlusStencil8;
+    property public static int Depth32Float;
+    property public static int Depth32FloatStencil8;
+    property public static int EACR11Snorm;
+    property public static int EACR11Unorm;
+    property public static int EACRG11Snorm;
+    property public static int EACRG11Unorm;
+    property public static int ETC2RGB8A1Unorm;
+    property public static int ETC2RGB8A1UnormSrgb;
+    property public static int ETC2RGB8Unorm;
+    property public static int ETC2RGB8UnormSrgb;
+    property public static int ETC2RGBA8Unorm;
+    property public static int ETC2RGBA8UnormSrgb;
+    property public static int R16Float;
+    property public static int R16Sint;
+    property public static int R16Snorm;
+    property public static int R16Uint;
+    property public static int R16Unorm;
+    property public static int R32Float;
+    property public static int R32Sint;
+    property public static int R32Uint;
+    property public static int R8Sint;
+    property public static int R8Snorm;
+    property public static int R8Uint;
+    property public static int R8Unorm;
+    property public static int RG11B10Ufloat;
+    property public static int RG16Float;
+    property public static int RG16Sint;
+    property public static int RG16Snorm;
+    property public static int RG16Uint;
+    property public static int RG16Unorm;
+    property public static int RG32Float;
+    property public static int RG32Sint;
+    property public static int RG32Uint;
+    property public static int RG8Sint;
+    property public static int RG8Snorm;
+    property public static int RG8Uint;
+    property public static int RG8Unorm;
+    property public static int RGB10A2Uint;
+    property public static int RGB10A2Unorm;
+    property public static int RGB9E5Ufloat;
+    property public static int RGBA16Float;
+    property public static int RGBA16Sint;
+    property public static int RGBA16Snorm;
+    property public static int RGBA16Uint;
+    property public static int RGBA16Unorm;
+    property public static int RGBA32Float;
+    property public static int RGBA32Sint;
+    property public static int RGBA32Uint;
+    property public static int RGBA8Sint;
+    property public static int RGBA8Snorm;
+    property public static int RGBA8Uint;
+    property public static int RGBA8Unorm;
+    property public static int RGBA8UnormSrgb;
+    property public static int Stencil8;
+    property public static int Undefined;
+  }
+
+  public final class TextureSampleType {
+    method public static String toString(int value);
+    field public static final int BindingNotUsed = 0; // 0x0
+    field public static final androidx.webgpu.TextureSampleType.Companion Companion;
+    field public static final int Depth = 4; // 0x4
+    field public static final int Float = 2; // 0x2
+    field public static final int Sint = 5; // 0x5
+    field public static final int Uint = 6; // 0x6
+    field public static final int Undefined = 1; // 0x1
+    field public static final int UnfilterableFloat = 3; // 0x3
+  }
+
+  public static final class TextureSampleType.Companion {
+    method public String toString(int value);
+    property public static int BindingNotUsed;
+    property public static int Depth;
+    property public static int Float;
+    property public static int Sint;
+    property public static int Uint;
+    property public static int Undefined;
+    property public static int UnfilterableFloat;
+  }
+
+  public final class TextureUsage {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.TextureUsage.Companion Companion;
+    field public static final int CopyDst = 2; // 0x2
+    field public static final int CopySrc = 1; // 0x1
+    field public static final int None = 0; // 0x0
+    field public static final int RenderAttachment = 16; // 0x10
+    field public static final int StorageBinding = 8; // 0x8
+    field public static final int TextureBinding = 4; // 0x4
+    field public static final int TransientAttachment = 32; // 0x20
+  }
+
+  public static final class TextureUsage.Companion {
+    method public String toString(int value);
+    property public static int CopyDst;
+    property public static int CopySrc;
+    property public static int None;
+    property public static int RenderAttachment;
+    property public static int StorageBinding;
+    property public static int TextureBinding;
+    property public static int TransientAttachment;
+  }
+
+  public final class TextureViewDimension {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.TextureViewDimension.Companion Companion;
+    field public static final int Cube = 4; // 0x4
+    field public static final int CubeArray = 5; // 0x5
+    field public static final int Undefined = 0; // 0x0
+    field public static final int _1D = 1; // 0x1
+    field public static final int _2D = 2; // 0x2
+    field public static final int _2DArray = 3; // 0x3
+    field public static final int _3D = 6; // 0x6
+  }
+
+  public static final class TextureViewDimension.Companion {
+    method public String toString(int value);
+    property public static int Cube;
+    property public static int CubeArray;
+    property public static int Undefined;
+    property public static int _1D;
+    property public static int _2D;
+    property public static int _2DArray;
+    property public static int _3D;
+  }
+
+  public final class ToneMappingMode {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.ToneMappingMode.Companion Companion;
+    field public static final int Extended = 2; // 0x2
+    field public static final int Standard = 1; // 0x1
+  }
+
+  public static final class ToneMappingMode.Companion {
+    method public String toString(int value);
+    property public static int Extended;
+    property public static int Standard;
+  }
+
   public fun interface UncapturedErrorCallback {
     method public void onUncapturedError(androidx.webgpu.GPUDevice device, int type, String message);
   }
@@ -2058,6 +3391,139 @@ package androidx.webgpu {
 
   public final class ValidationException extends androidx.webgpu.WebGpuRuntimeException {
     ctor public ValidationException(String message);
+  }
+
+  public final class VertexFormat {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.VertexFormat.Companion Companion;
+    field public static final int Float16 = 25; // 0x19
+    field public static final int Float16x2 = 26; // 0x1a
+    field public static final int Float16x4 = 27; // 0x1b
+    field public static final int Float32 = 28; // 0x1c
+    field public static final int Float32x2 = 29; // 0x1d
+    field public static final int Float32x3 = 30; // 0x1e
+    field public static final int Float32x4 = 31; // 0x1f
+    field public static final int Sint16 = 16; // 0x10
+    field public static final int Sint16x2 = 17; // 0x11
+    field public static final int Sint16x4 = 18; // 0x12
+    field public static final int Sint32 = 36; // 0x24
+    field public static final int Sint32x2 = 37; // 0x25
+    field public static final int Sint32x3 = 38; // 0x26
+    field public static final int Sint32x4 = 39; // 0x27
+    field public static final int Sint8 = 4; // 0x4
+    field public static final int Sint8x2 = 5; // 0x5
+    field public static final int Sint8x4 = 6; // 0x6
+    field public static final int Snorm16 = 22; // 0x16
+    field public static final int Snorm16x2 = 23; // 0x17
+    field public static final int Snorm16x4 = 24; // 0x18
+    field public static final int Snorm8 = 10; // 0xa
+    field public static final int Snorm8x2 = 11; // 0xb
+    field public static final int Snorm8x4 = 12; // 0xc
+    field public static final int Uint16 = 13; // 0xd
+    field public static final int Uint16x2 = 14; // 0xe
+    field public static final int Uint16x4 = 15; // 0xf
+    field public static final int Uint32 = 32; // 0x20
+    field public static final int Uint32x2 = 33; // 0x21
+    field public static final int Uint32x3 = 34; // 0x22
+    field public static final int Uint32x4 = 35; // 0x23
+    field public static final int Uint8 = 1; // 0x1
+    field public static final int Uint8x2 = 2; // 0x2
+    field public static final int Uint8x4 = 3; // 0x3
+    field public static final int Unorm10_10_10_2 = 40; // 0x28
+    field public static final int Unorm16 = 19; // 0x13
+    field public static final int Unorm16x2 = 20; // 0x14
+    field public static final int Unorm16x4 = 21; // 0x15
+    field public static final int Unorm8 = 7; // 0x7
+    field public static final int Unorm8x2 = 8; // 0x8
+    field public static final int Unorm8x4 = 9; // 0x9
+    field public static final int Unorm8x4BGRA = 41; // 0x29
+  }
+
+  public static final class VertexFormat.Companion {
+    method public String toString(int value);
+    property public static int Float16;
+    property public static int Float16x2;
+    property public static int Float16x4;
+    property public static int Float32;
+    property public static int Float32x2;
+    property public static int Float32x3;
+    property public static int Float32x4;
+    property public static int Sint16;
+    property public static int Sint16x2;
+    property public static int Sint16x4;
+    property public static int Sint32;
+    property public static int Sint32x2;
+    property public static int Sint32x3;
+    property public static int Sint32x4;
+    property public static int Sint8;
+    property public static int Sint8x2;
+    property public static int Sint8x4;
+    property public static int Snorm16;
+    property public static int Snorm16x2;
+    property public static int Snorm16x4;
+    property public static int Snorm8;
+    property public static int Snorm8x2;
+    property public static int Snorm8x4;
+    property public static int Uint16;
+    property public static int Uint16x2;
+    property public static int Uint16x4;
+    property public static int Uint32;
+    property public static int Uint32x2;
+    property public static int Uint32x3;
+    property public static int Uint32x4;
+    property public static int Uint8;
+    property public static int Uint8x2;
+    property public static int Uint8x4;
+    property public static int Unorm10_10_10_2;
+    property public static int Unorm16;
+    property public static int Unorm16x2;
+    property public static int Unorm16x4;
+    property public static int Unorm8;
+    property public static int Unorm8x2;
+    property public static int Unorm8x4;
+    property public static int Unorm8x4BGRA;
+  }
+
+  public final class VertexStepMode {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.VertexStepMode.Companion Companion;
+    field public static final int Instance = 2; // 0x2
+    field public static final int Undefined = 0; // 0x0
+    field public static final int Vertex = 1; // 0x1
+  }
+
+  public static final class VertexStepMode.Companion {
+    method public String toString(int value);
+    property public static int Instance;
+    property public static int Undefined;
+    property public static int Vertex;
+  }
+
+  public final class WGSLLanguageFeatureName {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.WGSLLanguageFeatureName.Companion Companion;
+    field public static final int Packed4x8IntegerDotProduct = 2; // 0x2
+    field public static final int PointerCompositeAccess = 4; // 0x4
+    field public static final int ReadonlyAndReadwriteStorageTextures = 1; // 0x1
+    field public static final int SubgroupId = 6; // 0x6
+    field public static final int SubgroupUniformity = 8; // 0x8
+    field public static final int TextureAndSamplerLet = 7; // 0x7
+    field public static final int TextureFormatsTier1 = 9; // 0x9
+    field public static final int UniformBufferStandardLayout = 5; // 0x5
+    field public static final int UnrestrictedPointerParameters = 3; // 0x3
+  }
+
+  public static final class WGSLLanguageFeatureName.Companion {
+    method public String toString(int value);
+    property public static int Packed4x8IntegerDotProduct;
+    property public static int PointerCompositeAccess;
+    property public static int ReadonlyAndReadwriteStorageTextures;
+    property public static int SubgroupId;
+    property public static int SubgroupUniformity;
+    property public static int TextureAndSamplerLet;
+    property public static int TextureFormatsTier1;
+    property public static int UniformBufferStandardLayout;
+    property public static int UnrestrictedPointerParameters;
   }
 
   public final class WebGpuException extends java.lang.Exception {

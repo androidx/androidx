@@ -28,19 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(value = [OptionalBool.False, OptionalBool.True, OptionalBool.Undefined])
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Represents a boolean value that can also be undefined. */
-public annotation class OptionalBool {
+public class OptionalBool private constructor() {
+
     public companion object {
 
         /** The boolean value {@code false}. */
@@ -54,6 +46,17 @@ public annotation class OptionalBool {
         internal val names: Map<Int, String> =
             mapOf(0x00000000 to "False", 0x00000001 to "True", 0x00000002 to "Undefined")
 
-        public fun toString(@OptionalBool value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [False, True, Undefined])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

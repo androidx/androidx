@@ -28,30 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            WGSLLanguageFeatureName.ReadonlyAndReadwriteStorageTextures,
-            WGSLLanguageFeatureName.Packed4x8IntegerDotProduct,
-            WGSLLanguageFeatureName.UnrestrictedPointerParameters,
-            WGSLLanguageFeatureName.PointerCompositeAccess,
-            WGSLLanguageFeatureName.UniformBufferStandardLayout,
-            WGSLLanguageFeatureName.SubgroupId,
-            WGSLLanguageFeatureName.TextureAndSamplerLet,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** An enumeration of optional WGSL language features. */
-public annotation class WGSLLanguageFeatureName {
+public class WGSLLanguageFeatureName private constructor() {
+
     public companion object {
 
         /** Support for `readonly` and `readwrite` access qualifiers on storage textures. */
@@ -79,6 +60,8 @@ public annotation class WGSLLanguageFeatureName {
          */
         public const val SubgroupId: Int = 0x00000006
         public const val TextureAndSamplerLet: Int = 0x00000007
+        public const val SubgroupUniformity: Int = 0x00000008
+        public const val TextureFormatsTier1: Int = 0x00000009
         internal val names: Map<Int, String> =
             mapOf(
                 0x00000001 to "ReadonlyAndReadwriteStorageTextures",
@@ -88,9 +71,34 @@ public annotation class WGSLLanguageFeatureName {
                 0x00000005 to "UniformBufferStandardLayout",
                 0x00000006 to "SubgroupId",
                 0x00000007 to "TextureAndSamplerLet",
+                0x00000008 to "SubgroupUniformity",
+                0x00000009 to "TextureFormatsTier1",
             )
 
-        public fun toString(@WGSLLanguageFeatureName value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(
+        value =
+            [
+                ReadonlyAndReadwriteStorageTextures,
+                Packed4x8IntegerDotProduct,
+                UnrestrictedPointerParameters,
+                PointerCompositeAccess,
+                UniformBufferStandardLayout,
+                SubgroupId,
+                TextureAndSamplerLet,
+                SubgroupUniformity,
+                TextureFormatsTier1,
+            ]
+    )
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

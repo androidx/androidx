@@ -31,5 +31,5 @@ constructor(
      * The type of the sampler binding. Defaults to @see [SamplerBindingType.Filtering] if
      * `undefined`.
      */
-    @SamplerBindingType public var type: Int = SamplerBindingType.Filtering
+    @SamplerBindingType.Type public var type: Int = SamplerBindingType.Filtering
 )

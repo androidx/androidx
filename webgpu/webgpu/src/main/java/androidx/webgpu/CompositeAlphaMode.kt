@@ -28,28 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            CompositeAlphaMode.Auto,
-            CompositeAlphaMode.Opaque,
-            CompositeAlphaMode.Premultiplied,
-            CompositeAlphaMode.Unpremultiplied,
-            CompositeAlphaMode.Inherit,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines how the alpha channel of a surface's texture is handled during compositing. */
-public annotation class CompositeAlphaMode {
+public class CompositeAlphaMode private constructor() {
+
     public companion object {
 
         /** The implementation selects the optimal composite alpha mode. */
@@ -75,7 +58,17 @@ public annotation class CompositeAlphaMode {
                 0x00000004 to "Inherit",
             )
 
-        public fun toString(@CompositeAlphaMode value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Auto, Opaque, Premultiplied, Unpremultiplied, Inherit])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

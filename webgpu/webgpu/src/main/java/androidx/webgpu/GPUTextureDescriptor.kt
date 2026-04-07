@@ -26,36 +26,40 @@ package androidx.webgpu
 /** Describes a texture to be created. */
 public class GPUTextureDescriptor(
     /** The allowed usages for the texture. */
-    @TextureUsage public var usage: Int,
+    @TextureUsage.Type public var usage: Int,
     /** The size of the texture. */
     public var size: GPUExtent3D,
     /** A human-readable label for debugging. */
     public var label: String? = null,
     /** The dimension of the texture. Defaults to @see [TextureDimension._2D]. */
-    @TextureDimension public var dimension: Int = TextureDimension._2D,
+    @TextureDimension.Type public var dimension: Int = TextureDimension._2D,
     /** The format of the texture. */
-    @TextureFormat public var format: Int = TextureFormat.Undefined,
+    @TextureFormat.Type public var format: Int = TextureFormat.Undefined,
     public var mipLevelCount: Int = 1,
     public var sampleCount: Int = 1,
-    @TextureFormat public var viewFormats: IntArray = intArrayOf(),
+    @TextureFormat.Type public var viewFormats: IntArray = intArrayOf(),
+    public var textureBindingViewDimension: GPUTextureBindingViewDimension? = null,
 ) {
 
     /** Builder for [GPUTextureDescriptor]. */
-    public class Builder(@TextureUsage private val usage: Int, private val size: GPUExtent3D) {
+    public class Builder(@TextureUsage.Type private val usage: Int, private val size: GPUExtent3D) {
         private var label: String? = null
-        @TextureDimension private var dimension: Int = TextureDimension._2D
-        @TextureFormat private var format: Int = TextureFormat.Undefined
+        @TextureDimension.Type private var dimension: Int = TextureDimension._2D
+        @TextureFormat.Type private var format: Int = TextureFormat.Undefined
         private var mipLevelCount: Int = 1
         private var sampleCount: Int = 1
-        @TextureFormat private var viewFormats: IntArray = intArrayOf()
+        @TextureFormat.Type private var viewFormats: IntArray = intArrayOf()
+        private var textureBindingViewDimension: GPUTextureBindingViewDimension? = null
 
         public fun setLabel(label: String?): Builder = apply { this.label = label }
 
-        public fun setDimension(@TextureDimension dimension: Int): Builder = apply {
+        public fun setDimension(@TextureDimension.Type dimension: Int): Builder = apply {
             this.dimension = dimension
         }
 
-        public fun setFormat(@TextureFormat format: Int): Builder = apply { this.format = format }
+        public fun setFormat(@TextureFormat.Type format: Int): Builder = apply {
+            this.format = format
+        }
 
         public fun setMipLevelCount(mipLevelCount: Int): Builder = apply {
             this.mipLevelCount = mipLevelCount
@@ -65,9 +69,13 @@ public class GPUTextureDescriptor(
             this.sampleCount = sampleCount
         }
 
-        public fun setViewFormats(@TextureFormat viewFormats: IntArray): Builder = apply {
+        public fun setViewFormats(@TextureFormat.Type viewFormats: IntArray): Builder = apply {
             this.viewFormats = viewFormats
         }
+
+        public fun setTextureBindingViewDimension(
+            textureBindingViewDimension: GPUTextureBindingViewDimension?
+        ): Builder = apply { this.textureBindingViewDimension = textureBindingViewDimension }
 
         /** Builds the [GPUTextureDescriptor]. */
         public fun build(): GPUTextureDescriptor =
@@ -80,6 +88,7 @@ public class GPUTextureDescriptor(
                 mipLevelCount = mipLevelCount,
                 sampleCount = sampleCount,
                 viewFormats = viewFormats,
+                textureBindingViewDimension = textureBindingViewDimension,
             )
     }
 }

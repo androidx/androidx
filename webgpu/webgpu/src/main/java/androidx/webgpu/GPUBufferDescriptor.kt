@@ -28,7 +28,7 @@ public class GPUBufferDescriptor
 @JvmOverloads
 constructor(
     /** The allowed usages for the buffer. */
-    @BufferUsage public var usage: Int,
+    @BufferUsage.Type public var usage: Int,
     /** The size of the buffer in bytes. */
     public var size: Long,
     /** A human-readable label for debugging. */

@@ -28,19 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(value = [PredefinedColorSpace.SRGB, PredefinedColorSpace.DisplayP3])
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines standard color spaces for surfaces. */
-public annotation class PredefinedColorSpace {
+public class PredefinedColorSpace private constructor() {
+
     public companion object {
         public const val SRGB: Int = 0x00000001
 
@@ -49,7 +41,17 @@ public annotation class PredefinedColorSpace {
         internal val names: Map<Int, String> =
             mapOf(0x00000001 to "SRGB", 0x00000002 to "DisplayP3")
 
-        public fun toString(@PredefinedColorSpace value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [SRGB, DisplayP3])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

@@ -28,29 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            PrimitiveTopology.Undefined,
-            PrimitiveTopology.PointList,
-            PrimitiveTopology.LineList,
-            PrimitiveTopology.LineStrip,
-            PrimitiveTopology.TriangleList,
-            PrimitiveTopology.TriangleStrip,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines how vertices are interpreted to form geometric primitives. */
-public annotation class PrimitiveTopology {
+public class PrimitiveTopology private constructor() {
+
     public companion object {
 
         /** Indicates that no primitive topology is specified. */
@@ -80,7 +62,17 @@ public annotation class PrimitiveTopology {
                 0x00000005 to "TriangleStrip",
             )
 
-        public fun toString(@PrimitiveTopology value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, PointList, LineList, LineStrip, TriangleList, TriangleStrip])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

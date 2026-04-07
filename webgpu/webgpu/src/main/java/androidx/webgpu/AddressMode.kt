@@ -28,27 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            AddressMode.Undefined,
-            AddressMode.ClampToEdge,
-            AddressMode.Repeat,
-            AddressMode.MirrorRepeat,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines how texture coordinates outside the [0, 1] range are handled. */
-public annotation class AddressMode {
+public class AddressMode private constructor() {
+
     public companion object {
 
         /** Indicates that no address mode is specified. */
@@ -70,6 +54,17 @@ public annotation class AddressMode {
                 0x00000003 to "MirrorRepeat",
             )
 
-        public fun toString(@AddressMode value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, ClampToEdge, Repeat, MirrorRepeat])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

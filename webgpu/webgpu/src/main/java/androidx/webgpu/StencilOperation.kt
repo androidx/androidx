@@ -28,32 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            StencilOperation.Undefined,
-            StencilOperation.Keep,
-            StencilOperation.Zero,
-            StencilOperation.Replace,
-            StencilOperation.Invert,
-            StencilOperation.IncrementClamp,
-            StencilOperation.DecrementClamp,
-            StencilOperation.IncrementWrap,
-            StencilOperation.DecrementWrap,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the operation to perform on the stencil buffer. */
-public annotation class StencilOperation {
+public class StencilOperation private constructor() {
+
     public companion object {
 
         /** Indicates that no stencil operation is specified. */
@@ -95,6 +74,30 @@ public annotation class StencilOperation {
                 0x00000008 to "DecrementWrap",
             )
 
-        public fun toString(@StencilOperation value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Keep,
+                Zero,
+                Replace,
+                Invert,
+                IncrementClamp,
+                DecrementClamp,
+                IncrementWrap,
+                DecrementWrap,
+            ]
+    )
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

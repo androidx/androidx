@@ -25,6 +25,6 @@ package androidx.webgpu
 
 /** Extension for configuring color space and tone mapping for a surface. */
 public class GPUSurfaceColorManagement(
-    @PredefinedColorSpace public var colorSpace: Int,
-    @ToneMappingMode public var toneMappingMode: Int,
+    @PredefinedColorSpace.Type public var colorSpace: Int,
+    @ToneMappingMode.Type public var toneMappingMode: Int,
 )

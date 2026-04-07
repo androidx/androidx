@@ -35,10 +35,10 @@ constructor(
     public var device: String,
     /** A human-readable description of the adapter. */
     public var description: String,
-    @AdapterType public var adapterType: Int,
+    @AdapterType.Type public var adapterType: Int,
     public var vendorID: Int,
     public var deviceID: Int,
     public var subgroupMinSize: Int,
     public var subgroupMaxSize: Int,
-    @BackendType public var backendType: Int = BackendType.Undefined,
+    @BackendType.Type public var backendType: Int = BackendType.Undefined,
 )

@@ -26,9 +26,9 @@ package androidx.webgpu
 /** Describes the depth and stencil state for a render pipeline. */
 public class GPUDepthStencilState(
     /** The texture format of the depth-stencil attachment. */
-    @TextureFormat public var format: Int = TextureFormat.Undefined,
-    @OptionalBool public var depthWriteEnabled: Int = OptionalBool.Undefined,
-    @CompareFunction public var depthCompare: Int = CompareFunction.Undefined,
+    @TextureFormat.Type public var format: Int = TextureFormat.Undefined,
+    @OptionalBool.Type public var depthWriteEnabled: Int = OptionalBool.Undefined,
+    @CompareFunction.Type public var depthCompare: Int = CompareFunction.Undefined,
     public var stencilFront: GPUStencilFaceState = GPUStencilFaceState(),
     public var stencilBack: GPUStencilFaceState = GPUStencilFaceState(),
     public var stencilReadMask: Int = -1,
@@ -40,9 +40,9 @@ public class GPUDepthStencilState(
 
     /** Builder for [GPUDepthStencilState]. */
     public class Builder() {
-        @TextureFormat private var format: Int = TextureFormat.Undefined
-        @OptionalBool private var depthWriteEnabled: Int = OptionalBool.Undefined
-        @CompareFunction private var depthCompare: Int = CompareFunction.Undefined
+        @TextureFormat.Type private var format: Int = TextureFormat.Undefined
+        @OptionalBool.Type private var depthWriteEnabled: Int = OptionalBool.Undefined
+        @CompareFunction.Type private var depthCompare: Int = CompareFunction.Undefined
         private var stencilFront: GPUStencilFaceState = GPUStencilFaceState()
         private var stencilBack: GPUStencilFaceState = GPUStencilFaceState()
         private var stencilReadMask: Int = -1
@@ -51,13 +51,16 @@ public class GPUDepthStencilState(
         private var depthBiasSlopeScale: Float = 0.0f
         private var depthBiasClamp: Float = 0.0f
 
-        public fun setFormat(@TextureFormat format: Int): Builder = apply { this.format = format }
-
-        public fun setDepthWriteEnabled(@OptionalBool depthWriteEnabled: Int): Builder = apply {
-            this.depthWriteEnabled = depthWriteEnabled
+        public fun setFormat(@TextureFormat.Type format: Int): Builder = apply {
+            this.format = format
         }
 
-        public fun setDepthCompare(@CompareFunction depthCompare: Int): Builder = apply {
+        public fun setDepthWriteEnabled(@OptionalBool.Type depthWriteEnabled: Int): Builder =
+            apply {
+                this.depthWriteEnabled = depthWriteEnabled
+            }
+
+        public fun setDepthCompare(@CompareFunction.Type depthCompare: Int): Builder = apply {
             this.depthCompare = depthCompare
         }
 

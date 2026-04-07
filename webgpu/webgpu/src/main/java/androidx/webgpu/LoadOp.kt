@@ -28,19 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(value = [LoadOp.Undefined, LoadOp.Load, LoadOp.Clear])
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the operation to perform on a render attachment at the beginning of a pass. */
-public annotation class LoadOp {
+public class LoadOp private constructor() {
+
     public companion object {
 
         /** Indicates that no load operation is specified. */
@@ -54,6 +46,17 @@ public annotation class LoadOp {
         internal val names: Map<Int, String> =
             mapOf(0x00000000 to "Undefined", 0x00000001 to "Load", 0x00000002 to "Clear")
 
-        public fun toString(@LoadOp value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Undefined, Load, Clear])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

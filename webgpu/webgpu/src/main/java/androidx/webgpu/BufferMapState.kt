@@ -28,19 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(value = [BufferMapState.Unmapped, BufferMapState.Pending, BufferMapState.Mapped])
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Describes the current mapping state of a buffer. */
-public annotation class BufferMapState {
+public class BufferMapState private constructor() {
+
     public companion object {
 
         /** The buffer is not mapped. */
@@ -54,6 +46,17 @@ public annotation class BufferMapState {
         internal val names: Map<Int, String> =
             mapOf(0x00000001 to "Unmapped", 0x00000002 to "Pending", 0x00000003 to "Mapped")
 
-        public fun toString(@BufferMapState value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Unmapped, Pending, Mapped])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

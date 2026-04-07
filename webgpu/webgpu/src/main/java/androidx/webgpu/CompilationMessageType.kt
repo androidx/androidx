@@ -28,22 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [CompilationMessageType.Error, CompilationMessageType.Warning, CompilationMessageType.Info]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Specifies the severity of a shader compilation message. */
-public annotation class CompilationMessageType {
+public class CompilationMessageType private constructor() {
+
     public companion object {
 
         /** A compilation error. */
@@ -57,7 +46,17 @@ public annotation class CompilationMessageType {
         internal val names: Map<Int, String> =
             mapOf(0x00000001 to "Error", 0x00000002 to "Warning", 0x00000003 to "Info")
 
-        public fun toString(@CompilationMessageType value: Int): String =
-            names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = [Error, Warning, Info])
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

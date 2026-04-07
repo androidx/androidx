@@ -57,6 +57,7 @@ public class GPULimits(
     public var maxComputeWorkgroupSizeZ: Int = Constants.LIMIT_U32_UNDEFINED,
     public var maxComputeWorkgroupsPerDimension: Int = Constants.LIMIT_U32_UNDEFINED,
     public var maxImmediateSize: Int = Constants.LIMIT_U32_UNDEFINED,
+    public var compatibilityModeLimits: GPUCompatibilityModeLimits? = null,
 ) {
 
     /** Builder for [GPULimits]. */
@@ -93,6 +94,7 @@ public class GPULimits(
         private var maxComputeWorkgroupSizeZ: Int = Constants.LIMIT_U32_UNDEFINED
         private var maxComputeWorkgroupsPerDimension: Int = Constants.LIMIT_U32_UNDEFINED
         private var maxImmediateSize: Int = Constants.LIMIT_U32_UNDEFINED
+        private var compatibilityModeLimits: GPUCompatibilityModeLimits? = null
 
         public fun setMaxTextureDimension1D(maxTextureDimension1D: Int): Builder = apply {
             this.maxTextureDimension1D = maxTextureDimension1D
@@ -251,6 +253,10 @@ public class GPULimits(
             this.maxImmediateSize = maxImmediateSize
         }
 
+        public fun setCompatibilityModeLimits(
+            compatibilityModeLimits: GPUCompatibilityModeLimits?
+        ): Builder = apply { this.compatibilityModeLimits = compatibilityModeLimits }
+
         /** Builds the [GPULimits]. */
         public fun build(): GPULimits =
             GPULimits(
@@ -288,6 +294,7 @@ public class GPULimits(
                 maxComputeWorkgroupSizeZ = maxComputeWorkgroupSizeZ,
                 maxComputeWorkgroupsPerDimension = maxComputeWorkgroupsPerDimension,
                 maxImmediateSize = maxImmediateSize,
+                compatibilityModeLimits = compatibilityModeLimits,
             )
     }
 }

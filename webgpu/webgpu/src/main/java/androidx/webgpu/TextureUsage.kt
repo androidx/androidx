@@ -28,30 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    flag = true,
-    value =
-        [
-            TextureUsage.None,
-            TextureUsage.CopySrc,
-            TextureUsage.CopyDst,
-            TextureUsage.TextureBinding,
-            TextureUsage.StorageBinding,
-            TextureUsage.RenderAttachment,
-        ],
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the valid usages for a texture. */
-public annotation class TextureUsage {
+public class TextureUsage private constructor() {
+
     public companion object {
 
         /** No usage is specified. */
@@ -71,6 +52,7 @@ public annotation class TextureUsage {
 
         /** Allows the texture to be used as a render attachment. */
         public const val RenderAttachment: Int = 0x00000010
+        public const val TransientAttachment: Int = 0x00000020
         internal val names: Map<Int, String> =
             mapOf(
                 0x00000000 to "None",
@@ -79,8 +61,32 @@ public annotation class TextureUsage {
                 0x00000004 to "TextureBinding",
                 0x00000008 to "StorageBinding",
                 0x00000010 to "RenderAttachment",
+                0x00000020 to "TransientAttachment",
             )
 
-        public fun toString(@TextureUsage value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(
+        flag = true,
+        value =
+            [
+                None,
+                CopySrc,
+                CopyDst,
+                TextureBinding,
+                StorageBinding,
+                RenderAttachment,
+                TransientAttachment,
+            ],
+    )
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

@@ -28,32 +28,11 @@ import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(
-    value =
-        [
-            CompareFunction.Undefined,
-            CompareFunction.Never,
-            CompareFunction.Less,
-            CompareFunction.Equal,
-            CompareFunction.LessEqual,
-            CompareFunction.Greater,
-            CompareFunction.NotEqual,
-            CompareFunction.GreaterEqual,
-            CompareFunction.Always,
-        ]
-)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.PROPERTY,
-)
+import kotlin.jvm.JvmStatic
 
 /** Defines the comparison function used for depth and stencil tests. */
-public annotation class CompareFunction {
+public class CompareFunction private constructor() {
+
     public companion object {
 
         /** Indicates that no compare function is specified. */
@@ -97,6 +76,19 @@ public annotation class CompareFunction {
                 0x00000008 to "Always",
             )
 
-        public fun toString(@CompareFunction value: Int): String = names[value] ?: value.toString()
+        @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(
+        value = [Undefined, Never, Less, Equal, LessEqual, Greater, NotEqual, GreaterEqual, Always]
+    )
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.TYPE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY,
+    )
+    public annotation class Type
 }

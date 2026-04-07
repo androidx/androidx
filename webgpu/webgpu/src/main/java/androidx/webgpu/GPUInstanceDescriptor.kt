@@ -27,6 +27,6 @@ package androidx.webgpu
 public class GPUInstanceDescriptor
 @JvmOverloads
 constructor(
-    @InstanceFeatureName public var requiredFeatures: IntArray = intArrayOf(),
+    @InstanceFeatureName.Type public var requiredFeatures: IntArray = intArrayOf(),
     public var requiredLimits: GPUInstanceLimits? = null,
 )
