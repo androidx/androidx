@@ -32,6 +32,8 @@ import java.nio.FloatBuffer
 import kotlin.time.ComparableTimeMark
 
 /** [StateExtender] in charge of extending [CoreState] with [CameraState]. */
+// TODO(b/500400207): Dynamically load if play-services runtime is loaded and CAMERA feature
+// detected.
 internal class CameraStateExtender : StateExtender {
 
     internal companion object {
@@ -44,14 +46,23 @@ internal class CameraStateExtender : StateExtender {
 
     internal lateinit var perceptionManager: ArCorePerceptionManager
 
+    private var isInitialized = false
+    private var isPlayServicesEnvironment = false
+
     override fun initialize(runtimes: List<JxrRuntime>) {
-        perceptionManager =
-            runtimes.filterIsInstance<PerceptionRuntime>().first().perceptionManager
-                as ArCorePerceptionManager
+        isInitialized = true
+
+        val manager =
+            runtimes.filterIsInstance<PerceptionRuntime>().firstOrNull()?.perceptionManager
+        if (manager is ArCorePerceptionManager) {
+            perceptionManager = manager
+            isPlayServicesEnvironment = true
+        }
     }
 
     override suspend fun extend(coreState: CoreState) {
-        check(this::perceptionManager.isInitialized) { "CameraStateExtender is not initialized." }
+        check(isInitialized) { "CameraStateExtender is not initialized." }
+        if (!isPlayServicesEnvironment) return
         synchronized(perceptionManager.frameLock) { updateCameraStateMap(coreState) }
     }
 
