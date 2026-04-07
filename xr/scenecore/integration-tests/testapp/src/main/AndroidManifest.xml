@@ -107,6 +107,9 @@
             android:name=".spatialaudio.SpatialAudioActivity"
             android:exported="true" />
         <activity
+            android:name=".spatialaudio.SpatialAudioComponentsActivity"
+            android:exported="true" />
+        <activity
             android:name=".hittest.HitTestActivity"
             android:exported="true" />
         <activity
