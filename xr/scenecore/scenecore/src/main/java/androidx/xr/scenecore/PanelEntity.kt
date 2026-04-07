@@ -258,22 +258,18 @@ internal constructor(
          * @param name Name of this PanelEntity.
          * @param pose [Pose] of this entity relative to its parent, default value is Identity.
          * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is
-         *   [Scene]'s [ActivitySpace].
+         *   scene graph and will not be visible until a parent is set. The default value is `null`.
          * @return a PanelEntity instance.
          */
         @JvmOverloads
         @JvmStatic
-        // TODO: b/493469066 - Once internal clients explicitly set the parent parameter at all call
-        //  sites, change the default parent value to null in the entity factory and update the
-        //  release notes accordingly.
         public fun create(
             session: Session,
             view: View,
             dimensions: FloatSize2d,
             name: String,
             pose: Pose = Pose.Identity,
-            parent: Entity? = session.scene.activitySpace,
+            parent: Entity? = null,
         ): PanelEntity =
             PanelEntity.create(
                 session.context as Activity,
@@ -297,22 +293,18 @@ internal constructor(
          * @param name Name of the panel.
          * @param pose [Pose] of this PanelEntity relative to its parent, default value is Identity.
          * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is
-         *   [Scene]'s [ActivitySpace].
+         *   scene graph and will not be visible until a parent is set. The default value is `null`.
          * @return a PanelEntity instance.
          */
         @JvmOverloads
         @JvmStatic
-        // TODO: b/493469066 - Once internal clients explicitly set the parent parameter at all call
-        //  sites, change the default parent value to null in the entity factory and update the
-        //  release notes accordingly.
         public fun create(
             session: Session,
             view: View,
             pixelDimensions: IntSize2d,
             name: String,
             pose: Pose = Pose.Identity,
-            parent: Entity? = session.scene.activitySpace,
+            parent: Entity? = null,
         ): PanelEntity =
             PanelEntity.create(
                 session.context as Activity,
