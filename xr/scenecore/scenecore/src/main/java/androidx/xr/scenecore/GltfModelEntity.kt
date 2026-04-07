@@ -178,20 +178,16 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
          * @param model The [GltfModel] this [Entity] is referencing.
          * @param pose The initial [Pose] of the [Entity]. The default value is [Pose.Identity].
          * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is
-         *   [Scene]'s [ActivitySpace].
+         *   scene graph and will not be visible until a parent is set. The default value is `null`.
          */
         @MainThread
         @JvmOverloads
         @JvmStatic
-        // TODO: b/493469066 - Once internal clients explicitly set the parent parameter at all call
-        //  sites, change the default parent value to null in the entity factory and update the
-        //  release notes accordingly.
         public fun create(
             session: Session,
             model: GltfModel,
             pose: Pose = Pose.Identity,
-            parent: Entity? = session.scene.activitySpace,
+            parent: Entity? = null,
         ): GltfModelEntity =
             create(
                 session.sceneRuntime,

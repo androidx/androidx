@@ -653,16 +653,12 @@ private constructor(
          * @param superSampling The [SuperSampling] which describes whether super sampling is
          *   enabled for the surface.
          * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is
-         *   [Scene]'s [ActivitySpace].
+         *   scene graph and will not be visible until a parent is set. The default value is `null`.
          * @return a SurfaceEntity instance
          */
         @MainThread
         @JvmOverloads
         @JvmStatic
-        // TODO: b/493469066 - Once internal clients explicitly set the parent parameter at all call
-        //  sites, change the default parent value to null in the entity factory and update the
-        //  release notes accordingly.
         public fun create(
             session: Session,
             pose: Pose = Pose.Identity,
@@ -670,7 +666,7 @@ private constructor(
             stereoMode: StereoMode = StereoMode.MONO,
             superSampling: SuperSampling = SuperSampling.PENTAGON,
             surfaceProtection: SurfaceProtection = SurfaceProtection.NONE,
-            parent: Entity? = session.scene.activitySpace,
+            parent: Entity? = null,
         ): SurfaceEntity =
             SurfaceEntity.create(
                 session,
@@ -699,8 +695,7 @@ private constructor(
          * @param surfaceProtection The [SurfaceProtection] which describes whether the hosted
          *   surface should support Widevine DRM. The default value is [SurfaceProtection.NONE].
          * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is
-         *   [Scene]'s [ActivitySpace].
+         *   scene graph and will not be visible until a parent is set. The default value is `null`.
          * @return a SurfaceEntity instance
          */
         @MainThread
@@ -714,13 +709,7 @@ private constructor(
             mediaBlendingMode: MediaBlendingMode = MediaBlendingMode.TRANSPARENT,
             superSampling: SuperSampling = SuperSampling.PENTAGON,
             surfaceProtection: SurfaceProtection = SurfaceProtection.NONE,
-            // TODO: b/493469066 - Once internal clients explicitly set the parent parameter at all
-            //  call sites, change the default parent value to null in the entity factory and update
-            //  the release notes accordingly.
-            // Since this API also includes another restriction parameter, `mediaBlendingMode`,
-            // we will just modify the parent parameter to null in the entity factory later and keep
-            // the `@RestrictTo` annotation.
-            parent: Entity? = session.scene.activitySpace,
+            parent: Entity? = null,
         ): SurfaceEntity =
             SurfaceEntity.create(
                 session,
