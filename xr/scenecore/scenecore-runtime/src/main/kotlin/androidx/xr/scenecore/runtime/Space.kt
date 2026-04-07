@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 
 @IntDef(Space.PARENT, Space.ACTIVITY, Space.REAL_WORLD)
 @Retention(AnnotationRetention.SOURCE)
-@Suppress("PublicTypedef")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public annotation class SpaceValue
 

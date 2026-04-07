@@ -110,7 +110,6 @@ public interface ScenePose {
     }
 
     @Retention(AnnotationRetention.SOURCE)
-    @Suppress("PublicTypedef")
     @IntDef(flag = true, value = [HitTestFilter.SELF_SCENE, HitTestFilter.OTHER_SCENES])
     public annotation class HitTestFilterValue
 
