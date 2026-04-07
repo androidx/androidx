@@ -542,31 +542,31 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * An app could set up a message port as follows:
      * <pre class="prettyprint">
      *     // Listen for console logs.
-     *     isolate.setConsoleCallback(Looper.myLooper(), new JavaScriptConsoleCallback() {
+     *     isolate.setConsoleCallback(getMainExecutor(), new JavaScriptConsoleCallback() {
      *         &#064;Override
-     *         public void onMessage(ConsoleMessage message) {
+     *         public void onMessage(&#064;NonNull ConsoleMessage message) {
      *             Log.i(TAG, "Console: " + message.toString());
      *         }
      *     });
      *     // Set up the message port and send it to the isolate.
      *     MessagePortClient client = new MessagePortClient() {
      *         &#064;Override
-     *         public void onMessage(Message message) {
+     *         public void onMessage(&#064;NonNull Message message) {
      *             if (message.getType() == Message.TYPE_STRING) {
      *                 Log.i(TAG, "Isolate to App: " + message.getString());
      *             }
      *         }
      *     };
      *     MessagePort port = isolate.createMessageChannel(
-     *             "myPortName", Looper.myLooper(), client);
+     *             "myPortName", getMainExecutor(), client);
      *     // Execute JavaScript that listens on the port and posts a message back to the app.
      *     ListenableFuture&lt;String&gt; future = isolate.evaluateJavaScriptAsync(
      *             """
-     *             async () => {
+     *             (async () => {
      *               const port = await android.getNamedPort("myPortName");
      *               port.onmessage = (event) => {console.log("App to Isolate: " + event.data);};
      *               port.postMessage("hello app!");
-     *             }();
+     *             })();
      *             """);
      *      // Wait for the isolate to obtain the port. (Exception handling skipped for brevity.)
      *      future.get(5, TimeUnit.SECONDS);
