@@ -32,8 +32,6 @@ import androidx.window.WindowTestUtils.Companion.assumeBeforeWindowExtensionVers
 import androidx.window.core.Bounds
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
-import androidx.window.layout.WindowLayoutInfo.EngagementMode
-import androidx.window.layout.adapter.EngagementModeBackend
 import androidx.window.layout.adapter.WindowBackend
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
@@ -53,11 +51,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -71,24 +64,8 @@ class WindowInfoTrackerImplTest {
     private val windowSdkExtensions = WindowSdkExtensions.getInstance()
     private val windowMetricsCalculator = WindowMetricsCalculatorCompat()
     private val fakeBackend = FakeWindowBackend()
-    private val mEngagementModeBackend =
-        mock<EngagementModeBackend> {
-            on { engagementMode(any()) } doReturn EngagementMode.ENGAGEMENT_PRECISE_POINTER
-            on { getCurrentEngagementLayoutMode(any()) } doReturn
-                EngagementMode.ENGAGEMENT_PRECISE_POINTER
-            on { addEngagementLayoutChangeCallback(any(), any(), any()) } doAnswer
-                {
-                    val callback = it.getArgument<Consumer<EngagementMode>>(2)
-                    callback.accept(EngagementMode.ENGAGEMENT_PRECISE_POINTER)
-                }
-        }
     private val tracker =
-        WindowInfoTrackerImpl(
-            windowMetricsCalculator,
-            fakeBackend,
-            windowSdkExtensions,
-            mEngagementModeBackend,
-        )
+        WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
 
     @AfterTest
     fun tearDown() {
@@ -106,13 +83,7 @@ class WindowInfoTrackerImplTest {
                 testScope.launch(job) { tracker.windowLayoutInfo(testActivity).toList(collector) }
                 fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
 
-                assertThat(collector)
-                    .containsExactly(
-                        tracker.withEngagementMode(
-                            WindowLayoutInfo(emptyList()),
-                            EngagementMode.ENGAGEMENT_PRECISE_POINTER,
-                        )
-                    )
+                assertThat(collector).containsExactly(WindowLayoutInfo(emptyList()))
                 job.cancel()
                 assertThat(fakeBackend.consumers).isEmpty()
             }
@@ -132,13 +103,7 @@ class WindowInfoTrackerImplTest {
             testScope.launch(job) { tracker.windowLayoutInfo(windowContext).toList(collector) }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
 
-            assertThat(collector)
-                .containsExactly(
-                    tracker.withEngagementMode(
-                        WindowLayoutInfo(emptyList()),
-                        EngagementMode.ENGAGEMENT_PRECISE_POINTER,
-                    )
-                )
+            assertThat(collector).containsExactly(WindowLayoutInfo(emptyList()))
             job.cancel()
             assertThat(fakeBackend.consumers).isEmpty()
         }
@@ -156,16 +121,7 @@ class WindowInfoTrackerImplTest {
                 fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
 
                 assertThat(collector)
-                    .containsExactly(
-                        tracker.withEngagementMode(
-                            WindowLayoutInfo(emptyList()),
-                            EngagementMode.ENGAGEMENT_PRECISE_POINTER,
-                        ),
-                        tracker.withEngagementMode(
-                            WindowLayoutInfo(emptyList()),
-                            EngagementMode.ENGAGEMENT_PRECISE_POINTER,
-                        ),
-                    )
+                    .containsExactly(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))
             }
         }
 
@@ -185,16 +141,7 @@ class WindowInfoTrackerImplTest {
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
 
             assertThat(collector)
-                .containsExactly(
-                    tracker.withEngagementMode(
-                        WindowLayoutInfo(emptyList()),
-                        EngagementMode.ENGAGEMENT_PRECISE_POINTER,
-                    ),
-                    tracker.withEngagementMode(
-                        WindowLayoutInfo(emptyList()),
-                        EngagementMode.ENGAGEMENT_PRECISE_POINTER,
-                    ),
-                )
+                .containsExactly(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))
         }
 
     @Test
@@ -229,12 +176,7 @@ class WindowInfoTrackerImplTest {
             val fakeBackend =
                 FakeWindowBackend(supportedPostures = listOf(SupportedPosture.TABLETOP))
             val tracker =
-                WindowInfoTrackerImpl(
-                    windowMetricsCalculator,
-                    fakeBackend,
-                    windowSdkExtensions,
-                    mEngagementModeBackend,
-                )
+                WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
 
             assertThat(tracker.supportedPostures).containsExactly(SupportedPosture.TABLETOP)
         }
@@ -267,23 +209,11 @@ class WindowInfoTrackerImplTest {
                 HardwareFoldingFeature(Bounds(0, 0, 100, 200), HINGE, FLAT)
             val currentWindowLayoutInfo = WindowLayoutInfo(listOf(displayFeature))
             val fakeBackend = FakeWindowBackend(currentWindowLayoutInfo = currentWindowLayoutInfo)
-            whenever(mEngagementModeBackend.getCurrentEngagementLayoutMode(testActivity))
-                .thenReturn(EngagementMode.ENGAGEMENT_PRECISE_POINTER)
             val tracker =
-                WindowInfoTrackerImpl(
-                    windowMetricsCalculator,
-                    fakeBackend,
-                    windowSdkExtensions,
-                    mEngagementModeBackend,
-                )
+                WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
 
-            val expected =
-                tracker.withEngagementMode(
-                    WindowLayoutInfo(listOf(displayFeature)),
-                    EngagementMode.ENGAGEMENT_PRECISE_POINTER,
-                )
-
-            assertThat(tracker.getCurrentWindowLayoutInfo(testActivity)).isEqualTo(expected)
+            assertThat(tracker.getCurrentWindowLayoutInfo(testActivity))
+                .isEqualTo(currentWindowLayoutInfo)
         }
     }
 
@@ -296,24 +226,12 @@ class WindowInfoTrackerImplTest {
             HardwareFoldingFeature(Bounds(0, 0, 100, 200), HINGE, FLAT)
         val currentWindowLayoutInfo = WindowLayoutInfo(listOf(displayFeature))
         val fakeBackend = FakeWindowBackend(currentWindowLayoutInfo = currentWindowLayoutInfo)
-        val windowContext = WindowTestUtils.createOverlayWindowContext()
-        whenever(mEngagementModeBackend.getCurrentEngagementLayoutMode(any()))
-            .thenReturn(EngagementMode.ENGAGEMENT_PRECISE_POINTER)
         val tracker =
-            WindowInfoTrackerImpl(
-                windowMetricsCalculator,
-                fakeBackend,
-                windowSdkExtensions,
-                mEngagementModeBackend,
-            )
+            WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
+        val windowContext = WindowTestUtils.createOverlayWindowContext()
 
-        val expected =
-            tracker.withEngagementMode(
-                WindowLayoutInfo(listOf(displayFeature)),
-                EngagementMode.ENGAGEMENT_PRECISE_POINTER,
-            )
-
-        assertThat(tracker.getCurrentWindowLayoutInfo(windowContext)).isEqualTo(expected)
+        assertThat(tracker.getCurrentWindowLayoutInfo(windowContext))
+            .isEqualTo(currentWindowLayoutInfo)
     }
 
     @Test

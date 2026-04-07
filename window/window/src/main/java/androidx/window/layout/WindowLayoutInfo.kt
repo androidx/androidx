@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.window.layout
 
 import androidx.annotation.RestrictTo
@@ -32,12 +33,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
  *   example, the Glasses display may turn off to transition to an audio-only experience. Apps can
  *   observe this state to adapt their behavior, such as pausing visual rendering, without this
  *   change affecting the Activity lifecycle. This ensures the user's session remains continuous and
- *   uninterrupted. [EngagementMode] can also indicate what layout the app is optimized for. This
- *   complements [androidx.window.core.layout.WindowSizeClass] by allowing the layout to adapt not
- *   just to screen dimensions, but to the input context. This is designed for large screen
- *   experiences where the presentation can change dynamically. For example, the combination of a
- *   large display, a connected precise pointer (mouse/touchpad), and a connected physical keyboard
- *   triggers a cursor-optimized layout.
+ *   uninterrupted.
  * @see WindowInfoTracker.windowLayoutInfo
  * @see EngagementMode
  */
@@ -49,6 +45,7 @@ constructor(
      * display features.
      */
     public val displayFeatures: List<DisplayFeature>,
+
     /** The current user engagement modes, indicating how the user is interacting with the app. */
     public val engagementModes: Set<EngagementMode> =
         setOf(EngagementMode.VISUALS_ON, EngagementMode.AUDIO_ON), // Default
@@ -64,8 +61,6 @@ constructor(
             when (id) {
                 1 -> "VISUALS_ON"
                 2 -> "AUDIO_ON"
-                3 -> "ENGAGEMENT_TOUCH"
-                4 -> "ENGAGEMENT_PRECISE_POINTER"
                 else -> "UNKNOWN($id)"
             }
 
@@ -86,25 +81,6 @@ constructor(
              * experience.
              */
             @JvmField public val AUDIO_ON: EngagementMode = EngagementMode(2)
-
-            /**
-             * Indicates the engagement mode is optimized for touch layout. This is the default
-             * engagement layout mode and is mutually exclusive with the precise pointer engagement
-             * mode.
-             */
-            @JvmField public val ENGAGEMENT_TOUCH: EngagementMode = EngagementMode(3)
-
-            /**
-             * Indicates the engagement mode is optimized for fine pointer layout. This mode is
-             * mutually exclusive with touch engagement mode. Fine pointer engagement mode is only
-             * active when all are true:
-             * * Diagonal screen size is larger than or equal to 11"
-             * * Physical keyboard is connected
-             * * Physical mouse / trackpad is connected
-             *
-             * This mode is only available on Android R and later.
-             */
-            @JvmField public val ENGAGEMENT_PRECISE_POINTER: EngagementMode = EngagementMode(4)
         }
     }
 
