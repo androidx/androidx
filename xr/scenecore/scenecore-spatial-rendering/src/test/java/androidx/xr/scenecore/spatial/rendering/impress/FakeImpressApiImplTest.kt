@@ -1285,4 +1285,77 @@ class FakeImpressApiImplTest {
         assertNotNull(nodeData)
         assertThat(nodeData.nodeMaterialOverrides).doesNotContainKey(primIndex)
     }
+
+    @Test
+    fun setReformAffordanceEnabled_setsMaskInNodeData() {
+        val node = fakeImpressApi.createImpressNode()
+        val mask = 0b0101
+
+        fakeImpressApi.setReformAffordanceEnabled(node, mask)
+
+        val nodeData =
+            fakeImpressApi.getImpressNodes().keys.firstOrNull { it.entityId == node.handle }
+        assertNotNull(nodeData)
+        assertThat(nodeData.reformAffordanceMask).isEqualTo(mask)
+    }
+
+    @Test
+    fun getReformAffordanceState_returnsStateFromNodeData() {
+        val node = fakeImpressApi.createImpressNode()
+        val nodeData = fakeImpressApi.getImpressNodes().keys.first { it.entityId == node.handle }
+        assertThat(fakeImpressApi.getReformAffordanceState(node)).isEqualTo(-1)
+
+        nodeData.reformAffordanceState = 2 // IDLE
+        assertThat(fakeImpressApi.getReformAffordanceState(node)).isEqualTo(2)
+    }
+
+    @Test
+    fun setReformAffordanceSizeLimits_setsMinAndMaxSizeInNodeData() {
+        val node = fakeImpressApi.createImpressNode()
+
+        fakeImpressApi.setReformAffordanceSizeLimits(node, minSize = 0.25f, maxSize = 1f)
+
+        val nodeData =
+            fakeImpressApi.getImpressNodes().keys.firstOrNull { it.entityId == node.handle }
+        assertNotNull(nodeData)
+        assertThat(nodeData.reformAffordanceMinSize).isEqualTo(0.25f)
+        assertThat(nodeData.reformAffordanceMaxSize).isEqualTo(1f)
+    }
+
+    @Test
+    fun getRecommendedAffordanceTransform_returnsTransformFromNodeData() {
+        val node = fakeImpressApi.createImpressNode()
+        assertThat(fakeImpressApi.getRecommendedAffordanceTransform(node))
+            .isEqualTo(Matrix4.Identity)
+
+        val expectedTransform =
+            Matrix4.fromTrs(
+                Vector3(1f, 2f, 3f),
+                Quaternion(0f, 0f, 0f, 1f),
+                Vector3(2f, 2f, 2f),
+            )
+        val nodeData = fakeImpressApi.getImpressNodes().keys.first { it.entityId == node.handle }
+        nodeData.recommendedAffordanceTransform = expectedTransform
+
+        assertThat(fakeImpressApi.getRecommendedAffordanceTransform(node))
+            .isEqualTo(expectedTransform)
+    }
+
+    @Test
+    fun reformAffordanceMethods_throwWhenNodeNotFound() {
+        val invalidNode = ImpressNode(-1)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            fakeImpressApi.setReformAffordanceEnabled(invalidNode, 1)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            fakeImpressApi.getReformAffordanceState(invalidNode)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            fakeImpressApi.setReformAffordanceSizeLimits(invalidNode, 0.1f, 1.0f)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            fakeImpressApi.getRecommendedAffordanceTransform(invalidNode)
+        }
+    }
 }

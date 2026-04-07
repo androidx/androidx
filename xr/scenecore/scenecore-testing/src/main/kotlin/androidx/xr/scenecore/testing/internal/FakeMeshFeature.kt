@@ -23,6 +23,7 @@ import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
 import androidx.xr.scenecore.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MeshFeature] */
@@ -81,20 +82,18 @@ internal open class FakeMeshFeature(
     internal var executor: Executor? = null
         private set
 
-    /** Whether the entity is system movable, captured from [setReformAffordanceEnabled]. */
-    internal var systemMovable = false
+    /** Bitmask flag for enable reform affordances, captured from [setReformAffordanceEnabled]. */
+    internal var reformAffordanceFlag: Int = 0
         private set
 
     override fun setReformAffordanceEnabled(
         entity: MeshEntity,
         enabled: Boolean,
-        executor: Executor,
-        systemMovable: Boolean,
+        reformFlag: ReformAffordanceFlag,
     ) {
         meshEntity = entity
         reformAffordanceEnabled = enabled
-        this.executor = executor
-        this.systemMovable = systemMovable
+        this.reformAffordanceFlag = reformFlag.setEnabled(this.reformAffordanceFlag, enabled)
     }
 
     override fun setColliderEnabled(enabled: Boolean) {

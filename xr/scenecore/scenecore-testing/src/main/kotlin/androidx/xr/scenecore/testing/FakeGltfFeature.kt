@@ -26,6 +26,7 @@ import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import androidx.xr.scenecore.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import androidx.xr.scenecore.testing.internal.FakeGltfAnimationFeature as InternalFakeGltfAnimationFeature
 import androidx.xr.scenecore.testing.internal.FakeGltfEntity as InternalFakeGltfEntity
 import androidx.xr.scenecore.testing.internal.FakeGltfFeature as InternalFakeGltfFeature
@@ -133,14 +134,12 @@ internal constructor(
     override fun setReformAffordanceEnabled(
         entity: GltfEntity,
         enabled: Boolean,
-        executor: Executor,
-        systemMovable: Boolean,
+        reformFlag: ReformAffordanceFlag,
     ) {
         fakeInternal.setReformAffordanceEnabled(
             ((entity as FakeGltfEntity).fakeInternal as InternalFakeGltfEntity),
             enabled,
-            executor,
-            systemMovable,
+            reformFlag,
         )
     }
 

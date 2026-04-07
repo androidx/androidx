@@ -19,9 +19,11 @@ package androidx.xr.scenecore.spatial.core
 import android.content.Context
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import com.android.extensions.xr.XrExtensions
 import java.util.concurrent.ScheduledExecutorService
 
@@ -40,6 +42,8 @@ internal class MeshEntityImpl(
     override val meshBoundingBox: androidx.xr.runtime.math.BoundingBox
         get() = meshFeature.meshBoundingBox
 
+    override var affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE
+
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
         meshFeature.setMaterial(material, subsetIndex)
     }
@@ -48,8 +52,11 @@ internal class MeshEntityImpl(
         meshFeature.setBoneTransforms(transforms)
     }
 
-    override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
-        meshFeature.setReformAffordanceEnabled(this, enabled, scheduledExecutor, systemMovable)
+    override fun setReformAffordanceEnabled(
+        enabled: Boolean,
+        reformAffordanceFlag: ReformAffordanceFlag,
+    ) {
+        meshFeature.setReformAffordanceEnabled(this, enabled, reformAffordanceFlag)
     }
 
     override fun setColliderEnabled(enabled: Boolean) {

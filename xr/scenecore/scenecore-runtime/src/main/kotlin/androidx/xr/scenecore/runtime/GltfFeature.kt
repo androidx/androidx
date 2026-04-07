@@ -103,14 +103,12 @@ public interface GltfFeature : RenderingFeature {
      *
      * @param entity The GltfEntity to attach the reform affordance to.
      * @param enabled Whether the affordance is enabled.
-     * @param executor The executor to run the listener on.
-     * @param systemMovable Whether the system should handle move events.
+     * @param reformFlag The reform affordance flag to enable/disable.
      */
     @MainThread
     public fun setReformAffordanceEnabled(
         entity: GltfEntity,
         enabled: Boolean,
-        executor: Executor,
-        systemMovable: Boolean,
+        reformFlag: ReformAffordanceFlag,
     )
 }

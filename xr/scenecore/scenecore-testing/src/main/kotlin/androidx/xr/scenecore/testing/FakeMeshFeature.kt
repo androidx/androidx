@@ -26,6 +26,7 @@ import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
 import androidx.xr.scenecore.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import androidx.xr.scenecore.testing.FakeRenderingRuntime.FakeKhronosPbrMaterial
 import androidx.xr.scenecore.testing.FakeRenderingRuntime.FakeWaterMaterial
 import androidx.xr.scenecore.testing.internal.FakeMeshEntity as InternalFakeMeshEntity
@@ -152,19 +153,18 @@ internal constructor(
     public val executor: Executor?
         get() = fakeInternal.executor
 
-    /** Whether the entity is system movable, captured from [setReformAffordanceEnabled]. */
-    public val systemMovable: Boolean
-        get() = fakeInternal.systemMovable
+    /** Bitmask flag for enable reform affordances, captured from [setReformAffordanceEnabled]. */
+    internal var reformFlag: Int = 0
+        get() = fakeInternal.reformAffordanceFlag
 
     override fun setReformAffordanceEnabled(
         entity: MeshEntity,
         enabled: Boolean,
-        executor: Executor,
-        systemMovable: Boolean,
+        reformFlag: ReformAffordanceFlag,
     ) {
         val internalEntity = (entity as FakeMeshEntity).fakeInternal as InternalFakeMeshEntity
         meshEntityWrapper[internalEntity] = entity
-        fakeInternal.setReformAffordanceEnabled(internalEntity, enabled, executor, systemMovable)
+        fakeInternal.setReformAffordanceEnabled(internalEntity, enabled, reformFlag)
     }
 
     override fun setColliderEnabled(enabled: Boolean) {
