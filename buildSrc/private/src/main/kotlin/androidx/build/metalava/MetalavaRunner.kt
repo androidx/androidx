@@ -386,6 +386,15 @@ fun getGenerateApiArgs(
                 }
             }
         }
+    } else {
+        // If there is no jvm/android target, generate multiplatform API files instead.
+        if (outputLocation != null) {
+            args +=
+                listOf(
+                    "--multiplatform-api-directory",
+                    outputLocation.multiplatformApiDirectory.toString(),
+                )
+        }
     }
 
     when (generateApiMode) {

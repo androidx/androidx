@@ -72,6 +72,36 @@ abstract class UpdateApiTask : DefaultTask() {
                 dest = outputApi.restrictedApiFile,
                 logger = logger,
             )
+
+            // Update multiplatform API files.
+            if (inputApi.multiplatformApiDirectory.exists()) {
+                if (!outputApi.multiplatformApiDirectory.exists()) {
+                    outputApi.multiplatformApiDirectory.mkdir()
+                }
+                // Copy each generated file over to the output location.
+                for (inputMultiplatformApiFile in inputApi.multiplatformApiDirectory.listFiles()) {
+                    copy(
+                        inputMultiplatformApiFile,
+                        File(outputApi.multiplatformApiDirectory, inputMultiplatformApiFile.name),
+                        logger = logger,
+                    )
+                }
+                // If there are files that exist in the output location which have not been created
+                // by this `generateApi` invocation (i.e. a source set was removed), delete the old
+                // API file since it is no longer valid.
+                for (outputMultiplatformApiFile in
+                    outputApi.multiplatformApiDirectory.listFiles()) {
+                    val inputMultiplatformApiFile =
+                        File(inputApi.multiplatformApiDirectory, outputMultiplatformApiFile.name)
+                    if (!inputMultiplatformApiFile.exists()) {
+                        copy(inputMultiplatformApiFile, outputMultiplatformApiFile, logger = logger)
+                    }
+                }
+            } else if (outputApi.multiplatformApiDirectory.exists()) {
+                // If there was not a multiplatform API directory created by this `generateApi`
+                // invocation, delete the old one if it exists.
+                outputApi.multiplatformApiDirectory.deleteRecursively()
+            }
         }
     }
 }
