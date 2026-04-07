@@ -24,9 +24,9 @@ import androidx.compose.ui.semantics.Role
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.combinedClickable(
-    onClick: Action? = null,
-    onLongClick: Action? = null,
-    onDoubleClick: Action? = null,
+    onClick: Action = Action.Empty,
+    onLongClick: Action = Action.Empty,
+    onDoubleClick: Action = Action.Empty,
     enabled: Boolean = true,
     role: Role? = Role.Button,
 ): RemoteModifier =
