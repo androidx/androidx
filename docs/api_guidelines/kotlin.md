@@ -42,17 +42,26 @@ on a library with target language version 1.9, the client will be forced to use
 #### Annotations on new Java APIs
 
 All new Java APIs should be annotated either `@Nullable` or `@NonNull` for all
-reference parameters and reference return types.
+types in reference parameters and reference return types.
 
 ```java
-    @Nullable
-    public Object someNewApi(@NonNull Thing arg1, @Nullable List<WhatsIt> arg2) {
+    public @Nullable Object someNewApi(@NonNull Thing arg1, @Nullable List<@NonNull WhatsIt> arg2) {
         if(/** something **/) {
             return someObject;
         } else {
             return null;
     }
 ```
+
+AndroidX uses [JSpecify nullability annotations](https://jspecify.dev/), which
+are type-use. This means they can be applied to type arguments (like in the
+example above with `@Nullable List<@NonNull WhatsIt>`) and to array component
+types.
+
+When annotating arrays, a leading annotation applies to the component type,
+while an annotation between the component type and `[]` applies to the array
+type. For instance, `@Nullable String @NonNull []` is a non-null array of
+nullable `String`s.
 
 #### Adding annotations to existing Java APIs
 
