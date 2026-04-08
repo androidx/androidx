@@ -564,6 +564,16 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     /** When it's during dragging or settling after dragging. */
     static final int PF_IN_DRAGGING_AND_SETTLING = 1 << 20;
 
+    /** When it's handling MotionEvent.ACTION_SCROLL. */
+    static final int PF_IN_MOTION_SCROLL = 1 << 21;
+
+    /**
+     * When it's during dragging or motion scroll, scrollDirectionPrimary() need adjust
+     * mFocusPosition.
+     */
+    static final int PF_IN_DRAGGING_OR_MOTION_SCROLL = PF_IN_DRAGGING_AND_SETTLING
+            | PF_IN_MOTION_SCROLL;
+
     int mFlag = PF_LAYOUT_ENABLED
             | PF_FOCUS_OUT_SIDE_START | PF_FOCUS_OUT_SIDE_END
             | PF_PRUNE_CHILD | PF_SCROLL_ENABLED;
@@ -2551,10 +2561,11 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         updated = getChildCount() > childCount;
         childCount = getChildCount();
 
-        if ((mFlag & PF_IN_DRAGGING_AND_SETTLING) == PF_IN_DRAGGING_AND_SETTLING
-                && mFocusPosition >= 0) {
-            // In touch mode, we keep adjusting mFocusedPosition to the view that is closest
-            // to the aligned center.
+        final int oldFocusPosition = mFocusPosition;
+        final boolean isInDraggingOrMotionScroll = (mFlag & PF_IN_DRAGGING_OR_MOTION_SCROLL) != 0;
+        if (isInDraggingOrMotionScroll && mFocusPosition >= 0) {
+            // In dragging or using mouse wheel scroll, we keep adjusting mFocusedPosition to the
+            // view that is closest to the aligned center.
             int minimalScrollValue = Integer.MAX_VALUE;
             int minimalScrollViewIndex = -1;
             for (int i = 0; i < childCount; i++) {
@@ -2584,6 +2595,14 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         updated |= getChildCount() < childCount;
         if (updated) {
             updateRowSecondarySizeRefresh();
+        }
+        if (isInDraggingOrMotionScroll && oldFocusPosition != mFocusPosition) {
+            // If it's in dragging, postpone dispatchChildSelectedAndPositioned until
+            // scroll state changed to idle.
+            if ((mFlag & PF_IN_DRAGGING_AND_SETTLING) != PF_IN_DRAGGING_AND_SETTLING) {
+                dispatchChildSelected();
+                dispatchChildSelectedAndPositioned();
+            }
         }
 
         mBaseGridView.invalidate();

@@ -1438,4 +1438,20 @@ public abstract class BaseGridView extends RecyclerView {
             mPrivateFlag &= ~PFLAG_RETAIN_FOCUS_FOR_CHILD;
         }
     }
+
+    @Override
+    public boolean onGenericMotionEvent(
+            @SuppressLint("InvalidNullabilityOverride") @NonNull MotionEvent event) {
+        final boolean isScrollEvent = event.getAction() == MotionEvent.ACTION_SCROLL;
+        try {
+            if (isScrollEvent) {
+                mLayoutManager.mFlag |= GridLayoutManager.PF_IN_MOTION_SCROLL;
+            }
+            return super.onGenericMotionEvent(event);
+        } finally {
+            if (isScrollEvent) {
+                mLayoutManager.mFlag &= ~GridLayoutManager.PF_IN_MOTION_SCROLL;
+            }
+        }
+    }
 }
