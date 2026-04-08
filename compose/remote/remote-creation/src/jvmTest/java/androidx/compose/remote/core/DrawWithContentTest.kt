@@ -24,7 +24,7 @@ import org.junit.Test
 class DrawWithContentTest : BaseLayoutTest() {
 
     init {
-        GENERATE_GOLD_FILES = true
+        GENERATE_GOLD_FILES = false
     }
 
     @Test
