@@ -23,11 +23,15 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -43,19 +47,18 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
-import androidx.compose.material3.internal.MaterialAnchoredDraggableState
 import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.internal.PredictiveBackHandler
 import androidx.compose.material3.internal.Strings
-import androidx.compose.material3.internal.anchoredDraggable
 import androidx.compose.material3.internal.draggableAnchors
-import androidx.compose.material3.internal.flingBehavior
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
@@ -229,10 +232,16 @@ internal fun BottomSheetImpl(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val bottomSheetPaneTitle = getString(string = Strings.BottomSheetPaneTitle)
+    val spatialFlingSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     val viewConfiguration = LocalViewConfiguration.current
     val density = LocalDensity.current
 
-    val anchoredDraggableFlingBehavior = state.anchoredDraggableState.flingBehavior()
+    val anchoredDraggableFlingBehavior =
+        AnchoredDraggableDefaults.flingBehavior(
+            state = state.anchoredDraggableState,
+            positionalThreshold = { _ -> state.positionalThreshold.invoke() },
+            animationSpec = spatialFlingSpec,
+        )
 
     val modalBottomSheetFlingBehavior =
         remember(anchoredDraggableFlingBehavior, state, viewConfiguration, density) {
@@ -478,8 +487,9 @@ class SheetState(
         // Note: Current Value is mapping to the newly introduced settled value for roughly
         // analogous behavior to internal fork. anchoredDraggableState.currentValue now maps to the
         // value the touch target is closest to, regardless of release/settling.
-        get() = anchoredDraggableState.currentValue
+        get() = anchoredDraggableState.settledValue
 
+    // TODO(b/477969920): Remove forked targetValue logic when foundation dependencies are updated.
     /**
      * The target value of the bottom sheet state.
      *
@@ -487,12 +497,33 @@ class SheetState(
      * finishes. If an animation is running, this is the target value of that animation. Finally, if
      * no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    val targetValue: SheetValue
-        get() = anchoredDraggableState.targetValue
+    val targetValue: SheetValue by derivedStateOf {
+        // AnchoredDraggableState does not expose the dragTarget, but isAnimationRunning returns
+        // whether AnchoredDraggableState.dragTarget is null. If it's not, we can use the
+        // targetValue; otherwise we apply the calculation fix.
+        if (isAnimationRunning) {
+            anchoredDraggableState.targetValue
+        } else {
+            calculateTargetValueWithFix(offset)
+        }
+    }
+
+    private fun calculateTargetValueWithFix(currentOffset: Float): SheetValue {
+        return if (!currentOffset.isNaN()) {
+            // DraggableAnchors allows multiple anchors with the same offsets. If the offset is
+            // already equal to the currentValue's offset, this anchor gets priority.
+            val currentValueOffset = anchoredDraggableState.anchors.positionOf(currentValue)
+            if (currentValueOffset.isNaN() || currentOffset == currentValueOffset) {
+                currentValue
+            } else {
+                anchoredDraggableState.anchors.closestAnchor(currentOffset) ?: currentValue
+            }
+        } else currentValue
+    }
 
     /** Whether the modal bottom sheet is visible. */
     val isVisible: Boolean
-        get() = anchoredDraggableState.closestValue != Hidden
+        get() = anchoredDraggableState.currentValue != Hidden
 
     /**
      * Whether an expanding or collapsing sheet animation is currently in progress.
@@ -611,11 +642,9 @@ class SheetState(
 
     internal var anchoredDraggableMotionSpec: AnimationSpec<Float> = BottomSheetAnimationSpec
 
-    internal var anchoredDraggableState: MaterialAnchoredDraggableState<SheetValue> =
-        MaterialAnchoredDraggableState(
-            initialValue = initialValue,
-            confirmValueChange = confirmValueChange,
-        )
+    @Suppress("Deprecation")
+    internal var anchoredDraggableState: AnchoredDraggableState<SheetValue> =
+        AnchoredDraggableState(initialValue = initialValue, confirmValueChange = confirmValueChange)
 
     /**
      * Calculate the new offset for a [delta] to ensure it is coerced in the bounds

@@ -18,8 +18,10 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -32,9 +34,7 @@ import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.material3.internal.Strings
-import androidx.compose.material3.internal.anchoredDraggable
 import androidx.compose.material3.internal.draggableAnchors
-import androidx.compose.material3.internal.flingBehavior
 import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -246,7 +246,12 @@ private fun StandardBottomSheet(
     val scope = rememberCoroutineScope()
     val orientation = Orientation.Vertical
     val peekHeightPx = with(LocalDensity.current) { peekHeight.toPx() }
-    val anchoredDraggableFlingBehavior = state.anchoredDraggableState.flingBehavior()
+    val anchoredDraggableFlingBehavior =
+        AnchoredDraggableDefaults.flingBehavior(
+            state = state.anchoredDraggableState,
+            positionalThreshold = { _ -> state.positionalThreshold.invoke() },
+            animationSpec = spatialFlingSpec,
+        )
 
     val nestedScroll =
         if (sheetSwipeEnabled) {
