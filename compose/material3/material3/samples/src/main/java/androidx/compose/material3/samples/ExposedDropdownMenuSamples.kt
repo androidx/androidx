@@ -64,7 +64,7 @@ fun ExposedDropdownMenuSample() {
     val options: List<String> = SampleData.take(5)
     var expanded by remember { mutableStateOf(false) }
     val textFieldState = rememberTextFieldState(options[0])
-    var checkedIndex: Int? by remember { mutableStateOf(null) }
+    var checkedIndex: Int by remember { mutableStateOf(0) }
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
         TextField(
