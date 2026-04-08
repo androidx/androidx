@@ -160,7 +160,8 @@ internal fun getDeviceContextFeatures(context: Context): Set<Feature> {
     if (
         packageManager.hasSystemFeature(FEATURE_XR_API_OPENXR) ||
             Build.FINGERPRINT.contains("emulator") ||
-            Build.FINGERPRINT.contains("emu64")
+            Build.FINGERPRINT.contains("emu64") ||
+            Build.FINGERPRINT.contains("generic")
     ) {
         features.add(Feature.OPEN_XR)
     }
