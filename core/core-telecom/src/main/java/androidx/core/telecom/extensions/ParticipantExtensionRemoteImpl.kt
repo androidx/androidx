@@ -203,7 +203,9 @@ internal class ParticipantExtensionRemoteImpl(
                 finishSync = { remoteBinder ->
                     callScope.launch {
                         Log.v(TAG, "finishSync complete, isNull=${remoteBinder == null}")
-                        continuation.resume(remoteBinder)
+                        if (continuation.isActive) {
+                            continuation.resume(remoteBinder)
+                        }
                     }
                 },
             )

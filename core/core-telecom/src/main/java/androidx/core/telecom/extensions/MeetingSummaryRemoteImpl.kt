@@ -123,7 +123,13 @@ internal class MeetingSummaryRemoteImpl(
                     }
                 },
                 updateParticipantCount = { callScope.launch { onParticipantCountChanged(it) } },
-                finishSync = { callScope.launch { continuation.resume(Unit) } },
+                finishSync = {
+                    callScope.launch {
+                        if (continuation.isActive) {
+                            continuation.resume(Unit)
+                        }
+                    }
+                },
             )
         try {
             remote.onCreateMeetingSummaryExtension(
@@ -132,7 +138,9 @@ internal class MeetingSummaryRemoteImpl(
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error connecting to remote extension", e)
-            continuation.resumeWithException(e) // Propagate the exception
+            if (continuation.isActive) {
+                continuation.resumeWithException(e) // Propagate the exception
+            }
         }
     }
 }

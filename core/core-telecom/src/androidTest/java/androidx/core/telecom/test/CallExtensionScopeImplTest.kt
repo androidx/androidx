@@ -32,6 +32,7 @@ import androidx.core.telecom.extensions.CallExtensionScopeImpl.Companion.NONE
 import androidx.core.telecom.extensions.CallProxy
 import androidx.core.telecom.extensions.ExtensionCallDetails
 import androidx.core.telecom.extensions.ExtrasCallExtensionProcessor.Companion.EXTRA_VOIP_API_VERSION
+import androidx.core.telecom.internal.utils.Utils
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -52,6 +53,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -141,6 +143,45 @@ class CallExtensionScopeImplTest {
 
         val result = mCallExtensionScope.getPhoneAccountIfAllowed(handle)
         assertEquals(expectedAccount, result)
+    }
+
+    @Test
+    fun testWaitForCallReady_DoubleEvent_DoesNotCrash() = runTest {
+        // The double-resume bug only happens when the backwards compat implementation is NOT used,
+        // because waitForCallReady() is only called in the newer transactional APIs.
+        assumeFalse(Utils.shouldUseBackwardsCompatImplementation())
+
+        val fakeCallProxy = FakeCallProxy()
+        // callProxy.call is null in tests, as allowed by the class design
+        fakeCallProxy.call = null
+        val callScope = CoroutineScope(coroutineContext + kotlinx.coroutines.Job())
+        val scope = CallExtensionScopeImpl(mContext, callScope, fakeCallProxy)
+
+        // Force resolveCallExtensionsType to return CAPABILITY_EXCHANGE
+        fakeCallProxy.stateToReturn = Call.STATE_ACTIVE
+        val validExtras = Bundle().apply { putInt(EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED, 1) }
+        fakeCallProxy.detailsFlow.emit(createDetails(validExtras))
+
+        // Trigger connectExtensionSession, which waits for EVENT_CALL_READY
+        val deferredConnect = async { scope.connectExtensionSession() }
+        yield()
+
+        val callback = fakeCallProxy.callback
+        assertNotNull(callback)
+
+        // Fire EVENT_CALL_READY twice. We can pass null for the Call object since we removed the
+        // null check
+        // If the fix is absent, the second call throws IllegalStateException
+        callback!!.onConnectionEvent(
+            null,
+            androidx.core.telecom.CallsManager.EVENT_CALL_READY,
+            null,
+        )
+        callback.onConnectionEvent(null, androidx.core.telecom.CallsManager.EVENT_CALL_READY, null)
+
+        // Ensure the connect flow doesn't hang indefinitely (it might if other parts wait, but we
+        // just want to ensure no crash)
+        deferredConnect.cancel()
     }
 
     /**
