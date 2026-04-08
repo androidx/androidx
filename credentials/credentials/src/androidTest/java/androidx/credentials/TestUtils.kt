@@ -588,3 +588,10 @@ fun getTestCallingAppInfo(origin: String?): CallingAppInfo {
         return CallingAppInfo(packageName, packageInfo.signatures!!.filterNotNull(), origin)
     }
 }
+
+fun createDummyProviderGetCredentialRequest(): ProviderGetCredentialRequest {
+    return ProviderGetCredentialRequest(
+        listOf(GetPasswordOption()),
+        getTestCallingAppInfo("dummy-origin"),
+    )
+}

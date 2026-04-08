@@ -23,8 +23,10 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import androidx.annotation.RestrictTo
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.reportDummyResult
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.reportError
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.reportResult
+import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_PASS_IT_BY_RESULT_RECEIVER
 
 /** An activity used to ensure all required API versions work as intended. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -94,6 +96,13 @@ open class IdentityCredentialApiHiddenActivity : Activity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        // Bypass if result already handled via ttleResultReceiver to avoid ResultReceiver
+        // resolution exception(`No provider data returned`).
+        if (data?.hasExtra(EXTRA_PASS_IT_BY_RESULT_RECEIVER) == true) {
+            resultReceiver?.reportDummyResult()
+            finish()
+            return
+        }
         resultReceiver?.reportResult(
             requestCode = requestCode,
             resultCode = resultCode,
