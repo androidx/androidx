@@ -58,7 +58,7 @@ class OpenXrPlaneTest {
 
     private val planeId = 1L
 
-    private lateinit var openXrManager: OpenXrManager
+    private lateinit var openXrRuntime: OpenXrRuntime
     private lateinit var xrResources: XrResources
     private lateinit var underTest: OpenXrPlane
     private lateinit var timeSource: OpenXrTimeSource
@@ -79,7 +79,7 @@ class OpenXrPlaneTest {
     }
 
     @Test
-    fun createAnchor_addsAnchor() = initOpenXrManagerAndRunTest {
+    fun createAnchor_addsAnchor() = initOpenXrRuntimeAndRunTest {
         check(xrResources.updatables.size == 1)
         check(xrResources.updatables.contains(underTest))
 
@@ -89,7 +89,7 @@ class OpenXrPlaneTest {
     }
 
     @Test
-    fun createAnchor_anchorResourcesExhausted_throwsException() = initOpenXrManagerAndRunTest {
+    fun createAnchor_anchorResourcesExhausted_throwsException() = initOpenXrRuntimeAndRunTest {
         check(xrResources.updatables.size == 1)
         check(xrResources.updatables.contains(underTest))
 
@@ -103,7 +103,7 @@ class OpenXrPlaneTest {
     }
 
     @Test
-    fun detachAnchor_removesAnchorWhenItDetaches() = initOpenXrManagerAndRunTest {
+    fun detachAnchor_removesAnchorWhenItDetaches() = initOpenXrRuntimeAndRunTest {
         val anchor = underTest.createAnchor(Pose())
         check(xrResources.updatables.size == 2)
         check(xrResources.updatables.contains(underTest))
@@ -115,7 +115,7 @@ class OpenXrPlaneTest {
     }
 
     @Test
-    fun update_updatesTrackingState() = initOpenXrManagerAndRunTest {
+    fun update_updatesTrackingState() = initOpenXrRuntimeAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
         check(underTest.trackingState.equals(TrackingState.PAUSED))
 
@@ -125,7 +125,7 @@ class OpenXrPlaneTest {
     }
 
     @Test
-    fun update_updatesCenterPose() = initOpenXrManagerAndRunTest {
+    fun update_updatesCenterPose() = initOpenXrRuntimeAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
         check(underTest.centerPose == Pose())
 
@@ -139,7 +139,7 @@ class OpenXrPlaneTest {
     }
 
     @Test
-    fun update_updatesExtents() = initOpenXrManagerAndRunTest {
+    fun update_updatesExtents() = initOpenXrRuntimeAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
         check(underTest.centerPose == Pose())
 
@@ -152,7 +152,7 @@ class OpenXrPlaneTest {
     }
 
     @Test
-    fun update_updatesVertices() = initOpenXrManagerAndRunTest {
+    fun update_updatesVertices() = initOpenXrRuntimeAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
         check(underTest.vertices.isEmpty())
 
@@ -169,7 +169,7 @@ class OpenXrPlaneTest {
     }
 
     @Test
-    fun update_updatesSubsumedBy() = initOpenXrManagerAndRunTest {
+    fun update_updatesSubsumedBy() = initOpenXrRuntimeAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
         val planeSubsumedId = 67890L
         val planeSubsumed: OpenXrPlane =
@@ -190,7 +190,7 @@ class OpenXrPlaneTest {
     }
 
     @Test
-    fun update_noSubsumedByPlanes_setsSubsumedByToNull() = initOpenXrManagerAndRunTest {
+    fun update_noSubsumedByPlanes_setsSubsumedByToNull() = initOpenXrRuntimeAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
         check(underTest.subsumedBy == null)
 
@@ -223,22 +223,23 @@ class OpenXrPlaneTest {
         assertFailsWith<IllegalArgumentException> { Plane.Label.fromOpenXrLabel(5) }
     }
 
-    private fun initOpenXrManagerAndRunTest(testBody: () -> Unit) {
+    private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {
         activityRule.scenario.onActivity {
             val perceptionManager = OpenXrPerceptionManager(timeSource)
-            openXrManager = OpenXrManager(it, perceptionManager, timeSource)
-            openXrManager.create()
-            openXrManager.resume()
-            openXrManager.configure(
+            val lifecycleManager = OpenXrManager(timeSource)
+            openXrRuntime = OpenXrRuntime(it, lifecycleManager, perceptionManager, timeSource)
+            openXrRuntime.initialize()
+            openXrRuntime.resume()
+            openXrRuntime.configure(
                 Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
             )
 
             testBody()
 
-            // Pause and stop the OpenXR manager here in lieu of an @After method to ensure that the
-            // calls to the OpenXR manager are coming from the same thread.
-            openXrManager.pause()
-            openXrManager.stop()
+            // Pause and stop the OpenXR runtime here in lieu of an @After method to ensure that the
+            // calls to the OpenXR runtime are coming from the same thread.
+            openXrRuntime.pause()
+            openXrRuntime.destroy()
         }
     }
 }

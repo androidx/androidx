@@ -69,8 +69,8 @@ class OpenXrPerceptionManagerTest {
 
     @get:Rule val activityRule = ActivityScenarioRule(ComponentActivity::class.java)
 
-    private lateinit var openXrManager: OpenXrManager
-    private lateinit var underTest: OpenXrPerceptionManager
+    internal lateinit var openXrRuntime: OpenXrRuntime
+    internal lateinit var underTest: OpenXrPerceptionManager
 
     @Before
     fun setUp() {
@@ -83,7 +83,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun createAnchor_returnsAnchorWithTheGivenPose() = initOpenXrManagerAndRunTest {
+    fun createAnchor_returnsAnchorWithTheGivenPose() = initOpenXrRuntimeAndRunTest {
         underTest.update(XR_TIME)
 
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
@@ -96,7 +96,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun createAnchor_anchorLimitReached_throwsException() = initOpenXrManagerAndRunTest {
+    fun createAnchor_anchorLimitReached_throwsException() = initOpenXrRuntimeAndRunTest {
         underTest.update(XR_TIME)
 
         // Number of calls comes from 'kAnchorResourcesLimit' defined in
@@ -109,7 +109,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun detachAnchor_removesAnchorWhenItDetaches() = initOpenXrManagerAndRunTest {
+    fun detachAnchor_removesAnchorWhenItDetaches() = initOpenXrRuntimeAndRunTest {
         underTest.update(XR_TIME)
 
         val anchor = underTest.createAnchor(Pose())
@@ -121,7 +121,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun updatePlanes_addsIdentityPlane() = initOpenXrManagerAndRunTest {
+    fun updatePlanes_addsIdentityPlane() = initOpenXrRuntimeAndRunTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
         // and a
         // fake perception library can be used mock trackables.
@@ -136,11 +136,11 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun updatePlanes_planeTrackingDisabled_doesNotAddPlane() = initOpenXrManagerAndRunTest {
+    fun updatePlanes_planeTrackingDisabled_doesNotAddPlane() = initOpenXrRuntimeAndRunTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
         // and
         // a fake perception library can be used mock trackables.
-        openXrManager.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
+        openXrRuntime.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
 
         underTest.updatePlanes(XR_TIME)
 
@@ -148,7 +148,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun update_updatesTrackables() = initOpenXrManagerAndRunTest {
+    fun update_updatesTrackables() = initOpenXrRuntimeAndRunTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
         // and a
         // fake perception library can be used mock trackables.
@@ -167,7 +167,7 @@ class OpenXrPerceptionManagerTest {
         "b/425697141 - Requires HEAD_TRACKING permission which is not available on Android test runners."
     )
     @Test
-    fun update_updatesHands() = initOpenXrManagerAndRunTest {
+    fun update_updatesHands() = initOpenXrRuntimeAndRunTest {
         check(underTest.xrResources.updatables.size == 3)
         check(underTest.leftHand.trackingState != TrackingState.TRACKING)
         check(underTest.rightHand.trackingState != TrackingState.TRACKING)
@@ -227,7 +227,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun update_updatesArDevice() = initOpenXrManagerAndRunTest {
+    fun update_updatesArDevice() = initOpenXrRuntimeAndRunTest {
         check(underTest.xrResources.updatables.size == 1)
         check(underTest.arDevice.devicePose == Pose())
 
@@ -241,7 +241,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun update_updatesRenderViewpoints() = initOpenXrManagerAndRunTest {
+    fun update_updatesRenderViewpoints() = initOpenXrRuntimeAndRunTest {
         check(underTest.xrResources.updatables.size == 1)
         check(underTest.leftRenderViewpoint != null)
         check(underTest.rightRenderViewpoint != null)
@@ -267,7 +267,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun update_withRawOnlyConfig_updatesRawDepthMaps() = initOpenXrManagerAndRunTest {
+    fun update_withRawOnlyConfig_updatesRawDepthMaps() = initOpenXrRuntimeAndRunTest {
         check(underTest.leftDepthMap!!.width == 0)
         check(underTest.leftDepthMap!!.height == 0)
         check(underTest.leftDepthMap!!.rawDepthMap == null)
@@ -281,7 +281,7 @@ class OpenXrPerceptionManagerTest {
         check(underTest.rightDepthMap!!.smoothDepthMap == null)
         check(underTest.rightDepthMap!!.smoothConfidenceMap == null)
 
-        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.RAW_ONLY))
+        openXrRuntime.configure(Config(depthEstimation = DepthEstimationMode.RAW_ONLY))
         underTest.update(XR_TIME)
 
         assertThat(underTest.leftDepthMap!!.width).isEqualTo(80)
@@ -305,7 +305,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun update_withSmoothOnlyConfig_updatesSmoothDepthMaps() = initOpenXrManagerAndRunTest {
+    fun update_withSmoothOnlyConfig_updatesSmoothDepthMaps() = initOpenXrRuntimeAndRunTest {
         check(underTest.leftDepthMap!!.width == 0)
         check(underTest.leftDepthMap!!.height == 0)
         check(underTest.leftDepthMap!!.rawDepthMap == null)
@@ -319,7 +319,7 @@ class OpenXrPerceptionManagerTest {
         check(underTest.rightDepthMap!!.smoothDepthMap == null)
         check(underTest.rightDepthMap!!.smoothConfidenceMap == null)
 
-        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.SMOOTH_ONLY))
+        openXrRuntime.configure(Config(depthEstimation = DepthEstimationMode.SMOOTH_ONLY))
         underTest.update(XR_TIME)
 
         assertThat(underTest.leftDepthMap!!.width).isEqualTo(80)
@@ -346,7 +346,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun hitTest_returnsHitResults() = initOpenXrManagerAndRunTest {
+    fun hitTest_returnsHitResults() = initOpenXrRuntimeAndRunTest {
         underTest.updatePlanes(XR_TIME)
         underTest.update(XR_TIME)
         check(underTest.trackables.isNotEmpty())
@@ -368,8 +368,8 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun hitTest_planeTrackingDisabled_throwsIllegalStateException() = initOpenXrManagerAndRunTest {
-        openXrManager.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
+    fun hitTest_planeTrackingDisabled_throwsIllegalStateException() = initOpenXrRuntimeAndRunTest {
+        openXrRuntime.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
         underTest.updatePlanes(XR_TIME)
         underTest.update(XR_TIME)
 
@@ -379,7 +379,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun getPersistedAnchorUuids_returnsStubUuid() = initOpenXrManagerAndRunTest {
+    fun getPersistedAnchorUuids_returnsStubUuid() = initOpenXrRuntimeAndRunTest {
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
         // they
         // come from `kUuid` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
@@ -388,12 +388,12 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun loadAnchor_invalidUuid_throwsException() = initOpenXrManagerAndRunTest {
+    fun loadAnchor_invalidUuid_throwsException() = initOpenXrRuntimeAndRunTest {
         assertThrows(AnchorInvalidUuidException::class.java) { underTest.loadAnchor(UUID(0L, 0L)) }
     }
 
     @Test
-    fun loadAnchor_returnsAnchorWithGivenUuidAndPose() = initOpenXrManagerAndRunTest {
+    fun loadAnchor_returnsAnchorWithGivenUuidAndPose() = initOpenXrRuntimeAndRunTest {
         // The stub doesn't care about the UUID, so we can use any UUID.
         val uuid = UUID.randomUUID()
         val anchor = underTest.loadAnchor(uuid)
@@ -407,7 +407,7 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun loadAnchor_anchorLimitReached_throwsException() = initOpenXrManagerAndRunTest {
+    fun loadAnchor_anchorLimitReached_throwsException() = initOpenXrRuntimeAndRunTest {
         // Number of calls comes from 'kAnchorResourcesLimit' defined in
         // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
         // The UUID is randomized because the manager will not create duplicate anchors for the same
@@ -420,12 +420,12 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun unpersistAnchor_doesNotThrowIllegalStateException() = initOpenXrManagerAndRunTest {
+    fun unpersistAnchor_doesNotThrowIllegalStateException() = initOpenXrRuntimeAndRunTest {
         underTest.unpersistAnchor(UUID.randomUUID())
     }
 
     @Test
-    fun clear_clearXrResources() = initOpenXrManagerAndRunTest {
+    fun clear_clearXrResources() = initOpenXrRuntimeAndRunTest {
         underTest.updatePlanes(XR_TIME)
         underTest.update(XR_TIME)
         underTest.createAnchor(Pose())
@@ -440,13 +440,14 @@ class OpenXrPerceptionManagerTest {
         assertThat(underTest.xrResources.updatables).isEmpty()
     }
 
-    private fun initOpenXrManagerAndRunTest(testBody: () -> Unit) {
+    private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {
         activityRule.scenario.onActivity {
             val timeSource = OpenXrTimeSource()
-            openXrManager = OpenXrManager(it, underTest, timeSource)
-            openXrManager.create()
-            openXrManager.resume()
-            openXrManager.configure(
+            val lifecycleManager = OpenXrManager(timeSource)
+            openXrRuntime = OpenXrRuntime(it, lifecycleManager, underTest, timeSource)
+            openXrRuntime.initialize()
+            openXrRuntime.resume()
+            openXrRuntime.configure(
                 Config(
                     deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                     planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
@@ -456,10 +457,10 @@ class OpenXrPerceptionManagerTest {
 
             testBody()
 
-            // Pause and stop the OpenXR manager here in lieu of an @After method to ensure that the
-            // calls to the OpenXR manager are coming from the same thread.
-            openXrManager.pause()
-            openXrManager.stop()
+            // Pause and stop the OpenXR runtime here in lieu of an @After method to ensure that the
+            // calls to the OpenXR runtime are coming from the same thread.
+            openXrRuntime.pause()
+            openXrRuntime.destroy()
         }
     }
 }
