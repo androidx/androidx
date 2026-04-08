@@ -25,14 +25,14 @@ import androidx.xr.glimmer.samples.OnIndirectPointerGestureSampleUsage
 import androidx.xr.glimmer.samples.ShapesSample
 import androidx.xr.glimmer.samples.SurfaceSampleUsage
 import androidx.xr.glimmer.samples.TitleChipSampleUsage
-import androidx.xr.glimmer.samples.TypographySample
+import androidx.xr.glimmer.samples.TypographyDefaultUsage
 
 val Demos =
     DemoCategory(
         "Jetpack Compose Glimmer Demos",
         listOf(
             ComposableDemo("Colors") { ColorsSample() },
-            ComposableDemo("GSFlex Typography") { TypographySample() },
+            ComposableDemo("Typography") { TypographyDefaultUsage() },
             ComposableDemo("Shapes") { ShapesSample() },
             ComposableDemo("DepthEffect Levels") { DepthEffectLevelsSample() },
             ComposableDemo("Surface") { SurfaceSampleUsage() },
