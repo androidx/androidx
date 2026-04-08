@@ -1501,25 +1501,63 @@ package androidx.compose.ui.text.input {
 
   public static final class KeyboardType.Companion {
     method @BytecodeOnly public int getAscii-PjHm6EE();
+    method @BytecodeOnly public int getDate-PjHm6EE();
+    method @BytecodeOnly public int getDateTime-PjHm6EE();
     method @BytecodeOnly public int getDecimal-PjHm6EE();
+    method @BytecodeOnly public int getDecimalPassword-PjHm6EE();
+    method @BytecodeOnly public int getDecimalPasswordSigned-PjHm6EE();
+    method @BytecodeOnly public int getDecimalSigned-PjHm6EE();
     method @BytecodeOnly public int getEmail-PjHm6EE();
+    method @BytecodeOnly public int getEmailSubject-PjHm6EE();
+    method @BytecodeOnly public int getFilter-PjHm6EE();
+    method @BytecodeOnly public int getLongMessage-PjHm6EE();
     method @BytecodeOnly public int getNumber-PjHm6EE();
     method @BytecodeOnly public int getNumberPassword-PjHm6EE();
+    method @BytecodeOnly public int getNumberPasswordSigned-PjHm6EE();
+    method @BytecodeOnly public int getNumberSigned-PjHm6EE();
     method @BytecodeOnly public int getPassword-PjHm6EE();
+    method @BytecodeOnly public int getPasswordVisible-PjHm6EE();
+    method @BytecodeOnly public int getPersonName-PjHm6EE();
     method @BytecodeOnly public int getPhone-PjHm6EE();
+    method @BytecodeOnly public int getPhonetic-PjHm6EE();
+    method @BytecodeOnly public int getPostalAddress-PjHm6EE();
+    method @BytecodeOnly public int getShortMessage-PjHm6EE();
     method @BytecodeOnly public int getText-PjHm6EE();
+    method @BytecodeOnly public int getTime-PjHm6EE();
     method @BytecodeOnly public int getUnspecified-PjHm6EE();
     method @BytecodeOnly public int getUri-PjHm6EE();
+    method @BytecodeOnly public int getWebEditText-PjHm6EE();
+    method @BytecodeOnly public int getWebEmailAddress-PjHm6EE();
+    method @BytecodeOnly public int getWebPassword-PjHm6EE();
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Ascii;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Date;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType DateTime;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Decimal;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType DecimalPassword;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType DecimalPasswordSigned;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType DecimalSigned;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Email;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType EmailSubject;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Filter;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType LongMessage;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Number;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType NumberPassword;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType NumberPasswordSigned;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType NumberSigned;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Password;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType PasswordVisible;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType PersonName;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Phone;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Phonetic;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType PostalAddress;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType ShortMessage;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Text;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Time;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Unspecified;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Uri;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType WebEditText;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType WebEmailAddress;
+    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType WebPassword;
   }
 
   public final class MoveCursorCommand implements androidx.compose.ui.text.input.EditCommand {
