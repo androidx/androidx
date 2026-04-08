@@ -66,6 +66,7 @@ import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.Logger;
+import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.MirrorMode;
 import androidx.camera.core.Preview;
@@ -178,6 +179,10 @@ public abstract class CameraController {
     private static final String VIDEO_CAPTURE_DISABLED = "VideoCapture disabled.";
     private static final String VIDEO_RECORDING_UNFINISHED = "Recording video. Only one recording"
             + " can be active at a time.";
+
+    // Auto focus is 1/6 of the area.
+    private static final float AF_SIZE = 1.0f / 6.0f;
+    private static final float AE_SIZE = AF_SIZE * 1.5f;
 
     /**
      * {@link ImageAnalysis.Analyzer} option for returning {@link PreviewView} coordinates.
@@ -2582,9 +2587,8 @@ public abstract class CameraController {
         }
 
         PointF tapPoint = new PointF(x, y);
-        FocusMeteringAction focusMeteringAction = FocusMeteringAction.create(
-                meteringPointFactory, tapPoint,
-                TimeUnit.NANOSECONDS.toMillis(mTapToFocusAutoCancelDurationNanos));
+        FocusMeteringAction focusMeteringAction = createFocusMeteringAction(meteringPointFactory,
+                tapPoint);
 
         Logger.d(TAG, "Tap to focus started: " + x + ", " + y);
 
@@ -2609,6 +2613,22 @@ public abstract class CameraController {
             new Handler(Looper.getMainLooper()).postDelayed(
                     focusMeteringResultCallback::resetStateAndClose, cancelDuration);
         }
+    }
+
+    private FocusMeteringAction createFocusMeteringAction(MeteringPointFactory meteringPointFactory,
+            PointF tapPoint) {
+        MeteringPoint afPoint = meteringPointFactory.createPoint(tapPoint.x, tapPoint.y, AF_SIZE);
+        MeteringPoint aePoint = meteringPointFactory.createPoint(tapPoint.x, tapPoint.y, AE_SIZE);
+        FocusMeteringAction.Builder focusMeteringActionBuilder = new FocusMeteringAction
+                .Builder(afPoint, FocusMeteringAction.FLAG_AF)
+                .addPoint(aePoint, FocusMeteringAction.FLAG_AE);
+        if (mTapToFocusAutoCancelDurationNanos > 0L) {
+            focusMeteringActionBuilder = focusMeteringActionBuilder.setAutoCancelDuration(
+                    mTapToFocusAutoCancelDurationNanos, TimeUnit.NANOSECONDS);
+        } else {
+            focusMeteringActionBuilder = focusMeteringActionBuilder.disableAutoCancel();
+        }
+        return focusMeteringActionBuilder.build();
     }
 
     /**

@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-mlkit-vision"))
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
+    implementation(project(":camera:camera-view"))
     implementation(project(":camera:camera-video"))
     implementation(project(":camera:camera-effects"))
     implementation(project(":camera:media3:media3-effect"))

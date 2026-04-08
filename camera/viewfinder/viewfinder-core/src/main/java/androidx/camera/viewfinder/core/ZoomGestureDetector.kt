@@ -37,8 +37,8 @@ import kotlin.math.roundToInt
  * To use this class to do pinch-to-zoom on the viewfinder:
  * - In the [OnZoomGestureListener.onZoomEvent], when receiving [ZoomEvent.Move], get the
  *   [ZoomEvent.Move.incrementalScaleFactor] and use the value with `CameraControl.setZoomRatio` if
- *   the factor is within the zoom ratio range. Then create an instance of the `ZoomGestureDetector`
- *   with the [OnZoomGestureListener].
+ *   the factor is in the range of `ZoomState.getMinZoomRatio` and `ZoomState.getMaxZoomRatio`. Then
+ *   create an instance of the `ZoomGestureDetector` with the [OnZoomGestureListener].
  * - In the [View.onTouchEvent], call [onTouchEvent] and pass the [MotionEvent]s to the
  *   `ZoomGestureDetector`.
  *
