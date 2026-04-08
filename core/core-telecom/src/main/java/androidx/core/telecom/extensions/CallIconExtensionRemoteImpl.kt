@@ -101,7 +101,13 @@ internal class CallIconExtensionRemoteImpl(
                         onCallIconChanged(it)
                     }
                 },
-                finishSync = { callScope.launch { continuation.resume(Unit) } },
+                finishSync = {
+                    callScope.launch {
+                        if (continuation.isActive) {
+                            continuation.resume(Unit)
+                        }
+                    }
+                },
             )
         remote.onCreateCallIconExtension(
             negotiatedCapability.featureVersion,

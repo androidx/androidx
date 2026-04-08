@@ -102,7 +102,11 @@ internal class LocalCallSilenceExtensionRemoteImpl(
                     }
                 },
                 finishSync = { remoteBinder ->
-                    callScope.launch { continuation.resume(remoteBinder) }
+                    callScope.launch {
+                        if (continuation.isActive) {
+                            continuation.resume(remoteBinder)
+                        }
+                    }
                 },
                 updateCanUserUpdateSilence = {
                     callScope.launch {

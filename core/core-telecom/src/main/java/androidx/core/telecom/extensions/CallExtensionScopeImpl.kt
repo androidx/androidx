@@ -473,9 +473,12 @@ internal class CallExtensionScopeImpl(
         val callback =
             object : Callback() {
                 override fun onConnectionEvent(call: Call?, event: String?, extras: Bundle?) {
-                    if (call == null || event == null) return
+                    if (event == null) return
                     if (event == CallsManager.EVENT_CALL_READY) {
-                        continuation.resume(Unit)
+                        if (continuation.isActive) {
+                            callProxy.unregisterCallback(this)
+                            continuation.resume(Unit)
+                        }
                     }
                 }
             }
@@ -540,6 +543,7 @@ internal class CallExtensionScopeImpl(
                             "registerWithRemoteService: received remote result," +
                                 " caps=$capabilities, listener is null=${l == null}",
                         )
+                        if (!continuation.isActive) return
                         continuation.resume(
                             l?.let {
                                 CapabilityExchangeResult(
@@ -608,7 +612,9 @@ internal class CallExtensionScopeImpl(
                 ?.linkToDeath(
                     {
                         Log.w(TAG, "waitForDestroy: binderDied called, cleaning up")
-                        continuation.resume(Unit)
+                        if (continuation.isActive) {
+                            continuation.resume(Unit)
+                        }
                     },
                     0, /* flags */
                 )
@@ -620,7 +626,9 @@ internal class CallExtensionScopeImpl(
                 callProxy.registerCallback(callback, Handler(Looper.getMainLooper()))
                 continuation.invokeOnCancellation { callProxy.unregisterCallback(callback) }
             } else {
-                continuation.resume(Unit)
+                if (continuation.isActive) {
+                    continuation.resume(Unit)
+                }
             }
         }
 }
