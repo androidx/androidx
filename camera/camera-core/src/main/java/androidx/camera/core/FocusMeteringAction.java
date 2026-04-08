@@ -16,8 +16,6 @@
 
 package androidx.camera.core;
 
-import android.graphics.PointF;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.RestrictTo;
@@ -129,9 +127,6 @@ public final class FocusMeteringAction {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final long DEFAULT_AUTO_CANCEL_DURATION_MILLIS = 5000;
 
-    static final float AF_SIZE = 1.0f / 6.0f;
-    static final float AE_SIZE = AF_SIZE * 1.5f;
-
     private final List<MeteringPoint> mMeteringPointsAf;
     private final List<MeteringPoint> mMeteringPointsAe;
     private final List<MeteringPoint> mMeteringPointsAwb;
@@ -195,35 +190,6 @@ public final class FocusMeteringAction {
     @MeteringMode
     public int getLockingMode() {
         return mLockingMode;
-    }
-
-    /**
-     * Creates a {@link FocusMeteringAction} with a single AF/AE point.
-     *
-     * <p>The created {@link FocusMeteringAction} will have one AF point and one AE point
-     * at the same location. The AF point will have a size of 1/6 of the surface width, and the
-     * AE point will have a size of 1.5 times the AF point size.
-     *
-     * @param meteringPointFactory The {@link MeteringPointFactory} to create points.
-     * @param point The point to focus and meter on.
-     * @param autoCancelDurationInMillis The duration in milliseconds for auto-cancel. If 0,
-     *                                   auto-cancel will be disabled.
-     * @return The created {@link FocusMeteringAction}.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static @NonNull FocusMeteringAction create(
-            @NonNull MeteringPointFactory meteringPointFactory,
-            @NonNull PointF point,
-            @IntRange(from = 0) long autoCancelDurationInMillis) {
-        Builder builder = new Builder(meteringPointFactory.createPoint(point.x, point.y, AF_SIZE),
-                FLAG_AF)
-                .addPoint(meteringPointFactory.createPoint(point.x, point.y, AE_SIZE), FLAG_AE);
-        if (autoCancelDurationInMillis >= 1) {
-            builder.setAutoCancelDuration(autoCancelDurationInMillis, TimeUnit.MILLISECONDS);
-        } else {
-            builder.disableAutoCancel();
-        }
-        return builder.build();
     }
 
     /**

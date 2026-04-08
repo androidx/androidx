@@ -16,14 +16,12 @@
 
 package androidx.camera.integration.view
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.camera.compose.CameraXViewfinder
-import androidx.camera.compose.rememberCameraXViewfinderState
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
 import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
@@ -62,7 +60,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -139,7 +136,6 @@ private val SCALE_OPTIONS: List<Triple<String, ContentScale, Alignment>> =
         Triple("FIT_END", ContentScale.Fit, Alignment.BottomEnd),
     )
 
-@SuppressLint("RestrictedApiAndroidX")
 @Composable
 private fun CameraScreen(
     initialLensFacing: Int,
@@ -149,7 +145,7 @@ private fun CameraScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    var lensFacing by rememberSaveable { mutableIntStateOf(initialLensFacing) }
+    var lensFacing by rememberSaveable { mutableStateOf(initialLensFacing) }
     var implementationMode by
         rememberSaveable(
             saver =
@@ -161,7 +157,7 @@ private fun CameraScreen(
             mutableStateOf(ImplementationMode.EXTERNAL)
         }
     var selectedScaleIndex by rememberSaveable {
-        mutableIntStateOf(
+        mutableStateOf(
             SCALE_OPTIONS.indexOfFirst {
                     it.second == initialContentScale && it.third == initialAlignment
                 }
@@ -224,21 +220,14 @@ private fun CameraScreen(
 
     var showImplementationMode by remember { mutableStateOf(false) }
     var showScaleMenu by remember { mutableStateOf(false) }
-    val viewfinderState = rememberCameraXViewfinderState()
-    LaunchedEffect(viewfinderState) {
-        viewfinderState.isPinchToZoomEnabled = true
-        viewfinderState.isTapToFocusEnabled = true
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         surfaceRequest?.let { request ->
             CameraXViewfinder(
                 surfaceRequest = request,
-                state = viewfinderState,
-                modifier = Modifier.fillMaxSize(),
-                implementationMode = implementationMode,
                 contentScale = contentScale,
                 alignment = alignment,
+                implementationMode = implementationMode,
             )
         }
 
