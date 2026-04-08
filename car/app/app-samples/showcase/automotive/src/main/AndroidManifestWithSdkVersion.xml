@@ -99,6 +99,7 @@
 
     <service
         android:name=".common.screens.navigationdemos.NavigationNotificationService"
+        android:foregroundServiceType="location"
         android:exported="true">
     </service>
 
