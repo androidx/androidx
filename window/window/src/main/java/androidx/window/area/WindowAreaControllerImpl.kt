@@ -105,13 +105,13 @@ internal class WindowAreaControllerImpl(private val windowAreaComponent: WindowA
     }
 
     override fun removeWindowAreasListener(listener: Consumer<List<WindowArea>>) {
+        var listenersAreEmpty = false
         synchronized(lock) {
             val valueToRemove = listeners.firstOrNull { it.second == listener }
             valueToRemove?.let { listenerToRemove -> listeners.remove(listenerToRemove) }
-            if (listeners.isEmpty()) {
-                removeExtensionListeners()
-            }
+            listenersAreEmpty = listeners.isEmpty()
         }
+        if (listenersAreEmpty) removeExtensionListeners()
     }
 
     private fun initializeExtensionListeners() {
