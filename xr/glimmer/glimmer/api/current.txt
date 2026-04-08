@@ -28,8 +28,8 @@ package androidx.xr.glimmer {
   public final class CardDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPadding(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.foundation.layout.PaddingValues contentPadding;
-    property public androidx.compose.ui.graphics.Shape shape;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.xr.glimmer.CardDefaults INSTANCE;
   }
 
@@ -149,12 +149,12 @@ package androidx.xr.glimmer {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Shapes getShapes(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Typography getTypography(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.runtime.CompositionLocal<androidx.xr.glimmer.GlimmerTheme> LocalGlimmerTheme;
-    property public androidx.xr.glimmer.Colors colors;
-    property public androidx.xr.glimmer.ComponentSpacingValues componentSpacingValues;
-    property public androidx.xr.glimmer.DepthEffectLevels depthEffectLevels;
-    property public androidx.xr.glimmer.IconSizes iconSizes;
-    property public androidx.xr.glimmer.Shapes shapes;
-    property public androidx.xr.glimmer.Typography typography;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Colors colors;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.ComponentSpacingValues componentSpacingValues;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.DepthEffectLevels depthEffectLevels;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.IconSizes iconSizes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Shapes shapes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Typography typography;
   }
 
   public final class GlimmerThemeKt {
@@ -206,7 +206,7 @@ package androidx.xr.glimmer {
 
   public final class ListItemDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPadding(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.foundation.layout.PaddingValues contentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding;
     field public static final androidx.xr.glimmer.ListItemDefaults INSTANCE;
   }
 
@@ -266,8 +266,8 @@ package androidx.xr.glimmer {
   public final class TitleChipDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public float getAssociatedContentSpacing(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPadding(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.ui.unit.Dp associatedContentSpacing;
-    property public androidx.compose.foundation.layout.PaddingValues contentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp associatedContentSpacing;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding;
     field public static final androidx.xr.glimmer.TitleChipDefaults INSTANCE;
   }
 
@@ -435,10 +435,10 @@ package androidx.xr.glimmer.list {
     method @BytecodeOnly public float getScrimMaxHeight-D9Ej5fM();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.Arrangement.Vertical getVerticalArrangement(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.ui.unit.Dp ScrimMaxHeight;
-    property public androidx.compose.foundation.layout.PaddingValues contentPadding;
-    property public androidx.compose.foundation.layout.PaddingValues contentPaddingWithTitle;
-    property public androidx.compose.ui.unit.Dp itemSpacing;
-    property public androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPaddingWithTitle;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp itemSpacing;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement;
     field public static final androidx.xr.glimmer.list.VerticalListDefaults INSTANCE;
   }
 

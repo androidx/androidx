@@ -101,7 +101,7 @@ package androidx.glance {
 
   public final class GlanceTheme {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public androidx.glance.color.ColorProviders getColors(androidx.compose.runtime.Composer?, int);
-    property public androidx.glance.color.ColorProviders colors;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public androidx.glance.color.ColorProviders colors;
     field public static final androidx.glance.GlanceTheme INSTANCE;
   }
 

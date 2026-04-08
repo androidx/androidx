@@ -597,8 +597,8 @@ package androidx.pdf.view {
     property public final int horizontalPageSpacing;
     property public final boolean isFormFillingEnabled;
     property @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=19) public final boolean isImageSelectionEnabled;
-    property @FloatRange(from=0.5, to=25.0) public final float maxZoom;
-    property @FloatRange(from=0.5, to=25.0) public final float minZoom;
+    property @FloatRange(from=0.5f, to=25.0f) public final float maxZoom;
+    property @FloatRange(from=0.5f, to=25.0f) public final float minZoom;
     property public final int pagesPerRow;
     property public final androidx.pdf.PdfDocument? pdfDocument;
     property public final int verticalAlignment;

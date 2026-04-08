@@ -226,9 +226,9 @@ package androidx.wear.compose.material {
     method @BytecodeOnly @androidx.compose.runtime.Composable public float getDisabled(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public float getHigh(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public float getMedium(androidx.compose.runtime.Composer?, int);
-    property public float disabled;
-    property public float high;
-    property public float medium;
+    property @androidx.compose.runtime.Composable public float disabled;
+    property @androidx.compose.runtime.Composable public float high;
+    property @androidx.compose.runtime.Composable public float medium;
     field public static final androidx.wear.compose.material.ContentAlpha INSTANCE;
   }
 
@@ -311,9 +311,9 @@ package androidx.wear.compose.material {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Colors getColors(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Shapes getShapes(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Typography getTypography(androidx.compose.runtime.Composer?, int);
-    property public androidx.wear.compose.material.Colors colors;
-    property public androidx.wear.compose.material.Shapes shapes;
-    property public androidx.wear.compose.material.Typography typography;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Colors colors;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Shapes shapes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Typography typography;
     field public static final androidx.wear.compose.material.MaterialTheme INSTANCE;
   }
 
@@ -1138,7 +1138,7 @@ package androidx.wear.compose.material {
 
   public interface TimeSource {
     method @BytecodeOnly @androidx.compose.runtime.Composable public String getCurrentTime(androidx.compose.runtime.Composer?, int);
-    property public abstract String currentTime;
+    property @androidx.compose.runtime.Composable public abstract String currentTime;
   }
 
   public final class TimeTextDefaults {
@@ -1227,7 +1227,7 @@ package androidx.wear.compose.material {
     property public androidx.compose.ui.unit.Dp IconSize;
     property public androidx.compose.ui.graphics.vector.ImageVector RadioOff;
     property public androidx.compose.ui.graphics.vector.ImageVector RadioOn;
-    property public androidx.compose.ui.graphics.Color SwitchUncheckedIconColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color SwitchUncheckedIconColor;
     field public static final androidx.wear.compose.material.ToggleChipDefaults INSTANCE;
   }
 

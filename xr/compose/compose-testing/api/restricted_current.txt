@@ -8,7 +8,7 @@ package androidx.xr.compose.testing {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction onSubspaceNode(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,? extends java.lang.Object?>, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction onSubspaceNodeWithTag(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,? extends java.lang.Object?>, String testTag);
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void setSession(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,? extends java.lang.Object?>, androidx.xr.runtime.Session?);
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.Session? androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,? extends java.lang.Object?>.session;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static androidx.xr.runtime.Session? androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,? extends java.lang.Object?>.session;
   }
 
   public final class SubspaceAssertionsKt {

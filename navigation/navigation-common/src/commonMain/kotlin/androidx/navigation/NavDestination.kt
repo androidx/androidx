@@ -118,6 +118,7 @@ public expect open class NavDestination(navigatorName: String) {
      * If using safe args, setting this manually will override the ID that was set based on route
      * from KClass.
      */
+    @Suppress("KmpHideShowAnnotationMismatch") // hidden in nonAndroidMain
     public var id: Int
 
     /**
@@ -129,6 +130,7 @@ public expect open class NavDestination(navigatorName: String) {
      */
     public var route: String?
 
+    @Suppress("KmpHideShowAnnotationMismatch") // hidden in androidMain and nonAndroidMain
     public open val displayName: String
 
     /**

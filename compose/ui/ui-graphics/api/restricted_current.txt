@@ -1431,7 +1431,7 @@ package androidx.compose.ui.graphics.colorspace {
     method @BytecodeOnly public static androidx.compose.ui.graphics.colorspace.ColorModel! box-impl(long);
     method @BytecodeOnly @IntRange(from=1L, to=4L) public static int getComponentCount-impl(long);
     method @BytecodeOnly public long unbox-impl();
-    property @androidx.compose.runtime.Stable public int componentCount;
+    property @IntRange(from=1L, to=4L) @androidx.compose.runtime.Stable public int componentCount;
     field public static final androidx.compose.ui.graphics.colorspace.ColorModel.Companion Companion;
   }
 

@@ -105,7 +105,7 @@ package androidx.wear.compose.material3 {
     property public float IndeterminateEndAngle;
     property public float IndeterminateStartAngle;
     property public androidx.compose.ui.unit.Dp IndeterminateStrokeWidth;
-    property public androidx.compose.ui.unit.Dp recommendedIndeterminateDiameter;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp recommendedIndeterminateDiameter;
     field public static final androidx.wear.compose.material3.ArcProgressIndicatorDefaults INSTANCE;
   }
 
@@ -215,11 +215,11 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp IconSpacing;
     property public androidx.compose.ui.unit.Dp LargeIconSize;
     property public androidx.compose.ui.unit.Dp SmallIconSize;
-    property @Deprecated public androidx.compose.foundation.shape.RoundedCornerShape compactButtonShape;
-    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
-    property public androidx.compose.ui.graphics.Color scrimGradientEndColor;
-    property public androidx.compose.ui.graphics.Color scrimGradientStartColor;
-    property public androidx.compose.foundation.shape.RoundedCornerShape shape;
+    property @Deprecated @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape compactButtonShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color scrimGradientEndColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color scrimGradientStartColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape shape;
     field public static final androidx.wear.compose.material3.ButtonDefaults INSTANCE;
   }
 
@@ -233,7 +233,7 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp ExpansionWidth;
     property public androidx.compose.ui.unit.Dp MinWidth;
     property public androidx.compose.ui.unit.Dp Spacing;
-    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
     field public static final androidx.wear.compose.material3.ButtonGroupDefaults INSTANCE;
   }
 
@@ -328,9 +328,9 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public androidx.compose.ui.unit.Dp Height;
     property public androidx.compose.ui.unit.Dp ImageBottomPadding;
-    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
-    property public androidx.compose.ui.graphics.Color scrimColor;
-    property public androidx.compose.ui.graphics.Shape shape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Color scrimColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.wear.compose.material3.CardDefaults INSTANCE;
   }
 
@@ -414,8 +414,8 @@ package androidx.wear.compose.material3 {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitCheckboxButtonColors splitCheckboxButtonColors(optional androidx.compose.ui.graphics.Color checkedContainerColor, optional androidx.compose.ui.graphics.Color checkedContentColor, optional androidx.compose.ui.graphics.Color checkedSecondaryContentColor, optional androidx.compose.ui.graphics.Color checkedSplitContainerColor, optional androidx.compose.ui.graphics.Color checkedBoxColor, optional androidx.compose.ui.graphics.Color checkedCheckmarkColor, optional androidx.compose.ui.graphics.Color uncheckedContainerColor, optional androidx.compose.ui.graphics.Color uncheckedContentColor, optional androidx.compose.ui.graphics.Color uncheckedSecondaryContentColor, optional androidx.compose.ui.graphics.Color uncheckedSplitContainerColor, optional androidx.compose.ui.graphics.Color uncheckedBoxColor, optional androidx.compose.ui.graphics.Color disabledCheckedContainerColor, optional androidx.compose.ui.graphics.Color disabledCheckedContentColor, optional androidx.compose.ui.graphics.Color disabledCheckedSecondaryContentColor, optional androidx.compose.ui.graphics.Color disabledCheckedSplitContainerColor, optional androidx.compose.ui.graphics.Color disabledCheckedBoxColor, optional androidx.compose.ui.graphics.Color disabledCheckedCheckmarkColor, optional androidx.compose.ui.graphics.Color disabledUncheckedContainerColor, optional androidx.compose.ui.graphics.Color disabledUncheckedContentColor, optional androidx.compose.ui.graphics.Color disabledUncheckedSecondaryContentColor, optional androidx.compose.ui.graphics.Color disabledUncheckedSplitContainerColor, optional androidx.compose.ui.graphics.Color disabledUncheckedBoxColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitCheckboxButtonColors splitCheckboxButtonColors-DlUQjxs(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int, int, int);
     property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public androidx.compose.ui.graphics.Shape checkboxButtonShape;
-    property public androidx.compose.ui.graphics.Shape splitCheckboxButtonShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape checkboxButtonShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape splitCheckboxButtonShape;
     field public static final androidx.wear.compose.material3.CheckboxButtonDefaults INSTANCE;
   }
 
@@ -437,8 +437,8 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp FullScreenPadding;
     property public androidx.compose.ui.unit.Dp IndeterminateStrokeWidth;
     property public float StartAngle;
-    property public androidx.compose.ui.unit.Dp largeStrokeWidth;
-    property public androidx.compose.ui.unit.Dp smallStrokeWidth;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp largeStrokeWidth;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp smallStrokeWidth;
     field public static final androidx.wear.compose.material3.CircularProgressIndicatorDefaults INSTANCE;
   }
 
@@ -541,8 +541,8 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp HorizontalPadding;
     property public androidx.compose.foundation.layout.PaddingValues TapTargetPadding;
     property public androidx.compose.ui.unit.Dp VerticalPadding;
-    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
-    property public androidx.compose.foundation.shape.RoundedCornerShape shape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape shape;
     field public static final androidx.wear.compose.material3.CompactButtonDefaults INSTANCE;
   }
 
@@ -588,7 +588,7 @@ package androidx.wear.compose.material3 {
     property public long DurationMillis;
     property public androidx.compose.ui.unit.Dp IconSize;
     property public androidx.compose.ui.unit.Dp SmallIconSize;
-    property public androidx.wear.compose.foundation.CurvedTextStyle curvedTextStyle;
+    property @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.CurvedTextStyle curvedTextStyle;
     field public static final androidx.wear.compose.material3.ConfirmationDialogDefaults INSTANCE;
   }
 
@@ -663,7 +663,7 @@ package androidx.wear.compose.material3 {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.DatePickerColors datePickerColors(optional androidx.compose.ui.graphics.Color activePickerContentColor, optional androidx.compose.ui.graphics.Color inactivePickerContentColor, optional androidx.compose.ui.graphics.Color invalidPickerContentColor, optional androidx.compose.ui.graphics.Color pickerLabelColor, optional androidx.compose.ui.graphics.Color nextButtonContentColor, optional androidx.compose.ui.graphics.Color nextButtonContainerColor, optional androidx.compose.ui.graphics.Color confirmButtonContentColor, optional androidx.compose.ui.graphics.Color confirmButtonContainerColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.DatePickerColors datePickerColors-oq7We08(long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public int getDatePickerType(androidx.compose.runtime.Composer?, int);
-    property public androidx.wear.compose.material3.DatePickerType datePickerType;
+    property @androidx.compose.runtime.Composable public androidx.wear.compose.material3.DatePickerType datePickerType;
     field public static final androidx.wear.compose.material3.DatePickerDefaults INSTANCE;
   }
 
@@ -737,7 +737,7 @@ package androidx.wear.compose.material3 {
 
   public final class FadingExpandingLabelDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!> getAnimationSpec(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec;
+    property @androidx.compose.runtime.Composable public androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec;
     field public static final androidx.wear.compose.material3.FadingExpandingLabelDefaults INSTANCE;
   }
 
@@ -812,9 +812,9 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp LargeIconSize;
     property public androidx.compose.ui.unit.Dp SmallButtonSize;
     property public androidx.compose.ui.unit.Dp SmallIconSize;
-    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
-    property public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
-    property public androidx.compose.foundation.shape.RoundedCornerShape shape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape shape;
     field public static final androidx.wear.compose.material3.IconButtonDefaults INSTANCE;
   }
 
@@ -911,9 +911,9 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp Size;
     property public androidx.compose.ui.unit.Dp SmallIconSize;
     property public androidx.compose.ui.unit.Dp SmallSize;
-    property public androidx.compose.foundation.shape.CornerBasedShape checkedShape;
-    property public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
-    property public androidx.compose.foundation.shape.RoundedCornerShape shape;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape checkedShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape shape;
     field public static final androidx.wear.compose.material3.IconToggleButtonDefaults INSTANCE;
   }
 
@@ -1000,10 +1000,10 @@ package androidx.wear.compose.material3 {
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getSubHeaderContentPadding();
     property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public androidx.compose.foundation.layout.PaddingValues SubHeaderContentPadding;
-    property public androidx.compose.ui.graphics.Color contentColor;
-    property public androidx.compose.ui.unit.Dp minimumBottomListContentPadding;
-    property public androidx.compose.ui.unit.Dp minimumTopListContentPadding;
-    property public androidx.compose.ui.graphics.Color subHeaderContentColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color contentColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumBottomListContentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumTopListContentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color subHeaderContentColor;
     field public static final androidx.wear.compose.material3.ListHeaderDefaults INSTANCE;
   }
 
@@ -1019,10 +1019,10 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material3.MotionScheme getMotionScheme(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material3.Shapes getShapes(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material3.Typography getTypography(androidx.compose.runtime.Composer?, int);
-    property public androidx.wear.compose.material3.ColorScheme colorScheme;
-    property public androidx.wear.compose.material3.MotionScheme motionScheme;
-    property public androidx.wear.compose.material3.Shapes shapes;
-    property public androidx.wear.compose.material3.Typography typography;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material3.ColorScheme colorScheme;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material3.MotionScheme motionScheme;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material3.Shapes shapes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material3.Typography typography;
     field public static final androidx.wear.compose.material3.MaterialTheme INSTANCE;
   }
 
@@ -1090,8 +1090,8 @@ package androidx.wear.compose.material3 {
     method @InaccessibleFromKotlin public long getDurationMillis();
     method @BytecodeOnly @androidx.compose.runtime.Composable public String getText(androidx.compose.runtime.Composer?, int);
     property public long DurationMillis;
-    property public androidx.wear.compose.foundation.CurvedTextStyle curvedTextStyle;
-    property public String text;
+    property @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.CurvedTextStyle curvedTextStyle;
+    property @androidx.compose.runtime.Composable public String text;
     field public static final androidx.wear.compose.material3.OpenOnPhoneDialogDefaults INSTANCE;
   }
 
@@ -1107,9 +1107,9 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getBackgroundColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getSelectedColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getUnselectedColor(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.ui.graphics.Color backgroundColor;
-    property public androidx.compose.ui.graphics.Color selectedColor;
-    property public androidx.compose.ui.graphics.Color unselectedColor;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Color backgroundColor;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Color selectedColor;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Color unselectedColor;
     field public static final androidx.wear.compose.material3.PageIndicatorDefaults INSTANCE;
   }
 
@@ -1202,9 +1202,9 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getShimmerColor(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.ui.graphics.Color color;
-    property public androidx.compose.ui.graphics.Shape shape;
-    property public androidx.compose.ui.graphics.Color shimmerColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color color;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color shimmerColor;
     field public static final androidx.wear.compose.material3.PlaceholderDefaults INSTANCE;
   }
 
@@ -1316,8 +1316,8 @@ package androidx.wear.compose.material3 {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitRadioButtonColors splitRadioButtonColors(optional androidx.compose.ui.graphics.Color selectedContainerColor, optional androidx.compose.ui.graphics.Color selectedContentColor, optional androidx.compose.ui.graphics.Color selectedSecondaryContentColor, optional androidx.compose.ui.graphics.Color selectedSplitContainerColor, optional androidx.compose.ui.graphics.Color selectedControlColor, optional androidx.compose.ui.graphics.Color unselectedContainerColor, optional androidx.compose.ui.graphics.Color unselectedContentColor, optional androidx.compose.ui.graphics.Color unselectedSecondaryContentColor, optional androidx.compose.ui.graphics.Color unselectedSplitContainerColor, optional androidx.compose.ui.graphics.Color unselectedControlColor, optional androidx.compose.ui.graphics.Color disabledSelectedContainerColor, optional androidx.compose.ui.graphics.Color disabledSelectedContentColor, optional androidx.compose.ui.graphics.Color disabledSelectedSecondaryContentColor, optional androidx.compose.ui.graphics.Color disabledSelectedSplitContainerColor, optional androidx.compose.ui.graphics.Color disabledSelectedControlColor, optional androidx.compose.ui.graphics.Color disabledUnselectedContainerColor, optional androidx.compose.ui.graphics.Color disabledUnselectedContentColor, optional androidx.compose.ui.graphics.Color disabledUnselectedSecondaryContentColor, optional androidx.compose.ui.graphics.Color disabledUnselectedSplitContainerColor, optional androidx.compose.ui.graphics.Color disabledUnselectedControlColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitRadioButtonColors splitRadioButtonColors-Xf8s2Ik(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int, int, int);
     property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public androidx.compose.ui.graphics.Shape radioButtonShape;
-    property public androidx.compose.ui.graphics.Shape splitRadioButtonShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape radioButtonShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape splitRadioButtonShape;
     field public static final androidx.wear.compose.material3.RadioButtonDefaults INSTANCE;
   }
 
@@ -1408,7 +1408,7 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly public float getEdgeButtonSpacing-D9Ej5fM();
     property public androidx.compose.ui.unit.Dp EdgeButtonMinSpacing;
     property public androidx.compose.ui.unit.Dp EdgeButtonSpacing;
-    property public androidx.compose.foundation.layout.PaddingValues contentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding;
     field public static final androidx.wear.compose.material3.ScreenScaffoldDefaults INSTANCE;
   }
 
@@ -1576,9 +1576,9 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SliderColors variantSliderColors-XqyqHi0(long, long, long, long, long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int, int);
     property public androidx.compose.ui.unit.Dp IconSize;
     property public int MaxSegmentSteps;
-    property public String decreaseIconContentDescription;
-    property public String increaseIconContentDescription;
-    property public androidx.compose.ui.graphics.Shape shape;
+    property @androidx.compose.runtime.Composable public String decreaseIconContentDescription;
+    property @androidx.compose.runtime.Composable public String increaseIconContentDescription;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.wear.compose.material3.SliderDefaults INSTANCE;
   }
 
@@ -1917,8 +1917,8 @@ package androidx.wear.compose.material3 {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SwitchButtonColors switchButtonColors(optional androidx.compose.ui.graphics.Color checkedContainerColor, optional androidx.compose.ui.graphics.Color checkedContentColor, optional androidx.compose.ui.graphics.Color checkedSecondaryContentColor, optional androidx.compose.ui.graphics.Color checkedIconColor, optional androidx.compose.ui.graphics.Color checkedThumbColor, optional androidx.compose.ui.graphics.Color checkedThumbIconColor, optional androidx.compose.ui.graphics.Color checkedTrackColor, optional androidx.compose.ui.graphics.Color checkedTrackBorderColor, optional androidx.compose.ui.graphics.Color uncheckedContainerColor, optional androidx.compose.ui.graphics.Color uncheckedContentColor, optional androidx.compose.ui.graphics.Color uncheckedSecondaryContentColor, optional androidx.compose.ui.graphics.Color uncheckedIconColor, optional androidx.compose.ui.graphics.Color uncheckedThumbColor, optional androidx.compose.ui.graphics.Color uncheckedTrackColor, optional androidx.compose.ui.graphics.Color uncheckedTrackBorderColor, optional androidx.compose.ui.graphics.Color disabledCheckedContainerColor, optional androidx.compose.ui.graphics.Color disabledCheckedContentColor, optional androidx.compose.ui.graphics.Color disabledCheckedSecondaryContentColor, optional androidx.compose.ui.graphics.Color disabledCheckedIconColor, optional androidx.compose.ui.graphics.Color disabledCheckedThumbColor, optional androidx.compose.ui.graphics.Color disabledCheckedThumbIconColor, optional androidx.compose.ui.graphics.Color disabledCheckedTrackColor, optional androidx.compose.ui.graphics.Color disabledCheckedTrackBorderColor, optional androidx.compose.ui.graphics.Color disabledUncheckedContainerColor, optional androidx.compose.ui.graphics.Color disabledUncheckedContentColor, optional androidx.compose.ui.graphics.Color disabledUncheckedSecondaryContentColor, optional androidx.compose.ui.graphics.Color disabledUncheckedIconColor, optional androidx.compose.ui.graphics.Color disabledUncheckedThumbColor, optional androidx.compose.ui.graphics.Color disabledUncheckedTrackBorderColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SwitchButtonColors switchButtonColors-MmU5H5k(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int, int, int);
     property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public androidx.compose.ui.graphics.Shape splitSwitchButtonShape;
-    property public androidx.compose.ui.graphics.Shape switchButtonShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape splitSwitchButtonShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape switchButtonShape;
     field public static final androidx.wear.compose.material3.SwitchButtonDefaults INSTANCE;
   }
 
@@ -1986,12 +1986,12 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp DefaultButtonSize;
     property public androidx.compose.ui.unit.Dp LargeButtonSize;
     property public androidx.compose.ui.unit.Dp SmallButtonSize;
-    property public androidx.compose.ui.text.TextStyle defaultButtonTextStyle;
-    property public androidx.compose.ui.text.TextStyle largeButtonTextStyle;
-    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
-    property public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
-    property public androidx.compose.foundation.shape.RoundedCornerShape shape;
-    property public androidx.compose.ui.text.TextStyle smallButtonTextStyle;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle defaultButtonTextStyle;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle largeButtonTextStyle;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape shape;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle smallButtonTextStyle;
     field public static final androidx.wear.compose.material3.TextButtonDefaults INSTANCE;
   }
 
@@ -2035,8 +2035,8 @@ package androidx.wear.compose.material3 {
   public final class TextDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumBottomListContentPadding(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumTopListContentPadding(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.ui.unit.Dp minimumBottomListContentPadding;
-    property public androidx.compose.ui.unit.Dp minimumTopListContentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumBottomListContentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp minimumTopListContentPadding;
     field public static final androidx.wear.compose.material3.TextDefaults INSTANCE;
   }
 
@@ -2106,12 +2106,12 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp ExtraLargeSize;
     property public androidx.compose.ui.unit.Dp LargeSize;
     property public androidx.compose.ui.unit.Dp Size;
-    property public androidx.compose.foundation.shape.CornerBasedShape checkedShape;
-    property public androidx.compose.ui.text.TextStyle extraLargeTextStyle;
-    property public androidx.compose.ui.text.TextStyle largeTextStyle;
-    property public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
-    property public androidx.compose.foundation.shape.RoundedCornerShape shape;
-    property public androidx.compose.ui.text.TextStyle textStyle;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape checkedShape;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle extraLargeTextStyle;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle largeTextStyle;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape shape;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle textStyle;
     field public static final androidx.wear.compose.material3.TextToggleButtonDefaults INSTANCE;
   }
 
@@ -2163,7 +2163,7 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TimePickerColors timePickerColors-5tl4gsc(long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TimePickerSelection timePickerSelection(androidx.wear.compose.material3.TimePickerType timePickerType);
     method @BytecodeOnly @RequiresApi(26) @androidx.compose.runtime.Composable public int timePickerSelection-tgi0kX4(int, androidx.compose.runtime.Composer?, int);
-    property public androidx.wear.compose.material3.TimePickerType timePickerType;
+    property @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TimePickerType timePickerType;
     field public static final androidx.wear.compose.material3.TimePickerDefaults INSTANCE;
   }
 

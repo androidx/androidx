@@ -3,7 +3,7 @@ package androidx.xr.runtime {
 
   public final class AnchorPersistenceMode extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.AnchorPersistenceMode.Companion Companion;
     field public static final androidx.xr.runtime.AnchorPersistenceMode DISABLED;
     field public static final androidx.xr.runtime.AnchorPersistenceMode LOCAL;
@@ -35,7 +35,7 @@ package androidx.xr.runtime {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CameraFacingDirection extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.CameraFacingDirection.Companion Companion;
     field public static final androidx.xr.runtime.CameraFacingDirection USER;
     field public static final androidx.xr.runtime.CameraFacingDirection WORLD;
@@ -80,10 +80,10 @@ package androidx.xr.runtime {
     method @InaccessibleFromKotlin public androidx.xr.runtime.PlaneTrackingMode getPlaneTracking();
     property public androidx.xr.runtime.AnchorPersistenceMode anchorPersistence;
     property public java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.CameraFacingDirection cameraFacingDirection;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.xr.runtime.CameraFacingDirection cameraFacingDirection;
     property public androidx.xr.runtime.DepthEstimationMode depthEstimation;
     property public androidx.xr.runtime.DeviceTrackingMode deviceTracking;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.EyeTrackingMode eyeTracking;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.xr.runtime.EyeTrackingMode eyeTracking;
     property public androidx.xr.runtime.FaceTrackingMode faceTracking;
     property public androidx.xr.runtime.GeospatialMode geospatial;
     property public androidx.xr.runtime.HandTrackingMode handTracking;
@@ -102,7 +102,7 @@ package androidx.xr.runtime {
 
   public final class DepthEstimationMode extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.DepthEstimationMode.Companion Companion;
     field public static final androidx.xr.runtime.DepthEstimationMode DISABLED;
     field public static final androidx.xr.runtime.DepthEstimationMode RAW_ONLY;
@@ -119,7 +119,7 @@ package androidx.xr.runtime {
 
   public final class DeviceTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.DeviceTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.DeviceTrackingMode DISABLED;
     field @SuppressCompatibility @androidx.xr.runtime.PreviewSpatialApi public static final androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
@@ -172,7 +172,7 @@ package androidx.xr.runtime {
 
   public final class FaceTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.FaceTrackingMode BLEND_SHAPES;
     field public static final androidx.xr.runtime.FaceTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.FaceTrackingMode DISABLED;
@@ -205,7 +205,7 @@ package androidx.xr.runtime {
 
   public final class GeospatialMode extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.GeospatialMode.Companion Companion;
     field public static final androidx.xr.runtime.GeospatialMode DISABLED;
     field public static final androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
@@ -218,7 +218,7 @@ package androidx.xr.runtime {
 
   public final class HandTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.HandTrackingMode BOTH;
     field public static final androidx.xr.runtime.HandTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.HandTrackingMode DISABLED;
@@ -295,7 +295,7 @@ package androidx.xr.runtime {
 
   public final class PlaneTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.PlaneTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.PlaneTrackingMode DISABLED;
     field public static final androidx.xr.runtime.PlaneTrackingMode HORIZONTAL_AND_VERTICAL;
@@ -350,15 +350,15 @@ package androidx.xr.runtime {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.SessionConnector> getSessionConnectors();
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> getState();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.StateExtender> getStateExtenders();
-    property @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Activity activity;
+    property @Deprecated @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public android.app.Activity activity;
     property public androidx.xr.runtime.Config config;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.Context context;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public kotlinx.coroutines.CoroutineScope coroutineScope;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.lifecycle.LifecycleOwner lifecycleOwner;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.internal.JxrRuntime> runtimes;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.SessionConnector> sessionConnectors;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public android.content.Context context;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public kotlinx.coroutines.CoroutineScope coroutineScope;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.lifecycle.LifecycleOwner lifecycleOwner;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public java.util.List<androidx.xr.runtime.internal.JxrRuntime> runtimes;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public java.util.List<androidx.xr.runtime.SessionConnector> sessionConnectors;
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> state;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.StateExtender> stateExtenders;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public java.util.List<androidx.xr.runtime.StateExtender> stateExtenders;
     field public static final androidx.xr.runtime.Session.Companion Companion;
   }
 
@@ -438,7 +438,7 @@ package androidx.xr.runtime {
   public final class SpatialApiVersionHelper {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getPreviewSpatialApiVersion();
     method @InaccessibleFromKotlin public static int getSpatialApiVersion();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int previewSpatialApiVersion;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static int previewSpatialApiVersion;
     property public static int spatialApiVersion;
     field public static final androidx.xr.runtime.SpatialApiVersionHelper INSTANCE;
   }
