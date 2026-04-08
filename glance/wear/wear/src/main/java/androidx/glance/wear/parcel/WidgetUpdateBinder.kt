@@ -69,7 +69,10 @@ internal class WidgetUpdateBinder<ServiceType : IInterface, UpdateData>(
                             if (localService != null) {
                                 trySendBlocking(localService)
                             } else {
-                                close(IllegalStateException("Binder Interface is null"))
+                                // TODO: b/500612668 - Investigate why asInterface returns null on
+                                //     some OEM devices.
+                                Log.e(TAG, "Binder Interface is null for action: $action")
+                                close()
                             }
                         }
 
@@ -84,7 +87,9 @@ internal class WidgetUpdateBinder<ServiceType : IInterface, UpdateData>(
 
                 val intent = buildUpdateBindIntent(context, action)
                 if (intent == null) {
-                    close(IllegalStateException("Could not build bind intent for $action"))
+                    // TODO: b/500612668 - Investigate root cause of null binding intent.
+                    Log.e(TAG, "Could not build bind intent for $action. Widget updates disabled.")
+                    close()
                     return@callbackFlow
                 }
                 val bound =
