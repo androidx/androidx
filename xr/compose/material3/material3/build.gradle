@@ -44,9 +44,9 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
-    testImplementation("androidx.compose.ui:ui-test:1.8.0")
-    testImplementation("androidx.compose.ui:ui-test-junit4:1.8.0")
-    testImplementation("androidx.compose.ui:ui-test-manifest:1.8.0")
+    testImplementation("androidx.compose.ui:ui-test:1.11.0-beta02")
+    testImplementation("androidx.compose.ui:ui-test-junit4:1.11.0-beta02")
+    testImplementation("androidx.compose.ui:ui-test-manifest:1.11.0-beta02")
     testImplementation(project(":xr:compose:compose-testing"))
 }
 
