@@ -56,6 +56,7 @@ import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.LocalCurrentScene
 import androidx.navigation3.scene.LocalEntriesToExcludeFromCurrentScene
+import androidx.navigation3.scene.NavigationBackHandler
 import androidx.navigation3.scene.OverlayScene
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneDecoratorStrategy
@@ -71,9 +72,7 @@ import androidx.navigation3.ui.NavDisplay.transitionSpec
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventTransitionState.Idle
 import androidx.navigationevent.NavigationEventTransitionState.InProgress
-import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventState
-import androidx.navigationevent.compose.rememberNavigationEventState
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
@@ -545,26 +544,14 @@ public fun <T : Any> NavDisplay(
             sharedTransitionScope,
             onBack,
         )
-    val scene = sceneState.currentScene
 
     // Predictive Back Handling
-    val gestureState = rememberNavigationEventState(sceneState)
-
-    NavigationBackHandler(
-        state = gestureState,
-        isBackEnabled = scene.previousEntries.isNotEmpty(),
-        onBackCompleted = {
-            // If `enabled` becomes stale (e.g., it was set to false but a gesture was
-            // dispatched in the same frame), this may result in no entries being popped
-            // due to entries.size being smaller than scene.previousEntries.size
-            // but that's preferable to crashing with an IndexOutOfBoundsException
-            repeat(entries.size - scene.previousEntries.size) { onBack() }
-        },
-    )
+    val navigationEventState = rememberNavigationEventState(sceneState)
+    NavigationBackHandler(sceneState, navigationEventState, onBack)
 
     NavDisplay(
         sceneState,
-        gestureState,
+        navigationEventState,
         modifier,
         contentAlignment,
         sizeTransform,
