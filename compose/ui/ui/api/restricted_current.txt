@@ -224,7 +224,7 @@ package androidx.compose.ui {
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static inline boolean mediaQuery(androidx.compose.runtime.CompositionLocalAccessorScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static inline boolean mediaQuery(androidx.compose.ui.node.CompositionLocalConsumerModifierNode, kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static boolean mediaQuery(kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope!,java.lang.Boolean!>, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static boolean mediaQuery(kotlin.jvm.functions.Function1<androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static inline boolean mediaQuery(kotlin.jvm.functions.Function1<androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
     property @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.UiMediaScope> LocalUiMediaScope;
   }
 

@@ -66,9 +66,9 @@ interface UiMediaScope {
     /**
      * The type of keyboard currently available or connected.
      *
-     * This property prioritizes a physical keyboard connection ([AnyKeyboard.Physical]) over an
-     * on-screen soft keyboard ([AnyKeyboard.Virtual]). If neither is detected, it returns
-     * [AnyKeyboard.None].
+     * This property prioritizes a physical keyboard connection ([KeyboardKind.Physical]) over an
+     * on-screen soft keyboard ([KeyboardKind.Virtual]). If neither is detected, it returns
+     * [KeyboardKind.None].
      */
     val keyboardKind: KeyboardKind
 
@@ -106,21 +106,23 @@ interface UiMediaScope {
 
         companion object {
             /**
-             * Represents a flat posture, where the foldable device's screen is fully open and flat,
-             * similar to a traditional phone or tablet. It's the default posture for non-foldable
-             * devices.
+             * Represents a flat posture, where the window's display area on a foldable device is
+             * flat (either fully open or closed). It's the default posture for non-foldable
+             * devices, or when the window does not span across a hinge or fold (such as in
+             * split-screen mode on a single panel).
              */
             val Flat = Posture("Flat")
 
             /**
-             * Represents a device in a semi-open state, similar to a laptop. The flexible display
-             * area is split into two logical parts, with a fold in between.
+             * Represents a device in a semi-open state, similar to a laptop. The window spans
+             * across a horizontal fold or hinge, splitting the display area into two logical parts.
              */
             val Tabletop = Posture("Tabletop")
 
             /**
-             * The device is folded similarly to an open book, with the flexible screen area
-             * oriented vertically.
+             * Represents a device in a semi-open state, folded similarly to an open book. The
+             * window spans across a vertical fold or hinge, splitting the display area into two
+             * logical parts.
              */
             val Book = Posture("Book")
         }
@@ -230,7 +232,8 @@ val LocalUiMediaScope =
 @ExperimentalMediaQueryApi
 @Composable
 @ReadOnlyComposable
-fun mediaQuery(query: UiMediaScope.() -> Boolean): Boolean = LocalUiMediaScope.current.query()
+inline fun mediaQuery(query: UiMediaScope.() -> Boolean): Boolean =
+    LocalUiMediaScope.current.query()
 
 /**
  * Evaluates a boolean query against the current [UiMediaScope], wrapped in a [derivedStateOf].
