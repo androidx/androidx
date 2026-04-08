@@ -292,17 +292,6 @@ class SubspaceTest {
     }
 
     @Test
-    fun subspace_whenCreated_isParentedToKeyEntity() {
-        composeTestRule.setContent {
-            Subspace { SpatialPanel(SubspaceModifier.testTag("panel")) {} }
-        }
-
-        composeTestRule
-            .onSubspaceNodeWithTag("panel")
-            .assertEntityIsDescendantOf(assertNotNull(composeTestRule.session?.scene?.keyEntity))
-    }
-
-    @Test
     fun subspace_whenRemovedFromComposition_isDisposed() {
         var showSubspace by mutableStateOf(true)
 
@@ -635,6 +624,91 @@ class SubspaceTest {
     }
 
     @Test
+    fun subspace_whenSpatialModeChanges_updatesPoseAndScale() =
+        runTest(testDispatcher) {
+            val session = composeTestRule.configureFakeSession()
+            val fakeSceneRuntime =
+                session.runtimes
+                    .filterIsInstance<androidx.xr.scenecore.testing.FakeSceneRuntime>()
+                    .first()
+            val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
+            val expectedScale = 2.5f
+
+            composeTestRule.setContent { Subspace(SubspaceModifier.testTag("subspace")) {} }
+
+            fakeSceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+                recommendedPose = expectedPose,
+                recommendedScale = Vector3(expectedScale, expectedScale, expectedScale),
+            )
+
+            composeTestRule.waitForIdle()
+
+            val subspaceEntity =
+                composeTestRule
+                    .onSubspaceNodeWithTag("subspace")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+            assertNotNull(subspaceEntity)
+
+            val subspaceRootNode = subspaceEntity.parent?.parent
+            val actualPose = subspaceRootNode?.getPose(Space.ACTIVITY)
+            val actualScale = subspaceRootNode?.getScale(Space.ACTIVITY)
+
+            assertThat(actualPose).isEqualTo(expectedPose)
+            assertThat(actualScale).isEqualTo(expectedScale)
+        }
+
+    @Test
+    fun subspace_whenDoubleSubspacesSpatialModeChanges_updatesPoseAndScale() =
+        runTest(testDispatcher) {
+            val session = composeTestRule.configureFakeSession()
+            val fakeSceneRuntime =
+                session.runtimes
+                    .filterIsInstance<androidx.xr.scenecore.testing.FakeSceneRuntime>()
+                    .first()
+            val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
+            val expectedScale = 2.5f
+
+            composeTestRule.setContent {
+                Subspace(SubspaceModifier.testTag("subspace1")) {}
+                Subspace(SubspaceModifier.testTag("subspace2")) {}
+            }
+
+            fakeSceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+                recommendedPose = expectedPose,
+                recommendedScale = Vector3(expectedScale, expectedScale, expectedScale),
+            )
+
+            composeTestRule.waitForIdle()
+
+            val subspaceEntity1 =
+                composeTestRule
+                    .onSubspaceNodeWithTag("subspace1")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+            assertNotNull(subspaceEntity1)
+
+            val subspaceEntity2 =
+                composeTestRule
+                    .onSubspaceNodeWithTag("subspace2")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+            assertNotNull(subspaceEntity2)
+
+            val subspaceRootNode1 = subspaceEntity1.parent?.parent
+            val actualPose1 = subspaceRootNode1?.getPose(Space.ACTIVITY)
+            val actualScale1 = subspaceRootNode1?.getScale(Space.ACTIVITY)
+            val subspaceRootNode2 = subspaceEntity2.parent?.parent
+            val actualPose2 = subspaceRootNode2?.getPose(Space.ACTIVITY)
+            val actualScale2 = subspaceRootNode2?.getScale(Space.ACTIVITY)
+
+            assertThat(actualPose1).isEqualTo(expectedPose)
+            assertThat(actualScale1).isEqualTo(expectedScale)
+            assertThat(actualPose2).isEqualTo(expectedPose)
+            assertThat(actualScale2).isEqualTo(expectedScale)
+        }
+
+    @Test
     fun subspace_whenSwitchingModesFromHomeSpace_retainsState() {
         composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
 
@@ -706,21 +780,6 @@ class SubspaceTest {
         composeTestRule
             .onSubspaceNodeWithTag("Box")
             .assertEntityIsDescendantOf(assertNotNull(testNode))
-    }
-
-    @Test
-    fun subspace_withMultipleSubspaces_shareTheSameRootContainer() {
-        composeTestRule.setContent {
-            Subspace { SpatialBox(modifier = SubspaceModifier.testTag("Box")) {} }
-            Subspace { SpatialBox(modifier = SubspaceModifier.testTag("Box2")) {} }
-        }
-
-        composeTestRule
-            .onSubspaceNodeWithTag("Box")
-            .assertEntityIsDescendantOf(assertNotNull(composeTestRule.session?.scene?.keyEntity))
-        composeTestRule
-            .onSubspaceNodeWithTag("Box2")
-            .assertEntityIsDescendantOf(assertNotNull(composeTestRule.session?.scene?.keyEntity))
     }
 
     // ---------------------------------------------------------------------------------------------
