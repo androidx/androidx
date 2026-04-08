@@ -16,6 +16,8 @@
 
 package androidx.credentials.provider;
 
+import static androidx.credentials.TestUtilsKt.createDummyProviderGetCredentialRequest;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
@@ -59,9 +61,9 @@ public class PendingIntentHandlerApi34JavaTest {
 
     private static final android.service.credentials.GetCredentialRequest
             GET_CREDENTIAL_REQUEST = new android.service.credentials.GetCredentialRequest(
-                    new CallingAppInfo(
-                            "package_name", new SigningInfo()), new ArrayList<>(
-                                    Collections.singleton(GET_CREDENTIAL_OPTION)));
+            new CallingAppInfo(
+                    "package_name", new SigningInfo()), new ArrayList<>(
+            Collections.singleton(GET_CREDENTIAL_OPTION)));
 
     private static final int BIOMETRIC_AUTHENTICATOR_TYPE = 1;
 
@@ -358,7 +360,8 @@ public class PendingIntentHandlerApi34JavaTest {
         PasswordCredential credential = new PasswordCredential("a", "b");
         GetCredentialResponse initialResponse = new GetCredentialResponse(credential);
 
-        PendingIntentHandler.setGetCredentialResponse(intent, initialResponse);
+        PendingIntentHandler.setGetCredentialResponse(intent, initialResponse,
+                createDummyProviderGetCredentialRequest());
 
         android.credentials.GetCredentialResponse finalResponse =
                 IntentHandlerConverters.getGetCredentialResponse(intent);
@@ -415,7 +418,7 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_retrieveProviderGetCredReqWithSuccessfulBpAuth() {
         BiometricPromptResult biometricPromptResult = new BiometricPromptResult(
                 new AuthenticationResult(
-                BIOMETRIC_AUTHENTICATOR_TYPE));
+                        BIOMETRIC_AUTHENTICATOR_TYPE));
         Intent intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST,
                 biometricPromptResult);
 
@@ -450,7 +453,7 @@ public class PendingIntentHandlerApi34JavaTest {
     ) {
         Intent intent = new Intent();
         intent.putExtra(CredentialProviderService
-                        .EXTRA_GET_CREDENTIAL_REQUEST, request);
+                .EXTRA_GET_CREDENTIAL_REQUEST, request);
         prepareIntentWithBiometricResult(intent, biometricPromptResult);
         return intent;
     }

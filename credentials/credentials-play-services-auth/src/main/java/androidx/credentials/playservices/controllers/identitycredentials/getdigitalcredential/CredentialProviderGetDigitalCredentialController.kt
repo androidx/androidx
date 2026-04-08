@@ -23,7 +23,6 @@ import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.BundleCompat.getParcelable
 import androidx.credentials.Credential
@@ -43,6 +42,7 @@ import androidx.credentials.playservices.controllers.CredentialProviderBaseContr
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import androidx.credentials.playservices.controllers.ResponseUtils
 import androidx.credentials.playservices.controllers.identitycredentials.IdentityCredentialApiHiddenActivity
+import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.identitycredentials.CredentialOption
@@ -52,7 +52,6 @@ import java.util.concurrent.Executor
 
 /** A controller to handle the GetRestoreCredential flow with play services. */
 @OptIn(ExperimentalDigitalCredentialApi::class)
-@RequiresApi(23)
 internal class CredentialProviderGetDigitalCredentialController(context: Context) :
     CredentialProviderController<
         GetCredentialRequest,
@@ -78,13 +77,17 @@ internal class CredentialProviderGetDigitalCredentialController(context: Context
     @VisibleForTesting private var cancellationSignal: CancellationSignal? = null
 
     @Suppress("deprecation")
-    private val resultReceiver =
+    private val pendingActivityResultReceiver =
         object : ResultReceiver(Handler(Looper.getMainLooper())) {
             public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
                 val currentCallback = callback
+                var realResultData = resultData
+                if (resultData.containsKey(DUMMY_RESPONSE_TAG)) {
+                    realResultData = largeResultData
+                }
                 if (
                     !maybeReportErrorFromResultReceiver(
-                        resultData,
+                        realResultData,
                         CredentialProviderBaseController.Companion::
                             getCredentialExceptionTypeToException,
                         executor = executor,
@@ -93,16 +96,25 @@ internal class CredentialProviderGetDigitalCredentialController(context: Context
                     )
                 ) {
                     ResponseUtils.handleGetCredentialResponse(
-                        resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
+                        realResultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
                         resultCode,
-                        getParcelable(resultData, RESULT_DATA_TAG, Intent::class.java),
+                        getParcelable(realResultData, RESULT_DATA_TAG, Intent::class.java),
                         executor,
                         currentCallback,
                         cancellationSignal,
                     )
                 }
-
+                // Release references to avoid leaks
                 callback = emptyCallback()
+                largeResultData = Bundle.EMPTY
+            }
+        }
+
+    private var largeResultData = Bundle.EMPTY
+    private val largePayloadResultReceiver =
+        object : ResultReceiver(Handler(Looper.getMainLooper())) {
+            override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                largeResultData = resultData
             }
         }
 
@@ -132,7 +144,7 @@ internal class CredentialProviderGetDigitalCredentialController(context: Context
                 hiddenIntent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
                 hiddenIntent.putExtra(
                     RESULT_RECEIVER_TAG,
-                    toIpcFriendlyResultReceiver(resultReceiver),
+                    toIpcFriendlyResultReceiver(pendingActivityResultReceiver),
                 )
                 hiddenIntent.putExtra(EXTRA_FLOW_PENDING_INTENT, result.pendingIntent)
                 hiddenIntent.putExtra(EXTRA_ERROR_NAME, GET_UNKNOWN)
@@ -172,10 +184,15 @@ internal class CredentialProviderGetDigitalCredentialController(context: Context
         val credOptions = mutableListOf<CredentialOption>()
         for (option in request.credentialOptions) {
             if (option is GetDigitalCredentialOption) {
+                val requestData = option.requestData
+                requestData.putParcelable(
+                    EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER,
+                    toIpcFriendlyResultReceiver(largePayloadResultReceiver),
+                )
                 credOptions.add(
                     CredentialOption(
                         option.type,
-                        option.requestData,
+                        requestData,
                         option.candidateQueryData,
                         option.requestJson,
                         requestType = "",

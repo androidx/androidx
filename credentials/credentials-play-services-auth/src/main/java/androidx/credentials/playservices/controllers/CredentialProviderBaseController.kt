@@ -16,6 +16,7 @@
 
 package androidx.credentials.playservices.controllers
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -92,6 +93,9 @@ internal open class CredentialProviderBaseController(context: Context) {
         // Key for the failure boolean sent back from hidden activity to controller
         const val FAILURE_RESPONSE_TAG = "FAILURE_RESPONSE"
 
+        // Key for the dummy boolean sent back from hidden activity to controller
+        const val DUMMY_RESPONSE_TAG = "DUMMY_RESPONSE"
+
         // Key for the exception type sent back from hidden activity to controllers if error
         const val EXCEPTION_TYPE_TAG = "EXCEPTION_TYPE"
 
@@ -139,6 +143,12 @@ internal open class CredentialProviderBaseController(context: Context) {
             bundle.putInt(ACTIVITY_REQUEST_CODE_TAG, requestCode)
             bundle.putParcelable(RESULT_DATA_TAG, data)
             this.send(resultCode, bundle)
+        }
+
+        internal fun ResultReceiver.reportDummyResult() {
+            val bundle = Bundle()
+            bundle.putBoolean(DUMMY_RESPONSE_TAG, false)
+            this.send(Activity.RESULT_OK, bundle)
         }
 
         internal fun createCredentialExceptionTypeToException(

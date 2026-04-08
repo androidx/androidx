@@ -28,11 +28,14 @@ import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.PasswordCredential
 import androidx.credentials.assertEquals
+import androidx.credentials.createDummyProviderGetCredentialRequest
 import androidx.credentials.equals
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.domerrors.ConstraintError
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
+import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER
+import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_PASS_IT_BY_RESULT_RECEIVER
 import androidx.credentials.provider.PendingIntentHandler.Companion.setCreateCredentialResponse
 import androidx.credentials.setUpCreatePasswordRequest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -475,7 +478,11 @@ class PendingIntentHandlerApi34Test {
         val credential = PasswordCredential("a", "b")
         val initialResponse = GetCredentialResponse(credential)
 
-        PendingIntentHandler.setGetCredentialResponse(intent, initialResponse)
+        PendingIntentHandler.setGetCredentialResponse(
+            intent,
+            initialResponse,
+            createDummyProviderGetCredentialRequest(),
+        )
 
         val finalResponse = intent.getGetCredentialResponse()
         assertThat(finalResponse).isNotNull()
@@ -519,5 +526,58 @@ class PendingIntentHandlerApi34Test {
         val actual = PendingIntentHandler.retrieveCreateCredentialResponse("type", Intent())
 
         assertThat(actual).isNull()
+    }
+
+    @Test
+    fun test_credentialResponse_largePayload_usesResultReceiver() {
+        val intent = Intent()
+        val largeData = Bundle()
+        val byteArray = ByteArray(205000)
+        largeData.putByteArray("large_array", byteArray)
+        val customCredential = androidx.credentials.CustomCredential("type", largeData)
+        val initialResponse = GetCredentialResponse(customCredential)
+
+        val requestData = Bundle()
+        val receiver = object : android.os.ResultReceiver(null) {}
+        requestData.putParcelable(EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER, receiver)
+        val option =
+            androidx.credentials.GetCustomCredentialOption(
+                "type",
+                requestData,
+                Bundle(),
+                false,
+                true,
+            )
+        val request =
+            ProviderGetCredentialRequest(
+                listOf(option),
+                androidx.credentials.provider.CallingAppInfo.create("pkg", SigningInfo(), "origin"),
+            )
+
+        PendingIntentHandler.setGetCredentialResponse(intent, initialResponse, request)
+
+        assertThat(intent.getBooleanExtra(EXTRA_PASS_IT_BY_RESULT_RECEIVER, false)).isTrue()
+    }
+
+    @Test
+    fun test_credentialResponse_largePayload_noReceiver_doesNotUseResultReceiver() {
+        val intent = Intent()
+        val largeData = Bundle()
+        val byteArray = ByteArray(205000)
+        largeData.putByteArray("large_array", byteArray)
+        val customCredential = androidx.credentials.CustomCredential("type", largeData)
+        val initialResponse = GetCredentialResponse(customCredential)
+
+        val option =
+            androidx.credentials.GetCustomCredentialOption("type", Bundle(), Bundle(), false, true)
+        val request =
+            ProviderGetCredentialRequest(
+                listOf(option),
+                androidx.credentials.provider.CallingAppInfo.create("pkg", SigningInfo(), "origin"),
+            )
+
+        PendingIntentHandler.setGetCredentialResponse(intent, initialResponse, request)
+
+        assertThat(intent.hasExtra(EXTRA_PASS_IT_BY_RESULT_RECEIVER)).isFalse()
     }
 }
