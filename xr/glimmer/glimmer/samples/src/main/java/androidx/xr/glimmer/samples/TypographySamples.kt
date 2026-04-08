@@ -29,11 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.googlefonts.createGoogleSansFlexTypography
 import androidx.xr.glimmer.list.VerticalList
 
 @Composable
-fun TypographySample() {
+fun TypographyDefaultUsage() {
     val typography = GlimmerTheme.typography
     VerticalList {
         item { TypeItem("titleLarge", style = typography.titleLarge) }
@@ -48,8 +47,8 @@ fun TypographySample() {
 
 @Preview
 @Composable
-private fun TypographyPreview() {
-    GlimmerTheme(typography = createGoogleSansFlexTypography()) { TypographySample() }
+private fun TypographyDefaultPreview() {
+    TypographyDefaultUsage()
 }
 
 @Composable
@@ -59,7 +58,8 @@ private fun TypeItem(name: String, style: TextStyle, modifier: Modifier = Modifi
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text(name, style = style)
-        val typeInformation = with(style) { "$fontSize / $lineHeight" }
+        val typeInformation =
+            with(style) { "$fontSize / $lineHeight • ${fontWeight?.weight} • $letterSpacing" }
         Text(typeInformation, fontSize = 16.sp, fontWeight = FontWeight.Normal)
     }
 }

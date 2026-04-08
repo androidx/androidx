@@ -18,33 +18,60 @@ package androidx.xr.glimmer.googlefonts.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.googlefonts.createGoogleSansFlexTypography
+import androidx.xr.glimmer.list.VerticalList
 
 @Sampled
 @Composable
 fun GoogleSansFlexTypographySample() {
     val typography = createGoogleSansFlexTypography()
     GlimmerTheme(typography = typography) {
-        Column(modifier = Modifier.background(GlimmerTheme.colors.background)) {
-            Text("titleLarge", style = GlimmerTheme.typography.titleLarge)
-            Text("titleMedium", style = GlimmerTheme.typography.titleMedium)
-            Text("titleSmall", style = GlimmerTheme.typography.titleSmall)
-            Text("bodyLarge", style = GlimmerTheme.typography.bodyLarge)
-            Text("bodyMedium", style = GlimmerTheme.typography.bodyMedium)
-            Text("bodySmall", style = GlimmerTheme.typography.bodySmall)
-            Text("caption", style = GlimmerTheme.typography.caption)
+        Text("Hello World", style = GlimmerTheme.typography.titleLarge)
+    }
+}
+
+@Composable
+fun GoogleSansFlexTypographyUsage() {
+    val typography = createGoogleSansFlexTypography()
+    GlimmerTheme(typography = typography) {
+        VerticalList(modifier = Modifier.background(GlimmerTheme.colors.background)) {
+            item { TypeItem("titleLarge", style = typography.titleLarge) }
+            item { TypeItem("titleMedium", style = typography.titleMedium) }
+            item { TypeItem("titleSmall", style = typography.titleSmall) }
+            item { TypeItem("bodyLarge", style = typography.bodyLarge) }
+            item { TypeItem("bodyMedium", style = typography.bodyMedium) }
+            item { TypeItem("bodySmall", style = typography.bodySmall) }
+            item { TypeItem("caption", style = typography.caption) }
         }
+    }
+}
+
+@Composable
+private fun TypeItem(name: String, style: TextStyle, modifier: Modifier = Modifier) {
+    Column(
+        modifier.fillMaxWidth().padding(horizontal = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(name, style = style)
+        val typeInformation = with(style) { "$fontSize / $lineHeight • $letterSpacing" }
+        Text(typeInformation, fontSize = 16.sp)
     }
 }
 
 @Preview
 @Composable
 private fun GoogleSansFlexTypographyPreview() {
-    GoogleSansFlexTypographySample()
+    GoogleSansFlexTypographyUsage()
 }

@@ -24,7 +24,7 @@ import androidx.xr.glimmer.samples.ColorsSample
 import androidx.xr.glimmer.samples.DepthEffectLevelsSample
 import androidx.xr.glimmer.samples.IconSizesSample
 import androidx.xr.glimmer.samples.ShapesSample
-import androidx.xr.glimmer.samples.TypographySample
+import androidx.xr.glimmer.samples.TypographyDefaultUsage
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -47,8 +47,8 @@ class GlimmerThemeScreenshotTest {
 
     @Test
     fun typography() {
-        rule.setGlimmerThemeContent { TypographySample() }
-        rule.assertRootAgainstGolden("glimmerTheme_typography", screenshotRule)
+        rule.setGlimmerThemeContent { TypographyDefaultUsage() }
+        rule.assertRootAgainstGolden("glimmerTheme_defaultTypographyRoboto", screenshotRule)
     }
 
     @Test

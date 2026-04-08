@@ -27,7 +27,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
-import androidx.xr.glimmer.googlefonts.samples.GoogleSansFlexTypographySample
+import androidx.xr.glimmer.googlefonts.samples.GoogleSansFlexTypographyUsage
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -46,8 +46,8 @@ class GoogleSansFlexTypographyScreenshotTest {
 
     @Test
     fun defaultGoogleSansFlexTypography() {
-        rule.setContent { GoogleSansFlexTypographySample() }
-        assertRootAgainstGolden("glimmerGoogleFonts_typography")
+        rule.setContent { GoogleSansFlexTypographyUsage() }
+        assertRootAgainstGolden("glimmerGoogleFonts_googleSansFlexTypography")
     }
 
     private fun assertRootAgainstGolden(goldenName: String) {
