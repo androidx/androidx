@@ -26,7 +26,9 @@ dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     api(project(":camera:camera-core"))
-    api(libs.guavaListenableFuture)
+    // Expose guava as an "api" dependency to prevent "Cannot access ListenableFuture" errors for
+    // consumers due to media3's full guava dependency. See b/497571473.
+    api(libs.guavaAndroid)
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
