@@ -19,6 +19,7 @@ package androidx.pdf
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
 import android.net.Uri
@@ -30,6 +31,7 @@ import androidx.pdf.annotation.models.ImagePdfObject
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.parcelSizeInBytes
 import androidx.pdf.content.PdfPageTextContent
+import androidx.pdf.content.SelectionBoundary
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.service.connect.FakePdfServiceConnection
@@ -254,6 +256,44 @@ class SandboxedPdfDocumentTest {
             assertThat(selection.selectedContents.size == 1).isTrue()
             val selectedText = selection.selectedContents[0] as? PdfPageTextContent
             assertThat(selectedText).isNotNull()
+            assertThat(selectedText?.text).isEqualTo(expectedSelectedText)
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
+    @Test
+    fun getSelectionBounds_withSelectionBoundary_returnsPageSelection() = runTest {
+        withDocument(PDF_DOCUMENT) { document ->
+            val pageNumber = 0
+            val start = SelectionBoundary(point = Point(100, 100))
+            val stop = SelectionBoundary(point = Point(120, 100))
+
+            val selection = document.getSelectionBounds(pageNumber, start, stop)
+
+            val expectedSelectedText = "F i"
+            assertThat(selection != null).isTrue()
+            assertThat(selection!!.page == pageNumber).isTrue()
+            assertThat(selection.selectedContents.size == 1).isTrue()
+            val selectedText = selection.selectedContents[0] as? PdfPageTextContent
+            assertThat(selectedText?.text).isEqualTo(expectedSelectedText)
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
+    @Test
+    fun getSelectionBounds_withIndexBoundary_returnsPageSelection() = runTest {
+        withDocument(PDF_DOCUMENT) { document ->
+            val pageNumber = 0
+            val start = SelectionBoundary(index = 3)
+            val stop = SelectionBoundary(index = 13)
+
+            val selection = document.getSelectionBounds(pageNumber, start, stop)
+
+            val expectedSelectedText = "Sample PDF"
+            assertThat(selection != null).isTrue()
+            assertThat(selection!!.page == pageNumber).isTrue()
+            assertThat(selection.selectedContents.size == 1).isTrue()
+            val selectedText = selection.selectedContents[0] as? PdfPageTextContent
             assertThat(selectedText?.text).isEqualTo(expectedSelectedText)
         }
     }

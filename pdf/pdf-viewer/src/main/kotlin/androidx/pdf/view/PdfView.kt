@@ -900,13 +900,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     // True if the zoom was calculated before the layouting completed and needs to be recalculated
     private var pendingZoomRecalculation = false
 
-    /**
-     * Selects all text on the specified page asynchronously.
-     *
-     * @param pageNum The number of the page to select text from.
-     */
-    internal fun selectAllTextOnPage(pageNum: Int) {
-        selectionStateManager?.selectAllTextOnPageAsync(pageNum)
+    /** Selects all text on the current selected page range asynchronously. */
+    internal fun selectAllText() {
+        selectionStateManager?.selectAllText()
     }
 
     /**

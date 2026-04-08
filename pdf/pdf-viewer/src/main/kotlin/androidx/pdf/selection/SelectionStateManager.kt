@@ -25,7 +25,6 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import androidx.annotation.IntDef
 import androidx.annotation.VisibleForTesting
-import androidx.core.util.forEach
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfPoint
 import androidx.pdf.annotation.models.ImagePdfObject
@@ -35,6 +34,7 @@ import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageContent
 import androidx.pdf.content.PdfPageGotoLinkContent
 import androidx.pdf.content.PdfPageLinkContent
+import androidx.pdf.content.SelectionBoundary
 import androidx.pdf.content.toViewSelection
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
@@ -120,6 +120,11 @@ internal class SelectionStateManager(
     private var setSelectionJob: Job? = null
 
     private var draggingState: DraggingState? = null
+
+    /**
+     * Cache for full-page selection bounds results for selection handle drag session and select all
+     */
+    private val fullPageSelectionCache = SparseArray<PageSelection?>()
 
     /**
      * Potentially updates the location of a drag handle given the [action] and [location] of a
@@ -300,6 +305,7 @@ internal class SelectionStateManager(
     /** Synchronously resets all state of this manager */
     fun clearCurrentSelection() {
         draggingState = null
+        fullPageSelectionCache.clear()
         setSelectionJob?.cancel()
         setSelectionJob = null
         _selectionUiSignalBus.tryEmit(SelectionUiSignal.ToggleActionMode(show = false))
@@ -318,13 +324,21 @@ internal class SelectionStateManager(
         _selectionUiSignalBus.tryEmit(SelectionUiSignal.ToggleActionMode(show = false))
     }
 
-    /** Updates the selection to include all text on the 0-indexed [pageNum]. */
+    /** Updates the current selection to include all text on all currently selected pages. */
     // TODO(b/386398335) Update this to accept a range of pages for select all, once we support
     // multi-page selections
     // TODO(b/386417152) Update this to use index-based selection once that's supported by
     // PdfDocument
-    fun selectAllTextOnPageAsync(pageNum: Int) {
-        updateAllSelectionAsync(pageNum)
+    fun selectAllText() {
+        val currentSelection = selectionModel.value ?: return
+        val startPage = currentSelection.startBoundary.location.pageNum
+        val endPage = currentSelection.endBoundary.location.pageNum
+
+        updateSelectionAsync(startPage..endPage) {
+            val newPageSelection = getFullPageSelectionForRange(startPage, endPage)
+
+            SelectionModel.create(newPageSelection)
+        }
     }
 
     /**
@@ -466,18 +480,6 @@ internal class SelectionStateManager(
         return PdfPoint(this.pageNum, PointF(this.x + dx, this.y + dy))
     }
 
-    private fun updateAllSelectionAsync(pageNum: Int) {
-        updateSelectionAsync(pageNum..pageNum) {
-            val newPageSelection =
-                pdfDocument.getSelectAllSelectionBounds(pageNum) ?: return@updateSelectionAsync null
-
-            SelectionModel.getCombinedSelectionModel(
-                selectionModel.value?.documentSelection ?: DocumentSelection(SparseArray()),
-                listOf(newPageSelection),
-            )
-        }
-    }
-
     private fun updateImageSelection(pageNum: Int, imageSelection: ImageSelection) {
 
         val selectedContents =
@@ -504,119 +506,74 @@ internal class SelectionStateManager(
     }
 
     private fun updateMultiplePageSelection(fixedPoint: PdfPoint, draggedPoint: PdfPoint) {
-        val prevSelectionModel = selectionModel.value ?: return
-        val prevStart = prevSelectionModel.startBoundary.location
-        val prevEnd = prevSelectionModel.endBoundary.location
-        val pageRange =
-            if (draggedPoint.pageNum < fixedPoint.pageNum) draggedPoint.pageNum..fixedPoint.pageNum
-            else fixedPoint.pageNum..draggedPoint.pageNum
-        updateSelectionAsync(pageRange) {
+        val (startPoint, endPoint) =
+            if (draggedPoint.pageNum < fixedPoint.pageNum) draggedPoint to fixedPoint
+            else fixedPoint to draggedPoint
+
+        updateSelectionAsync(startPoint.pageNum..endPoint.pageNum) {
             val newPageSelections =
-                if (draggedPoint.pageNum < fixedPoint.pageNum) {
-                        // Extending selection in the upwards direction
-                        getBoundsExtendingUpwards(draggedPoint, prevStart, prevEnd)
-                    } else {
-                        // Extending selection in the downwards direction
-                        getBoundsExtendingDownwards(draggedPoint, prevStart, prevEnd)
-                    }
-                    .takeIf { it.isNotEmpty() } ?: return@updateSelectionAsync null
+                getMultiPageSelectionBounds(startPoint, endPoint).takeIf { it.isNotEmpty() }
+                    ?: return@updateSelectionAsync null
 
-            SelectionModel.getCombinedSelectionModel(
-                getOldSelectionBetweenPageRange(prevSelectionModel, pageRange),
-                newPageSelections,
-            )
+            SelectionModel.create(newPageSelections)
         }
     }
 
-    private suspend fun getBoundsExtendingUpwards(
-        draggedPoint: PdfPoint,
-        prevStart: PdfPoint,
-        prevEnd: PdfPoint,
+    /**
+     * Asynchronously retrieves the selection bounds for a multipage selection.
+     *
+     * @param startPoint The starting point of the selection in PDF coordinates.
+     * @param endPoint The ending point of the selection in PDF coordinates.
+     * @return A list of [PageSelection] objects, one for each page in the selection range.
+     */
+    private suspend fun getMultiPageSelectionBounds(
+        startPoint: PdfPoint,
+        endPoint: PdfPoint,
     ): List<PageSelection?> {
-
-        val newPageSize = pageLayoutManager?.getPageSize(draggedPoint.pageNum) ?: Point(0, 0)
-        // Find selection bounds for all the skipped pages
-        val intermediateSelection =
-            getPageSelectionsForRange(draggedPoint.pageNum + 1, prevStart.pageNum - 1)
-        return mutableListOf(
-            // Find selection bounds of the page where dragged handles starts
+        // Start page: from startPoint to end of page
+        val startPageSelection =
             pdfDocument.getSelectionBounds(
-                draggedPoint.pageNum,
-                PointF(draggedPoint.x, draggedPoint.y),
-                PointF(newPageSize.x.toFloat(), newPageSize.y.toFloat()),
-            ),
-
-            // Find selection bounds of the page where dragged handle stops
-            getBoundsForFirstSelectedPage(prevStart, prevEnd, draggedPoint),
-        ) + intermediateSelection
-    }
-
-    private suspend fun getBoundsExtendingDownwards(
-        draggedPoint: PdfPoint,
-        prevStart: PdfPoint,
-        prevEnd: PdfPoint,
-    ): List<PageSelection?> {
+                startPoint.pageNum,
+                SelectionBoundary(point = Point(startPoint.x.toInt(), startPoint.y.toInt())),
+                SelectionBoundary(index = Int.MAX_VALUE),
+            )
 
         // Find selection bounds for all the skipped pages
         val intermediateSelection =
-            getPageSelectionsForRange(prevEnd.pageNum + 1, draggedPoint.pageNum - 1)
-        return mutableListOf(
-            // Find selection bounds of the page where dragged handles stops
-            pdfDocument.getSelectionBounds(
-                draggedPoint.pageNum,
-                PointF(0f, 0f),
-                PointF(draggedPoint.x, draggedPoint.y),
-            ),
+            getFullPageSelectionForRange(startPoint.pageNum + 1, endPoint.pageNum - 1)
 
-            // Find selection bounds of the page where dragged handle starts
-            getBoundsForLastSelectedPage(prevStart, prevEnd, draggedPoint),
-        ) + intermediateSelection
-    }
-
-    private suspend fun getBoundsForFirstSelectedPage(
-        prevStart: PdfPoint,
-        prevEnd: PdfPoint,
-        draggedPoint: PdfPoint,
-    ): PageSelection? {
-        return if (prevStart.pageNum == prevEnd.pageNum) {
+        // End page: from start of page to endPoint
+        val endPageSelection =
             pdfDocument.getSelectionBounds(
-                prevEnd.pageNum,
-                PointF(0f, 0f),
-                PointF(prevEnd.x, prevEnd.y),
+                endPoint.pageNum,
+                SelectionBoundary(index = 0),
+                SelectionBoundary(point = Point(endPoint.x.toInt(), endPoint.y.toInt())),
             )
-        } else if (prevStart.pageNum > draggedPoint.pageNum) {
-            pdfDocument.getSelectAllSelectionBounds(prevStart.pageNum)
-        } else {
-            null
-        }
+
+        return listOf(startPageSelection) + intermediateSelection + listOf(endPageSelection)
     }
 
-    private suspend fun getBoundsForLastSelectedPage(
-        prevStart: PdfPoint,
-        prevEnd: PdfPoint,
-        draggedPoint: PdfPoint,
-    ): PageSelection? {
-        return if (prevStart.pageNum == prevEnd.pageNum) {
-            val prevPageSize = pageLayoutManager?.getPageSize(prevEnd.pageNum) ?: Point(0, 0)
-            pdfDocument.getSelectionBounds(
-                prevEnd.pageNum,
-                PointF(prevStart.x, prevStart.y),
-                PointF(prevPageSize.x.toFloat(), prevPageSize.y.toFloat()),
-            )
-        } else if (prevEnd.pageNum < draggedPoint.pageNum) {
-            pdfDocument.getSelectAllSelectionBounds(prevEnd.pageNum)
-        } else {
-            null
-        }
-    }
-
-    private suspend fun getPageSelectionsForRange(
+    /**
+     * Asynchronously retrieves the full-page selection bounds for a range of pages.
+     *
+     * @param startPage The starting page of the range (inclusive).
+     * @param endPage The ending page of the range (inclusive).
+     * @return A list of [PageSelection] objects representing full-page selections for each page.
+     */
+    private suspend fun getFullPageSelectionForRange(
         startPage: Int,
         endPage: Int,
     ): List<PageSelection?> {
         val selections = mutableListOf<PageSelection?>()
         for (currentPage in startPage..endPage) {
-            selections.add(pdfDocument.getSelectAllSelectionBounds(currentPage))
+            val cachedSelection = fullPageSelectionCache[currentPage]
+            if (cachedSelection != null) {
+                selections.add(cachedSelection)
+            } else {
+                val selection = pdfDocument.getSelectAllSelectionBounds(currentPage)
+                fullPageSelectionCache.put(currentPage, selection)
+                selections.add(selection)
+            }
         }
         return selections
     }
@@ -630,27 +587,8 @@ internal class SelectionStateManager(
                     PointF(endPoint.x, endPoint.y),
                 ) ?: return@updateSelectionAsync null
 
-            SelectionModel.getCombinedSelectionModel(
-                DocumentSelection(SparseArray()),
-                listOf(newPageSelection),
-            )
+            SelectionModel.create(listOf(newPageSelection))
         }
-    }
-
-    private fun getOldSelectionBetweenPageRange(
-        oldSelectionModel: SelectionModel?,
-        pageRange: IntRange,
-    ): DocumentSelection {
-
-        val selectedContents =
-            oldSelectionModel?.documentSelection?.selectedContents ?: SparseArray()
-        val keysToRemove = mutableListOf<Int>()
-        selectedContents.forEach { pageNum, _ ->
-            if (pageNum !in pageRange) keysToRemove.add(pageNum)
-        }
-        keysToRemove.forEach { selectedContents.remove(it) }
-
-        return DocumentSelection(selectedContents)
     }
 
     private fun updateSelectionAsync(

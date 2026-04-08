@@ -19,6 +19,7 @@ package androidx.pdf.selection
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.SparseArray
 import androidx.core.util.isEmpty
 import androidx.pdf.PdfPoint
 import androidx.pdf.content.PageSelection
@@ -69,49 +70,31 @@ internal class SelectionModel(
 
     companion object {
         /**
-         * Combines multiple selections from different pages into a single [SelectionModel].
+         * Creates a [SelectionModel] from multiple selections from different pages.
          *
-         * @param currentSelection The current selection, can be `null` if no selection yet exists.
-         * @param newPageSelections New [androidx.pdf.content.PageSelection] objects on different
+         * @param pageSelections New [androidx.pdf.content.PageSelection] objects on different
          *   pages.
          * @return A [SelectionModel] that encompasses all selections, or `null` if none were found.
          */
-        fun getCombinedSelectionModel(
-            currentSelection: DocumentSelection,
-            newPageSelections: List<PageSelection?>,
-        ): SelectionModel? {
+        fun create(pageSelections: List<PageSelection?>): SelectionModel? {
+            val selectedContents = SparseArray<List<Selection>>()
+            pageSelections.forEach { newPageSelection ->
+                if (newPageSelection != null) {
+                    selectedContents[newPageSelection.page] = newPageSelection.toViewSelection()
+                }
+            }
 
-            val selection = mergeSelection(currentSelection, newPageSelections)
-            if (selection.selectedContents.isEmpty()) return null
+            if (selectedContents.isEmpty()) return null
 
+            val selection = DocumentSelection(selectedContents)
             val selectionBounds = selection.getSelectionEndpoints()
 
-            val isRtl = newPageSelections.firstOrNull()?.start?.isRtl ?: false
+            val isRtl = pageSelections.firstOrNull()?.start?.isRtl ?: false
             return SelectionModel(
                 selection,
                 UiSelectionBoundary(selectionBounds.first, isRtl),
                 UiSelectionBoundary(selectionBounds.second, isRtl),
             )
-        }
-
-        /**
-         * Returns a merged [DocumentSelection] from [currentSelection] with a list of
-         * [newPageSelections]
-         */
-        private fun mergeSelection(
-            currentSelection: DocumentSelection,
-            newPageSelections: List<PageSelection?>,
-        ): DocumentSelection {
-
-            // Process new selection
-            newPageSelections.forEach { newPageSelection ->
-                if (newPageSelection != null) {
-                    currentSelection.selectedContents[newPageSelection.page] =
-                        newPageSelection.toViewSelection()
-                }
-            }
-
-            return DocumentSelection(currentSelection.selectedContents)
         }
 
         @JvmField
