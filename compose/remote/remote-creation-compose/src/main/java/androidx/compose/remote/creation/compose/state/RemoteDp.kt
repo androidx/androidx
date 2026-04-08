@@ -42,7 +42,8 @@ internal constructor(
         get() = toPx().cacheKey
 
     internal enum class OperationKey {
-        ToPx
+        ToPx,
+        ToDp,
     }
 
     override val constantValueOrNull: Dp?
@@ -144,6 +145,21 @@ public fun Dp.asRdp(): RemoteDp {
 /** Converts this [RemoteFloat] to a [RemoteDp] directly (1:1) */
 public fun RemoteFloat.asRemoteDp(): RemoteDp {
     return RemoteDp(this)
+}
+
+/** Converts this [RemoteFloat] representing pixels to a [RemoteDp] by dividing by density. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteFloat.toRemoteDp(): RemoteDp {
+    // TODO: Optimize for constant values when value and density are constants
+    return RemoteDp(
+        RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(RemoteDp.OperationKey.ToDp, this),
+        ) { creationState ->
+            val density = creationState.remoteDensity
+            (this / density.density).arrayForCreationState(creationState)
+        }
+    )
 }
 
 /**

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -114,6 +115,40 @@ class RemoteDpTest {
         assertThat(context.getFloat(resultDpId)).isEqualTo(floatValue)
         assertThat(context.getFloat(resultPxId)).isEqualTo(floatValue * density)
         assertThat(context.getFloat(resultPxId2)).isEqualTo(floatValue * density)
+    }
+
+    @Test
+    fun toRemoteDp_hasDifferentFloatValueAsOriginalRemoteFloat() {
+        val pxValue = 20f
+        val density = 2f
+
+        val (resultPxId, resultDpId) =
+            remoteComposeTestRule.initialise {
+                val remoteFloatPx = pxValue.rf
+                val remoteFloatDp = remoteFloatPx.toRemoteDp()
+
+                val resultPxId = remoteFloatPx.getIdForCreationState(it)
+                val resultDpId = remoteFloatDp.value.getIdForCreationState(it)
+                Pair(resultPxId, resultDpId)
+            }
+
+        assertThat(context.getFloat(resultPxId)).isEqualTo(pxValue)
+        assertThat(context.getFloat(resultDpId)).isEqualTo(pxValue / density)
+    }
+
+    @Ignore("Fails because toRemoteDp creates non-constant expression")
+    @Test
+    fun toRemoteDp_resolvesAsConstant_whenValueAndDensityAreConstants() {
+        val pxValue = 20f
+
+        val resultDpId =
+            remoteComposeTestRule.initialise {
+                val remoteFloatPx = pxValue.rf
+                val remoteFloatDp = remoteFloatPx.toRemoteDp()
+                with(it) { remoteFloatDp.floatId }
+            }
+
+        assertThat(resultDpId).isEqualTo(pxValue)
     }
 
     @Test
