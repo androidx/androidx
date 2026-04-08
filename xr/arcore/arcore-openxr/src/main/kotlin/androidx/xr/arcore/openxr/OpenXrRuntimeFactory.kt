@@ -44,9 +44,6 @@ internal class OpenXrRuntimeFactory() : PerceptionRuntimeFactory {
     ): PerceptionRuntime {
         val timeSource = OpenXrTimeSource()
         val perceptionManager = OpenXrPerceptionManager(timeSource)
-        return OpenXrRuntime(
-            OpenXrManager(context, perceptionManager, timeSource),
-            perceptionManager,
-        )
+        return OpenXrRuntime(context, OpenXrManager(timeSource), perceptionManager, timeSource)
     }
 }
