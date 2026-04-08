@@ -22,6 +22,11 @@ package androidx.navigation3.scene {
     property public abstract java.util.List<androidx.navigation3.runtime.NavEntry<T>> overlaidEntries;
   }
 
+  public final class RememberNavigationEventStateKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>> rememberNavigationEventState(androidx.navigation3.scene.SceneState<T> sceneState);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>!> rememberNavigationEventState(androidx.navigation3.scene.SceneState<T>, androidx.compose.runtime.Composer?, int);
+  }
+
   @androidx.compose.runtime.Immutable public interface Scene<T> {
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit> getContent();
     method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.runtime.NavEntry<T>> getEntries();

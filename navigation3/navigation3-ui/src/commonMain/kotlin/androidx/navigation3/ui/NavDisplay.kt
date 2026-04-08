@@ -63,6 +63,7 @@ import androidx.navigation3.scene.SceneInfo
 import androidx.navigation3.scene.SceneState
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
+import androidx.navigation3.scene.rememberNavigationEventState
 import androidx.navigation3.scene.rememberSceneState
 import androidx.navigation3.ui.NavDisplay.popTransitionSpec
 import androidx.navigation3.ui.NavDisplay.predictivePopTransitionSpec
@@ -547,10 +548,7 @@ public fun <T : Any> NavDisplay(
     val scene = sceneState.currentScene
 
     // Predictive Back Handling
-    val currentInfo = SceneInfo(scene)
-    val previousSceneInfos = sceneState.previousScenes.map { SceneInfo(it) }
-    val gestureState =
-        rememberNavigationEventState(currentInfo = currentInfo, backInfo = previousSceneInfos)
+    val gestureState = rememberNavigationEventState(sceneState)
 
     NavigationBackHandler(
         state = gestureState,
