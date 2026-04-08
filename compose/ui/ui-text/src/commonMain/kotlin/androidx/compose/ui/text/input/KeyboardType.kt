@@ -34,6 +34,25 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
             Password -> "Password"
             NumberPassword -> "NumberPassword"
             Decimal -> "Decimal"
+            PasswordVisible -> "PasswordVisible"
+            PostalAddress -> "PostalAddress"
+            PersonName -> "PersonName"
+            EmailSubject -> "EmailSubject"
+            ShortMessage -> "ShortMessage"
+            LongMessage -> "LongMessage"
+            WebEditText -> "WebEditText"
+            Filter -> "Filter"
+            Phonetic -> "Phonetic"
+            WebEmailAddress -> "WebEmailAddress"
+            WebPassword -> "WebPassword"
+            DateTime -> "DateTime"
+            Date -> "Date"
+            Time -> "Time"
+            NumberSigned -> "NumberSigned"
+            DecimalSigned -> "DecimalSigned"
+            DecimalPassword -> "DecimalPassword"
+            NumberPasswordSigned -> "NumberPasswordSigned"
+            DecimalPasswordSigned -> "DecimalPasswordSigned"
             else -> "Invalid"
         }
     }
@@ -77,5 +96,78 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * [KeyboardType.Number].
          */
         @Stable val Decimal: KeyboardType = KeyboardType(9)
+
+        /** A keyboard type used to request an IME that is capable of inputting visible password. */
+        @Stable val PasswordVisible: KeyboardType = KeyboardType(10)
+
+        /** A keyboard type used to request an IME that is capable of inputting postal address. */
+        @Stable val PostalAddress: KeyboardType = KeyboardType(11)
+
+        /** A keyboard type used to request an IME that is capable of inputting person name. */
+        @Stable val PersonName: KeyboardType = KeyboardType(12)
+
+        /** A keyboard type used to request an IME that is capable of inputting email subject. */
+        @Stable val EmailSubject: KeyboardType = KeyboardType(13)
+
+        /** A keyboard type used to request an IME that is capable of inputting short message. */
+        @Stable val ShortMessage: KeyboardType = KeyboardType(14)
+
+        /** A keyboard type used to request an IME that is capable of inputting long message. */
+        @Stable val LongMessage: KeyboardType = KeyboardType(15)
+
+        /**
+         * A keyboard type used to request an IME that is capable of inputting text for web edit.
+         */
+        @Stable val WebEditText: KeyboardType = KeyboardType(16)
+
+        /** A keyboard type used to request an IME that is capable of filtering text. */
+        @Stable val Filter: KeyboardType = KeyboardType(17)
+
+        /** A keyboard type used to request an IME that is capable of inputting phonetic text. */
+        @Stable val Phonetic: KeyboardType = KeyboardType(18)
+
+        /**
+         * A keyboard type used to request an IME that is capable of inputting email address for web
+         * edit.
+         */
+        @Stable val WebEmailAddress: KeyboardType = KeyboardType(19)
+
+        /**
+         * A keyboard type used to request an IME that is capable of inputting password for web
+         * edit.
+         */
+        @Stable val WebPassword: KeyboardType = KeyboardType(20)
+
+        /** A keyboard type used to request an IME that is capable of inputting date and time. */
+        @Stable val DateTime: KeyboardType = KeyboardType(21)
+
+        /** A keyboard type used to request an IME that is capable of inputting date. */
+        @Stable val Date: KeyboardType = KeyboardType(22)
+
+        /** A keyboard type used to request an IME that is capable of inputting time. */
+        @Stable val Time: KeyboardType = KeyboardType(23)
+
+        /** A keyboard type used to request an IME that is capable of inputting signed digits. */
+        @Stable val NumberSigned: KeyboardType = KeyboardType(24)
+
+        /** A keyboard type used to request an IME that is capable of inputting signed decimals. */
+        @Stable val DecimalSigned: KeyboardType = KeyboardType(25)
+
+        /**
+         * A keyboard type used to request an IME that is capable of inputting a decimal password.
+         */
+        @Stable val DecimalPassword: KeyboardType = KeyboardType(26)
+
+        /**
+         * A keyboard type used to request an IME that is capable of inputting a signed number
+         * password.
+         */
+        @Stable val NumberPasswordSigned: KeyboardType = KeyboardType(27)
+
+        /**
+         * A keyboard type used to request an IME that is capable of inputting a signed decimal
+         * password.
+         */
+        @Stable val DecimalPasswordSigned: KeyboardType = KeyboardType(28)
     }
 }

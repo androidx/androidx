@@ -48,12 +48,10 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Default))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) ==
-                    EditorInfo.IME_ACTION_UNSPECIFIED
-            )
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_UNSPECIFIED)
     }
 
     @Test
@@ -61,13 +59,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Default))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_FORCE_ASCII and info.imeOptions) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) ==
-                    EditorInfo.IME_ACTION_UNSPECIFIED
-            )
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII)
+            .isEqualTo(EditorInfo.IME_FLAG_FORCE_ASCII)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_UNSPECIFIED)
     }
 
     @Test
@@ -75,12 +72,10 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Default))
 
-        assertThat((InputType.TYPE_CLASS_NUMBER and info.inputType) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) ==
-                    EditorInfo.IME_ACTION_UNSPECIFIED
-            )
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_NUMBER)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_UNSPECIFIED)
     }
 
     @Test
@@ -88,12 +83,10 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Default))
 
-        assertThat((InputType.TYPE_CLASS_PHONE and info.inputType) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) ==
-                    EditorInfo.IME_ACTION_UNSPECIFIED
-            )
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_PHONE)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_UNSPECIFIED)
     }
 
     @Test
@@ -101,13 +94,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Default))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_VARIATION_URI and info.inputType) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) ==
-                    EditorInfo.IME_ACTION_UNSPECIFIED
-            )
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_URI)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_UNSPECIFIED)
     }
 
     @Test
@@ -115,13 +107,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Default))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS and info.inputType) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) ==
-                    EditorInfo.IME_ACTION_UNSPECIFIED
-            )
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_UNSPECIFIED)
     }
 
     @Test
@@ -129,13 +120,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Default))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_VARIATION_PASSWORD and info.inputType) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) ==
-                    EditorInfo.IME_ACTION_UNSPECIFIED
-            )
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_PASSWORD)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_UNSPECIFIED)
     }
 
     @Test
@@ -145,13 +135,12 @@ class EditorInfoTest {
             ImeOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Default)
         )
 
-        assertThat((InputType.TYPE_CLASS_NUMBER and info.inputType) != 0).isTrue()
-        assertThat((InputType.TYPE_NUMBER_VARIATION_PASSWORD and info.inputType) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) ==
-                    EditorInfo.IME_ACTION_UNSPECIFIED
-            )
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_NUMBER)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_NUMBER_VARIATION_PASSWORD)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_UNSPECIFIED)
     }
 
     @Test
@@ -159,13 +148,261 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Default))
 
-        assertThat((InputType.TYPE_CLASS_NUMBER and info.inputType) != 0).isTrue()
-        assertThat((InputType.TYPE_NUMBER_FLAG_DECIMAL and info.inputType) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) ==
-                    EditorInfo.IME_ACTION_UNSPECIFIED
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_NUMBER)
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_NUMBER_FLAG_DECIMAL)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_UNSPECIFIED)
+    }
+
+    @Test
+    fun test_fill_editor_info_password_visible() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.PasswordVisible, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
+    }
+
+    @Test
+    fun test_fill_editor_info_postal_address() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.PostalAddress, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS)
+    }
+
+    @Test
+    fun test_fill_editor_info_person_name() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.PersonName, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_PERSON_NAME)
+    }
+
+    @Test
+    fun test_fill_editor_info_email_subject() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.EmailSubject, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_EMAIL_SUBJECT)
+    }
+
+    @Test
+    fun test_fill_editor_info_short_message() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.ShortMessage, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)
+    }
+
+    @Test
+    fun test_fill_editor_info_long_message() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.LongMessage, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE)
+    }
+
+    @Test
+    fun test_fill_editor_info_web_edit_text() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.WebEditText, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT)
+    }
+
+    @Test
+    fun test_fill_editor_info_filter() {
+        val info = EditorInfo()
+        info.update(ImeOptions(keyboardType = KeyboardType.Filter, imeAction = ImeAction.Default))
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_FILTER)
+    }
+
+    @Test
+    fun test_fill_editor_info_phonetic() {
+        val info = EditorInfo()
+        info.update(ImeOptions(keyboardType = KeyboardType.Phonetic, imeAction = ImeAction.Default))
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_PHONETIC)
+    }
+
+    @Test
+    fun test_fill_editor_info_web_email_address() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.WebEmailAddress, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS)
+    }
+
+    @Test
+    fun test_fill_editor_info_web_password() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.WebPassword, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD)
+    }
+
+    @Test
+    fun test_fill_editor_info_date_time() {
+        val info = EditorInfo()
+        info.update(ImeOptions(keyboardType = KeyboardType.DateTime, imeAction = ImeAction.Default))
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_DATETIME)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_DATETIME_VARIATION_NORMAL)
+    }
+
+    @Test
+    fun test_fill_editor_info_date() {
+        val info = EditorInfo()
+        info.update(ImeOptions(keyboardType = KeyboardType.Date, imeAction = ImeAction.Default))
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_DATETIME)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_DATETIME_VARIATION_DATE)
+    }
+
+    @Test
+    fun test_fill_editor_info_time() {
+        val info = EditorInfo()
+        info.update(ImeOptions(keyboardType = KeyboardType.Time, imeAction = ImeAction.Default))
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_DATETIME)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_DATETIME_VARIATION_TIME)
+    }
+
+    @Test
+    fun test_fill_editor_info_number_signed() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.NumberSigned, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_NUMBER)
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_NUMBER_FLAG_SIGNED)
+    }
+
+    @Test
+    fun test_fill_editor_info_decimal_signed() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.DecimalSigned, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_NUMBER)
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+    }
+
+    @Test
+    fun test_fill_editor_info_decimal_password() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.DecimalPassword, imeAction = ImeAction.Default)
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_NUMBER)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_NUMBER_VARIATION_PASSWORD)
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_NUMBER_FLAG_DECIMAL)
+    }
+
+    @Test
+    fun test_fill_editor_info_number_password_signed() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(
+                keyboardType = KeyboardType.NumberPasswordSigned,
+                imeAction = ImeAction.Default,
             )
-            .isTrue()
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_NUMBER)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_NUMBER_VARIATION_PASSWORD)
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_NUMBER_FLAG_SIGNED)
+    }
+
+    @Test
+    fun test_fill_editor_info_decimal_password_signed() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(
+                keyboardType = KeyboardType.DecimalPasswordSigned,
+                imeAction = ImeAction.Default,
+            )
+        )
+
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_NUMBER)
+        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
+            .isEqualTo(InputType.TYPE_NUMBER_VARIATION_PASSWORD)
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL)
     }
 
     @Test
@@ -173,10 +410,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.None))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_FORCE_ASCII and info.imeOptions) != 0).isTrue()
-        assertThat((EditorInfo.IME_MASK_ACTION and info.imeOptions) == EditorInfo.IME_ACTION_NONE)
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII)
+            .isEqualTo(EditorInfo.IME_FLAG_FORCE_ASCII)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_NONE)
     }
 
     @Test
@@ -184,10 +423,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Go))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_FORCE_ASCII and info.imeOptions) != 0).isTrue()
-        assertThat((EditorInfo.IME_MASK_ACTION and info.imeOptions) == EditorInfo.IME_ACTION_GO)
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII)
+            .isEqualTo(EditorInfo.IME_FLAG_FORCE_ASCII)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_GO)
     }
 
     @Test
@@ -195,10 +436,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_FORCE_ASCII and info.imeOptions) != 0).isTrue()
-        assertThat((EditorInfo.IME_MASK_ACTION and info.imeOptions) == EditorInfo.IME_ACTION_NEXT)
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII)
+            .isEqualTo(EditorInfo.IME_FLAG_FORCE_ASCII)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_NEXT)
     }
 
     @Test
@@ -206,12 +449,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Previous))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_FORCE_ASCII and info.imeOptions) != 0).isTrue()
-        assertThat(
-                (EditorInfo.IME_MASK_ACTION and info.imeOptions) == EditorInfo.IME_ACTION_PREVIOUS
-            )
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII)
+            .isEqualTo(EditorInfo.IME_FLAG_FORCE_ASCII)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_PREVIOUS)
     }
 
     @Test
@@ -219,10 +462,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Search))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_FORCE_ASCII and info.imeOptions) != 0).isTrue()
-        assertThat((EditorInfo.IME_MASK_ACTION and info.imeOptions) == EditorInfo.IME_ACTION_SEARCH)
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII)
+            .isEqualTo(EditorInfo.IME_FLAG_FORCE_ASCII)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_SEARCH)
     }
 
     @Test
@@ -230,10 +475,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Send))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_FORCE_ASCII and info.imeOptions) != 0).isTrue()
-        assertThat((EditorInfo.IME_MASK_ACTION and info.imeOptions) == EditorInfo.IME_ACTION_SEND)
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII)
+            .isEqualTo(EditorInfo.IME_FLAG_FORCE_ASCII)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_SEND)
     }
 
     @Test
@@ -241,10 +488,12 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Done))
 
-        assertThat((InputType.TYPE_CLASS_TEXT and info.inputType) != 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_FORCE_ASCII and info.imeOptions) != 0).isTrue()
-        assertThat((EditorInfo.IME_MASK_ACTION and info.imeOptions) == EditorInfo.IME_ACTION_DONE)
-            .isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
+            .isEqualTo(InputType.TYPE_CLASS_TEXT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII)
+            .isEqualTo(EditorInfo.IME_FLAG_FORCE_ASCII)
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_DONE)
     }
 
     @Test
@@ -258,8 +507,9 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_MULTI_LINE and info.inputType) == 0).isFalse()
-        assertThat((EditorInfo.IME_FLAG_NO_ENTER_ACTION and info.imeOptions) == 0).isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION).isEqualTo(0)
     }
 
     @Test
@@ -273,8 +523,10 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_MULTI_LINE and info.inputType) == 0).isFalse()
-        assertThat((EditorInfo.IME_FLAG_NO_ENTER_ACTION and info.imeOptions) == 0).isFalse()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION)
+            .isEqualTo(EditorInfo.IME_FLAG_NO_ENTER_ACTION)
     }
 
     @Test
@@ -288,8 +540,9 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_MULTI_LINE and info.inputType) == 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_NO_ENTER_ACTION and info.imeOptions) == 0).isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION).isEqualTo(0)
     }
 
     @Test
@@ -303,8 +556,8 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((EditorInfo.IME_ACTION_DONE and info.imeOptions) == 0).isFalse()
-        assertThat((EditorInfo.IME_ACTION_UNSPECIFIED and info.imeOptions) == 0).isTrue()
+        assertThat(info.imeOptions and EditorInfo.IME_MASK_ACTION)
+            .isEqualTo(EditorInfo.IME_ACTION_DONE)
     }
 
     @Test
@@ -318,8 +571,8 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_MULTI_LINE and info.inputType) == 0).isTrue()
-        assertThat((EditorInfo.IME_FLAG_NO_ENTER_ACTION and info.imeOptions) == 0).isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS).isEqualTo(0)
+        assertThat(info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION).isEqualTo(0)
     }
 
     @Test
@@ -333,9 +586,8 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS and info.inputType) == 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_WORDS and info.inputType) == 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_SENTENCES and info.inputType) == 0).isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
     }
 
     @Test
@@ -349,9 +601,12 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS and info.inputType) == 0).isFalse()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_WORDS and info.inputType) == 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_SENTENCES and info.inputType) == 0).isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(
+                InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or
+                    InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+            )
     }
 
     @Test
@@ -365,9 +620,12 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS and info.inputType) == 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_WORDS and info.inputType) == 0).isFalse()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_SENTENCES and info.inputType) == 0).isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(
+                InputType.TYPE_TEXT_FLAG_CAP_WORDS or
+                    InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+            )
     }
 
     @Test
@@ -381,9 +639,12 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS and info.inputType) == 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_WORDS and info.inputType) == 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_SENTENCES and info.inputType) == 0).isFalse()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(
+                InputType.TYPE_TEXT_FLAG_CAP_SENTENCES or
+                    InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+            )
     }
 
     @Test
@@ -397,9 +658,7 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS and info.inputType) == 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_WORDS and info.inputType) == 0).isTrue()
-        assertThat((InputType.TYPE_TEXT_FLAG_CAP_SENTENCES and info.inputType) == 0).isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS).isEqualTo(0)
     }
 
     @Test
@@ -413,7 +672,8 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_AUTO_CORRECT and info.inputType) == 0).isFalse()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_MULTI_LINE)
     }
 
     @Test
@@ -427,7 +687,8 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_AUTO_CORRECT and info.inputType) == 0).isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
+            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE)
     }
 
     @Test
@@ -441,7 +702,7 @@ class EditorInfoTest {
             )
         )
 
-        assertThat((InputType.TYPE_TEXT_FLAG_AUTO_CORRECT and info.inputType) == 0).isTrue()
+        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS).isEqualTo(0)
     }
 
     @Test
@@ -541,6 +802,16 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Default))
 
+        assertThat(EditorInfoCompat.isStylusHandwritingEnabled(info)).isFalse()
+
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.PasswordVisible, imeAction = ImeAction.Default)
+        )
+        assertThat(EditorInfoCompat.isStylusHandwritingEnabled(info)).isFalse()
+
+        info.update(
+            ImeOptions(keyboardType = KeyboardType.WebPassword, imeAction = ImeAction.Default)
+        )
         assertThat(EditorInfoCompat.isStylusHandwritingEnabled(info)).isFalse()
     }
 

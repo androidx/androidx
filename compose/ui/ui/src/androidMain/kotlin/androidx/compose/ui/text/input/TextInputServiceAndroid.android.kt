@@ -531,11 +531,90 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
         KeyboardType.Decimal -> {
             this.inputType = InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
         }
+        KeyboardType.PasswordVisible -> {
+            this.inputType =
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        }
+        KeyboardType.PostalAddress -> {
+            this.inputType =
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_POSTAL_ADDRESS
+        }
+        KeyboardType.PersonName -> {
+            this.inputType = InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PERSON_NAME
+        }
+        KeyboardType.EmailSubject -> {
+            this.inputType =
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_SUBJECT
+        }
+        KeyboardType.ShortMessage -> {
+            this.inputType =
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_SHORT_MESSAGE
+        }
+        KeyboardType.LongMessage -> {
+            this.inputType =
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_LONG_MESSAGE
+        }
+        KeyboardType.WebEditText -> {
+            this.inputType =
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT
+        }
+        KeyboardType.Filter -> {
+            this.inputType = InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_FILTER
+        }
+        KeyboardType.Phonetic -> {
+            this.inputType = InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PHONETIC
+        }
+        KeyboardType.WebEmailAddress -> {
+            this.inputType =
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
+        }
+        KeyboardType.WebPassword -> {
+            this.inputType =
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD
+        }
+        KeyboardType.DateTime -> {
+            this.inputType =
+                InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_NORMAL
+        }
+        KeyboardType.Date -> {
+            this.inputType = InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_DATE
+        }
+        KeyboardType.Time -> {
+            this.inputType = InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_TIME
+        }
+        KeyboardType.NumberSigned -> {
+            this.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED
+        }
+        KeyboardType.DecimalSigned -> {
+            this.inputType =
+                InputType.TYPE_CLASS_NUMBER or
+                    InputType.TYPE_NUMBER_FLAG_DECIMAL or
+                    InputType.TYPE_NUMBER_FLAG_SIGNED
+        }
+        KeyboardType.DecimalPassword -> {
+            this.inputType =
+                InputType.TYPE_CLASS_NUMBER or
+                    InputType.TYPE_NUMBER_VARIATION_PASSWORD or
+                    InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+        KeyboardType.NumberPasswordSigned -> {
+            this.inputType =
+                InputType.TYPE_CLASS_NUMBER or
+                    InputType.TYPE_NUMBER_VARIATION_PASSWORD or
+                    InputType.TYPE_NUMBER_FLAG_SIGNED
+        }
+        KeyboardType.DecimalPasswordSigned -> {
+            this.inputType =
+                InputType.TYPE_CLASS_NUMBER or
+                    InputType.TYPE_NUMBER_VARIATION_PASSWORD or
+                    InputType.TYPE_NUMBER_FLAG_DECIMAL or
+                    InputType.TYPE_NUMBER_FLAG_SIGNED
+        }
         else -> error("Invalid Keyboard Type")
     }
 
     if (!imeOptions.singleLine) {
-        if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
+        if ((this.inputType and InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_TEXT) {
             // TextView.java#setInputTypeSingleLine
             this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE
 
@@ -545,7 +624,7 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
         }
     }
 
-    if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
+    if ((this.inputType and InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_TEXT) {
         when (imeOptions.capitalization) {
             KeyboardCapitalization.Characters -> {
                 this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
@@ -577,5 +656,3 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
 internal fun Choreographer.asExecutor(): Executor = Executor { runnable ->
     postFrameCallback { runnable.run() }
 }
-
-private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
