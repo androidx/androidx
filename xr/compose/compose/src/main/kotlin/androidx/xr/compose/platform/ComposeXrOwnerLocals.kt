@@ -28,6 +28,7 @@ import androidx.xr.compose.subspace.layout.CoreMainPanelEntity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 
 /**
@@ -96,6 +97,7 @@ private fun Activity.createXrOwnerLocals(): ComposeXrOwnerLocals? {
         lifecycle.addObserver(
             object : DefaultLifecycleObserver {
                 override fun onDestroy(owner: LifecycleOwner) {
+                    session.scene.clearSpatialModeChangedListener()
                     contentView.setTag(R.id.compose_xr_owner_locals, null)
                     owner.lifecycle.removeObserver(this)
                 }
@@ -103,15 +105,18 @@ private fun Activity.createXrOwnerLocals(): ComposeXrOwnerLocals? {
         )
     }
 
+    val subspaceRootNode = Entity.create(session, "SubspaceRootContainer")
+    session.scene.setSpatialModeChangedListener { event ->
+        subspaceRootNode.setPose(event.recommendedPose, Space.ACTIVITY)
+        subspaceRootNode.setScale(event.recommendedScale, Space.ACTIVITY)
+    }
+
     return ComposeXrOwnerLocals(
             session = session,
             spatialConfiguration = SessionSpatialConfiguration(session),
             spatialCapabilities = SessionSpatialCapabilities(session),
             coreMainPanelEntity = CoreMainPanelEntity(session),
-            subspaceRootNode =
-                Entity.create(session, "SubspaceRootContainer").apply {
-                    session.scene.keyEntity = this
-                },
+            subspaceRootNode = subspaceRootNode,
             dialogManager = DefaultDialogManager(),
         )
         .also { contentView.setTag(R.id.compose_xr_owner_locals, it) }
