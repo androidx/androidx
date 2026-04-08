@@ -301,9 +301,9 @@ package androidx.compose.ui {
     property public abstract androidx.compose.ui.UiMediaScope.KeyboardKind keyboardKind;
     property public abstract androidx.compose.ui.UiMediaScope.PointerPrecision pointerPrecision;
     property public abstract androidx.compose.ui.UiMediaScope.ViewingDistance viewingDistance;
-    property public abstract androidx.compose.ui.unit.Dp windowHeight;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract androidx.compose.ui.unit.Dp windowHeight;
     property public abstract androidx.compose.ui.UiMediaScope.Posture windowPosture;
-    property public abstract androidx.compose.ui.unit.Dp windowWidth;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract androidx.compose.ui.unit.Dp windowWidth;
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.KeyboardKind {

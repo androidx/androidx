@@ -202,19 +202,19 @@ package androidx.xr.arcore.runtime {
     method public androidx.xr.arcore.runtime.Anchor loadAnchor(java.util.UUID uuid);
     method public default void setDisplayRotation(int rotation, int width, int height);
     method public void unpersistAnchor(java.util.UUID uuid);
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.ArDevice arDevice;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.DepthMap? leftDepthMap;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.ArDevice arDevice;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.DepthMap? leftDepthMap;
     property public abstract androidx.xr.arcore.runtime.Eye? leftEye;
     property public abstract androidx.xr.arcore.runtime.Hand? leftHand;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.RenderViewpoint? leftRenderViewpoint;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.DepthMap? monoDepthMap;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.RenderViewpoint? monoRenderViewpoint;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.DepthMap? rightDepthMap;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.RenderViewpoint? leftRenderViewpoint;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.DepthMap? monoDepthMap;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.RenderViewpoint? monoRenderViewpoint;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.DepthMap? rightDepthMap;
     property public abstract androidx.xr.arcore.runtime.Eye? rightEye;
     property public abstract androidx.xr.arcore.runtime.Hand? rightHand;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.RenderViewpoint? rightRenderViewpoint;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.RenderViewpoint? rightRenderViewpoint;
     property public abstract java.util.Collection<androidx.xr.arcore.runtime.Trackable> trackables;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.xr.arcore.runtime.Face? userFace;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.Face? userFace;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface PerceptionRuntime extends androidx.xr.runtime.internal.JxrRuntime {

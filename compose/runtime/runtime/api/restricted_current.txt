@@ -124,12 +124,12 @@ package androidx.compose.runtime {
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T remember(kotlin.jvm.functions.Function0<T> calculation);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionContext rememberCompositionContext();
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionContext rememberCompositionContext(androidx.compose.runtime.Composer?, int);
-    property public static androidx.compose.runtime.Composer currentComposer;
-    property @Deprecated public static int currentCompositeKeyHash;
-    property public static long currentCompositeKeyHashCode;
-    property @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static androidx.compose.runtime.CompositionContext currentCompositionContext;
-    property public static androidx.compose.runtime.CompositionLocalContext currentCompositionLocalContext;
-    property public static androidx.compose.runtime.RecomposeScope currentRecomposeScope;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.Composer currentComposer;
+    property @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static int currentCompositeKeyHash;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static long currentCompositeKeyHashCode;
+    property @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.InternalComposeApi @androidx.compose.runtime.ReadOnlyComposable @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.CompositionContext currentCompositionContext;
+    property @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionLocalContext currentCompositionLocalContext;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.RecomposeScope currentRecomposeScope;
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ComposeCompilerApi {
@@ -308,7 +308,7 @@ package androidx.compose.runtime {
 
   @androidx.compose.runtime.Stable public abstract sealed exhaustive class CompositionLocal<T> {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final T getCurrent(androidx.compose.runtime.Composer?, int);
-    property public final inline T current;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final inline T current;
   }
 
   public interface CompositionLocalAccessorScope {

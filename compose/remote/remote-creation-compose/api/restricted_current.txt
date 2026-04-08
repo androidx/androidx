@@ -199,13 +199,8 @@ package androidx.compose.remote.creation.compose.layout {
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getWidth();
     method public final void usePaint(androidx.compose.remote.creation.compose.state.RemotePaint paint, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     property public final androidx.compose.remote.creation.compose.layout.RemoteOffset center;
-    property public androidx.compose.remote.creation.RemoteComposeWriter document;
-    property public float androidx.compose.remote.creation.compose.state.RemoteState<? extends java.lang.Object?>.floatId;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat height;
-    property public int androidx.compose.remote.creation.compose.state.RemoteState<? extends java.lang.Object?>.id;
     property public androidx.compose.ui.unit.LayoutDirection layoutDirection;
-    property public long androidx.compose.remote.creation.compose.state.RemoteState<? extends java.lang.Object?>.longId;
-    property public androidx.compose.remote.creation.compose.state.RemoteStateScope parentScope;
     property public androidx.compose.remote.creation.compose.capture.RemoteDensity remoteDensity;
     property public final androidx.compose.remote.creation.compose.layout.RemoteSize size;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat width;
@@ -842,7 +837,6 @@ package androidx.compose.remote.creation.compose.state {
     method @InaccessibleFromKotlin public void setTypeface(android.graphics.Typeface?);
     property public abstract androidx.compose.ui.graphics.BlendMode blendMode;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteColor color;
-    property public abstract androidx.compose.ui.graphics.FilterQuality filterQuality;
     property public abstract androidx.compose.ui.graphics.StrokeCap strokeCap;
     property public abstract androidx.compose.ui.graphics.StrokeJoin strokeJoin;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat strokeWidth;
@@ -908,7 +902,6 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly public long getType-UIouoOA();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getValue();
     method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx();
-    property public androidx.compose.ui.unit.TextUnit? constantValueOrNull;
     property public androidx.compose.ui.unit.TextUnitType type;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat value;
   }

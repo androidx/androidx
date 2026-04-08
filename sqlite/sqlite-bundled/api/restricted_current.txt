@@ -30,7 +30,7 @@ package androidx.sqlite.driver.bundled {
     method public androidx.sqlite.SQLiteConnection open(String fileName);
     method public androidx.sqlite.SQLiteConnection open(String fileName, int flags);
     property public boolean hasConnectionPool;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int threadingMode;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int threadingMode;
   }
 
 }

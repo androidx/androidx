@@ -43,7 +43,7 @@ package androidx.pdf.compose {
     method public suspend Object? zoomScroll(kotlin.jvm.functions.Function1<? super androidx.pdf.compose.PdfZoomScrollScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public androidx.pdf.selection.Selection? currentSelection;
     property public int firstVisiblePage;
-    property public androidx.compose.ui.geometry.Offset firstVisiblePageOffset;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.compose.ui.geometry.Offset firstVisiblePageOffset;
     property public int gestureState;
     property public int visiblePagesCount;
     property @androidx.compose.runtime.annotation.FrequentlyChangingValue public float zoom;

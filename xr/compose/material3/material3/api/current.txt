@@ -175,7 +175,7 @@ package androidx.xr.compose.material3 {
 
   @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public sealed nonexhaustive interface XrComponentOverrideEnablerContext {
     method @BytecodeOnly @androidx.compose.runtime.Composable public boolean isSpatializationEnabled(androidx.compose.runtime.Composer?, int);
-    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public abstract boolean isSpatializationEnabled;
+    property @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public abstract boolean isSpatializationEnabled;
   }
 
 }

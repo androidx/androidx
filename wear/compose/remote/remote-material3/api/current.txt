@@ -138,7 +138,7 @@ package androidx.wear.compose.remote.material3 {
     property public androidx.compose.remote.creation.compose.state.RemoteDp Height;
     property public androidx.compose.remote.creation.compose.state.RemoteDp OutlinedBorderSize;
     property public androidx.compose.remote.creation.compose.state.RemoteDp Width;
-    property public androidx.compose.remote.creation.compose.shapes.RemoteShape shape;
+    property @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.shapes.RemoteShape shape;
     field public static final androidx.wear.compose.remote.material3.RemoteCardDefaults INSTANCE;
   }
 
@@ -275,9 +275,9 @@ package androidx.wear.compose.remote.material3 {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.wear.compose.remote.material3.RemoteColorScheme getColorScheme(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.wear.compose.remote.material3.RemoteShapes getShapes(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.wear.compose.remote.material3.RemoteTypography getTypography(androidx.compose.runtime.Composer?, int);
-    property public androidx.wear.compose.remote.material3.RemoteColorScheme colorScheme;
-    property public androidx.wear.compose.remote.material3.RemoteShapes shapes;
-    property public androidx.wear.compose.remote.material3.RemoteTypography typography;
+    property @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.wear.compose.remote.material3.RemoteColorScheme colorScheme;
+    property @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.wear.compose.remote.material3.RemoteShapes shapes;
+    property @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.wear.compose.remote.material3.RemoteTypography typography;
     field public static final androidx.wear.compose.remote.material3.RemoteMaterialTheme INSTANCE;
   }
 
@@ -372,10 +372,10 @@ package androidx.wear.compose.remote.material3 {
     property public androidx.compose.remote.creation.compose.state.RemoteDp DefaultButtonSize;
     property public androidx.compose.remote.creation.compose.state.RemoteDp LargeButtonSize;
     property public androidx.compose.remote.creation.compose.state.RemoteDp SmallButtonSize;
-    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle defaultButtonTextStyle;
-    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle largeButtonTextStyle;
+    property @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.text.RemoteTextStyle defaultButtonTextStyle;
+    property @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.text.RemoteTextStyle largeButtonTextStyle;
     property public androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape shape;
-    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle smallButtonTextStyle;
+    property @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.text.RemoteTextStyle smallButtonTextStyle;
     field public static final androidx.wear.compose.remote.material3.RemoteTextButtonDefaults INSTANCE;
   }
 

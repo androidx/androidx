@@ -180,7 +180,7 @@ package androidx.compose.material3.adaptive.layout {
 
   public abstract sealed exhaustive class PaneExpansionAnchor {
     method @BytecodeOnly @androidx.compose.runtime.Composable public abstract String getDescription(androidx.compose.runtime.Composer?, int);
-    property public abstract String description;
+    property @androidx.compose.runtime.Composable public abstract String description;
   }
 
   public abstract static class PaneExpansionAnchor.Offset extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor {
@@ -215,7 +215,7 @@ package androidx.compose.material3.adaptive.layout {
     ctor public PaneExpansionAnchor.Proportion(@FloatRange(from=0.0, to=1.0) float proportion);
     method @BytecodeOnly @androidx.compose.runtime.Composable public String getDescription(androidx.compose.runtime.Composer?, int);
     method @InaccessibleFromKotlin public float getProportion();
-    property public String description;
+    property @androidx.compose.runtime.Composable public String description;
     property public float proportion;
   }
 

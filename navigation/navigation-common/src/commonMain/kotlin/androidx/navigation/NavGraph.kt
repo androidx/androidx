@@ -192,6 +192,7 @@ public expect open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     /** Clear all destinations from this navigation graph. */
     public fun clear()
 
+    @Suppress("KmpHideShowAnnotationMismatch") // hidden in androidMain and nonAndroidMain
     override val displayName: String
 
     /**
@@ -254,6 +255,7 @@ public expect open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     public var startDestinationRoute: String?
         private set
 
+    @Suppress("KmpHideShowAnnotationMismatch") // hidden in androidMain and nonAndroidMain
     public val startDestDisplayName: String
 
     public companion object {
