@@ -22,8 +22,11 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -46,11 +49,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.internal.BackEventCompat
 import androidx.compose.material3.internal.FloatProducer
-import androidx.compose.material3.internal.MaterialAnchoredDraggableState
 import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.internal.PredictiveBackHandler
 import androidx.compose.material3.internal.Strings
-import androidx.compose.material3.internal.anchoredDraggable
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.ElevationTokens
@@ -135,9 +136,9 @@ class DrawerState(
 
     @Suppress("Deprecation")
     internal val anchoredDraggableState =
-        MaterialAnchoredDraggableState(
+        AnchoredDraggableState(
             initialValue = initialValue,
-            animationSpec = anchoredDraggableMotionSpec,
+            snapAnimationSpec = anchoredDraggableMotionSpec,
             decayAnimationSpec = AnchoredDraggableDefaults.DecayAnimationSpec,
             confirmValueChange = confirmStateChange,
             positionalThreshold = { distance: Float -> distance * DrawerPositionalThreshold },
@@ -160,11 +161,15 @@ class DrawerState(
      * before the swipe or animation started.
      */
     val currentValue: DrawerValue
-        get() = anchoredDraggableState.currentValue
+        get() {
+            return anchoredDraggableState.settledValue
+        }
 
     /** Whether the state is currently animating. */
     val isAnimationRunning: Boolean
-        get() = anchoredDraggableState.isAnimationRunning
+        get() {
+            return anchoredDraggableState.isAnimationRunning
+        }
 
     /**
      * Open the drawer with animation and suspend until it if fully opened or animation has been
@@ -222,8 +227,7 @@ class DrawerState(
      * The current position (in pixels) of the drawer sheet, or Float.NaN before the offset is
      * initialized.
      *
-     * @see [androidx.compose.foundation.gestures.AnchoredDraggableState#offset] for more
-     *   information.
+     * @see [AnchoredDraggableState.offset] for more information.
      */
     @Deprecated(
         message =
@@ -241,8 +245,7 @@ class DrawerState(
      * The current position (in pixels) of the drawer sheet, or Float.NaN before the offset is
      * initialized.
      *
-     * @see [androidx.compose.foundation.gestures.AnchoredDraggableState#offset] for more
-     *   information.
+     * @see [AnchoredDraggableState.offset] for more information.
      */
     val currentOffset: Float
         get() = anchoredDraggableState.offset
