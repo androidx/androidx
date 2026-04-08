@@ -16,6 +16,11 @@ package androidx.navigation3.scene {
     field public static final androidx.navigation3.scene.DialogSceneStrategy.Companion.DialogKey INSTANCE;
   }
 
+  public final class NavigationEventHandlerKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> void NavigationBackHandler(androidx.navigation3.scene.SceneState<T> sceneState, optional androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>> state, kotlin.jvm.functions.Function0<kotlin.Unit> onBack);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> void NavigationBackHandler(androidx.navigation3.scene.SceneState<T>, androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
   public interface OverlayScene<T> extends androidx.navigation3.scene.Scene<T> {
     method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.runtime.NavEntry<T>> getOverlaidEntries();
     method public default suspend Object? onRemove(kotlin.coroutines.Continuation<? super kotlin.Unit>);
