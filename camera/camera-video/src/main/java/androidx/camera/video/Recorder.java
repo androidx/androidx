@@ -892,8 +892,21 @@ public final class Recorder implements VideoOutput {
      * builder used to create this recorder. Returns 0, if
      * {@link Builder#setTargetVideoEncodingBitRate(int)} is not called.
      */
+    @IntRange(from = 0)
     public int getTargetVideoEncodingBitRate() {
         return getObservableData(mMediaSpec).getVideoSpec().getBitrate();
+    }
+
+    /**
+     * Gets the target audio encoding bitrate of this Recorder.
+     *
+     * @return the value provided to {@link Builder#setTargetAudioEncodingBitRate(int)} on the
+     * builder used to create this recorder. Returns 0, if
+     * {@link Builder#setTargetAudioEncodingBitRate(int)} is not called.
+     */
+    @IntRange(from = 0)
+    public int getTargetAudioEncodingBitRate() {
+        return getObservableData(mMediaSpec).getAudioSpec().getBitrate();
     }
 
     /** Gets an {@link Observable} of the video encoder's supported bitrate range. */
@@ -4051,6 +4064,33 @@ public final class Recorder implements VideoOutput {
             }
 
             mMediaSpecBuilder.configureVideo(builder -> builder.setBitrate(bitrate));
+            return this;
+        }
+
+        /**
+         * Sets the target audio encoding bitrate of this Recorder.
+         *
+         * <p>Additional checks will be performed on the requested {@code bitrate} to make sure the
+         * specified bitrate is applicable, and sometimes the passed bitrate will be changed
+         * internally to ensure the audio recording can proceed smoothly based on the
+         * capabilities of the platform.
+         *
+         * <p>This API only affects the audio stream and should not be considered the
+         * target for the entire recording. The video stream's bitrate is not affected by this API.
+         *
+         * <p>If this method isn't called, an appropriate bitrate for normal audio
+         * recording is selected by default. Only call this method if a custom bitrate is desired.
+         *
+         * @param bitrate the target audio encoding bitrate in bits per second.
+         * @throws IllegalArgumentException if bitrate is 0 or less.
+         */
+        public @NonNull Builder setTargetAudioEncodingBitRate(@IntRange(from = 1) int bitrate) {
+            if (bitrate <= 0) {
+                throw new IllegalArgumentException("The requested target bitrate " + bitrate
+                        + " is not supported. Target bitrate must be greater than 0.");
+            }
+
+            mMediaSpecBuilder.configureAudio(builder -> builder.setBitrate(bitrate));
             return this;
         }
 

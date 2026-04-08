@@ -253,7 +253,10 @@ public class EncoderImpl implements Encoder {
             mTag = "AudioEncoder";
             mIsVideoEncoder = false;
             mEncoderInput = new ByteBufferInput();
-            mEncoderInfo = new AudioEncoderInfoImpl(mediaCodecInfo, encoderConfig.getMimeType());
+            AudioEncoderInfo audioEncoderInfo = new AudioEncoderInfoImpl(mediaCodecInfo,
+                    encoderConfig.getMimeType());
+            clampBitrateIfNotSupported(audioEncoderInfo, mMediaFormat);
+            mEncoderInfo = audioEncoderInfo;
             mCaptureToEncodeFrameRateRatio = new Rational(audioEncoderConfig.getCaptureSampleRate(),
                     audioEncoderConfig.getEncodeSampleRate());
         } else if (encoderConfig instanceof VideoEncoderConfig) {
@@ -263,7 +266,7 @@ public class EncoderImpl implements Encoder {
             mEncoderInput = new SurfaceInput();
             VideoEncoderInfo videoEncoderInfo = new VideoEncoderInfoImpl(mediaCodecInfo,
                     encoderConfig.getMimeType());
-            clampVideoBitrateIfNotSupported(videoEncoderInfo, mMediaFormat);
+            clampBitrateIfNotSupported(videoEncoderInfo, mMediaFormat);
             mEncoderInfo = videoEncoderInfo;
             mCaptureToEncodeFrameRateRatio = new Rational(videoEncoderConfig.getCaptureFrameRate(),
                     videoEncoderConfig.getEncodeFrameRate());
@@ -295,18 +298,23 @@ public class EncoderImpl implements Encoder {
     }
 
     /**
-     * Clamps the video bitrate in MediaFormat if the video bitrate is not supported by the
-     * supplied VideoEncoderInfo.
+     * Clamps the bitrate in MediaFormat if the bitrate is not supported by the
+     * supplied EncoderInfo.
      *
-     * @param videoEncoderInfo VideoEncoderInfo object
-     * @param mediaFormat      MediaFormat object
+     * @param encoderInfo EncoderInfo object
+     * @param mediaFormat MediaFormat object
      */
-    private void clampVideoBitrateIfNotSupported(@NonNull VideoEncoderInfo videoEncoderInfo,
+    private void clampBitrateIfNotSupported(@NonNull EncoderInfo encoderInfo,
             @NonNull MediaFormat mediaFormat) {
-        checkState(mIsVideoEncoder);
         if (mediaFormat.containsKey(MediaFormat.KEY_BIT_RATE)) {
             int origBitrate = mediaFormat.getInteger(MediaFormat.KEY_BIT_RATE);
-            int newBitrate = videoEncoderInfo.getSupportedBitrateRange().clamp(origBitrate);
+            Range<Integer> supportedBitrateRange;
+            if (mIsVideoEncoder) {
+                supportedBitrateRange = ((VideoEncoderInfo) encoderInfo).getSupportedBitrateRange();
+            } else {
+                supportedBitrateRange = ((AudioEncoderInfo) encoderInfo).getBitrateRange();
+            }
+            int newBitrate = supportedBitrateRange.clamp(origBitrate);
             if (origBitrate != newBitrate) {
                 mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, newBitrate);
                 Logger.d(mTag, "updated bitrate from " + origBitrate + " to " + newBitrate);
