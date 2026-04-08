@@ -181,6 +181,41 @@ internal open class FakePdfDocument(
         )
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
+    override suspend fun getSelectionBounds(
+        pageNumber: Int,
+        start: SelectionBoundary,
+        stop: SelectionBoundary,
+    ): PageSelection {
+        // Use provided points if available, otherwise default to start/end of page
+        val startPoint = start.point ?: Point(0, 0)
+        val stopPoint = stop.point ?: Point(Int.MAX_VALUE, Int.MAX_VALUE)
+
+        val selectionRect =
+            RectF(
+                    startPoint.x.toFloat(),
+                    startPoint.y.toFloat(),
+                    stopPoint.x.toFloat(),
+                    stopPoint.y.toFloat(),
+                )
+                .apply { sort() }
+
+        val selectedTextContents =
+            textContents.getOrNull(pageNumber)?.let { content ->
+                // Filter text bounds that intersect with the selection
+                val intersectingBounds =
+                    content.bounds.mapNotNull { textRect ->
+                        RectF().takeIf { it.setIntersect(selectionRect, textRect) }
+                    }
+
+                if (intersectingBounds.isNotEmpty()) {
+                    listOf(PdfPageTextContent(intersectingBounds, content.text))
+                } else emptyList()
+            } ?: emptyList()
+
+        return PageSelection(pageNumber, start, stop, selectedTextContents)
+    }
+
     override suspend fun getSelectAllSelectionBounds(pageNumber: Int): PageSelection? {
         return PageSelection(
             pageNumber,

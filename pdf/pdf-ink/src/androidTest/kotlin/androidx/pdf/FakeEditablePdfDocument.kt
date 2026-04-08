@@ -197,6 +197,21 @@ internal open class FakeEditablePdfDocument(
         )
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
+    override suspend fun getSelectionBounds(
+        pageNumber: Int,
+        start: SelectionBoundary,
+        stop: SelectionBoundary,
+    ): PageSelection {
+        val selectedTextContents =
+            if (textContents.isEmpty()) {
+                listOf(PdfPageTextContent(listOf(RectF(0f, 0f, 10f, 10f)), "test"))
+            } else {
+                listOf(textContents[pageNumber])
+            }
+        return PageSelection(pageNumber, start, stop, selectedTextContents)
+    }
+
     override suspend fun getSelectAllSelectionBounds(pageNumber: Int): PageSelection? {
         return PageSelection(
             pageNumber,

@@ -206,6 +206,19 @@ public class SandboxedPdfDocument(
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
+    override suspend fun getSelectionBounds(
+        pageNumber: Int,
+        start: SelectionBoundary,
+        stop: SelectionBoundary,
+    ): PageSelection? {
+        return withDocument { document ->
+            document
+                .selectPageText(pageNumber, start.toAndroidClass(), stop.toAndroidClass())
+                ?.toContentClass()
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override suspend fun getSelectAllSelectionBounds(pageNumber: Int): PageSelection? {
         return withDocument { document ->
             document

@@ -126,6 +126,15 @@ internal open class FakePdfDocument(
         return PageSelection(0, SelectionBoundary(0), SelectionBoundary(0), listOf())
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
+    override suspend fun getSelectionBounds(
+        pageNumber: Int,
+        start: SelectionBoundary,
+        stop: SelectionBoundary,
+    ): PageSelection {
+        return PageSelection(0, start, stop, listOf())
+    }
+
     override suspend fun getSelectAllSelectionBounds(pageNumber: Int): PageSelection? {
         return PageSelection(0, SelectionBoundary(0), SelectionBoundary(Int.MAX_VALUE), listOf())
     }

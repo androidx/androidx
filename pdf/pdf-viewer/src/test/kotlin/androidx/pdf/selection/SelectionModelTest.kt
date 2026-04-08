@@ -18,8 +18,6 @@ package androidx.pdf.selection
 
 import android.graphics.Point
 import android.graphics.RectF
-import android.util.SparseArray
-import androidx.pdf.PdfRect
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.content.SelectionBoundary
@@ -38,14 +36,13 @@ class SelectionModelTest {
     val selectionBoundary = SelectionBoundary(0, Point(100, 100), false)
 
     @Test
-    fun testCombineSelections_returnsNullOnNoSelections() {
-        val result =
-            SelectionModel.getCombinedSelectionModel(DocumentSelection(SparseArray()), emptyList())
+    fun testCreate_returnsNullOnNoSelections() {
+        val result = SelectionModel.create(emptyList())
         assertNull(result)
     }
 
     @Test
-    fun testCombineSelections_combineSingleSelection() {
+    fun testCreate_singleSelection() {
 
         val newBounds: List<RectF> = listOf(RectF(100f, 100f, 200f, 200f))
         val newPageSelections: List<PageSelection?> =
@@ -58,11 +55,7 @@ class SelectionModelTest {
                 )
             )
 
-        val combinedSelection: SelectionModel? =
-            SelectionModel.getCombinedSelectionModel(
-                DocumentSelection(SparseArray()),
-                newPageSelections,
-            )
+        val combinedSelection: SelectionModel? = SelectionModel.create(newPageSelections)
         assertNotNull(combinedSelection?.documentSelection?.selection?.bounds)
         assertEquals(
             combinedSelection?.documentSelection?.selection?.bounds?.map {
@@ -77,7 +70,7 @@ class SelectionModelTest {
     }
 
     @Test
-    fun testCombineSelections_multipleNewSelectionsOnMultiplePages() {
+    fun testCreate_multipleNewSelectionsOnMultiplePages() {
         val newBoundsPage1: List<RectF> =
             listOf(RectF(100f, 100f, 200f, 200f), RectF(200f, 200f, 300f, 300f))
         val newBoundsPage2: List<RectF> =
@@ -98,11 +91,7 @@ class SelectionModelTest {
                 ),
             )
 
-        val combinedSelection: SelectionModel? =
-            SelectionModel.getCombinedSelectionModel(
-                DocumentSelection(SparseArray()),
-                newPageSelections,
-            )
+        val combinedSelection: SelectionModel? = SelectionModel.create(newPageSelections)
 
         assertNotNull(combinedSelection?.documentSelection?.selection?.bounds)
 
@@ -118,81 +107,5 @@ class SelectionModelTest {
             "Hello World",
             (combinedSelection?.documentSelection?.selection as TextSelection).text,
         )
-    }
-
-    @Test
-    fun testCombineSelections_combineWithCurrentAndNewSelections() {
-        val currentBounds =
-            listOf(
-                PdfRect(1, RectF(100f, 100f, 200f, 200f)),
-                PdfRect(2, RectF(300f, 300f, 400f, 400f)),
-                PdfRect(2, RectF(400f, 400f, 500f, 500f)),
-                PdfRect(3, RectF(500f, 500f, 600f, 600f)),
-                PdfRect(3, RectF(600f, 600f, 700f, 700f)),
-            )
-
-        val newBounds = listOf(RectF(150f, 150f, 200f, 200f), RectF(200f, 200f, 250f, 250f))
-        val expectedBounds =
-            listOf(
-                currentBounds[0],
-                PdfRect(2, newBounds[0]),
-                PdfRect(2, newBounds[1]),
-                currentBounds[3],
-                currentBounds[4],
-            )
-
-        val currentSelection =
-            DocumentSelection(
-                SparseArray<List<Selection>>().apply {
-                    set(1, listOf(TextSelection("this is page 1", listOf(currentBounds[0]))))
-                    set(
-                        2,
-                        listOf(
-                            TextSelection(
-                                "this is page 2",
-                                listOf(currentBounds[1], currentBounds[2]),
-                            )
-                        ),
-                    )
-                    set(
-                        3,
-                        listOf(
-                            TextSelection(
-                                "this is page 3",
-                                listOf(currentBounds[3], currentBounds[4]),
-                            )
-                        ),
-                    )
-                }
-            )
-
-        val newPageSelections: List<PageSelection?> =
-            listOf(
-                PageSelection(
-                    2,
-                    selectionBoundary,
-                    selectionBoundary,
-                    listOf(
-                        PdfPageTextContent(listOf(newBounds[0]), "New content"),
-                        PdfPageTextContent(listOf(newBounds[1]), "for page 2"),
-                    ),
-                )
-            )
-
-        val combinedSelection =
-            SelectionModel.getCombinedSelectionModel(currentSelection, newPageSelections)
-
-        assertNotNull(combinedSelection)
-        assert(combinedSelection?.documentSelection?.selection is TextSelection)
-        val textSelection = combinedSelection?.documentSelection?.selection as TextSelection
-
-        assertNotNull(textSelection.bounds)
-        var resultBounds: List<PdfRect> = textSelection.bounds
-        resultBounds = resultBounds.sortedWith(compareBy({ it.pageNum }, { it.left }, { it.top }))
-
-        assertNotNull(resultBounds)
-        assertEquals(expectedBounds.size, resultBounds.size)
-        assertEquals(expectedBounds, resultBounds)
-        assertEquals("this is page 1 New content for page 2 this is page 3", textSelection.text)
     }
 }

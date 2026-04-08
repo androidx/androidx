@@ -58,6 +58,8 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
@@ -71,11 +73,23 @@ class SelectionStateManagerTest {
     // TODO(b/385407478) replace with FakePdfDocument when we're able to share it more broadly
     private val pdfDocument =
         mock<PdfDocument> {
-            onBlocking { getSelectionBounds(any(), any(), any()) } doAnswer
+            onBlocking { getSelectionBounds(any<Int>(), any<PointF>(), any<PointF>()) } doAnswer
                 { invocation ->
                     val startPoint = invocation.getArgument<PointF>(1)
                     val endPoint = invocation.getArgument<PointF>(2)
                     pageSelectionFor(invocation.getArgument(0), startPoint, endPoint)
+                }
+            onBlocking {
+                getSelectionBounds(any<Int>(), any<SelectionBoundary>(), any<SelectionBoundary>())
+            } doAnswer
+                { invocation ->
+                    val start = invocation.getArgument<SelectionBoundary>(1)
+                    val end = invocation.getArgument<SelectionBoundary>(2)
+                    pageSelectionFor(invocation.getArgument(0), start, end)
+                }
+            onBlocking { getSelectAllSelectionBounds(any<Int>()) } doAnswer
+                { invocation ->
+                    pageSelectionFor(invocation.getArgument(0), PointF(0f, 0f), PointF(INF, INF))
                 }
         }
     private val fakePdfDocument = FakePdfDocument()
@@ -637,8 +651,8 @@ class SelectionStateManagerTest {
         assertThat(selection).isInstanceOf(TextSelection::class.java)
         val expectedStartLoc =
             PointF(
-                initialSelectionForDragging.startBoundary.location.x,
-                initialSelectionForDragging.startBoundary.location.y,
+                initialSelectionForDragging.endBoundary.location.x,
+                initialSelectionForDragging.endBoundary.location.y,
             )
         val expectedEndLoc =
             PointF(
@@ -647,7 +661,9 @@ class SelectionStateManagerTest {
             )
 
         val expectedText =
-            "This is all the text between $expectedStartLoc and PointF(0.0, 0.0) This is all the text between PointF(0.0, 0.0) and $expectedEndLoc"
+            "This is all the text between $expectedStartLoc and PointF($INF, $INF) " +
+                "This is all the text between PointF(0.0, 0.0) and PointF($INF, $INF) " +
+                "This is all the text between PointF(0.0, 0.0) and $expectedEndLoc"
 
         assertThat((selection as TextSelection).text).isEqualTo(expectedText)
     }
@@ -703,9 +719,81 @@ class SelectionStateManagerTest {
             )
 
         val expectedText =
-            "This is all the text between $expectedStartLoc and PointF(0.0, 0.0) This is all the text between PointF(0.0, 0.0) and $expectedEndLoc"
+            "This is all the text between $expectedStartLoc and PointF($INF, $INF) " +
+                "This is all the text between PointF(0.0, 0.0) and $expectedEndLoc"
 
         assertThat((selection as TextSelection).text).isEqualTo(expectedText)
+    }
+
+    @Test
+    fun selectAll_withMultiPageSelection_selectsAllContentOfAllSelectedPages() = runTest {
+        maybeDragHandle_actionMove_extendSelectionDownwards()
+
+        // Check selection before Select All
+        val draggedSelection =
+            selectionStateManager.selectionModel.value?.documentSelection?.selection
+        assertThat(draggedSelection).isInstanceOf(TextSelection::class.java)
+        val expectedDragText =
+            "This is all the text between PointF(50.0, 180.0) and PointF($INF, $INF) " +
+                "This is all the text between PointF(0.0, 0.0) and PointF($INF, $INF) " +
+                "This is all the text between PointF(0.0, 0.0) and PointF(50.0, 180.0)"
+        assertThat((draggedSelection as TextSelection).text).isEqualTo(expectedDragText)
+
+        // Now select all
+        selectionStateManager.selectAllText()
+        testDispatcher.scheduler.runCurrent()
+
+        val selection = selectionStateManager.selectionModel.value?.documentSelection?.selection
+        assertThat(selection).isInstanceOf(TextSelection::class.java)
+
+        val expectedText =
+            "This is all the text between PointF(0.0, 0.0) and PointF($INF, $INF) " +
+                "This is all the text between PointF(0.0, 0.0) and PointF($INF, $INF) " +
+                "This is all the text between PointF(0.0, 0.0) and PointF($INF, $INF)"
+
+        assertThat((selection as TextSelection).text).isEqualTo(expectedText)
+    }
+
+    @Test
+    fun selectAll_usesCacheForSubsequentCalls() = runTest {
+        selectionStateManager._selectionModel.update { initialSelectionForDragging }
+
+        // First select all
+        selectionStateManager.selectAllText()
+        testDispatcher.scheduler.runCurrent()
+
+        // Verify getSelectAllSelectionBounds was called exactly once
+        verify(pdfDocument, times(1)).getSelectAllSelectionBounds(0)
+
+        // Second select all
+        selectionStateManager.selectAllText()
+        testDispatcher.scheduler.runCurrent()
+
+        // Verify getSelectAllSelectionBounds was still called only once for the page
+        verify(pdfDocument, times(1)).getSelectAllSelectionBounds(0)
+    }
+
+    @Test
+    fun clearSelection_clearsCache() = runTest {
+        selectionStateManager._selectionModel.update { initialSelectionForDragging }
+
+        // Populate cache
+        selectionStateManager.selectAllText()
+        testDispatcher.scheduler.runCurrent()
+
+        // Clear selection (should clear cache)
+        selectionStateManager.clearCurrentSelection()
+
+        // Select all again
+        selectionStateManager.selectAllText()
+        // selectAllText returns early if selectionModel.value is null, so we need to set a
+        // selection
+        selectionStateManager._selectionModel.update { initialSelectionForDragging }
+        selectionStateManager.selectAllText()
+        testDispatcher.scheduler.runCurrent()
+
+        // Verify getSelectAllSelectionBounds was called twice (once before clear, once after)
+        verify(pdfDocument, times(2)).getSelectAllSelectionBounds(0)
     }
 
     @Test
@@ -815,9 +903,10 @@ class SelectionStateManagerTest {
                 errorFlow = errorFlowReplay,
                 pageLayoutManager = null,
                 pageManager = null,
+                initialSelection = getInitialSelectionForDragging(),
             )
 
-        localManager.selectAllTextOnPageAsync(0)
+        localManager.selectAllText()
         testDispatcher.scheduler.runCurrent()
 
         val error = errorFlowReplay.first() as RequestFailedException
@@ -844,9 +933,10 @@ class SelectionStateManagerTest {
                 errorFlow = errorFlowReplay,
                 pageLayoutManager = null,
                 pageManager = null,
+                initialSelection = getInitialSelectionForDragging(),
             )
 
-        localManager.selectAllTextOnPageAsync(0)
+        localManager.selectAllText()
         testDispatcher.scheduler.runCurrent()
 
         val error = errorFlowReplay.first() as RequestFailedException
@@ -870,9 +960,10 @@ class SelectionStateManagerTest {
                 errorFlow = errorFlow,
                 pageLayoutManager = null,
                 pageManager = null,
+                initialSelection = getInitialSelectionForDragging(),
             )
 
-        localManager.selectAllTextOnPageAsync(0)
+        localManager.selectAllText()
         runCurrent()
     }
 
@@ -985,6 +1076,17 @@ class SelectionStateManagerTest {
         )
     }
 
+    private fun pageSelectionFor(
+        page: Int,
+        start: SelectionBoundary,
+        end: SelectionBoundary,
+    ): PageSelection {
+        val startPoint =
+            start.point?.let { PointF(it.x.toFloat(), it.y.toFloat()) } ?: PointF(0f, 0f)
+        val endPoint = end.point?.let { PointF(it.x.toFloat(), it.y.toFloat()) } ?: PointF(INF, INF)
+        return pageSelectionFor(page, startPoint, endPoint)
+    }
+
     private fun pageSelectionFor(page: Int, start: PointF, end: PointF): PageSelection {
         return PageSelection(
             page,
@@ -1008,3 +1110,4 @@ class SelectionStateManagerTest {
 }
 
 private const val HANDLE_TOUCH_TARGET_PX = 48
+private const val INF = 100000f

@@ -56,7 +56,7 @@ internal object DefaultSelectionMenuProvider {
                         // Action mode for old selection should be closed which will be triggered
                         // after select all is completed with current selection.
                         close()
-                        pdfView.selectAllTextOnPage(page)
+                        pdfView.selectAllText()
                     }
                 },
             )

@@ -33,6 +33,7 @@ import androidx.pdf.content.PdfPageGotoLinkContent
 import androidx.pdf.content.PdfPageImageContent
 import androidx.pdf.content.PdfPageLinkContent
 import androidx.pdf.content.PdfPageTextContent
+import androidx.pdf.content.SelectionBoundary
 import androidx.pdf.models.FormWidgetInfo
 import java.io.Closeable
 import java.util.concurrent.Executor
@@ -140,6 +141,24 @@ public interface PdfDocument : Closeable {
         pageNumber: Int,
         start: PointF,
         stop: PointF,
+    ): PageSelection?
+
+    /**
+     * Asynchronously retrieves the selection bounds (in PDF coordinates) for the specified text
+     * selection.
+     *
+     * @param pageNumber The page on which text to be selected.
+     * @param start The starting boundary of the text selection.
+     * @param stop The ending boundary of the text selection.
+     * @return A [PageSelection] object representing the selection bounds on the page.
+     *
+     * TODO: b/500570239 Expose it as public api
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public suspend fun getSelectionBounds(
+        pageNumber: Int,
+        start: SelectionBoundary,
+        stop: SelectionBoundary,
     ): PageSelection?
 
     /**
