@@ -123,7 +123,10 @@ internal class OpenXrRuntime(
             AnchorPersistenceMode.LOCAL,
             augmentedObjectCategories = setOf(),
         )
-        private set
+        private set(value) {
+            lifecycleManager.configure(value)
+            field = value
+        }
 
     var instanceProcAddr: Long = 0L
         private set
