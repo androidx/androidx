@@ -19,6 +19,7 @@ package androidx.appfunctions
 import android.app.appfunctions.AppFunctionManager
 import android.content.Context
 import android.os.Build
+import android.os.UserManager
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
@@ -251,16 +252,27 @@ public constructor(
         /**
          * Gets an instance of [AppFunctionManager] if the AppFunction feature is supported.
          *
-         * The AppFunction feature is supported,
-         * * If SDK version is greater or equal to 36
-         * * If SDK version is greater or equal to 34 and the device implements App Function
-         *   extension library.
+         * The AppFunction feature is supported if the calling user is not a profile and either of
+         * the following conditions is met:
+         * * SDK version is 36 or higher.
+         * * SDK version is 34 or higher, and the device implements the App Function extension
+         *   ibrary.
          *
          * @return an instance of [AppFunctionManager] if the AppFunction feature is supported or
          *   `null`.
          */
         @JvmStatic
         public fun getInstance(context: Context): androidx.appfunctions.AppFunctionManager? {
+            // Required AppSearch is only available on U+.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return null
+            }
+
+            val userManager = context.getSystemService(UserManager::class.java)
+            if (userManager?.isProfile == true) {
+                return null
+            }
+
             return when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA -> {
                     AppFunctionManager(
@@ -273,8 +285,7 @@ public constructor(
                         Dependencies.translatorSelector,
                     )
                 }
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-                    isExtensionLibraryAvailable() -> {
+                isExtensionLibraryAvailable() -> {
                     AppFunctionManager(
                         context,
                         AppSearchAppFunctionReader(
