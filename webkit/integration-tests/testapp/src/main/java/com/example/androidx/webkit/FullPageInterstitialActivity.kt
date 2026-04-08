@@ -24,6 +24,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 
+/**
+ * An {@link android.app.Activity} to demonstrate full page interstitials. WebView displays a red or
+ * grey error page with considerable description when it's "full" sized (takes up almost the entire
+ * available device screen), and we believe it's likely the predominant part of the UI.
+ *
+ * <p>
+ * This {@link android.app.Activity} points to a safe page, but that page itself has links to (fake)
+ * malicious resources of various threat types and (fake) restricted resources, to allow testing
+ * each threat type.
+ *
+ * <p>
+ * For Safe Browsing, within the interstitial, the user can click any of several links which provide
+ * more information about Safe Browsing overall, including "proceed" and "back to safety" buttons
+ * for navigation.
+ *
+ * <p>
+ * For Restricted Content blocking, user can click on "learn more", but there is no option to
+ * proceed.
+ */
 class FullPageInterstitialActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +65,7 @@ class FullPageInterstitialActivity : AppCompatActivity() {
                 if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE)) {
                     WebSettingsCompat.setSafeBrowsingEnabled(webView.settings, true)
                 }
-                webView.loadUrl(SafeBrowsingHelpers.MALWARE_URL)
+                webView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE)
             }
             ContentType.RESTRICTED_CONTENT -> webView.loadUrl(RESTRICTED_CONTENT_SITE)
             else -> webView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE)
