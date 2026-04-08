@@ -836,24 +836,34 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         get() = composeViewContext.hapticFeedback
 
     /** Provide an instance of [InputModeManager] which is available as a CompositionLocal. */
-    private val _inputModeManager =
-        InputModeManagerImpl(
-            initialInputMode = if (isInTouchMode) Touch else Keyboard,
-            onRequestInputModeChange = {
-                when (it) {
-                    // Android doesn't support programmatically switching to touch mode, so we
-                    // don't do anything, but just return true if we are already in touch mode.
-                    Touch -> isInTouchMode
+    private var _inputModeManager: InputModeManagerImpl? = null
+    override val inputModeManager: InputModeManagerImpl
+        get() {
+            var instance = _inputModeManager
+            if (instance == null) {
+                instance =
+                    InputModeManagerImpl(
+                        initialInputMode = if (isInTouchMode) Touch else Keyboard,
+                        onRequestInputModeChange = {
+                            when (it) {
+                                // Android doesn't support programmatically switching to touch mode,
+                                // so we
+                                // don't do anything, but just return true if we are already in
+                                // touch mode.
+                                Touch -> isInTouchMode
 
-                    // If we are already in keyboard mode, we return true, otherwise, we call
-                    // requestFocusFromTouch, which puts the system in non-touch mode.
-                    Keyboard -> if (isInTouchMode) requestFocusFromTouch() else true
-                    else -> false
-                }
-            },
-        )
-    override val inputModeManager: InputModeManager
-        get() = _inputModeManager
+                                // If we are already in keyboard mode, we return true, otherwise, we
+                                // call
+                                // requestFocusFromTouch, which puts the system in non-touch mode.
+                                Keyboard -> if (isInTouchMode) requestFocusFromTouch() else true
+                                else -> false
+                            }
+                        },
+                    )
+                _inputModeManager = instance
+            }
+            return instance
+        }
 
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
 
@@ -2322,7 +2332,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         val lifecycle = composeViewContext.lifecycleOwner.lifecycle
         lifecycle.addObserver(this)
         lifecycle.addObserver(contentCaptureManager)
-        _inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
+        inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
         viewTreeObserver.addOnGlobalLayoutListener(this)
         viewTreeObserver.addOnScrollChangedListener(this)
         viewTreeObserver.addOnTouchModeChangeListener(this)
@@ -3314,7 +3324,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     // executed whenever the touch mode changes.
     override fun onTouchModeChanged(isInTouchMode: Boolean) {
-        _inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
+        inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
     }
 
     override fun executeDelayed(delayMillis: Long, block: () -> Unit): Any {
