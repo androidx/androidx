@@ -31,6 +31,10 @@ interface InputModeManager {
     /**
      * Send a request to change the [InputMode].
      *
+     * This may not succeed, depending on platform implementation. For example, on Android the input
+     * mode is managed by the platform, and an app can't programmatically request to move from
+     * [InputMode.Keyboard] to [InputMode.Touch] outside of tests.
+     *
      * @param inputMode The requested [InputMode].
      * @return true if the system is in the requested mode, after processing this request.
      */
