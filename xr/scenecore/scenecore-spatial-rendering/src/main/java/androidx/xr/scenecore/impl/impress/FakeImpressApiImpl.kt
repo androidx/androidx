@@ -1162,6 +1162,10 @@ public class FakeImpressApiImpl : ImpressApi {
         // Test stub.
     }
 
+    override fun setBoneTransforms(impressNode: ImpressNode, transforms: List<Matrix4>) {
+        // Test stub.
+    }
+
     /** Returns the map of texture image tokens to their associated Texture object. */
     public fun getTextureImages(): MutableMap<Long, Texture> {
         return textureImages

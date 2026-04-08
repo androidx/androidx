@@ -41,7 +41,9 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.ByteBufferRegion
@@ -76,6 +78,7 @@ class MeshEntityActivity : ComponentActivity() {
     private var sharedBufferTopEntity: MeshEntity? = null
     private var triangleStripEntity: MeshEntity? = null
     private var twoMaterialsEntity: MeshEntity? = null
+    private var wigglingStickEntity: MeshEntity? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -310,6 +313,7 @@ class MeshEntityActivity : ComponentActivity() {
             createTest3_SharedBuffer(currentSession, vertexLayout, stride)
             createTest4_TriangleStrip(currentSession, vertexLayout, stride)
             createTest5_TwoMaterials(currentSession, vertexLayout, stride)
+            createTest6_WigglingStick(currentSession)
         }
     }
 
@@ -515,6 +519,224 @@ class MeshEntityActivity : ComponentActivity() {
                 pose = pose,
             )
         panel.size = FloatSize2d(0.8f, 0.2f)
+    }
+
+    private fun createTest6_WigglingStick(currentSession: Session) {
+        val vertexLayoutSkinned =
+            VertexLayout(
+                listOf(
+                    VertexAttributeDescriptor(
+                        VertexAttribute.POSITION,
+                        VertexAttributeType.FLOAT3,
+                        0,
+                    ),
+                    VertexAttributeDescriptor(
+                        VertexAttribute.NORMAL,
+                        VertexAttributeType.FLOAT3,
+                        0,
+                    ),
+                    VertexAttributeDescriptor(
+                        VertexAttribute.COLOR,
+                        VertexAttributeType.UBYTE4_NORM,
+                        0,
+                    ),
+                    VertexAttributeDescriptor(
+                        VertexAttribute.BONE_INDICES,
+                        VertexAttributeType.UBYTE4,
+                        0,
+                    ),
+                    VertexAttributeDescriptor(
+                        VertexAttribute.BONE_WEIGHTS,
+                        VertexAttributeType.UBYTE4_NORM,
+                        0,
+                    ),
+                )
+            )
+
+        val stride = 36
+        val segments = 12
+        val height = 0.9f
+        val halfSize = 0.15f
+
+        val vertexCount = segments * 4 * 4 + 8 // 4 sides per segment + top and bottom
+        val indexCount = segments * 4 * 6 + 12
+
+        val vertexBuffer =
+            ByteBuffer.allocateDirect(vertexCount * stride).order(ByteOrder.nativeOrder())
+        val indexBuffer = ByteBuffer.allocateDirect(indexCount * 4).order(ByteOrder.nativeOrder())
+
+        fun getBoneInfo(y: Float): Pair<ByteArray, ByteArray> {
+            val indices = ByteArray(4)
+            val weights = ByteArray(4)
+            if (y <= 0.15f) {
+                indices[0] = 0
+                weights[0] = 255.toByte()
+            } else if (y <= 0.45f) {
+                val t = (y - 0.15f) / 0.3f
+                indices[0] = 0
+                indices[1] = 1
+                val w1 = (t * 255).toInt()
+                val w0 = 255 - w1
+                weights[0] = w0.toByte()
+                weights[1] = w1.toByte()
+            } else if (y <= 0.75f) {
+                val t = (y - 0.45f) / 0.3f
+                indices[0] = 1
+                indices[1] = 2
+                val w1 = (t * 255).toInt()
+                val w0 = 255 - w1
+                weights[0] = w0.toByte()
+                weights[1] = w1.toByte()
+            } else {
+                indices[0] = 2
+                weights[0] = 255.toByte()
+            }
+            return Pair(indices, weights)
+        }
+
+        fun putVertex(x: Float, y: Float, z: Float, nx: Float, ny: Float, nz: Float, c: IntArray) {
+            vertexBuffer.putFloat(x)
+            vertexBuffer.putFloat(y)
+            vertexBuffer.putFloat(z)
+            vertexBuffer.putFloat(nx)
+            vertexBuffer.putFloat(ny)
+            vertexBuffer.putFloat(nz)
+            vertexBuffer.put(c[0].toByte())
+            vertexBuffer.put(c[1].toByte())
+            vertexBuffer.put(c[2].toByte())
+            vertexBuffer.put(255.toByte())
+
+            val (indices, weights) = getBoneInfo(y)
+            vertexBuffer.put(indices)
+            vertexBuffer.put(weights)
+        }
+
+        var vIdx = 0
+        val intBuffer = indexBuffer.asIntBuffer()
+        fun putQuad(
+            x0: Float,
+            y0: Float,
+            z0: Float,
+            x1: Float,
+            y1: Float,
+            z1: Float,
+            x2: Float,
+            y2: Float,
+            z2: Float,
+            x3: Float,
+            y3: Float,
+            z3: Float,
+            nx: Float,
+            ny: Float,
+            nz: Float,
+            c: IntArray,
+        ) {
+            putVertex(x0, y0, z0, nx, ny, nz, c)
+            putVertex(x1, y1, z1, nx, ny, nz, c)
+            putVertex(x2, y2, z2, nx, ny, nz, c)
+            putVertex(x3, y3, z3, nx, ny, nz, c)
+            intBuffer.put(vIdx + 0)
+            intBuffer.put(vIdx + 1)
+            intBuffer.put(vIdx + 2)
+            intBuffer.put(vIdx + 0)
+            intBuffer.put(vIdx + 2)
+            intBuffer.put(vIdx + 3)
+            vIdx += 4
+        }
+
+        val colors = colorSchemes[0]
+        val cFront = colors[0]
+        val cBack = colors[1]
+        val cTop = colors[2]
+        val cBottom = colors[3]
+        val cRight = colors[4]
+        val cLeft = colors[5]
+
+        val h = halfSize
+
+        for (i in 0 until segments) {
+            val y0 = (i.toFloat() / segments) * height
+            val y1 = ((i + 1).toFloat() / segments) * height
+
+            // Front
+            putQuad(-h, y0, h, h, y0, h, h, y1, h, -h, y1, h, 0f, 0f, 1f, cFront)
+            // Back
+            putQuad(h, y0, -h, -h, y0, -h, -h, y1, -h, h, y1, -h, 0f, 0f, -1f, cBack)
+            // Right
+            putQuad(h, y0, h, h, y0, -h, h, y1, -h, h, y1, h, 1f, 0f, 0f, cRight)
+            // Left
+            putQuad(-h, y0, -h, -h, y0, h, -h, y1, h, -h, y1, -h, -1f, 0f, 0f, cLeft)
+        }
+
+        // Top
+        putQuad(-h, height, h, h, height, h, h, height, -h, -h, height, -h, 0f, 1f, 0f, cTop)
+        // Bottom
+        putQuad(-h, 0f, -h, h, 0f, -h, h, 0f, h, -h, 0f, h, 0f, -1f, 0f, cBottom)
+
+        val meshBuffer =
+            MeshBuffer.create(
+                currentSession,
+                vertexLayoutSkinned,
+                listOf(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride)),
+                ByteBufferRegion(indexBuffer, 0, indexCount * 4),
+            )
+
+        val stickMesh =
+            CustomMesh.Builder(currentSession)
+                .setMeshBuffer(meshBuffer)
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, indexCount * 3))
+                .build()
+
+        wigglingStickEntity =
+            MeshEntity.create(
+                currentSession,
+                stickMesh,
+                listOf(material!!),
+                boneCount = 3,
+                pose = Pose(Vector3(3f, -0.5f, -1.5f)),
+            )
+
+        createPanel(
+            currentSession,
+            "Wiggling Stick: Demonstrates dynamic bone transforms.",
+            Pose(Vector3(3f, 0.7f, -1.5f)),
+        )
+
+        CoroutineScope(Dispatchers.Main).launch {
+            var time = 0f
+            val idScale = Vector3(1f, 1f, 1f)
+            val idRot = Quaternion(0f, 0f, 0f, 1f)
+
+            while (true) {
+                kotlinx.coroutines.delay(16)
+                time += 0.05f
+
+                val m0 = Matrix4.Identity
+
+                val angle1 = kotlin.math.sin(time) * 0.5f
+                val q1 =
+                    Quaternion(0f, 0f, kotlin.math.sin(angle1 / 2f), kotlin.math.cos(angle1 / 2f))
+                val pivot1 = Vector3(0f, 0.3f, 0f)
+                val invPivot1 = Vector3(0f, -0.3f, 0f)
+                val m1 =
+                    Matrix4.fromTrs(pivot1, idRot, idScale) *
+                        Matrix4.fromTrs(Vector3(0f, 0f, 0f), q1, idScale) *
+                        Matrix4.fromTrs(invPivot1, idRot, idScale)
+
+                val angle2 = kotlin.math.sin(time * 1.5f) * 0.8f
+                val q2 =
+                    Quaternion(0f, 0f, kotlin.math.sin(angle2 / 2f), kotlin.math.cos(angle2 / 2f))
+                val pivot2 = Vector3(0f, 0.6f, 0f)
+                val invPivot2 = Vector3(0f, -0.6f, 0f)
+                val m2 =
+                    m1 *
+                        Matrix4.fromTrs(pivot2, idRot, idScale) *
+                        Matrix4.fromTrs(Vector3(0f, 0f, 0f), q2, idScale) *
+                        Matrix4.fromTrs(invPivot2, idRot, idScale)
+
+                wigglingStickEntity?.setBoneTransforms(listOf(m0, m1, m2))
+            }
+        }
     }
 
     private fun createTest5_TwoMaterials(

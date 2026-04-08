@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.Matrix4
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
@@ -27,5 +28,9 @@ public open class FakeMeshEntity(private val feature: MeshFeature? = null) :
     FakeEntity(), MeshEntity {
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
         feature?.setMaterial(material, subsetIndex)
+    }
+
+    override fun setBoneTransforms(transforms: List<Matrix4>) {
+        feature?.setBoneTransforms(transforms)
     }
 }

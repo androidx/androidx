@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.spatial.rendering
 
+import androidx.xr.runtime.math.Matrix4
 import androidx.xr.scenecore.impl.impress.ImpressApi
 import androidx.xr.scenecore.impl.impress.ImpressNode
 import androidx.xr.scenecore.impl.impress.Material
@@ -40,5 +41,9 @@ internal class MeshFeatureImpl(
             subsetIndex,
             (material as Material).nativeHandle,
         )
+    }
+
+    override fun setBoneTransforms(transforms: List<Matrix4>) {
+        impressApi.setBoneTransforms(impressNode, transforms)
     }
 }

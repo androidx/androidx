@@ -21,6 +21,7 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
@@ -148,5 +149,23 @@ class MeshEntityTest {
 
         assertThrows(IllegalArgumentException::class.java) { entity.setMaterial(newMaterial, 1) }
         assertThrows(IllegalArgumentException::class.java) { entity.setMaterial(newMaterial, -1) }
+    }
+
+    @Test
+    fun setBoneTransforms_withZeroBoneCount_throwsException() {
+        val entity = MeshEntity.create(session, customMesh, listOf(material), boneCount = 0)
+
+        assertThrows(IllegalStateException::class.java) {
+            entity.setBoneTransforms(listOf(Matrix4.Identity))
+        }
+    }
+
+    @Test
+    fun setBoneTransforms_withPositiveBoneCount_succeeds() {
+        val entity = MeshEntity.create(session, customMesh, listOf(material), boneCount = 1)
+
+        entity.setBoneTransforms(listOf(Matrix4.Identity))
+
+        // Execution succeeded without exception
     }
 }
