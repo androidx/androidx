@@ -28,6 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// windowScene is nil.
 + (UIInterfaceOrientation)interfaceOrientationForWindowScene:(UIWindowScene * _Nullable)windowScene;
 
++ (void)requestOrientationChangeForWindow:(UIWindow * _Nullable)window
+                     interfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+                             errorHandler:(void (^ _Nullable)(NSError * _Nonnull error))errorHandler;
+
 @end
 
 NS_ASSUME_NONNULL_END

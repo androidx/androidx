@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.UIKitInstrumentedTest
 import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.test.utils.DpRectZero
 import androidx.compose.ui.unit.DpOffset
@@ -51,13 +52,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
-import org.jetbrains.skiko.OS
-import org.jetbrains.skiko.OSVersion
-import org.jetbrains.skiko.available
-import platform.UIKit.UIDevice
-import platform.UIKit.UIInterfaceOrientationMaskLandscapeLeft
-import platform.UIKit.UIInterfaceOrientationMaskLandscapeRight
-import platform.UIKit.UIUserInterfaceIdiomPad
+import platform.UIKit.UIInterfaceOrientationLandscapeLeft
+import platform.UIKit.UIInterfaceOrientationLandscapeRight
+import platform.UIKit.UIInterfaceOrientationPortrait
+import platform.UIKit.UIInterfaceOrientationPortraitUpsideDown
 
 class WindowInsetsPaddingTest {
     @Test
@@ -86,12 +84,12 @@ class WindowInsetsPaddingTest {
     @OptIn(ExperimentalForeignApi::class)
     @Test
     fun testDisplayCutoutPadding_InterfaceOrientationLandscapeLeft() = runUIKitInstrumentedTest(
-        ignoreIf = !available(OS.Ios to OSVersion(16)) || UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
-        ignoreNotes = "Device rotation does not work for iOS < 16 and iPad"
+        ignoreIf = UIKitInstrumentedTest.isRunningOnIPad,
+        ignoreNotes = "Run for iPhone only"
     ) {
         var boxRect = DpRectZero()
 
-        setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft) {
+        setContent(interfaceOrientation = UIInterfaceOrientationLandscapeLeft) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -105,7 +103,8 @@ class WindowInsetsPaddingTest {
 
         assertEquals(
             DpRect(
-                DpOffset.Zero, size = DpSize(
+                DpOffset.Zero,
+                DpSize(
                     screenSize.width - viewController.view.safeAreaInsets.useContents { right }.dp,
                     screenSize.height
                 )
@@ -117,12 +116,12 @@ class WindowInsetsPaddingTest {
     @OptIn(ExperimentalForeignApi::class)
     @Test
     fun testDisplayCutoutPadding_InterfaceOrientationLandscapeRight() = runUIKitInstrumentedTest(
-        ignoreIf = !available(OS.Ios to OSVersion(16)) || UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
-        ignoreNotes = "Device rotation does not work for iOS < 16 and iPad"
+        ignoreIf = UIKitInstrumentedTest.isRunningOnIPad,
+        ignoreNotes = "Run for iPhone only"
     ) {
         var boxRect = DpRectZero()
 
-        setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeRight) {
+        setContent(interfaceOrientation = UIInterfaceOrientationLandscapeRight) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -134,13 +133,49 @@ class WindowInsetsPaddingTest {
             }
         }
 
-        val xOffset = viewController.view.safeAreaInsets.useContents { left }.dp
+        assertEquals(
+            DpRect(
+                left = viewController.view.safeAreaInsets.useContents { left }.dp,
+                top = 0.dp,
+                right = screenSize.width,
+                bottom = screenSize.height
+            ),
+            boxRect
+        )
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun testDisplayCutoutPadding_iPad() = runUIKitInstrumentedTest(
+        ignoreIf = UIKitInstrumentedTest.iPadOrientationChangesNotSupported,
+        ignoreNotes = "Run for iPad only",
+        params = listOf(
+            UIInterfaceOrientationPortrait,
+            UIInterfaceOrientationLandscapeRight,
+            UIInterfaceOrientationLandscapeLeft,
+            UIInterfaceOrientationPortraitUpsideDown
+        ),
+    ) { interfaceOrientation ->
+        var boxRect = DpRectZero()
+
+        setContent(interfaceOrientation = interfaceOrientation) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.displayCutout)
+                    .background(Color.Red)
+                    .onGloballyPositioned({ boxRect = it.boundsInWindow().toDpRect(density) })
+            ) {
+                Text("TEXT")
+            }
+        }
 
         assertEquals(
             DpRect(
-                DpOffset(xOffset, 0.dp),
-                size = DpSize(
-                    screenSize.width - xOffset,screenSize.height)
+                left = 0.dp,
+                top = viewController.view.safeAreaInsets.useContents { top }.dp,
+                right = screenSize.width,
+                bottom = screenSize.height
             ),
             boxRect
         )
