@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.Matrix4
 
 /** Interface for a Mesh entity. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -28,6 +29,13 @@ public interface MeshEntity : Entity {
      * @param subsetIndex The zero-based index for the mesh subset.
      */
     public fun setMaterial(material: MaterialResource, subsetIndex: Int)
+
+    /**
+     * Sets the transforms for the bones in the skinned mesh.
+     *
+     * @param transforms A list of [Matrix4] objects representing the new bone transforms.
+     */
+    public fun setBoneTransforms(transforms: List<Matrix4>)
 }
 
 /** Provide the rendering implementation for [MeshEntity] */
@@ -40,4 +48,11 @@ public interface MeshFeature : RenderingFeature {
      * @param subsetIndex The zero-based index for the mesh subset.
      */
     public fun setMaterial(material: MaterialResource, subsetIndex: Int)
+
+    /**
+     * Sets the transforms for the bones in the skinned mesh.
+     *
+     * @param transforms A list of [Matrix4] objects representing the new bone transforms.
+     */
+    public fun setBoneTransforms(transforms: List<Matrix4>)
 }

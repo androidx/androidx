@@ -1374,4 +1374,12 @@ public interface ImpressApi {
         submeshIndex: Int,
         materialHandle: Long,
     )
+
+    /**
+     * Sets the transforms for the bones in the skinned mesh.
+     *
+     * @param impressNode The impress node to update.
+     * @param transforms A list of [Matrix4] objects representing the new bone transforms.
+     */
+    public fun setBoneTransforms(impressNode: ImpressNode, transforms: List<Matrix4>)
 }

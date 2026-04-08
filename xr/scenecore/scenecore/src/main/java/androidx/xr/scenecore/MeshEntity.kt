@@ -18,6 +18,7 @@ package androidx.xr.scenecore
 
 import androidx.annotation.MainThread
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.MeshEntity as RtMeshEntity
 
@@ -28,7 +29,8 @@ import androidx.xr.scenecore.runtime.MeshEntity as RtMeshEntity
  * materials must match the number of subsets in the `CustomMesh`.
  *
  * @property mesh The [CustomMesh] resource rendered by this entity.
- * @property boneCount The number of bones used to animate the mesh. If 0, skinning is disabled.
+ * @property boneCount The number of bones used to animate the mesh. If 0, skinning is disabled. If
+ *   non-zero, bone transforms can be set with [setBoneTransforms].
  */
 @ExperimentalCustomMeshApi
 public class MeshEntity
@@ -63,6 +65,28 @@ private constructor(
         rtEntity!!.setMaterial(material.material, subsetIndex)
     }
 
+    /**
+     * Sets the transforms for the bones in the skinned mesh.
+     *
+     * This function is used to animate meshes with skeletal animations (skinning). Each bone's
+     * transform is represented by a [Matrix4] object. This can only be used if [boneCount] is
+     * greater than zero.
+     *
+     * @param transforms A list of [Matrix4] objects representing the new bone transforms. The order
+     *   in the list corresponds to the bone indices. The number of transforms can be less than
+     *   [boneCount], in which case only the provided bones are updated. Any extra transforms beyond
+     *   [boneCount] will be ignored.
+     * @throws IllegalStateException if [boneCount] is zero.
+     */
+    @MainThread
+    public fun setBoneTransforms(transforms: List<Matrix4>) {
+        checkNotDisposed()
+        check(boneCount > 0) {
+            "MeshEntity must be created with a boneCount greater than 0 to set bone transforms."
+        }
+        rtEntity!!.setBoneTransforms(transforms)
+    }
+
     public companion object {
         /**
          * Creates a new [MeshEntity].
@@ -73,7 +97,7 @@ private constructor(
          *   The list must contain one material per mesh subset. Materials in the list must not be
          *   null.
          * @param boneCount The number of bones used to animate the mesh. If 0, skinning is
-         *   disabled.
+         *   disabled. If non-zero, bone transforms can be set with [setBoneTransforms].
          * @param pose The initial pose of the entity relative to its parent. Defaults to
          *   `Pose.Identity`.
          * @param parent Parent entity. If `null`, the entity is created but not attached to the

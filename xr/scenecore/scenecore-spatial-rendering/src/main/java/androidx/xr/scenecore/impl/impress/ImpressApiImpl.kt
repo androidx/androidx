@@ -1733,6 +1733,23 @@ public class ImpressApiImpl : ImpressApi {
         )
     }
 
+    override fun setBoneTransforms(impressNode: ImpressNode, transforms: List<Matrix4>) {
+        val floatArray = FloatArray(transforms.size * 16)
+        var i = 0
+        for (transform in transforms) {
+            val elements = transform.data
+            for (j in 0 until 16) {
+                floatArray[i++] = elements[j]
+            }
+        }
+        nUpdateCustomMeshNodeBoneTransforms(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            /* offset= */ 0,
+            floatArray,
+        )
+    }
+
     private fun getViewNativeHandle(view: View?): Long {
         if (view != null) {
             return view.nativeHandle
@@ -2509,5 +2526,12 @@ public class ImpressApiImpl : ImpressApi {
         nodeId: Int,
         submeshIndex: Int,
         materialHandle: Long,
+    )
+
+    private external fun nUpdateCustomMeshNodeBoneTransforms(
+        view: Long,
+        nodeId: Int,
+        offset: Int,
+        transforms: FloatArray,
     )
 }

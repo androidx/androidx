@@ -18,6 +18,7 @@ package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.NodeHolder
+import androidx.xr.runtime.math.Matrix4
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshFeature
 
@@ -27,5 +28,9 @@ public open class FakeMeshFeature(nodeHolder: NodeHolder<*>) :
     FakeBaseRenderingFeature(nodeHolder), MeshFeature {
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
         // Test stub.
+    }
+
+    override fun setBoneTransforms(transforms: List<Matrix4>) {
+        // no-op
     }
 }

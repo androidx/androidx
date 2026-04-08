@@ -612,6 +612,7 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public int getBoneCount();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.Material> getMaterials();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.CustomMesh getMesh();
+    method @MainThread public void setBoneTransforms(java.util.List<androidx.xr.runtime.math.Matrix4> transforms);
     method @MainThread public void setMaterial(androidx.xr.scenecore.Material material);
     method @MainThread public void setMaterial(androidx.xr.scenecore.Material material, optional int subsetIndex);
     method @BytecodeOnly @MainThread public static void setMaterial$default(androidx.xr.scenecore.MeshEntity!, androidx.xr.scenecore.Material!, int, int, Object!);

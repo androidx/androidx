@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.content.Context
+import androidx.xr.runtime.math.Matrix4
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
@@ -38,5 +39,9 @@ internal class MeshEntityImpl(
 
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
         meshFeature.setMaterial(material, subsetIndex)
+    }
+
+    override fun setBoneTransforms(transforms: List<Matrix4>) {
+        meshFeature.setBoneTransforms(transforms)
     }
 }
