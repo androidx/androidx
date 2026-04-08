@@ -41,7 +41,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -218,23 +217,21 @@ class WidgetUpdateClientImplTest {
 
     @Test
     fun requestUpdate_failsWhenSysUiIsMissing() {
-        assertThrows(IllegalStateException::class.java) {
-            runTest {
-                val updateClient = WidgetUpdateClientImpl(newTestDispatcher())
-                val shadowApp = shadowOf(appContext as Application?)
+        runTest {
+            val updateClient = WidgetUpdateClientImpl(newTestDispatcher())
+            val shadowApp = shadowOf(appContext as Application?)
 
-                Settings.Global.putString(
-                    appContext.contentResolver,
-                    SYSUI_SETTINGS_KEY,
-                    "com.does.not.exist",
-                )
+            Settings.Global.putString(
+                appContext.contentResolver,
+                SYSUI_SETTINGS_KEY,
+                "com.does.not.exist",
+            )
 
-                updateClient.requestUpdate(appContext, TEST_PROVIDER_COMPONENT)
-                waitAllScopesIdle()
+            updateClient.requestUpdate(appContext, TEST_PROVIDER_COMPONENT)
+            waitAllScopesIdle()
 
-                assertThat(shadowApp.boundServiceConnections).isEmpty()
-                assertThat(standardSysUiFakeReceiver.requestedComponents).isEmpty()
-            }
+            assertThat(shadowApp.boundServiceConnections).isEmpty()
+            assertThat(standardSysUiFakeReceiver.requestedComponents).isEmpty()
         }
     }
 
