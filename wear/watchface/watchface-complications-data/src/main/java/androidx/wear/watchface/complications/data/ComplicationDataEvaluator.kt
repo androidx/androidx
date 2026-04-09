@@ -119,6 +119,7 @@ constructor(
                 if (keepDynamicValues && evaluatedData.isInvalid()) {
                     // Setting invalidated data.
                     WireComplicationData.Builder(evaluatedData)
+                        .setDataSource(unevaluatedData.dataSource)
                         .setInvalidatedData(unevaluatedData)
                         .build()
                 } else {
