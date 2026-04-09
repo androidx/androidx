@@ -620,6 +620,27 @@ class ComposeViewAdapterTest {
     }
 
     @Test
+    fun testPreviewWrapperWithCompositionLocal() {
+        val viewInfos =
+            assertRendersCorrectly(
+                "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+                "TestCompositionLocalWrapperPreview",
+                previewWrapperProvider = TestCompositionLocalWrapper::class.java,
+            )
+
+        activityTestRule.runOnUiThread {
+            assertTrue(viewInfos.isNotEmpty())
+            // If the preview rendered successfully without crashing from the
+            // IllegalArgumentException we know the CompositionLocal was correctly provided.
+            val previewNode =
+                viewInfos
+                    .flatMap { it.allChildren() + it }
+                    .find { it.name == "Text" && it.fileName == "SimpleComposablePreview.kt" }
+            assertTrue("TestCompositionLocalWrapperPreview should be present", previewNode != null)
+        }
+    }
+
+    @Test
     fun subcompositionDesignInfoProviderTest() {
         checkDesignInfoList("ScaffoldDesignInfoProvider", "A", "ObjectA, x=0, y=0")
     }

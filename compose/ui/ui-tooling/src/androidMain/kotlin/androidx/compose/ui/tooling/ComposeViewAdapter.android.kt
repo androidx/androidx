@@ -419,6 +419,64 @@ internal class ComposeViewAdapter : FrameLayout {
         }
     }
 
+    @SuppressLint("VisibleForTests")
+    @Suppress("DEPRECATION")
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Composable
+    private fun InvokeComposableViaReflection(
+        className: String,
+        methodName: String,
+        parameterProvider: Class<out PreviewParameterProvider<*>>?,
+        parameterProviderIndex: Int,
+        animationClockStartTime: Long,
+    ) {
+        val composer = currentComposer
+        // We need to delay the reflection instantiation of the class until we are in
+        // the composable to ensure all the right initialization has happened and the
+        // Composable class loads correctly.
+        val innerComposable =
+            @Composable {
+                try {
+                    ComposableInvoker.invokeComposable(
+                        className,
+                        methodName,
+                        composer,
+                        *getPreviewProviderParameters(parameterProvider, parameterProviderIndex),
+                    )
+                } catch (t: Throwable) {
+                    // If there is an exception, store it for later but do not catch it
+                    // so compose can handle it and dispose correctly.
+                    var exception: Throwable = t
+                    // Find the root cause and use that for the delayedException.
+                    while (exception is ReflectiveOperationException) {
+                        exception = exception.cause ?: break
+                    }
+                    delayedException.set(exception)
+                    throw t
+                }
+            }
+        if (animationClockStartTime >= 0) {
+            // When animation inspection is enabled, i.e. when a valid (non-negative)
+            // `animationClockStartTime` is passed, set the Preview Animation Clock.
+            // This clock will control the animations defined in this
+            // `ComposeViewAdapter` from Android Studio.
+            clock =
+                PreviewAnimationClock(requestLayout = ::requestLayout) {
+                    // Invalidate the descendants of this ComposeViewAdapter's only
+                    // grandchild (an AndroidOwner) when setting the clock time to make
+                    // sure the Compose Preview will animate when the states are read
+                    // inside the draw scope.
+                    val composeView = getChildAt(0) as ComposeView
+                    (composeView.getChildAt(0) as? ViewRootForTest)?.invalidateDescendants()
+                    // Send pending apply notifications to ensure the animation duration
+                    // will be read in the correct frame.
+                    Snapshot.sendApplyNotifications()
+                }
+        }
+
+        innerComposable()
+    }
+
     /**
      * Initializes the adapter and populates it with the given [Preview] composable.
      *
@@ -465,64 +523,25 @@ internal class ComposeViewAdapter : FrameLayout {
         previewComposition =
             @Composable {
                 SideEffect(onCommit)
-
                 WrapPreview {
-                    val composer = currentComposer
-                    // We need to delay the reflection instantiation of the class until we are in
-                    // the composable to ensure all the right initialization has happened and the
-                    // Composable class loads correctly.
-                    val innerComposable =
-                        @Composable {
-                            try {
-                                ComposableInvoker.invokeComposable(
-                                    className,
-                                    methodName,
-                                    composer,
-                                    *getPreviewProviderParameters(
-                                        parameterProvider,
-                                        parameterProviderIndex,
-                                    ),
-                                )
-                            } catch (t: Throwable) {
-                                // If there is an exception, store it for later but do not catch it
-                                // so compose can handle it and dispose correctly.
-                                var exception: Throwable = t
-                                // Find the root cause and use that for the delayedException.
-                                while (exception is ReflectiveOperationException) {
-                                    exception = exception.cause ?: break
-                                }
-                                delayedException.set(exception)
-                                throw t
-                            }
-                        }
-                    if (animationClockStartTime >= 0) {
-                        // When animation inspection is enabled, i.e. when a valid (non-negative)
-                        // `animationClockStartTime` is passed, set the Preview Animation Clock.
-                        // This clock will control the animations defined in this
-                        // `ComposeViewAdapter` from Android Studio.
-                        clock =
-                            PreviewAnimationClock(requestLayout = ::requestLayout) {
-                                // Invalidate the descendants of this ComposeViewAdapter's only
-                                // grandchild (an AndroidOwner) when setting the clock time to make
-                                // sure the Compose Preview will animate when the states are read
-                                // inside the draw scope.
-                                val composeView = getChildAt(0) as ComposeView
-                                (composeView.getChildAt(0) as? ViewRootForTest)
-                                    ?.invalidateDescendants()
-                                // Send pending apply notifications to ensure the animation duration
-                                // will be read in the correct frame.
-                                Snapshot.sendApplyNotifications()
-                            }
-                    }
-                    // The [PreviewWrapperProvider] allows for custom behavior logic to be applied
-                    // to the preview content.
+                    // The [PreviewWrapperProvider] allows for custom behavior logic to be
+                    // applied to the preview content.
                     // If a wrapper class is specified, we instantiate it and call its [Wrap]
                     // function, passing the composable function as the content. This enables
-                    // features like Remote Compose, custom theme injection, or specialized layout
-                    // containers.
-                    previewWrapperProvider?.let { wrapperClass ->
-                        instantiatePreviewWrapperProvider(wrapperClass).Wrap(innerComposable)
-                    } ?: innerComposable()
+                    // features like Remote Compose, custom theme injection, or specialized
+                    // layout containers.
+                    instantiatePreviewWrapperProvider(previewWrapperProvider)
+                        .Wrap(
+                            @Composable {
+                                InvokeComposableViaReflection(
+                                    className,
+                                    methodName,
+                                    parameterProvider,
+                                    parameterProviderIndex,
+                                    animationClockStartTime,
+                                )
+                            }
+                        )
                 }
             }
         composeView.setContent(previewComposition)

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.tooling
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -90,19 +91,28 @@ internal fun getPreviewProviderParameters(
  * Instantiates a [PreviewWrapperProvider] from the provided [Class].
  *
  * This method attempts to find a no-argument constructor on the given class and use it to creates a
- * new instance.
+ * new instance. If [previewWrapperProvider] is `null`, it returns a no-op wrapper that just passes
+ * through its content.
  *
  * @param previewWrapperProvider The [Class] of the [PreviewWrapperProvider] to instantiate.
- * @return A new instance of the [PreviewWrapperProvider].
+ * @return A new instance of the [PreviewWrapperProvider] or a no-op wrapper if null.
  * @throws IllegalArgumentException If the class does not have a public, no-argument constructor.
  */
 internal fun instantiatePreviewWrapperProvider(
     previewWrapperProvider: Class<out PreviewWrapperProvider>?
 ): PreviewWrapperProvider {
+    if (previewWrapperProvider == null) {
+        return object : PreviewWrapperProvider {
+            @Composable
+            override fun Wrap(content: @Composable () -> Unit) {
+                content()
+            }
+        }
+    }
+
     val constructor =
-        previewWrapperProvider
-            ?.constructors
-            ?.singleOrNull { it.parameterTypes.isEmpty() }
+        previewWrapperProvider.constructors
+            .singleOrNull { it.parameterTypes.isEmpty() }
             ?.apply { isAccessible = true }
             ?: throw IllegalArgumentException(
                 "PreviewWrapperProvider constructor can not" + " have parameters"
