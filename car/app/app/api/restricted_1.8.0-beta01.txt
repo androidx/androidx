@@ -1431,7 +1431,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.OnClickDelegate getOnClickDelegate();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(8) public final class CondensedItem implements androidx.car.app.model.Item {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedItem implements androidx.car.app.model.Item {
     method public androidx.car.app.model.CarIcon? getLeadingImage();
     method public androidx.car.app.model.CarText? getText();
     method public androidx.car.app.model.CarText? getTitle();
@@ -1977,7 +1977,7 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSections(java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!>);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(8) public final class SpotlightSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SpotlightSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
     method public androidx.car.app.model.CarIcon getImage();
     method public androidx.car.app.model.OnClickDelegate? getImageOnClickDelegate();
   }
