@@ -441,34 +441,44 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                         }
                     }
                 }
-                targets.withType(KotlinJvmTarget::class.java).configureEach { target ->
-                    val defaultTargetVersionForNonAndroidTargets =
-                        androidXExtension.type.map {
-                            getDefaultTargetJavaVersion(
-                                    softwareType = it,
-                                    projectName = project.name,
-                                    targetName = target.name,
-                                )
-                                .toString()
-                        }
-                    val defaultJvmTargetForNonAndroidTargets =
-                        defaultTargetVersionForNonAndroidTargets.map { JvmTarget.fromTarget(it) }
+                targets.withType<KotlinJvmTarget>().configureEach { target ->
+                    val resolvedJvmVersion =
+                        targetsAndroid
+                            .zip(defaultJavaTargetVersion) { hasAndroid, androidVer ->
+                                hasAndroid to androidVer
+                            }
+                            .zip(androidXExtension.type) { (hasAndroid, androidVer), softwareType ->
+                                val targetVer =
+                                    getDefaultTargetJavaVersion(
+                                        softwareType = softwareType,
+                                        projectName = project.name,
+                                        targetName = target.name,
+                                    )
+                                // Use the higher of the Android version and the target-specific
+                                // version. This respects target overrides (like Desktop needing
+                                // 11) while aligning with Android when Android requires a
+                                // higher version.
+                                if (hasAndroid && JavaVersion.toVersion(androidVer) > targetVer) {
+                                    androidVer
+                                } else {
+                                    targetVer.toString()
+                                }
+                            }
+
+                    val jvmTargetEnum = resolvedJvmVersion.map { JvmTarget.fromTarget(it) }
+
+                    val jdkReleaseArgs =
+                        resolvedJvmVersion.map { version -> listOf("-Xjdk-release=$version") }
+
                     target.compilations.configureEach { compilation ->
                         compilation.compileJavaTaskProvider?.configure { javaCompile ->
-                            javaCompile.targetCompatibility =
-                                defaultTargetVersionForNonAndroidTargets.get()
-                            javaCompile.sourceCompatibility =
-                                defaultTargetVersionForNonAndroidTargets.get()
+                            javaCompile.targetCompatibility = resolvedJvmVersion.get()
+                            javaCompile.sourceCompatibility = resolvedJvmVersion.get()
                         }
                         compilation.compileTaskProvider.configure { kotlinCompile ->
                             kotlinCompile.compilerOptions {
-                                jvmTarget.set(defaultJvmTargetForNonAndroidTargets)
-                                // Set jdk-release version for non-Android KMP targets
-                                freeCompilerArgs.add(
-                                    defaultTargetVersionForNonAndroidTargets.map {
-                                        "-Xjdk-release=$it"
-                                    }
-                                )
+                                jvmTarget.set(jvmTargetEnum)
+                                freeCompilerArgs.addAll(jdkReleaseArgs)
                             }
                         }
                     }
@@ -706,14 +716,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         }
 
         kotlinMultiplatformAndroidComponentsExtension.onVariants { variant ->
-            @Suppress("UnstableApiUsage")
-            variant.configureJavaCompileTask { compile ->
-                val defaultTargetJavaVersion =
-                    getDefaultTargetJavaVersion(androidXExtension.type.get(), project.name)
-                        .toString()
-                compile.sourceCompatibility = defaultTargetJavaVersion
-                compile.targetCompatibility = defaultTargetJavaVersion
-            }
             project.configureProjectForApiTasks(
                 AndroidMultiplatformApiTaskConfig(variant),
                 androidXExtension,
