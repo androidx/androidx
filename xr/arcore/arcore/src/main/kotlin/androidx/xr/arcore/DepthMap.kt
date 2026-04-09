@@ -94,6 +94,7 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
      * @property smoothConfidenceMap a buffer of confidence values for each pixel in
      *   [smoothDepthMap], with 0 representing the lowest confidence and 255 representing the
      *   highest confidence
+     * @property owner self-reference to the object that owns this state.
      */
     public class State
     internal constructor(
@@ -103,6 +104,7 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
         public val rawConfidenceMap: ByteBuffer?,
         public val smoothDepthMap: FloatBuffer?,
         public val smoothConfidenceMap: ByteBuffer?,
+        public val owner: DepthMap,
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -112,7 +114,8 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
                 rawDepthMap == other.rawDepthMap &&
                 rawConfidenceMap == other.rawConfidenceMap &&
                 smoothDepthMap == other.smoothDepthMap &&
-                smoothConfidenceMap == other.smoothConfidenceMap
+                smoothConfidenceMap == other.smoothConfidenceMap &&
+                owner == other.owner
         }
 
         override fun hashCode(): Int {
@@ -122,6 +125,7 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
             result = 31 * result + (rawConfidenceMap?.hashCode() ?: 0)
             result = 31 * result + (smoothDepthMap?.hashCode() ?: 0)
             result = 31 * result + (smoothConfidenceMap?.hashCode() ?: 0)
+            result = 31 * result + owner.hashCode()
             return result
         }
     }
@@ -135,6 +139,7 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
                 rawConfidenceMap = null,
                 smoothDepthMap = null,
                 smoothConfidenceMap = null,
+                owner = this,
             )
         )
 
@@ -150,6 +155,7 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
                 rawConfidenceMap = runtimeDepthMap.rawConfidenceMap,
                 smoothDepthMap = runtimeDepthMap.smoothDepthMap,
                 smoothConfidenceMap = runtimeDepthMap.smoothConfidenceMap,
+                owner = this,
             )
         )
     }

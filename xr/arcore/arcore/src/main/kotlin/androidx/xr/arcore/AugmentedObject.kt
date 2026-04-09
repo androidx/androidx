@@ -73,15 +73,20 @@ internal constructor(
             return session.state
                 .transform { state ->
                     state.perceptionState?.let { perceptionState ->
-                        emit(perceptionState.trackables.filterIsInstance<AugmentedObject>())
+                        emit(
+                            perceptionState.trackableStates
+                                .filterIsInstance<AugmentedObject.State>()
+                                .map { it.owner }
+                        )
                     }
                 }
                 .stateIn(
                     session.coroutineScope,
                     SharingStarted.Eagerly,
                     session.state.value.perceptionState
-                        ?.trackables
-                        ?.filterIsInstance<AugmentedObject>() ?: emptyList(),
+                        ?.trackableStates
+                        ?.filterIsInstance<AugmentedObject.State>()
+                        ?.map { it.owner } ?: emptyList(),
                 )
         }
     }
@@ -94,6 +99,7 @@ internal constructor(
      * @property centerPose the [Pose] determined to represent the center of this object
      * @property extents the dimensions of the object, axis aligned relative to the center pose,
      *   representing the full length of the specific axis
+     * @property owner self-reference to the object that owns this state.
      */
     public class State
     internal constructor(
@@ -101,12 +107,14 @@ internal constructor(
         public val category: Category,
         public val centerPose: Pose,
         public val extents: FloatSize3d,
+        public val owner: AugmentedObject,
     ) : Trackable.State {
         override fun hashCode(): Int {
             var result = trackingState.hashCode()
             result = 31 * result + category.hashCode()
             result = 31 * result + centerPose.hashCode()
             result = 31 * result + extents.hashCode()
+            result = 31 * result + owner.hashCode()
             return result
         }
 
@@ -116,7 +124,8 @@ internal constructor(
             return trackingState == other.trackingState &&
                 category == other.category &&
                 centerPose == other.centerPose &&
-                extents == other.extents
+                extents == other.extents &&
+                owner == other.owner
         }
     }
 
@@ -127,6 +136,7 @@ internal constructor(
                 runtimeObject.category,
                 runtimeObject.centerPose,
                 runtimeObject.extents,
+                owner = this,
             )
         )
 
@@ -144,6 +154,7 @@ internal constructor(
                 runtimeObject.category,
                 runtimeObject.centerPose,
                 runtimeObject.extents,
+                owner = this,
             )
         )
     }

@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.AugmentedObject
-import androidx.xr.arcore.Trackable
 import androidx.xr.arcore.perceptionState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
@@ -218,8 +217,10 @@ class HelloArObjectActivity : ComponentActivity() {
             Column(modifier = Modifier.padding(innerPadding).background(color = Color.White)) {
                 Text(text = "CoreState: ${state.timeMark}")
                 TrackablesList(
-                    state.perceptionState!!.trackables.filterIsInstance<AugmentedObject>()
-                        as List<Trackable<Trackable.State>>
+                    state.perceptionState!!
+                        .trackableStates
+                        .filterIsInstance<AugmentedObject.State>()
+                        .map { it.owner }
                 )
             }
         }

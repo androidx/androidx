@@ -72,8 +72,8 @@ class InteractionTest {
             val timeMark = timeSource.markNow()
             val state = CoreState(timeMark)
             perceptionStateExtender.extend(state)
-            check(state.perceptionState?.trackables?.size == 1)
-            val expectedTrackable = state.perceptionState?.trackables?.first()
+            check(state.perceptionState?.trackableStates?.size == 1)
+            val expectedTrackable = state.perceptionState?.trackableStates?.first()
             val runtimeHitResult: RuntimeHitResult =
                 RuntimeHitResult(
                     distance = 1f,
@@ -87,7 +87,7 @@ class InteractionTest {
             assertThat(hitResults.size).isEqualTo(1)
             assertThat(hitResults[0].distance).isEqualTo(runtimeHitResult.distance)
             assertThat(hitResults[0].hitPose).isEqualTo(runtimeHitResult.hitPose)
-            assertThat(hitResults[0].trackable).isEqualTo(expectedTrackable)
+            assertThat(hitResults[0].trackable).isEqualTo((expectedTrackable as Plane.State).owner)
         }
     }
 

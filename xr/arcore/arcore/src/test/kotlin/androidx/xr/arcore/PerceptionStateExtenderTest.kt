@@ -92,8 +92,9 @@ class PerceptionStateExtenderTest {
 
         // assert
         val perceptionState = coreState.perceptionState!!
-        assertThat(perceptionState.trackables).hasSize(1)
-        assertThat(convertTrackable(perceptionState.trackables.last())).isEqualTo(runtimeTrackable)
+        assertThat(perceptionState.trackableStates).hasSize(1)
+        assertThat(convertTrackable((perceptionState.trackableStates.last() as Plane.State).owner))
+            .isEqualTo(runtimeTrackable)
     }
 
     @Test
@@ -115,8 +116,9 @@ class PerceptionStateExtenderTest {
 
         // assert
         val perceptionState = coreState.perceptionState!!
-        assertThat(perceptionState.trackables).hasSize(1)
-        assertThat(convertTrackable(perceptionState.trackables.last())).isEqualTo(runtimeTrackable)
+        assertThat(perceptionState.trackableStates).hasSize(1)
+        assertThat(convertTrackable((perceptionState.trackableStates.last() as Plane.State).owner))
+            .isEqualTo(runtimeTrackable)
     }
 
     @Test
@@ -128,7 +130,7 @@ class PerceptionStateExtenderTest {
         val coreState = CoreState(timeSource.markNow())
         underTest.extend(coreState)
         check(
-            coreState.perceptionState!!.trackables.last().state.value.trackingState ==
+            coreState.perceptionState!!.trackableStates.last().trackingState ==
                 TrackingState.TRACKING
         )
 
@@ -139,7 +141,7 @@ class PerceptionStateExtenderTest {
         underTest.extend(coreState2)
 
         // assert
-        assertThat(coreState2.perceptionState!!.trackables.last().state.value.trackingState)
+        assertThat(coreState2.perceptionState!!.trackableStates.last().trackingState)
             .isEqualTo(TrackingState.STOPPED)
     }
 
@@ -149,18 +151,12 @@ class PerceptionStateExtenderTest {
         underTest.initialize(listOf(fakePerceptionRuntime))
         val coreState = CoreState(timeSource.markNow())
         underTest.extend(coreState)
-        check(coreState.perceptionState!!.leftHand != null)
-        check(coreState.perceptionState!!.rightHand != null)
-        check(
-            coreState.perceptionState!!.leftHand!!.state.value.trackingState !=
-                TrackingState.TRACKING
-        )
-        check(coreState.perceptionState!!.leftHand!!.state.value.handJoints.isEmpty())
-        check(
-            coreState.perceptionState!!.rightHand!!.state.value.trackingState !=
-                TrackingState.TRACKING
-        )
-        check(coreState.perceptionState!!.rightHand!!.state.value.handJoints.isEmpty())
+        check(coreState.perceptionState!!.leftHandState != null)
+        check(coreState.perceptionState!!.rightHandState != null)
+        check(coreState.perceptionState!!.leftHandState!!.trackingState != TrackingState.TRACKING)
+        check(coreState.perceptionState!!.leftHandState!!.handJoints.isEmpty())
+        check(coreState.perceptionState!!.rightHandState!!.trackingState != TrackingState.TRACKING)
+        check(coreState.perceptionState!!.rightHandState!!.handJoints.isEmpty())
 
         // act
         timeSource += 10.milliseconds
@@ -184,13 +180,13 @@ class PerceptionStateExtenderTest {
         underTest.extend(coreState2)
 
         // assert
-        assertThat(coreState2.perceptionState!!.leftHand!!.state.value.trackingState)
+        assertThat(coreState2.perceptionState!!.leftHandState!!.trackingState)
             .isEqualTo(TrackingState.TRACKING)
-        assertThat(coreState2.perceptionState!!.rightHand!!.state.value.trackingState)
+        assertThat(coreState2.perceptionState!!.rightHandState!!.trackingState)
             .isEqualTo(TrackingState.TRACKING)
         for (jointType in HandJointType.entries) {
-            val leftHandJoints = coreState2.perceptionState!!.leftHand!!.state.value.handJoints
-            val rightHandJoints = coreState2.perceptionState!!.rightHand!!.state.value.handJoints
+            val leftHandJoints = coreState2.perceptionState!!.leftHandState!!.handJoints
+            val rightHandJoints = coreState2.perceptionState!!.rightHandState!!.handJoints
             assertThat(leftHandJoints[jointType]!!.translation)
                 .isEqualTo(handJoints[jointType]!!.translation)
             assertRotationEquals(
@@ -212,7 +208,7 @@ class PerceptionStateExtenderTest {
         underTest.initialize(listOf(fakePerceptionRuntime))
         val coreState = CoreState(timeSource.markNow())
         underTest.extend(coreState)
-        check(coreState.perceptionState!!.arDevice.state.value.devicePose == Pose())
+        check(coreState.perceptionState!!.arDeviceState.devicePose == Pose())
 
         // act
         timeSource += 10.milliseconds
@@ -225,7 +221,7 @@ class PerceptionStateExtenderTest {
         underTest.extend(coreState2)
 
         // assert
-        assertThat(coreState2.perceptionState!!.arDevice.state.value.devicePose)
+        assertThat(coreState2.perceptionState!!.arDeviceState.devicePose)
             .isEqualTo(expectedDevicePose)
     }
 
@@ -235,9 +231,8 @@ class PerceptionStateExtenderTest {
         underTest.initialize(listOf(fakePerceptionRuntime))
         val coreState = CoreState(timeSource.markNow())
         underTest.extend(coreState)
-        check(coreState.perceptionState!!.leftRenderViewpoint != null)
-        val renderViewpointStateValue =
-            coreState.perceptionState!!.leftRenderViewpoint!!.state.value
+        check(coreState.perceptionState!!.leftRenderViewpointState != null)
+        val renderViewpointStateValue = coreState.perceptionState!!.leftRenderViewpointState!!
         check(renderViewpointStateValue.pose.equals(Pose(Vector3(1f, 0f, 0f), Quaternion.Identity)))
         check(
             renderViewpointStateValue.localPose.equals(
@@ -258,8 +253,7 @@ class PerceptionStateExtenderTest {
         underTest.extend(coreState2)
 
         // assert
-        val renderViewpointStateValue2 =
-            coreState2.perceptionState!!.leftRenderViewpoint!!.state.value
+        val renderViewpointStateValue2 = coreState2.perceptionState!!.leftRenderViewpointState!!
         assertThat(renderViewpointStateValue2.pose).isEqualTo(expectedPose)
         assertThat(renderViewpointStateValue2.localPose).isEqualTo(expectedPose)
         assertThat(renderViewpointStateValue2.fieldOfView).isEqualTo(expectedFov)
@@ -271,9 +265,8 @@ class PerceptionStateExtenderTest {
         underTest.initialize(listOf(fakePerceptionRuntime))
         val coreState = CoreState(timeSource.markNow())
         underTest.extend(coreState)
-        check(coreState.perceptionState!!.rightRenderViewpoint != null)
-        val renderViewpointStateValue =
-            coreState.perceptionState!!.rightRenderViewpoint!!.state.value
+        check(coreState.perceptionState!!.rightRenderViewpointState != null)
+        val renderViewpointStateValue = coreState.perceptionState!!.rightRenderViewpointState!!
         check(renderViewpointStateValue.pose.equals(Pose(Vector3(0f, 1f, 0f), Quaternion.Identity)))
         check(
             renderViewpointStateValue.localPose.equals(
@@ -294,8 +287,7 @@ class PerceptionStateExtenderTest {
         underTest.extend(coreState2)
 
         // assert
-        val renderViewpointStateValue2 =
-            coreState2.perceptionState!!.rightRenderViewpoint!!.state.value
+        val renderViewpointStateValue2 = coreState2.perceptionState!!.rightRenderViewpointState!!
         assertThat(renderViewpointStateValue2.pose).isEqualTo(expectedPose)
         assertThat(renderViewpointStateValue2.localPose).isEqualTo(expectedPose)
         assertThat(renderViewpointStateValue2.fieldOfView).isEqualTo(expectedFov)
@@ -307,9 +299,8 @@ class PerceptionStateExtenderTest {
         underTest.initialize(listOf(fakePerceptionRuntime))
         val coreState = CoreState(timeSource.markNow())
         underTest.extend(coreState)
-        check(coreState.perceptionState!!.monoRenderViewpoint != null)
-        val renderViewpointStateValue =
-            coreState.perceptionState!!.monoRenderViewpoint!!.state.value
+        check(coreState.perceptionState!!.monoRenderViewpointState != null)
+        val renderViewpointStateValue = coreState.perceptionState!!.monoRenderViewpointState!!
         check(renderViewpointStateValue.pose.equals(Pose(Vector3(0f, 0f, 1f), Quaternion.Identity)))
         check(
             renderViewpointStateValue.localPose.equals(
@@ -330,8 +321,7 @@ class PerceptionStateExtenderTest {
         underTest.extend(coreState2)
 
         // assert
-        val renderViewpointStateValue2 =
-            coreState2.perceptionState!!.monoRenderViewpoint!!.state.value
+        val renderViewpointStateValue2 = coreState2.perceptionState!!.monoRenderViewpointState!!
         assertThat(renderViewpointStateValue2.pose).isEqualTo(expectedPose)
         assertThat(renderViewpointStateValue2.localPose).isEqualTo(expectedPose)
         assertThat(renderViewpointStateValue2.fieldOfView).isEqualTo(expectedFov)
@@ -343,13 +333,10 @@ class PerceptionStateExtenderTest {
         underTest.initialize(listOf(fakePerceptionRuntime))
         val coreState = CoreState(timeSource.markNow())
         underTest.extend(coreState)
-        check(coreState.perceptionState!!.userFace != null)
-        check(
-            coreState.perceptionState!!.userFace!!.state.value.trackingState !=
-                TrackingState.TRACKING
-        )
-        check(coreState.perceptionState!!.userFace!!.state.value.blendShapeValues!!.isEmpty())
-        check(coreState.perceptionState!!.userFace!!.state.value.confidenceValues!!.isEmpty())
+        check(coreState.perceptionState!!.userFaceState != null)
+        check(coreState.perceptionState!!.userFaceState!!.trackingState != TrackingState.TRACKING)
+        check(coreState.perceptionState!!.userFaceState!!.blendShapeValues!!.isEmpty())
+        check(coreState.perceptionState!!.userFaceState!!.confidenceValues!!.isEmpty())
 
         // act
         timeSource += 10.milliseconds
@@ -363,11 +350,11 @@ class PerceptionStateExtenderTest {
         underTest.extend(coreState2)
 
         // assert
-        assertThat(coreState2.perceptionState!!.userFace!!.state.value.trackingState)
+        assertThat(coreState2.perceptionState!!.userFaceState!!.trackingState)
             .isEqualTo(TrackingState.TRACKING)
-        assertThat(coreState2.perceptionState!!.userFace!!.state.value.blendShapeValues)
+        assertThat(coreState2.perceptionState!!.userFaceState!!.blendShapeValues)
             .isEqualTo(expectedBlendShapeValues)
-        assertThat(coreState2.perceptionState!!.userFace!!.state.value.confidenceValues)
+        assertThat(coreState2.perceptionState!!.userFaceState!!.confidenceValues)
             .isEqualTo(expectedConfidenceValues)
     }
 
@@ -398,13 +385,13 @@ class PerceptionStateExtenderTest {
         underTest.initialize(listOf(fakePerceptionRuntime))
         val coreState = CoreState(timeSource.markNow())
         underTest.extend(coreState)
-        check(coreState.perceptionState!!.leftDepthMap != null)
-        check(coreState.perceptionState!!.leftDepthMap!!.state.value.width == 0)
-        check(coreState.perceptionState!!.leftDepthMap!!.state.value.height == 0)
-        check(coreState.perceptionState!!.leftDepthMap!!.state.value.rawDepthMap == null)
-        check(coreState.perceptionState!!.leftDepthMap!!.state.value.rawConfidenceMap == null)
-        check(coreState.perceptionState!!.leftDepthMap!!.state.value.smoothDepthMap == null)
-        check(coreState.perceptionState!!.leftDepthMap!!.state.value.smoothConfidenceMap == null)
+        check(coreState.perceptionState!!.leftDepthMapState != null)
+        check(coreState.perceptionState!!.leftDepthMapState!!.width == 0)
+        check(coreState.perceptionState!!.leftDepthMapState!!.height == 0)
+        check(coreState.perceptionState!!.leftDepthMapState!!.rawDepthMap == null)
+        check(coreState.perceptionState!!.leftDepthMapState!!.rawConfidenceMap == null)
+        check(coreState.perceptionState!!.leftDepthMapState!!.smoothDepthMap == null)
+        check(coreState.perceptionState!!.leftDepthMapState!!.smoothConfidenceMap == null)
 
         // act
         timeSource += 10.milliseconds
@@ -426,15 +413,14 @@ class PerceptionStateExtenderTest {
 
         // assert
         val perceptionState = coreState.perceptionState!!
-        assertThat(perceptionState.leftDepthMap!!.state.value.width).isEqualTo(expectedWidth)
-        assertThat(perceptionState.leftDepthMap!!.state.value.height).isEqualTo(expectedHeight)
-        assertThat(perceptionState.leftDepthMap!!.state.value.rawDepthMap)
-            .isEqualTo(expectedRawDepthMap)
-        assertThat(perceptionState.leftDepthMap!!.state.value.rawConfidenceMap)
+        assertThat(perceptionState.leftDepthMapState!!.width).isEqualTo(expectedWidth)
+        assertThat(perceptionState.leftDepthMapState!!.height).isEqualTo(expectedHeight)
+        assertThat(perceptionState.leftDepthMapState!!.rawDepthMap).isEqualTo(expectedRawDepthMap)
+        assertThat(perceptionState.leftDepthMapState!!.rawConfidenceMap)
             .isEqualTo(expectedRawConfidenceMap)
-        assertThat(perceptionState.leftDepthMap!!.state.value.smoothDepthMap)
+        assertThat(perceptionState.leftDepthMapState!!.smoothDepthMap)
             .isEqualTo(expectedSmoothDepthMap)
-        assertThat(perceptionState.leftDepthMap!!.state.value.smoothConfidenceMap)
+        assertThat(perceptionState.leftDepthMapState!!.smoothConfidenceMap)
             .isEqualTo(expectedSmoothConfidenceMap)
     }
 

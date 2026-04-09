@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.xr.arcore.Plane
 import androidx.xr.arcore.perceptionState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
@@ -197,14 +198,18 @@ class HelloArPlaneActivity : ComponentActivity() {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         modifier = Modifier.padding(start = 10.dp).weight(1f),
-                        text = "Trackables:",
+                        text = "Planes:",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 }
 
                 if (perceptionState != null) {
-                    TrackablesList(perceptionState.trackables.toList())
+                    TrackablesList(
+                        perceptionState.trackableStates.filterIsInstance<Plane.State>().map {
+                            it.owner
+                        }
+                    )
                 } else {
                     Text(text = "PerceptionState is null.", fontSize = 22.sp)
                 }

@@ -248,7 +248,7 @@ class AnchorsPlanesHitTestActivity :
         if (cameraState != null && cameraState.transformCoordinates2D != null) {
             backgroundRenderer.updateDisplayGeometry(cameraState.transformCoordinates2D!!)
         }
-        if (perceptionState?.arDevice?.state?.value?.trackingState == TrackingState.TRACKING) {
+        if (perceptionState?.arDeviceState?.trackingState == TrackingState.TRACKING) {
             if (image != null) {
                 EGLExt.eglDestroyImageKHR(EGL14.eglGetCurrentDisplay(), image!!)
             }
@@ -274,7 +274,7 @@ class AnchorsPlanesHitTestActivity :
             backgroundRenderer.drawBackground(render)
 
             // If not tracking, don't draw 3D objects.
-            if (perceptionState.arDevice.state.value.trackingState == TrackingState.PAUSED) {
+            if (perceptionState.arDeviceState.trackingState == TrackingState.PAUSED) {
                 return
             }
 
@@ -334,7 +334,7 @@ class AnchorsPlanesHitTestActivity :
         val state by session.state.collectAsStateWithLifecycle()
         val perceptionState = state.perceptionState
         val hasCameraTracking =
-            perceptionState?.arDevice?.state?.value?.trackingState == TrackingState.TRACKING
+            perceptionState?.arDeviceState?.trackingState == TrackingState.TRACKING
 
         Scaffold(
             modifier = Modifier.fillMaxSize(),

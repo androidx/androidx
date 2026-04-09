@@ -167,12 +167,13 @@ class DepthMapActivity : ComponentActivity(), GLSurfaceView.Renderer {
                 if (perceptionState != null) {
                     val depthMap =
                         when (selectedView) {
-                            ViewSelection.LEFT -> session.state.value.perceptionState!!.leftDepthMap
+                            ViewSelection.LEFT ->
+                                session.state.value.perceptionState!!.leftDepthMapState
                             ViewSelection.RIGHT ->
-                                session.state.value.perceptionState!!.rightDepthMap
+                                session.state.value.perceptionState!!.rightDepthMapState
                         }
                     if (depthMap != null) {
-                        depthTexture.updateDepthTexture(depthMap.state.value, selectedDepthMode)
+                        depthTexture.updateDepthTexture(depthMap, selectedDepthMode)
                         depthMapRenderer.drawDepth()
                     }
                 }
