@@ -82,7 +82,7 @@ RemoteModifier.wrapContentSize()
 
 // Spacing
 RemoteModifier.padding(8.dp)
-RemoteModifier.padding(left = 8.dp, right = 8.dp)
+RemoteModifier.padding(start = 8.dp, end = 8.dp)
 RemoteModifier.padding(bottom = 24.dp)
 RemoteModifier.weight(1f)                    // flex weight
 

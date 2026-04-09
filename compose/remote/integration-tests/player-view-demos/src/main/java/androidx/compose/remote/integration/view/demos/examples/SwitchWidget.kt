@@ -178,7 +178,7 @@ fun Divider(modifier: RemoteModifier = RemoteModifier) {
     RemoteBox(
         modifier =
             modifier
-                .padding(left = 8.rdp, right = 8.rdp)
+                .padding(start = 8.rdp, end = 8.rdp)
                 .size(2.rdp, 8.rdp)
                 .background(Color.LightGray)
     )
