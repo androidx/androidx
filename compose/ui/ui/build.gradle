@@ -89,9 +89,6 @@ androidXMultiplatform {
 
             api("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
             api("androidx.savedstate:savedstate-compose:1.4.0")
-
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0-alpha01")
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0-alpha01")
         }
 
         commonTest.dependencies {
@@ -199,6 +196,7 @@ androidXMultiplatform {
         }
 
         def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+        def lifecycleVersion = project.findProperty('artifactRedirection.version.androidx.lifecycle')
         // TODO: Align naming: nonAndroidMain
         skikoMain {
             dependsOn(commonMain)
@@ -208,9 +206,9 @@ androidXMultiplatform {
                 api(libs.skiko)
                 implementation(libs.atomicFu)
 
-                // Keep this dependency for compatibility due to https://youtrack.jetbrains.com/issue/KT-60874
-                implementation(project(":compose:ui:ui-backhandler"))
                 implementation("androidx.navigationevent:navigationevent-compose:$navigationEventVersion")
+                implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
+                implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
             }
         }
 
@@ -252,6 +250,9 @@ androidXMultiplatform {
                 // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
                 implementation("org.jetbrains.compose.annotation-internal:annotation:1.10.0")
                 implementation("org.jetbrains.compose.collection-internal:collection:1.10.0")
+                implementation(project(":compose:ui:ui-backhandler"))
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
             }
         }
 
