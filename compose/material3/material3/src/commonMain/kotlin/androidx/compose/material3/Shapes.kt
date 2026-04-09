@@ -255,6 +255,7 @@ constructor(
     internal var defaultButtonShapesCached: ButtonShapes? = null
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultToggleButtonShapesCached: ToggleButtonShapes? = null
+    internal var defaultChipShapesCached: ChipShapes? = null
     internal var defaultVerticalDragHandleShapesCached: DragHandleShapes? = null
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultIconToggleButtonShapesCached: IconToggleButtonShapes? = null

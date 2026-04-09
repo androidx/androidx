@@ -648,8 +648,11 @@ class ColorScheme(
     internal var defaultSuggestionChipColorsCached: ChipColors? = null
     internal var defaultElevatedSuggestionChipColorsCached: ChipColors? = null
     internal var defaultFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultTonalFilterChipColorsCached: SelectableChipColors? = null
     internal var defaultElevatedFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultTonalElevatedFilterChipColorsCached: SelectableChipColors? = null
     internal var defaultInputChipColorsCached: SelectableChipColors? = null
+    internal var defaultTonalInputChipColorsCached: SelectableChipColors? = null
 
     internal var defaultVerticalDragHandleColorsCached: DragHandleColors? = null
 
