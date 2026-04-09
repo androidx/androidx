@@ -62,7 +62,8 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
         session!!.scene.addSpatialCapabilitiesChangedListener { capabilities ->
             tryToCreateActivityPanel(capabilities)
         }
-        session!!.scene.keyEntity = session!!.scene.mainPanelEntity
+
+        session!!.scene.keyEntity = null
         tryToCreateActivityPanel(session!!.scene.spatialCapabilities)
 
         @SuppressLint("InflateParams")
@@ -81,7 +82,7 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
                 Pose(Vector3(0.1f, -0.5f, 0.1f)),
                 parent = session!!.scene.activitySpace,
             )
-        panelEntity?.parent = session!!.scene.keyEntity
+        panelEntity?.parent = session!!.scene.mainPanelEntity
 
         val mainPanelSeekBar = panelEntityView.findViewById<SeekBar>(R.id.main_panel_seekbar)
         mainPanelSeekBar.setOnSeekBarChangeListener(
@@ -210,7 +211,7 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
             activityPanelEntity!!.startActivity(intent)
             activityPanelEntity!!.setPose(Pose(Vector3(0.75f, 0.0f, 0.0f)))
             activityPanelCreated = true
-            activityPanelEntity?.parent = session!!.scene.keyEntity
+            activityPanelEntity?.parent = session!!.scene.mainPanelEntity
         }
     }
 

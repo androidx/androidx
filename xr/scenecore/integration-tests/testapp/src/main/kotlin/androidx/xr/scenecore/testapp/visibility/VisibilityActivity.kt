@@ -38,6 +38,7 @@ import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SpatialPointerComponent
 import androidx.xr.scenecore.SpatialPointerIcon
 import androidx.xr.scenecore.scene
@@ -80,6 +81,10 @@ class VisibilityActivity : AppCompatActivity() {
         // Create rendering session
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
+        // Disable default scale overrides on key entity from Spatial Mode events
+        session?.scene?.setSpatialModeChangedListener { event ->
+            session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
+        }
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // Toolbar action
@@ -205,7 +210,7 @@ class VisibilityActivity : AppCompatActivity() {
         parentPanelEntity =
             createPanel(
                 "Parent Panel",
-                session!!.scene.activitySpace,
+                session!!.scene.mainPanelEntity,
                 Pose(Vector3(-0.5f, -0.65f, 0.1f)),
             )
         childPanelEntity1 =
@@ -232,9 +237,8 @@ class VisibilityActivity : AppCompatActivity() {
                 IntSize2d(640, 480),
                 panelName,
                 pose,
-                parent = session!!.scene.activitySpace,
+                parent = parent,
             )
-        panelEntity.parent = parent
 
         val movableComponent = MovableComponent.createSystemMovable(session!!)
         panelEntity.addComponent(movableComponent)

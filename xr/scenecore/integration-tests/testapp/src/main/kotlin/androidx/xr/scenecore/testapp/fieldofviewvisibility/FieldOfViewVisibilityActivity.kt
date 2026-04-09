@@ -28,6 +28,7 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.MovableComponent
+import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SpatialVisibility
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
@@ -79,6 +80,10 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
         session!!.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
+        // Disable default scale overrides on key entity from Spatial Mode events
+        session?.scene?.setSpatialModeChangedListener { event ->
+            session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
+        }
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         session!!.scene.activitySpace.addOnBoundsChangedListener { dimensions ->

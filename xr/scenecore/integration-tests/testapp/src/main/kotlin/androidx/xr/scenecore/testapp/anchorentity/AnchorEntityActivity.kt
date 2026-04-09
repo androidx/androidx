@@ -60,7 +60,7 @@ class AnchorEntityActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
+        session?.scene?.keyEntity = null
 
         // View
         setContentView(R.layout.common_test_panel)
@@ -145,7 +145,7 @@ class AnchorEntityActivity : AppCompatActivity() {
                     DebugTextPanel(
                         context,
                         session!!,
-                        session!!.scene.activitySpace,
+                        session!!.scene.mainPanelEntity,
                         name = "GLTF Entity Info",
                         pose = Pose(Vector3(0f, -0.4f, 0.1f)),
                     )
