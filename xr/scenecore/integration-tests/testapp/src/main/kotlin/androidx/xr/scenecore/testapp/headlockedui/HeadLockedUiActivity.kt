@@ -89,7 +89,7 @@ class HeadLockedUiActivity : AppCompatActivity() {
                 deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
             )
         )
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
+        session?.scene?.keyEntity = null
         device = ArDevice.getInstance(session!!)
         cameraLeft = RenderViewpoint.left(session!!)
         cameraRight = RenderViewpoint.right(session!!)
@@ -180,7 +180,7 @@ class HeadLockedUiActivity : AppCompatActivity() {
             DebugTextPanel(
                 context = this,
                 session = session!!,
-                parent = session!!.scene.activitySpace,
+                parent = session!!.scene.mainPanelEntity,
                 name = "DebugPanel",
                 pose = Pose(Vector3(0f, -0.8f, -0.05f)),
             )

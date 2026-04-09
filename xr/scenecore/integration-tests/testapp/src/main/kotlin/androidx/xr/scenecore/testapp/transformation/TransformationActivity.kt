@@ -441,7 +441,7 @@ class TransformationActivity : AppCompatActivity() {
             DebugTextPanel(
                 this,
                 session!!,
-                session!!.scene.activitySpace,
+                session!!.scene.mainPanelEntity,
                 name = name,
                 pose = panelPose,
             )
