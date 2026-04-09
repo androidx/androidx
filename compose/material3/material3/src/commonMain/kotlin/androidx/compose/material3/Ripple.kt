@@ -323,8 +323,7 @@ object RippleDefaults {
         )
 
     /**
-     * The default [RippleNodeConfig] that corresponds to a [RippleThemeConfiguration] opacity based
-     * indication style.
+     * The default [RippleThemeConfiguration] that corresponds to an opacity based indication style.
      */
     @Suppress("ExperimentalPropertyAnnotation")
     @ExperimentalMaterial3Api
@@ -332,8 +331,8 @@ object RippleDefaults {
         RippleThemeConfiguration(RippleThemeConfiguration.Focus.Opacity())
 
     /**
-     * The default [RippleNodeConfig] that corresponds to a [RippleThemeConfiguration] inset focus
-     * ring based indication style.
+     * The default [RippleThemeConfiguration] that corresponds to an inset focus ring based
+     * indication style.
      */
     @Suppress("ExperimentalPropertyAnnotation")
     @ExperimentalMaterial3Api
