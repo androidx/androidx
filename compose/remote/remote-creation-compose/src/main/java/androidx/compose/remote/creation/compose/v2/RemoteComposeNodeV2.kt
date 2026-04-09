@@ -158,6 +158,8 @@ internal class RemoteRowNodeV2 : RemoteComposeNodeV2() {
 internal class RemoteFlowRowNodeV2 : RemoteComposeNodeV2() {
     var horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
+    var maxItemsInEachRow: Int = Int.MAX_VALUE
+    var maxLines: Int = Int.MAX_VALUE
     var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
@@ -169,8 +171,8 @@ internal class RemoteFlowRowNodeV2 : RemoteComposeNodeV2() {
             recordingModifier,
             horizontalArrangement.toRemote(layoutDirection),
             verticalArrangement.toRemote(),
-            Integer.MAX_VALUE,
-            Integer.MAX_VALUE,
+            maxItemsInEachRow,
+            maxLines,
         )
         renderChildren(
             creationState,

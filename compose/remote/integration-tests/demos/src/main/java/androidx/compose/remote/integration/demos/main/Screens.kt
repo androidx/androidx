@@ -18,6 +18,7 @@ package androidx.compose.remote.integration.demos.main
 
 import androidx.compose.material3.Text
 import androidx.compose.remote.integration.demos.layout.RemoteBoxAlignmentsDemo
+import androidx.compose.remote.integration.demos.layout.RemoteFlowRowDemo
 import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSimpleDemo
 import androidx.compose.remote.integration.demos.modifier.ClickableDemo
 import androidx.compose.remote.integration.demos.modifier.CombinedClickableDemo
@@ -28,6 +29,7 @@ import androidx.compose.runtime.Composable
 
 private object ScreenKeys {
     const val REMOTE_BOX_ALIGNMENT = "REMOTE_BOX_ALIGNMENT"
+    const val REMOTE_FLOW_ROW = "REMOTE_FLOW_ROW"
     const val REMOTE_STATE_LAYOUT = "REMOTE_STATE_LAYOUT"
     const val CLICKABLE = "CLICKABLE"
     const val COMBINED_CLICKABLE = "COMBINED_CLICKABLE"
@@ -40,6 +42,7 @@ private object ScreenKeys {
 fun ComposableScreenNavigation(key: String, onNavigateUp: () -> Unit) {
     when (key) {
         ScreenKeys.REMOTE_BOX_ALIGNMENT -> RemoteBoxAlignmentsDemo()
+        ScreenKeys.REMOTE_FLOW_ROW -> RemoteFlowRowDemo()
         ScreenKeys.REMOTE_STATE_LAYOUT -> RemoteStateLayoutSimpleDemo()
         ScreenKeys.CLICKABLE -> ClickableDemo()
         ScreenKeys.COMBINED_CLICKABLE -> CombinedClickableDemo()
@@ -64,6 +67,10 @@ val Screens =
                             ComposableScreen(
                                 key = ScreenKeys.REMOTE_BOX_ALIGNMENT,
                                 title = "RemoteBox alignment",
+                            ),
+                            ComposableScreen(
+                                key = ScreenKeys.REMOTE_FLOW_ROW,
+                                title = "RemoteFlowRow",
                             ),
                             ComposableScreen(
                                 key = ScreenKeys.REMOTE_STATE_LAYOUT,
