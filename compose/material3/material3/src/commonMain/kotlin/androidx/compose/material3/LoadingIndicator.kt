@@ -91,7 +91,6 @@ import kotlinx.coroutines.launch
  *   items in that list.
  * @throws IllegalArgumentException if the [polygons] list holds less than two items
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun LoadingIndicator(
     progress: () -> Float,
@@ -127,7 +126,6 @@ fun LoadingIndicator(
  *   will morph between. The loading indicator expects at least two items in that list.
  * @throws IllegalArgumentException if the [polygons] list holds less than two items
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun LoadingIndicator(
     modifier: Modifier = Modifier,
@@ -173,7 +171,6 @@ fun LoadingIndicator(
  *   items in that list.
  * @throws IllegalArgumentException if the [polygons] list holds less than two items
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ContainedLoadingIndicator(
     progress: () -> Float,
@@ -214,7 +211,6 @@ fun ContainedLoadingIndicator(
  *   will morph between. The loading indicator expects at least two items in that list.
  * @throws IllegalArgumentException if the [polygons] list holds less than two items
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ContainedLoadingIndicator(
     modifier: Modifier = Modifier,
@@ -247,7 +243,6 @@ fun ContainedLoadingIndicator(
  *   least two items in that list.
  * @throws IllegalArgumentException if the [indicatorPolygons] list holds less than two items
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun LoadingIndicatorImpl(
     progress: () -> Float,
@@ -355,7 +350,6 @@ private fun LoadingIndicatorImpl(
  *   indicator will morph between. The loading indicator expects at least two items in that list.
  * @throws IllegalArgumentException if the [indicatorPolygons] list holds less than two items
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 private fun LoadingIndicatorImpl(
     modifier: Modifier,
@@ -489,7 +483,6 @@ private fun LoadingIndicatorImpl(
 }
 
 /** Contains default values by the [LoadingIndicator]. */
-@ExperimentalMaterial3ExpressiveApi
 object LoadingIndicatorDefaults {
 
     /** A [LoadingIndicator] default container width. */

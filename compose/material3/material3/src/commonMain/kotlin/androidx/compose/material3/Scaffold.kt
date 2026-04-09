@@ -119,7 +119,7 @@ fun Scaffold(
  * Layout for a [Scaffold]'s content.
  *
  * @param fabPosition [FabPosition] for the FAB (if present)
- * @param topBar the content to place at the top of the [Scaffold], typically a [SmallTopAppBar]
+ * @param topBar the content to place at the top of the [Scaffold], typically a small [TopAppBar]
  * @param content the main 'body' of the [Scaffold]
  * @param snackbar the [Snackbar] displayed on top of the [content]
  * @param fab the [FloatingActionButton] displayed on top of the [content], below the [snackbar] and

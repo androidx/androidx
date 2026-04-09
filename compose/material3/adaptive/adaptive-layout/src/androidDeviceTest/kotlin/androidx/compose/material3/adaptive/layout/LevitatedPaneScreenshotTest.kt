@@ -23,7 +23,7 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
@@ -190,7 +190,7 @@ private fun ThreePaneScaffoldWithLevitatedPane(
     secondaryContent: (@Composable ThreePaneScaffoldScope.() -> Unit) = {},
     tertiaryContent: (@Composable ThreePaneScaffoldScope.() -> Unit) = {},
 ) {
-    val directive = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo())
+    val directive = calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2())
     val value =
         ThreePaneScaffoldValue(
             PaneAdaptedValue.Expanded,

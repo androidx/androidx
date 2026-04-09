@@ -32,8 +32,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ContainedLoadingIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicatorDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.internal.FloatProducer
@@ -450,7 +448,6 @@ internal class PullToRefreshModifierNode(
 object PullToRefreshDefaults {
     /** The default shape for [Indicator] */
     @Deprecated("Use indicatorShape instead", ReplaceWith("indicatorShape"))
-    @ExperimentalMaterial3Api
     val shape: Shape = CircleShape
 
     /** The default shape for [Indicator] */
@@ -458,7 +455,6 @@ object PullToRefreshDefaults {
 
     /** The default container color for [Indicator] */
     @Deprecated("Use indicatorContainerColor instead", ReplaceWith("indicatorContainerColor"))
-    @ExperimentalMaterial3Api
     val containerColor: Color
         @Composable get() = MaterialTheme.colorScheme.surfaceContainerHigh
 
@@ -469,7 +465,6 @@ object PullToRefreshDefaults {
     /**
      * The default container color for the loading indicator that appears when pulling to refresh.
      */
-    @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorContainerColor: Color
         @Composable get() = LoadingIndicatorDefaults.containedContainerColor
 
@@ -481,7 +476,6 @@ object PullToRefreshDefaults {
      * The default active indicator color for the loading indicator that appears when pulling to
      * refresh.
      */
-    @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorColor: Color
         @Composable get() = LoadingIndicatorDefaults.containedIndicatorColor
 
@@ -627,7 +621,6 @@ object PullToRefreshDefaults {
      * @param maxDistance the max distance the indicator can be pulled down before a refresh is
      *   triggered on release
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun LoadingIndicator(
         state: PullToRefreshState,
@@ -894,9 +887,7 @@ internal val SpinnerContainerSize = 40.dp
 private val ArrowWidth = 10.dp
 private val ArrowHeight = 5.dp
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val LoaderIndicatorHeight = LoadingIndicatorDefaults.ContainerHeight
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val LoaderIndicatorWidth = LoadingIndicatorDefaults.ContainerWidth
 
 // Values taken from SwipeRefreshLayout

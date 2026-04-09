@@ -17,6 +17,7 @@
 package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.RectRulers
 import androidx.compose.ui.layout.Ruler
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.kruth.assertThat
 import kotlin.test.Test
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 class PaneMarginsModifierTest {
     @Test
     fun unspecifiedPaneMargins_alwaysUseMeasuredValue() {

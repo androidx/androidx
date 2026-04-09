@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -62,6 +61,7 @@ androidXMultiplatform {
         androidDeviceTest.dependencies {
             implementation(project(":compose:material3:material3"))
             implementation(project(":compose:test-utils"))
+            implementation(project(":navigation3:navigation3-ui"))
             implementation(libs.testRules)
             implementation(libs.testRunner)
             implementation(libs.junit)

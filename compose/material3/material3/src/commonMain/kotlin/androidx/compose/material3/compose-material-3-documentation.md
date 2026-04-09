@@ -22,8 +22,8 @@ For more information, check out <a href="https://developer.android.com/jetpack/c
 | **Color scheme** | [ColorScheme] | M3 color scheme |
 |  | [lightColorScheme] | M3 light color scheme |
 |  | [darkColorScheme] | M3 dark color scheme |
-| **Dynamic color** | [dynamicLightColorScheme] | M3 dynamic light color scheme |
-|  | [dynamicDarkColorScheme] | M3 dynamic dark color scheme |
+| **Dynamic color** | dynamicLightColorScheme | M3 dynamic light color scheme |
+|  | dynamicDarkColorScheme | M3 dynamic dark color scheme |
 | **Typography** | [Typography] | M3 typography |
 | **Shape** | [Shapes] | M3 shape |
 
@@ -97,7 +97,7 @@ For more information, check out <a href="https://developer.android.com/jetpack/c
 | **Sliders**             | [Slider]                            | M3 slider                                 |
 |                         | [RangeSlider]                       | M3 range slider                           |
 | **Snackbars**           | [Snackbar]                          | M3 snackbar                               |
-| **Swipe to Dismiss**    | [SwipeToDismiss]                    | M3 swipe to dismiss                       |
+| **Swipe to Dismiss**    | [SwipeToDismissBox]                 | M3 swipe to dismiss                       |
 | **Switch**              | [Switch]                            | M3 switch                                 |
 | **Tabs**                | [Tab]                               | M3 tab                                    |
 |                         | [LeadingIconTab]                    | M3 leading icon tab                       |
@@ -111,8 +111,8 @@ For more information, check out <a href="https://developer.android.com/jetpack/c
 |                         | [OutlinedTextField]                 | M3 outlined text field                    |
 | **Time Picker**         | [TimePicker]                        | M3 time picker                            |
 |                         | [TimeInput]                         | M3 time input                             |
-| **Tool tip**            | [PlainTooltipBox]                   | M3 plain tool tip                         |
-|                         | [RichTooltipBox]                    | M3 rich tool tip                          |
+| **Tool tip**            | [PlainTooltip]                      | M3 plain tool tip                         |
+|                         | [RichTooltip]                       | M3 rich tool tip                          |
 | **Top app bar**         | [TopAppBar]                         | M3 small top app bar                      |
 |                         | [CenterAlignedTopAppBar]            | M3 center-aligned top app bar             |
 |                         | [MediumTopAppBar]                   | M3 medium top app bar                     |

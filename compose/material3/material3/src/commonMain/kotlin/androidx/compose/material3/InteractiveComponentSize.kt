@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -165,20 +165,33 @@ internal class MinimumInteractiveModifierNode :
 }
 
 /**
- * The horizontal [AlignmentLine] that marks the _top_ of the space added by
- * [Modifier.minimumInteractiveComponentSize] to meet minimum touch target requirements.
+ * The horizontal [AlignmentLine] representing the top edge of the component's original visual
+ * bounds *before* any additional space is added by [Modifier.minimumInteractiveComponentSize] to
+ * meet minimum touch target requirements.
  *
- * When a component is smaller than the minimum interactive size (e.g., a 24.dp icon),
- * [Modifier.minimumInteractiveComponentSize] expands its layout space to at least 48.dp. This
- * alignment line is positioned at the top edge of the original component's visual bounds within
- * that newly expanded space.
+ * When a component's height is less than the minimum interactive size (e.g.,
+ * [LocalMinimumInteractiveComponentSize]), [Modifier.minimumInteractiveComponentSize] expands the
+ * layout space. This alignment line provides the offset from the top edge of the *expanded* bounds
+ * to the top edge of the *original* component content (i.e., its visual bounds). This allows other
+ * layouts to align to the component's visual top, ignoring the extra touch-target spacing.
  *
- * This allows other layouts to align to the visual top of the component, ignoring the extra
- * touch-target spacing, which is useful for precise visual alignment.
+ * The value of this alignment line is the amount of space added *above* the component's original
+ * top edge. Since [Modifier.minimumInteractiveComponentSize] centers the content, an equal amount
+ * of space is also added below the component.
  *
- * Note that only a top alignment line is provided. The `minimumInteractiveComponentSize` centers
- * its content and the space added to the top is symmetrical to the space added to the bottom, so
- * its position can be inferred.
+ * Visual representation:
+ * ```
+ * Expanded Layout (after Modifier.minimumInteractiveComponentSize() was applied)
+ * +------------------------+  ---
+ * |                        |   ^  Value of MinimumInteractiveTopAlignmentLine
+ * |                        |   v
+ * |----+--------------+----| --- MinimumInteractiveTopAlignmentLine
+ * |    |  Component   |    |
+ * |----+--------------+----|
+ * |                        |
+ * |                        |
+ * +------------------------+
+ * ```
  *
  * @see minimumInteractiveComponentSize
  * @see MinimumInteractiveLeftAlignmentLine
@@ -186,20 +199,35 @@ internal class MinimumInteractiveModifierNode :
 val MinimumInteractiveTopAlignmentLine = HorizontalAlignmentLine(::min)
 
 /**
- * The vertical [AlignmentLine] that marks the _left_ of the space added by
- * [Modifier.minimumInteractiveComponentSize] to meet minimum touch target requirements.
+ * The vertical [AlignmentLine] representing the left edge of the component's original visual bounds
+ * *before* any additional space is added by [Modifier.minimumInteractiveComponentSize] to meet
+ * minimum touch target requirements.
  *
- * When a component is smaller than the minimum interactive size (e.g., a 24.dp icon),
- * [Modifier.minimumInteractiveComponentSize] expands its layout space to at least 48.dp. This
- * alignment line is positioned at the left edge of the original component's visual bounds within
- * that newly expanded space.
+ * When a component's width is less than the minimum interactive size (e.g.,
+ * [LocalMinimumInteractiveComponentSize]), [Modifier.minimumInteractiveComponentSize] expands the
+ * layout space. This alignment line provides the offset from the left edge of the *expanded* bounds
+ * to the left edge of the *original* component content (i.e., its visual bounds). This allows other
+ * layouts to align to the component's visual left, ignoring the extra touch-target spacing.
  *
- * This allows other layouts to align to the visual left of the component, ignoring the extra
- * touch-target spacing, which is useful for precise visual alignment.
+ * The value of this alignment line is the amount of space added to the *left* of the component's
+ * original left edge. Since [Modifier.minimumInteractiveComponentSize] centers the content, an
+ * equal amount of space is also added to the right of the component.
  *
- * Note that only a left alignment line are provided. The `minimumInteractiveComponentSize` centers
- * its content and the space added to the left is symmetrical to the space added to the right, so
- * its position can be inferred.
+ * Visual representation:
+ * ```
+ * Expanded Layout (after Modifier.minimumInteractiveComponentSize() was applied)
+ * +--------------------------+
+ * |       |          |       |
+ * |       +----------+       |
+ * |       |Component |       |
+ * |       +----------+       |
+ * |       |          |       |
+ * +--------------------------+
+ * |  <->  |
+ * ^       ^
+ * |       MinimumInteractiveLeftAlignmentLine
+ * Value of MinimumInteractiveLeftAlignmentLine
+ * ```
  *
  * @see minimumInteractiveComponentSize
  * @see MinimumInteractiveTopAlignmentLine

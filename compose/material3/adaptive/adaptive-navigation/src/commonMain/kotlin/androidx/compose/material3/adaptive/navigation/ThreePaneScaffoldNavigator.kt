@@ -18,7 +18,7 @@ package androidx.compose.material3.adaptive.navigation
 
 import androidx.annotation.FloatRange
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldDefaults
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
@@ -201,7 +201,7 @@ interface ThreePaneScaffoldNavigator<T> {
 @Composable
 fun <T> rememberListDetailPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
-        calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+        calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,
@@ -232,9 +232,10 @@ fun <T> rememberListDetailPaneScaffoldNavigator(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
+@Suppress("DEPRECATION") // TODO (conradchen): deprecate this and support V2 of it
 fun rememberListDetailPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
-        calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+        calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,
@@ -267,9 +268,10 @@ fun rememberListDetailPaneScaffoldNavigator(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
+@Suppress("DEPRECATION") // TODO (conradchen): deprecate this and support V2 of it
 fun <T> rememberSupportingPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
-        calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+        calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,
@@ -302,7 +304,7 @@ fun <T> rememberSupportingPaneScaffoldNavigator(
 @Composable
 fun rememberSupportingPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
-        calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+        calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,

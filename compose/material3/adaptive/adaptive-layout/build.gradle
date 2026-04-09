@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -49,7 +48,7 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":collection:collection"))
+            api("androidx.collection:collection:1.5.0") // TODO: keep it fork until we bump the foundation version which brings the collections transitively
             api(project(":compose:material3:adaptive:adaptive"))
             api("org.jetbrains.compose.animation:animation-core:1.10.0")
             api("org.jetbrains.compose.ui:ui:1.10.0")
@@ -62,6 +61,14 @@ androidXMultiplatform {
 
         commonTest.dependencies {
             implementation(libs.kotlinTest)
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":annotation:annotation"))
+                implementation(project(":kruth:kruth"))
+            }
         }
 
         androidMain.dependencies {
