@@ -17,6 +17,7 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
@@ -148,9 +149,10 @@ internal class SkiaBackedCanvas(
         )
     }
 
+    @OptIn(InternalComposeUiApi::class)
     override fun clipPath(path: Path, clipOp: ClipOp) {
         val antiAlias = true
-        internalSkiaCanvas.clipPath(path.asSkiaPath(), clipOp.toSkia(), antiAlias)
+        internalSkiaCanvas.clipPath(path.materializeSkiaPath(), clipOp.toSkia(), antiAlias)
     }
 
     override fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
@@ -233,9 +235,10 @@ internal class SkiaBackedCanvas(
         )
     }
 
+    @OptIn(InternalComposeUiApi::class)
     override fun drawPath(path: Path, paint: Paint) {
         internalSkiaCanvas.drawPath(
-            path = path.asSkiaPath(),
+            path = path.materializeSkiaPath(),
             paint = paint.asSkiaPaintWithAppliedAlphaMultiplier(),
         )
     }

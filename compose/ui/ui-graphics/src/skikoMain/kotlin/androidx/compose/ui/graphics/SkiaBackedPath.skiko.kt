@@ -16,10 +16,10 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
-import org.jetbrains.skia.Matrix33
 import org.jetbrains.skia.Path as SkPath
 import org.jetbrains.skia.PathDirection
 import org.jetbrains.skia.PathBuilder
@@ -31,7 +31,11 @@ actual fun Path(): Path = SkiaBackedPath()
 /**
  * Convert the [org.jetbrains.skia.Path] instance into a Compose-compatible Path
  */
-fun SkPath.asComposePath(): Path = SkiaBackedPath(this)
+// TODO: Multiple calls will NOT return the same instance,
+//  consider to replace to `fun Path(skiaPath: org.jetbrains.skia.Path)`
+fun SkPath.asComposePath(): Path = SkiaBackedPath(this).also {
+    it.isSkiaPathObserved = true
+}
 
 /**
  * Obtain a reference to the underlying [org.jetbrains.skia.Path] instance.
@@ -42,36 +46,81 @@ fun Path.asSkiaPath(): SkPath {
     requirePrecondition(this is SkiaBackedPath) {
         "Extracting skia path reference is only supported from androidx.compose.ui.graphics.SkiaBackedPath instances but received ${this::class}"
     }
+    isSkiaPathObserved = true
+    synchronizeSkiaPathIfNeeded()
     return internalSkiaPath
 }
 
-@Suppress("OVERRIDE_DEPRECATION")
-internal class SkiaBackedPath(
-    internalSkiaPath: SkPath = SkPath()
+/**
+ * Obtain a reference to the underlying [org.jetbrains.skia.Path] instance without marking
+ * that native path as externally observed.
+ *
+ * This is intended for internal, one-shot interop where the Skia API reads or copies the path
+ * immediately. Callers must not retain or mutate the returned [org.jetbrains.skia.Path].
+ *
+ * It throws an exception if accessed on unsupported types.
+ */
+@InternalComposeUiApi
+fun Path.materializeSkiaPath(): SkPath {
+    requirePrecondition(this is SkiaBackedPath) {
+        "Materializing skia path snapshot is only supported from androidx.compose.ui.graphics.SkiaBackedPath instances but received ${this::class}"
+    }
+    synchronizeSkiaPathIfNeeded()
+    return internalSkiaPath
+}
+
+/**
+ * Marks that a path has Compose-side mutations in its [PathBuilder] that are not yet
+ * reflected in the stable native [SkPath]. Skia's public path generation IDs are always non-zero,
+ * so `0` remains reserved for this local pending-state marker.
+ */
+private const val PendingGenerationId = 0
+
+@OptIn(InternalComposeUiApi::class)
+private class SkiaBackedPath(
+    internal val internalSkiaPath: SkPath = SkPath()
 ) : Path {
-    internal var internalSkiaPath = internalSkiaPath
-        private set
     private var pathBuilder = PathBuilder(internalSkiaPath)
     private var materializedGenerationId = internalSkiaPath.generationId
     private var currentFillMode = internalSkiaPath.fillMode
 
+    /**
+     * Indicates if [internalSkiaPath] is externally observable.
+     */
+    internal var isSkiaPathObserved = false
+
     private inline fun mutatePath(block: PathBuilder.() -> Unit) {
         synchronizeBuilderIfNeeded()
         pathBuilder.apply(block)
-        replacePath(pathBuilder.snapshot())
-        pathBuilder = PathBuilder(internalSkiaPath)
+        materializedGenerationId = PendingGenerationId
+        if (isSkiaPathObserved) {
+            synchronizeSkiaPathIfNeeded()
+        }
     }
+
+    private fun hasPendingChanges(): Boolean = materializedGenerationId == PendingGenerationId
 
     private fun synchronizeBuilderIfNeeded() {
         // Skia's generationId does not change when only the fill mode changes. Compare both
         // so a native/external fill type update still rebuilds the cached PathBuilder before
-        // its next snapshot overwrites internalSkiaPath with stale state.
-        if (internalSkiaPath.generationId != materializedGenerationId ||
-            internalSkiaPath.fillMode != currentFillMode
+        // the next Compose-side mutation would otherwise overwrite internalSkiaPath with stale
+        // builder state.
+        if (!hasPendingChanges() &&
+            (internalSkiaPath.generationId != materializedGenerationId ||
+                internalSkiaPath.fillMode != currentFillMode)
         ) {
+            pathBuilder.close()
             pathBuilder = PathBuilder(internalSkiaPath)
             materializedGenerationId = internalSkiaPath.generationId
             currentFillMode = internalSkiaPath.fillMode
+        }
+    }
+
+    internal fun synchronizeSkiaPathIfNeeded() {
+        if (hasPendingChanges()) {
+            replacePath(pathBuilder.snapshot())
+        } else {
+            synchronizeBuilderIfNeeded()
         }
     }
 
@@ -80,6 +129,8 @@ internal class SkiaBackedPath(
         internalSkiaPath.swap(path)
         materializedGenerationId = internalSkiaPath.generationId
         currentFillMode = internalSkiaPath.fillMode
+        pathBuilder.close()
+        pathBuilder = PathBuilder(internalSkiaPath)
     }
 
     override var fillType: PathFillType
@@ -93,6 +144,7 @@ internal class SkiaBackedPath(
             mutatePath {
                 setFillType(fillMode)
             }
+            currentFillMode = fillMode
         }
 
     override fun moveTo(x: Float, y: Float) = mutatePath {
@@ -200,6 +252,11 @@ internal class SkiaBackedPath(
         )
     }
 
+    @Deprecated(
+        "Prefer usage of addOval() with a winding direction",
+        replaceWith = ReplaceWith("addOval(oval)"),
+        level = DeprecationLevel.HIDDEN
+    )
     override fun addOval(oval: Rect) = mutatePath {
         addOval(
             oval.left,
@@ -220,6 +277,11 @@ internal class SkiaBackedPath(
         )
     }
 
+    @Deprecated(
+        "Prefer usage of addRoundRect() with a winding direction",
+        replaceWith = ReplaceWith("addRoundRect(roundRect)"),
+        level = DeprecationLevel.HIDDEN
+    )
     override fun addRoundRect(roundRect: RoundRect) = mutatePath {
         addRRect(
             roundRect.left,
@@ -276,7 +338,7 @@ internal class SkiaBackedPath(
     }
 
     override fun addPath(path: Path, offset: Offset) =
-        mutatePath { addPath(path.asSkiaPath(), offset.x, offset.y) }
+        mutatePath { addPath(path.materializeSkiaPath(), offset.x, offset.y) }
 
     override fun close() = mutatePath {
         closePath()
@@ -299,6 +361,7 @@ internal class SkiaBackedPath(
     }
 
     override fun getBounds(): Rect {
+        synchronizeSkiaPathIfNeeded()
         val bounds = internalSkiaPath.bounds
         return Rect(
             bounds.left,
@@ -313,19 +376,24 @@ internal class SkiaBackedPath(
         path2: Path,
         operation: PathOperation
     ): Boolean = SkPath.makeCombining(
-        path1.asSkiaPath(),
-        path2.asSkiaPath(),
+        path1.materializeSkiaPath(),
+        path2.materializeSkiaPath(),
         operation.toSkiaOperation()
     )?.also {
         replacePath(it)
-        pathBuilder = PathBuilder(internalSkiaPath)
     } != null
 
     override val isConvex: Boolean
-        get() = internalSkiaPath.isConvex
+        get() {
+            synchronizeSkiaPathIfNeeded()
+            return internalSkiaPath.isConvex
+        }
 
     override val isEmpty: Boolean
-        get() = internalSkiaPath.isEmpty
+        get() {
+            synchronizeSkiaPathIfNeeded()
+            return internalSkiaPath.isEmpty
+        }
 }
 
 private fun PathOperation.toSkiaOperation() = when (this) {

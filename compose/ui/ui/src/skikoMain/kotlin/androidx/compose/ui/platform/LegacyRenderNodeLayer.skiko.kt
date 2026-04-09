@@ -20,6 +20,7 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.FrameRateCategory
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -38,12 +39,12 @@ import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.alphaMultiplier
 import androidx.compose.ui.graphics.asComposeCanvas
-import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.skiaCanvas
 import androidx.compose.ui.graphics.skiaPaint
 import androidx.compose.ui.graphics.prepareTransformationMatrix
 import androidx.compose.ui.graphics.skiaImageFilter
+import androidx.compose.ui.graphics.materializeSkiaPath
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
@@ -51,7 +52,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toRect
-import kotlin.math.abs
 import kotlin.math.max
 import org.jetbrains.skia.ClipMode
 import org.jetbrains.skia.Picture
@@ -355,6 +355,7 @@ internal class LegacyRenderNodeLayer(
 
     override fun updateDisplayList() = Unit
 
+    @OptIn(InternalComposeUiApi::class)
     fun drawShadow(canvas: Canvas) = with(density) {
         val path = when (val outline = outline) {
             is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
@@ -373,7 +374,7 @@ internal class LegacyRenderNodeLayer(
         val spotColor = spotShadowColor.copy(alpha = spotAlpha)
 
         ShadowUtils.drawShadow(
-            canvas.skiaCanvas, path.asSkiaPath(), zParams, lightPos,
+            canvas.skiaCanvas, path.materializeSkiaPath(), zParams, lightPos,
             lightRad,
             ambientColor.toArgb(),
             spotColor.toArgb(), alpha < 1f, false

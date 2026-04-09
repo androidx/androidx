@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.InternalComposeUiApi
 import org.jetbrains.skia.PathEffect as SkPathEffect
 
 internal class SkiaBackedPathEffect(
@@ -50,6 +51,7 @@ internal actual fun actualDashPathEffect(
 internal actual fun actualChainPathEffect(outer: PathEffect, inner: PathEffect): PathEffect =
     SkiaBackedPathEffect(outer.asSkiaPathEffect().makeCompose(inner.asSkiaPathEffect()))
 
+@OptIn(InternalComposeUiApi::class)
 internal actual fun actualStampedPathEffect(
     shape: Path,
     advance: Float,
@@ -58,7 +60,7 @@ internal actual fun actualStampedPathEffect(
 ): PathEffect =
     SkiaBackedPathEffect(
         SkPathEffect.makePath1D(
-            shape.asSkiaPath(),
+            shape.materializeSkiaPath(),
             advance,
             phase,
             style.toSkiaStampedPathEffectStyle()

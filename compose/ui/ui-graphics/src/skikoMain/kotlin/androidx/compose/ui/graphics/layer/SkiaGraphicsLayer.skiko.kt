@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.layer
 
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -33,12 +34,12 @@ import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.SkiaBackedCanvas
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.asSkiaColorFilter
-import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.skiaCanvas
 import androidx.compose.ui.graphics.skiaImageFilter
+import androidx.compose.ui.graphics.materializeSkiaPath
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toSkia
 import androidx.compose.ui.unit.Density
@@ -366,6 +367,7 @@ actual class GraphicsLayer internal constructor(
         discardContentIfReleasedAndHaveNoParentLayerUsages()
     }
 
+    @OptIn(InternalComposeUiApi::class)
     private fun configureOutlineAndClip() {
         if (!outlineDirty) return
         val renderNode = renderNode ?: return
@@ -400,7 +402,7 @@ actual class GraphicsLayer internal constructor(
                     ),
                     antiAlias = true
                 )
-                is Outline.Generic -> renderNode.setClipPath(tmpOutline.path.asSkiaPath(), antiAlias = true)
+                is Outline.Generic -> renderNode.setClipPath(tmpOutline.path.materializeSkiaPath(), antiAlias = true)
             }
         }
         outlineDirty = false

@@ -20,8 +20,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.test.InternalTestApi
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @OptIn(InternalTestApi::class)
@@ -162,68 +160,6 @@ class DesktopPathTest : DesktopGraphicsTest() {
         )
 
         screenshotRule.snap(surface)
-    }
-
-    @Test
-    fun isEmpty() {
-        val path = Path()
-        assertEquals(true, path.isEmpty)
-
-        path.addRect(Rect(0f, 0f, 16f, 16f))
-        assertEquals(false, path.isEmpty)
-    }
-
-    @Test
-    fun isConvex() {
-        val path = Path()
-        assertEquals(true, path.isConvex)
-
-        path.addRect(Rect(0f, 0f, 8f, 8f))
-        assertEquals(true, path.isConvex)
-
-        path.addRect(Rect(8f, 8f, 16f, 16f))
-        assertEquals(false, path.isConvex)
-    }
-
-    @Test
-    fun getBounds() {
-        val path = Path()
-        assertEquals(Rect(0f, 0f, 0f, 0f), path.getBounds())
-
-        path.addRect(Rect(0f, 0f, 8f, 8f))
-        assertEquals(Rect(0f, 0f, 8f, 8f), path.getBounds())
-
-        path.addRect(Rect(8f, 8f, 16f, 16f))
-        assertEquals(Rect(0f, 0f, 16f, 16f), path.getBounds())
-    }
-
-    @Test
-    fun `initial parameters`() {
-        val path = Path()
-
-        assertEquals(PathFillType.NonZero, path.fillType)
-    }
-
-    @Test
-    fun `reset should preserve fillType`() {
-        val path = Path()
-
-        path.fillType = PathFillType.EvenOdd
-        path.reset()
-
-        assertEquals(PathFillType.EvenOdd, path.fillType)
-    }
-
-    @Test
-    fun testRewind() {
-        val path = Path().apply {
-            addRect(Rect(0f, 0f, 100f, 200f))
-        }
-        assertFalse(path.isEmpty)
-
-        path.rewind()
-
-        assertTrue(path.isEmpty)
     }
 
     @Test

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import org.jetbrains.skia.PathMeasure as SkPathMeasure
 
@@ -40,8 +41,9 @@ internal class SkiaBackedPathMeasure(
     internal val internalSkiaPathMeasure: SkPathMeasure = SkPathMeasure()
 ) : PathMeasure {
 
+    @OptIn(InternalComposeUiApi::class)
     override fun setPath(path: Path?, forceClosed: Boolean) {
-        internalSkiaPathMeasure.setPath(path?.asSkiaPath(), forceClosed)
+        internalSkiaPathMeasure.setPath(path?.materializeSkiaPath(), forceClosed)
     }
 
     override fun getSegment(

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.InternalComposeUiApi
 import org.jetbrains.skia.PathVerb
 
 actual fun PathIterator(
@@ -66,12 +67,13 @@ actual fun PathIterator(
 //     return subdivisions
 // }
 
+@OptIn(InternalComposeUiApi::class)
 private class SkiaPathIterator(
     override val path: Path,
     override val conicEvaluation: PathIterator.ConicEvaluation,
     override val tolerance: Float
 ) : PathIterator {
-    private val skiaPath = path.asSkiaPath()
+    private val skiaPath = path.materializeSkiaPath()
     private val iterator = skiaPath.iterator()
 
     // TODO: Handle conversion from conics to quadratics
