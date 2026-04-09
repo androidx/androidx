@@ -51,12 +51,19 @@ internal class SkiaBackedPathMeasure(
         stopDistance: Float,
         destination: Path,
         startWithMoveTo: Boolean
-    ) = internalSkiaPathMeasure.getSegment(
-        startDistance,
-        stopDistance,
-        destination.asSkiaPath(),
-        startWithMoveTo
-    )
+    ): Boolean {
+        requirePrecondition(destination is SkiaBackedPath) {
+            "Getting a segment into a path is only supported for androidx.compose.ui.graphics.SkiaBackedPath instances but received ${destination::class}"
+        }
+        return destination.appendToPathBuilder {
+            internalSkiaPathMeasure.getSegment(
+                startDistance,
+                stopDistance,
+                this,
+                startWithMoveTo
+            )
+        }
+    }
 
     override val length: Float
         get() = internalSkiaPathMeasure.length

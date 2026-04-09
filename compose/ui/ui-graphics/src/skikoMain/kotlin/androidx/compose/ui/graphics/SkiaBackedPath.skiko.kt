@@ -77,7 +77,7 @@ fun Path.materializeSkiaPath(): SkPath {
 private const val PendingGenerationId = 0
 
 @OptIn(InternalComposeUiApi::class)
-private class SkiaBackedPath(
+internal class SkiaBackedPath(
     internal val internalSkiaPath: SkPath = SkPath()
 ) : Path {
     private var pathBuilder = PathBuilder(internalSkiaPath)
@@ -131,6 +131,20 @@ private class SkiaBackedPath(
         currentFillMode = internalSkiaPath.fillMode
         pathBuilder.close()
         pathBuilder = PathBuilder(internalSkiaPath)
+    }
+
+    internal inline fun appendToPathBuilder(
+        block: PathBuilder.() -> Boolean
+    ): Boolean {
+        synchronizeBuilderIfNeeded()
+        return pathBuilder.block().also { hasChanges ->
+            if (hasChanges) {
+                materializedGenerationId = PendingGenerationId
+                if (isSkiaPathObserved) {
+                    synchronizeSkiaPathIfNeeded()
+                }
+            }
+        }
     }
 
     override var fillType: PathFillType

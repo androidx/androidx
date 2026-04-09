@@ -17,7 +17,8 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
-import org.jetbrains.skia.GradientStyle
+import org.jetbrains.skia.Color4f
+import org.jetbrains.skia.Gradient
 import org.jetbrains.skia.Matrix33
 import org.jetbrains.skia.Shader as SkShader
 
@@ -74,8 +75,14 @@ internal actual fun ActualLinearGradientShader(
 ): Shader {
     validateColorStops(colors, colorStops)
     return SkShader.makeLinearGradient(
-        from.x, from.y, to.x, to.y, colors.toIntArray(), colorStops?.toFloatArray(),
-        GradientStyle(tileMode.toSkiaTileMode(), true, identityMatrix33())
+        from.x,
+        from.y,
+        to.x,
+        to.y,
+        colors.toSkiaGradient(
+            colorStops = colorStops,
+            tileMode = tileMode
+        )
     ).asComposeShader()
 }
 
@@ -91,9 +98,10 @@ internal actual fun ActualRadialGradientShader(
         center.x,
         center.y,
         radius,
-        colors.toIntArray(),
-        colorStops?.toFloatArray(),
-        GradientStyle(tileMode.toSkiaTileMode(), true, identityMatrix33())
+        colors.toSkiaGradient(
+            colorStops = colorStops,
+            tileMode = tileMode
+        )
     ).asComposeShader()
 }
 
@@ -106,8 +114,7 @@ internal actual fun ActualSweepGradientShader(
     return SkShader.makeSweepGradient(
         center.x,
         center.y,
-        colors.toIntArray(),
-        colorStops?.toFloatArray()
+        colors.toSkiaGradient(colorStops = colorStops)
     ).asComposeShader()
 }
 
@@ -129,8 +136,25 @@ internal actual fun ActualCompositeShader(dst: Shader, src: Shader, blendMode: B
         src = src.skiaShader
     ).asComposeShader()
 
-private fun List<Color>.toIntArray(): IntArray =
-    IntArray(size) { i -> this[i].toArgb() }
+private fun List<Color>.toSkiaGradient(
+    colorStops: List<Float>?,
+    tileMode: TileMode = TileMode.Clamp
+): Gradient = Gradient(
+    colors = Gradient.Colors(
+        colors = toColor4fArray(),
+        positions = colorStops?.toFloatArray(),
+        tileMode = tileMode.toSkiaTileMode()
+    ),
+    interpolation = Gradient.Interpolation(
+        inPremul = Gradient.Interpolation.InPremul.YES
+    )
+)
+
+private fun List<Color>.toColor4fArray(): Array<Color4f> =
+    Array(size) { i ->
+        val color = this[i]
+        Color4f(color.red, color.green, color.blue, color.alpha)
+    }
 
 private fun validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
     if (colorStops == null) {
