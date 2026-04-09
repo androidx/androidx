@@ -306,6 +306,7 @@ testMonitor = { module = "androidx.test:monitor", version.ref = "androidxTestMon
 testParameterInjector = { module = "com.google.testparameterinjector:test-parameter-injector", version = "1.9" }
 testRules = { module = "androidx.test:rules", version.ref = "androidxTestRules" }
 testRunner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
+testOrchestrator = { module = "androidx.test:orchestrator", version = "1.6.1" }
 testUiautomator = { module = "androidx.test.uiautomator:uiautomator", version = "2.2.0" }
 tink = { module = "com.google.crypto.tink:tink", version.ref = "tink" }
 tinkAndroid = { module = "com.google.crypto.tink:tink-android", version.ref = "tink" }
