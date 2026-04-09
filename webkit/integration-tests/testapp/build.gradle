@@ -50,6 +50,7 @@ dependencies {
     androidTestImplementation(libs.espressoWeb)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
+    androidTestUtil(libs.testOrchestrator)
 }
 
 // We want to publish a release apk of this project for webkit team's use
@@ -67,6 +68,12 @@ android {
         release {
             minifyEnabled = true
         }
+    }
+    defaultConfig {
+        testInstrumentationRunnerArguments clearPackageData: "true"
+    }
+    testOptions {
+        execution "ANDROIDX_TEST_ORCHESTRATOR"
     }
     namespace = "com.example.androidx.webkit"
 }
