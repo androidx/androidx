@@ -27,6 +27,7 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("java-gradle-plugin")
+    id("org.gradle.plugin-compatibility")
 }
 
 configurations {
@@ -63,10 +64,20 @@ gradlePlugin {
         safeargsJava {
             id = "androidx.navigation.safeargs"
             implementationClass = "androidx.navigation.safeargs.gradle.SafeArgsJavaPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         safeargsKotlin {
             id = "androidx.navigation.safeargs.kotlin"
             implementationClass = "androidx.navigation.safeargs.gradle.SafeArgsKotlinPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
