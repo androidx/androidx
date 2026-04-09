@@ -26,6 +26,7 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("java-gradle-plugin")
+    id("org.gradle.plugin-compatibility")
 }
 
 // This custom configuration ensures that dependencies used in tests with gradle test kit with
@@ -73,18 +74,38 @@ gradlePlugin {
         baselineProfileProducer {
             id = "androidx.baselineprofile.producer"
             implementationClass = "androidx.baselineprofile.gradle.producer.BaselineProfileProducerPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         baselineProfileConsumer {
             id = "androidx.baselineprofile.consumer"
             implementationClass = "androidx.baselineprofile.gradle.consumer.BaselineProfileConsumerPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         baselineProfileAppTarget {
             id = "androidx.baselineprofile.apptarget"
             implementationClass = "androidx.baselineprofile.gradle.apptarget.BaselineProfileAppTargetPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         baselineProfileWrapper {
             id = "androidx.baselineprofile"
             implementationClass = "androidx.baselineprofile.gradle.wrapper.BaselineProfileWrapperPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }

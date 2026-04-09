@@ -26,6 +26,7 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("java-gradle-plugin")
+    id("org.gradle.plugin-compatibility")
 }
 
 dependencies {
@@ -44,6 +45,11 @@ gradlePlugin {
         benchmark {
             id = "androidx.benchmark"
             implementationClass = "androidx.benchmark.gradle.BenchmarkPlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }

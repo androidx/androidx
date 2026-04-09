@@ -180,6 +180,7 @@ jsr250 = { module = "javax.annotation:javax.annotation-api", version = "1.2" }
 junit = { module = "junit:junit", version = "4.13.2" }
 gcmNetworkManager = { module = "com.google.android.gms:play-services-gcm", version = "17.0.0" }
 googleCompileTesting = { module = "com.google.testing.compile:compile-testing", version = "0.22.0" }
+gradlePluginCompatibility = { module = "org.gradle.plugin:compatibility-plugin", version = "1.0.0" }
 grpcAndroid = { module = "io.grpc:grpc-android", version.ref = "grpc" }
 grpcBinder = { module = "io.grpc:grpc-binder", version.ref = "grpc" }
 grpcProtobufCompiler = { module = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }

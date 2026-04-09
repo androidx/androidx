@@ -29,6 +29,7 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("java-gradle-plugin")
+    id("org.gradle.plugin-compatibility")
 }
 
 configurations {
@@ -88,6 +89,11 @@ gradlePlugin {
         room {
             id = "androidx.room3"
             implementationClass = "androidx.room3.gradle.RoomGradlePlugin"
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }

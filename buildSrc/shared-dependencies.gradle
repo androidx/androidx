@@ -86,4 +86,7 @@ dependencies {
     implementation(libs.dependency.analysis.gradle.plugin)
 
     implementation("com.google.cloud:google-cloud-secretmanager:2.67.0")
+
+    // Added to mark AndroidX plugins as configuration cache-compatible. See b/492141374
+    implementation(libs.gradlePluginCompatibility)
 }
