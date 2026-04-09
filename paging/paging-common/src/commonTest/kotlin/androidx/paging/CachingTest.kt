@@ -20,6 +20,7 @@ import androidx.paging.ActiveFlowTracker.FlowType
 import androidx.paging.ActiveFlowTracker.FlowType.PAGED_DATA_FLOW
 import androidx.paging.ActiveFlowTracker.FlowType.PAGE_EVENT_FLOW
 import androidx.paging.internal.AtomicInt
+import androidx.paging.internal.IgnoreJsTarget
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +45,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@IgnoreJsTarget // b/492171983: High volume of coroutines causing Karma ping timeouts.
 class CachingTest {
     private val tracker = ActiveFlowTrackerImpl()
 

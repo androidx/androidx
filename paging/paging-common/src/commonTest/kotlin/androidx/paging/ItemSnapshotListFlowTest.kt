@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.kruth.assertThat
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.internal.IgnoreJsTarget
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -40,6 +41,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@IgnoreJsTarget // b/492171983: High volume of coroutines causing Karma ping timeouts.
 class ItemSnapshotListFlowTest {
 
     private val dispatcher = UnconfinedTestDispatcher()

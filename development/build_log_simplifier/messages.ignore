@@ -1036,3 +1036,8 @@ java\.lang\.IllegalStateException: The following LookupSymbols are not yet conve
 \-\-XuseK2Uast is no longer in effect, and will be an error in the next release\.
 # b/495870981
 (?:Lint found no errors or warnings.*|[0-9]+ errors/warnings were listed in the baseline file \(\$SUPPORT/.*lint\-baseline\.xml\) but not found in the project; perhaps they have been fixed\?)
+# https://youtrack.jetbrains.com/issue/KT-85582/: Transitive peer dependency warning from Kotlin/Wasm tooling. Doesn't impact build.
+warning "webpack\-dev\-server > webpack\-dev\-middleware > memfs@[^"]+" has unmet peer dependency "tslib@2"\.
+# b/500398048: Warning from in_progress_stroke_jni_helper.cc
+WARNING: Logging before InitGoogle\(\) is written to STDERR
+.*in_progress_stroke_jni_helper\.cc:[0-9]+\] Triangle index data exceeds 16\-bit limit, attempting to partition into [0-9]+ partitions\.
