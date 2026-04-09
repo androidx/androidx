@@ -40,11 +40,8 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
             EmailSubject -> "EmailSubject"
             ShortMessage -> "ShortMessage"
             LongMessage -> "LongMessage"
-            WebEditText -> "WebEditText"
             Filter -> "Filter"
             Phonetic -> "Phonetic"
-            WebEmailAddress -> "WebEmailAddress"
-            WebPassword -> "WebPassword"
             DateTime -> "DateTime"
             Date -> "Date"
             Time -> "Time"
@@ -115,59 +112,42 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
         /** A keyboard type used to request an IME that is capable of inputting long message. */
         @Stable val LongMessage: KeyboardType = KeyboardType(15)
 
-        /**
-         * A keyboard type used to request an IME that is capable of inputting text for web edit.
-         */
-        @Stable val WebEditText: KeyboardType = KeyboardType(16)
-
         /** A keyboard type used to request an IME that is capable of filtering text. */
-        @Stable val Filter: KeyboardType = KeyboardType(17)
+        @Stable val Filter: KeyboardType = KeyboardType(16)
 
         /** A keyboard type used to request an IME that is capable of inputting phonetic text. */
-        @Stable val Phonetic: KeyboardType = KeyboardType(18)
-
-        /**
-         * A keyboard type used to request an IME that is capable of inputting email address for web
-         * edit.
-         */
-        @Stable val WebEmailAddress: KeyboardType = KeyboardType(19)
-
-        /**
-         * A keyboard type used to request an IME that is capable of inputting password for web
-         * edit.
-         */
-        @Stable val WebPassword: KeyboardType = KeyboardType(20)
+        @Stable val Phonetic: KeyboardType = KeyboardType(17)
 
         /** A keyboard type used to request an IME that is capable of inputting date and time. */
-        @Stable val DateTime: KeyboardType = KeyboardType(21)
+        @Stable val DateTime: KeyboardType = KeyboardType(18)
 
         /** A keyboard type used to request an IME that is capable of inputting date. */
-        @Stable val Date: KeyboardType = KeyboardType(22)
+        @Stable val Date: KeyboardType = KeyboardType(19)
 
         /** A keyboard type used to request an IME that is capable of inputting time. */
-        @Stable val Time: KeyboardType = KeyboardType(23)
+        @Stable val Time: KeyboardType = KeyboardType(20)
 
         /** A keyboard type used to request an IME that is capable of inputting signed digits. */
-        @Stable val NumberSigned: KeyboardType = KeyboardType(24)
+        @Stable val NumberSigned: KeyboardType = KeyboardType(21)
 
         /** A keyboard type used to request an IME that is capable of inputting signed decimals. */
-        @Stable val DecimalSigned: KeyboardType = KeyboardType(25)
+        @Stable val DecimalSigned: KeyboardType = KeyboardType(22)
 
         /**
          * A keyboard type used to request an IME that is capable of inputting a decimal password.
          */
-        @Stable val DecimalPassword: KeyboardType = KeyboardType(26)
+        @Stable val DecimalPassword: KeyboardType = KeyboardType(23)
 
         /**
          * A keyboard type used to request an IME that is capable of inputting a signed number
          * password.
          */
-        @Stable val NumberPasswordSigned: KeyboardType = KeyboardType(27)
+        @Stable val NumberPasswordSigned: KeyboardType = KeyboardType(24)
 
         /**
          * A keyboard type used to request an IME that is capable of inputting a signed decimal
          * password.
          */
-        @Stable val DecimalPasswordSigned: KeyboardType = KeyboardType(28)
+        @Stable val DecimalPasswordSigned: KeyboardType = KeyboardType(25)
     }
 }

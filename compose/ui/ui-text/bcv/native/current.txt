@@ -1468,12 +1468,6 @@ final value class androidx.compose.ui.text.input/KeyboardType { // androidx.comp
             final fun <get-Unspecified>(): androidx.compose.ui.text.input/KeyboardType // androidx.compose.ui.text.input/KeyboardType.Companion.Unspecified.<get-Unspecified>|<get-Unspecified>(){}[0]
         final val Uri // androidx.compose.ui.text.input/KeyboardType.Companion.Uri|{}Uri[0]
             final fun <get-Uri>(): androidx.compose.ui.text.input/KeyboardType // androidx.compose.ui.text.input/KeyboardType.Companion.Uri.<get-Uri>|<get-Uri>(){}[0]
-        final val WebEditText // androidx.compose.ui.text.input/KeyboardType.Companion.WebEditText|{}WebEditText[0]
-            final fun <get-WebEditText>(): androidx.compose.ui.text.input/KeyboardType // androidx.compose.ui.text.input/KeyboardType.Companion.WebEditText.<get-WebEditText>|<get-WebEditText>(){}[0]
-        final val WebEmailAddress // androidx.compose.ui.text.input/KeyboardType.Companion.WebEmailAddress|{}WebEmailAddress[0]
-            final fun <get-WebEmailAddress>(): androidx.compose.ui.text.input/KeyboardType // androidx.compose.ui.text.input/KeyboardType.Companion.WebEmailAddress.<get-WebEmailAddress>|<get-WebEmailAddress>(){}[0]
-        final val WebPassword // androidx.compose.ui.text.input/KeyboardType.Companion.WebPassword|{}WebPassword[0]
-            final fun <get-WebPassword>(): androidx.compose.ui.text.input/KeyboardType // androidx.compose.ui.text.input/KeyboardType.Companion.WebPassword.<get-WebPassword>|<get-WebPassword>(){}[0]
     }
 }
 
