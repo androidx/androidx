@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 @CarProtocol
 @KeepFields
-@RequiresCarApi(8)
+@RequiresCarApi(9)
 @ExperimentalCarApi
 public final class CondensedItem implements Item {
     private final @Nullable CarText mTitle;
