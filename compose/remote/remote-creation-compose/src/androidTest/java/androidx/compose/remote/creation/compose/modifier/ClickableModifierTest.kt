@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.action.CombinedAction
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -42,7 +43,7 @@ class ClickableModifierTest {
     @Test
     fun handlesClick() {
         runActionTest(
-            singleAction = HostAction(CLICK_ACTION.rs, CLICK_ACTION1_VALUE.rs),
+            action = HostAction(CLICK_ACTION.rs, CLICK_ACTION1_VALUE.rs),
             finder = { onElement { text?.toString() == BUTTON_LABEL } },
         ) { element ->
             element.click()
@@ -57,7 +58,7 @@ class ClickableModifierTest {
         val action1 = HostAction(CLICK_ACTION.rs, CLICK_ACTION1_VALUE.rs)
         val action2 = HostAction(CLICK_ACTION.rs, CLICK_ACTION2_VALUE.rs)
         runActionTest(
-            combinedAction = CombinedAction(action1, action2),
+            action = CombinedAction(action1, action2),
             finder = { onElement { text?.toString() == BUTTON_LABEL } },
         ) { element ->
             element.click()
@@ -72,8 +73,8 @@ class ClickableModifierTest {
     @Test
     fun disabled_ignoresClick() {
         runActionTest(
+            action = HostAction(CLICK_ACTION.rs, CLICK_ACTION1_VALUE.rs),
             enabled = false,
-            singleAction = HostAction(CLICK_ACTION.rs, CLICK_ACTION1_VALUE.rs),
             finder = { onElement { text?.toString() == BUTTON_LABEL } },
         ) { element ->
             element.click()
@@ -82,15 +83,13 @@ class ClickableModifierTest {
     }
 
     private fun runActionTest(
+        action: Action,
         enabled: Boolean = true,
-        combinedAction: CombinedAction? = null,
-        singleAction: HostAction? = null,
         finder: (UiAutomatorTestScope.() -> UiObject2)? = null,
         block: (element: UiObject2) -> Unit,
     ) {
         remoteComposeTestRule.setContent {
-            val clickModifier =
-                RemoteModifier.clickable(enabled = enabled, action = combinedAction ?: singleAction)
+            val clickModifier = RemoteModifier.clickable(enabled = enabled, action = action)
 
             RemoteColumn(
                 modifier =

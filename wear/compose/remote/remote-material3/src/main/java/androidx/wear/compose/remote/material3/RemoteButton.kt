@@ -385,6 +385,7 @@ public fun RemoteCompactButton(
     ) {
         if (label != null) {
             RemoteButtonImpl(
+                onClick = Action.Empty,
                 modifier = RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight),
                 secondaryLabelContent = null,
                 icon = icon,
@@ -415,6 +416,7 @@ public fun RemoteCompactButton(
             // aligned
             // content. We use the base simple single slot Button under the covers.
             RemoteButtonImpl(
+                onClick = Action.Empty,
                 modifier =
                     RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight)
                         .width(RemoteButtonDefaults.IconOnlyCompactButtonWidth),
@@ -448,7 +450,7 @@ public fun RemoteCompactButton(
 @Composable
 @RemoteComposable
 private fun RemoteButtonImpl(
-    onClick: Action? = null,
+    onClick: Action,
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteButtonColors,
     containerPainter: RemotePainter?,
@@ -465,7 +467,7 @@ private fun RemoteButtonImpl(
         RemoteModifier.clip(shape = shape)
             .clickable(
                 action = onClick,
-                enabled = enabled.constantValueOrNull ?: false && onClick != null,
+                enabled = enabled.constantValueOrNull ?: false && onClick != Action.Empty,
             )
             .padding(contentPadding)
             .semantics(mergeDescendants = true) { role = Role.Button }
@@ -499,7 +501,7 @@ private fun RemoteButtonImpl(
 @Composable
 @RemoteComposable
 private fun RemoteButtonImpl(
-    onClick: Action? = null,
+    onClick: Action,
     modifier: RemoteModifier = RemoteModifier,
     secondaryLabelContent: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)?,
     icon: (@Composable @RemoteComposable () -> Unit)?,
