@@ -18,6 +18,7 @@ package androidx.lifecycle.viewmodel.compose.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -38,6 +39,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
+import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.UUID
@@ -242,4 +245,43 @@ fun SnapshotStateViewModelWithDelegates() {
             items.add(Item(UUID.randomUUID(), value))
         }
     }
+}
+
+@Sampled
+@Composable
+fun RememberViewModelStoreOwnerSample() {
+    // Create a ViewModelStoreOwner scoped to this specific call site.
+    // When `showFeature` becomes false, this composable leaves the composition,
+    // and the associated ViewModelStore will be cleared.
+    val scopedOwner = rememberViewModelStoreOwner()
+
+    CompositionLocalProvider(LocalViewModelStoreOwner provides scopedOwner) {
+        // This ViewModel is scoped to `scopedOwner`.
+        // It will survive configuration changes but will be cleared when `showFeature` is false.
+        val viewModel = viewModel { TestViewModel("scoped_data") }
+        // Use the ViewModel
+    }
+}
+
+@Sampled
+@Composable
+fun RememberViewModelStoreProviderSample() {
+    val storeProvider = rememberViewModelStoreProvider()
+    val pages = listOf("Page 1", "Page 2", "Page 3")
+
+    HorizontalPager(pageCount = pages.size) { page ->
+        // Create a ViewModelStoreOwner for the specific page using the provider.
+        val pageOwner = rememberViewModelStoreOwner(provider = storeProvider, key = page)
+
+        CompositionLocalProvider(LocalViewModelStoreOwner provides pageOwner) {
+            val pageViewModel = viewModel { TestViewModel(pages[page]) }
+            // Use pageViewModel
+        }
+    }
+}
+
+@Composable
+private fun HorizontalPager(pageCount: Int, content: @Composable (Int) -> Unit) {
+    // Dummy implementation for sample compilation
+    content(pageCount)
 }

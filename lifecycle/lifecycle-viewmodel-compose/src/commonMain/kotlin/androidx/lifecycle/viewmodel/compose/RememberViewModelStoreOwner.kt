@@ -62,6 +62,7 @@ import androidx.savedstate.savedState
  *   scope. Defaults to the [parent]'s default factory.
  * @return A [ViewModelStoreOwner] that is remembered across compositions and scoped to this call
  *   site.
+ * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreOwnerSample
  */
 @Composable
 public fun rememberViewModelStoreOwner(
@@ -114,6 +115,7 @@ public fun rememberViewModelStoreOwner(
  * @param savedStateRegistryOwner An optional [SavedStateRegistryOwner] to delegate saved state
  *   operations. When `null`, ViewModels created in this scope do not support saved state.
  * @return A [ViewModelStoreOwner] remembered across compositions and scoped to this call site.
+ * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreProviderSample
  */
 @Composable
 public fun rememberViewModelStoreOwner(
