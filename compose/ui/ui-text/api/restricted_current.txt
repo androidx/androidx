@@ -1526,9 +1526,6 @@ package androidx.compose.ui.text.input {
     method @BytecodeOnly public int getTime-PjHm6EE();
     method @BytecodeOnly public int getUnspecified-PjHm6EE();
     method @BytecodeOnly public int getUri-PjHm6EE();
-    method @BytecodeOnly public int getWebEditText-PjHm6EE();
-    method @BytecodeOnly public int getWebEmailAddress-PjHm6EE();
-    method @BytecodeOnly public int getWebPassword-PjHm6EE();
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Ascii;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Date;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType DateTime;
@@ -1555,9 +1552,6 @@ package androidx.compose.ui.text.input {
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Time;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Unspecified;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType Uri;
-    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType WebEditText;
-    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType WebEmailAddress;
-    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.KeyboardType WebPassword;
   }
 
   public final class MoveCursorCommand implements androidx.compose.ui.text.input.EditCommand {

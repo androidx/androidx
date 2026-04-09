@@ -253,21 +253,6 @@ class EditorInfoTest {
     }
 
     @Test
-    fun test_fill_editor_info_web_edit_text() {
-        val info = EditorInfo()
-        info.update(
-            ImeOptions(keyboardType = KeyboardType.WebEditText, imeAction = ImeAction.Default)
-        )
-
-        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
-            .isEqualTo(InputType.TYPE_CLASS_TEXT)
-        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
-            .isEqualTo(InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT)
-        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
-            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
-    }
-
-    @Test
     fun test_fill_editor_info_filter() {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Filter, imeAction = ImeAction.Default))
@@ -289,36 +274,6 @@ class EditorInfoTest {
             .isEqualTo(InputType.TYPE_CLASS_TEXT)
         assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
             .isEqualTo(InputType.TYPE_TEXT_VARIATION_PHONETIC)
-        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
-            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
-    }
-
-    @Test
-    fun test_fill_editor_info_web_email_address() {
-        val info = EditorInfo()
-        info.update(
-            ImeOptions(keyboardType = KeyboardType.WebEmailAddress, imeAction = ImeAction.Default)
-        )
-
-        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
-            .isEqualTo(InputType.TYPE_CLASS_TEXT)
-        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
-            .isEqualTo(InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS)
-        assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
-            .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
-    }
-
-    @Test
-    fun test_fill_editor_info_web_password() {
-        val info = EditorInfo()
-        info.update(
-            ImeOptions(keyboardType = KeyboardType.WebPassword, imeAction = ImeAction.Default)
-        )
-
-        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
-            .isEqualTo(InputType.TYPE_CLASS_TEXT)
-        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
-            .isEqualTo(InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD)
         assertThat(info.inputType and InputType.TYPE_MASK_FLAGS)
             .isEqualTo(InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT)
     }

@@ -101,16 +101,10 @@ internal fun EditorInfo.update(
                 InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_SHORT_MESSAGE
             KeyboardType.LongMessage ->
                 InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_LONG_MESSAGE
-            KeyboardType.WebEditText ->
-                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT
             KeyboardType.Filter ->
                 InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_FILTER
             KeyboardType.Phonetic ->
                 InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PHONETIC
-            KeyboardType.WebEmailAddress ->
-                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
-            KeyboardType.WebPassword ->
-                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD
             KeyboardType.DateTime ->
                 InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_NORMAL
             KeyboardType.Date ->
@@ -198,7 +192,6 @@ private fun EditorInfo.shouldEnableStylusHandwriting(imeOptions: ImeOptions) =
     isStylusHandwritingSupported &&
         imeOptions.keyboardType != KeyboardType.Password &&
         imeOptions.keyboardType != KeyboardType.PasswordVisible &&
-        imeOptions.keyboardType != KeyboardType.WebPassword &&
         imeOptions.keyboardType != KeyboardType.NumberPassword &&
         imeOptions.keyboardType != KeyboardType.DecimalPassword &&
         imeOptions.keyboardType != KeyboardType.NumberPasswordSigned &&

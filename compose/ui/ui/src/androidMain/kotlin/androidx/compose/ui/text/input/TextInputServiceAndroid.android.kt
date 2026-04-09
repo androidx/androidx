@@ -554,23 +554,11 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
             this.inputType =
                 InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_LONG_MESSAGE
         }
-        KeyboardType.WebEditText -> {
-            this.inputType =
-                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT
-        }
         KeyboardType.Filter -> {
             this.inputType = InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_FILTER
         }
         KeyboardType.Phonetic -> {
             this.inputType = InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PHONETIC
-        }
-        KeyboardType.WebEmailAddress -> {
-            this.inputType =
-                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
-        }
-        KeyboardType.WebPassword -> {
-            this.inputType =
-                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD
         }
         KeyboardType.DateTime -> {
             this.inputType =

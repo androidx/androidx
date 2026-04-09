@@ -235,19 +235,6 @@ class EditorInfoTest {
     }
 
     @Test
-    fun test_fill_editor_info_web_edit_text() {
-        val info = EditorInfo()
-        info.update(
-            ImeOptions(keyboardType = KeyboardType.WebEditText, imeAction = ImeAction.Default)
-        )
-
-        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
-            .isEqualTo(InputType.TYPE_CLASS_TEXT)
-        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
-            .isEqualTo(InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT)
-    }
-
-    @Test
     fun test_fill_editor_info_filter() {
         val info = EditorInfo()
         info.update(ImeOptions(keyboardType = KeyboardType.Filter, imeAction = ImeAction.Default))
@@ -267,32 +254,6 @@ class EditorInfoTest {
             .isEqualTo(InputType.TYPE_CLASS_TEXT)
         assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
             .isEqualTo(InputType.TYPE_TEXT_VARIATION_PHONETIC)
-    }
-
-    @Test
-    fun test_fill_editor_info_web_email_address() {
-        val info = EditorInfo()
-        info.update(
-            ImeOptions(keyboardType = KeyboardType.WebEmailAddress, imeAction = ImeAction.Default)
-        )
-
-        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
-            .isEqualTo(InputType.TYPE_CLASS_TEXT)
-        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
-            .isEqualTo(InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS)
-    }
-
-    @Test
-    fun test_fill_editor_info_web_password() {
-        val info = EditorInfo()
-        info.update(
-            ImeOptions(keyboardType = KeyboardType.WebPassword, imeAction = ImeAction.Default)
-        )
-
-        assertThat(info.inputType and InputType.TYPE_MASK_CLASS)
-            .isEqualTo(InputType.TYPE_CLASS_TEXT)
-        assertThat(info.inputType and InputType.TYPE_MASK_VARIATION)
-            .isEqualTo(InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD)
     }
 
     @Test
@@ -806,11 +767,6 @@ class EditorInfoTest {
 
         info.update(
             ImeOptions(keyboardType = KeyboardType.PasswordVisible, imeAction = ImeAction.Default)
-        )
-        assertThat(EditorInfoCompat.isStylusHandwritingEnabled(info)).isFalse()
-
-        info.update(
-            ImeOptions(keyboardType = KeyboardType.WebPassword, imeAction = ImeAction.Default)
         )
         assertThat(EditorInfoCompat.isStylusHandwritingEnabled(info)).isFalse()
     }
