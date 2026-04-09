@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.paging.CombineSource.INITIAL
 import androidx.paging.CombineSource.OTHER
 import androidx.paging.CombineSource.RECEIVER
+import androidx.paging.internal.IgnoreJsTarget
 import kotlin.random.Random
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -42,6 +43,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@IgnoreJsTarget // b/492171983: High volume of coroutines causing Karma ping timeouts.
 class FlowExtTest {
     val testScope = TestScope()
 
