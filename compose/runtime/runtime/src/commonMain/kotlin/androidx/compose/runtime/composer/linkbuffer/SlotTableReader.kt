@@ -184,7 +184,8 @@ internal class SlotTableReader(val table: SlotTable) {
         get() = groupFlagsChildNodeCount(groups.groupFlags(current))
 
     val parentNodeCount: Int
-        get() = if (parent != NULL_ADDRESS) groupFlagsNodeCount(groups.groupFlags(parent)) else 0
+        get() =
+            if (parent != NULL_ADDRESS) groupFlagsChildNodeCount(groups.groupFlags(parent)) else 0
 
     val groupReferenceSlotStartAddress: SlotAddress
         get() = slotAddressOf(groups.groupSlotRange(parent))
