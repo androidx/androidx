@@ -1045,7 +1045,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         ViewCompat.setAccessibilityDelegate(this, composeAccessibilityDelegate)
         ViewRootForTest.onViewCreatedCallback?.invoke(this)
         setOnDragListener(dragAndDropManager)
-        root.attach(this)
 
         // Support for this feature in Compose is tracked here: b/207654434
         if (SDK_INT >= Q) AndroidComposeViewForceDarkModeQ.disallowForceDark(this)
@@ -2291,6 +2290,13 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     @OptIn(ExperimentalComposeUiApi::class)
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+
+        // It is important to only attach it when view is attached, as attaching view invalidates
+        // caches for accessibility service lookups that are used for semantics.
+        if (!root.isAttached) {
+            root.attach(this)
+        }
+
         isAttached = true
         if (SDK_INT < 30) {
             showLayoutBounds = getIsShowingLayoutBounds()
@@ -2312,8 +2318,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 _autofill?.let { AutofillLoggingCallback.register(it) }
             }
         }
-        // Moving this work outside of frame this callback is not trivial. The initial value will be
-        // requested and read synchronously anyway.
+        // Moving this work outside of frame, as this callback is not trivial. The initial value
+        // will be requested and read synchronously anyway.
         val outOfFrameExecutor =
             outOfFrameExecutor ?: error("Expected the view to be attached to window.")
         outOfFrameExecutor.schedule { addNotificationForSysPropsChange(this) }
