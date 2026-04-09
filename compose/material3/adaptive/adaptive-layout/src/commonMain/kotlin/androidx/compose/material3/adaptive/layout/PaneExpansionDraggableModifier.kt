@@ -145,6 +145,7 @@ private data class MinTouchTargetSizeElement(val size: Dp) :
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class MinTouchTargetSizeNode(var size: Dp) : ParentDataModifierNode, Modifier.Node() {
     override fun Density.modifyParentData(parentData: Any?) =
         ((parentData as? PaneScaffoldParentDataImpl) ?: PaneScaffoldParentDataImpl()).also {

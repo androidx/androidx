@@ -103,15 +103,16 @@ import kotlinx.coroutines.launch
  *
  * This component provides the visual surface and gesture behavior for a bottom sheet. Crucially, it
  * renders **directly in the composition hierarchy** (the main UI tree), unlike [ModalBottomSheet]
- * which launches a separate [Dialog] window.
+ * which launches a separate [androidx.compose.ui.window.Dialog] window.
  *
  * Because this component exists in the main UI tree:
  * - It is drawn at the Z-index determined by its placement in the layout (e.g. inside a [Box]).
  * - It does not automatically provide a scrim or block interaction with the rest of the screen.
  * - It shares the same lifecycle and input handling as its parent composables.
  *
- * Use this component when building custom sheet experiences where a [Dialog] window is not desired,
- * or when a custom [Dialog] is needed.
+ * Use this component when building custom sheet experiences where a
+ * [androidx.compose.ui.window.Dialog] window is not desired, or when a custom
+ * [androidx.compose.ui.window.Dialog] is needed.
  *
  * For a modal bottom sheet that handles the Dialog window, scrim, and focus management
  * automatically, use [ModalBottomSheet].

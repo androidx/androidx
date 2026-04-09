@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.map
     message = "Moved to common source set, maintained for binary compatibility.",
 )
 @Composable
+@Suppress("DEPRECATION")
 fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo = currentWindowAdaptiveInfo(false)
 
 /**

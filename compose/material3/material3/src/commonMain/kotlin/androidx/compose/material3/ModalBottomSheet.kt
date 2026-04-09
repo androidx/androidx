@@ -245,15 +245,15 @@ internal class SheetWindowInsets(private val state: SheetState) : WindowInsets {
 }
 
 /**
- * [Dialog]-like component providing default window behavior for [BottomSheet]. This implementation
- * explicitly provides a full-screen edge to edge layout.
+ * [androidx.compose.ui.window.Dialog]-like component providing default window behavior for
+ * [BottomSheet]. This implementation explicitly provides a full-screen edge to edge layout.
  *
  * The dialog is visible as long as it is part of the composition hierarchy. In order to let the
  * user dismiss the Dialog, the implementation of onDismissRequest should contain a way to remove
  * the dialog from the composition hierarchy.
  *
  * You can add implement a custom [ModalBottomSheet] by leveraging this API alongside [BottomSheet],
- * [draggableAnchoredSheet], and [Scrim]:
+ * draggableAnchoredSheet, and [Scrim]:
  *
  * @sample androidx.compose.material3.samples.ManualModalBottomSheetSample
  * @param onDismissRequest Callback which executes when user tries to dismiss

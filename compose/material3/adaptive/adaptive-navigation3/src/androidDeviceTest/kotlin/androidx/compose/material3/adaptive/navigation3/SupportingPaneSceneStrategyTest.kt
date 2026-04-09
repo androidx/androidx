@@ -20,7 +20,7 @@ package androidx.compose.material3.adaptive.navigation3
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.layout.AdaptStrategy
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldDefaults
@@ -285,7 +285,7 @@ class SupportingPaneSceneStrategyTest {
         backNavigationBehavior: BackNavigationBehavior =
             BackNavigationBehavior.PopUntilScaffoldValueChange,
         directive: PaneScaffoldDirective =
-            calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+            calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
         adaptStrategies: ThreePaneScaffoldAdaptStrategies =
             SupportingPaneScaffoldDefaults.adaptStrategies(),
         additionalMainMetadata: Map<String, Any> = emptyMap(),

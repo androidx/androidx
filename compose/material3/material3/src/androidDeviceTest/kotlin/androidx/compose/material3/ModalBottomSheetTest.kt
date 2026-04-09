@@ -1624,7 +1624,7 @@ class ModalBottomSheetTest {
             sheetState =
                 SheetState(
                     skipPartiallyExpanded = false,
-                    initialValue = SheetValue.Expanded,
+                    initialValue = SheetValue.PartiallyExpanded,
                     positionalThreshold = {
                         with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
                     },
@@ -1635,7 +1635,7 @@ class ModalBottomSheetTest {
 
             Box(Modifier.requiredSize(100.dp)) {
                 BottomSheet(onDismissRequest = {}, state = sheetState, dragHandle = null) {
-                    Text("Extremely small sheet", Modifier.testTag(sheetTag))
+                    Box(Modifier.fillMaxSize().testTag(sheetTag)) { Text("Extremely small sheet") }
                 }
             }
         }

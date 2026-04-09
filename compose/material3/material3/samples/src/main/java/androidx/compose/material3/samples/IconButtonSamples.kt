@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FilledTonalIconButton
@@ -50,7 +49,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.tooling.preview.Preview
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -69,7 +67,6 @@ fun IconButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -88,7 +85,6 @@ fun IconButtonWithAnimatedShapeSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -122,7 +118,6 @@ fun ExtraSmallNarrowSquareIconButtonsSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -154,7 +149,6 @@ fun MediumRoundWideIconButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -181,7 +175,6 @@ fun LargeRoundUniformOutlinedIconButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -204,7 +197,6 @@ fun TintedIconButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -228,7 +220,6 @@ fun IconToggleButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -256,7 +247,6 @@ fun IconToggleButtonWithAnimatedShapeSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -275,7 +265,6 @@ fun FilledIconButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -294,7 +283,6 @@ fun FilledIconButtonWithAnimatedShapeSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -318,7 +306,6 @@ fun FilledIconToggleButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -346,7 +333,6 @@ fun FilledIconToggleButtonWithAnimatedShapeSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -365,7 +351,6 @@ fun FilledTonalIconButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -387,7 +372,6 @@ fun FilledTonalIconButtonWithAnimatedShapeSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -411,7 +395,6 @@ fun FilledTonalIconToggleButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -439,7 +422,6 @@ fun FilledTonalIconToggleButtonWithAnimatedShapeSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -458,8 +440,6 @@ fun OutlinedIconButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3ExpressiveApi
 @Preview
 @Sampled
 @Composable
@@ -481,7 +461,6 @@ fun OutlinedIconButtonWithAnimatedShapeSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -505,7 +484,7 @@ fun OutlinedIconToggleButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable

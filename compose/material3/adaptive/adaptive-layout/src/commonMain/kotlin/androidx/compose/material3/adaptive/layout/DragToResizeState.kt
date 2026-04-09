@@ -24,6 +24,7 @@ import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.internal.Strings
 import androidx.compose.material3.adaptive.layout.internal.delegableSemantics
 import androidx.compose.material3.adaptive.layout.internal.getString
@@ -80,6 +81,7 @@ import kotlinx.coroutines.launch
  *   [Dp.Unspecified]. Note that the dragged size cannot be larger than the scaffold's size, even if
  *   the max size set here is larger than the scaffold's size.
  */
+@ExperimentalMaterial3AdaptiveApi
 @Composable
 fun rememberDragToResizeState(
     dockedEdge: DockedEdge,
@@ -104,6 +106,7 @@ fun rememberDragToResizeState(
         }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private fun DragToResizeState(
     dockedEdge: DockedEdge,
     layoutDirection: LayoutDirection,
@@ -138,6 +141,7 @@ private fun DragToResizeState(
  * @see androidx.compose.material3.adaptive.layout.AdaptStrategy.Levitate
  * @see androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Levitated
  */
+@ExperimentalMaterial3AdaptiveApi
 @Stable
 abstract class DragToResizeState private constructor() : DraggableState {
     // TODO(conradchen): To figure out a better way to expose this in the relevant APIs
@@ -350,6 +354,7 @@ abstract class DragToResizeState private constructor() : DraggableState {
  *
  * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
  */
+@ExperimentalMaterial3AdaptiveApi
 enum class DockedEdge {
     /** The top edge of the pane is fixed, and resizing happens by moving the bottom edge. */
     Top,
@@ -368,6 +373,7 @@ enum class DockedEdge {
  * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
  * @param state The [DragToResizeState] which controls the resizing behavior.
  */
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal fun Modifier.dragToResize(
     state: DragToResizeState,
     showIndication: Boolean = true,
@@ -391,6 +397,7 @@ internal fun Modifier.dragToResize(
  * @param state the associated [DragToResizeState] that this modifier will operate on.
  */
 // TODO(conradchen): Figure out if we should publish it and the right API shape
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal fun Modifier.clickToResize(state: DragToResizeState, showIndication: Boolean = true) =
     this.then(
             if (showIndication) {
@@ -429,6 +436,7 @@ internal fun Modifier.clickToResize(state: DragToResizeState, showIndication: Bo
                 )
         }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val DragToResizeState.nextState
     get() =
         when (state) {
