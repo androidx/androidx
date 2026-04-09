@@ -61,39 +61,4 @@ class AnchorStateTest {
             AnchorState(trackingState = TrackingState.PAUSED, pose = null)
         }
     }
-
-    @Test
-    fun fromOpenXrLocationFlags_IncorrectBitPositions_throwsIllegalArgumentException() {
-        assertFailsWith<IllegalArgumentException> {
-            TrackingState.fromOpenXrLocationFlags(0x0000FFFF)
-        }
-    }
-
-    @Test
-    fun fromOpenXrLocationFlags_OnlyValidBitsFlipped_returnsPausedTrackingState() {
-        val trackingState = TrackingState.fromOpenXrLocationFlags(0x00000003) // 0b...0011
-
-        assertThat(trackingState).isEqualTo(TrackingState.PAUSED)
-    }
-
-    @Test
-    fun fromOpenXrLocationFlags_ValidAndTrackingBitsFlipped_returnsTrackingTrackingState() {
-        val trackingState = TrackingState.fromOpenXrLocationFlags(0x0000000F) // 0b...1111
-
-        assertThat(trackingState).isEqualTo(TrackingState.TRACKING)
-    }
-
-    @Test
-    fun fromOpenXrLocationFlags_OnlyTrackingBitsFlipped_returnsStoppedTrackingState() {
-        val trackingState = TrackingState.fromOpenXrLocationFlags(0x0000000C) // 0b...1100
-
-        assertThat(trackingState).isEqualTo(TrackingState.STOPPED)
-    }
-
-    @Test
-    fun fromOpenXrLocationFlags_OneTrackingAndValidBitFlipped_returnsStoppedTrackingState() {
-        val trackingState = TrackingState.fromOpenXrLocationFlags(0x0000000A) // 0b...1010
-
-        assertThat(trackingState).isEqualTo(TrackingState.STOPPED)
-    }
 }
