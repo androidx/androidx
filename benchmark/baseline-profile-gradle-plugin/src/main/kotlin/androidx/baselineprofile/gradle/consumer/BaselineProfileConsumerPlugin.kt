@@ -266,6 +266,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
         // Adds the custom dependencies for baseline profiles. Note that dependencies
         // for global, build type, flavor and variant specific are all merged.
         variantDependencies.forEach {
+            @Suppress("DEPRECATION")
             val targetProjectDependency = project.dependencyFactory.create(it)
             baselineProfileConfiguration.dependencies.add(targetProjectDependency)
         }
