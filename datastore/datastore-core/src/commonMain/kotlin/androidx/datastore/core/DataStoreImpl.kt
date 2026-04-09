@@ -195,18 +195,18 @@ internal class DataStoreImpl<T>(
                 UpdatingDataContextElement(parent = parentContextElement, instance = this)
             withContext(childContextElement) {
                 val ack = CompletableDeferred<T>()
-                val currentDownStreamFlowState = inMemoryCache.currentState
-                // Skip passing the actual cached value if it's Data since Message.Update doesn't
-                // rely on the cached value. This enables potentially earlier GC.
-                val enqueueState: State<T> =
-                    if (currentDownStreamFlowState is Data) {
-                        NoValueDataState(currentDownStreamFlowState.version)
-                    } else {
-                        currentDownStreamFlowState
-                    }
-
-                val updateMsg =
+                val updateMsg = run {
+                    val currentDownStreamFlowState = inMemoryCache.currentState
+                    // Skip passing the actual cached value if it's Data since Message.Update
+                    // doesn't rely on the cached value. This enables potentially earlier GC.
+                    val enqueueState: State<T> =
+                        if (currentDownStreamFlowState is Data) {
+                            NoValueDataState(currentDownStreamFlowState.version)
+                        } else {
+                            currentDownStreamFlowState
+                        }
                     Message.Update(transform, ack, enqueueState, coroutineContext, token)
+                }
                 writeActor.offer(updateMsg)
                 ack.await()
             }
