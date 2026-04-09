@@ -31,6 +31,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
  * @param modifier The modifier to be applied to this flow.
  * @param horizontalArrangement The horizontal arrangement of the children.
  * @param verticalArrangement The vertical arrangement of the children.
+ * @param maxItemsInEachRow The maximum number of items in each row.
+ * @param maxLines The maximum number of lines in the flow.
  * @param content The content of the flow.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -40,12 +42,16 @@ public fun RemoteFlowRow(
     modifier: RemoteModifier = RemoteModifier,
     horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start,
     verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
+    maxItemsInEachRow: Int = Int.MAX_VALUE,
+    maxLines: Int = Int.MAX_VALUE,
     content: @Composable () -> Unit,
 ) {
     RemoteFlowRowV2(
         modifier,
         horizontalArrangement,
         verticalArrangement,
+        maxItemsInEachRow,
+        maxLines,
         LocalLayoutDirection.current,
         content,
     )

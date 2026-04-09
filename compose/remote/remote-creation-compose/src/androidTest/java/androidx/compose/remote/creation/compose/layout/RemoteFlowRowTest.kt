@@ -155,6 +155,17 @@ class RemoteFlowRowTest {
     }
 
     @Test
+    fun constraints() =
+        composeTestRule.runScreenshotTest(profile = experimentalProfile) {
+            gridScreenshotUI.GridContent(
+                listOf(
+                    "maxItemsInEachRow = 3" to { TestMaxItemsInEachRow() },
+                    "maxLines = 2" to { TestMaxLines() },
+                )
+            )
+        }
+
+    @Test
     fun spacedBy() =
         composeTestRule.runScreenshotTest(profile = experimentalProfile) {
             gridScreenshotUI.GridContent(
@@ -588,6 +599,34 @@ class RemoteFlowRowTest {
                 modifier =
                     RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
             )
+        }
+    }
+
+    @Composable
+    @RemoteComposable
+    fun TestMaxItemsInEachRow() {
+        RemoteFlowRow(
+            modifier = RemoteModifier.fillMaxSize().background(Color.LightGray),
+            maxItemsInEachRow = 3,
+        ) {
+            repeat(10) { index ->
+                val color = if (index % 2 == 0) Color(0xFF6200EE) else Color(0xFF03DAC6)
+                RemoteBox(modifier = RemoteModifier.size(20.rdp).background(color))
+            }
+        }
+    }
+
+    @Composable
+    @RemoteComposable
+    private fun TestMaxLines() {
+        RemoteFlowRow(
+            modifier = RemoteModifier.fillMaxSize().background(Color.LightGray),
+            maxLines = 2,
+        ) {
+            repeat(15) { index ->
+                val color = if (index % 2 == 0) Color(0xFF6200EE) else Color(0xFF03DAC6)
+                RemoteBox(modifier = RemoteModifier.size(20.rdp).background(color))
+            }
         }
     }
 }

@@ -30,6 +30,8 @@ public fun RemoteFlowRowV2(
     modifier: RemoteModifier = RemoteModifier,
     horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start,
     verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
+    maxItemsInEachRow: Int = Int.MAX_VALUE,
+    maxLines: Int = Int.MAX_VALUE,
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     content: @Composable () -> Unit,
 ) {
@@ -43,6 +45,10 @@ public fun RemoteFlowRowV2(
             set(verticalArrangement) { nodeVerticalArrangement ->
                 this.verticalArrangement = nodeVerticalArrangement
             }
+            set(maxItemsInEachRow) { nodeMaxItemsInEachRow ->
+                this.maxItemsInEachRow = nodeMaxItemsInEachRow
+            }
+            set(maxLines) { nodeMaxLines -> this.maxLines = nodeMaxLines }
             set(layoutDirection) { nodeLayoutDirection ->
                 this.layoutDirection = nodeLayoutDirection
             }
