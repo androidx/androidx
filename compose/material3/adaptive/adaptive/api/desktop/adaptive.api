@@ -50,6 +50,7 @@ public final class androidx/compose/material3/adaptive/WindowAdaptiveInfo {
 
 public final class androidx/compose/material3/adaptive/WindowAdaptiveInfoKt {
 	public static final fun currentWindowAdaptiveInfo (ZLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/WindowAdaptiveInfo;
+	public static final fun currentWindowAdaptiveInfoV2 (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/adaptive/WindowAdaptiveInfo;
 	public static final fun currentWindowDpSize (Landroidx/compose/runtime/Composer;I)J
 	public static final fun currentWindowSize (Landroidx/compose/runtime/Composer;I)J
 }
