@@ -36,6 +36,7 @@ import androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
 import com.google.ar.imp.view.View
+import java.io.IOException
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import kotlin.coroutines.resume
@@ -885,7 +886,7 @@ public class ImpressApiImpl : ImpressApi {
                         if (message.contains("CANCELLED")) {
                             onCancelled(message)
                         } else {
-                            continuation.resumeWithException(Exception(message))
+                            continuation.resumeWithException(IOException(message))
                         }
                     }
 
