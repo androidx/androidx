@@ -291,7 +291,7 @@ private fun Temp(
         verticalAlignment = RemoteAlignment.CenterVertically,
     ) {
         RemoteBox(modifier = RemoteModifier.width(30.rdp)) {
-            RemoteText(precipitation, RemoteModifier.padding(right = 4.rdp))
+            RemoteText(precipitation, RemoteModifier.padding(end = 4.rdp))
         }
         RemoteImage(image, RemoteString(""), RemoteModifier.size(24.rdp))
     }

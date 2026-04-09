@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +38,10 @@ import org.junit.runner.RunWith
 class OffsetModifierScreenshotTest {
     @get:Rule
     val composeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteComposeScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            matcher = MSSIMMatcher(threshold = 0.999),
+        )
     }
 
     private val gridScreenshotUI = GridScreenshotUI()

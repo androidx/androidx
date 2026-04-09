@@ -120,7 +120,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                             RemoteModifier.fillMaxHeight().width(1.rdp).background(Color.DarkGray)
                     )
                 }
-                var modifier = RemoteModifier.padding(left = 8.rf, right = 8.rf)
+                var modifier = RemoteModifier.padding(start = 8.rf, end = 8.rf)
                 RemoteColumn(modifier = modifier, horizontalAlignment = RemoteAlignment.End) {
                     RemoteCanvas(modifier = RemoteModifier.size(20.rdp)) {
                         drawAnchoredText(
