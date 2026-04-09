@@ -169,8 +169,8 @@ class EyeTrackingActivity : ComponentActivity() {
                 if (perceptionState == null) {
                     Row { Text("Perception State is null", fontSize = 20.sp) }
                 } else {
-                    val leftEye = getEyePose(perceptionState.leftEye)
-                    val rightEye = getEyePose(perceptionState.rightEye)
+                    val leftEye = getEyePose(perceptionState.leftEyeState)
+                    val rightEye = getEyePose(perceptionState.rightEyeState)
                     Row {
                         Button(onClick = { toggleEyeTrackingConfigMode() }) {
                             // button displays current eyetracking mode. click it to change.
@@ -204,7 +204,7 @@ class EyeTrackingActivity : ComponentActivity() {
         }
     }
 
-    private fun getEyePose(eye: Eye?): Pose? = eye?.state?.value?.pose
+    private fun getEyePose(eye: Eye.State?): Pose? = eye?.pose
 
     private fun EyeTrackingMode.asString(): String {
         return when (this) {

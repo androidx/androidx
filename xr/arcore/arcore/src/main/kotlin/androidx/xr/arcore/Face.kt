@@ -78,14 +78,20 @@ internal constructor(
             return session.state
                 .transform { state ->
                     state.perceptionState?.let { perceptionState ->
-                        emit(perceptionState.trackables.filterIsInstance<Face>())
+                        emit(
+                            perceptionState.trackableStates.filterIsInstance<Face.State>().map {
+                                it.owner
+                            }
+                        )
                     }
                 }
                 .stateIn(
                     session.coroutineScope,
                     SharingStarted.Eagerly,
-                    session.state.value.perceptionState?.trackables?.filterIsInstance<Face>()
-                        ?: emptyList(),
+                    session.state.value.perceptionState
+                        ?.trackableStates
+                        ?.filterIsInstance<Face.State>()
+                        ?.map { it.owner } ?: emptyList(),
                 )
         }
 
@@ -173,6 +179,7 @@ internal constructor(
      * The representation of the current state of [Face].
      *
      * @property trackingState the current [androidx.xr.runtime.TrackingState] of the face
+     * @property owner self-reference to the object that owns this state.
      */
     public class State
     internal constructor(
@@ -184,6 +191,7 @@ internal constructor(
         internal val noseTipPose: Pose? = null,
         internal val foreheadLeftPose: Pose? = null,
         internal val foreheadRightPose: Pose? = null,
+        public val owner: Face,
     ) : Trackable.State {
 
         public val blendShapes: Map<FaceBlendShapeType, Float> =
@@ -259,7 +267,8 @@ internal constructor(
                 mesh == other.mesh &&
                 noseTipPose == other.noseTipPose &&
                 foreheadLeftPose == other.foreheadLeftPose &&
-                foreheadRightPose == other.foreheadRightPose
+                foreheadRightPose == other.foreheadRightPose &&
+                owner == other.owner
         }
 
         @OptIn(ExperimentalFaceApi::class)
@@ -272,6 +281,7 @@ internal constructor(
             result = 31 * result + noseTipPose.hashCode()
             result = 31 * result + foreheadLeftPose.hashCode()
             result = 31 * result + foreheadRightPose.hashCode()
+            result = 31 * result + owner.hashCode()
             return result
         }
 
@@ -288,6 +298,7 @@ internal constructor(
                 TrackingState.PAUSED,
                 blendShapeValues = FloatArray(blendShapeMapKeys.size),
                 confidenceValues = FloatArray(confidenceRegions.size),
+                owner = this,
             )
         )
 
@@ -307,6 +318,7 @@ internal constructor(
                 runtimeFace.noseTipPose,
                 runtimeFace.foreheadLeftPose,
                 runtimeFace.foreheadRightPose,
+                owner = this,
             )
         )
     }

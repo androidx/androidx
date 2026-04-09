@@ -94,25 +94,23 @@ public class PerceptionStateExtender : StateExtender {
     }
 
     private fun updatePerceptionStateMap(coreState: CoreState) {
-        perceptionStateMap.put(
-            coreState.timeMark,
+        perceptionStateMap[coreState.timeMark] =
             PerceptionState(
                 coreState.timeMark,
-                xrResourcesManager.trackablesMap.values,
-                xrResourcesManager.leftHand,
-                xrResourcesManager.rightHand,
-                xrResourcesManager.arDevice,
-                xrResourcesManager.leftRenderViewpoint,
-                xrResourcesManager.rightRenderViewpoint,
-                xrResourcesManager.monoRenderViewpoint,
-                xrResourcesManager.leftDepthMap,
-                xrResourcesManager.rightDepthMap,
-                xrResourcesManager.monoDepthMap,
-                xrResourcesManager.userFace,
-                xrResourcesManager.leftEye,
-                xrResourcesManager.rightEye,
-            ),
-        )
+                xrResourcesManager.trackablesMap.values.map { it.state.value },
+                xrResourcesManager.leftHand?.state?.value,
+                xrResourcesManager.rightHand?.state?.value,
+                xrResourcesManager.arDevice.state.value,
+                xrResourcesManager.leftRenderViewpoint?.state?.value,
+                xrResourcesManager.rightRenderViewpoint?.state?.value,
+                xrResourcesManager.monoRenderViewpoint?.state?.value,
+                xrResourcesManager.leftDepthMap?.state?.value,
+                xrResourcesManager.rightDepthMap?.state?.value,
+                xrResourcesManager.monoDepthMap?.state?.value,
+                xrResourcesManager.userFace?.state?.value,
+                xrResourcesManager.leftEye?.state?.value,
+                xrResourcesManager.rightEye?.state?.value,
+            )
         timeMarkQueue.add(coreState.timeMark)
 
         if (timeMarkQueue.size > MAX_PERCEPTION_STATE_EXTENSION_SIZE) {

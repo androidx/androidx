@@ -64,30 +64,42 @@ public class ArDevice internal constructor(internal val runtimeArDevice: Runtime
      *
      * @property devicePose the current [Pose] of the device
      * @property trackingState The current [androidx.xr.runtime.TrackingState]
+     * @property owner self-reference to the object that owns this state.
      */
     public class State
-    internal constructor(public val devicePose: Pose, public val trackingState: TrackingState) {
+    internal constructor(
+        public val devicePose: Pose,
+        public val trackingState: TrackingState,
+        public val owner: ArDevice,
+    ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is State) return false
-            return devicePose == other.devicePose && trackingState == other.trackingState
+            return devicePose == other.devicePose &&
+                trackingState == other.trackingState &&
+                owner == other.owner
         }
 
         override fun hashCode(): Int {
             var result = devicePose.hashCode()
             result = 31 * result + trackingState.hashCode()
+            result = 31 * result + owner.hashCode()
             return result
         }
     }
 
-    private val _state = MutableStateFlow<State>(State(Pose(), TrackingState.STOPPED))
+    private val _state = MutableStateFlow<State>(State(Pose(), TrackingState.STOPPED, owner = this))
 
     public val state: StateFlow<State> = _state.asStateFlow()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
         _state.emit(
-            State(runtimeArDevice.devicePose, runtimeArDevice.trackingState.toTrackingState())
+            State(
+                runtimeArDevice.devicePose,
+                runtimeArDevice.trackingState.toTrackingState(),
+                owner = this,
+            )
         )
     }
 
