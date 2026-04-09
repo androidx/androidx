@@ -130,3 +130,59 @@ public class Not(public val filter: OpenId4VciFilter) : OpenId4VciFilter() {
 
     override fun not(): OpenId4VciFilter = filter
 }
+
+/**
+ * Filters issuance requests by allowed issuer origins.
+ *
+ * @property issuers set of allowed issuer origins (e.g., "https://issuer.example.com")
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class AllowedIssuers(public val issuers: Set<String>) : OpenId4VciFilter() {
+    override fun asJson(): JSONObject =
+        JSONObject().apply {
+            put("AllowedIssuers", JSONObject().apply { put("issuers", JSONArray(issuers)) })
+        }
+}
+
+/**
+ * Filters issuance requests by allowed configuration identifiers.
+ *
+ * @property configurationIds set of allowed configuration identifiers
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class AllowedConfigurationIds(public val configurationIds: Set<String>) :
+    OpenId4VciFilter() {
+    override fun asJson(): JSONObject =
+        JSONObject().apply {
+            put(
+                "AllowedConfigurationIds",
+                JSONObject().apply { put("configuration_ids", JSONArray(configurationIds)) },
+            )
+        }
+}
+
+/**
+ * Filters issuance requests by allowed ISO mdoc document types.
+ *
+ * @property doctypes set of allowed document types (e.g., "org.iso.18013.5.1.mDL")
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class AllowedMdocDoctypes(public val doctypes: Set<String>) : OpenId4VciFilter() {
+    override fun asJson(): JSONObject =
+        JSONObject().apply {
+            put("AllowedMdocDoctypes", JSONObject().apply { put("doctypes", JSONArray(doctypes)) })
+        }
+}
+
+/**
+ * Filters issuance requests by allowed SD-JWT Verifiable Credential Types.
+ *
+ * @property vcts set of allowed verifiable credential types
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class AllowedSdJwtVcts(public val vcts: Set<String>) : OpenId4VciFilter() {
+    override fun asJson(): JSONObject =
+        JSONObject().apply {
+            put("AllowedSdJwtVcts", JSONObject().apply { put("vcts", JSONArray(vcts)) })
+        }
+}
