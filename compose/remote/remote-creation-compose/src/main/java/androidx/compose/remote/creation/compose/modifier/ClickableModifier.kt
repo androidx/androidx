@@ -38,8 +38,22 @@ internal class ClickableModifier(
 }
 
 // TODO provide an onClickLabel
+/**
+ * Configure component to receive clicks via input or accessibility "click" event.
+ *
+ * Add this modifier to the element to make it clickable within its bounds.
+ *
+ * If you need to support double click or long click alongside the single click, consider using
+ * [combinedClickable].
+ *
+ * @param action will be called when user clicks on the element
+ * @param enabled Controls the enabled state. When `false`, [action], and this modifier will appear
+ *   disabled for accessibility services
+ * @param role the type of user interface element. Accessibility services might use this to describe
+ *   the element or do customizations
+ */
 public fun RemoteModifier.clickable(
-    action: Action? = null,
+    action: Action,
     enabled: Boolean = true,
     role: Role? = Role.Button,
 ): RemoteModifier =
