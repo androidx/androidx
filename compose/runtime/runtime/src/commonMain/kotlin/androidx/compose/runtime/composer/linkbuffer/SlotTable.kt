@@ -1089,7 +1089,7 @@ internal fun nodeIndexOf(groupAddress: GroupAddress, table: SlotTable): Int {
         run {
             addressSpace.traverseChildren(parent) {
                 if (it == current) return@run
-                nodeIndex += groups.groupNodeCount(current)
+                nodeIndex += groups.groupNodeCount(it)
             }
         }
         if (IsNodeFlag in groups.groupFlags(parent)) break
