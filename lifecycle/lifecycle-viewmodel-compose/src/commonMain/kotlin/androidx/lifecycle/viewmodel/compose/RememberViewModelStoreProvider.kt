@@ -64,6 +64,7 @@ import androidx.savedstate.savedState
  * @param defaultFactory The [ViewModelProvider.Factory] to use for creating ViewModels in this
  *   scope. Defaults to the [parent]'s default factory.
  * @return A new [ViewModelStoreProvider] that is remembered across compositions.
+ * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreProviderSample
  */
 @Composable
 public fun rememberViewModelStoreProvider(
