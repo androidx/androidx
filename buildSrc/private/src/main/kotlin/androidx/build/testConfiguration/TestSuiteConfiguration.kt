@@ -244,7 +244,9 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                         )
                         it.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
                     }
-                    config.dependencies.add(project.dependencyFactory.create(targetAppProject))
+                    config.dependencies.add(
+                        project.dependencyFactory.createProjectDependency(targetAppProject.path)
+                    )
                 }
 
             addAppApkFromArtifactsToTestConfigGeneration(
