@@ -21,6 +21,7 @@ import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.TextureResource as RtTextureResource
 import java.io.File
+import java.io.IOException
 import java.nio.file.Path
 
 /**
@@ -72,6 +73,8 @@ internal constructor(internal val texture: RtTextureResource, internal val sessi
          * @return a [Texture] upon completion.
          * @throws IllegalArgumentException if [Path.isAbsolute] is true, as this method requires a
          *   relative path.
+         * @throws IOException if no file exists at the specified path, or if the file cannot be
+         *   read or decoded.
          */
         @MainThread
         @JvmStatic
