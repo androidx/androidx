@@ -1101,7 +1101,10 @@ private fun IndicatorRipple(interactionSource: InteractionSource, indicatorShape
     Box(
         Modifier.layoutId(IndicatorRippleLayoutIdTag)
             .clip(indicatorShape)
-            .indication(interactionSource, ripple())
+            .indication(
+                interactionSource,
+                @OptIn(ExperimentalMaterial3Api::class) ripple(focusRingShape = indicatorShape),
+            )
     )
 }
 

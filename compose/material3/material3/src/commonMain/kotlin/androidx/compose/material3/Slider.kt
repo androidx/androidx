@@ -33,6 +33,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -43,6 +44,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -789,14 +791,38 @@ private fun SliderImpl(
             Modifier.layoutId(SliderComponents.THUMB).wrapContentWidth()
         }
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    val focusRingModifier =
+        if (
+            LocalRippleThemeConfiguration.current ==
+                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+        ) {
+            Modifier.indication(
+                    interactionSource = interactionSource,
+                    indication =
+                        ripple(
+                            focusRingShape = SliderTokens.HandleShape.value,
+                            enablePressIndication = false,
+                            enableFocusIndication = true,
+                            enableDragIndication = false,
+                            enableHoverIndication = false,
+                        ),
+                )
+                .padding(insetFocusRingPadding)
+        } else {
+            Modifier
+        }
+
     Layout(
         {
             Box(
                 modifier =
-                    thumbModifier.onSizeChanged {
-                        state.thumbWidth = it.width
-                        state.thumbHeight = it.height
-                    }
+                    focusRingModifier.then(
+                        thumbModifier.onSizeChanged {
+                            state.thumbWidth = it.width
+                            state.thumbHeight = it.height
+                        }
+                    )
             ) {
                 thumb(state)
             }
@@ -1203,11 +1229,56 @@ private fun RangeSliderImpl(
     val startContentDescription = getString(Strings.SliderRangeStart)
     val endContentDescription = getString(Strings.SliderRangeEnd)
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    val startThumbFocusRingModifier =
+        if (
+            LocalRippleThemeConfiguration.current ==
+                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+        ) {
+            Modifier.indication(
+                    interactionSource = startInteractionSource,
+                    indication =
+                        ripple(
+                            focusRingShape = SliderTokens.HandleShape.value,
+                            enablePressIndication = false,
+                            enableFocusIndication = true,
+                            enableDragIndication = false,
+                            enableHoverIndication = false,
+                        ),
+                )
+                .padding(insetFocusRingPadding)
+        } else {
+            Modifier
+        }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    val endThumbFocusRingModifier =
+        if (
+            LocalRippleThemeConfiguration.current ==
+                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+        ) {
+            Modifier.indication(
+                    interactionSource = endInteractionSource,
+                    indication =
+                        ripple(
+                            focusRingShape = SliderTokens.HandleShape.value,
+                            enablePressIndication = false,
+                            enableFocusIndication = true,
+                            enableDragIndication = false,
+                            enableHoverIndication = false,
+                        ),
+                )
+                .padding(insetFocusRingPadding)
+        } else {
+            Modifier
+        }
+
     Layout(
         {
             Box(
                 modifier =
                     Modifier.layoutId(RangeSliderComponents.STARTTHUMB)
+                        .then(startThumbFocusRingModifier)
                         .wrapContentWidth()
                         .onSizeChanged {
                             state.startThumbWidth = it.width.toFloat()
@@ -1241,6 +1312,7 @@ private fun RangeSliderImpl(
             Box(
                 modifier =
                     Modifier.layoutId(RangeSliderComponents.ENDTHUMB)
+                        .then(endThumbFocusRingModifier)
                         .wrapContentWidth()
                         .onSizeChanged {
                             state.endThumbWidth = it.width.toFloat()
@@ -3508,3 +3580,5 @@ internal val SliderRange.isSpecified: Boolean
     get() = packedValue != SliderRange.Unspecified.packedValue
 
 internal val CornerSizeAlignmentLine = VerticalAlignmentLine(::min)
+
+private val insetFocusRingPadding = 8.dp
