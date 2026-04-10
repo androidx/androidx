@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.asDpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.unit.size
 import androidx.compose.ui.window.KeyboardVisibilityListener
 import androidx.compose.ui.window.MetalRedrawer
 import kotlin.coroutines.cancellation.CancellationException
@@ -238,8 +239,9 @@ internal class UIKitInstrumentedTest(
     val appDelegate = MockAppDelegate()
     val keyboardHeight: Dp get() =
         KeyboardVisibilityListener.keyboardFrame.useContents { size.height.dp }
-    val screenSize: DpSize get() = screen.bounds().useContents { DpSize(size.width.dp, size.height.dp) }
-    val safeDrawingRect: DpRect get() = screen.bounds().asDpRect().let { rect ->
+    val screenBounds: DpRect get() = screen.bounds().asDpRect()
+    val screenSize: DpSize get() = screenBounds.size
+    val safeDrawingRect: DpRect get() = screenBounds.let { rect ->
         viewController.view.safeAreaInsets.useContents {
             DpRect(
                 left = rect.left + Dp(this.left.toFloat()),

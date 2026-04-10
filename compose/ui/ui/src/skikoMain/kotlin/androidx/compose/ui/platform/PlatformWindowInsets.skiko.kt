@@ -161,6 +161,12 @@ internal fun PlatformInsets.union(insets: PlatformInsets) = PlatformInsets(
     getBottom = { maxOf(bottom, insets.bottom) }
 )
 
+internal fun List<PlatformInsets>.union(): PlatformInsets = if (isEmpty()) {
+    PlatformInsets.Zero
+} else {
+    reduce { acc, insets -> acc.union(insets) }
+}
+
 private class DynamicPlatformInsets(
     private val getLeft: () -> Int = { 0 },
     private val getTop: () -> Int = { 0 },

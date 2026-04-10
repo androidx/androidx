@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Rect
@@ -33,7 +32,7 @@ import platform.UIKit.UIUserInterfaceIdiomPad
 import platform.UIKit.UIView
 
 internal class UIKitWindowInsetsManager(
-    val windowInsetsView: () -> UIView?,
+    val windowInsetsViews: List<() -> UIView?>,
     val interfaceOrientation: State<InterfaceOrientation>,
     userInterfaceIdiom: UIUserInterfaceIdiom = UIDevice.currentDevice.userInterfaceIdiom
 ) {
@@ -84,11 +83,10 @@ internal class UIKitWindowInsetsManager(
         )
     }
 
-    private fun CMPLayoutRegion.toPlatformInsets(): PlatformInsets {
-        val view = windowInsetsView() ?: return PlatformInsets.Zero
-
-        return edgeInsetsInView(view).toPlatformInsets(view.density)
-    }
+    private fun CMPLayoutRegion.toPlatformInsets() = windowInsetsViews
+        .mapNotNull { it() }
+        .map { edgeInsetsInView(it).toPlatformInsets(it.density) }
+        .union()
 
     internal class UIKitWindowInsetsSnapshot(
         val layoutMargins: PlatformInsets,
