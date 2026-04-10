@@ -24,6 +24,7 @@ import androidx.test.filters.SmallTest;
 import androidx.webkit.test.common.WebkitUtils;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -148,6 +149,7 @@ public class PrefetchTest {
      * Test to make sure that calling the setMaxPrefetches API won't cause any obvious errors.
      */
     @Test
+    @Ignore("https://crbug.com/501069897")
     public void testSetMaxPrefetches() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.PREFETCH_CACHE_V1);
         WebkitUtils.onMainThreadSync(() -> {
@@ -163,6 +165,7 @@ public class PrefetchTest {
      * Test to make sure that calling the setPrefetchTtlSeconds API won't cause any obvious errors.
      */
     @Test
+    @Ignore("https://crbug.com/501069897")
     public void testSetPrefetchTtlSeconds() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.PREFETCH_CACHE_V1);
         WebkitUtils.onMainThreadSync(() -> {
