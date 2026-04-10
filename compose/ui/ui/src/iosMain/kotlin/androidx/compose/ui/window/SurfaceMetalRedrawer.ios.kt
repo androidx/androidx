@@ -303,9 +303,7 @@ internal class SurfaceMetalRedrawer(
         if (caDisplayLink == null) {
             return
         }
-        displayLinkConditions.onDisplayLinkTick {
-            draw(waitUntilCompletion, CACurrentMediaTime())
-        }
+        draw(waitUntilCompletion, CACurrentMediaTime())
     }
 
     private var currentFrameRate: Float = Float.NaN
