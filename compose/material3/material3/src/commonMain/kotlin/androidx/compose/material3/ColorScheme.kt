@@ -710,6 +710,9 @@ class ColorScheme(
     @OptIn(ExperimentalMaterial3Api::class)
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
 
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultScrollFieldColorsCached: ScrollFieldColors? = null
+
     @OptIn(ExperimentalMaterial3Api::class)
     internal var defaultRichTooltipColorsCached: RichTooltipColors? = null
 
