@@ -48,8 +48,8 @@ package androidx.xr.scenecore {
 
   public final class AnchorEntity extends androidx.xr.scenecore.BaseEntity<androidx.xr.scenecore.runtime.AnchorEntity> {
     method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.arcore.Anchor anchor);
-    method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, int planeOrientation, int planeSemanticType);
-    method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, int planeOrientation, int planeSemanticType, optional java.time.Duration timeout);
+    method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes);
+    method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes, optional java.time.Duration timeout);
     method @InaccessibleFromKotlin public androidx.xr.arcore.Anchor? getAnchor();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.AnchorEntity.State getState();
     method public void setOnOriginChangedListener(Runnable? listener);
@@ -63,9 +63,9 @@ package androidx.xr.scenecore {
 
   public static final class AnchorEntity.Companion {
     method public androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.arcore.Anchor anchor);
-    method public androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, int planeOrientation, int planeSemanticType);
-    method public androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, int planeOrientation, int planeSemanticType, optional java.time.Duration timeout);
-    method @BytecodeOnly public static androidx.xr.scenecore.AnchorEntity! create$default(androidx.xr.scenecore.AnchorEntity.Companion!, androidx.xr.runtime.Session!, androidx.xr.runtime.math.FloatSize2d!, int, int, java.time.Duration!, int, Object!);
+    method public androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes);
+    method public androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes, optional java.time.Duration timeout);
+    method @BytecodeOnly public static androidx.xr.scenecore.AnchorEntity! create$default(androidx.xr.scenecore.AnchorEntity.Companion!, androidx.xr.runtime.Session!, androidx.xr.runtime.math.FloatSize2d!, java.util.Set!, java.util.Set!, java.time.Duration!, int, Object!);
   }
 
   public static final class AnchorEntity.State {
@@ -85,19 +85,19 @@ package androidx.xr.scenecore {
 
   public final class AnchorPlacement {
     method public static androidx.xr.scenecore.AnchorPlacement createForPlanes();
-    method public static androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<java.lang.Integer> anchorablePlaneOrientations);
-    method public static androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<java.lang.Integer> anchorablePlaneOrientations, optional java.util.Set<java.lang.Integer> anchorablePlaneSemanticTypes);
-    method @InaccessibleFromKotlin public java.util.Set<java.lang.Integer> getAnchorablePlaneOrientations();
-    method @InaccessibleFromKotlin public java.util.Set<java.lang.Integer> getAnchorablePlaneSemanticTypes();
-    property public java.util.Set<java.lang.Integer> anchorablePlaneOrientations;
-    property public java.util.Set<java.lang.Integer> anchorablePlaneSemanticTypes;
+    method public static androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<androidx.xr.scenecore.PlaneOrientation> anchorablePlaneOrientations);
+    method public static androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<androidx.xr.scenecore.PlaneOrientation> anchorablePlaneOrientations, optional java.util.Set<androidx.xr.scenecore.PlaneSemanticType> anchorablePlaneSemanticTypes);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.scenecore.PlaneOrientation> getAnchorablePlaneOrientations();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.scenecore.PlaneSemanticType> getAnchorablePlaneSemanticTypes();
+    property public java.util.Set<androidx.xr.scenecore.PlaneOrientation> anchorablePlaneOrientations;
+    property public java.util.Set<androidx.xr.scenecore.PlaneSemanticType> anchorablePlaneSemanticTypes;
     field public static final androidx.xr.scenecore.AnchorPlacement.Companion Companion;
   }
 
   public static final class AnchorPlacement.Companion {
     method public androidx.xr.scenecore.AnchorPlacement createForPlanes();
-    method public androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<java.lang.Integer> anchorablePlaneOrientations);
-    method public androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<java.lang.Integer> anchorablePlaneOrientations, optional java.util.Set<java.lang.Integer> anchorablePlaneSemanticTypes);
+    method public androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<androidx.xr.scenecore.PlaneOrientation> anchorablePlaneOrientations);
+    method public androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<androidx.xr.scenecore.PlaneOrientation> anchorablePlaneOrientations, optional java.util.Set<androidx.xr.scenecore.PlaneSemanticType> anchorablePlaneSemanticTypes);
     method @BytecodeOnly public static androidx.xr.scenecore.AnchorPlacement! createForPlanes$default(androidx.xr.scenecore.AnchorPlacement.Companion!, java.util.Set!, java.util.Set!, int, Object!);
   }
 
@@ -756,27 +756,33 @@ package androidx.xr.scenecore {
   }
 
   public final class PlaneOrientation {
-    property public static int ANY;
-    property public static int HORIZONTAL;
-    property public static int VERTICAL;
-    field public static final int ANY = 2; // 0x2
-    field public static final int HORIZONTAL = 0; // 0x0
-    field public static final androidx.xr.scenecore.PlaneOrientation INSTANCE;
-    field public static final int VERTICAL = 1; // 0x1
+    field public static final java.util.Set<androidx.xr.scenecore.PlaneOrientation> ALL;
+    field public static final androidx.xr.scenecore.PlaneOrientation.Companion Companion;
+    field public static final androidx.xr.scenecore.PlaneOrientation HORIZONTAL;
+    field public static final androidx.xr.scenecore.PlaneOrientation VERTICAL;
+  }
+
+  public static final class PlaneOrientation.Companion {
+    property public java.util.Set<androidx.xr.scenecore.PlaneOrientation> ALL;
+    property public androidx.xr.scenecore.PlaneOrientation HORIZONTAL;
+    property public androidx.xr.scenecore.PlaneOrientation VERTICAL;
   }
 
   public final class PlaneSemanticType {
-    property public static int ANY;
-    property public static int CEILING;
-    property public static int FLOOR;
-    property public static int TABLE;
-    property public static int WALL;
-    field public static final int ANY = 4; // 0x4
-    field public static final int CEILING = 2; // 0x2
-    field public static final int FLOOR = 1; // 0x1
-    field public static final androidx.xr.scenecore.PlaneSemanticType INSTANCE;
-    field public static final int TABLE = 3; // 0x3
-    field public static final int WALL = 0; // 0x0
+    field public static final java.util.Set<androidx.xr.scenecore.PlaneSemanticType> ALL;
+    field public static final androidx.xr.scenecore.PlaneSemanticType CEILING;
+    field public static final androidx.xr.scenecore.PlaneSemanticType.Companion Companion;
+    field public static final androidx.xr.scenecore.PlaneSemanticType FLOOR;
+    field public static final androidx.xr.scenecore.PlaneSemanticType TABLE;
+    field public static final androidx.xr.scenecore.PlaneSemanticType WALL;
+  }
+
+  public static final class PlaneSemanticType.Companion {
+    property public java.util.Set<androidx.xr.scenecore.PlaneSemanticType> ALL;
+    property public androidx.xr.scenecore.PlaneSemanticType CEILING;
+    property public androidx.xr.scenecore.PlaneSemanticType FLOOR;
+    property public androidx.xr.scenecore.PlaneSemanticType TABLE;
+    property public androidx.xr.scenecore.PlaneSemanticType WALL;
   }
 
   public final class PointSourceParams {

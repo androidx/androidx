@@ -1838,7 +1838,7 @@ class SubspaceTest {
         val session = assertNotNull(composeTestRule.session)
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
+            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         composeTestRule.setContent {
             FollowingSubspace(
@@ -1859,7 +1859,7 @@ class SubspaceTest {
         val session = assertNotNull(composeTestRule.session)
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
+            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         composeTestRule.setContent {
             FollowingSubspace(
@@ -1883,7 +1883,7 @@ class SubspaceTest {
         val session = assertNotNull(composeTestRule.session)
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
+            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         composeTestRule.setContent {
             Subspace(modifier = SubspaceModifier.offset(x = 40.dp, y = 50.dp, z = 60.dp)) {

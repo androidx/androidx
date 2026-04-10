@@ -820,32 +820,32 @@ package androidx.xr.compose.subspace.layout {
   }
 
   @kotlin.jvm.JvmInline public final value class PlaneOrientation {
-    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.PlaneOrientation! box-impl(int);
-    method @BytecodeOnly public int unbox-impl();
+    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.PlaneOrientation! box-impl(java.util.Set!);
+    method @BytecodeOnly public java.util.Set! unbox-impl();
     field public static final androidx.xr.compose.subspace.layout.PlaneOrientation.Companion Companion;
   }
 
   public static final class PlaneOrientation.Companion {
-    method @BytecodeOnly public int getAny-rnqRDCc();
-    method @BytecodeOnly public int getHorizontal-rnqRDCc();
-    method @BytecodeOnly public int getVertical-rnqRDCc();
+    method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneOrientation!> getAny-rnqRDCc();
+    method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneOrientation!> getHorizontal-rnqRDCc();
+    method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneOrientation!> getVertical-rnqRDCc();
     property public androidx.xr.compose.subspace.layout.PlaneOrientation Any;
     property public androidx.xr.compose.subspace.layout.PlaneOrientation Horizontal;
     property public androidx.xr.compose.subspace.layout.PlaneOrientation Vertical;
   }
 
   @kotlin.jvm.JvmInline public final value class PlaneSemantic {
-    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.PlaneSemantic! box-impl(int);
-    method @BytecodeOnly public int unbox-impl();
+    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.PlaneSemantic! box-impl(java.util.Set!);
+    method @BytecodeOnly public java.util.Set! unbox-impl();
     field public static final androidx.xr.compose.subspace.layout.PlaneSemantic.Companion Companion;
   }
 
   public static final class PlaneSemantic.Companion {
-    method @BytecodeOnly public int getAny-FWya8ks();
-    method @BytecodeOnly public int getCeiling-FWya8ks();
-    method @BytecodeOnly public int getFloor-FWya8ks();
-    method @BytecodeOnly public int getTable-FWya8ks();
-    method @BytecodeOnly public int getWall-FWya8ks();
+    method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneSemanticType!> getAny-FWya8ks();
+    method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneSemanticType!> getCeiling-FWya8ks();
+    method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneSemanticType!> getFloor-FWya8ks();
+    method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneSemanticType!> getTable-FWya8ks();
+    method @BytecodeOnly public java.util.Set<? extends androidx.xr.scenecore.PlaneSemanticType!> getWall-FWya8ks();
     property public androidx.xr.compose.subspace.layout.PlaneSemantic Any;
     property public androidx.xr.compose.subspace.layout.PlaneSemantic Ceiling;
     property public androidx.xr.compose.subspace.layout.PlaneSemantic Floor;

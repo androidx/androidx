@@ -84,8 +84,8 @@ class MovableActivity : AppCompatActivity() {
 
     private var movableComponent: MovableComponent? = null
     private val executor = Executors.newSingleThreadExecutor()
-    private var planeOrientationFilter: MutableSet<Int> = mutableSetOf()
-    private var planeSemanticFilter: MutableSet<Int> = mutableSetOf()
+    private var planeOrientationFilter: MutableSet<PlaneOrientation> = mutableSetOf()
+    private var planeSemanticFilter: MutableSet<PlaneSemanticType> = mutableSetOf()
 
     companion object {
         private const val TAG = "MovableActivity"
@@ -231,6 +231,7 @@ class MovableActivity : AppCompatActivity() {
             movablePanelContentView.findViewById<RadioGroup>(R.id.custom_behavior_group)
     }
 
+    @Suppress("RestrictedApiAndroidX", "DEPRECATION")
     private fun setupAnchorPlacementCheckboxes(view: View, movablePanelEntity: Entity) {
         val planeOrientationCheckboxMap =
             mapOf(
@@ -335,7 +336,7 @@ class MovableActivity : AppCompatActivity() {
         movablePanelEntity.addComponent(movableComponent!!)
     }
 
-    @SuppressLint("ExceptionMessage")
+    @Suppress("ExceptionMessage", "RestrictedApiAndroidX", "DEPRECATION")
     private fun createAnchorableGltfEntity() {
         lifecycleScope.launch {
             val gltfModel =

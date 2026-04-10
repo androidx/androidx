@@ -309,7 +309,7 @@ class MovableComponentTest {
     fun addMovableComponentToAnchorEntity_returnsFalse() {
         createCustomSession()
         val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
+            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
         assertThat(anchorEntity).isNotNull()
         val movableComponent = MovableComponent.createSystemMovable(session)
 

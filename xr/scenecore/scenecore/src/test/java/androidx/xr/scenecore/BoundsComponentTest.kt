@@ -120,8 +120,8 @@ class BoundsComponentTest {
             AnchorEntity.create(
                 session,
                 FloatSize2d(),
-                PlaneOrientation.ANY,
-                PlaneSemanticType.ANY,
+                PlaneOrientation.ALL,
+                PlaneSemanticType.ALL,
                 10.seconds.toJavaDuration(),
             )
         val activityPanelEntity =

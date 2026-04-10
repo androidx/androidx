@@ -218,8 +218,8 @@ class EntityRegistryTest {
                 session,
                 entityRegistry,
                 FloatSize2d(),
-                PlaneOrientation.ANY,
-                PlaneSemanticType.ANY,
+                PlaneOrientation.ALL,
+                PlaneSemanticType.ALL,
                 10.seconds.toJavaDuration(),
             )
     }

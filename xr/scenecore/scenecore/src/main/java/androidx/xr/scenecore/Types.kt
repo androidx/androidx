@@ -15,42 +15,75 @@
  */
 package androidx.xr.scenecore
 
-import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.xr.scenecore.PlaneOrientation.Companion.HORIZONTAL
+import androidx.xr.scenecore.PlaneOrientation.Companion.VERTICAL
 
-/** Type of plane based on orientation i.e. Horizontal or Vertical. */
-// TODO - b/419544472 Align on a common implementation for this type in SceneCore & ARCore.
-public object PlaneOrientation {
-    public const val HORIZONTAL: Int = 0
-    public const val VERTICAL: Int = 1
-    public const val ANY: Int = 2
+/**
+ * Orientation of a plane, to specify valid surfaces for anchoring.
+ *
+ * For example, see [MovableComponent.createAnchorable].
+ */
+public class PlaneOrientation private constructor(private val value: Int) {
+    // Note: These constants have some overlap with androidx.xr.arcore.Plane.Type, though the
+    // constants here are specifically for filtering anchors. Due to the difference in semantics,
+    // the constants are not shared between ARCore and SceneCore.
+
+    public companion object {
+
+        /** Any plane orientation is acceptable. */
+        // TODO: b/500464864 - Remove this constant.
+        @Deprecated("Explicitly enumerate PlaneOrientation constants, or use ALL")
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmField
+        public val ANY: PlaneOrientation = PlaneOrientation(0)
+
+        /** Specify horizontal planes. */
+        @JvmField public val HORIZONTAL: PlaneOrientation = PlaneOrientation(1)
+
+        /** Specify vertical planes. */
+        @JvmField public val VERTICAL: PlaneOrientation = PlaneOrientation(2)
+
+        /** Immutable Set containing all PlaneOrientations. */
+        @JvmField public val ALL: Set<PlaneOrientation> = setOf(HORIZONTAL, VERTICAL)
+    }
+
+    public override fun toString(): String = value.toString()
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-@Retention(AnnotationRetention.SOURCE)
-@IntDef(PlaneOrientation.HORIZONTAL, PlaneOrientation.VERTICAL, PlaneOrientation.ANY)
-@Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
-public annotation class PlaneOrientationValue
+/**
+ * The detected semantic type of a plane, to specify valid surfaces for anchoring.
+ *
+ * For example, see [MovableComponent.createAnchorable].
+ */
+public class PlaneSemanticType private constructor(private val value: Int) {
+    // Note: These constants have some overlap with androidx.xr.arcore.Plane.Label, though the
+    // constants here are specifically for filtering anchors. Due to the difference in semantics,
+    // the constants are not shared between ARCore and SceneCore.
 
-/** Semantic plane types. */
-// TODO - b/419544472 Align on a common implementation for this type in SceneCore & ARCore.
-public object PlaneSemanticType {
+    public companion object {
+        /** Any plane type is acceptable. */
+        // TODO: b/500464864 - Remove this constant.
+        @Deprecated("Explicitly enumerate PlaneSemanticType constants, or use ALL")
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmField
+        public val ANY: PlaneSemanticType = PlaneSemanticType(0)
 
-    public const val WALL: Int = 0
-    public const val FLOOR: Int = 1
-    public const val CEILING: Int = 2
-    public const val TABLE: Int = 3
-    public const val ANY: Int = 4
+        /** Specify planes that are identified as a wall. */
+        @JvmField public val WALL: PlaneSemanticType = PlaneSemanticType(1)
+
+        /** Specify planes that are identified as the floor. */
+        @JvmField public val FLOOR: PlaneSemanticType = PlaneSemanticType(2)
+
+        /** Specify planes that are identified as the ceiling. */
+        @JvmField public val CEILING: PlaneSemanticType = PlaneSemanticType(3)
+
+        /** Specify planes that are identified as a table. */
+        @JvmField public val TABLE: PlaneSemanticType = PlaneSemanticType(4)
+
+        /** Immutable Set containing all PlaneSemanticTypes. */
+        @JvmField public val ALL: Set<PlaneSemanticType> = setOf(WALL, FLOOR, CEILING, TABLE)
+    }
+
+    public override fun toString(): String = value.toString()
 }
-
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-@Retention(AnnotationRetention.SOURCE)
-@IntDef(
-    PlaneSemanticType.WALL,
-    PlaneSemanticType.FLOOR,
-    PlaneSemanticType.CEILING,
-    PlaneSemanticType.TABLE,
-    PlaneSemanticType.ANY,
-)
-@Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
-public annotation class PlaneSemanticTypeValue

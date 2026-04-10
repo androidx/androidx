@@ -118,11 +118,10 @@ internal fun RtPixelDimensions.toIntSize2d(): IntSize2d {
 /**
  * Extension function that converts [PlaneOrientation] to [androidx.xr.scenecore.runtime.PlaneType].
  */
-internal fun Int.toRtPlaneType(): RtPlaneType {
+internal fun PlaneOrientation.toRtPlaneType(): RtPlaneType {
     return when (this) {
         PlaneOrientation.HORIZONTAL -> RtPlaneType.HORIZONTAL
         PlaneOrientation.VERTICAL -> RtPlaneType.VERTICAL
-        PlaneOrientation.ANY -> RtPlaneType.ANY
         else -> error("Unknown Plane Type: $PlaneOrientation")
     }
 }
@@ -131,13 +130,12 @@ internal fun Int.toRtPlaneType(): RtPlaneType {
  * Extension function that converts [PlaneSemanticType] to
  * [androidx.xr.scenecore.runtime.PlaneSemantic].
  */
-internal fun Int.toRtPlaneSemantic(): RtPlaneSemantic {
+internal fun PlaneSemanticType.toRtPlaneSemantic(): RtPlaneSemantic {
     return when (this) {
         PlaneSemanticType.WALL -> RtPlaneSemantic.WALL
         PlaneSemanticType.FLOOR -> RtPlaneSemantic.FLOOR
         PlaneSemanticType.CEILING -> RtPlaneSemantic.CEILING
         PlaneSemanticType.TABLE -> RtPlaneSemantic.TABLE
-        PlaneSemanticType.ANY -> RtPlaneSemantic.ANY
         else -> error("Unknown Plane Semantic: $PlaneSemanticType")
     }
 }
@@ -272,9 +270,9 @@ internal fun Set<AnchorPlacement>.toRtAnchorPlacement(
     return rtAnchorPlacementSet
 }
 
-/** Extension function that converts an ARCore [PlaneType] to a Scene [PlaneOrientationValue] */
+/** Extension function that converts an ARCore [PlaneType] to a Scene [PlaneOrientation] */
 @Suppress("DEPRECATION")
-internal fun PlaneType.toSceneCoreOrientation(): @PlaneOrientationValue Int =
+internal fun PlaneType.toSceneCoreOrientation(): PlaneOrientation =
     when (this) {
         PlaneType.HORIZONTAL_UPWARD_FACING -> PlaneOrientation.HORIZONTAL
         PlaneType.HORIZONTAL_DOWNWARD_FACING -> PlaneOrientation.HORIZONTAL
@@ -284,15 +282,16 @@ internal fun PlaneType.toSceneCoreOrientation(): @PlaneOrientationValue Int =
 
 /**
  * Extension function that converts an ARCore [androidx.xr.arcore.PlaneLabel] to a Scene
- * [PlaneSemanticTypeValue]
+ * [PlaneSemanticType]
  */
 @Suppress("DEPRECATION")
-internal fun PlaneLabel.toSceneCoreSemanticType(): @PlaneSemanticTypeValue Int =
+internal fun PlaneLabel.toSceneCoreSemanticType(): PlaneSemanticType =
     when (this) {
         PlaneLabel.FLOOR -> PlaneSemanticType.FLOOR
         PlaneLabel.TABLE -> PlaneSemanticType.TABLE
         PlaneLabel.WALL -> PlaneSemanticType.WALL
         PlaneLabel.CEILING -> PlaneSemanticType.CEILING
+        // TODO: b/500464864 - Cleanup when PlaneSemanticType.ANY is removed.
         PlaneLabel.UNKNOWN -> PlaneSemanticType.ANY
         else -> error("Unknown semantic type: $this")
     }

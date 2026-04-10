@@ -535,13 +535,13 @@ class UtilsTest {
         whenever(
                 mockRuntime.createAnchorPlacementForPlanes(
                     setOf(RtPlaneType.HORIZONTAL),
-                    setOf(RtPlaneSemantic.ANY),
+                    RtPlaneSemantic.entries.toSet(),
                 )
             )
             .thenReturn(mockAnchorPlacement1)
         whenever(
                 mockRuntime.createAnchorPlacementForPlanes(
-                    setOf(RtPlaneType.ANY),
+                    RtPlaneType.entries.toSet(),
                     setOf(RtPlaneSemantic.WALL, RtPlaneSemantic.FLOOR),
                 )
             )

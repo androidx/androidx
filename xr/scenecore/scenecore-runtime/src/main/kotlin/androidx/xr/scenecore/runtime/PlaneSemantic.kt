@@ -25,5 +25,4 @@ public enum class PlaneSemantic {
     FLOOR,
     CEILING,
     TABLE,
-    ANY,
 }

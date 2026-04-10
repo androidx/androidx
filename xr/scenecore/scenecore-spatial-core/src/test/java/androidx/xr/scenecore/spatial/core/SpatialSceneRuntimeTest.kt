@@ -76,7 +76,6 @@ import com.android.extensions.xr.space.ShadowSpatialState
 import com.android.extensions.xr.space.SpatialCapabilities
 import com.android.extensions.xr.space.VisibilityState
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors
 import java.util.function.Consumer
@@ -985,8 +984,8 @@ class SpatialSceneRuntimeTest {
     fun createAnchorPlacement_returnsAnchorPlacement() {
         val anchorPlacement =
             testRuntime.createAnchorPlacementForPlanes(
-                ImmutableSet.of<@JvmSuppressWildcards PlaneType>(PlaneType.ANY),
-                ImmutableSet.of<@JvmSuppressWildcards PlaneSemantic>(PlaneSemantic.ANY),
+                PlaneType.entries.toSet(),
+                PlaneSemantic.entries.toSet(),
             )
 
         assertThat(anchorPlacement).isNotNull()

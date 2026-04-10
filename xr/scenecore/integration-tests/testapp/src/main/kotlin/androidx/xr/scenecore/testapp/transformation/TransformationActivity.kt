@@ -165,8 +165,8 @@ class TransformationActivity : AppCompatActivity() {
             AnchorEntity.create(
                 session!!,
                 FloatSize2d(0.1f, 0.1f),
-                PlaneOrientation.ANY,
-                PlaneSemanticType.ANY,
+                PlaneOrientation.ALL,
+                PlaneSemanticType.ALL,
             )
         GltfModelEntity.create(
                 session!!,

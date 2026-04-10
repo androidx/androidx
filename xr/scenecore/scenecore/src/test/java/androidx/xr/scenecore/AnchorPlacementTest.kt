@@ -101,7 +101,7 @@ class AnchorPlacementTest {
 
     @Test
     fun anchorPlacementAddingToSemanticTypesAfterCreation_doesNotUpdateAnchorPlacement() {
-        val anchorSemanticSet: MutableSet<Int> =
+        val anchorSemanticSet: MutableSet<PlaneSemanticType> =
             mutableSetOf(PlaneSemanticType.CEILING, PlaneSemanticType.FLOOR)
         val anchorPlacement =
             AnchorPlacement.createForPlanes(anchorablePlaneSemanticTypes = anchorSemanticSet)
@@ -115,7 +115,8 @@ class AnchorPlacementTest {
 
     @Test
     fun anchorPlacementAddingToOrientationsAfterCreation_doesNotUpdateAnchorPlacement() {
-        val anchorOrientationSet: MutableSet<Int> = mutableSetOf(PlaneOrientation.VERTICAL)
+        val anchorOrientationSet: MutableSet<PlaneOrientation> =
+            mutableSetOf(PlaneOrientation.VERTICAL)
         val anchorPlacement =
             AnchorPlacement.createForPlanes(anchorablePlaneOrientations = anchorOrientationSet)
 
@@ -139,7 +140,7 @@ class AnchorPlacementTest {
 
         assertThat(anchorPlacementString)
             .isEqualTo(
-                "AnchorPlacement(anchorablePlaneOrientations=[1], anchorablePlaneSemanticTypes=[2, 3])"
+                "AnchorPlacement(anchorablePlaneOrientations=[2], anchorablePlaneSemanticTypes=[3, 4])"
             )
     }
 

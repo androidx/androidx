@@ -135,14 +135,8 @@ private constructor(
             val planeSemantic = planeData.label.toSceneCoreSemanticType()
             for (anchorPlacementSpec in anchorPlacement) {
                 if (
-                    (anchorPlacementSpec.anchorablePlaneOrientations.contains(planeOrientation) ||
-                        anchorPlacementSpec.anchorablePlaneOrientations.contains(
-                            PlaneOrientation.ANY
-                        )) &&
-                        (anchorPlacementSpec.anchorablePlaneSemanticTypes.contains(planeSemantic) ||
-                            anchorPlacementSpec.anchorablePlaneSemanticTypes.contains(
-                                PlaneSemanticType.ANY
-                            )) &&
+                    anchorPlacementSpec.anchorablePlaneOrientations.contains(planeOrientation) &&
+                        anchorPlacementSpec.anchorablePlaneSemanticTypes.contains(planeSemantic) &&
                         planeData.trackingState == TrackingState.TRACKING
                 ) {
                     outPlane = it
