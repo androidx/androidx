@@ -269,6 +269,38 @@ class SwitchScreenshotTest {
     }
 
     @Test
+    fun switchTest_focus_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+                Box(wrapperModifier) {
+                    Switch(
+                        checked = true,
+                        onCheckedChange = {},
+                        modifier = Modifier.focusRequester(focusRequester),
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.waitForIdle()
+
+        assertToggeableAgainstGolden("switch_focus_insetFocusRings")
+    }
+
+    @Test
     fun switchTest_checked_icon() {
         rule.setMaterialContent(lightColorScheme()) {
             val icon: @Composable () -> Unit = {

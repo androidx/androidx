@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.triStateToggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
@@ -277,15 +278,15 @@ fun TriStateCheckbox(
 ) {
     val isCheckboxStylingFixEnabled = ComposeMaterial3Flags.isCheckboxStylingFixEnabled
     val indication =
-        if (isCheckboxStylingFixEnabled)
-            ripple(
-                bounded = false,
-                radius = CheckboxTokens.StateLayerSize / 2,
-                color = colors.indicatorColor(state),
-            )
-        else {
-            ripple(bounded = false, radius = CheckboxTokens.StateLayerSize / 2)
-        }
+        ripple(
+            bounded = false,
+            radius = CheckboxTokens.StateLayerSize / 2,
+            color =
+                if (isCheckboxStylingFixEnabled) colors.indicatorColor(state)
+                else Color.Unspecified,
+            focusRingShape = RoundedCornerShape(25),
+        )
+
     val toggleableModifier =
         if (onClick != null) {
             Modifier.triStateToggleable(

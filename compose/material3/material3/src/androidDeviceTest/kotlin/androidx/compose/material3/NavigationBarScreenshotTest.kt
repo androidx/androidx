@@ -27,11 +27,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.captureToImage
@@ -229,6 +235,54 @@ class NavigationBarScreenshotTest {
             interaction = null,
             goldenIdentifier = "navigationBar_lightTheme_transparentIndicator",
         )
+    }
+
+    @Test
+    fun navigationBar_firstItem_focused_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+                Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
+                    NavigationBar {
+                        NavigationBarItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            selected = true,
+                            onClick = {},
+                            modifier = Modifier.focusRequester(focusRequester),
+                        )
+                        NavigationBarItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            selected = false,
+                            onClick = {},
+                        )
+                        NavigationBarItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            selected = false,
+                            onClick = {},
+                        )
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithTag(Tag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "navigationBar_firstItem_focused_insetFocusRings")
     }
 
     /**

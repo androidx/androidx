@@ -48,6 +48,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -2207,7 +2208,30 @@ object SearchBarDefaults {
                                     ),
                                 animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
                             )
-                        Box(Modifier.textFieldBackground(containerColor::value, shape))
+                        Box(
+                            Modifier.textFieldBackground(containerColor::value, shape)
+                                .then(
+                                    if (
+                                        !isInTouchMode &&
+                                            LocalRippleThemeConfiguration.current ==
+                                                RippleDefaults
+                                                    .InsetFocusRingRippleThemeConfiguration
+                                    ) {
+                                        Modifier.indication(
+                                            interactionSource,
+                                            ripple(
+                                                focusRingShape = shape,
+                                                enablePressIndication = false,
+                                                enableFocusIndication = true,
+                                                enableDragIndication = false,
+                                                enableHoverIndication = false,
+                                            ),
+                                        )
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                        )
                     },
                 ),
         )
@@ -2393,7 +2417,22 @@ object SearchBarDefaults {
                                     ),
                                 animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
                             )
-                        Box(Modifier.textFieldBackground(containerColor::value, shape))
+                        Box(
+                            Modifier.textFieldBackground(containerColor::value, shape)
+                                .then(
+                                    if (
+                                        LocalRippleThemeConfiguration.current ==
+                                            RippleDefaults.InsetFocusRingRippleThemeConfiguration
+                                    ) {
+                                        Modifier.indication(
+                                            interactionSource,
+                                            ripple(focusRingShape = shape),
+                                        )
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                        )
                     },
                 ),
         )

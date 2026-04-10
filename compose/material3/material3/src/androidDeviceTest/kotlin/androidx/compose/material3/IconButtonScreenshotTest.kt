@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -177,6 +178,36 @@ class IconButtonScreenshotTest {
         }
 
         assertAgainstGolden("iconButton_lightTheme_focused")
+    }
+
+    @Test
+    fun iconButton_lightTheme_focused_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+                Box(wrap.testTag(wrapperTestTag)) {
+                    IconButton(
+                        onClick = { /* doSomething() */ },
+                        modifier = Modifier.focusRequester(focusRequester),
+                    ) {
+                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        assertAgainstGolden("iconButton_lightTheme_focused_insetFocusRings")
     }
 
     @Test

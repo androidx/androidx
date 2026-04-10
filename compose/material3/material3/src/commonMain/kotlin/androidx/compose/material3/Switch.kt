@@ -146,10 +146,32 @@ private fun SwitchImpl(
     val resolvedThumbColor = colors.thumbColor(enabled, checked)
     val trackShape = SwitchTokens.TrackShape.value
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    val focusRingModifier =
+        if (
+            LocalRippleThemeConfiguration.current ==
+                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+        ) {
+            Modifier.indication(
+                interactionSource = interactionSource,
+                indication =
+                    ripple(
+                        focusRingShape = trackShape,
+                        enablePressIndication = false,
+                        enableFocusIndication = true,
+                        enableDragIndication = false,
+                        enableHoverIndication = false,
+                    ),
+            )
+        } else {
+            Modifier
+        }
+
     Box(
         modifier
             .border(TrackOutlineWidth, colors.borderColor(enabled, checked), trackShape)
             .background(trackColor, trackShape)
+            .then(focusRingModifier)
     ) {
         Box(
             modifier =
@@ -165,7 +187,14 @@ private fun SwitchImpl(
                     .indication(
                         interactionSource = interactionSource,
                         indication =
-                            ripple(bounded = false, radius = SwitchTokens.StateLayerSize / 2),
+                            @OptIn(ExperimentalMaterial3Api::class)
+                            ripple(
+                                bounded = false,
+                                radius = SwitchTokens.StateLayerSize / 2,
+                                enableFocusIndication =
+                                    (LocalRippleThemeConfiguration.current ==
+                                        RippleDefaults.OpacityFocusRippleThemeConfiguration),
+                            ),
                     )
                     .background(resolvedThumbColor, thumbShape),
             contentAlignment = Alignment.Center,

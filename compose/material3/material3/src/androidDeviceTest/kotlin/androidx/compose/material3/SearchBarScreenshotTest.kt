@@ -29,12 +29,18 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -83,6 +89,47 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             )
         }
         assertAgainstGolden("searchBar_inactive_${scheme.name}")
+    }
+
+    @Test
+    fun searchBar_focused_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+
+        rule.setMaterialContent(scheme.colorScheme) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+                val expanded = false
+                val onExpandedChange: (Boolean) -> Unit = {}
+                SearchBar(
+                    modifier = Modifier.testTag(testTag),
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            modifier = Modifier.focusRequester(focusRequester),
+                            state = rememberTextFieldState(),
+                            onSearch = {},
+                            expanded = expanded,
+                            onExpandedChange = onExpandedChange,
+                            placeholder = { Text("Hint") },
+                        )
+                    },
+                    expanded = expanded,
+                    onExpandedChange = onExpandedChange,
+                    content = {},
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        assertAgainstGolden("searchBar_focused_insetFocusRings_${scheme.name}")
     }
 
     @Test

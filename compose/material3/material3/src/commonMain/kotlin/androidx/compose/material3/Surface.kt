@@ -20,6 +20,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -221,6 +222,27 @@ fun Surface(
             modifier =
                 modifier
                     .minimumInteractiveComponentSize()
+                    .then(
+                        @OptIn(ExperimentalMaterial3Api::class)
+                        if (
+                            LocalRippleThemeConfiguration.current.focus
+                                is RippleThemeConfiguration.Focus.InsetRing
+                        ) {
+                            Modifier.indication(
+                                interactionSource = interactionSource,
+                                indication =
+                                    ripple(
+                                        focusRingShape = shape,
+                                        enablePressIndication = false,
+                                        enableFocusIndication = true,
+                                        enableDragIndication = false,
+                                        enableHoverIndication = false,
+                                    ),
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
                     .surface(
                         shape = shape,
                         backgroundColor =
@@ -230,7 +252,14 @@ fun Surface(
                     )
                     .clickable(
                         interactionSource = interactionSource,
-                        indication = ripple(),
+                        indication =
+                            @OptIn(ExperimentalMaterial3Api::class)
+                            ripple(
+                                focusRingShape = shape,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
                         enabled = enabled,
                         onClick = onClick,
                     )
@@ -329,6 +358,27 @@ fun Surface(
             modifier =
                 modifier
                     .minimumInteractiveComponentSize()
+                    .then(
+                        @OptIn(ExperimentalMaterial3Api::class)
+                        if (
+                            LocalRippleThemeConfiguration.current.focus
+                                is RippleThemeConfiguration.Focus.InsetRing
+                        ) {
+                            Modifier.indication(
+                                interactionSource = interactionSource,
+                                indication =
+                                    ripple(
+                                        focusRingShape = shape,
+                                        enablePressIndication = false,
+                                        enableFocusIndication = true,
+                                        enableDragIndication = false,
+                                        enableHoverIndication = false,
+                                    ),
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
                     .surface(
                         shape = shape,
                         backgroundColor =
@@ -339,7 +389,14 @@ fun Surface(
                     .selectable(
                         selected = selected,
                         interactionSource = interactionSource,
-                        indication = ripple(),
+                        indication =
+                            @OptIn(ExperimentalMaterial3Api::class)
+                            ripple(
+                                focusRingShape = shape,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
                         enabled = enabled,
                         onClick = onClick,
                     )
@@ -438,6 +495,28 @@ fun Surface(
             modifier =
                 modifier
                     .minimumInteractiveComponentSize()
+                    // Draw the focus ring here if focus rings are enabled
+                    .then(
+                        @OptIn(ExperimentalMaterial3Api::class)
+                        if (
+                            LocalRippleThemeConfiguration.current.focus
+                                is RippleThemeConfiguration.Focus.InsetRing
+                        ) {
+                            Modifier.indication(
+                                interactionSource = interactionSource,
+                                indication =
+                                    ripple(
+                                        focusRingShape = shape,
+                                        enablePressIndication = false,
+                                        enableFocusIndication = true,
+                                        enableDragIndication = false,
+                                        enableHoverIndication = false,
+                                    ),
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
                     .surface(
                         shape = shape,
                         backgroundColor =
@@ -448,7 +527,14 @@ fun Surface(
                     .toggleable(
                         value = checked,
                         interactionSource = interactionSource,
-                        indication = ripple(),
+                        indication =
+                            @OptIn(ExperimentalMaterial3Api::class)
+                            ripple(
+                                focusRingShape = shape,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
                         enabled = enabled,
                         onValueChange = onCheckedChange,
                     )
