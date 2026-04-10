@@ -22,8 +22,6 @@ import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /** Provide the rendering implementation for [GltfAnimationFeature] */
-// TODO(b/481429599): Audit usage of LIBRARY_GROUP_PREFIX in SceneCore and migrate it over to
-// LIBRARY_GROUP.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GltfAnimationFeature {
 

@@ -1,33 +1,4 @@
 // Signature format: 4.0
-package androidx.xr.scenecore.runtime {
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SoundEffect {
-    ctor public SoundEffect(int id);
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getId();
-    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int id;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SoundEffectPool {
-    method public void clearOnLoadCompleteListener();
-    method public androidx.xr.scenecore.runtime.SoundEffect load(android.content.Context context, int resId);
-    method public androidx.xr.scenecore.runtime.SoundEffect load(android.content.res.AssetFileDescriptor assetFileDescriptor);
-    method public void release();
-    method public void setOnLoadCompleteListener(java.util.concurrent.Executor executor, androidx.xr.scenecore.runtime.SoundEffectPool.LoadCompleteListener listener);
-    method public boolean unload(androidx.xr.scenecore.runtime.SoundEffect soundEffect);
-  }
-
-  public static fun interface SoundEffectPool.LoadCompleteListener {
-    method public void onLoadComplete(androidx.xr.scenecore.runtime.SoundEffect soundEffect, boolean success);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Stream {
-    ctor public Stream(int streamId);
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getStreamId();
-    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int streamId;
-  }
-
-}
-
 package androidx.xr.scenecore.runtime.extensions {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class XrExtensionsProvider {
