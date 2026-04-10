@@ -909,6 +909,19 @@ public final class Recorder implements VideoOutput {
         return getObservableData(mMediaSpec).getAudioSpec().getBitrate();
     }
 
+    /**
+     * Returns the target audio channel count of this Recorder.
+     *
+     * @return the value provided to {@link Builder#setTargetAudioChannelCount(int)} on the
+     * builder used to create this recorder. Returns 0 if
+     * {@link Builder#setTargetAudioChannelCount(int)} is not called.
+     */
+    @IntRange(from = 0)
+    public int getTargetAudioChannelCount() {
+        int channelCount = getObservableData(mMediaSpec).getAudioSpec().getChannelCount();
+        return channelCount == AudioSpec.CHANNEL_COUNT_UNSPECIFIED ? 0 : channelCount;
+    }
+
     /** Gets an {@link Observable} of the video encoder's supported bitrate range. */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -4091,6 +4104,27 @@ public final class Recorder implements VideoOutput {
             }
 
             mMediaSpecBuilder.configureAudio(builder -> builder.setBitrate(bitrate));
+            return this;
+        }
+
+        /**
+         * Sets the intended audio channel count for recording.
+         *
+         * <p>Common values are 1 for mono and 2 for stereo. If the requested channel count is
+         * not supported by the device, CameraX will fall back to a supported channel count. If
+         * this method is not called, an appropriate default channel count will be selected.
+         *
+         * @param channelCount the target audio channel count.
+         * @return the builder instance.
+         * @throws IllegalArgumentException if {@code channelCount} is less than 1.
+         */
+        public @NonNull Builder setTargetAudioChannelCount(@IntRange(from = 1) int channelCount) {
+            if (channelCount < 1) {
+                throw new IllegalArgumentException("Target channel count must be greater than 0, "
+                        + "but was " + channelCount);
+            }
+
+            mMediaSpecBuilder.configureAudio(builder -> builder.setChannelCount(channelCount));
             return this;
         }
 
