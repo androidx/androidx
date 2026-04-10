@@ -6,7 +6,10 @@ import androidx.appfunctions.service.AppFunction
 
 @AppFunctionEntryPoint("MySimpleService", "app_functions_v2.xml")
 abstract class SimpleEntryPoint: AppFunctionService() {
-    @AppFunction fun simpleFunction() {}
+    @AppFunction
+    internal fun simpleFunction(int: Int, string: String): String {
+        TODO("Not implemented")
+    }
 
     override fun onCreate() {
 
