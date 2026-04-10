@@ -107,6 +107,7 @@ import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSSelectorFromString
 import platform.QuartzCore.CACurrentMediaTime
 import platform.UIKit.NSStringFromCGRect
+import platform.UIKit.UIAccessibilityAnnouncementNotification
 import platform.UIKit.UIAccessibilityContainerType
 import platform.UIKit.UIAccessibilityContainerTypeNone
 import platform.UIKit.UIAccessibilityContainerTypeSemanticGroup
@@ -1249,7 +1250,7 @@ internal class AccessibilityMediator(
                     if (isAccessibilityActive) {
                         scheduleAccessibilityDisablingAndCleanup()
                         val time = measureTime {
-                            sync().postNotification()
+                            sync()
                         }
                         accessibilityDebugLogger?.log("AccessibilityMediator.sync took $time")
                     }
@@ -1314,7 +1315,7 @@ internal class AccessibilityMediator(
     fun activateAccessibilityIfNeeded() {
         isAccessibilityActive = true
         if (root.element == null) {
-            sync().postNotification()
+            sync()
         }
         cancelAccessibilityDisabling()
     }
@@ -1460,7 +1461,7 @@ internal class AccessibilityMediator(
      */
     private fun traverseSemanticsTree(
         rootNode: SemanticsNode
-    ): Pair<AccessibilityElement, AccessibilityElementKey?> {
+    ): Triple<AccessibilityElement, AccessibilityElementKey?, AccessibilityNotification?> {
         val presentIds = MutableIntSet()
         presentIds.add(rootNode.id)
         val nodes = owner.getAllUncoveredSemanticsNodesToIntObjectMap(
@@ -1475,6 +1476,7 @@ internal class AccessibilityMediator(
             }
         }
         var focusedKey: AccessibilityElementKey? = null
+        var lastLiveRegionAnnouncement: AccessibilityNotification? = null
 
         // 1. Get accessibility elements and traversal groups.
         // Flattening of accessibility elements is used to:
@@ -1536,8 +1538,16 @@ internal class AccessibilityMediator(
                 focusedKey = node.semanticsKey
             }
 
-            fun makeSemanticsNode(children: List<AccessibilityElement>) =
-                createOrUpdateAccessibilityElement(
+            fun makeSemanticsNode(children: List<AccessibilityElement>): AccessibilityElement {
+                val isLiveRegion = node.unmergedConfig.contains(SemanticsProperties.LiveRegion)
+                val (oldLabel, oldValue) = if (isLiveRegion) {
+                    val element = accessibilityElementsMap[node.semanticsKey]
+                    element?.accessibilityLabel() to element?.accessibilityValue()
+                } else {
+                    Pair(null, null)
+                }
+
+                val element = createOrUpdateAccessibilityElement(
                     node = AccessibilityNode.Semantics(
                         semanticsNode = node,
                         mediator = this,
@@ -1547,6 +1557,23 @@ internal class AccessibilityMediator(
                     children = children,
                     frame = frame
                 )
+
+                if (isLiveRegion) {
+                    val newLabel = element.accessibilityLabel()
+                    val newValue = element.accessibilityValue()
+
+                    if ((newLabel != null || newValue != null) &&
+                        (oldLabel != newLabel || oldValue != newValue)
+                    ) {
+                        val announcement = listOfNotNull(newLabel, newValue).joinToString(", ")
+                        lastLiveRegionAnnouncement = AccessibilityNotification(
+                            UIAccessibilityAnnouncementNotification,
+                            message = announcement
+                        )
+                    }
+                }
+                return element
+            }
 
             val flattenChildren = flatten && !node.canBeAccessibilityElement()
             return if (node.isTraversalGroup || node.id == rootNode.id || !flattenChildren) {
@@ -1620,20 +1647,20 @@ internal class AccessibilityMediator(
             isPresent
         }
 
-        return rootAccessibilityElement to focusedKey
+        return Triple(rootAccessibilityElement, focusedKey, lastLiveRegionAnnouncement)
     }
 
     /**
      * Performs a complete sync of the accessibility tree with the current semantics tree.
      */
-    private fun sync(): AccessibilityNotification {
+    private fun sync() {
         val rootSemanticsNode = owner.unmergedRootSemanticsNode
 
         check(!view.isAccessibilityElement) {
             "Root view must not be an accessibility element"
         }
 
-        val (element, focusedElementKey) = traverseSemanticsTree(rootSemanticsNode)
+        val (element, focusedElementKey, liveRegionAnnouncement) = traverseSemanticsTree(rootSemanticsNode)
         root.element = element
 
         if (displayLinkListener == null) {
@@ -1658,7 +1685,10 @@ internal class AccessibilityMediator(
             updateFocusOnAccessibilityElementsLoaded = false
         }
 
-        return updateFocusedElement()
+        // Post layout notification first, then the live region announcement (if any) so that
+        // the announcement is the last posted notification, as iOS VoiceOver expects.
+        updateFocusedElement().postNotification()
+        liveRegionAnnouncement?.postNotification()
     }
 
     private fun updateFocusedElement(): AccessibilityNotification {
