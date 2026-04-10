@@ -350,6 +350,13 @@ public class CameraControllerFragment extends Fragment {
         super.onDestroyView();
         if (mExecutorService != null) {
             mExecutorService.shutdown();
+            try {
+                if (!mExecutorService.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
+                    mExecutorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                mExecutorService.shutdownNow();
+            }
         }
         mRotationProvider.removeListener(mRotationListener);
     }

@@ -199,7 +199,7 @@ public class Camera2TestActivity extends Activity {
             Logger.w(TAG, "Thread was interrupted while waiting for camera lock.", e);
             // Preserve the interrupted status for higher-level code.
             Thread.currentThread().interrupt();
-        } catch (CameraAccessException | SecurityException e) {
+        } catch (CameraAccessException | SecurityException | IllegalArgumentException e) {
             Logger.e(TAG, "Failed to open camera synchronously", e);
             mIsOpening.set(false);
             mCameraOpenCloseLock.release();
