@@ -23,5 +23,4 @@ import androidx.annotation.RestrictTo
 public enum class PlaneType {
     HORIZONTAL,
     VERTICAL,
-    ANY,
 }

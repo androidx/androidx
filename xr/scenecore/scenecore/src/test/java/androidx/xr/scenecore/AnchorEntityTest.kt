@@ -125,8 +125,8 @@ class AnchorEntityTest {
             AnchorEntity.create(
                 session,
                 FloatSize2d(1.0f, 1.0f),
-                PlaneOrientation.ANY,
-                PlaneSemanticType.ANY,
+                PlaneOrientation.ALL,
+                PlaneSemanticType.ALL,
                 timeout = 0.toDuration(DurationUnit.SECONDS).toJavaDuration(),
             )
 
@@ -147,8 +147,8 @@ class AnchorEntityTest {
             AnchorEntity.create(
                 session,
                 FloatSize2d(1.0f, 1.0f),
-                PlaneOrientation.HORIZONTAL,
-                PlaneSemanticType.CEILING,
+                setOf(PlaneOrientation.HORIZONTAL),
+                setOf(PlaneSemanticType.CEILING),
                 timeout = 0.toDuration(DurationUnit.SECONDS).toJavaDuration(),
             )
 
@@ -173,8 +173,8 @@ class AnchorEntityTest {
                 AnchorEntity.create(
                     session,
                     FloatSize2d(1.0f, 1.0f),
-                    PlaneOrientation.HORIZONTAL,
-                    PlaneSemanticType.CEILING,
+                    setOf(PlaneOrientation.HORIZONTAL),
+                    setOf(PlaneSemanticType.CEILING),
                     timeout = 0.toDuration(DurationUnit.SECONDS).toJavaDuration(),
                 )
             advanceUntilIdle()
@@ -202,8 +202,8 @@ class AnchorEntityTest {
                 AnchorEntity.create(
                     session,
                     FloatSize2d(1.0f, 1.0f),
-                    PlaneOrientation.HORIZONTAL,
-                    PlaneSemanticType.CEILING,
+                    setOf(PlaneOrientation.HORIZONTAL),
+                    setOf(PlaneSemanticType.CEILING),
                     timeout = 0.toDuration(DurationUnit.SECONDS).toJavaDuration(),
                 )
             advanceUntilIdle()
@@ -246,8 +246,8 @@ class AnchorEntityTest {
                 AnchorEntity.create(
                     session,
                     FloatSize2d(1.0f, 1.0f),
-                    PlaneOrientation.HORIZONTAL,
-                    PlaneSemanticType.CEILING,
+                    setOf(PlaneOrientation.HORIZONTAL),
+                    setOf(PlaneSemanticType.CEILING),
                     timeout = 5.seconds.toJavaDuration(),
                 )
             advanceUntilIdle()
@@ -275,8 +275,8 @@ class AnchorEntityTest {
                 AnchorEntity.create(
                     session,
                     FloatSize2d(1.0f, 1.0f),
-                    PlaneOrientation.HORIZONTAL,
-                    PlaneSemanticType.CEILING,
+                    setOf(PlaneOrientation.HORIZONTAL),
+                    setOf(PlaneSemanticType.CEILING),
                     timeout = 0.toDuration(DurationUnit.SECONDS).toJavaDuration(),
                 )
             advanceUntilIdle()

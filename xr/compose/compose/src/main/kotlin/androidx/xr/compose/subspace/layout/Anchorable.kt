@@ -242,13 +242,13 @@ internal class AnchorableNode(
         if (anchorPlaneOrientations.isEmpty() && anchorPlaneSemantics.isEmpty())
             return mutableSetOf()
 
-        val planeTypeFilter: MutableSet<Int> = mutableSetOf()
-        anchorPlaneOrientations.forEach { planeTypeFilter.add(it.value) }
-        if (planeTypeFilter.isEmpty()) planeTypeFilter.add(SceneCorePlaneOrientation.ANY)
+        val planeTypeFilter: MutableSet<SceneCorePlaneOrientation> = mutableSetOf()
+        anchorPlaneOrientations.forEach { planeTypeFilter.addAll(it.value) }
+        if (planeTypeFilter.isEmpty()) planeTypeFilter.addAll(SceneCorePlaneOrientation.ALL)
 
-        val planeSemanticFilter: MutableSet<Int> = mutableSetOf()
-        anchorPlaneSemantics.forEach { planeSemanticFilter.add(it.value) }
-        if (planeSemanticFilter.isEmpty()) planeSemanticFilter.add(SceneCorePlaneSemantic.ANY)
+        val planeSemanticFilter: MutableSet<SceneCorePlaneSemantic> = mutableSetOf()
+        anchorPlaneSemantics.forEach { planeSemanticFilter.addAll(it.value) }
+        if (planeSemanticFilter.isEmpty()) planeSemanticFilter.addAll(SceneCorePlaneSemantic.ALL)
 
         return mutableSetOf(AnchorPlacement.createForPlanes(planeTypeFilter, planeSemanticFilter))
     }
@@ -256,12 +256,14 @@ internal class AnchorableNode(
 
 /** Type of plane based on orientation i.e. Horizontal or Vertical. */
 @JvmInline
-public value class PlaneOrientation private constructor(internal val value: Int) {
+public value class PlaneOrientation
+private constructor(internal val value: Set<SceneCorePlaneOrientation>) {
     public companion object {
         public val Horizontal: PlaneOrientation =
-            PlaneOrientation(SceneCorePlaneOrientation.HORIZONTAL)
-        public val Vertical: PlaneOrientation = PlaneOrientation(SceneCorePlaneOrientation.VERTICAL)
-        public val Any: PlaneOrientation = PlaneOrientation(SceneCorePlaneOrientation.ANY)
+            PlaneOrientation(setOf(SceneCorePlaneOrientation.HORIZONTAL))
+        public val Vertical: PlaneOrientation =
+            PlaneOrientation(setOf(SceneCorePlaneOrientation.VERTICAL))
+        public val Any: PlaneOrientation = PlaneOrientation(SceneCorePlaneOrientation.ALL)
     }
 
     override fun toString(): String {
@@ -276,13 +278,14 @@ public value class PlaneOrientation private constructor(internal val value: Int)
 
 /** Semantic plane types. */
 @JvmInline
-public value class PlaneSemantic private constructor(internal val value: Int) {
+public value class PlaneSemantic
+private constructor(internal val value: Set<SceneCorePlaneSemantic>) {
     public companion object {
-        public val Wall: PlaneSemantic = PlaneSemantic(SceneCorePlaneSemantic.WALL)
-        public val Floor: PlaneSemantic = PlaneSemantic(SceneCorePlaneSemantic.FLOOR)
-        public val Ceiling: PlaneSemantic = PlaneSemantic(SceneCorePlaneSemantic.CEILING)
-        public val Table: PlaneSemantic = PlaneSemantic(SceneCorePlaneSemantic.TABLE)
-        public val Any: PlaneSemantic = PlaneSemantic(SceneCorePlaneSemantic.ANY)
+        public val Wall: PlaneSemantic = PlaneSemantic(setOf(SceneCorePlaneSemantic.WALL))
+        public val Floor: PlaneSemantic = PlaneSemantic(setOf(SceneCorePlaneSemantic.FLOOR))
+        public val Ceiling: PlaneSemantic = PlaneSemantic(setOf(SceneCorePlaneSemantic.CEILING))
+        public val Table: PlaneSemantic = PlaneSemantic(setOf(SceneCorePlaneSemantic.TABLE))
+        public val Any: PlaneSemantic = PlaneSemantic(SceneCorePlaneSemantic.ALL)
     }
 
     override fun toString(): String {

@@ -19,6 +19,7 @@ package androidx.xr.scenecore
 import android.annotation.SuppressLint
 import android.os.SystemClock
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
@@ -116,8 +117,8 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
 
     internal data class PlaneFindingInfo(
         val dimensions: FloatSize2d,
-        val orientation: @PlaneOrientationValue Int,
-        val semanticType: @PlaneSemanticTypeValue Int,
+        val orientations: Set<PlaneOrientation>,
+        val semanticTypes: Set<PlaneSemanticType>,
         val searchDeadline: Long?,
     )
 
@@ -166,10 +167,8 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                                 val planeState = it.state.value
                                 val planeOrientation = it.type.toSceneCoreOrientation()
                                 val planeSemanticType = planeState.label.toSceneCoreSemanticType()
-                                (info.orientation == planeOrientation ||
-                                    info.orientation == PlaneOrientation.ANY) &&
-                                    (info.semanticType == planeSemanticType ||
-                                        info.semanticType == PlaneSemanticType.ANY) &&
+                                info.orientations.contains(planeOrientation) &&
+                                    info.semanticTypes.contains(planeSemanticType) &&
                                     info.dimensions.width <= planeState.extents.width &&
                                     info.dimensions.height <= planeState.extents.height
                             }
@@ -200,8 +199,8 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
          * @param entityRegistry [EntityRegistry] to use.
          * @param minimumPlaneExtents The minimum extents (in meters) of the plane to which this
          *   AnchorEntity should attach.
-         * @param planeOrientation Orientation for the plane to which this Anchor should attach.
-         * @param planeSemanticType Semantics for the plane to which this Anchor should attach.
+         * @param planeOrientations Orientation for the plane to which this Anchor should attach.
+         * @param planeSemanticTypes Semantics for the plane to which this Anchor should attach.
          * @param timeout Maximum time to search for the anchor, if a suitable plane is not found
          *   within the timeout time the AnchorEntity state will be set to TIMED_OUT.
          */
@@ -209,8 +208,8 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
             session: Session,
             entityRegistry: EntityRegistry,
             minimumPlaneExtents: FloatSize2d,
-            planeOrientation: @PlaneOrientationValue Int,
-            planeSemanticType: @PlaneSemanticTypeValue Int,
+            planeOrientations: Set<PlaneOrientation>,
+            planeSemanticTypes: Set<PlaneSemanticType>,
             timeout: Duration = Duration.ZERO,
         ): AnchorEntity {
             check(session.config.planeTracking != PlaneTrackingMode.DISABLED) {
@@ -224,8 +223,8 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
             val info =
                 PlaneFindingInfo(
                     minimumPlaneExtents,
-                    planeOrientation,
-                    planeSemanticType,
+                    planeOrientations,
+                    planeSemanticTypes,
                     getAnchorDeadline(timeout),
                 )
             findAndSetPlaneAnchor(session, info, anchorEntity)
@@ -268,19 +267,62 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
          */
         @JvmStatic
         @JvmOverloads
+        @Deprecated(
+            "Use the factory which accepts Set<PlaneOrientation> and Set<PlaneSemanticType> instead."
+        )
+        // TODO: b/500464864 - Remove this factory method.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun create(
             session: Session,
             minimumPlaneExtents: FloatSize2d,
-            planeOrientation: @PlaneOrientationValue Int,
-            planeSemanticType: @PlaneSemanticTypeValue Int,
+            planeOrientation: PlaneOrientation,
+            planeSemanticType: PlaneSemanticType,
             timeout: Duration = Duration.ZERO,
         ): AnchorEntity {
             return create(
                 session,
                 session.scene.entityRegistry,
                 minimumPlaneExtents,
-                planeOrientation,
-                planeSemanticType,
+                setOf(planeOrientation),
+                setOf(planeSemanticType),
+                timeout,
+            )
+        }
+
+        /**
+         * Factory for an AnchorEntity which searches for a real-world surface on which to anchor,
+         * from the set of tracked planes available to the perception system.
+         *
+         * @param session [Session] in which to create the AnchorEntity.
+         * @param minimumPlaneExtents The minimum extents (in meters) of the plane to which this
+         *   AnchorEntity should attach.
+         * @param planeOrientations [PlaneOrientation]s of the plane to which this AnchorEntity
+         *   should attach.
+         * @param planeSemanticTypes [PlaneSemanticType]s of the plane to which this AnchorEntity
+         *   should attach.
+         * @param timeout The amount of time as a [Duration] to search for the a suitable plane to
+         *   attach to. If a plane is not found within the timeout, the returned AnchorEntity state
+         *   will be set to AnchorEntity.State.TIMEDOUT. It may take longer than the timeout period
+         *   before the anchor state is updated. If the timeout duration is zero it will search for
+         *   the anchor indefinitely.
+         * @throws [IllegalStateException] if [androidx.xr.runtime.Session.config] is set to
+         *   [PlaneTrackingMode.DISABLED].
+         */
+        @JvmStatic
+        @JvmOverloads
+        public fun create(
+            session: Session,
+            minimumPlaneExtents: FloatSize2d,
+            planeOrientations: Set<PlaneOrientation>,
+            planeSemanticTypes: Set<PlaneSemanticType>,
+            timeout: Duration = Duration.ZERO,
+        ): AnchorEntity {
+            return create(
+                session,
+                session.scene.entityRegistry,
+                minimumPlaneExtents,
+                planeOrientations,
+                planeSemanticTypes,
                 timeout,
             )
         }

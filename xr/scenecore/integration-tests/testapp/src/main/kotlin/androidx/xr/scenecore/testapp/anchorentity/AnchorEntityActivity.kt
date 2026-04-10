@@ -124,8 +124,8 @@ class AnchorEntityActivity : AppCompatActivity() {
                 AnchorEntity.create(
                     session!!,
                     FloatSize2d(0.1f, 0.1f),
-                    PlaneOrientation.ANY,
-                    PlaneSemanticType.ANY,
+                    PlaneOrientation.ALL,
+                    PlaneSemanticType.ALL,
                 )
             val xyzModelEntity =
                 GltfModelEntity.create(

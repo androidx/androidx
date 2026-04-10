@@ -39,7 +39,7 @@ import androidx.xr.scenecore.runtime.PlaneType
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeAnchorPlacement
 internal constructor(
-    internal val planeTypeFilter: Set<@JvmSuppressWildcards PlaneType> = setOf(PlaneType.ANY),
+    internal val planeTypeFilter: Set<@JvmSuppressWildcards PlaneType> = PlaneType.entries.toSet(),
     internal val planeSemanticFilter: Set<@JvmSuppressWildcards PlaneSemantic> =
-        setOf(PlaneSemantic.ANY),
+        PlaneSemantic.entries.toSet(),
 ) : AnchorPlacement
