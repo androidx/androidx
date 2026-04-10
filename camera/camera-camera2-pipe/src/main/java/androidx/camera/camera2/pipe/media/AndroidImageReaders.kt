@@ -106,18 +106,6 @@ private constructor(
     }
 
     public companion object {
-        // See: b/172464059
-        //
-        // The ImageReader has an internal limit of 64 images by design, but depending on the device
-        // specific camera HAL (Which can be different per device) there is an additional number of
-        // images that are reserved by the Camera HAL which reduces this number. If, for example,
-        // the HAL reserves 8 images, you have a maximum of 56 (64 - 8).
-        //
-        // One of the worst cases observed is the HAL reserving 10 images, which gives a maximum
-        // capacity of 54 (64 - 10). For safety and compatibility reasons, set the maximum capacity
-        // to be 54, which leaves headroom for an app configured limit of 50.
-        internal const val IMAGEREADER_MAX_CAPACITY = 54
-
         /**
          * Create and configure a new ImageReader instance as an [ImageReaderWrapper].
          *
@@ -138,11 +126,6 @@ private constructor(
             require(width > 0) { "Width ($width) must be > 0" }
             require(height > 0) { "Height ($height) must be > 0" }
             require(capacity > 0) { "Capacity ($capacity) must be > 0" }
-            require(capacity <= IMAGEREADER_MAX_CAPACITY) {
-                "Capacity for creating new ImageSources is restricted to " +
-                    "$IMAGEREADER_MAX_CAPACITY. Android has undocumented internal limits that " +
-                    "are different depending on which device the ImageReader is created on."
-            }
 
             // Warnings for unsupported features:
             if (usageFlags != null && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -337,12 +320,6 @@ public class AndroidMultiResolutionImageReader(
             plaformApiCompat: PlatformApiCompat?,
         ): ImageReaderWrapper {
             require(capacity > 0) { "Capacity ($capacity) must be > 0" }
-            require(capacity <= AndroidImageReader.IMAGEREADER_MAX_CAPACITY) {
-                "Capacity for creating new ImageSources is restricted to " +
-                    "${AndroidImageReader.IMAGEREADER_MAX_CAPACITY}. Android has undocumented " +
-                    "internal limits that are different depending on which device the " +
-                    "MultiResolutionImageReader is created on."
-            }
             if (enableConcurrentOutputs) {
                 require(plaformApiCompat?.isMultiResolutionConcurrentReadersEnabled() == true) {
                     "Concurrent MultiResolutionImageReaders are not supported on this device"
