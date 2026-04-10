@@ -417,6 +417,18 @@ private val RadioButtons =
         examples = RadioButtonsExamples,
     )
 
+private val ScrollField =
+    Component(
+        id = nextId(),
+        name = "Scroll field",
+        description = "Scroll field allows the user to select a value, e.g. time.",
+        // No scroll field icon
+        guidelinesUrl = "$ComponentGuidelinesUrl/scroll-field",
+        docsUrl = "", // TODO(b/441573791):  Add docs when available.
+        sourceUrl = "$Material3SourceUrl/ScrollField.kt",
+        examples = ScrollFieldExamples,
+    )
+
 private val SearchBars =
     Component(
         id = nextId(),
@@ -596,6 +608,7 @@ val Components =
         ProgressIndicators,
         PullToRefreshIndicators,
         RadioButtons,
+        ScrollField,
         SearchBars,
         SegmentedButtons,
         Sliders,
