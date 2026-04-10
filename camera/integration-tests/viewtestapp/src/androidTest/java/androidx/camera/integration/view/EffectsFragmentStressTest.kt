@@ -35,7 +35,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import java.util.concurrent.TimeUnit
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -88,16 +87,15 @@ class EffectsFragmentStressTest(
         fragment = fragmentScenario.getFragment()
 
         requireForegroundRule.deferCleanup {
-            if (::cameraProvider.isInitialized) {
-                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+            try {
+                if (::fragmentScenario.isInitialized) {
+                    fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
+                }
+            } finally {
+                if (::cameraProvider.isInitialized) {
+                    cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+                }
             }
-        }
-    }
-
-    @After
-    fun tearDown() {
-        if (::fragmentScenario.isInitialized) {
-            fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
         }
     }
 
