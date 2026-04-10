@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
@@ -37,6 +38,26 @@ class `$AggregatedAppFunctionInventory_Impl` : AggregatedAppFunctionInventory() 
         override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
             get() =
                 mapOf(
+                    AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT to
+                        CompileTimeAppFunctionMetadata(
+                            id =
+                                AppFunctionMetadataTestHelper.FunctionIds
+                                    .NO_SCHEMA_ENABLED_BY_DEFAULT,
+                            isEnabledByDefault = true,
+                            schema = null,
+                            parameters =
+                                listOf(
+                                    AppFunctionParameterMetadata(
+                                        name = "intParam",
+                                        isRequired = true,
+                                        dataType = AppFunctionIntTypeMetadata(isNullable = false),
+                                    )
+                                ),
+                            response =
+                                AppFunctionResponseMetadata(
+                                    valueType = AppFunctionUnitTypeMetadata(isNullable = false)
+                                ),
+                        ),
                     AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED to
                         CompileTimeAppFunctionMetadata(
                             id =

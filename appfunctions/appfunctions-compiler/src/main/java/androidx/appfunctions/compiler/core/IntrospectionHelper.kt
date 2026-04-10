@@ -115,6 +115,11 @@ object IntrospectionHelper {
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "CompileTimeAppFunctionMetadata")
     val APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS =
         ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionFunctionNotFoundException")
+    val APP_FUNCTION_CANCELLED_EXCEPTION_CLASS =
+        ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionCancelledException")
+    val APP_FUNCTION_APP_UNKNOWN_EXCEPTION_CLASS =
+        ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionAppUnknownException")
+    val APP_FUNCTION_EXCEPTION_CLASS = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionException")
     val APP_FUNCTION_SCHEMA_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionSchemaMetadata")
     val APP_FUNCTION_PARAMETER_METADATA_CLASS =
@@ -161,6 +166,10 @@ object IntrospectionHelper {
     val APP_FUNCTION_RESPONSE_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionResponseMetadata")
 
+    val DEPENDENCIES_CLASS = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "Dependencies")
+    val CANCELLATION_EXCEPTION_CLASS = ClassName("kotlinx.coroutines", "CancellationException")
+    val EXCEPTION_CLASS = ClassName("kotlin", "Exception")
+
     object ConfigurableAppFunctionFactoryClass {
         val CLASS_NAME =
             ClassName(APP_FUNCTIONS_SERVICE_INTERNAL_PACKAGE_NAME, "ConfigurableAppFunctionFactory")
@@ -184,12 +193,27 @@ object IntrospectionHelper {
         }
     }
 
+    object AppFunctionExecutionDispatcherClass {
+        val CLASS_NAME =
+            ClassName(APP_FUNCTIONS_SERVICE_INTERNAL_PACKAGE_NAME, "AppFunctionExecutionDispatcher")
+
+        object ExecuteAppFunctionMethod {
+            const val METHOD_NAME = "executeAppFunction"
+        }
+    }
+
     object ExecuteAppFunctionRequestClass {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "ExecuteAppFunctionRequest")
     }
 
     object ExecuteAppFunctionResponseClass {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "ExecuteAppFunctionResponse")
+        val SUCCESS_CLASS_NAME = CLASS_NAME.nestedClass("Success")
+    }
+
+    object ServiceInternalHelper {
+        const val UNSAFE_GET_PARAMETER_VALUE_METHOD = "unsafeGetParameterValue"
+        const val UNSAFE_BUILD_RETURN_VALUE_METHOD = "unsafeBuildReturnValue"
     }
 
     object AppFunctionInvokerClass {

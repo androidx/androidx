@@ -20,11 +20,14 @@ import androidx.annotation.VisibleForTesting
 import androidx.appfunctions.compiler.AppFunctionCompiler
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionEntryPoint
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
+import androidx.appfunctions.compiler.core.IntrospectionHelper.APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionExecutionDispatcherClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ExecuteAppFunctionRequestClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ExecuteAppFunctionResponseClass
 import androidx.appfunctions.compiler.core.ProcessingException
 import androidx.appfunctions.compiler.core.logException
+import androidx.appfunctions.compiler.core.toTypeName
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
@@ -34,10 +37,12 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.buildCodeBlock
 
 /**
  * The processor to generate the AppFunctionService subclass for an AppFunction entry point.
@@ -80,6 +85,7 @@ class AppFunctionEntryPointProcessor(
             try {
                 entryPoint.validate()
                 generateAppFunctionService(entryPoint)
+                // TODO(b/463909015): Generate XML
             } catch (e: ProcessingException) {
                 logger.logException(e)
             }
@@ -98,19 +104,7 @@ class AppFunctionEntryPointProcessor(
             TypeSpec.classBuilder(serviceName)
                 .superclass(originalClassName)
                 .addAnnotation(AppFunctionCompiler.GENERATED_ANNOTATION)
-        val executeFunctionBuilder =
-            FunSpec.builder(AppFunctionServiceClass.ExecuteFunctionMethod.METHOD_NAME)
-                .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
-                .addParameter(
-                    AppFunctionServiceClass.ExecuteFunctionMethod.REQUEST_PARAM_NAME,
-                    ExecuteAppFunctionRequestClass.CLASS_NAME,
-                )
-                .returns(ExecuteAppFunctionResponseClass.CLASS_NAME)
-                // TODO(b/463909015): Implement the routing logic.
-                .addStatement("TODO(%S)", "Not yet implemented")
-                .build()
-
-        serviceClassBuilder.addFunction(executeFunctionBuilder)
+                .addFunction(buildExecuteFunction(entryPoint))
 
         val fileSpec =
             FileSpec.builder(packageName, serviceName).addType(serviceClassBuilder.build()).build()
@@ -126,6 +120,50 @@ class AppFunctionEntryPointProcessor(
             )
             .bufferedWriter()
             .use { fileSpec.writeTo(it) }
+    }
+
+    private fun buildExecuteFunction(entryPoint: AnnotatedAppFunctionEntryPoint): FunSpec {
+        return FunSpec.builder(AppFunctionServiceClass.ExecuteFunctionMethod.METHOD_NAME)
+            .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
+            .addParameter(
+                AppFunctionServiceClass.ExecuteFunctionMethod.REQUEST_PARAM_NAME,
+                ExecuteAppFunctionRequestClass.CLASS_NAME,
+            )
+            .returns(ExecuteAppFunctionResponseClass.CLASS_NAME)
+            .addCode(buildExecuteFunctionBody(entryPoint))
+            .build()
+    }
+
+    private fun buildExecuteFunctionBody(entryPoint: AnnotatedAppFunctionEntryPoint): CodeBlock {
+        return buildCodeBlock {
+            beginControlFlow(
+                "return %T.%L(request) { parameters ->",
+                AppFunctionExecutionDispatcherClass.CLASS_NAME,
+                AppFunctionExecutionDispatcherClass.ExecuteAppFunctionMethod.METHOD_NAME,
+            )
+            beginControlFlow("when (request.functionIdentifier)")
+            for (function in entryPoint.annotatedAppFunctions.appFunctionDeclarations) {
+                val identifier = entryPoint.annotatedAppFunctions.getAppFunctionIdentifier(function)
+                beginControlFlow("%S ->", identifier)
+                add("this.%N(\n", function.simpleName.asString())
+                indent()
+                for (param in function.parameters) {
+                    val paramName = param.name!!.asString()
+                    addStatement("parameters[%S] as %T,", paramName, param.type.toTypeName())
+                }
+                unindent()
+                addStatement(")")
+                endControlFlow()
+            }
+            beginControlFlow("else ->")
+            addStatement(
+                "throw %T(\n    \"\${request.functionIdentifier} is not available\"\n)",
+                APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS,
+            )
+            endControlFlow() // end else
+            endControlFlow() // end when
+            endControlFlow() // end executeAppFunction
+        }
     }
 
     @VisibleForTesting
