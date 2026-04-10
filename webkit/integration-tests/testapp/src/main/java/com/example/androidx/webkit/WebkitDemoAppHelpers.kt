@@ -67,7 +67,7 @@ fun AppCompatActivity.enableEdgeToEdge() {
         v: View,
         insets: WindowInsetsCompat ->
         val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-        v.setPadding(systemBars.left, systemBars.top, systemBars.top, systemBars.bottom)
+        v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
         insets
     }
 }
