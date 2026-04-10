@@ -29,6 +29,7 @@ internal class CupertinoHapticFeedback : HapticFeedback {
 
     private val mediumImpactGenerator = UIImpactFeedbackGenerator()
     private val lightImpactGenerator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleLight)
+    private val selectionGenerator = UISelectionFeedbackGenerator()
     private val notificationGenerator = UINotificationFeedbackGenerator()
 
     override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
@@ -45,7 +46,7 @@ internal class CupertinoHapticFeedback : HapticFeedback {
             HapticFeedbackType.ToggleOn,
             HapticFeedbackType.VirtualKey -> lightImpactGenerator.impactOccurred()
             HapticFeedbackType.SegmentFrequentTick,
-            HapticFeedbackType.SegmentTick,
+            HapticFeedbackType.SegmentTick -> selectionGenerator.selectionChanged()
             HapticFeedbackType.TextHandleMove -> {
                 // iOS does not produce haptic feedback for these types
                 return
