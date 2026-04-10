@@ -214,12 +214,14 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                 return
             }
 
+            val touchBounds = currentNode.touchBoundsInRoot
             // Use unclipped bounds for intersection and reporting within this context only if the
             // node is fully off-screen. Otherwise, continue using the clipped bounds.
             val currentBounds =
-                currentNode.touchBoundsInRoot
+                touchBounds
                     .run { if (isEmpty) currentNode.unclippedBoundsInRoot else this }
                     .roundToIntRect()
+
             region.set(currentBounds)
             if (region.intersect(unaccountedSpace)) {
                 // For nodes that are partially visible in the root, we will continue reporting
@@ -241,7 +243,16 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                     )
                 }
                 if (currentNode.isImportantForAccessibility()) {
-                    unaccountedSpace.difference(currentBounds)
+                    // Use layout bounds (without touch target expansion) for the
+                    // subtraction so that minimum touch target padding doesn't cause
+                    // adjacent siblings to clip each other's reported bounds.
+                    val layoutBounds =
+                        if (touchBounds.isEmpty) {
+                            currentBounds // already using unclippedBoundsInRoot
+                        } else {
+                            currentNode.boundsInRoot.roundToIntRect()
+                        }
+                    unaccountedSpace.difference(layoutBounds)
                 }
             }
         }
@@ -309,7 +320,10 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                     }
                 }
                 if (currentNode.isImportantForAccessibility()) {
-                    unaccountedSpace.difference(touchBoundsInRoot)
+                    // Use layout bounds (without touch target expansion) for the
+                    // subtraction so that minimum touch target padding doesn't cause
+                    // adjacent siblings to clip each other's reported bounds.
+                    unaccountedSpace.difference(currentNode.boundsInRoot.roundToIntRect())
                 }
             } else {
                 if (currentNode.isFake) {
