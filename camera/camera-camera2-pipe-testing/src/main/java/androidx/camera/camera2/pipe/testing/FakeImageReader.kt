@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.hardware.HardwareBuffer
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.OutputId
@@ -52,11 +53,16 @@ private constructor(
      * Simulate an image at a specific [imageTimestamp] for a particular (optional) [OutputId]. The
      * timebase for an imageReader is left undefined.
      */
-    public fun simulateImage(imageTimestamp: Long, outputId: OutputId? = null): FakeImage {
+    public fun simulateImage(
+        imageTimestamp: Long,
+        outputId: OutputId? = null,
+        hardwareBuffer: HardwareBuffer? = null,
+    ): FakeImage {
         val output = outputId ?: outputs.keys.single()
         val size =
             checkNotNull(outputs[output]) { "Unexpected $output! Available outputs are $outputs" }
-        val image = FakeImage(size.width, size.height, format.value, imageTimestamp)
+
+        val image = FakeImage(size.width, size.height, format.value, imageTimestamp, hardwareBuffer)
         simulateImage(image, output)
         return image
     }

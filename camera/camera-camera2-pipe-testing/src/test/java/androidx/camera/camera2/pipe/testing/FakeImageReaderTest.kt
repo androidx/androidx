@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.hardware.HardwareBuffer
+import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
@@ -30,7 +32,13 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.ALL_SDKS])
 class FakeImageReaderTest {
     private val imageReader =
-        FakeImageReader.create(StreamFormat.PRIVATE, StreamId(32), OutputId(42), Size(640, 480), 10)
+        FakeImageReader.create(
+            StreamFormat.PRIVATE,
+            StreamId(32),
+            OutputId(42),
+            Size(IMAGE_WIDTH, IMAGE_HEIGHT),
+            10,
+        )
 
     @After
     fun cleanup() {
@@ -47,13 +55,18 @@ class FakeImageReaderTest {
     }
 
     @Test
+    @Config(minSdk = Build.VERSION_CODES.P)
     fun imageReaderCanSimulateImages() {
-        val fakeImage = imageReader.simulateImage(100)
+        val hardwareBuffer = HardwareBuffer.create(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, 1, 1)
+        val fakeImage = imageReader.simulateImage(100, hardwareBuffer = hardwareBuffer)
 
-        assertThat(fakeImage.width).isEqualTo(640)
-        assertThat(fakeImage.height).isEqualTo(480)
+        assertThat(fakeImage.width).isEqualTo(IMAGE_WIDTH)
+        assertThat(fakeImage.height).isEqualTo(IMAGE_HEIGHT)
         assertThat(fakeImage.format).isEqualTo(StreamFormat.PRIVATE.value)
         assertThat(fakeImage.timestamp).isEqualTo(100)
+        assertThat(fakeImage.hardwareBuffer).isNotNull()
+        assertThat(fakeImage.hardwareBuffer?.width).isEqualTo(IMAGE_WIDTH)
+        assertThat(fakeImage.hardwareBuffer?.height).isEqualTo(IMAGE_HEIGHT)
         assertThat(fakeImage.isClosed).isFalse()
     }
 
@@ -97,5 +110,11 @@ class FakeImageReaderTest {
         assertThat(fakeListener.onImageEvents[1].image).isSameInstanceAs(image3)
         assertThat(fakeListener.onImageEvents[1].streamId).isEqualTo(StreamId(32))
         assertThat(fakeListener.onImageEvents[1].outputId).isEqualTo(OutputId(42))
+    }
+
+    companion object {
+        private val IMAGE_HEIGHT: Int = 480
+        private val IMAGE_WIDTH: Int = 640
+        private val IMAGE_FORMAT: Int = 3
     }
 }
