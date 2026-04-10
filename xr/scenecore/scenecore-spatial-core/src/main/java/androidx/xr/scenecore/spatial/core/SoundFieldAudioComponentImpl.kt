@@ -16,12 +16,9 @@
 
 package androidx.xr.scenecore.spatial.core
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioTrack
-import androidx.annotation.OptIn
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.audio.AudioOutputProvider
 import androidx.media3.exoplayer.audio.AudioTrackAudioOutputProvider
 import androidx.media3.exoplayer.audio.ForwardingAudioOutputProvider
@@ -56,10 +53,6 @@ internal class SoundFieldAudioComponentImpl(
 
     private val forwardingProvider =
         object : ForwardingAudioOutputProvider(audioTrackAudioOutputProvider) {
-            // TODO: b/486263448 - Upgrade to exoplayer 1.10.0 once its released. The needed
-            //   constants are stable in that version.
-            @SuppressLint("IllegalExperimentalApiUsage") // This library is still in alpha.
-            @OptIn(UnstableApi::class)
             override fun getOutputConfig(
                 formatConfig: AudioOutputProvider.FormatConfig
             ): AudioOutputProvider.OutputConfig {
