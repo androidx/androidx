@@ -156,6 +156,7 @@ package androidx.camera.video {
     method public androidx.camera.video.QualitySelector getQualitySelector();
     method @SuppressCompatibility @androidx.camera.video.ExperimentalMimeTypeApi public static java.util.List<java.lang.String!> getSupportedAudioMimeTypes();
     method @SuppressCompatibility @androidx.camera.video.ExperimentalMimeTypeApi public static java.util.List<java.lang.String!> getSupportedVideoMimeTypes();
+    method @IntRange(from=0) public int getTargetAudioChannelCount();
     method @IntRange(from=0) public int getTargetAudioEncodingBitRate();
     method @IntRange(from=0) public int getTargetVideoEncodingBitRate();
     method public static androidx.camera.video.VideoCapabilities getVideoCapabilities(androidx.camera.core.CameraInfo);
@@ -179,6 +180,7 @@ package androidx.camera.video {
     method public androidx.camera.video.Recorder.Builder setAudioMimeType(String);
     method public androidx.camera.video.Recorder.Builder setExecutor(java.util.concurrent.Executor);
     method public androidx.camera.video.Recorder.Builder setQualitySelector(androidx.camera.video.QualitySelector);
+    method public androidx.camera.video.Recorder.Builder setTargetAudioChannelCount(@IntRange(from=1) int);
     method public androidx.camera.video.Recorder.Builder setTargetAudioEncodingBitRate(@IntRange(from=1) int);
     method public androidx.camera.video.Recorder.Builder setTargetVideoEncodingBitRate(@IntRange(from=1) int);
     method public androidx.camera.video.Recorder.Builder setVideoCapabilitiesSource(int);

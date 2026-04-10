@@ -349,6 +349,20 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
     }
 
     @Test
+    fun canSetTargetAudioChannelCount() {
+        val recorder = createRecorder(targetAudioChannelCount = 2)
+
+        assertThat(recorder.targetAudioChannelCount).isEqualTo(2)
+    }
+
+    @Test
+    fun recordingWithNegativeAudioChannelCount() {
+        assertThrows(IllegalArgumentException::class.java) {
+            createRecorder(targetAudioChannelCount = -5)
+        }
+    }
+
+    @Test
     fun canRecordToMediaStore() {
         assumeTrue(
             "Ignore the test since the MediaStore.Video has compatibility issues.",
@@ -1451,6 +1465,7 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
         outputStorageFactory: OutputStorage.Factory? = null,
         targetBitrate: Int? = null,
         targetAudioBitrate: Int? = null,
+        targetAudioChannelCount: Int? = null,
         retrySetupVideoMaxCount: Int? = null,
         retrySetupVideoDelayMs: Long? = null,
         audioSource: Int? = null,
@@ -1472,6 +1487,7 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
                     outputStorageFactory?.let { setOutputStorageFactory(it) }
                     targetBitrate?.let { setTargetVideoEncodingBitRate(it) }
                     targetAudioBitrate?.let { setTargetAudioEncodingBitRate(it) }
+                    targetAudioChannelCount?.let { setTargetAudioChannelCount(it) }
                     audioSource?.let { setAudioSource(it) }
                     requiredFreeStorageBytes?.let { setRequiredFreeStorageBytes(it) }
                 }
