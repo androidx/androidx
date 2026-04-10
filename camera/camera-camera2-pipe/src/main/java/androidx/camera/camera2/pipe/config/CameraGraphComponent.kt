@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.Parameters
 import androidx.camera.camera2.pipe.Request
@@ -46,6 +47,8 @@ import androidx.camera.camera2.pipe.internal.CameraGraphRequestListenersImpl
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
 import androidx.camera.camera2.pipe.internal.GraphSessionLock
+import androidx.camera.camera2.pipe.media.ImageReaderImageSources
+import androidx.camera.camera2.pipe.media.ImageSources
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -202,6 +205,18 @@ internal abstract class SharedCameraGraphModules {
         }
 
         @CameraGraphScope @Provides fun provideSystemClockOffsets() = SystemClockOffsets.estimate()
+
+        @CameraGraphScope
+        @Provides
+        fun configureImageSources(
+            imageReaderImageSources: ImageReaderImageSources,
+            cameraPipeConfig: CameraPipe.Config,
+        ): ImageSources {
+            if (cameraPipeConfig.imageSources != null) {
+                return cameraPipeConfig.imageSources
+            }
+            return imageReaderImageSources
+        }
     }
 }
 

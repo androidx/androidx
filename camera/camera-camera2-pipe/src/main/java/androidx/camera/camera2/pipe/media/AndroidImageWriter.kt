@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.InputStreamId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.Api29Compat
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.media.AndroidImageReader.Companion.IMAGEREADER_MAX_CAPACITY
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
@@ -101,11 +100,6 @@ private constructor(
             handler: Handler,
         ): ImageWriterWrapper {
             require(maxImages > 0) { "Max images ($maxImages) must be > 0" }
-            require(maxImages <= IMAGEREADER_MAX_CAPACITY) {
-                "Max images for ImageWriters is restricted to " +
-                    "$IMAGEREADER_MAX_CAPACITY to prevent overloading downstream " +
-                    "consumer components."
-            }
             // Create and configure a new ImageWriter
             val imageWriter =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && format != null) {
