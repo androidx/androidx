@@ -31,8 +31,14 @@ import kotlinx.coroutines.sync.Semaphore
 internal class FakeLifecycleManager : LifecycleManager {
 
     companion object {
-        @JvmField
-        val TestPermissions: List<String> = listOf("android.permission.SCENE_UNDERSTANDING_COARSE")
+        private val semaphore = Semaphore(1)
+
+        @JvmStatic
+        internal fun allowOneMoreCallToUpdate() {
+            if (semaphore.availablePermits == 0) {
+                semaphore.release()
+            }
+        }
     }
 
     /** Set of possible states of the runtime. */
@@ -49,11 +55,10 @@ internal class FakeLifecycleManager : LifecycleManager {
 
     val timeSource: TestTimeSource = TestTimeSource()
 
-    private val semaphore = Semaphore(1)
-
     override fun create() {
         check(state == State.NOT_INITIALIZED)
         state = State.INITIALIZED
+        allowOneMoreCallToUpdate()
     }
 
     override var config: Config =
@@ -75,6 +80,7 @@ internal class FakeLifecycleManager : LifecycleManager {
         )
 
         this.config = config
+        allowOneMoreCallToUpdate()
     }
 
     override fun resume() {
@@ -86,10 +92,6 @@ internal class FakeLifecycleManager : LifecycleManager {
         check(state == State.RESUMED)
         semaphore.acquire()
         return timeSource.markNow()
-    }
-
-    fun allowOneMoreCallToUpdate() {
-        semaphore.release()
     }
 
     override fun pause() {

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.xr.arcore.testing
 
@@ -33,7 +34,7 @@ import androidx.xr.runtime.math.Vector2
  * in the environment.
  *
  * For example, for a FakeRuntimePlane with [Label.WALL], [Type.VERTICAL] and
- * [androidx.xr.runtime.TrackingState.PAUSED]:
+ * [androidx.xr.arcore.runtime.TrackingState.PAUSED]:
  * ```
  * val plane = FakeRuntimePlane(type = RuntimePlane.Type.VERTICAL,
  *                              label = RuntimePlane.Label.WALL,

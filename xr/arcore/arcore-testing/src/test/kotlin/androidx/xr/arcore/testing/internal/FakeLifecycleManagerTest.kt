@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.xr.runtime.Config
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +28,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@Suppress("DEPRECATION")
 class FakeLifecycleManagerTest {
 
     private lateinit var underTest: FakeLifecycleManager
@@ -161,6 +161,7 @@ class FakeLifecycleManagerTest {
         assertThat(timeMark.elapsedNow()).isEqualTo(testDuration)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun update_calledTwiceAfterAllowOneMoreCallToUpdate_resumesExecution() = runTest {
         val testDuration = 5.seconds
@@ -169,7 +170,7 @@ class FakeLifecycleManagerTest {
 
         val firstTimeMark = underTest.update()
         underTest.timeSource += testDuration
-        underTest.allowOneMoreCallToUpdate()
+        FakeLifecycleManager.allowOneMoreCallToUpdate()
         val secondTimeMark = underTest.update()
 
         assertThat(secondTimeMark - firstTimeMark).isEqualTo(testDuration)

@@ -16,7 +16,7 @@
 
 package androidx.xr.arcore.testing.internal
 
-import androidx.xr.arcore.runtime.Face as RuntimeFace
+import androidx.xr.arcore.runtime.Face
 import androidx.xr.arcore.runtime.Mesh
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
@@ -30,28 +30,28 @@ internal class FakeRuntimeFace(
     override var isValid: Boolean = true,
     override var blendShapeValues: FloatArray = FloatArray(0),
     override var confidenceValues: FloatArray = FloatArray(0),
-) : RuntimeFace {
+) : Face {
 
     override var centerPose: Pose = Pose()
 
     override var mesh: Mesh =
         Mesh(
-            ShortBuffer.allocate(1),
-            FloatBuffer.allocate(1),
-            FloatBuffer.allocate(1),
-            FloatBuffer.allocate(1),
+            triangleIndices = ShortBuffer.allocate(1),
+            vertices = FloatBuffer.allocate(1),
+            normals = FloatBuffer.allocate(1),
+            textureCoordinates = FloatBuffer.allocate(1),
         )
 
-    override var noseTipPose: Pose = Pose(Vector3(1f, 1f, 0f), Quaternion.Identity)
+    override var noseTipPose: Pose = Pose(Vector3(0f, 0f, 1f), Quaternion.Identity)
 
-    override var foreheadLeftPose: Pose = Pose(Vector3(0f, 0f, 0f), Quaternion.Identity)
+    override var foreheadLeftPose: Pose = Pose(Vector3(-1f, 1f, 0f), Quaternion.Identity)
 
-    override var foreheadRightPose: Pose = Pose(Vector3(2f, 0f, 0f), Quaternion.Identity)
+    override var foreheadRightPose: Pose = Pose(Vector3(1f, 1f, 0f), Quaternion.Identity)
 
     init {
-        mesh.triangleIndices!!.put(1)
-        mesh.normals!!.put(1f)
-        mesh.textureCoordinates!!.put(1f)
-        mesh.vertices!!.put(1f)
+        mesh.triangleIndices!!.put(0)
+        mesh.normals!!.put(0f)
+        mesh.textureCoordinates!!.put(0f)
+        mesh.vertices!!.put(0f)
     }
 }

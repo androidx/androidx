@@ -16,8 +16,9 @@
 
 package androidx.xr.arcore.testing.internal
 
-import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
-import androidx.xr.arcore.runtime.Plane as RuntimePlane
+import androidx.xr.arcore.runtime.Anchor
+import androidx.xr.arcore.runtime.AnchorNotTrackingException
+import androidx.xr.arcore.runtime.Plane
 import androidx.xr.arcore.runtime.Plane.Label
 import androidx.xr.arcore.runtime.Plane.Type
 import androidx.xr.arcore.runtime.TrackingState
@@ -29,24 +30,33 @@ internal class FakeRuntimePlane(
     override var type: Type = Type.HORIZONTAL_UPWARD_FACING,
     override var label: Label = Label.FLOOR,
     override var trackingState: TrackingState = TrackingState.TRACKING,
-    override var centerPose: Pose = Pose(),
+    centerPose: Pose = Pose(),
     override var extents: FloatSize2d = FloatSize2d(),
     override var vertices: List<Vector2> = emptyList(),
-    override var subsumedBy: RuntimePlane? = null,
-) : RuntimePlane, AnchorHolder {
+    override var subsumedBy: Plane? = null,
+) : Plane, AnchorHolder {
 
-    val anchors: MutableCollection<RuntimeAnchor> = mutableListOf()
+    val anchors: MutableCollection<FakeRuntimeAnchor> = mutableListOf()
 
-    override fun createAnchor(pose: Pose): RuntimeAnchor {
-        val anchor = FakeRuntimeAnchor(centerPose.compose(pose))
-        anchor.anchorHolder = this
+    override var centerPose: Pose = centerPose
+        // when this Trackable moves, its Anchors move with it.
+        set(value) {
+            field = value
+            anchors.forEach { it.pose = value.compose(it.pose) }
+        }
+
+    override fun createAnchor(pose: Pose): Anchor {
+        if (trackingState != TrackingState.TRACKING) {
+            throw AnchorNotTrackingException()
+        }
+        val anchor = FakeRuntimeAnchor(centerPose.compose(pose), anchorHolder = this)
         anchors.add(anchor)
         return anchor
     }
 
-    override fun detachAnchor(anchor: RuntimeAnchor) {
+    override fun detachAnchor(anchor: Anchor) {
         anchors.remove(anchor)
     }
 
-    override fun onAnchorPersisted(anchor: RuntimeAnchor) {}
+    override fun onAnchorPersisted(anchor: Anchor) {}
 }

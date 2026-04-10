@@ -36,6 +36,7 @@ internal class FakeRuntimeAnchor(
         if (anchorsCreatedCount > anchorResourceLimit) {
             throw AnchorResourcesExhaustedException()
         }
+        FakeLifecycleManager.allowOneMoreCallToUpdate()
     }
 
     override var trackingState: TrackingState = TrackingState.TRACKING

@@ -204,7 +204,7 @@ class FakeRuntimeGeospatialTest {
         }
 
     @Test
-    fun checkVpsAvailability_expectedResultSet_returnsExpectedResult() =
+    fun checkVpsAvailability_returnsExpectedResult() =
         runTest(testDispatcher) {
             val coordinates = Pair(10.0, 20.0)
             underTest.state = Geospatial.State.RUNNING
@@ -232,30 +232,5 @@ class FakeRuntimeGeospatialTest {
             underTest.expectedVpsAvailabilityResult = VpsAvailabilityUnavailable()
             result = underTest.checkVpsAvailability(coordinates.first, coordinates.second)
             assertThat(result).isInstanceOf<VpsAvailabilityUnavailable>()
-        }
-
-    @Test
-    fun checkVpsAvailability_notAvailable_returnsVpsAvailabilityUnavailable() =
-        runTest(testDispatcher) {
-            val coordinates = Pair(10.0, 20.0)
-            underTest.state = Geospatial.State.RUNNING
-
-            var result = underTest.checkVpsAvailability(coordinates.first, coordinates.second)
-            assertThat(result).isInstanceOf<VpsAvailabilityUnavailable>()
-
-            underTest.vpsAvailabilityMap[coordinates] = false
-            result = underTest.checkVpsAvailability(coordinates.first, coordinates.second)
-            assertThat(result).isInstanceOf<VpsAvailabilityUnavailable>()
-        }
-
-    @Test
-    fun checkVpsAvailability_available_returnsVpsAvailabilityAvailable() =
-        runTest(testDispatcher) {
-            val coordinates = Pair(10.0, 20.0)
-            underTest.state = Geospatial.State.RUNNING
-            underTest.vpsAvailabilityMap[coordinates] = true
-
-            val result = underTest.checkVpsAvailability(coordinates.first, coordinates.second)
-            assertThat(result).isInstanceOf<VpsAvailabilityAvailable>()
         }
 }

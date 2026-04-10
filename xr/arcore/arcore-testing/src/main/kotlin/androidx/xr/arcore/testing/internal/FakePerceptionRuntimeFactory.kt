@@ -18,11 +18,15 @@ package androidx.xr.arcore.testing.internal
 
 import android.app.Activity
 import android.content.Context
+import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
 
 internal class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
+    companion object {
+        @JvmStatic var arCoreTestRule: ArCoreTestRule? = null
+    }
 
     override val requirements: Set<Feature> = emptySet()
 
@@ -36,6 +40,7 @@ internal class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
                 FakePerceptionManager(),
                 context as? Activity,
             )
+        arCoreTestRule?.registerWithRuntime(runtime)
         return runtime
     }
 }

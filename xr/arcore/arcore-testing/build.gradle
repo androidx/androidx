@@ -29,10 +29,12 @@ plugins {
 
 dependencies {
     api(project(":xr:runtime:runtime"))
+    api(project(":xr:arcore:arcore"))
     api(project(":xr:arcore:arcore-runtime"))
 
+    implementation(libs.junit)
+
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.junit)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
