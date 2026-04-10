@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
 
     <issue
         id="NewApi"
@@ -92,6 +92,15 @@
     </issue>
 
     <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="        val adaptiveLabel = if (isUnreachable) label.uppercase(getDefault()) else label"
+        errorLine2="                                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/samples/MediaQuerySamples.kt"/>
+    </issue>
+
+    <issue
         id="ComposableNaming"
         message="Composable functions that return Unit should start with an uppercase letter"
         errorLine1="fun approachLayoutSample() {"
@@ -116,15 +125,6 @@
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/ui/samples/LookaheadScopeSample.kt"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="    val drawable = LocalContext.current.getDrawable(R.drawable.sample_drawable)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/samples/AndroidViewSample.kt"/>
     </issue>
 
     <issue
@@ -170,6 +170,15 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/ui/samples/LookaheadScopeSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="AdaptivePaddingElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read AdaptivePaddingElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="    class AdaptivePaddingElement : ModifierNodeElement&lt;AdaptivePaddingNode>() {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/samples/MediaQuerySamples.kt"/>
     </issue>
 
 </issues>

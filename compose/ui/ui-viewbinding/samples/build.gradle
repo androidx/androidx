@@ -54,7 +54,7 @@ androidx {
     type = SoftwareType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Simple Unit Classes"
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
 }
 
 android {

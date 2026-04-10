@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        healthConnectClient.features.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) !="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalDataSourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalDataSourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        healthConnectClient.features.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) !="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalDataSourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalDataSourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        healthConnectClient.features.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) !="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalDataSourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalDataSourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        healthConnectClient.features.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) !="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalDataSourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalDataSourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        healthConnectClient.features.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) !="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        healthConnectClient.features.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) !="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        healthConnectClient.features.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) !="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        healthConnectClient.features.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) !="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        healthConnectClient.features.getFeatureStatus(FEATURE_PERSONAL_HEALTH_RECORD) !="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/MedicalResourceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        features.getFeatureStatus(HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND) =="
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/PermissionSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/PermissionSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        features.getFeatureStatus(HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY) =="
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/PermissionSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/PermissionSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="        features.getFeatureStatus(HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD) =="
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/PermissionSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="            HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/PermissionSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND, HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE, HealthConnectFeatures.FEATURE_PLANNED_EXERCISE, HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY, HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD, HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION, HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY, HealthConnectFeatures.FEATURE_EXTENDED_DEVICE_TYPES, HealthConnectFeatures.FEATURE_EXERCISE_SESSION_IMPROVEMENTS"
+        errorLine1="            HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/ReadRecordsSamples.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE, HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine1="        ) == HealthConnectFeatures.FEATURE_STATUS_AVAILABLE"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/samples/ReadRecordsSamples.kt"/>
+    </issue>
+
+</issues>

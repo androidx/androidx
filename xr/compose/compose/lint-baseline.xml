@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        context.decorView?.registeredScenes?.map {"
-        errorLine2="                                             ~~~">
-        <location
-            file="src/main/kotlin/androidx/xr/compose/platform/SceneManager.kt"/>
-    </issue>
+<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
 
     <issue
         id="ListIterator"
@@ -67,7 +58,7 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                            width = placeables.maxOf { it.measuredWidth },"
+        errorLine1="                            width = placeables.maxOf { it.width },"
         errorLine2="                                               ~~~~~">
         <location
             file="src/main/kotlin/androidx/xr/compose/spatial/Subspace.kt"/>
@@ -76,7 +67,7 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                            height = placeables.maxOf { it.measuredHeight },"
+        errorLine1="                            height = placeables.maxOf { it.height },"
         errorLine2="                                                ~~~~~">
         <location
             file="src/main/kotlin/androidx/xr/compose/spatial/Subspace.kt"/>
@@ -85,7 +76,7 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                            depth = placeables.maxOf { it.measuredDepth },"
+        errorLine1="                            depth = placeables.maxOf { it.depth },"
         errorLine2="                                               ~~~~~">
         <location
             file="src/main/kotlin/androidx/xr/compose/spatial/Subspace.kt"/>
@@ -103,7 +94,7 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        children.reversed().forEachIndexed { i, child ->"
+        errorLine1="        children.reversed().fastForEachIndexed { i, child ->"
         errorLine2="                 ~~~~~~~~">
         <location
             file="src/main/kotlin/androidx/xr/compose/subspace/node/SubspaceLayoutNode.kt"/>
@@ -112,26 +103,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        children.reversed().forEachIndexed { i, child ->"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/xr/compose/subspace/node/SubspaceLayoutNode.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        children.forEach { child -> child.attach(subspaceOwner) }"
-        errorLine2="                 ~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/xr/compose/subspace/node/SubspaceLayoutNode.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        ignoreMeasureRequests { children.forEach { child -> child.detach() } }"
-        errorLine2="                                         ~~~~~~~">
+        errorLine1="        coreEntity?.applyCoreEntityNodes(entityNodes.asSequence())"
+        errorLine2="                                                     ~~~~~~~~~~">
         <location
             file="src/main/kotlin/androidx/xr/compose/subspace/node/SubspaceLayoutNode.kt"/>
     </issue>
@@ -150,24 +123,6 @@
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="                            this@SubspaceLayoutNode.children.map { it.measurableLayout }.toList(),"
         errorLine2="                                                                                         ~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/xr/compose/subspace/node/SubspaceLayoutNode.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="    children.forEach { child -> append(child.debugTreeToString(depth + 1)) }"
-        errorLine2="             ~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/xr/compose/subspace/node/SubspaceLayoutNode.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="    children.forEach { child -> append(child.debugEntityTreeToString(nextDepth)) }"
-        errorLine2="             ~~~~~~~">
         <location
             file="src/main/kotlin/androidx/xr/compose/subspace/node/SubspaceLayoutNode.kt"/>
     </issue>
