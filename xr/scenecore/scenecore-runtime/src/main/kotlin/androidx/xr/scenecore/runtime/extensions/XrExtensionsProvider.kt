@@ -24,7 +24,7 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 /** Provides the OEM implementation of [XrExtensions]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used by XR Compose
 public object XrExtensionsProvider {
     private const val TAG = "XrExtensionsProvider"
 
