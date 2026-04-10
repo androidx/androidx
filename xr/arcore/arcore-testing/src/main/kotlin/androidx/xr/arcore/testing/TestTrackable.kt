@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.xr.arcore.testing.internal
+package androidx.xr.arcore.testing
 
-import androidx.xr.arcore.runtime.Hand as RuntimeHand
-import androidx.xr.arcore.runtime.HandJointType
-import androidx.xr.arcore.runtime.TrackingState
-import java.nio.ByteBuffer
-import java.nio.FloatBuffer
+/**
+ * Represents a real-world object in the user's environment that is not part of the user and which
+ * can be collected by ARCore, such as a `Plane` or `AugmentedObject`.
+ *
+ * @property isVisible indicates whether the trackable object is currently in view of the runtime
+ */
+public abstract class TestTrackable {
+    public abstract var isVisible: Boolean
 
-internal class FakeRuntimeHand(
-    override var trackingState: TrackingState = TrackingState.PAUSED,
-    override var handJointsBuffer: FloatBuffer = ByteBuffer.allocate(bufferSize).asFloatBuffer(),
-) : RuntimeHand {
+    internal val isAddedToTestRule: Boolean
+        get() = ::arCoreTestRule.isInitialized
 
-    companion object {
-        internal val bufferSize: Int = HandJointType.entries.size * 7 * Float.SIZE_BYTES
-    }
+    internal lateinit var arCoreTestRule: ArCoreTestRule
 }

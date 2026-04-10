@@ -26,7 +26,6 @@ import androidx.xr.arcore.runtime.Geospatial.GeospatialPoseResult
 import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
 import androidx.xr.arcore.runtime.VpsAvailabilityAvailable
 import androidx.xr.arcore.runtime.VpsAvailabilityResult
-import androidx.xr.arcore.runtime.VpsAvailabilityUnavailable
 import androidx.xr.runtime.math.GeospatialPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -35,16 +34,15 @@ internal class FakeRuntimeGeospatial(
     override var state: Geospatial.State = Geospatial.State.NOT_RUNNING
 ) : Geospatial {
 
-    val vpsAvailabilityMap: MutableMap<Pair<Double, Double>, Boolean> = mutableMapOf()
     var expectedPose: Pose = Pose()
     var expectedGeospatialPose: GeospatialPose = GeospatialPose(0.0, 0.0, 0.0, Quaternion.Identity)
     var expectedHorizontalAccuracy: Double = 0.0
     var expectedVerticalAccuracy: Double = 0.0
     var expectedOrientationYawAccuracy: Double = 0.0
     var expectedAnchorPose: Pose? = Pose()
-    var expectedVpsAvailabilityResult: VpsAvailabilityResult? = null
+    var expectedVpsAvailabilityResult: VpsAvailabilityResult = VpsAvailabilityAvailable()
 
-    internal var allowedAnchorLatitudeRange: ClosedFloatingPointRange<Double> = -90.0..90.0
+    internal var allowedAnchorLatitudeRange = -90.0..90.0
 
     override fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
         if (state == Geospatial.State.RUNNING) {
@@ -115,15 +113,6 @@ internal class FakeRuntimeGeospatial(
         longitude: Double,
     ): VpsAvailabilityResult {
         check(state == Geospatial.State.RUNNING)
-        if (expectedVpsAvailabilityResult != null) {
-            return expectedVpsAvailabilityResult!!
-        }
-        val location = Pair(latitude, longitude)
-        if (vpsAvailabilityMap.contains(location)) {
-            if (vpsAvailabilityMap[location]!!) {
-                return VpsAvailabilityAvailable()
-            }
-        }
-        return VpsAvailabilityUnavailable()
+        return expectedVpsAvailabilityResult
     }
 }

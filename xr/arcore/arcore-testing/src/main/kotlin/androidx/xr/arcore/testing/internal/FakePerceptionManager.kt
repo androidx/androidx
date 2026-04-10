@@ -18,17 +18,18 @@ package androidx.xr.arcore.testing.internal
 
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
-import androidx.xr.arcore.runtime.AnchorNotTrackingException
 import androidx.xr.arcore.runtime.HitResult
 import androidx.xr.arcore.runtime.PerceptionManager
 import androidx.xr.arcore.runtime.Trackable
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
+import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
@@ -95,18 +96,13 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     internal val anchors: MutableList<FakeRuntimeAnchor> = mutableListOf()
     internal var isCameraTracking: Boolean = true
 
-    private fun createAnchor(pose: Pose, anchorHolder: AnchorHolder): FakeRuntimeAnchor {
-        if (!isCameraTracking) {
-            throw AnchorNotTrackingException()
-        }
+    override fun createAnchor(pose: Pose): Anchor {
         // TODO: b/349862231 - Modify it once detach is implemented.
-        val anchor = FakeRuntimeAnchor(pose)
-        anchor.anchorHolder = anchorHolder
+        val anchor =
+            FakeRuntimeAnchor(pose, anchorHolder = this, isTrackingAvailable = isCameraTracking)
         anchors.add(anchor)
         return anchor
     }
-
-    override fun createAnchor(pose: Pose): Anchor = createAnchor(pose, this)
 
     override fun hitTest(ray: Ray): List<HitResult> {
         val results: MutableList<HitResult> = mutableListOf()
@@ -166,7 +162,14 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
         anchor.uuid?.let { persistedAnchorUUIDs.remove(it) }
     }
 
+    @OptIn(PreviewSpatialApi::class)
     internal fun updateTrackingStates(config: Config) {
+        fakeArDevice.trackingState =
+            when (config.deviceTracking) {
+                DeviceTrackingMode.SPATIAL_LAST_KNOWN -> TrackingState.TRACKING
+                DeviceTrackingMode.INERTIAL_LAST_KNOWN -> TrackingState.TRACKING_DEGRADED
+                else -> TrackingState.PAUSED
+            }
         if (config.planeTracking == PlaneTrackingMode.DISABLED) {
             trackables.filterIsInstance<FakeRuntimePlane>().forEach {
                 it.trackingState = TrackingState.STOPPED
