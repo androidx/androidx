@@ -35,7 +35,7 @@ dependencies {
     api(project(":xr:arcore:arcore"))
     api(project(":xr:runtime:runtime"))
     api(project(":xr:scenecore:scenecore-runtime"))
-    api("androidx.media3:media3-exoplayer:1.9.0-beta01")
+    api("androidx.media3:media3-exoplayer:1.10.0")
 
     implementation(project(":xr:scenecore:scenecore-spatial-core"))
     implementation(project(":xr:scenecore:scenecore-spatial-rendering"))
