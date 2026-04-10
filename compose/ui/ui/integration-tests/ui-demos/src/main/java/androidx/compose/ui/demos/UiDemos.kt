@@ -25,6 +25,7 @@ import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.ui.demos.accessibility.AccessibilityClippingDemo
 import androidx.compose.ui.demos.accessibility.AccessibilityShapeOffscreenDemo
+import androidx.compose.ui.demos.accessibility.AccessibilitySiblingBoundsDemo
 import androidx.compose.ui.demos.accessibility.LinearProgressIndicatorDemo
 import androidx.compose.ui.demos.accessibility.NestedContainersFalseDemo
 import androidx.compose.ui.demos.accessibility.NestedContainersTrueDemo
@@ -345,6 +346,7 @@ val AccessibilityDemos =
             ComposableDemo("Scrolling Tooltip scene") { SampleScrollingTooltipScreen() },
             ComposableDemo("Accessibility Shapes") { AccessibilityShapeOffscreenDemo() },
             ComposableDemo("Accessibility Clipping Demo") { AccessibilityClippingDemo() },
+            ComposableDemo("Accessibility Sibling Bounds Demo") { AccessibilitySiblingBoundsDemo() },
         ),
     )
 
