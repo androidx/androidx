@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -34,6 +36,7 @@ import androidx.xr.scenecore.runtime.impl.BaseScenePose
  *
  * @see androidx.xr.scenecore.runtime.ScenePose
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakeScenePose : BaseScenePose() {
     /** Returns the pose for this entity, relative to the activity space root. */

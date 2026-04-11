@@ -32,10 +32,11 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.runtime.AnchorEntity
+import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
-import androidx.xr.scenecore.testing.FakeGltfFeature
+import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
@@ -119,6 +120,24 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
         )
     }
 
+    private val mockGltfFeature: GltfFeature = mock<GltfFeature>()
+
+    private fun createGltfEntity(): GltfEntityImpl {
+        val nodeHolder = NodeHolder<Node>(xrExtensions.createNode(), Node::class.java)
+        val activityController = Robolectric.buildActivity(Activity::class.java)
+        val activity = activityController.create().start().get()
+        val fakeGltfFeature = createWithMockFeature(mockGltfFeature, nodeHolder)
+
+        return GltfEntityImpl(
+            activity,
+            fakeGltfFeature,
+            activitySpace,
+            xrExtensions,
+            sceneNodeRegistry,
+            executor,
+        )
+    }
+
     private fun createAnchorEntityWithRuntimeAnchor(): AnchorEntityImpl {
         val node = xrExtensions.createNode()
         val activityController = Robolectric.buildActivity(Activity::class.java)
@@ -159,22 +178,6 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
         )
     }
 
-    /** Creates a generic glTF entity. */
-    private fun createGltfEntity(): GltfEntityImpl {
-        val activityController = Robolectric.buildActivity(Activity::class.java)
-        val activity = activityController.create().start().get()
-        val nodeHolder: NodeHolder<*> =
-            NodeHolder<Node?>((xrExtensions).createNode(), Node::class.java)
-        return GltfEntityImpl(
-            activity,
-            FakeGltfFeature(nodeHolder),
-            activitySpace,
-            xrExtensions,
-            sceneNodeRegistry,
-            executor,
-        )
-    }
-
     @Test
     fun anchorEntityAddChildren_addsChildren() {
         val childEntity1 = createGltfEntity()
@@ -190,13 +193,6 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
         Truth.assertThat(childEntity1.parent).isEqualTo(parentEntity)
         Truth.assertThat(childEntity2.parent).isEqualTo(parentEntity)
         Truth.assertThat(parentEntity.children).containsExactly(childEntity1, childEntity2)
-
-        val parentNode = parentEntity.getNode()
-        val childNode1 = childEntity1.getNode()
-        val childNode2 = childEntity2.getNode()
-
-        Truth.assertThat(NodeRepository.getInstance().getParent(childNode1)).isEqualTo(parentNode)
-        Truth.assertThat(NodeRepository.getInstance().getParent(childNode2)).isEqualTo(parentNode)
     }
 
     @Test

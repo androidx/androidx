@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -21,6 +23,7 @@ import androidx.xr.scenecore.runtime.Component
 import androidx.xr.scenecore.runtime.Entity
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.Component] */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakeComponent : Component {
     /**

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -22,6 +24,7 @@ import androidx.xr.scenecore.runtime.SpatialEnvironment.SpatialEnvironmentPrefer
 import androidx.xr.scenecore.runtime.SpatialEnvironmentFeature
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.SpatialEnvironmentFeature]. */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSpatialEnvironmentFeature :
     FakeBaseRenderingFeature(NodeHolder<FakeNode>(object : FakeNode {}, FakeNode::class.java)),

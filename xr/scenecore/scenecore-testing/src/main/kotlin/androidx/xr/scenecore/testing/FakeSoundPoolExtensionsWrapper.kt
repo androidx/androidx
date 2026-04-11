@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.media.SoundPool
@@ -25,6 +27,7 @@ import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper
 import androidx.xr.scenecore.runtime.SpatializerConstants
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper] */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
 

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.runtime.impl
 
 import androidx.xr.runtime.math.Matrix4

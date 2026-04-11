@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -38,6 +40,7 @@ import java.util.concurrent.Executor
  *
  * @see androidx.xr.scenecore.runtime.Entity
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakeEntity(public val name: String = "") : FakeScenePose(), Entity {
 

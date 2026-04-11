@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.content.Context
@@ -23,6 +25,7 @@ import androidx.media3.exoplayer.audio.AudioTrackAudioOutputProvider
 import androidx.xr.scenecore.runtime.SoundFieldAudioComponent
 
 /** Test-only implementation of [SoundFieldAudioComponent]. */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSoundFieldAudioComponent(private val context: Context) :
     FakeComponent(), SoundFieldAudioComponent {

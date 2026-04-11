@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -23,6 +25,7 @@ import androidx.xr.scenecore.runtime.SpatialPointerIcon
 import androidx.xr.scenecore.runtime.SpatialPointerIconType
 
 /** Test-only implementation of [FakeSpatialPointerComponent] */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSpatialPointerComponent : FakeComponent(), SpatialPointerComponent {
 

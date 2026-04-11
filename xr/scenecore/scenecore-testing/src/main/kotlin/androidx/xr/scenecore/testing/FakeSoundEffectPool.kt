@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.content.Context
@@ -24,6 +26,7 @@ import androidx.xr.scenecore.runtime.SoundEffectPool
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [SoundEffectPool]. */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSoundEffectPool : SoundEffectPool {
     public var loadedResId: Int? = null

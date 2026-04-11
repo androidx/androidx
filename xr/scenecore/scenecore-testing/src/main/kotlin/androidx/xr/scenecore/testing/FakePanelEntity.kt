@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.content.Context
@@ -31,6 +33,7 @@ import androidx.xr.scenecore.runtime.ScenePose
 import kotlin.math.roundToInt
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.PanelEntity] */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakePanelEntity(public val view: View? = null, name: String = "") :
     FakeEntity(name), PanelEntity {

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -36,6 +38,7 @@ import androidx.xr.scenecore.runtime.PlaneType
  * When an entity is successfully anchored, its pose is adjusted so that its local Z-axis aligns
  * with the plane's normal vector (i.e., it sits flat against the surface).
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeAnchorPlacement
 internal constructor(

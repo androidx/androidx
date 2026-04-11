@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.content.Context
@@ -24,6 +26,7 @@ import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.PositionalAudioComponent
 
 /** Test-only implementation of [PositionalAudioComponent]. */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakePositionalAudioComponent(
     internal val context: Context,

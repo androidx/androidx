@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.graphics.ImageFormat
@@ -40,6 +42,7 @@ import androidx.xr.scenecore.runtime.TextureResource
  * can render stereoscopic content into the Surface and specify how it is routed to the User's eyes
  * for stereo viewing using the [stereoMode] property.
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSurfaceEntity(private val feature: SurfaceFeature? = null) :
     FakeEntity(), SurfaceEntity {
