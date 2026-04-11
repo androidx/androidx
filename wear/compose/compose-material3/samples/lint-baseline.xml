@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha13" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-alpha13)" variant="all" version="9.0.0-alpha13">
+<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
 
     <issue
         id="NewApi"
@@ -571,26 +571,8 @@
     <issue
         id="AutoboxingStateValueProperty"
         message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
-        errorLine1="                number.value -= 1"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
         errorLine1="            text = &quot;${number.value}&quot;,"
         errorLine2="                             ~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
-        errorLine1="                number.value += 1"
-        errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
     </issue>

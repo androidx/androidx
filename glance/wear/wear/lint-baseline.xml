@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (9.1.0-alpha06)" variant="all" version="9.1.0-alpha06">
+<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
 
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        getActiveWidgets().filter { it.provider.className == clazz.java.name }"
-        errorLine2="                           ~~~~~~">
+        errorLine1="        return fetchActiveWidgets().filter {"
+        errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/glance/wear/GlanceWearWidgetManager.kt"/>
     </issue>
@@ -13,8 +13,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        return widgets.map { instance ->"
-        errorLine2="                       ~~~">
+        errorLine1="                    result.map { instance ->"
+        errorLine2="                           ~~~">
         <location
             file="src/main/java/androidx/glance/wear/GlanceWearWidgetManager.kt"/>
     </issue>

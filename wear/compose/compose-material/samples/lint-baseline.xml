@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
-
-    <issue
-        id="ComposeTestRuleDispatcher"
-        message="`TestDispatcher` is required. Add `effectContext = StandardTestDispatcher()` to control coroutine execution."
-        errorLine1="    @get:Rule val rule = createComposeRule()"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/kotlin/androidx/wear/compose/material/samples/PickerSampleTest.kt"/>
-    </issue>
+<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
 
     <issue
         id="AutoboxingStateCreation"

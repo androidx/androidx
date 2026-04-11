@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
 
     <issue
         id="BanThreadSleep"
@@ -1283,24 +1283,6 @@
         id="ExceptionMessage"
         message="Please specify a lazyMessage param for require"
         errorLine1="        require(phase1HeightMin >= 0.dp)"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/main/java/com/android/mechanics/effects/VerticalTactileSurfaceRevealEffect.kt"/>
-    </issue>
-
-    <issue
-        id="ExceptionMessage"
-        message="Please specify a lazyMessage param for require"
-        errorLine1="        require(phase1HeightMin >= 0.dp)"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/main/java/com/android/mechanics/effects/VerticalTactileSurfaceRevealEffect.kt"/>
-    </issue>
-
-    <issue
-        id="ExceptionMessage"
-        message="Please specify a lazyMessage param for require"
-        errorLine1="        require(phase2HeightPercentStart in 0f..1f)"
         errorLine2="        ~~~~~~~">
         <location
             file="src/main/java/com/android/mechanics/effects/VerticalTactileSurfaceRevealEffect.kt"/>
