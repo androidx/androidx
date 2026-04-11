@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -24,6 +26,7 @@ import androidx.xr.scenecore.runtime.SoundEffectPoolComponent
 import androidx.xr.scenecore.runtime.Stream
 
 /** Test-only implementation of [SoundEffectPoolComponent]. */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSoundEffectPoolComponent : FakeComponent(), SoundEffectPoolComponent {
     public var lastPlayedSoundEffect: SoundEffect? = null

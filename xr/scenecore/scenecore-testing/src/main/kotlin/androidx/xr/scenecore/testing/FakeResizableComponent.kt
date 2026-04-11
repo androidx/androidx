@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -23,8 +25,10 @@ import androidx.xr.scenecore.runtime.ResizableComponent
 import androidx.xr.scenecore.runtime.ResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEventListener
 import java.util.concurrent.Executor
+import kotlin.collections.iterator
 
 /** Fake implementation of [androidx.xr.scenecore.runtime.ResizableComponent] for testing. */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeResizableComponent(
     override var size: Dimensions = Dimensions(2.0f, 2.0f, 2.0f),

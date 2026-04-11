@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -26,6 +28,7 @@ import androidx.xr.scenecore.runtime.MoveEventListener
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MovableComponent] */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeMovableComponent : FakeComponent(), MovableComponent {
 

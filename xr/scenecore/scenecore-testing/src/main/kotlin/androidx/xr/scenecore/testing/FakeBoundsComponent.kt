@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("BanConcurrentHashMap")
+@file:Suppress("BanConcurrentHashMap", "DEPRECATION")
 
 package androidx.xr.scenecore.testing
 
@@ -28,6 +28,7 @@ import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /** Test-only implementation of [BoundsComponent] */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeBoundsComponent : FakeComponent(), BoundsComponent {
     public var entity: GltfEntity? = null

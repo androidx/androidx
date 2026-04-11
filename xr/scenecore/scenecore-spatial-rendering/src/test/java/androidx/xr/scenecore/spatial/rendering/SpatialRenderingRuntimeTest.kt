@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.spatial.rendering
 
 import android.app.Activity
@@ -35,7 +37,8 @@ import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.TextureResource
-import androidx.xr.scenecore.testing.FakeSceneRuntime
+import androidx.xr.scenecore.spatial.core.SceneNodeRegistry
+import androidx.xr.scenecore.spatial.core.SpatialSceneRuntime
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import androidx.xr.scenecore.testing.FakeXrExtensionsHolderProvider
 import com.android.extensions.xr.ShadowXrExtensions
@@ -101,10 +104,10 @@ class SpatialRenderingRuntimeTest {
         activity.setContentView(FrameLayout(activity))
         ShadowXrExtensions.extract(xrExtensions)
             .setOpenXrWorldSpaceType(OPEN_XR_REFERENCE_SPACE_TYPE)
-        val fakeSceneRuntime = FakeSceneRuntime(fakeExecutor)
-        sceneRuntime = fakeSceneRuntime
+        sceneRuntime =
+            SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions, SceneNodeRegistry())
 
-        assertThat(fakeSceneRuntime).isNotNull()
+        assertThat(sceneRuntime).isNotNull()
 
         spatialRenderingRuntime =
             SpatialRenderingRuntime.create(

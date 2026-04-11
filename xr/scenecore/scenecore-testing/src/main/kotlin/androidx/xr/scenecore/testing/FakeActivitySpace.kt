@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -33,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference
  * A test double for [androidx.xr.scenecore.runtime.ActivitySpace], designed for use in unit or
  * integration tests.
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeActivitySpace() : FakeSystemSpaceEntity(), ActivitySpace {
     @RestrictTo(RestrictTo.Scope.LIBRARY)

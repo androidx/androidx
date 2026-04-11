@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -31,6 +33,7 @@ import java.util.function.Consumer
  * visibility by enabling or disabling passthrough. The skybox and geometry will be remembered
  * across passthrough mode changes.
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSpatialEnvironment : SpatialEnvironment, SpatialEnvironmentExt {
     private var _currentPassthroughOpacity: Float = 0.0f

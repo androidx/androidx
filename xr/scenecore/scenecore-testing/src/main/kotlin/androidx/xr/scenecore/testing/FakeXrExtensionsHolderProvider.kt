@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -28,6 +30,7 @@ import androidx.xr.scenecore.testing.FakeXrExtensionsHolderProvider.Companion.fa
  * This class allows tests to provide custom [XrExtensionsHolder] instances to simulate different XR
  * extension availability.
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeXrExtensionsHolderProvider : XrExtensionsHolderProvider {
     /** Returns the [fakeHolder] if both [fakeHolder] and [fakeHolderLegacy] is set. */

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.media.MediaPlayer
@@ -24,6 +26,7 @@ import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundFieldAttributes
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper] */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeMediaPlayerExtensionsWrapper : MediaPlayerExtensionsWrapper {
     private var _paramsWithEntity: MutableMap<MediaPlayer, Pair<PointSourceParams, Entity>> =

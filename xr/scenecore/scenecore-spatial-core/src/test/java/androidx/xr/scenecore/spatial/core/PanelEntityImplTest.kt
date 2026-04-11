@@ -27,9 +27,9 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PerceivedResolutionResult
 import androidx.xr.scenecore.runtime.PixelDimensions
+import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
-import androidx.xr.scenecore.testing.FakeScenePose
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
@@ -40,6 +40,8 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -58,7 +60,7 @@ class PanelEntityImplTest {
     private val nodeRepository: NodeRepository = NodeRepository.getInstance()
     private val pixelDimensions = PixelDimensions(2000, 1000)
     private lateinit var sceneRuntime: SpatialSceneRuntime
-    private var renderViewScenePose: FakeScenePose = FakeScenePose()
+    private val renderViewScenePose: ScenePose = mock(ScenePose::class.java)
     private lateinit var renderViewFov: FieldOfView
 
     @Before
@@ -68,7 +70,8 @@ class PanelEntityImplTest {
         RuntimeEnvironment.setQualifiers(widthAndHeightConfig)
         sceneRuntime =
             SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions!!, sceneNodeRegistry)
-        renderViewScenePose.activitySpacePose = Pose(Vector3(0f, 0f, 0f), Quaternion.Identity)
+        `when`(renderViewScenePose.activitySpacePose)
+            .thenReturn(Pose(Vector3(0f, 0f, 0f), Quaternion.Identity))
         renderViewFov =
             FieldOfView(
                 atan(1.0).toFloat(),

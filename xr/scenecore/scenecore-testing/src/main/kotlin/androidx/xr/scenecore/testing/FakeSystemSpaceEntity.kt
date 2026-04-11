@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -26,6 +28,7 @@ import java.util.concurrent.Executor
  * A test double for [androidx.xr.scenecore.runtime.SystemSpaceEntity], designed for use in unit or
  * integration tests.
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakeSystemSpaceEntity() : FakeEntity(), SystemSpaceEntity {
 

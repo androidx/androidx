@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.app.Activity
@@ -67,6 +69,7 @@ import java.util.function.Consumer
  *
  * @param executor This used to input [executor] for tests.
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSceneRuntime(public val executor: Executor? = null) :
     SceneRuntime, RenderingEntityFactory {

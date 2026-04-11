@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -24,6 +26,7 @@ import androidx.xr.scenecore.runtime.Resource
 import androidx.xr.scenecore.runtime.TextureResource
 
 /** Fake implementation of [androidx.xr.scenecore.runtime.Resource] for testing. */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class FakeResource(internal val token: Long = 0) :
     Resource, ExrImageResource, GltfModelResource, TextureResource, MaterialResource {}

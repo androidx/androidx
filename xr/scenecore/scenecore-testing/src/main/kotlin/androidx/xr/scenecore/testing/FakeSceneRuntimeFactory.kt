@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import android.app.Activity
@@ -22,6 +24,7 @@ import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.SceneRuntimeFactory
 
 /** Factory for creating test-only instances of [androidx.xr.scenecore.runtime.SceneRuntime]. */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSceneRuntimeFactory : SceneRuntimeFactory {
     override val requirements: Set<Feature> = emptySet()

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -48,6 +50,7 @@ import java.nio.ByteBuffer
  *   [androidx.xr.scenecore.runtime.SceneRuntime] instance, which must also implement
  *   [androidx.xr.scenecore.runtime.RenderingEntityFactory].
  */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeRenderingRuntime(
     private val sceneRuntime: SceneRuntime,
@@ -124,7 +127,7 @@ public class FakeRenderingRuntime(
      * For test purposes only.
      *
      * A fake implementation of [androidx.xr.scenecore.runtime.MaterialResource] used to simulate a
-     * water material within the test senvironment.
+     * water material within the test environment.
      *
      * <p>Instances of this class are created by [createWaterMaterial] and can be accessed for
      * verification via the [createdWaterMaterials] list. Tests can inspect the public properties of
@@ -134,6 +137,7 @@ public class FakeRenderingRuntime(
      * @param isAlphaMapVersion The value provided during creation, indicating which version of the
      *   water material was requested.
      */
+    @Deprecated("Use SceneCoreTestRule instead.")
     public class FakeWaterMaterial(public val isAlphaMapVersion: Boolean) : MaterialResource {
         public var reflectionMap: TextureResource? = null
         public var reflectionMapSampler: TextureSampler? = null
@@ -172,6 +176,7 @@ public class FakeRenderingRuntime(
      * @param spec The [androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec] provided during
      *   creation, which defines the initial configuration of the material.
      */
+    @Deprecated("Use SceneCoreTestRule instead.")
     public class FakeKhronosPbrMaterial(public val spec: KhronosPbrMaterialSpec) :
         MaterialResource {
         public var baseColorTexture: TextureResource? = null
@@ -602,9 +607,9 @@ public class FakeRenderingRuntime(
 
     /**
      * The current state of the adapter will transition based on the lifecycle of the adapter. It
-     * starts off as [State.CREATED] and transitions to [State.STARTED] when startRenderer is
-     * called. When stopRenderer is called, it transitions to [State.PAUSED]. When dispose is
-     * called, it transitions to [State.DESTROYED].
+     * starts off as [State.CREATED] and transitions to [State.STARTED] when [resume] is called.
+     * When [pause] is called, it transitions to [State.PAUSED]. When [destroy] is called, it
+     * transitions to [State.DESTROYED].
      */
     public val state: Enum<State>
         get() = _state

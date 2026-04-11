@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
@@ -23,6 +25,7 @@ import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MeshEntity] */
+@Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakeMeshEntity(private val feature: MeshFeature? = null) :
     FakeEntity(), MeshEntity {
