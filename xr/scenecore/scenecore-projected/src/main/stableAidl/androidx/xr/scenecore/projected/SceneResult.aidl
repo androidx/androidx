@@ -16,17 +16,13 @@
 
 package androidx.xr.scenecore.projected;
 
-import androidx.xr.scenecore.projected.IProjectedNode;
-import androidx.xr.scenecore.projected.ISceneResultCallback;
-import androidx.xr.scenecore.projected.ISpatialStateChangedCallback;
-import androidx.xr.scenecore.projected.ProjectedNodeTransaction;
-import java.util.List;
-
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
-interface IProjectedSceneCoreService {
-  IProjectedNode createNode();
-  oneway void attachSpatialScene(IProjectedNode sceneNode, ISceneResultCallback resultCallback);
-  oneway void setSpatialStateChangedCallback(ISpatialStateChangedCallback callback);
-  oneway void clearSpatialStateChangedCallback();
-  oneway void applyNodeTransactions(in List<ProjectedNodeTransaction> transactions);
+parcelable SceneResult {
+    @Backing(type="int")
+    enum ResultType {
+        SUCCESS = 0,
+        ERROR_NOT_ALLOWED = 1,
+        ERROR_SYSTEM = 2,
+    }
+    ResultType result;
 }

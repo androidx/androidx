@@ -33,10 +33,11 @@
 
 package androidx.xr.scenecore.projected;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
-interface IProjectedSceneCoreService {
-  androidx.xr.scenecore.projected.IProjectedNode createNode();
-  oneway void attachSpatialScene(androidx.xr.scenecore.projected.IProjectedNode sceneNode, androidx.xr.scenecore.projected.ISceneResultCallback resultCallback);
-  oneway void setSpatialStateChangedCallback(androidx.xr.scenecore.projected.ISpatialStateChangedCallback callback);
-  oneway void clearSpatialStateChangedCallback();
-  oneway void applyNodeTransactions(in List<androidx.xr.scenecore.projected.ProjectedNodeTransaction> transactions);
+parcelable SpatialState {
+  float[] updatedTransform;
+  androidx.xr.scenecore.projected.SpatialState.SpatialCapability[] capabilities;
+  @Backing(type="int")
+  enum SpatialCapability {
+    SPATIAL_AUDIO_CAPABLE = 4,
+  }
 }

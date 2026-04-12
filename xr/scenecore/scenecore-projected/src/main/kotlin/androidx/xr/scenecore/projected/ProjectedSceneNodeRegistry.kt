@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.spatial.core
+package androidx.xr.scenecore.projected
 
 import androidx.annotation.RestrictTo
-import androidx.xr.scenecore.runtime.Entity
-import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.impl.BaseSceneNodeRegistry
-import com.android.extensions.xr.node.Node
 
-/** Manages the mapping from [Node]s to [Entity] and [ScenePose]s. */
-@RestrictTo(
-    RestrictTo.Scope.LIBRARY_GROUP
-) // TODO(b/452961674): Review RestrictTo annotations in SceneCore.
-public class SceneNodeRegistry : BaseSceneNodeRegistry<Node>()
+/** Manages the mapping between [IProjectedNode] and [androidx.xr.scenecore.runtime.Entity]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ProjectedSceneNodeRegistry : BaseSceneNodeRegistry<IProjectedNode>()
