@@ -574,7 +574,7 @@ internal inline fun CharSequence.forStyleRuns(
 }
 
 /**
- * Executes a block of code with a temporary [Paint.VERTICAL_TEXT_FLAG] flag
+ * Executes a block of code with a temporary [Paint.VERTICAL_TEXT_FLAG] flag.
  *
  * @param isVertical True to add the flag, false to remove it.
  * @param block A lambda to execute with the modified paint.
