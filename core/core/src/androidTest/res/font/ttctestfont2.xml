@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<font-family xmlns:app="http://schemas.android.com/apk/res-auto">
-    <font app:font="@font/sample_font_collection" app:ttcIndex="1" />
-</font-family>

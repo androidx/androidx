@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedTypeAlias: androidx.compose.ui.viewinterop.InteropView:
-    Source breaking change: Removed typealias androidx.compose.ui.viewinterop.InteropView

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<lint>
-    <!-- Developers need to call our code from Kotlin code, so nullness is important.-->
-    <issue id="UnknownNullness" severity="fatal" />
-</lint>

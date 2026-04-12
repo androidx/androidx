@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="projected_continue_button" msgid="5174264446308284863">"ရှေ့ဆက်ရန်"</string>
-    <string name="projected_cancel_button" msgid="6228792819175860740">"မလုပ်တော့"</string>
-    <string name="go_to_host_projected_activity_text" msgid="3196940006467730617">"သင့်ဆာဗာပင်ရင်းစက်တွင် ခွင့်ပြုချက်တောင်းဆိုမှုကို ကြည့်ပါ"</string>
-    <string name="request_permission_on_host_activity_label" msgid="5230501762635229968">"ခွင့်ပြုချက်တောင်းဆိုမှု"</string>
-</resources>

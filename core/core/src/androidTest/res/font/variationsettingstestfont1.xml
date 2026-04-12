@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<font-family xmlns:app="http://schemas.android.com/apk/res-auto">
-    <font app:font="@font/variable_width_dash_font" app:fontVariationSettings="'wdth' 100.0" />
-</font-family>

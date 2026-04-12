@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedPackage: androidx.concurrent.futures:
-    Binary breaking change: Removed package androidx.concurrent.futures

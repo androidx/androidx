@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<lint>
-  <!-- Ignore any API restrictions in the test app to facilitate testing prior to API publication. -->
-  <issue id="RestrictedApiAndroidX" severity="ignore"/>
-</lint>

@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-BecameUnchecked: androidx.car.app.hardware.common:
-    Removed package androidx.car.app.hardware.common from compatibility checked API surface

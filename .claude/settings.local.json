@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./studiow :text:,:media: --dry-run)",
+      "Bash(ls:*)",
+      "Bash(PROJECT_PREFIX=\":text:,:media:\" ./gradlew projects --no-configuration-cache)",
+      "Bash(xargs git:*)",
+      "Bash(git restore:*)"
+    ]
+  }
+}

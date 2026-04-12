@@ -1,2 +1,0 @@
-# C Interop definition to statically link androidx's compiled SQLite for Linux tests.
-# Static library and path for SQLite is added by AndroidX Multiplatform plugin.

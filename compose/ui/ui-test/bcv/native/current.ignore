@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-[linuxX64]: Removed declaration panEnd() from androidx.compose.ui.test/TrackpadInjectionScope
-[linuxX64]: Removed declaration scaleEnd() from androidx.compose.ui.test/TrackpadInjectionScope
-[linuxX64]: Added declaration panEnd(kotlin/Long) to androidx.compose.ui.test/TrackpadInjectionScope
-[linuxX64]: Added declaration scaleEnd(kotlin/Long) to androidx.compose.ui.test/TrackpadInjectionScope

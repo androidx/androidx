@@ -1,9 +1,0 @@
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/txtview"
-    android:layout_width="200dip"
-    android:layout_height="60dip"
-    android:textIsSelectable="true"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-/>

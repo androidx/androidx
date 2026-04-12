@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-AsyncSuffixFuture: androidx.wear.tiles.TileService#onTileRequest(androidx.wear.tiles.RequestBuilders.TileRequest):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-
-
-InvalidNullabilityOverride: androidx.wear.tiles.TileService#onBind(android.content.Intent) parameter #0:
-    Invalid nullability on type android.content.Intent in parameter `intent` in method `onBind`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.

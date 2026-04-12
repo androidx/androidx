@@ -1,6 +1,0 @@
-LIBANDROIDX.GRAPHICS.PATH {
-    global:
-        JNI_OnLoad;
-    local:
-        *;
-};

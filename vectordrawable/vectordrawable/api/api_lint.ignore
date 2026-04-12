@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#onBoundsChange(android.graphics.Rect) parameter #0:
-    Missing nullability on parameter `bounds` in method `onBoundsChange`
-MissingNullability: androidx.vectordrawable.graphics.drawable.VectorDrawableCompat#onStateChange(int[]) parameter #0:
-    Missing nullability on parameter `stateSet` in method `onStateChange`

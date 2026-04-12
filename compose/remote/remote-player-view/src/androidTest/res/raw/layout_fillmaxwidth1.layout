@@ -1,5 +1,0 @@
-ROOT [-2:-1] = [0.0, 0.0, 1000.0, 1000.0] VISIBLE
-  BOX [-3:-1] = [0.0, 0.0, 1000.0, 100.0] VISIBLE
-    MODIFIERS
-      HEIGHT = 100.0
-      BACKGROUND = [0.0, 0.0, 1000.0, 100.0] color [1.0, 0.0, 0.0, 1.0] shape [0]

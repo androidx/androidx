@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-GetterSetterNames: androidx.wear.watchface.complications.datasource.ComplicationRequest#immediateResponseRequired:
-    Invalid name for boolean property `immediateResponseRequired`. Should start with one of `has`, `can`, `should`, `is`.
-
-
-InvalidNullabilityOverride: androidx.wear.watchface.complications.datasource.ComplicationDataSourceService#onBind(android.content.Intent) parameter #0:
-    Invalid nullability on type android.content.Intent in parameter `intent` in method `onBind`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.

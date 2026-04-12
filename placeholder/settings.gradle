@@ -1,6 +1,0 @@
-apply from: "../buildSrc/settingsScripts/out-setup.groovy"
-getGradle().beforeProject { project ->
-    init.chooseBuildDirectory(
-            new File("${buildscript.sourceFile.parent}/../../.."), rootProject.name, project
-    )
-}

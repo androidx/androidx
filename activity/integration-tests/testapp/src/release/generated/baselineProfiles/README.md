@@ -1,1 +1,0 @@
-# Do not remove. Placeholder for Gradle not to invalidate configuration cache. See b/444187595

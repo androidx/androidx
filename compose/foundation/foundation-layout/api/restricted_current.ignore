@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.compose.foundation.layout.PaddingValues.Absolute#Absolute():
-    Binary breaking change: Removed constructor androidx.compose.foundation.layout.PaddingValues.Absolute()

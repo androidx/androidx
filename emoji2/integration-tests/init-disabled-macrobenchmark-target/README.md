@@ -1,2 +1,0 @@
-A simple app with emoji2 startup initializer removed.
-

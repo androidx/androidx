@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-StaticFinalBuilder: androidx.biometric.BiometricPrompt.PromptInfo.Builder:
-    Builder must be final: androidx.biometric.BiometricPrompt.PromptInfo.Builder

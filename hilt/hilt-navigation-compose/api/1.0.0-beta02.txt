@@ -1,9 +1,0 @@
-// Signature format: 4.0
-package androidx.hilt.navigation.compose {
-
-  public final class HiltViewModelKt {
-    method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! hiltViewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner);
-  }
-
-}
-

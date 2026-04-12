@@ -1,2 +1,0 @@
-# Baseline profile rules for androidx.tv.tv-foundation
-# =====================================================

@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.compose.material.RippleConfiguration#RippleConfiguration():
-    Binary breaking change: Removed constructor androidx.compose.material.RippleConfiguration()

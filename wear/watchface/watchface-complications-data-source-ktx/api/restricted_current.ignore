@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedPackage: androidx.wear.watchface.complications.datasource:
-    Binary breaking change: Removed package androidx.wear.watchface.complications.datasource

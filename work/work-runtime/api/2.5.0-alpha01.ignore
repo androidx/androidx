@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedAbstractMethod: androidx.work.WorkManager#getWorkManagerRemote():
-    Added method androidx.work.WorkManager.getWorkManagerRemote()

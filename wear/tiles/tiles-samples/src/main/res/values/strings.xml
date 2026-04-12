@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">Tiles AX samples</string>
-    <string name="app_message">Open your Playground tile made in AndroidX :)</string>
-    <string name="tile_label">AX Playground tile</string>
-</resources>
