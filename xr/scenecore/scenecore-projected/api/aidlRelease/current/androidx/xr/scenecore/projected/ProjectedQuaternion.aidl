@@ -33,10 +33,9 @@
 
 package androidx.xr.scenecore.projected;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
-interface IProjectedSceneCoreService {
-  androidx.xr.scenecore.projected.IProjectedNode createNode();
-  oneway void attachSpatialScene(androidx.xr.scenecore.projected.IProjectedNode sceneNode, androidx.xr.scenecore.projected.ISceneResultCallback resultCallback);
-  oneway void setSpatialStateChangedCallback(androidx.xr.scenecore.projected.ISpatialStateChangedCallback callback);
-  oneway void clearSpatialStateChangedCallback();
-  oneway void applyNodeTransactions(in List<androidx.xr.scenecore.projected.ProjectedNodeTransaction> transactions);
+parcelable ProjectedQuaternion {
+  float x;
+  float y;
+  float z;
+  float w;
 }
