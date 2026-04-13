@@ -97,7 +97,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
         mContext = Preconditions.checkNotNull(context);
-        mFeatures = new FeaturesImpl(mContext);
+        mFeatures = new FeaturesImpl(mContext, /* isForEnterprise= */ false);
         mAdapter = adapter;
     }
 

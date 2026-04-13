@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
+import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.RequiresFeature;
@@ -34,8 +35,11 @@ import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.testutil.AppSearchTestUtils;
+import androidx.appsearch.testutil.TestObserverCallback;
 import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -45,8 +49,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 public abstract class EnterpriseGlobalSearchSessionCtsTestBase {
+    private static final Executor EXECUTOR = Executors.newCachedThreadPool();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+
     @Rule
     public final RuleChain mRuleChain = AppSearchTestUtils.createCommonTestRules();
 
@@ -88,5 +98,28 @@ public abstract class EnterpriseGlobalSearchSessionCtsTestBase {
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> createEnterpriseGlobalSearchSessionAsync().get());
+    }
+
+    @Test
+    public void testAddObserver_notSupported() throws Exception {
+        assumeTrue(getFeatures().isFeatureSupported(Features.ENTERPRISE_GLOBAL_SEARCH_SESSION));
+        EnterpriseGlobalSearchSession enterpriseGlobalSearchSession =
+                createEnterpriseGlobalSearchSessionAsync().get();
+
+        // EnterpriseGlobalSearchSession#getFeatures to get an enterprise Features object
+        assumeFalse(enterpriseGlobalSearchSession.getFeatures()
+                .isFeatureSupported(
+                        Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK));
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> enterpriseGlobalSearchSession.registerObserverCallback(
+                        mContext.getPackageName(),
+                        new ObserverSpec.Builder().build(),
+                        EXECUTOR,
+                        new TestObserverCallback()));
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> enterpriseGlobalSearchSession.unregisterObserverCallback(
+                        mContext.getPackageName(), new TestObserverCallback()));
     }
 }
