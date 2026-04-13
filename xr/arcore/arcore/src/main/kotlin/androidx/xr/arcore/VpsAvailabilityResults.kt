@@ -75,6 +75,11 @@ public class VpsAvailabilityUnavailable() : VpsAvailabilityResult() {
     internal fun toRuntimeVpsAvailabilityResult() = RTVpsAvailabilityUnavailable()
 }
 
+/**
+ * Prevent exhaustive when by consumers to allow for future extension of [VpsAvailabilityResult].
+ */
+private class VpsAvailabilityResultHidden() : VpsAvailabilityResult()
+
 internal fun RTVpsAvailabilityResult.toVpsAvailabilityResult(): VpsAvailabilityResult {
     if (this is RTVpsAvailabilityAvailable) return VpsAvailabilityAvailable()
     if (this is RTVpsAvailabilityErrorInternal) return VpsAvailabilityErrorInternal()
