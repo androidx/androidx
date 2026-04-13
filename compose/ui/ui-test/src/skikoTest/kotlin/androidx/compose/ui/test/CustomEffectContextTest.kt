@@ -32,6 +32,7 @@ import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 /**
@@ -42,9 +43,9 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 class CustomEffectContextTest {
 
     @Test
-    fun effectContextPropagatedToComposition_runComposeUiTest() {
+    fun effectContextPropagatedToComposition_runComposeUiTest(): TestResult {
         val testElement = TestCoroutineContextElement()
-        runComposeUiTest(effectContext = testElement) {
+        return runComposeUiTest(effectContext = testElement) {
             lateinit var compositionScope: CoroutineScope
             setContent { compositionScope = rememberCoroutineScope() }
 
@@ -68,13 +69,13 @@ class CustomEffectContextTest {
     }
 
     @Test
-    fun motionDurationScale_propagatedToCoroutines() {
+    fun motionDurationScale_propagatedToCoroutines(): TestResult {
         val motionDurationScale =
             object : MotionDurationScale {
                 override val scaleFactor: Float
                     get() = 0f
             }
-        runComposeUiTest(effectContext = motionDurationScale) {
+        return runComposeUiTest(effectContext = motionDurationScale) {
             var lastRecordedMotionDurationScale: Float? = null
             setContent {
                 val context = rememberCoroutineScope().coroutineContext
@@ -86,7 +87,7 @@ class CustomEffectContextTest {
     }
 
     @Test
-    fun customDispatcher_ignoredWhenNotSubclassOfTestDispatcher() {
+    fun customDispatcher_ignoredWhenNotSubclassOfTestDispatcher(): TestResult {
         val notATestDispatcher =
             object : CoroutineDispatcher() {
                 override fun isDispatchNeeded(context: CoroutineContext): Boolean {
@@ -106,7 +107,7 @@ class CustomEffectContextTest {
 
         // The custom dispatcher is not a TestDispatcher, so should be completely discarded.
         // The custom dispatcher throws when it is used, so running the below is enough
-        runComposeUiTest(effectContext = notATestDispatcher) {
+        return runComposeUiTest(effectContext = notATestDispatcher) {
             setContent {
                 LaunchedEffect(Unit) {
                     withFrameNanos {}
@@ -117,10 +118,10 @@ class CustomEffectContextTest {
     }
 
     @Test
-    fun customDispatcher_StandardTestDispatcher() {
+    fun customDispatcher_StandardTestDispatcher(): TestResult {
         val counter = TestCounter()
 
-        runSkikoComposeUiTest(effectContext = StandardTestDispatcher()) {
+        return runSkikoComposeUiTest(effectContext = StandardTestDispatcher()) {
             // With a StandardTestDispatcher, both launched effects and the launched coroutine are
             // dispatched, meaning they are added to the queue of tasks after all pending tasks.
             // Thus, the launched effects run first, and the launched coroutine comes last.
@@ -138,10 +139,10 @@ class CustomEffectContextTest {
 
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun customDispatcher_UnconfinedTestDispatcher() {
+    fun customDispatcher_UnconfinedTestDispatcher(): TestResult {
         val counter = TestCounter()
 
-        runSkikoComposeUiTest(effectContext = UnconfinedTestDispatcher()) {
+        return runSkikoComposeUiTest(effectContext = UnconfinedTestDispatcher()) {
             // With a UnconfinedTestDispatcher, both launched effects and the launched coroutine are
             // running unconfined, meaning they are executed immediately, regardless if there are
             // pending tasks.
@@ -160,12 +161,12 @@ class CustomEffectContextTest {
 
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun scheduler_usedWhenPresent() {
+    fun scheduler_usedWhenPresent(): TestResult {
         val scheduler = TestCoroutineScheduler()
         val startTime = scheduler.currentTime
 
         // We don't need any content, we only need to trigger the scheduler
-        runComposeUiTest(scheduler) {
+        return runComposeUiTest(scheduler) {
             setContent { rememberCoroutineScope().launch { withFrameNanos {} } }
 
             runOnIdle {
