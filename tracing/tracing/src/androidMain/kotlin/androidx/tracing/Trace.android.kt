@@ -21,6 +21,7 @@ package androidx.tracing
 import android.os.Build
 import android.os.Trace
 import android.util.Log
+import androidx.annotation.RequiresApi
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
@@ -207,6 +208,18 @@ public actual object Trace {
         } else {
             setCounterFallback(counterName.truncatedTraceSectionLabel(), counterValue)
         }
+    }
+
+    /**
+     * Writes trace message to indicate the value of a given counter.
+     *
+     * @param counterName The counter name to appear in the trace.
+     * @param counterValue The counter value.
+     */
+    @JvmStatic
+    @RequiresApi(Build.VERSION_CODES.Q)
+    public fun setCounter(counterName: String, counterValue: Long) {
+        TraceApi29Impl.setCounter(counterName.truncatedTraceSectionLabel(), counterValue)
     }
 
     @Suppress("JavaReflectionMemberAccess", "BanUncheckedReflection")
