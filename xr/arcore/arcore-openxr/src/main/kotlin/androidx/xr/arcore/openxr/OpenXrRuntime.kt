@@ -282,7 +282,7 @@ internal class OpenXrRuntime(
         }
 
         if (config.faceTracking != this.config.faceTracking) {
-            if (config.faceTracking == FaceTrackingMode.MESHES) {
+            if (config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
                 if (!nativeGetFaceTrackerCalibration()) {
                     throw FaceTrackingNotCalibratedException()
                 }
