@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.IntRange
 import java.nio.ByteBuffer
 
 /**
@@ -32,8 +33,8 @@ import java.nio.ByteBuffer
 @ExperimentalCustomMeshApi
 public class ByteBufferRegion(
     public val buffer: ByteBuffer,
-    public val offset: Int,
-    public val size: Int,
+    @IntRange(from = 0) public val offset: Int,
+    @IntRange(from = 0) public val size: Int,
 ) {
     init {
         require(offset >= 0) { "offset must not be negative" }
