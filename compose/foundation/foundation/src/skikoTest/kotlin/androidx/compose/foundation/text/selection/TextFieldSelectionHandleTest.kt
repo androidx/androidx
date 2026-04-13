@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.CoreTextField
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +33,8 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SkikoComposeUiTest
@@ -48,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.sp
 import kotlin.math.pow
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.test.IgnoreJsTarget
 import kotlinx.test.IgnoreWasmTarget
@@ -71,7 +74,6 @@ class BasicTextFieldSelectionHandleTest {
         .padding(textPadding)
         .fillMaxSize()
 
-    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-9990/Fix-basicTextFieldSelectionHandles-test
     @Test
     fun basicTextFieldSelectionHandles() = runSkikoComposeUiTest(size = Size(100f, 100f)) {
         val textState = TextFieldState(initialText = "Text")
@@ -80,6 +82,7 @@ class BasicTextFieldSelectionHandleTest {
         var selectionEnd: Rect = Rect.Zero
 
         setContent {
+            SetInitialTouchInputMode()
             CompositionLocalProvider(
                 value = LocalTextSelectionColors provides selectionColor,
             ) {
@@ -135,6 +138,7 @@ class BasicTextFieldSelectionHandleTest {
         val textFieldValue = mutableStateOf(TextFieldValue(text = "Text", selection = selection))
 
         setContent {
+            SetInitialTouchInputMode()
             CompositionLocalProvider(
                 value = LocalTextSelectionColors provides selectionColor,
             ) {
@@ -181,6 +185,14 @@ class BasicTextFieldSelectionHandleTest {
                 isStartHandler = false
             )
         )
+    }
+
+    @Composable
+    fun SetInitialTouchInputMode() {
+        val inputModeManager = LocalInputModeManager.current
+        LaunchedEffect(inputModeManager) {
+            inputModeManager.requestInputMode(InputMode.Touch)
+        }
     }
 
     private fun SkikoComposeUiTest.TestHandleShape(
