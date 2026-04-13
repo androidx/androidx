@@ -20,7 +20,12 @@ import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.xr.runtime.interfaces.DepthEstimationMode
 import androidx.xr.runtime.interfaces.DisplayBlendMode
+import androidx.xr.runtime.interfaces.EyeTrackingMode
+import androidx.xr.runtime.interfaces.GeospatialMode
+import androidx.xr.runtime.interfaces.HandTrackingMode
+import androidx.xr.runtime.interfaces.RenderingMode
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +40,26 @@ internal class OpenXrDeviceCapabilityProvider(override val context: Context) :
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
         return nativeGetPreferredBlendMode(OpenXrInstanceManager.nativePointer)
             ?: throw IllegalStateException("Failed to get preferred blend mode.")
+    }
+
+    override fun isHandTrackingModeSupported(mode: HandTrackingMode): Boolean {
+        throw UnsupportedOperationException("Not yet implemented")
+    }
+
+    override fun isEyeTrackingModeSupported(mode: EyeTrackingMode): Boolean {
+        throw UnsupportedOperationException("Not yet implemented")
+    }
+
+    override fun isGeospatialModeSupported(mode: GeospatialMode): Boolean {
+        throw UnsupportedOperationException("Not yet implemented")
+    }
+
+    override fun isDepthEstimationModeSupported(mode: DepthEstimationMode): Boolean {
+        throw UnsupportedOperationException("Not yet implemented")
+    }
+
+    override fun isRenderingModeSupported(mode: RenderingMode): Boolean {
+        throw UnsupportedOperationException("Not yet implemented")
     }
 
     private external fun nativeGetPreferredBlendMode(nativePointer: Long): DisplayBlendMode?

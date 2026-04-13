@@ -18,7 +18,12 @@ package androidx.xr.projected
 
 import android.content.Context
 import androidx.lifecycle.Lifecycle
+import androidx.xr.runtime.interfaces.DepthEstimationMode
 import androidx.xr.runtime.interfaces.DisplayBlendMode
+import androidx.xr.runtime.interfaces.EyeTrackingMode
+import androidx.xr.runtime.interfaces.GeospatialMode
+import androidx.xr.runtime.interfaces.HandTrackingMode
+import androidx.xr.runtime.interfaces.RenderingMode
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import kotlin.coroutines.CoroutineContext
 
@@ -32,5 +37,26 @@ internal class ProjectedDeviceCapabilityProvider(
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
         // TODO(b/461561664): Implement this function dynamically.
         return DisplayBlendMode.ADDITIVE
+    }
+
+    override fun isHandTrackingModeSupported(mode: HandTrackingMode): Boolean {
+        return mode == HandTrackingMode.DISABLED
+    }
+
+    override fun isEyeTrackingModeSupported(mode: EyeTrackingMode): Boolean {
+        return mode == EyeTrackingMode.DISABLED
+    }
+
+    override fun isGeospatialModeSupported(mode: GeospatialMode): Boolean {
+        return true
+    }
+
+    override fun isDepthEstimationModeSupported(mode: DepthEstimationMode): Boolean {
+        return mode == DepthEstimationMode.DISABLED
+    }
+
+    override fun isRenderingModeSupported(mode: RenderingMode): Boolean {
+        // TODO(b/500757202): Determine rendering support dynamically based on device capability.
+        return false
     }
 }
