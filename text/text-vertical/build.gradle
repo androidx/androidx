@@ -55,5 +55,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "This library provides vertical writing layout capability for developers."
-    kotlinTarget = KotlinTarget.KOTLIN_2_3 // To prevent from loading kotlin-stdlib 2.1.x
 }
