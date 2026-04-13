@@ -85,5 +85,11 @@
         android:label="Geospatial"
         android:theme="@style/Theme.AppCompat.NoActionBar" >
     </activity>
+    <activity
+        android:name=".capabilities.CapabilitiesActivity"
+        android:exported="true"
+        android:label="Capabilities"
+        android:theme="@style/Theme.AppCompat.NoActionBar" >
+    </activity>
   </application>
 </manifest>
