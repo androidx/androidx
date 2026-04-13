@@ -85,26 +85,26 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
 
         public companion object {
             /**
-             * An AnchorEntity in the ANCHORED stated is being actively tracked and updated by the
+             * An AnchorEntity in the UNANCHORED state does not currently have a real-world pose
+             * that is being actively updated. This is the default state while searching for an
+             * anchorable position, and can also occur if the perception system has lost tracking of
+             * the real-world location.
+             */
+            @JvmField public val UNANCHORED: State = State(0)
+
+            /**
+             * An AnchorEntity in the ANCHORED state is being actively tracked and updated by the
              * perception stack. Children of the AnchorEntity will maintain their relative
              * positioning to the system's best understanding of a pose in the real world.
              */
             @JvmField public val ANCHORED: State = State(1)
 
             /**
-             * An AnchorEntity in the UNANCHORED state does not currently have a real-world pose
-             * that is being actively updated. This is the default state while searching for an
-             * anchorable position, and can also occur if the perception system has lost tracking of
-             * the real-world location.
-             */
-            @JvmField public val UNANCHORED: State = State(2)
-
-            /**
-             * An AnchorEntity in the TIMEOUT state indicates that the perception system timed out
+             * An AnchorEntity in the TIMED_OUT state indicates that the perception system timed out
              * while searching for an underlying anchorable position in the real world. The
              * AnchorEntity cannot recover from this state.
              */
-            @JvmField public val TIMEDOUT: State = State(3)
+            @JvmField public val TIMED_OUT: State = State(2)
 
             /**
              * An AnchorEntity in the ERROR state indicates that an unexpected error has occurred
@@ -127,7 +127,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
             this.state = state
             when (state) {
                 State.ANCHORED,
-                State.TIMEDOUT -> {
+                State.TIMED_OUT -> {
                     planeFindingJob?.cancel()
                     planeFindingJob = null
                 }
@@ -158,7 +158,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                     Plane.subscribe(session).collect {
                         val timeNow = SystemClock.uptimeMillis()
                         if (info.searchDeadline != null && timeNow > info.searchDeadline) {
-                            entity.updateState(State.TIMEDOUT)
+                            entity.updateState(State.TIMED_OUT)
                             return@collect
                         }
 
@@ -259,7 +259,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
          *   should attach.
          * @param timeout The amount of time as a [Duration] to search for the a suitable plane to
          *   attach to. If a plane is not found within the timeout, the returned AnchorEntity state
-         *   will be set to AnchorEntity.State.TIMEDOUT. It may take longer than the timeout period
+         *   will be set to AnchorEntity.State.TIMED_OUT. It may take longer than the timeout period
          *   before the anchor state is updated. If the timeout duration is zero it will search for
          *   the anchor indefinitely.
          * @throws [IllegalStateException] if [androidx.xr.runtime.Session.config] is set to
@@ -302,7 +302,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
          *   should attach.
          * @param timeout The amount of time as a [Duration] to search for the a suitable plane to
          *   attach to. If a plane is not found within the timeout, the returned AnchorEntity state
-         *   will be set to AnchorEntity.State.TIMEDOUT. It may take longer than the timeout period
+         *   will be set to AnchorEntity.State.TIMED_OUT. It may take longer than the timeout period
          *   before the anchor state is updated. If the timeout duration is zero it will search for
          *   the anchor indefinitely.
          * @throws [IllegalStateException] if [androidx.xr.runtime.Session.config] is set to
@@ -356,7 +356,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         when (this) {
             RtAnchorEntity.State.UNANCHORED -> State.UNANCHORED
             RtAnchorEntity.State.ANCHORED -> State.ANCHORED
-            RtAnchorEntity.State.TIMED_OUT -> State.TIMEDOUT
+            RtAnchorEntity.State.TIMED_OUT -> State.TIMED_OUT
             RtAnchorEntity.State.ERROR -> State.ERROR
             else -> throw IllegalArgumentException("Unknown state: $this")
         }

@@ -72,14 +72,14 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.AnchorEntity.State ANCHORED;
     field public static final androidx.xr.scenecore.AnchorEntity.State.Companion Companion;
     field public static final androidx.xr.scenecore.AnchorEntity.State ERROR;
-    field public static final androidx.xr.scenecore.AnchorEntity.State TIMEDOUT;
+    field public static final androidx.xr.scenecore.AnchorEntity.State TIMED_OUT;
     field public static final androidx.xr.scenecore.AnchorEntity.State UNANCHORED;
   }
 
   public static final class AnchorEntity.State.Companion {
     property public androidx.xr.scenecore.AnchorEntity.State ANCHORED;
     property public androidx.xr.scenecore.AnchorEntity.State ERROR;
-    property public androidx.xr.scenecore.AnchorEntity.State TIMEDOUT;
+    property public androidx.xr.scenecore.AnchorEntity.State TIMED_OUT;
     property public androidx.xr.scenecore.AnchorEntity.State UNANCHORED;
   }
 

@@ -261,7 +261,7 @@ class AnchorEntityTest {
             mFakeLifecycleManager.allowOneMoreCallToUpdate()
             advanceUntilIdle()
 
-            assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.TIMEDOUT)
+            assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.TIMED_OUT)
         }
     }
 
