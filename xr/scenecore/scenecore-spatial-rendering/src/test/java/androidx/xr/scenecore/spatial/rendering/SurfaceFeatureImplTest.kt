@@ -18,10 +18,10 @@ package androidx.xr.scenecore.spatial.rendering
 
 import android.app.Activity
 import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl
+import androidx.xr.scenecore.impl.impress.ImpressApi
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
-import androidx.xr.scenecore.spatial.rendering.impress.FakeImpressApiImpl
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import com.google.androidxr.splitengine.SubspaceNode
 import com.google.common.truth.Truth.assertThat

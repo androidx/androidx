@@ -13,36 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.xr.scenecore.spatial.rendering.impress;
+package androidx.xr.scenecore.impl.impress;
 
 import androidx.annotation.RestrictTo;
-import androidx.xr.scenecore.runtime.GltfModelResource;
+import androidx.xr.scenecore.runtime.ExrImageResource;
 
 import org.jspecify.annotations.NonNull;
 
-/** Wrapper class for the native glTF model. */
+/** Wrapper class for the native EXR image. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public final class GltfModel extends BindingsResource implements GltfModelResource {
+public final class ExrImage extends BindingsResource implements ExrImageResource {
     private final ImpressApi mImpressApi;
 
-    private GltfModel(Builder builder) {
+    private ExrImage(Builder builder) {
         super(
                 builder.mImpressapi.getBindingsResourceManager(),
-                builder.mNativeGltfModel,
-                (handle) -> builder.mImpressapi.releaseGltfAsset(handle));
+                builder.mNativeExrImage,
+                (handle) -> builder.mImpressapi.releaseImageBasedLightingAsset(handle));
         mImpressApi = builder.mImpressapi;
     }
 
     @Override
     protected void releaseBindingsResource(long nativeHandle) {
-        mImpressApi.releaseGltfAsset(nativeHandle);
+        mImpressApi.releaseImageBasedLightingAsset(nativeHandle);
     }
 
-    /** Use Builder to construct a GltfModel object instance. */
+    /** Use Builder to construct a ExrImage object instance. */
     public static class Builder {
         private ImpressApi mImpressapi;
-        private long mNativeGltfModel = -1;
+        private long mNativeExrImage = -1;
 
         /** Sets the Impress API. */
         @NonNull
@@ -51,20 +50,20 @@ public final class GltfModel extends BindingsResource implements GltfModelResour
             return this;
         }
 
-        /** Sets the native glTF model. */
+        /** Sets the native EXR image. */
         @NonNull
-        public Builder setNativeGltfModel(long nativeGltfModel) {
-            mNativeGltfModel = nativeGltfModel;
+        public Builder setNativeExrImage(long nativeExrImage) {
+            mNativeExrImage = nativeExrImage;
             return this;
         }
 
-        /** Builds the GltfModel. */
+        /** Builds the ExrImage. */
         @NonNull
-        public GltfModel build() {
-            if (mImpressapi == null || mNativeGltfModel == -1) {
-                throw new IllegalStateException("GltfModel not built properly.");
+        public ExrImage build() {
+            if (mImpressapi == null || mNativeExrImage == -1) {
+                throw new IllegalStateException("ExrImage not built properly.");
             }
-            return new GltfModel(this);
+            return new ExrImage(this);
         }
     }
 }

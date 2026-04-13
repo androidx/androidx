@@ -19,11 +19,11 @@ package androidx.xr.scenecore.spatial.rendering
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.impl.impress.ImpressApi
+import androidx.xr.scenecore.impl.impress.ImpressNode
+import androidx.xr.scenecore.impl.impress.Material
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import androidx.xr.scenecore.runtime.MaterialResource
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressNode
-import androidx.xr.scenecore.spatial.rendering.impress.Material
 
 internal class GltfModelNodeFeatureImpl(
     private val impressApi: ImpressApi,

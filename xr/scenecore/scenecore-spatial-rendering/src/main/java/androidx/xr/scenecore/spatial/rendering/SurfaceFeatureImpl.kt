@@ -18,13 +18,13 @@ package androidx.xr.scenecore.spatial.rendering
 
 import android.view.Surface
 import androidx.annotation.VisibleForTesting
+import androidx.xr.scenecore.impl.impress.ImpressApi
+import androidx.xr.scenecore.impl.impress.ImpressNode
+import androidx.xr.scenecore.impl.impress.Texture
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TextureResource
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressNode
-import androidx.xr.scenecore.spatial.rendering.impress.Texture
 import com.android.extensions.xr.XrExtensions
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 

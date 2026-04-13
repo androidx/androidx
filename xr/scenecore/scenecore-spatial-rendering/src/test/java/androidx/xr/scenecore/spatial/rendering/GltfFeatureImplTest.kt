@@ -18,14 +18,14 @@ package androidx.xr.scenecore.spatial.rendering
 
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl
+import androidx.xr.scenecore.impl.impress.GltfModel
+import androidx.xr.scenecore.impl.impress.ImpressApi
+import androidx.xr.scenecore.impl.impress.ImpressNode
+import androidx.xr.scenecore.impl.impress.WaterMaterial
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
-import androidx.xr.scenecore.spatial.rendering.impress.FakeImpressApiImpl
-import androidx.xr.scenecore.spatial.rendering.impress.GltfModel
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressNode
-import androidx.xr.scenecore.spatial.rendering.impress.WaterMaterial
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.node.Node
