@@ -141,7 +141,7 @@ package androidx.xr.arcore {
     ctor public CreateGeospatialPoseFromPoseNotTracking();
   }
 
-  public abstract sealed nonexhaustive class CreateGeospatialPoseFromPoseResult {
+  public abstract sealed exhaustive class CreateGeospatialPoseFromPoseResult {
   }
 
   public final class CreateGeospatialPoseFromPoseSuccess extends androidx.xr.arcore.CreateGeospatialPoseFromPoseResult {
@@ -165,7 +165,7 @@ package androidx.xr.arcore {
     ctor public CreatePoseFromGeospatialPoseNotTracking();
   }
 
-  public abstract sealed nonexhaustive class CreatePoseFromGeospatialPoseResult {
+  public abstract sealed exhaustive class CreatePoseFromGeospatialPoseResult {
   }
 
   public final class CreatePoseFromGeospatialPoseSuccess extends androidx.xr.arcore.CreatePoseFromGeospatialPoseResult {
@@ -746,7 +746,7 @@ package androidx.xr.arcore {
     ctor public VpsAvailabilityResourceExhausted();
   }
 
-  public abstract sealed nonexhaustive class VpsAvailabilityResult {
+  public abstract sealed exhaustive class VpsAvailabilityResult {
   }
 
   public final class VpsAvailabilityUnavailable extends androidx.xr.arcore.VpsAvailabilityResult {
