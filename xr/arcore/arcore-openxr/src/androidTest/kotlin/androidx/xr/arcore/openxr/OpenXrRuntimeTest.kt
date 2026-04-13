@@ -105,9 +105,9 @@ class OpenXrRuntimeTest {
         // Configure twice because the first attempt will throw an exception during testing due to
         // calibration being read as false the first time the OpenXR stub is called.
         try {
-            underTest.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+            underTest.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         } catch (e: FaceTrackingNotCalibratedException) {
-            underTest.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+            underTest.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         }
 
         Truth.assertThat(underTest.perceptionManager.xrResources.updatables)
@@ -118,9 +118,9 @@ class OpenXrRuntimeTest {
     fun configure_faceTrackingDisabled_removesFaceFromUpdatables() = initOpenXrRuntimeAndRunTest {
         underTest.initialize()
         try {
-            underTest.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+            underTest.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         } catch (e: FaceTrackingNotCalibratedException) {
-            underTest.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+            underTest.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         }
         check(
             underTest.perceptionManager.xrResources.updatables.contains(
@@ -140,7 +140,7 @@ class OpenXrRuntimeTest {
             underTest.initialize()
 
             assertFailsWith<FaceTrackingNotCalibratedException> {
-                underTest.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+                underTest.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
             }
         }
 
@@ -211,9 +211,9 @@ class OpenXrRuntimeTest {
     }
 
     @Test
-    fun configure_withoutCreate_throwsIllegalStateException() = initOpenXrRuntimeAndRunTest {
-        // The OpenXR stub returns `XR_ERROR_HANDLE_INVALID` if the `xrSession` has not been
-        // initialized by `OpenXrManager.create()`.
+    fun configure_beforeInitialize_throwsIllegalStateException() = initOpenXrRuntimeAndRunTest {
+        // The OpenXR stub returns XR_ERROR_HANDLE_INVALID if native session hasn't been set via
+        // OpenXrRuntime.initialize()
         assertFailsWith<IllegalStateException> {
             underTest.configure(
                 Config(
