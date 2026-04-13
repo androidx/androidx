@@ -147,7 +147,6 @@ object MaterialTheme {
         @Composable @ReadOnlyComposable get() = LocalMaterialTheme.current.shapes
 
     /** Retrieves the current [MotionScheme] at the call site's position in the hierarchy. */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     val motionScheme: MotionScheme
         @Composable @ReadOnlyComposable get() = LocalMaterialTheme.current.motionScheme
 
@@ -256,7 +255,7 @@ object MaterialTheme {
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param content The content inheriting this theme
  */
-@ExperimentalMaterial3ExpressiveApi
+@Material3ExpressiveApi
 @Composable
 fun MaterialExpressiveTheme(
     colorScheme: ColorScheme? = null,
