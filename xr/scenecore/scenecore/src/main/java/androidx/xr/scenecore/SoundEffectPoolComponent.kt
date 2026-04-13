@@ -36,7 +36,7 @@ private constructor(
     sceneRuntime: SceneRuntime,
     soundEffectPool: SoundEffectPool,
     private val params: PointSourceParams,
-) : Component, SoundEffectPlayer {
+) : Component(), SoundEffectPlayer {
 
     private var attachedEntity: Entity? = null
 

@@ -35,7 +35,7 @@ private constructor(
     private val entityRegistry: EntityRegistry,
     private val executor: Executor,
     private val inputEventListener: Consumer<InputEvent>,
-) : Component {
+) : Component() {
     private val rtInputEventListener = RtInputEventListener { rtEvent ->
         inputEventListener.accept(rtEvent.toInputEvent(entityRegistry))
     }

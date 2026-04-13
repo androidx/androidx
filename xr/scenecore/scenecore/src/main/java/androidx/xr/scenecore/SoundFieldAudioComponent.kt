@@ -35,7 +35,7 @@ internal constructor(
     context: Context,
     sceneRuntime: SceneRuntime,
     attributes: SoundFieldAttributes,
-) : Component {
+) : Component() {
 
     internal val rtSoundFieldAudioComponent =
         sceneRuntime.createSoundFieldAudioComponent(context, attributes.rtSoundFieldAttributes)

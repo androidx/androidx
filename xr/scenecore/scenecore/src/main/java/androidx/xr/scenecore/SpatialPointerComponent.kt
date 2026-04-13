@@ -25,7 +25,7 @@ import androidx.xr.scenecore.runtime.SceneRuntime
  * Component will set the Entity's pointer back to the default icon.
  */
 public class SpatialPointerComponent private constructor(private val sceneRuntime: SceneRuntime) :
-    Component {
+    Component() {
 
     private val rtComponent by lazy { sceneRuntime.createSpatialPointerComponent() }
 

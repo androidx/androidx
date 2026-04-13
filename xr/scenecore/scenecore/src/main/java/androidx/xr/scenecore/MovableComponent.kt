@@ -61,7 +61,7 @@ private constructor(
     private val disposeParentOnReAnchor: Boolean = true,
     private val initialListener: EntityMoveListener? = null,
     private val initialListenerExecutor: Executor? = null,
-) : Component {
+) : Component() {
 
     private val sceneRuntime = session.sceneRuntime
     private val anchorable = !anchorPlacement.isEmpty()
