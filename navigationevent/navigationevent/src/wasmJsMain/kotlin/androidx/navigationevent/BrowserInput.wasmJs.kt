@@ -192,13 +192,23 @@ internal class BrowserInput(
             window.go(pushedHistorySize - 1 - browserIndex)
 
             for (i in pushedHistorySize until newSize) {
-                window.pushState(i.toJsNumber())
+                val info = newHistory.mergedHistory[i]
+                // TODO: Revisit using toString() for URL fragment and title
+                val infoStr = info.toString()
+                window.pushState(i.toJsNumber(), url = "#$infoStr")
+                window.title = infoStr
             }
 
             window.go(newIndex - (newSize - 1))
 
             pushedHistorySize = newSize
         }
+
+        val currentInfo = newHistory.mergedHistory[newIndex]
+        // TODO: Revisit using toString() for URL fragment and title
+        val currentInfoStr = currentInfo.toString()
+        window.title = currentInfoStr
+        window.replaceState(newIndex.toJsNumber(), url = "#$currentInfoStr")
 
         browserIndex = newIndex
         logicalHistorySize = newSize
