@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.impl.impress;
+package androidx.xr.scenecore.spatial.rendering.impress;
 
 import static com.google.common.truth.Truth.assertThat;
 

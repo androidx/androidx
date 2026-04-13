@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +14,38 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.impl.impress;
+package androidx.xr.scenecore.spatial.rendering.impress;
 
 import androidx.annotation.RestrictTo;
-import androidx.xr.scenecore.runtime.TextureResource;
+import androidx.xr.scenecore.runtime.CustomMeshResource;
 
 import org.jspecify.annotations.NonNull;
 
 /**
- * Texture class for the native Impress texture wrapper struct which is an implementation a
- * SceneCore TextureResource.
+ * CustomMesh class for the native Impress custom mesh wrapper struct which is an implementation a
+ * SceneCore CustomMeshResource.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public final class Texture extends BindingsResource implements TextureResource {
+public final class CustomMesh extends BindingsResource implements CustomMeshResource {
     private final ImpressApi mImpressApi;
 
-    private Texture(Builder builder) {
+    private CustomMesh(Builder builder) {
         super(
                 builder.mImpressapi.getBindingsResourceManager(),
-                builder.mNativeTexture,
-                (handle) -> builder.mImpressapi.destroyNativeObject(handle));
+                builder.mNativeCustomMesh,
+                (handle) -> builder.mImpressapi.destroyCustomMesh(handle));
         mImpressApi = builder.mImpressapi;
     }
 
     @Override
     protected void releaseBindingsResource(long nativeHandle) {
-        mImpressApi.destroyNativeObject(nativeHandle);
+        mImpressApi.destroyCustomMesh(nativeHandle);
     }
 
-    /** Use Builder to construct a Texture object instance. */
+    /** Use Builder to construct a CustomMesh object instance. */
     public static class Builder {
         private ImpressApi mImpressapi;
-        private long mNativeTexture = -1;
+        private long mNativeCustomMesh = -1;
 
         /** Sets the Impress API. */
         @NonNull
@@ -54,20 +54,20 @@ public final class Texture extends BindingsResource implements TextureResource {
             return this;
         }
 
-        /** Sets the native texture. */
+        /** Sets the native custom mesh. */
         @NonNull
-        public Builder setNativeTexture(long nativeTexture) {
-            mNativeTexture = nativeTexture;
+        public Builder setNativeCustomMesh(long nativeCustomMesh) {
+            mNativeCustomMesh = nativeCustomMesh;
             return this;
         }
 
-        /** Builds the Texture. */
+        /** Builds the CustomMesh. */
         @NonNull
-        public Texture build() {
-            if (mImpressapi == null || mNativeTexture == -1) {
-                throw new IllegalStateException("Texture not built properly.");
+        public CustomMesh build() {
+            if (mImpressapi == null || mNativeCustomMesh == -1) {
+                throw new IllegalStateException("CustomMesh not built properly.");
             }
-            return new Texture(this);
+            return new CustomMesh(this);
         }
     }
 }

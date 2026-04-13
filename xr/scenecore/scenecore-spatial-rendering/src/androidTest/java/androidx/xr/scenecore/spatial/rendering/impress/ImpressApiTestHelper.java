@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.impl.impress;
+package androidx.xr.scenecore.spatial.rendering.impress;
 
 /** Helper class that provides JNI hooks for testing the Impress API bindings. */
 final class ImpressApiTestHelper {
