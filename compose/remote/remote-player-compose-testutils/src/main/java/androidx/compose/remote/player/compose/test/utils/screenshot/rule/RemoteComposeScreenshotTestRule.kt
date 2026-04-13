@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
@@ -79,10 +80,10 @@ class RemoteComposeScreenshotTestRule(
     moduleDirectory: String,
     private val matcher: BitmapMatcher? = null,
     private val profile: Profile = RcPlatformProfiles.ANDROIDX,
+    private val clock: RemoteClock = RemoteClock.SYSTEM,
 ) : ExternalResource() {
     private val composeTestRule = createComposeRule(StandardTestDispatcher())
     private val screenshotRule = AndroidXScreenshotTestRule(moduleDirectory)
-
     private val displayInfo = createCreationDisplayInfo(ApplicationProvider.getApplicationContext())
 
     private lateinit var testDescription: Description
@@ -227,6 +228,7 @@ class RemoteComposeScreenshotTestRule(
                             content = content,
                             creationDisplayInfo = creationDisplayInfo,
                             profile = profile ?: this@RemoteComposeScreenshotTestRule.profile,
+                            clock = clock,
                         )
                     document?.let { doc ->
                         val boxModifier =
