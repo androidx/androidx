@@ -55,7 +55,7 @@ constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val context: TraceContext =
         if (isEnabled) {
-            TraceContext(sink = sink, isEnabled = isEnabled)
+            TraceContext(sink = sink, isEnabled = true)
         } else {
             EmptyTraceContext
         }
@@ -68,8 +68,7 @@ constructor(
         context.createProcessTrack(id = pid.toInt(), name = name)
         // Eagerly populate the current thread track
         val thread = Thread.currentThread()
-        val track =
-            context.process.getOrCreateThreadTrack(id = thread.id.toInt(), name = thread.name)
+        val track = context.process.getOrCreateThreadTrack(id = thread.id, name = thread.name)
         // Trace Attributes
         if (attributes != null) {
             val attributes = track.traceAttributes()

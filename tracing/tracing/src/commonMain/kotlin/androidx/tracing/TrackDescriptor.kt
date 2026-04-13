@@ -44,5 +44,5 @@ public class TrackDescriptor(
     /** If type == [TRACK_DESCRIPTOR_TYPE_PROCESS], represents the PID of the process. */
     public var pid: Int,
     /** If type == [TRACK_DESCRIPTOR_TYPE_THREAD], represents the TID of the thread. */
-    public var tid: Int,
+    public var tid: Long,
 )

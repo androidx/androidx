@@ -18,9 +18,9 @@ package androidx.tracing
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
-import androidx.collection.MutableIntObjectMap
+import androidx.collection.MutableLongObjectMap
 import androidx.collection.MutableScatterMap
-import androidx.collection.mutableIntObjectMapOf
+import androidx.collection.mutableLongObjectMapOf
 import androidx.collection.mutableScatterMapOf
 import kotlin.concurrent.Volatile
 
@@ -35,7 +35,7 @@ public open class ProcessTrack(
     public val name: String,
 ) : SliceTrack(context = context, uuid = monotonicId()) {
 
-    public val threads: MutableIntObjectMap<ThreadTrack> = mutableIntObjectMapOf()
+    public val threads: MutableLongObjectMap<ThreadTrack> = mutableLongObjectMapOf()
     internal val counters: MutableScatterMap<String, CounterTrack> = mutableScatterMapOf()
 
     @JvmField @Volatile public var l1ThreadTrack: ThreadTrack? = null
@@ -52,7 +52,7 @@ public open class ProcessTrack(
                         parentUuid = DEFAULT_LONG,
                         type = TRACK_DESCRIPTOR_TYPE_PROCESS,
                         pid = id,
-                        tid = DEFAULT_INT,
+                        tid = DEFAULT_LONG,
                     )
                 )
                 dispatchTraceEvent(event, immediateDispatch = true)
@@ -70,7 +70,7 @@ public open class ProcessTrack(
      * @return A [ThreadTrack] for a given [ProcessTrack] using the unique thread [id] and a thread
      *   [name].
      */
-    public open fun getOrCreateThreadTrack(id: Int, name: String): ThreadTrack {
+    public open fun getOrCreateThreadTrack(id: Long, name: String): ThreadTrack {
         return synchronized(threads) {
             threads.getOrPut(key = id) { ThreadTrack(id = id, name = name, process = this) }
         }
@@ -92,7 +92,7 @@ public open class ProcessTrack(
     @Suppress("NOTHING_TO_INLINE", "DEPRECATION")
     public inline fun currentThreadTrack(): ThreadTrack {
         val current = Thread.currentThread()
-        val id = current.id.toInt()
+        val id = current.id
         val l1 = l1ThreadTrack
         val l2 = l2ThreadTrack
         return when {
@@ -118,7 +118,7 @@ internal class EmptyProcessTrack(context: EmptyTraceContext) :
 
     private val emptyContext: EmptyTraceContext = context
 
-    override fun getOrCreateThreadTrack(id: Int, name: String): ThreadTrack = emptyContext.thread
+    override fun getOrCreateThreadTrack(id: Long, name: String): ThreadTrack = emptyContext.thread
 
     override fun getOrCreateCounterTrack(name: String): CounterTrack = emptyContext.counter
 }
