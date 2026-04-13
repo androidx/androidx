@@ -45,7 +45,7 @@ private constructor(
     maximumSize: FloatSize3d,
     private val initialListenerExecutor: Executor,
     private val initialListener: Consumer<ResizeEvent>,
-) : Component {
+) : Component() {
     private val resizeListenerMap =
         ConcurrentHashMap<Consumer<ResizeEvent>, RtResizeEventListener>()
     /**

@@ -32,7 +32,7 @@ import androidx.xr.scenecore.runtime.SceneRuntime
  */
 public class PositionalAudioComponent
 internal constructor(context: Context, sceneRuntime: SceneRuntime, params: PointSourceParams) :
-    Component {
+    Component() {
 
     internal val rtComponent =
         sceneRuntime.createPositionalAudioComponent(context, params.rtPointSourceParams)

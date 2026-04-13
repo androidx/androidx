@@ -415,7 +415,7 @@ internal constructor(rtEntity: RtEntityType, private val entityRegistry: EntityR
 
     override fun addComponent(component: Component): Boolean {
         checkNotDisposed()
-        if (component.onAttach(this)) {
+        if (component.handleAttachInternal(this)) {
             componentList.add(component)
             return true
         }
@@ -425,7 +425,7 @@ internal constructor(rtEntity: RtEntityType, private val entityRegistry: EntityR
     override fun removeComponent(component: Component) {
         checkNotDisposed()
         if (componentList.contains(component)) {
-            component.onDetach(this)
+            component.handleDetachInternal(this)
             componentList.remove(component)
         }
     }
@@ -442,7 +442,7 @@ internal constructor(rtEntity: RtEntityType, private val entityRegistry: EntityR
 
     override fun removeAllComponents() {
         checkNotDisposed()
-        componentList.forEach { it.onDetach(this) }
+        componentList.forEach { it.handleDetachInternal(this) }
         componentList.clear()
     }
 }

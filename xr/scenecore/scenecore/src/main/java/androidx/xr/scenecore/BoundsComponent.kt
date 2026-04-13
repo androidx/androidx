@@ -52,7 +52,7 @@ private constructor(
     private val sceneRuntime: SceneRuntime,
     private val initialListenerExecutor: Executor? = null,
     private val initialListener: BiConsumer<Entity, BoundingBox>? = null,
-) : Component {
+) : Component() {
 
     internal val rtBoundsComponent by lazy { sceneRuntime.createBoundsComponent() }
     internal val boundsUpdateListenerMap =

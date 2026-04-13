@@ -141,12 +141,12 @@ package androidx.xr.scenecore {
     property public androidx.xr.runtime.math.Pose poseInActivitySpace;
   }
 
-  public final class BoundsComponent implements androidx.xr.scenecore.Component {
+  public final class BoundsComponent extends androidx.xr.scenecore.Component {
     method public void addOnBoundsUpdateListener(java.util.concurrent.Executor executor, java.util.function.BiConsumer<androidx.xr.scenecore.Entity,androidx.xr.runtime.math.BoundingBox> listener);
     method public void addOnBoundsUpdateListener(java.util.function.BiConsumer<androidx.xr.scenecore.Entity,androidx.xr.runtime.math.BoundingBox> listener);
     method public static androidx.xr.scenecore.BoundsComponent create(androidx.xr.runtime.Session session);
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected void onDetach(androidx.xr.scenecore.Entity entity);
     method public void removeOnBoundsUpdateListener(java.util.function.BiConsumer<androidx.xr.scenecore.Entity,androidx.xr.runtime.math.BoundingBox> listener);
     field public static final androidx.xr.scenecore.BoundsComponent.Companion Companion;
   }
@@ -165,9 +165,9 @@ package androidx.xr.scenecore {
     property public int size;
   }
 
-  public interface Component {
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+  public abstract class Component {
+    method protected abstract boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected abstract void onDetach(androidx.xr.scenecore.Entity entity);
   }
 
   @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class CustomMesh implements java.lang.AutoCloseable {
@@ -501,11 +501,11 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.InputEvent.Source UNKNOWN;
   }
 
-  public final class InteractableComponent implements androidx.xr.scenecore.Component {
+  public final class InteractableComponent extends androidx.xr.scenecore.Component {
     method public static androidx.xr.scenecore.InteractableComponent create(androidx.xr.runtime.Session session, java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.InputEvent> inputEventListener);
     method public static androidx.xr.scenecore.InteractableComponent create(androidx.xr.runtime.Session session, java.util.function.Consumer<androidx.xr.scenecore.InputEvent> inputEventListener);
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected void onDetach(androidx.xr.scenecore.Entity entity);
     field public static final androidx.xr.scenecore.InteractableComponent.Companion Companion;
   }
 
@@ -659,7 +659,7 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.MeshSubsetTopology TRIANGLE_STRIP;
   }
 
-  public final class MovableComponent implements androidx.xr.scenecore.Component {
+  public final class MovableComponent extends androidx.xr.scenecore.Component {
     method public void addMoveListener(androidx.xr.scenecore.EntityMoveListener entityMoveListener);
     method public void addMoveListener(java.util.concurrent.Executor executor, androidx.xr.scenecore.EntityMoveListener entityMoveListener);
     method public static androidx.xr.scenecore.MovableComponent createAnchorable(androidx.xr.runtime.Session session);
@@ -669,8 +669,8 @@ package androidx.xr.scenecore {
     method public static androidx.xr.scenecore.MovableComponent createSystemMovable(androidx.xr.runtime.Session session);
     method public static androidx.xr.scenecore.MovableComponent createSystemMovable(androidx.xr.runtime.Session session, optional boolean scaleInZ);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getSize();
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected void onDetach(androidx.xr.scenecore.Entity entity);
     method public void removeMoveListener(androidx.xr.scenecore.EntityMoveListener entityMoveListener);
     method @InaccessibleFromKotlin public void setSize(androidx.xr.runtime.math.FloatSize3d);
     property public androidx.xr.runtime.math.FloatSize3d size;
@@ -789,10 +789,10 @@ package androidx.xr.scenecore {
     ctor public PointSourceParams();
   }
 
-  public final class PointerCaptureComponent implements androidx.xr.scenecore.Component {
+  public final class PointerCaptureComponent extends androidx.xr.scenecore.Component {
     method public static androidx.xr.scenecore.PointerCaptureComponent create(androidx.xr.runtime.Session session, java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState> stateListener, java.util.function.Consumer<androidx.xr.scenecore.InputEvent> inputListener);
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected void onDetach(androidx.xr.scenecore.Entity entity);
     field public static final androidx.xr.scenecore.PointerCaptureComponent.Companion Companion;
   }
 
@@ -813,11 +813,11 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState STOPPED;
   }
 
-  public final class PositionalAudioComponent implements androidx.xr.scenecore.Component {
+  public final class PositionalAudioComponent extends androidx.xr.scenecore.Component {
     method public static androidx.xr.scenecore.PositionalAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.PointSourceParams params);
     method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected void onDetach(androidx.xr.scenecore.Entity entity);
     method public void setPointSourceParams(androidx.xr.scenecore.PointSourceParams params);
     property public androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
     field public static final androidx.xr.scenecore.PositionalAudioComponent.Companion Companion;
@@ -827,7 +827,7 @@ package androidx.xr.scenecore {
     method public androidx.xr.scenecore.PositionalAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.PointSourceParams params);
   }
 
-  public final class ResizableComponent implements androidx.xr.scenecore.Component {
+  public final class ResizableComponent extends androidx.xr.scenecore.Component {
     method public void addResizeEventListener(optional java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.ResizeEvent> resizeEventListener);
     method public void addResizeEventListener(java.util.function.Consumer<androidx.xr.scenecore.ResizeEvent> resizeEventListener);
     method @BytecodeOnly public static void addResizeEventListener$default(androidx.xr.scenecore.ResizableComponent!, java.util.concurrent.Executor!, java.util.function.Consumer!, int, Object!);
@@ -841,8 +841,8 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public boolean isAlwaysShowOverlayEnabled();
     method @InaccessibleFromKotlin public boolean isAutoHideContentWhileResizingEnabled();
     method @InaccessibleFromKotlin public boolean isFixedAspectRatioEnabled();
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected void onDetach(androidx.xr.scenecore.Entity entity);
     method public void removeResizeEventListener(java.util.function.Consumer<androidx.xr.scenecore.ResizeEvent> resizeEventListener);
     method @InaccessibleFromKotlin public void setAffordanceSize(androidx.xr.runtime.math.FloatSize3d);
     method @InaccessibleFromKotlin public void setAlwaysShowOverlayEnabled(boolean);
@@ -984,10 +984,10 @@ package androidx.xr.scenecore {
     method public void onLoadComplete(androidx.xr.scenecore.SoundEffect soundEffect, boolean success);
   }
 
-  public final class SoundEffectPoolComponent implements androidx.xr.scenecore.Component androidx.xr.scenecore.SoundEffectPlayer {
+  public final class SoundEffectPoolComponent extends androidx.xr.scenecore.Component implements androidx.xr.scenecore.SoundEffectPlayer {
     method public static androidx.xr.scenecore.SoundEffectPoolComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundEffectPool soundEffectPool, androidx.xr.scenecore.PointSourceParams params);
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected void onDetach(androidx.xr.scenecore.Entity entity);
     method public void pause(androidx.xr.scenecore.Stream stream);
     method public androidx.xr.scenecore.Stream play(androidx.xr.scenecore.SoundEffect soundEffect, @FloatRange(from=0.0, to=1.0) float volume, @IntRange(from=0L) int priority, boolean isLooping);
     method public void resume(androidx.xr.scenecore.Stream stream);
@@ -1007,11 +1007,11 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.SpatializerConstants.AmbisonicsOrder order;
   }
 
-  public final class SoundFieldAudioComponent implements androidx.xr.scenecore.Component {
+  public final class SoundFieldAudioComponent extends androidx.xr.scenecore.Component {
     method public static androidx.xr.scenecore.SoundFieldAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundFieldAttributes attributes);
     method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected void onDetach(androidx.xr.scenecore.Entity entity);
     property public androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
     field public static final androidx.xr.scenecore.SoundFieldAudioComponent.Companion Companion;
   }
@@ -1113,11 +1113,11 @@ package androidx.xr.scenecore {
     property public float recommendedScale;
   }
 
-  public final class SpatialPointerComponent implements androidx.xr.scenecore.Component {
+  public final class SpatialPointerComponent extends androidx.xr.scenecore.Component {
     method public static androidx.xr.scenecore.SpatialPointerComponent create(androidx.xr.runtime.Session session);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatialPointerIcon getSpatialPointerIcon();
-    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method protected void onDetach(androidx.xr.scenecore.Entity entity);
     method @InaccessibleFromKotlin public void setSpatialPointerIcon(androidx.xr.scenecore.SpatialPointerIcon);
     property public androidx.xr.scenecore.SpatialPointerIcon spatialPointerIcon;
     field public static final androidx.xr.scenecore.SpatialPointerComponent.Companion Companion;

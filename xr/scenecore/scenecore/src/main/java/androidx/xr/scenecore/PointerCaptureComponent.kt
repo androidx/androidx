@@ -39,7 +39,7 @@ private constructor(
     private val executor: Executor,
     private val stateListener: Consumer<PointerCaptureState>,
     private val inputEventListener: Consumer<InputEvent>,
-) : Component {
+) : Component() {
 
     /** Defines the possible states of a [PointerCaptureComponent]. */
     public class PointerCaptureState private constructor(private val value: Int) {

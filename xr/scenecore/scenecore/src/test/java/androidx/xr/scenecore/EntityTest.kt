@@ -86,7 +86,7 @@ class EntityTest {
     private lateinit var entity: Entity
     private lateinit var surfaceEntity: SurfaceEntity
 
-    private class TestComponent(val canBeAttached: Boolean) : Component {
+    private class TestComponent(val canBeAttached: Boolean) : Component() {
         var onAttached: Int = 0
             private set
 
@@ -103,7 +103,7 @@ class EntityTest {
         }
     }
 
-    private open class FakeComponent(open val canBeAttached: Boolean) : Component {
+    private open class FakeComponent(open val canBeAttached: Boolean) : Component() {
         var onAttached: Int = 0
             private set
 
