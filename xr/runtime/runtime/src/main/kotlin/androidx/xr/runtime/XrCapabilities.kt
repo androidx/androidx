@@ -53,25 +53,6 @@ public class AugmentedObjectCategory private constructor(private val value: Int)
         @JvmField public val MOUSE: AugmentedObjectCategory = AugmentedObjectCategory(2)
         /** Category value indicating the tracked object is believed to be a laptop. */
         @JvmField public val LAPTOP: AugmentedObjectCategory = AugmentedObjectCategory(3)
-
-        @JvmStatic
-        @Deprecated("Use allSupported() instead.", ReplaceWith("allSupported()"))
-        /** Returns an array of all available [AugmentedObjectCategory] values. */
-        public fun all(): List<AugmentedObjectCategory> = listOf(KEYBOARD, MOUSE, LAPTOP)
-
-        /**
-         * Returns a list of all [AugmentedObjectCategories][AugmentedObjectCategory] supported by
-         * the device.
-         */
-        @JvmStatic
-        public fun allSupported(): Set<AugmentedObjectCategory> =
-            setOf(
-                // TODO b/483728983 determine contents of this list dynamically based on device
-                // capability
-                KEYBOARD,
-                MOUSE,
-                LAPTOP,
-            )
     }
 }
 

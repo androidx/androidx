@@ -256,7 +256,8 @@ class SessionTest {
             stubRuntime.config ==
                 Config(
                     planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                    augmentedObjectCategories = AugmentedObjectCategory.allSupported(),
+                    // Needs to contain at least one AugmentedObjectCategory to enable
+                    augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
                     handTracking = HandTrackingMode.BOTH,
                     deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                     depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW,

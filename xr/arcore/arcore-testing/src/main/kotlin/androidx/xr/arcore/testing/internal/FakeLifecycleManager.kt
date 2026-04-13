@@ -68,7 +68,8 @@ internal class FakeLifecycleManager : LifecycleManager {
             DeviceTrackingMode.SPATIAL_LAST_KNOWN,
             DepthEstimationMode.SMOOTH_AND_RAW,
             AnchorPersistenceMode.LOCAL,
-            augmentedObjectCategories = AugmentedObjectCategory.allSupported(),
+            // Needs to contain at least one AugmentedObjectCategory to enable
+            augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
         )
 
     override fun configure(config: Config) {
