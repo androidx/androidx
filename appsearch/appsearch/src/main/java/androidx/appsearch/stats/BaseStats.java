@@ -89,6 +89,10 @@ public class BaseStats {
             INTERNAL_CALL_TYPE_SCHEDULED_FLUSH,
             CALL_TYPE_MANUALLY_SCHEDULE_FLUSH,
             INTERNAL_CALL_TYPE_APPS_INDEXER,
+            INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_HOST_TO_AISEAL,
+            INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AEGIS_TO_AISEAL,
+            INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AISEAL_TO_AEGIS,
+            INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_VM_TO_HOST,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CallType {
@@ -152,6 +156,10 @@ public class BaseStats {
     public static final int INTERNAL_CALL_TYPE_SCHEDULED_FLUSH = 45;
     public static final int CALL_TYPE_MANUALLY_SCHEDULE_FLUSH = 46;
     public static final int INTERNAL_CALL_TYPE_APPS_INDEXER = 47;
+    public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_HOST_TO_AISEAL = 48;
+    public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AEGIS_TO_AISEAL = 49;
+    public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AISEAL_TO_AEGIS = 50;
+    public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_VM_TO_HOST = 51;
 
     // These strings are for the subset of call types that correspond to an AppSearchManager API
     public static final String CALL_TYPE_STRING_INITIALIZE = "initialize";
