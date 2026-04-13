@@ -52,6 +52,12 @@ public class CreatePoseFromGeospatialPoseInternalError(public val error: String)
     CreatePoseFromGeospatialPoseResult()
 
 /**
+ * Prevent exhaustive when by consumers to allow for future extension of
+ * [CreatePoseFromGeospatialPoseResult].
+ */
+private class CreatePoseFromGeospatialPoseResultHidden() : CreatePoseFromGeospatialPoseResult()
+
+/**
  * Result of a successful [Geospatial.createGeospatialPoseFromPose] call.
  *
  * We define horizontal accuracy as the radius of the 68th percentile confidence level around the
@@ -114,3 +120,9 @@ public class CreateGeospatialPoseFromPoseNotTracking : CreateGeospatialPoseFromP
  */
 public class CreateGeospatialPoseFromPoseInternalError(public val error: String) :
     CreateGeospatialPoseFromPoseResult()
+
+/**
+ * Prevent exhaustive when by consumers to allow for future extension of
+ * [CreateGeospatialPoseFromPoseResult].
+ */
+private class CreateGeospatialPoseFromPoseResultHidden() : CreateGeospatialPoseFromPoseResult()

@@ -315,6 +315,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
                 "VPS availability check failed due to resource exhaustion."
             is VpsAvailabilityUnavailable -> "VPS is unavailable."
             null -> "VPS status: checking..."
+            else -> "VPS status: unknown."
         }
     }
 
