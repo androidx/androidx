@@ -154,10 +154,14 @@ internal fun GeospatialState.toRuntimeType(): RuntimeGeospatialState =
     when (this) {
         GeospatialState.PAUSED -> RuntimeGeospatialState.PAUSED
         GeospatialState.RUNNING -> RuntimeGeospatialState.RUNNING
+        GeospatialState.NOT_RUNNING -> RuntimeGeospatialState.NOT_RUNNING
         GeospatialState.ERROR_INTERNAL -> RuntimeGeospatialState.ERROR_INTERNAL
         GeospatialState.ERROR_NOT_AUTHORIZED -> RuntimeGeospatialState.ERROR_NOT_AUTHORIZED
         GeospatialState.ERROR_RESOURCE_EXHAUSTED -> RuntimeGeospatialState.ERROR_RESOURCE_EXHAUSTED
-        else -> RuntimeGeospatialState.NOT_RUNNING
+        else ->
+            throw IllegalStateException(
+                "failed to convert $this to ${RuntimeGeospatialState::class.qualifiedName}"
+            )
     }
 
 internal fun VpsAvailabilityResult.toRuntimeType(): RuntimeVpsAvailabilityResult =
@@ -169,4 +173,8 @@ internal fun VpsAvailabilityResult.toRuntimeType(): RuntimeVpsAvailabilityResult
         is VpsAvailabilityNetworkError -> androidx.xr.arcore.runtime.VpsAvailabilityNetworkError()
         is VpsAvailabilityNotAuthorized -> androidx.xr.arcore.runtime.VpsAvailabilityNotAuthorized()
         is VpsAvailabilityUnavailable -> androidx.xr.arcore.runtime.VpsAvailabilityUnavailable()
+        else ->
+            throw IllegalStateException(
+                "failed to convert $this to ${RuntimeVpsAvailabilityResult::class.qualifiedName}"
+            )
     }
