@@ -36,6 +36,8 @@ internal const val APP_FUNCTION_ID_EMPTY = "unused"
  *   obtain the input/output information, and call the function accordingly.
  */
 public class AppFunctionMetadata
+// TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmOverloads
 constructor(
     /**
@@ -65,7 +67,56 @@ constructor(
      * if the function is not deprecated.
      */
     public val deprecation: AppFunctionDeprecationMetadata? = null,
+    /** The name of the AppFunction. */
+    internal val name: AppFunctionName = AppFunctionName(packageName, id),
+    /** The metadata of the package providing this AppFunction. */
+    internal val packageMetadata: AppFunctionPackageMetadata =
+        AppFunctionPackageMetadata(
+            packageName = packageName,
+            appFunctions = listOf(),
+            components = components,
+        ),
 ) {
+    @JvmOverloads
+    public constructor(
+        /** The name of the AppFunction. */
+        name: AppFunctionName,
+        /**
+         * The predefined schema of the AppFunction. If null, it indicates this function is not
+         * implement a particular predefined schema.
+         */
+        schema: AppFunctionSchemaMetadata?,
+        /** The parameters of the AppFunction. */
+        parameters: List<AppFunctionParameterMetadata>,
+        /** The response of the AppFunction. */
+        response: AppFunctionResponseMetadata,
+        /** The metadata of the package providing this AppFunction. */
+        packageMetadata: AppFunctionPackageMetadata,
+        // TODO(b/500667251): remove isEnabled property. AppFunctionMetadata should now contain
+        //  static info only, in line with platform class, hence using a default false value until
+        //  we migrate.
+        /** Indicates whether the function is enabled currently or not. */
+        isEnabled: Boolean,
+        /** A description of the AppFunction and its intended use. */
+        description: String = "",
+        /**
+         * Deprecation details about the function, if the AppFunction is deprecated. This will be
+         * `null` if the function is not deprecated.
+         */
+        deprecation: AppFunctionDeprecationMetadata? = null,
+    ) : this(
+        id = name.functionIdentifier,
+        packageName = name.packageName,
+        isEnabled = isEnabled,
+        schema = schema,
+        parameters = parameters,
+        response = response,
+        components = packageMetadata.components,
+        description = description,
+        deprecation = deprecation,
+        packageMetadata = packageMetadata,
+        name = name,
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -82,6 +133,8 @@ constructor(
         if (components != other.components) return false
         if (description != other.description) return false
         if (deprecation != other.deprecation) return false
+        if (name != other.name) return false
+        if (packageMetadata != other.packageMetadata) return false
 
         return true
     }
@@ -97,6 +150,8 @@ constructor(
             components,
             description,
             deprecation,
+            name,
+            packageMetadata,
         )
     }
 
@@ -108,9 +163,11 @@ constructor(
         append("schema=$schema, ")
         append("parameters=$parameters, ")
         append("response=$response, ")
-        append("components=$components")
-        append("description=$description")
-        append("deprecation=$deprecation")
+        append("components=$components, ")
+        append("description='$description', ")
+        append("deprecation=$deprecation, ")
+        append("packageMetadata=$packageMetadata, ")
+        append("name=$name")
         append(")")
     }
 
@@ -124,6 +181,8 @@ constructor(
         components: AppFunctionComponentsMetadata = this.components,
         description: String = this.description,
         deprecation: AppFunctionDeprecationMetadata? = this.deprecation,
+        name: AppFunctionName = this.name,
+        packageMetadata: AppFunctionPackageMetadata = this.packageMetadata,
     ): AppFunctionMetadata {
         return AppFunctionMetadata(
             id = id,
@@ -135,6 +194,8 @@ constructor(
             components = components,
             description = description,
             deprecation = deprecation,
+            name = name,
+            packageMetadata = packageMetadata,
         )
     }
 }

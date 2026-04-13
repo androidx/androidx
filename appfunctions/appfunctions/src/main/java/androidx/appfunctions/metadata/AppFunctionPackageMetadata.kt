@@ -22,22 +22,31 @@ import android.content.res.XmlResourceParser
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata.Companion.APP_METADATA_APPFUNCTIONS_LIBRARY_ATTRIBUTE_NAMESPACE
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata.Companion.APP_METADATA_ATTRIBUTE_NAMESPACE
 import org.xmlpull.v1.XmlPullParser
 
-/**
- * Represents metadata about a package providing app functions.
- *
- * @property packageName name of the package.
- * @property appFunctions list of [AppFunctionMetadata] for each app function provided by the app.
- */
-public class AppFunctionPackageMetadata(
+/** Represents metadata about a package providing app functions. */
+public class AppFunctionPackageMetadata
+// TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmOverloads
+constructor(
+    /** The name of the package */
     public val packageName: String,
+    /** The list of [AppFunctionMetadata] for each app function provided by the app. */
     public val appFunctions: List<AppFunctionMetadata>,
+    /** Reusable components that could be shared within the function specification. */
+    internal val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
 ) {
+    public constructor(
+        packageName: String,
+        components: AppFunctionComponentsMetadata,
+    ) : this(packageName = packageName, appFunctions = listOf(), components = components)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -46,6 +55,7 @@ public class AppFunctionPackageMetadata(
 
         if (packageName != other.packageName) return false
         if (appFunctions != other.appFunctions) return false
+        if (components != other.components) return false
 
         return true
     }
@@ -53,11 +63,13 @@ public class AppFunctionPackageMetadata(
     override fun hashCode(): Int {
         var result = packageName.hashCode()
         result = 31 * result + appFunctions.hashCode()
+        result = 31 * result + components.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "AppFunctionPackageMetadata(packageName='$packageName', appFunctions=$appFunctions)"
+        return "AppFunctionPackageMetadata(packageName='$packageName', " +
+            "appFunctions=$appFunctions, components=$components)"
     }
 
     /**
