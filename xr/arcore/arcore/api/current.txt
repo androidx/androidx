@@ -41,16 +41,13 @@ package androidx.xr.arcore {
     ctor public AnchorCreateTrackingUnavailable();
   }
 
-  public abstract sealed nonexhaustive class AnchorException extends java.lang.Exception {
-  }
-
-  public final class AnchorInvalidUuidException extends androidx.xr.arcore.AnchorException {
+  public final class AnchorInvalidUuidException extends java.lang.RuntimeException {
     ctor public AnchorInvalidUuidException();
     ctor public AnchorInvalidUuidException(optional String message, optional Throwable? cause);
     ctor @BytecodeOnly public AnchorInvalidUuidException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public final class AnchorNotAuthorizedException extends androidx.xr.arcore.AnchorException {
+  public final class AnchorNotAuthorizedException extends java.lang.RuntimeException {
     ctor public AnchorNotAuthorizedException();
     ctor public AnchorNotAuthorizedException(optional String message, optional Throwable? cause);
     ctor @BytecodeOnly public AnchorNotAuthorizedException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -59,19 +56,19 @@ package androidx.xr.arcore {
   public abstract sealed nonexhaustive class AnchorResult {
   }
 
-  public final class AnchorRuntimeFailureException extends androidx.xr.arcore.AnchorException {
+  public final class AnchorRuntimeFailureException extends java.lang.RuntimeException {
     ctor public AnchorRuntimeFailureException();
     ctor public AnchorRuntimeFailureException(optional String message, optional Throwable? cause);
     ctor @BytecodeOnly public AnchorRuntimeFailureException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public final class AnchorUnsupportedLocationException extends androidx.xr.arcore.AnchorException {
+  public final class AnchorUnsupportedLocationException extends java.lang.RuntimeException {
     ctor public AnchorUnsupportedLocationException();
     ctor public AnchorUnsupportedLocationException(optional String message, optional Throwable? cause);
     ctor @BytecodeOnly public AnchorUnsupportedLocationException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public final class AnchorUnsupportedObjectException extends androidx.xr.arcore.AnchorException {
+  public final class AnchorUnsupportedObjectException extends java.lang.RuntimeException {
     ctor public AnchorUnsupportedObjectException();
     ctor public AnchorUnsupportedObjectException(optional String message, optional Throwable? cause);
     ctor @BytecodeOnly public AnchorUnsupportedObjectException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);

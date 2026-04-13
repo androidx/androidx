@@ -16,39 +16,32 @@
 
 package androidx.xr.arcore
 
-/** Custom class for exceptions related to [Anchor] APIs. */
-public sealed class AnchorException(message: String, cause: Throwable? = null) :
-    Exception(message, cause)
-
 /** Anchor was not loaded from a valid UUID. */
 public class AnchorInvalidUuidException(
     message: String = "Unable to create anchor. Invalid UUID provided.",
     cause: Throwable? = null,
-) : AnchorException(message, cause)
+) : RuntimeException(message, cause)
 
 /** Anchor was not created due to an authorization error. */
 public class AnchorNotAuthorizedException(
     message: String = "Unable to create anchor. Not authorized.",
     cause: Throwable? = null,
-) : AnchorException(message, cause)
+) : RuntimeException(message, cause)
 
 /** Anchor was not created because the provided location is unsupported. */
 public class AnchorUnsupportedLocationException(
     message: String = "Unable to create anchor. Unsupported location.",
     cause: Throwable? = null,
-) : AnchorException(message, cause)
+) : RuntimeException(message, cause)
 
 /** Anchor was not created due to a runtime failure. */
 public class AnchorRuntimeFailureException(
     message: String = "Unable to create anchor due to failure in the runtime.",
     cause: Throwable? = null,
-) : AnchorException(message, cause)
+) : RuntimeException(message, cause)
 
 /** Anchor was not created because the object is not anchorable. */
 public class AnchorUnsupportedObjectException(
     message: String = "Unable to create anchor. Object is not anchorable.",
     cause: Throwable? = null,
-) : AnchorException(message, cause)
-
-/** Prevent exhaustive when by consumers to allow for future extension of [AnchorException]. */
-private class AnchorExceptionHidden() : AnchorException("Unused")
+) : RuntimeException(message, cause)
