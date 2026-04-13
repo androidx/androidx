@@ -28,6 +28,7 @@ import androidx.appfunctions.metadata.AppFunctionComponentsMetadataDocument
 import androidx.appfunctions.metadata.AppFunctionDeprecationMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadataDocument
+import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadataDocument
@@ -319,15 +320,14 @@ internal class AppSearchAppFunctionReader(
         val deprecationMetadata = getAppFunctionDeprecationMetadata(staticMetadataDocument)
 
         return AppFunctionMetadata(
-            id = functionId,
-            packageName = packageName,
-            isEnabled = computeEffectivelyEnabled(staticMetadataDocument, runtimeMetadataDocument),
+            name = AppFunctionName(packageName, functionId),
             schema = schemaMetadata,
             parameters = parameterMetadata,
             response = responseMetadata,
-            components = componentMetadata,
+            packageMetadata = AppFunctionPackageMetadata(packageName, componentMetadata),
             description = staticMetadataDocument.description ?: "",
             deprecation = deprecationMetadata,
+            isEnabled = computeEffectivelyEnabled(staticMetadataDocument, runtimeMetadataDocument),
         )
     }
 
@@ -424,14 +424,17 @@ internal class AppSearchAppFunctionReader(
                 searchTopLevelComponent(session, setOf(packageName)),
             ) ?: return null
 
+        val deprecationMetadata = getAppFunctionDeprecationMetadata(staticMetadataDocument)
+
         return AppFunctionMetadata(
-            id = functionId,
-            packageName = packageName,
-            isEnabled = computeEffectivelyEnabled(staticMetadataDocument, runtimeMetadataDocument),
+            name = AppFunctionName(packageName, functionId),
             schema = schemaMetadata,
             parameters = parameterMetadata,
             response = responseMetadata,
-            components = componentMetadata,
+            packageMetadata = AppFunctionPackageMetadata(packageName, componentMetadata),
+            description = staticMetadataDocument.description ?: "",
+            deprecation = deprecationMetadata,
+            isEnabled = computeEffectivelyEnabled(staticMetadataDocument, runtimeMetadataDocument),
         )
     }
 

@@ -24,6 +24,8 @@ import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.EXTRA_USE_JETPA
 import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.toCompatExecuteAppFunctionRequest
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
@@ -247,13 +249,16 @@ class ExecuteAppFunctionRequestTest {
 
         val TEST_APP_FUNCTION_METADATA =
             AppFunctionMetadata(
-                id = "method",
-                packageName = "pkg",
-                isEnabled = true,
+                name = AppFunctionName(packageName = "pkg", functionIdentifier = "method"),
                 schema = null,
                 parameters = TEST_PARAMETERS,
                 response = AppFunctionResponseMetadata(valueType = AppFunctionUnitTypeMetadata()),
-                components = AppFunctionComponentsMetadata(),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = "pkg",
+                        components = AppFunctionComponentsMetadata(),
+                    ),
+                isEnabled = true,
             )
     }
 }

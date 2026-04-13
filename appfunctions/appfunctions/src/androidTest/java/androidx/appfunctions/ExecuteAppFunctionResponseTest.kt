@@ -21,6 +21,8 @@ import android.os.Bundle
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
@@ -119,9 +121,7 @@ class ExecuteAppFunctionResponseTest {
     companion object {
         private val TEST_APP_FUNCTION_METADATA =
             AppFunctionMetadata(
-                id = "testId",
-                packageName = "testPackage",
-                components = AppFunctionComponentsMetadata(),
+                name = AppFunctionName(packageName = "testPackage", functionIdentifier = "testId"),
                 schema = null,
                 parameters =
                     listOf(
@@ -132,6 +132,11 @@ class ExecuteAppFunctionResponseTest {
                         )
                     ),
                 response = AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(false)),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = "testPackage",
+                        components = AppFunctionComponentsMetadata(),
+                    ),
                 isEnabled = true,
             )
 
