@@ -43,26 +43,52 @@ internal class OpenXrDeviceCapabilityProvider(override val context: Context) :
     }
 
     override fun isHandTrackingModeSupported(mode: HandTrackingMode): Boolean {
-        throw UnsupportedOperationException("Not yet implemented")
+        return if (mode == HandTrackingMode.DISABLED) {
+            true
+        } else {
+            nativeIsHandTrackingSupported(OpenXrInstanceManager.nativePointer)
+        }
     }
 
     override fun isEyeTrackingModeSupported(mode: EyeTrackingMode): Boolean {
-        throw UnsupportedOperationException("Not yet implemented")
+        return if (mode == EyeTrackingMode.DISABLED) {
+            true
+        } else {
+            nativeIsEyeTrackingSupported(OpenXrInstanceManager.nativePointer)
+        }
     }
 
     override fun isGeospatialModeSupported(mode: GeospatialMode): Boolean {
-        throw UnsupportedOperationException("Not yet implemented")
+        return if (mode == GeospatialMode.DISABLED) {
+            true
+        } else {
+            nativeIsGeospatialSupported(OpenXrInstanceManager.nativePointer)
+        }
     }
 
     override fun isDepthEstimationModeSupported(mode: DepthEstimationMode): Boolean {
-        throw UnsupportedOperationException("Not yet implemented")
+        return if (mode == DepthEstimationMode.DISABLED) {
+            true
+        } else {
+            nativeIsDepthTrackingSupported(OpenXrInstanceManager.nativePointer)
+        }
     }
 
     override fun isRenderingModeSupported(mode: RenderingMode): Boolean {
-        throw UnsupportedOperationException("Not yet implemented")
+        return nativeIsRenderingModeSupported(OpenXrInstanceManager.nativePointer, mode.value)
     }
 
     private external fun nativeGetPreferredBlendMode(nativePointer: Long): DisplayBlendMode?
+
+    private external fun nativeIsHandTrackingSupported(nativePointer: Long): Boolean
+
+    private external fun nativeIsEyeTrackingSupported(nativePointer: Long): Boolean
+
+    private external fun nativeIsGeospatialSupported(nativePointer: Long): Boolean
+
+    private external fun nativeIsDepthTrackingSupported(nativePointer: Long): Boolean
+
+    private external fun nativeIsRenderingModeSupported(nativePointer: Long, mode: Int): Boolean
 }
 
 /**

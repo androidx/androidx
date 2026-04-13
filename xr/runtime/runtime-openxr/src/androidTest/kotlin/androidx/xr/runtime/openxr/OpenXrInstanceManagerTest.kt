@@ -32,6 +32,8 @@ class OpenXrInstanceManagerTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val handle = OpenXrInstanceManager.getXrInstanceHandle(context)
 
-        assertThat(handle).isNotEqualTo(0L)
+        // The value below comes from kInstance in
+        // third_party/jetpack_xr_natives/common/openxr_stub.cc
+        assertThat(handle).isEqualTo(1111L)
     }
 }
