@@ -153,7 +153,6 @@ package androidx.compose.ui {
     property public boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     property public boolean isBypassUnfocusableComposeViewEnabled;
     property public boolean isFocusRestorationEnabled;
-    property public boolean isIndirectPointerNavigationGestureDetectorEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isMediaQueryIntegrationEnabled;
     property public boolean isOptimizedFocusEventDispatchEnabled;
@@ -163,7 +162,6 @@ package androidx.compose.ui {
     field public static boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     field public static boolean isBypassUnfocusableComposeViewEnabled;
     field public static boolean isFocusRestorationEnabled;
-    field public static boolean isIndirectPointerNavigationGestureDetectorEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isMediaQueryIntegrationEnabled;
     field public static boolean isOptimizedFocusEventDispatchEnabled;
