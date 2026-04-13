@@ -77,8 +77,8 @@ androidx {
     name = "Camera2 Pipe"
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
-    description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
-            "that will form a flexible shim layer to power Frameserver and CameraX."
-    doNotDocumentReason = "Not shipped externally"
+    description = "CameraPipe is a low level, high performance alternative to Camera2 " +
+        "built on Kotlin"
+    doNotDocumentReason = "Internal library"
     enableRobolectric()
 }
