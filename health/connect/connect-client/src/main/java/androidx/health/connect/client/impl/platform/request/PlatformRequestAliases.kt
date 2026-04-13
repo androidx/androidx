@@ -60,3 +60,10 @@ internal typealias PlatformDeleteMedicalResourcesRequest =
 
 internal typealias PlatformDeleteMedicalResourcesRequestBuilder =
     android.health.connect.DeleteMedicalResourcesRequest.Builder
+
+internal typealias PlatformMatchmakingRequest = android.health.connect.MatchmakingRequest
+
+internal typealias PlatformMatchmakingRequestBuilder =
+    android.health.connect.MatchmakingRequest.Builder
+
+internal typealias PlatformMatchmakingResponse = android.health.connect.MatchmakingResponse
