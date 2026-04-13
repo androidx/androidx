@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.spatial.rendering.impress
+package androidx.xr.scenecore.impl.impress
 
 import android.os.Handler
 import android.os.Looper
@@ -26,15 +26,15 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.impl.impress.ImpressApi.ColorRange
+import androidx.xr.scenecore.impl.impress.ImpressApi.ColorSpace
+import androidx.xr.scenecore.impl.impress.ImpressApi.ColorTransfer
+import androidx.xr.scenecore.impl.impress.ImpressApi.ContentSecurityLevel
+import androidx.xr.scenecore.impl.impress.ImpressApi.DrawMode
+import androidx.xr.scenecore.impl.impress.ImpressApi.MediaBlendingMode
+import androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.ColorRange
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.ColorSpace
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.ColorTransfer
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.ContentSecurityLevel
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.DrawMode
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.MediaBlendingMode
-import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.StereoMode
 import com.google.ar.imp.view.View
 import java.io.IOException
 import java.nio.FloatBuffer

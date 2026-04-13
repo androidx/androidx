@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.spatial.rendering.impress
+package androidx.xr.scenecore.impl.impress
 
 import android.view.Surface
 import androidx.annotation.IntDef

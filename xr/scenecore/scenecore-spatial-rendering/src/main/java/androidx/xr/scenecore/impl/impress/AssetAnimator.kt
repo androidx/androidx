@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.spatial.rendering.impress
+package androidx.xr.scenecore.impl.impress
 
 /**
- * Interface defining the callbacks that are triggered from the Native side when an asset is loaded.
+ * Interface defining the callbacks that are triggered from the Native side when an asset is
+ * animated.
  *
- * @UsedByNative("impress/apibindings/asset_loader.cc")
+ * @UsedByNative("impress/apibindings/asset_animator.cc")
  *
  * TODO(b/440328311): Convert to real annotation to enable code minimization in the rest of
  *   SceneCore.
  */
-internal interface AssetLoader {
-    /** Called when the asset is successfully loaded where the long value is the asset token. */
-    public fun onSuccess(value: Long)
+internal interface AssetAnimator {
+    /** Called when the asset is done animating. */
+    public fun onComplete()
 
-    /** Called when the asset fails to load. */
+    /** Called when the asset fails to be animated. */
     public fun onFailure(message: String)
 
-    /** Called when the asset loading is cancelled, such as during shutdown. */
+    /** Called when the animation is cancelled, such as during shutdown. */
     public fun onCancelled(message: String)
 }
