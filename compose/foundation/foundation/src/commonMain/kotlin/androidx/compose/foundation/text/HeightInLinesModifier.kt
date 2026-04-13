@@ -26,6 +26,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -51,6 +53,8 @@ import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.util.fastCoerceAtLeast
+import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * The default minimum height in terms of minimum number of visible lines.
@@ -197,6 +201,48 @@ private class HeightInLinesNode(
 
         val measured = measurable.measure(childConstraints)
         return layout(measured.width, measured.height) { measured.placeRelative(0, 0) }
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int {
+        getOrPrecomputeMinMaxHeight()
+        return if (precomputedMinLinesHeight == precomputedMaxLinesHeight) {
+            precomputedMinLinesHeight
+        } else {
+            measurable
+                .minIntrinsicHeight(width)
+                .fastCoerceIn(precomputedMinLinesHeight, precomputedMaxLinesHeight)
+        }
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int {
+        getOrPrecomputeMinMaxHeight()
+        return if (precomputedMinLinesHeight == precomputedMaxLinesHeight) {
+            precomputedMaxLinesHeight
+        } else {
+            measurable
+                .maxIntrinsicHeight(width)
+                .fastCoerceIn(precomputedMinLinesHeight, precomputedMaxLinesHeight)
+        }
+    }
+
+    private fun Density.getOrPrecomputeMinMaxHeight() {
+        if (dirty) {
+            computeHeights(
+                density = this,
+                resolvedStyle = requireResolvedStyle(),
+                fontFamilyResolver = currentValueOf(LocalFontFamilyResolver),
+            )
+            dirty = false
+        }
+        precomputedMinLinesHeight = precomputedMinLinesHeight.fastCoerceAtLeast(0)
+        precomputedMaxLinesHeight =
+            if (precomputedMaxLinesHeight != -1) precomputedMaxLinesHeight else Constraints.Infinity
     }
 
     override fun onObservedReadsChanged() {
