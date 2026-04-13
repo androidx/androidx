@@ -31,6 +31,7 @@ import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.health.connect.client.ExperimentalMatchmakingApi
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
@@ -56,7 +57,9 @@ import androidx.health.connect.client.impl.platform.records.PlatformPressure
 import androidx.health.connect.client.impl.platform.records.PlatformTemperatureDelta
 import androidx.health.connect.client.impl.platform.records.PlatformVelocity
 import androidx.health.connect.client.impl.platform.records.toSdkDataOrigin
+import androidx.health.connect.client.impl.platform.request.PlatformMatchmakingResponse
 import androidx.health.connect.client.impl.platform.request.toAggregationType
+import androidx.health.connect.client.matchmaking.MatchmakingResponse
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
 import java.time.Duration
@@ -64,6 +67,11 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 private const val BUCKET_DATA_ORIGINS_EXTENSION_VERSION = 10
+
+@SuppressLint("NewApi") // already checked with a feature availability check
+@OptIn(ExperimentalMatchmakingApi::class)
+fun PlatformMatchmakingResponse.toKtResponse(): MatchmakingResponse =
+    MatchmakingResponse(isMatchmakingPossible = isMatchmakingPossible)
 
 fun AggregateRecordsResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
     buildAggregationResult(metrics, ::get, ::getDataOrigins)

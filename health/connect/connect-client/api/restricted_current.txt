@@ -1,10 +1,15 @@
 // Signature format: 4.0
 package androidx.health.connect.client {
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental Matchmaking API and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMatchmakingApi {
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface HealthConnectClient {
     method public suspend Object? aggregate(androidx.health.connect.client.request.AggregateRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.aggregate.AggregationResult>);
     method public suspend Object? aggregateGroupByDuration(androidx.health.connect.client.request.AggregateGroupByDurationRequest request, kotlin.coroutines.Continuation<? super java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>);
     method public suspend Object? aggregateGroupByPeriod(androidx.health.connect.client.request.AggregateGroupByPeriodRequest request, kotlin.coroutines.Continuation<? super java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>);
+    method @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public default suspend Object? checkIfMatchmakingIsPossible(androidx.health.connect.client.matchmaking.MatchmakingRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.matchmaking.MatchmakingResponse>);
+    method @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public default android.content.Intent createMatchmakingIntent(androidx.health.connect.client.matchmaking.MatchmakingRequest request);
     method @SuppressCompatibility @RequiresPermission("android.permission.health.WRITE_MEDICAL_DATA") @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public default suspend Object? createMedicalDataSource(androidx.health.connect.client.request.CreateMedicalDataSourceRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.records.MedicalDataSource>);
     method @SuppressCompatibility @RequiresPermission("android.permission.health.WRITE_MEDICAL_DATA") @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public default suspend Object? deleteMedicalDataSourceWithData(String id, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @SuppressCompatibility @RequiresPermission("android.permission.health.WRITE_MEDICAL_DATA") @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public default suspend Object? deleteMedicalResources(androidx.health.connect.client.request.DeleteMedicalResourcesRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -72,6 +77,7 @@ package androidx.health.connect.client {
     field public static final int FEATURE_ACTIVITY_INTENSITY = 7; // 0x7
     field public static final int FEATURE_EXERCISE_SESSION_IMPROVEMENTS = 9; // 0x9
     field public static final int FEATURE_EXTENDED_DEVICE_TYPES = 8; // 0x8
+    field @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public static final int FEATURE_MATCHMAKING = 10; // 0xa
     field public static final int FEATURE_MINDFULNESS_SESSION = 5; // 0x5
     field @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public static final int FEATURE_PERSONAL_HEALTH_RECORD = 6; // 0x6
     field public static final int FEATURE_PLANNED_EXERCISE = 3; // 0x3
@@ -86,6 +92,7 @@ package androidx.health.connect.client {
     property public static int FEATURE_ACTIVITY_INTENSITY;
     property public static int FEATURE_EXERCISE_SESSION_IMPROVEMENTS;
     property public static int FEATURE_EXTENDED_DEVICE_TYPES;
+    property @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public static int FEATURE_MATCHMAKING;
     property public static int FEATURE_MINDFULNESS_SESSION;
     property @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public static int FEATURE_PERSONAL_HEALTH_RECORD;
     property public static int FEATURE_PLANNED_EXERCISE;
@@ -97,6 +104,7 @@ package androidx.health.connect.client {
     field public static final int FEATURE_ACTIVITY_INTENSITY = 7; // 0x7
     field public static final int FEATURE_EXERCISE_SESSION_IMPROVEMENTS = 9; // 0x9
     field public static final int FEATURE_EXTENDED_DEVICE_TYPES = 8; // 0x8
+    field public static final int FEATURE_MATCHMAKING = 10; // 0xa
     field public static final int FEATURE_MINDFULNESS_SESSION = 5; // 0x5
     field public static final int FEATURE_PERSONAL_HEALTH_RECORD = 6; // 0x6
     field public static final int FEATURE_PLANNED_EXERCISE = 3; // 0x3
@@ -195,6 +203,28 @@ package androidx.health.connect.client.contracts {
 package @SuppressCompatibility androidx.health.connect.client.feature {
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is a part of the Personal Health Record experimental Health Connect APIs and could change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalPersonalHealthRecordApi {
+  }
+
+}
+
+package @SuppressCompatibility androidx.health.connect.client.matchmaking {
+
+  @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public final class MatchmakingRequest {
+    ctor public MatchmakingRequest();
+    ctor @BytecodeOnly public MatchmakingRequest(java.util.Set!, java.util.Set!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public MatchmakingRequest(optional java.util.Set<? extends kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record>> recordTypes, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> includedDataSources, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> excludedDataSources);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> getExcludedDataSources();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> getIncludedDataSources();
+    method @InaccessibleFromKotlin public java.util.Set<kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record>> getRecordTypes();
+    property public java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> excludedDataSources;
+    property public java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> includedDataSources;
+    property public java.util.Set<kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record>> recordTypes;
+  }
+
+  @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public final class MatchmakingResponse {
+    ctor public MatchmakingResponse(boolean isMatchmakingPossible);
+    method @InaccessibleFromKotlin public boolean isMatchmakingPossible();
+    property public boolean isMatchmakingPossible;
   }
 
 }
