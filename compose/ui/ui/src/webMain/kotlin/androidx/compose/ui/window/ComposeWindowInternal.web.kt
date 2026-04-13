@@ -644,6 +644,16 @@ internal class ComposeWindow(
             if (eventType == PointerEventType.Release) {
                 activeTouchPointers.remove(event.pointerId)
             }
+
+            if (result != null && result.anyChangeConsumed && event.cancelable) {
+                event.preventDefault()
+
+                // Since we call preventDefault, the browser will not focus the canvas automatically,
+                // but it should be focused to receive key events.
+                if (!canvasFocused && !isTouchEvent && eventType == PointerEventType.Press) {
+                    canvas.focus()
+                }
+            }
         } else {
             keyboardModeState = KeyboardModeState.Hardware
 
@@ -679,16 +689,6 @@ internal class ComposeWindow(
                 nativeEvent = event,
                 button = event.composeButton,
             )
-        }
-
-        if (result != null && result.anyChangeConsumed && event.cancelable) {
-            event.preventDefault()
-
-            // Since we call preventDefault, the browser will not focus the canvas automatically,
-            // but it should be focused to receive key events.
-            if (!canvasFocused && !isTouchEvent && eventType == PointerEventType.Press) {
-                canvas.focus()
-            }
         }
     }
 
