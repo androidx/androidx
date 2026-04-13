@@ -618,6 +618,26 @@ internal class BrowserInputTest {
         }
     }
 
+    @Test
+    fun onHistoryChanged_updatesTitleAndFragment() {
+        runTest(testDispatcher) {
+            val handler = TestNavigationEventHandler<TestInfo>(TestInfo.A)
+            dispatcher.addHandler(handler)
+            advanceUntilIdle()
+
+            // Verify initial title and fragment
+            assertThat(window.title).isEqualTo("A")
+            assertThat(window.entries[window.index].url).isEqualTo("#A")
+
+            handler.setInfo(currentIndex = 1, TestInfo.A, TestInfo.B)
+            advanceUntilIdle()
+
+            // Verify updated title and fragment
+            assertThat(window.title).isEqualTo("B")
+            assertThat(window.entries[window.index].url).isEqualTo("#B")
+        }
+    }
+
     /**
      * A sealed class representing type-safe navigation information used for testing.
      *
@@ -677,6 +697,8 @@ internal class BrowserInputTest {
 
         override val state: JsAny?
             get() = entries[index].state
+
+        override var title = ""
 
         override val popStateEvents: Flow<PopStateEvent> = callbackFlow {
             val callback: (PopStateEvent) -> Unit = { event -> trySend(event) }
