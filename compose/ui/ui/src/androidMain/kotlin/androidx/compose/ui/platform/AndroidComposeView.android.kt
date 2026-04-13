@@ -86,7 +86,6 @@ import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ComposeUiFlags.isIndirectPointerNavigationGestureDetectorEnabled
 import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalIndirectPointerApi
@@ -2507,17 +2506,14 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     private fun handleIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean {
         val isConsumed = focusOwner.dispatchIndirectPointerEvent(indirectPointerEvent)
 
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (isIndirectPointerNavigationGestureDetectorEnabled) {
-            indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                indirectPointerEvent = indirectPointerEvent,
-                isConsumed = isConsumed,
-            )
+        indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
+            indirectPointerEvent = indirectPointerEvent,
+            isConsumed = isConsumed,
+        )
 
-            return true
-        }
-
-        return isConsumed
+        // Either an owner will handle the indirect event or the default gesture handler will in
+        // this class.
+        return true
     }
 
     // TODO(shepshapard): Test this method.
