@@ -138,7 +138,7 @@ public class CameraControllerSimulator(
             currentGraphRequestProcessor = null
 
             if (captureSequenceProcessor != null && graphRequestProcessor != null) {
-                graphListener.onGraphStopped(graphRequestProcessor)
+                graphListener.onGraphModified(graphRequestProcessor)
             }
         }
     }
