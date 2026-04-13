@@ -60,11 +60,11 @@ internal class NavigationBackHandlerTest {
                     )
                 val sceneState =
                     rememberSceneState(entries, listOf(SinglePaneSceneStrategy())) {
-                        backStack.removeAt(backStack.lastIndex)
+                        backStack.removeLastOrNull()
                     }
                 NavigationBackHandler(sceneState) {
                     backCount++
-                    backStack.removeAt(backStack.lastIndex)
+                    backStack.removeLastOrNull()
                 }
             }
         }
@@ -108,11 +108,11 @@ internal class NavigationBackHandlerTest {
                         entries,
                         listOf(multiPopStrategy, SinglePaneSceneStrategy()),
                     ) {
-                        backStack.removeAt(backStack.lastIndex)
+                        backStack.removeLastOrNull()
                     }
                 NavigationBackHandler(sceneState) {
                     backCount++
-                    backStack.removeAt(backStack.lastIndex)
+                    backStack.removeLastOrNull()
                 }
             }
         }
@@ -122,6 +122,41 @@ internal class NavigationBackHandlerTest {
         rule.runOnIdle {
             assertThat(backCount).isEqualTo(2)
             assertThat(backStack).containsExactly(First)
+        }
+    }
+
+    @Test
+    fun testNavigationBackHandlerBackCancelled() {
+        var cancelledCount = 0
+        val backStack = mutableStateListOf(First, Second)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides owner) {
+                val entries =
+                    rememberDecoratedNavEntries(
+                        backStack,
+                        emptyList(),
+                        entryProvider {
+                            entry<First> {}
+                            entry<Second> {}
+                            entry<Third> {}
+                        },
+                    )
+                val sceneState =
+                    rememberSceneState(entries, listOf(SinglePaneSceneStrategy())) {
+                        backStack.removeLastOrNull()
+                    }
+                NavigationBackHandler(sceneState, onBackCancelled = { cancelledCount++ }) {
+                    backStack.removeLastOrNull()
+                }
+            }
+        }
+
+        rule.runOnIdle { input.backCancelled() }
+
+        rule.runOnIdle {
+            assertThat(cancelledCount).isEqualTo(1)
+            assertThat(backStack).containsExactly(First, Second)
         }
     }
 

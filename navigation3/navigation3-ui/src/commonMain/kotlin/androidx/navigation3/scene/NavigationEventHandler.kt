@@ -31,24 +31,27 @@ import androidx.navigationevent.compose.NavigationEventState
  * @param sceneState the [SceneState] that this handler is associated with.
  * @param state the hoisted [NavigationEventState] (returned from [rememberNavigationEventState]) to
  *   be registered.
- * @param onBack called when a back navigation gesture completes and navigation occurs.
+ * @param onBackCancelled called if a back navigation gesture is cancelled.
+ * @param onBackCompleted called when a back navigation gesture completes and navigation occurs.
  */
 @Composable
 public fun <T : Any> NavigationBackHandler(
     sceneState: SceneState<T>,
     state: NavigationEventState<SceneInfo<T>> = rememberNavigationEventState(sceneState),
-    onBack: () -> Unit,
+    onBackCancelled: () -> Unit = {},
+    onBackCompleted: () -> Unit,
 ) {
     NavigationBackHandler(
         state = state,
         isBackEnabled = sceneState.currentScene.previousEntries.isNotEmpty(),
+        onBackCancelled = onBackCancelled,
         onBackCompleted = {
             // If 'enabled' becomes stale (e.g., it was set to false but a gesture was
             // dispatched in the same frame), this may result in no entries being popped
             // due to 'entries.size' being smaller than 'scene.previousEntries.size'
             // but that's preferable to crashing with an 'IndexOutOfBoundsException'
             repeat(sceneState.entries.size - sceneState.currentScene.previousEntries.size) {
-                onBack()
+                onBackCompleted()
             }
         },
     )

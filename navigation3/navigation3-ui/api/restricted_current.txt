@@ -17,8 +17,8 @@ package androidx.navigation3.scene {
   }
 
   public final class NavigationEventHandlerKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> void NavigationBackHandler(androidx.navigation3.scene.SceneState<T> sceneState, optional androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>> state, kotlin.jvm.functions.Function0<kotlin.Unit> onBack);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> void NavigationBackHandler(androidx.navigation3.scene.SceneState<T>, androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> void NavigationBackHandler(androidx.navigation3.scene.SceneState<T> sceneState, optional androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>> state, optional kotlin.jvm.functions.Function0<kotlin.Unit> onBackCancelled, kotlin.jvm.functions.Function0<kotlin.Unit> onBackCompleted);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> void NavigationBackHandler(androidx.navigation3.scene.SceneState<T>, androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
   public interface OverlayScene<T> extends androidx.navigation3.scene.Scene<T> {
