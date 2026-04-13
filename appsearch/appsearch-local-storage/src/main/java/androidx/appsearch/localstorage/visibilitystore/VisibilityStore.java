@@ -400,6 +400,7 @@ public class VisibilityStore {
             searchResultPage = mAppSearchImpl.getNextPage(
                     VISIBILITY_PACKAGE_NAME,
                     searchResultPage.getNextPageToken(),
+                    /*maxResults=*/Integer.MAX_VALUE,
                     /*queryStatsBuilder=*/null,
                     callStatsBuilder);
             searchResults = searchResultPage.getResults();
