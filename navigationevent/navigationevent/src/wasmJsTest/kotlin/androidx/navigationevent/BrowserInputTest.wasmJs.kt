@@ -593,6 +593,31 @@ internal class BrowserInputTest {
         }
     }
 
+    @Test
+    fun onAdded_recoversStateFromWindow() {
+        runTest(testDispatcher) {
+            // Pre-seed the window with a state
+            window.replaceState(5.toJsNumber())
+
+            // We need to create a new BrowserInput and add it to a new dispatcher
+            // because the previous one was already initialized.
+            val newDispatcher = NavigationEventDispatcher()
+            val newInput = BrowserInput(window, testDispatcher)
+
+            newDispatcher.addInput(newInput)
+            advanceUntilIdle()
+
+            // Verify that the input recovered the index 5
+            // If we now add a handler with 1 item, it will call window.go(-5)
+            val handler = TestNavigationEventHandler<TestInfo>(TestInfo.A)
+            newDispatcher.addHandler(handler)
+            advanceUntilIdle()
+
+            // Index was 5, now it should be 0.
+            assertThat(window.index).isEqualTo(0)
+        }
+    }
+
     /**
      * A sealed class representing type-safe navigation information used for testing.
      *

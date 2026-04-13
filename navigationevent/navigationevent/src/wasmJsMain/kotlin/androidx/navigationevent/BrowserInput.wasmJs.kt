@@ -90,10 +90,22 @@ internal class BrowserInput(
         // (e.g., the back button) into application-level navigation events.
         coroutineScope!!.launch { window.popStateEvents.collect { onPopState(it) } }
 
-        // Seed the current history entry with an initial index of 0. This index tracks the
-        // application's relative position in the browser's history stack, allowing us to
-        // determine the direction and distance of navigation during popstate events.
-        window.replaceState(0.toJsNumber())
+        // Attempt to recover the index from the browser's history state (e.g., after a page
+        // refresh). If no state exists, seed it with 0.
+        val currentState = window.state
+        val recoveredIndex = (currentState as? JsNumber)?.toInt()
+
+        if (recoveredIndex != null) {
+            browserIndex = recoveredIndex
+            logicalHistorySize = recoveredIndex + 1
+            pushedHistorySize = recoveredIndex + 1
+        } else {
+            // TODO(mgalhardo): Blindly replacing the state with a primitive number overwrites
+            //  any existing application state stored in history.state. We should instead use
+            //  a wrapper JS object and merge our navigation index property (e.g., { __index: 0 })
+            //  with the existing state to preserve app data.
+            window.replaceState(0.toJsNumber())
+        }
     }
 
     /**
