@@ -20,7 +20,12 @@ import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
+import androidx.xr.runtime.interfaces.DepthEstimationMode
 import androidx.xr.runtime.interfaces.DisplayBlendMode
+import androidx.xr.runtime.interfaces.EyeTrackingMode
+import androidx.xr.runtime.interfaces.GeospatialMode
+import androidx.xr.runtime.interfaces.HandTrackingMode
+import androidx.xr.runtime.interfaces.RenderingMode
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -56,5 +61,40 @@ class OpenXrDeviceCapabilityProviderTest {
     fun getPreferredDisplayBlendMode_returnBlendMode() {
         // DisplayBlendMode value comes from third_party/jetpack_xr_natives/common/openxr_stub.cc.
         assertThat(underTest.getPreferredDisplayBlendMode()).isEqualTo(DisplayBlendMode.ADDITIVE)
+    }
+
+    @Test
+    fun isHandTrackingSupported_returnsTrueForAllModes() {
+        assertThat(underTest.isHandTrackingModeSupported(HandTrackingMode.DISABLED)).isTrue()
+        assertThat(underTest.isHandTrackingModeSupported(HandTrackingMode.BOTH)).isTrue()
+    }
+
+    @Test
+    fun isEyeTrackingSupported_returnsTrueForAllModes() {
+        assertThat(underTest.isEyeTrackingModeSupported(EyeTrackingMode.DISABLED)).isTrue()
+        assertThat(underTest.isEyeTrackingModeSupported(EyeTrackingMode.FINE_TRACKING)).isTrue()
+        assertThat(underTest.isEyeTrackingModeSupported(EyeTrackingMode.COARSE_TRACKING)).isTrue()
+    }
+
+    @Test
+    fun isDepthEstimationSupported_returnsTrueForAllModes() {
+        assertThat(underTest.isDepthEstimationModeSupported(DepthEstimationMode.DISABLED)).isTrue()
+        assertThat(underTest.isDepthEstimationModeSupported(DepthEstimationMode.SMOOTH_ONLY))
+            .isTrue()
+        assertThat(underTest.isDepthEstimationModeSupported(DepthEstimationMode.RAW_ONLY)).isTrue()
+        assertThat(underTest.isDepthEstimationModeSupported(DepthEstimationMode.SMOOTH_AND_RAW))
+            .isTrue()
+    }
+
+    @Test
+    fun isGeospatialSupportedAny_returnsTrueForAllModes() {
+        assertThat(underTest.isGeospatialModeSupported(GeospatialMode.DISABLED)).isTrue()
+        assertThat(underTest.isGeospatialModeSupported(GeospatialMode.VPS_AND_GPS)).isTrue()
+    }
+
+    @Test
+    fun isRenderingSupportedAny_returnsTrueForAllModes() {
+        assertThat(underTest.isRenderingModeSupported(RenderingMode.MONO)).isFalse()
+        assertThat(underTest.isRenderingModeSupported(RenderingMode.STEREO)).isTrue()
     }
 }
