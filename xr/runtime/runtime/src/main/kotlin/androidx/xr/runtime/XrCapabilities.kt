@@ -17,6 +17,11 @@
 package androidx.xr.runtime
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.interfaces.DepthEstimationMode as InternalDepthEstimationMode
+import androidx.xr.runtime.interfaces.EyeTrackingMode as InternalEyeTrackingMode
+import androidx.xr.runtime.interfaces.GeospatialMode as InternalGeospatialMode
+import androidx.xr.runtime.interfaces.HandTrackingMode as InternalHandTrackingMode
+import androidx.xr.runtime.interfaces.RenderingMode as InternalRenderingMode
 
 /** A device capability that determines how virtual content is added to the real world. */
 public class DisplayBlendMode private constructor(private val value: Int) {
@@ -363,7 +368,6 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
 }
 
 /** Feature that allows tracking of the user's eyes. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class EyeTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
     public companion object {
         /** Eye tracking is disabled. */
@@ -420,3 +424,57 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
         @JvmField public val USER: CameraFacingDirection = CameraFacingDirection(1)
     }
 }
+
+/** A device capability that determines what type of rendering is capable on an [XrDevice]. */
+public class RenderingMode private constructor(private val value: Int) {
+
+    public companion object {
+        /** The device supports monocular rendering. */
+        @JvmField public val MONO: RenderingMode = RenderingMode(0)
+        /** The device supports binocular (stereoscopic) rendering. */
+        @JvmField public val STEREO: RenderingMode = RenderingMode(1)
+    }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun HandTrackingMode.toInternalHandTrackingMode(): InternalHandTrackingMode =
+    when (this) {
+        HandTrackingMode.DISABLED -> InternalHandTrackingMode.DISABLED
+        HandTrackingMode.BOTH -> InternalHandTrackingMode.BOTH
+        else -> throw IllegalStateException("Invalid HandTrackingMode")
+    }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun EyeTrackingMode.toInternalEyeTrackingMode(): InternalEyeTrackingMode =
+    when (this) {
+        EyeTrackingMode.DISABLED -> InternalEyeTrackingMode.DISABLED
+        EyeTrackingMode.COARSE_TRACKING -> InternalEyeTrackingMode.COARSE_TRACKING
+        EyeTrackingMode.FINE_TRACKING -> InternalEyeTrackingMode.FINE_TRACKING
+        else -> throw IllegalStateException("Invalid EyeTrackingMode")
+    }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun DepthEstimationMode.toInternalDepthEstimationMode(): InternalDepthEstimationMode =
+    when (this) {
+        DepthEstimationMode.DISABLED -> InternalDepthEstimationMode.DISABLED
+        DepthEstimationMode.RAW_ONLY -> InternalDepthEstimationMode.RAW_ONLY
+        DepthEstimationMode.SMOOTH_ONLY -> InternalDepthEstimationMode.SMOOTH_ONLY
+        DepthEstimationMode.SMOOTH_AND_RAW -> InternalDepthEstimationMode.SMOOTH_AND_RAW
+        else -> throw IllegalStateException("Invalid DepthEstimationMode")
+    }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun GeospatialMode.toInternalGeospatialMode(): InternalGeospatialMode =
+    when (this) {
+        GeospatialMode.DISABLED -> InternalGeospatialMode.DISABLED
+        GeospatialMode.VPS_AND_GPS -> InternalGeospatialMode.VPS_AND_GPS
+        else -> throw IllegalStateException("Invalid GeospatialMode")
+    }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RenderingMode.toInternalRenderingMode(): InternalRenderingMode =
+    when (this) {
+        RenderingMode.MONO -> InternalRenderingMode.MONO
+        RenderingMode.STEREO -> InternalRenderingMode.STEREO
+        else -> throw IllegalStateException("Invalid RenderingMode")
+    }

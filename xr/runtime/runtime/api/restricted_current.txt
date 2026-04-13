@@ -155,7 +155,7 @@ package androidx.xr.runtime {
     ctor @KotlinOnly public ExperimentalXrServiceAvailabilityApi();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EyeTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
+  public final class EyeTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
     field public static final androidx.xr.runtime.EyeTrackingMode COARSE_TRACKING;
@@ -307,6 +307,17 @@ package androidx.xr.runtime {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This API is in an unstable preview state and requires a developer preview system image work properly. Do not use this API in release builds as it will likely to lead to crashes.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface PreviewSpatialApi {
+  }
+
+  public final class RenderingMode {
+    field public static final androidx.xr.runtime.RenderingMode.Companion Companion;
+    field public static final androidx.xr.runtime.RenderingMode MONO;
+    field public static final androidx.xr.runtime.RenderingMode STEREO;
+  }
+
+  public static final class RenderingMode.Companion {
+    property public androidx.xr.runtime.RenderingMode MONO;
+    property public androidx.xr.runtime.RenderingMode STEREO;
   }
 
   public final class RequiredCalibrationType {
@@ -539,6 +550,11 @@ package androidx.xr.runtime {
     method @Deprecated public static androidx.xr.runtime.XrDevice getCurrentDevice(androidx.xr.runtime.Session session);
     method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi public androidx.lifecycle.Lifecycle getLifecycle();
     method public androidx.xr.runtime.DisplayBlendMode getPreferredDisplayBlendMode();
+    method public boolean isDepthEstimationModeSupported(androidx.xr.runtime.DepthEstimationMode mode);
+    method public boolean isEyeTrackingModeSupported(androidx.xr.runtime.EyeTrackingMode mode);
+    method public boolean isGeospatialModeSupported(androidx.xr.runtime.GeospatialMode mode);
+    method public boolean isHandTrackingModeSupported(androidx.xr.runtime.HandTrackingMode mode);
+    method public boolean isRenderingModeSupported(androidx.xr.runtime.RenderingMode mode);
     field public static final androidx.xr.runtime.XrDevice.Companion Companion;
   }
 

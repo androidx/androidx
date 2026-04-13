@@ -5,8 +5,23 @@ package androidx.xr.runtime.testing {
     ctor public XrDeviceTestRule();
     method protected void before();
     method @InaccessibleFromKotlin public androidx.xr.runtime.DisplayBlendMode getPreferredDisplayBlendMode();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.DepthEstimationMode> getSupportedDepthEstimationModes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.EyeTrackingMode> getSupportedEyeTrackingModes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.GeospatialMode> getSupportedGeospatialModes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.HandTrackingMode> getSupportedHandTrackingModes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.RenderingMode> getSupportedRenderingModes();
     method @InaccessibleFromKotlin public void setPreferredDisplayBlendMode(androidx.xr.runtime.DisplayBlendMode);
+    method @InaccessibleFromKotlin public void setSupportedDepthEstimationModes(java.util.Set<androidx.xr.runtime.DepthEstimationMode>);
+    method @InaccessibleFromKotlin public void setSupportedEyeTrackingModes(java.util.Set<androidx.xr.runtime.EyeTrackingMode>);
+    method @InaccessibleFromKotlin public void setSupportedGeospatialModes(java.util.Set<androidx.xr.runtime.GeospatialMode>);
+    method @InaccessibleFromKotlin public void setSupportedHandTrackingModes(java.util.Set<androidx.xr.runtime.HandTrackingMode>);
+    method @InaccessibleFromKotlin public void setSupportedRenderingModes(java.util.Set<androidx.xr.runtime.RenderingMode>);
     property public androidx.xr.runtime.DisplayBlendMode preferredDisplayBlendMode;
+    property public java.util.Set<androidx.xr.runtime.DepthEstimationMode> supportedDepthEstimationModes;
+    property public java.util.Set<androidx.xr.runtime.EyeTrackingMode> supportedEyeTrackingModes;
+    property public java.util.Set<androidx.xr.runtime.GeospatialMode> supportedGeospatialModes;
+    property public java.util.Set<androidx.xr.runtime.HandTrackingMode> supportedHandTrackingModes;
+    property public java.util.Set<androidx.xr.runtime.RenderingMode> supportedRenderingModes;
   }
 
 }

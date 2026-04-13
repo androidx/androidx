@@ -150,6 +150,78 @@ private constructor(
                 )
         )
     }
+
+    /**
+     * Returns the [XrDevice]'s support for the given [HandTrackingMode].
+     *
+     * @return whether the device supports the supplied [HandTrackingMode].
+     */
+    public fun isHandTrackingModeSupported(mode: HandTrackingMode): Boolean {
+        return xrDeviceCapabilityProvider?.isHandTrackingModeSupported(
+            mode.toInternalHandTrackingMode()
+        )
+            ?: throw IllegalStateException(
+                "XrDeviceCapabilityProvider was not initialized. Did you use XrDevice.getCurrentDevice(context)?"
+            )
+    }
+
+    /**
+     * Returns the [XrDevice]'s support for the given [EyeTrackingMode].
+     *
+     * @return whether the device supports the supplied [EyeTrackingMode].
+     */
+    public fun isEyeTrackingModeSupported(mode: EyeTrackingMode): Boolean {
+        return xrDeviceCapabilityProvider?.isEyeTrackingModeSupported(
+            mode.toInternalEyeTrackingMode()
+        )
+            ?: throw IllegalStateException(
+                "XrDeviceCapabilityProvider was not initialized. Did you use XrDevice.getCurrentDevice(context)?"
+            )
+    }
+
+    /**
+     * Returns the [XrDevice]'s support for the given [GeospatialMode].
+     *
+     * @return whether the device supports the supplied [GeospatialMode].
+     */
+    public fun isGeospatialModeSupported(mode: GeospatialMode): Boolean {
+        return xrDeviceCapabilityProvider?.isGeospatialModeSupported(
+            mode.toInternalGeospatialMode()
+        )
+            ?: throw IllegalStateException(
+                "XrDeviceCapabilityProvider was not initialized. Did you use XrDevice.getCurrentDevice(context)?"
+            )
+    }
+
+    /**
+     * Returns whether the [XrDevice] supports the supplied [RenderingMode].
+     *
+     * @return whether the device supports the supplied [RenderingMode]. For devices that support
+     *   [RenderingMode.MONO], RenderViewpoint.mono(session) is expected to be non-null. For devices
+     *   that support [RenderingMode.STEREO], RenderViewpoint.left(session),
+     *   RenderViewpoint.right(session), and RenderViewpoint.mono(session) are all expected to be
+     *   non-null.
+     */
+    public fun isRenderingModeSupported(mode: RenderingMode): Boolean {
+        return xrDeviceCapabilityProvider?.isRenderingModeSupported(mode.toInternalRenderingMode())
+            ?: throw IllegalStateException(
+                "XrDeviceCapabilityProvider was not initialized. Did you use XrDevice.getCurrentDevice(context)?"
+            )
+    }
+
+    /**
+     * Returns the [XrDevice]'s support for the given [DepthEstimationMode].
+     *
+     * @return whether the device supports the supplied [DepthEstimationMode].
+     */
+    public fun isDepthEstimationModeSupported(mode: DepthEstimationMode): Boolean {
+        return xrDeviceCapabilityProvider?.isDepthEstimationModeSupported(
+            mode.toInternalDepthEstimationMode()
+        )
+            ?: throw IllegalStateException(
+                "XrDeviceCapabilityProvider was not initialized. Did you use XrDevice.getCurrentDevice(context)?"
+            )
+    }
 }
 
 private fun DisplayBlendMode.Companion.fromInternalDisplayBlendMode(
