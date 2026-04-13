@@ -397,9 +397,6 @@ class GeospatialActivity : ComponentActivity() {
             is CreateGeospatialPoseFromPoseInternalError -> {
                 logAndShowToast(geospatialPoseResult.error)
             }
-            else -> {
-                logAndShowToast("Failed to create anchor: Unknown error.")
-            }
         }
     }
 
@@ -523,7 +520,6 @@ class GeospatialActivity : ComponentActivity() {
             is VpsAvailabilityResourceExhausted -> "ResourceExhausted"
             is VpsAvailabilityUnavailable -> "Unavailable"
             null -> "Checking..."
-            else -> "Unknown"
         }
     }
 
@@ -542,7 +538,6 @@ class GeospatialActivity : ComponentActivity() {
                     .trimIndent()
             is CreateGeospatialPoseFromPoseNotTracking -> "Localization Status: Not tracking"
             is CreateGeospatialPoseFromPoseInternalError -> "Localization Status: ${result.error}"
-            else -> "Localization Status: Unknown"
         }
     }
 }
