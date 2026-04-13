@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,14 @@ import kotlinx.coroutines.launch
 @Composable
 actual fun DragAndDropExample() {
     val exportedText = "Hello, DnD!"
+
+    var isTargetEnabled by remember { mutableStateOf(false) }
+
+    Button(onClick = { isTargetEnabled = !isTargetEnabled }) {
+        androidx.compose.material3.Text(if (isTargetEnabled) "Disable DnD Target" else "Enable DnD Target")
+    }
+
+
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -143,7 +152,7 @@ actual fun DragAndDropExample() {
         Box(
             Modifier
             .size(200.dp)
-            .background(Color.LightGray)
+            .background(if (isTargetEnabled) Color(100, 200, 200) else Color.LightGray)
             .then(
                 if (showTargetBorder)
                     Modifier.border(BorderStroke(3.dp, Color.Black))
@@ -151,7 +160,7 @@ actual fun DragAndDropExample() {
                     Modifier
             )
             .dragAndDropTarget(
-                shouldStartDragAndDrop = { true },
+                shouldStartDragAndDrop = { isTargetEnabled },
                 target = dragAndDropTarget
             )
         ) {

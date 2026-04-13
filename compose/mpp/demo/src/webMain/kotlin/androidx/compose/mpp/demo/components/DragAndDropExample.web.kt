@@ -55,12 +55,19 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.drawscope.Stroke
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
 actual fun DragAndDropExample() {
     val exportedText = "Hello, DnD!"
+
+    var isTargetEnabled by remember { mutableStateOf(false) }
+
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -79,6 +86,11 @@ actual fun DragAndDropExample() {
                 DraggableColorSource(Color.Blue)
                 DraggableColorSource(Color(0xFF8A2BE2))
             }
+
+            Button(onClick = { isTargetEnabled = !isTargetEnabled }) {
+                Text(if (isTargetEnabled) "Disable DnD Target" else "Enable DnD Target")
+            }
+
         }
 
         var showTargetBorder by remember { mutableStateOf(false) }
@@ -93,6 +105,21 @@ actual fun DragAndDropExample() {
             label = "rotationDegrees"
         )
         val effectiveRotation = if (showTargetBorder && !showHovered) rotation else 0f
+
+        Box(
+            modifier = Modifier
+                .clickable(onClick = {
+                    println("clickable is clicked")
+                })
+                .dragAndDropSource { _: Offset ->
+                    DragAndDropTransferData()
+                }
+                .size(100.dp)
+                .background(Color.Blue),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Clickable and Draggable", color = Color.White)
+        }
 
         val dragAndDropTarget = remember {
             object: DragAndDropTarget {
@@ -174,10 +201,10 @@ actual fun DragAndDropExample() {
             Box(
                 modifier = Modifier
                     .size(200.dp)
-                    .background(Color.LightGray, shape = CircleShape)
+                    .background(if (isTargetEnabled) Color(100, 200, 200) else Color.LightGray, shape = CircleShape)
                     .clip(CircleShape)
                     .dragAndDropTarget(
-                        shouldStartDragAndDrop = { true },
+                        shouldStartDragAndDrop = { isTargetEnabled },
                         target = dragAndDropTarget
                     ),
                 contentAlignment = Alignment.Center
@@ -185,7 +212,7 @@ actual fun DragAndDropExample() {
 
                 // Draw a pie chart based on dropped colors
                 Canvas(Modifier.fillMaxSize()) {
-                    if (pieSlices.isNotEmpty()) {
+                    if (pieSlices.isNotEmpty() && isTargetEnabled) {
                         val total = pieSlices.size.toFloat()
                         var start = -90f
 
