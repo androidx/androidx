@@ -547,7 +547,7 @@ public fun <T : Any> NavDisplay(
 
     // Predictive Back Handling
     val navigationEventState = rememberNavigationEventState(sceneState)
-    NavigationBackHandler(sceneState, navigationEventState, onBack)
+    NavigationBackHandler(sceneState, navigationEventState, onBackCompleted = onBack)
 
     NavDisplay(
         sceneState,
