@@ -329,11 +329,10 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(sharedBuffer, 0)
 
         val cubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setVertexLayout(vertexLayout)
-                .addVertexBufferData(ByteBufferRegion(sharedBuffer, 0, vertexSize))
+            CustomMesh.FromMeshDataBuilder(currentSession, vertexLayout)
+                .addVertexData(ByteBufferRegion(sharedBuffer, 0, vertexSize))
                 .setIndexData(ByteBufferRegion(sharedBuffer, vertexSize, indexSize))
-                .setSingleSubsetTopology(MeshSubsetTopology.TRIANGLES)
+                .setTopology(MeshSubsetTopology.TRIANGLES)
                 .build()
         cubeEntity =
             MeshEntity.create(
@@ -367,9 +366,8 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(indexBuffer, 24)
 
         val twoSubsetsMesh =
-            CustomMesh.Builder(currentSession)
-                .setVertexLayout(vertexLayout)
-                .addVertexBufferData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
+            CustomMesh.FromMeshDataBuilder(currentSession, vertexLayout)
+                .addVertexData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
                 .setIndexData(ByteBufferRegion(indexBuffer, 0, 72 * 4))
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
@@ -412,13 +410,11 @@ class MeshEntityActivity : ComponentActivity() {
             )
 
         val bottomCubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setMeshBuffer(meshBuffer)
+            CustomMesh.FromMeshBufferBuilder(currentSession, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
                 .build()
         val topCubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setMeshBuffer(meshBuffer)
+            CustomMesh.FromMeshBufferBuilder(currentSession, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
                 .build()
         sharedBufferBottomEntity =
@@ -458,11 +454,10 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndicesStrip(indexBuffer, 0)
 
         val cubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setVertexLayout(vertexLayout)
-                .addVertexBufferData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
+            CustomMesh.FromMeshDataBuilder(currentSession, vertexLayout)
+                .addVertexData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
                 .setIndexData(ByteBufferRegion(indexBuffer, 0, stripIndexCount * 4))
-                .setSingleSubsetTopology(MeshSubsetTopology.TRIANGLE_STRIP)
+                .setTopology(MeshSubsetTopology.TRIANGLE_STRIP)
                 .build()
         triangleStripEntity =
             MeshEntity.create(
@@ -682,8 +677,7 @@ class MeshEntityActivity : ComponentActivity() {
             )
 
         val stickMesh =
-            CustomMesh.Builder(currentSession)
-                .setMeshBuffer(meshBuffer)
+            CustomMesh.FromMeshBufferBuilder(currentSession, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, indexCount * 3))
                 .build()
 
@@ -755,9 +749,8 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(indexBuffer, 24)
 
         val cubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setVertexLayout(vertexLayout)
-                .addVertexBufferData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
+            CustomMesh.FromMeshDataBuilder(currentSession, vertexLayout)
+                .addVertexData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
                 .setIndexData(ByteBufferRegion(indexBuffer, 0, 72 * 4))
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))

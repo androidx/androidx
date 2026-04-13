@@ -77,8 +77,7 @@ class MeshEntityTest {
                 ByteBufferRegion(indexBuffer, 0, 12),
             )
         customMesh =
-            CustomMesh.Builder(session)
-                .setMeshBuffer(meshBuffer)
+            CustomMesh.FromMeshBufferBuilder(session, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
                 .build()
         material = KhronosPbrMaterial.create(session, AlphaMode.OPAQUE)

@@ -75,63 +75,10 @@ class CustomMeshTest {
     }
 
     @Test
-    fun builder_setMeshBufferAfterVertexLayout_throwsException() {
-        val builder = CustomMesh.Builder(session).setVertexLayout(vertexLayout)
-        val exception =
-            assertThrows(IllegalStateException::class.java) { builder.setMeshBuffer(meshBuffer) }
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Cannot set MeshBuffer after setting vertex, index data, or topology")
-    }
-
-    @Test
-    fun builder_setMeshBufferAfterAddVertexBufferData_throwsException() {
-        val builder = CustomMesh.Builder(session).addVertexBufferData(vertexBufferRegion)
-        val exception =
-            assertThrows(IllegalStateException::class.java) { builder.setMeshBuffer(meshBuffer) }
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Cannot set MeshBuffer after setting vertex, index data, or topology")
-    }
-
-    @Test
-    fun builder_setMeshBufferAfterSetIndexData_throwsException() {
-        val builder = CustomMesh.Builder(session).setIndexData(indexBufferRegion)
-        val exception =
-            assertThrows(IllegalStateException::class.java) { builder.setMeshBuffer(meshBuffer) }
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Cannot set MeshBuffer after setting vertex, index data, or topology")
-    }
-
-    @Test
-    fun builder_setVertexLayoutAfterMeshBuffer_throwsException() {
-        val builder = CustomMesh.Builder(session).setMeshBuffer(meshBuffer)
-        val exception =
-            assertThrows(IllegalStateException::class.java) {
-                builder.setVertexLayout(vertexLayout)
-            }
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Cannot set vertex layout after setting MeshBuffer")
-    }
-
-    @Test
-    fun builder_addVertexBufferDataAfterMeshBuffer_throwsException() {
-        val builder = CustomMesh.Builder(session).setMeshBuffer(meshBuffer)
-        val exception =
-            assertThrows(IllegalStateException::class.java) {
-                builder.addVertexBufferData(vertexBufferRegion)
-            }
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Cannot set vertex data after setting MeshBuffer")
-    }
-
-    @Test
-    fun builder_addSubsetAfterSetSingleSubsetTopology_throwsException() {
+    fun builder_addSubsetAfterSetTopology_throwsException() {
         val builder =
-            CustomMesh.Builder(session).setSingleSubsetTopology(MeshSubsetTopology.TRIANGLES)
+            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
+                .setTopology(MeshSubsetTopology.TRIANGLES)
         val exception =
             assertThrows(IllegalStateException::class.java) {
                 builder.addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
@@ -142,77 +89,37 @@ class CustomMeshTest {
     }
 
     @Test
-    fun builder_setSingleSubsetTopologyAfterAddSubset_throwsException() {
+    fun builder_setTopologyAfterAddSubset_throwsException() {
         val builder =
-            CustomMesh.Builder(session).addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
+            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
         val exception =
             assertThrows(IllegalStateException::class.java) {
-                builder.setSingleSubsetTopology(MeshSubsetTopology.TRIANGLES)
+                builder.setTopology(MeshSubsetTopology.TRIANGLES)
             }
         assertThat(exception).hasMessageThat().contains("Cannot set topology after adding subsets")
     }
 
     @Test
-    fun builder_setSingleSubsetTopologyAfterMeshBuffer_throwsException() {
-        val builder = CustomMesh.Builder(session).setMeshBuffer(meshBuffer)
-        val exception =
-            assertThrows(IllegalStateException::class.java) {
-                builder.setSingleSubsetTopology(MeshSubsetTopology.TRIANGLES)
-            }
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Cannot set topology after setting MeshBuffer")
-    }
-
-    @Test
-    fun builder_setMeshBufferAfterSingleSubsetTopology_throwsException() {
-        val builder =
-            CustomMesh.Builder(session).setSingleSubsetTopology(MeshSubsetTopology.TRIANGLES)
-        val exception =
-            assertThrows(IllegalStateException::class.java) { builder.setMeshBuffer(meshBuffer) }
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Cannot set MeshBuffer after setting vertex, index data, or topology")
-    }
-
-    @Test
-    fun builder_setMeshBufferAfterAddSubset_succeeds() {
-        val builder =
-            CustomMesh.Builder(session).addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
-        builder.setMeshBuffer(meshBuffer)
-        assertThat(builder.build()).isNotNull()
-    }
-
-    @Test
-    fun builder_setIndexDataAfterMeshBuffer_throwsException() {
-        val builder = CustomMesh.Builder(session).setMeshBuffer(meshBuffer)
-        val exception =
-            assertThrows(IllegalStateException::class.java) {
-                builder.setIndexData(indexBufferRegion)
-            }
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Cannot set index data after setting MeshBuffer")
-    }
-
-    @Test
-    fun build_withMissingVertexLayout_throwsException() {
-        val builder =
-            CustomMesh.Builder(session)
-                .addVertexBufferData(vertexBufferRegion)
-                .setIndexData(indexBufferRegion)
-                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
-
+    fun meshBufferBuilder_withoutSubsets_throwsException() {
+        val builder = CustomMesh.FromMeshBufferBuilder(session, meshBuffer)
         val exception = assertThrows(IllegalStateException::class.java) { builder.build() }
-        assertThat(exception).hasMessageThat().contains("VertexLayout must be provided")
+        assertThat(exception).hasMessageThat().contains("CustomMesh requires at least one subset")
+    }
+
+    @Test
+    fun meshBufferBuilder_withSubsets_succeeds() {
+        val builder =
+            CustomMesh.FromMeshBufferBuilder(session, meshBuffer)
+                .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
+        assertThat(builder.build()).isNotNull()
     }
 
     @Test
     fun build_withMissingIndexData_throwsException() {
         val builder =
-            CustomMesh.Builder(session)
-                .setVertexLayout(vertexLayout)
-                .addVertexBufferData(vertexBufferRegion)
+            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
+                .addVertexData(vertexBufferRegion)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
 
         val exception = assertThrows(IllegalStateException::class.java) { builder.build() }
@@ -222,8 +129,7 @@ class CustomMeshTest {
     @Test
     fun build_withMissingVertexData_throwsException() {
         val builder =
-            CustomMesh.Builder(session)
-                .setVertexLayout(vertexLayout)
+            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
                 .setIndexData(indexBufferRegion)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
 
@@ -235,7 +141,10 @@ class CustomMeshTest {
 
     @Test
     fun build_withNeitherSubsetsNorTopology_throwsException() {
-        val builder = CustomMesh.Builder(session).setMeshBuffer(meshBuffer)
+        val builder =
+            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
+                .addVertexData(vertexBufferRegion)
+                .setIndexData(indexBufferRegion)
 
         val exception = assertThrows(IllegalStateException::class.java) { builder.build() }
         assertThat(exception)
