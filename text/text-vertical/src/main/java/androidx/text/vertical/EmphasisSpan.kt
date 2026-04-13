@@ -95,6 +95,7 @@ constructor(
         @JvmField public val DEFAULT_EMPHASIS_STYLE: EmphasisStyle = EmphasisStyle.Dot
         /** The default value for whether the emphasis mark should be filled. */
         public const val DEFAULT_EMPHASIS_FILL: Boolean = true
+        /** The default position of the emphasis mark relative to the text. */
         @JvmField public val DEFAULT_POSITION: AnnotationPosition = AnnotationPosition.Before
     }
 }

@@ -59,7 +59,7 @@ internal inline fun <reified T> forEachSpan(
  * @param text The CharSequence
  * @param start The inclusive starting index.
  * @param end The exclusive ending index.
- * @param consumer A lambda function that will be called for each code points.
+ * @param consumer A lambda function that will be called for each code point.
  */
 internal inline fun forEachCodePoint(
     text: CharSequence,
@@ -108,7 +108,7 @@ internal inline fun CharSequence.forEachParagraph(
     }
 }
 
-/** Wrap the specified [block] in calls to [Canvas.save] and [Canvas.restoreToCount]. */
+/** Wraps the specified [block] in calls to [Canvas.save] and [Canvas.restoreToCount]. */
 internal inline fun Canvas.withSave(block: Canvas.() -> Unit) {
     val checkpoint = save()
     try {
@@ -118,9 +118,7 @@ internal inline fun Canvas.withSave(block: Canvas.() -> Unit) {
     }
 }
 
-/**
- * Executes a block of code with a temporary applying scaling of the text size of a given [Paint].
- */
+/** Executes a block of code with a temporarily scaled text size on a given [Paint]. */
 internal inline fun <T : Paint, R> T.withTextScale(scale: Float, crossinline block: T.() -> R): R {
     val originalSize = textSize
     textSize *= scale
@@ -131,9 +129,7 @@ internal inline fun <T : Paint, R> T.withTextScale(scale: Float, crossinline blo
     }
 }
 
-/**
- * Executes a block of code with a temporary applying scaling X of the text size of a given [Paint].
- */
+/** Executes a block of code with a temporarily scaled X value on a given [Paint]. */
 internal inline fun <T : Paint, R> T.withTextScaleX(
     scaleX: Float,
     crossinline block: T.() -> R,

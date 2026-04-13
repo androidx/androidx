@@ -16,7 +16,12 @@
 
 package androidx.text.vertical
 
-/** Properties of a text annotation (i.e. ruby and emphasis marks). */
+/**
+ * Represents the position of a text annotation (i.e. ruby and emphasis marks) relative to the base
+ * text.
+ *
+ * @property value The integer representation of this position, used for serialization.
+ */
 public sealed class AnnotationPosition protected constructor(@JvmField public val value: Int) {
     public companion object {
         /** The text annotation position is unknown. */
@@ -32,7 +37,7 @@ public sealed class AnnotationPosition protected constructor(@JvmField public va
         /**
          * For horizontal text, the text annotation should be positioned below the base text.
          *
-         * For vertical text, it should be positioned to the left, See the
+         * For vertical text, it should be positioned to the left. See the
          * [tts:rubyPosition](https://www.w3.org/TR/ttml2/#style-attribute-rubyPosition) attribute
          * in TTML2 for more information.
          */
