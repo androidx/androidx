@@ -31,8 +31,7 @@ import android.text.style.ReplacementSpan
  * More information on [ruby characters](https://en.wikipedia.org/wiki/Ruby_character) and
  * [span styling](https://developer.android.com/guide/topics/text/spans).
  *
- * This span is designed for use with [VerticalTextLayout], `media3-ui` library, and a bit more
- * general use cases.
+ * This span is designed for use with [VerticalTextLayout] and also other general use cases.
  *
  * @property text The ruby text to be displayed adjacent to the base text.
  * @property position The position of ruby text relative to the base text. Defaults to

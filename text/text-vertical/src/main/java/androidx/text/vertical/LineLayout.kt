@@ -61,9 +61,9 @@ internal class LineLayout(val runs: List<LayoutRun>) {
         get() = runs.last().end
 
     /**
-     * Distance from left most position from the baseline in pixels.
+     * Distance from the leftmost position to the baseline in pixels.
      *
-     * This is usually negative value.
+     * This is usually a negative value.
      *
      * To get the next drawing horizontal coordinate, add this amount to the baseline. To get the
      * width of this run, subtract this amount from the [rightSide] value, i.e. width = right -
@@ -72,26 +72,26 @@ internal class LineLayout(val runs: List<LayoutRun>) {
     val leftSide: Float
 
     /**
-     * Distance from right most position from the baseline in pixels.
+     * Distance from the rightmost position to the baseline in pixels.
      *
-     * This is usually positive value.
+     * This is usually a positive value.
      *
-     * To get baseline of this run, subtract this amount from the drawing offset. To get the width
-     * of this run, subtract [leftSide] from this amount, i.e. width = right - left.
+     * To get the baseline of this run, subtract this amount from the drawing offset. To get the
+     * width of this run, subtract [leftSide] from this amount, i.e. width = right - left.
      */
     val rightSide: Float
 
     /**
-     * Distance from the top to bottom in pixels.
+     * Distance from the top to the bottom in pixels.
      *
-     * This is always positive value.
+     * This is always a positive value.
      */
     val height: Float
 
     /**
-     * Distance from the right to left in pixels.
+     * Distance from the right to the left in pixels.
      *
-     * This is always positive value.
+     * This is always a positive value.
      */
     val width: Float
         get() = rightSide - leftSide
