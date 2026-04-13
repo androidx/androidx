@@ -27,6 +27,7 @@ import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
 import kotlinx.coroutines.flow.Flow
@@ -98,14 +99,18 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                             .filter { metadata -> matchesSchemaSpec(metadata, searchFunctionSpec) }
                             .map { metadata ->
                                 AppFunctionMetadata(
-                                    id = metadata.staticMetadata.id,
-                                    packageName = packageName,
-                                    isEnabled = metadata.computeEffectivelyEnabled(),
+                                    name = AppFunctionName(packageName, metadata.staticMetadata.id),
                                     schema = metadata.staticMetadata.schema,
                                     parameters = metadata.staticMetadata.parameters,
                                     response = metadata.staticMetadata.response,
-                                    components =
-                                        checkNotNull(packageToComponentsMetadataMap[packageName]),
+                                    packageMetadata =
+                                        AppFunctionPackageMetadata(
+                                            packageName,
+                                            checkNotNull(
+                                                packageToComponentsMetadataMap[packageName]
+                                            ),
+                                        ),
+                                    isEnabled = metadata.computeEffectivelyEnabled(),
                                 )
                             }
                     if (appFunctions.isNotEmpty()) {
@@ -170,13 +175,12 @@ internal data class AppFunctionStaticAndRuntimeMetadata(
         componentsMetadata: AppFunctionComponentsMetadata,
     ) =
         AppFunctionMetadata(
-            id = staticMetadata.id,
-            packageName = packageName,
-            isEnabled = computeEffectivelyEnabled(),
+            name = AppFunctionName(packageName, staticMetadata.id),
             schema = staticMetadata.schema,
             parameters = staticMetadata.parameters,
             response = staticMetadata.response,
-            components = componentsMetadata,
+            packageMetadata = AppFunctionPackageMetadata(packageName, componentsMetadata),
+            isEnabled = computeEffectivelyEnabled(),
         )
 
     fun computeEffectivelyEnabled(): Boolean =

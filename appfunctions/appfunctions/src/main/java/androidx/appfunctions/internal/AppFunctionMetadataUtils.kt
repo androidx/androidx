@@ -20,6 +20,8 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 internal object AppFunctionMetadataUtils {
@@ -41,14 +43,17 @@ internal object AppFunctionMetadataUtils {
             val compileTimeAppFunctionMetadata =
                 inventory.functionIdToMetadataMap[functionIdentifier] ?: return null
             return AppFunctionMetadata(
-                id = compileTimeAppFunctionMetadata.id,
-                packageName = context.packageName,
-                isEnabled = compileTimeAppFunctionMetadata.isEnabledByDefault,
+                name = AppFunctionName(context.packageName, compileTimeAppFunctionMetadata.id),
                 schema = compileTimeAppFunctionMetadata.schema,
                 parameters = compileTimeAppFunctionMetadata.parameters,
                 response = compileTimeAppFunctionMetadata.response,
-                components = inventory.componentsMetadata,
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = context.packageName,
+                        components = inventory.componentsMetadata,
+                    ),
                 description = compileTimeAppFunctionMetadata.description,
+                isEnabled = compileTimeAppFunctionMetadata.isEnabledByDefault,
             )
         }
 

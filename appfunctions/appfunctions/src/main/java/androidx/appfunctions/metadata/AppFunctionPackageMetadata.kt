@@ -38,6 +38,9 @@ constructor(
     /** The name of the package */
     public val packageName: String,
     /** The list of [AppFunctionMetadata] for each app function provided by the app. */
+    // TODO(b/500667251): remove this property after migrating to the new constructor.
+    //  This is a circular reference since we now reverse the relationship between package
+    //  and function metadata.
     public val appFunctions: List<AppFunctionMetadata>,
     /** Reusable components that could be shared within the function specification. */
     internal val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
