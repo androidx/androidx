@@ -1156,7 +1156,7 @@ fun ColorScheme.surfaceColorAtElevation(elevation: Dp): Color {
  *
  * @sample androidx.compose.material3.samples.MaterialExpressiveThemeColorSchemeSample
  */
-@ExperimentalMaterial3ExpressiveApi
+@Material3ExpressiveApi
 fun expressiveLightColorScheme() =
     lightColorScheme(
         // TODO: Replace palette references with color token references when available.
