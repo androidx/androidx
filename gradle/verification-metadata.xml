@@ -133,34 +133,16 @@
          <trusted-key id="0D8F8561AA7A5DD20BAE27043C0A8F4744F37328" group="com.github.ben-manes.caffeine"/>
          <trusted-key id="0E225917414670F4442C250DFD533C07C264648F">
             <trusting group="com.android"/>
-            <trusting group="com.google.ar"/>
             <trusting group="^androidx\..*" regex="true"/>
             <trusting group="^com\.android\..*" regex="true"/>
+            <trusting group="^com\.google\..*" regex="true"/>
          </trusted-key>
          <trusted-key id="0EB9D7C468F97E44051D650AD73C68EE4152C255" group="com.google.dagger"/>
          <trusted-key id="0F06FF86BEEAF4E71866EE5232EE5355A6BC6E42">
             <trusting group="com.android"/>
-            <trusting group="com.android.databinding"/>
-            <trusting group="com.android.extensions.xr"/>
-            <trusting group="com.android.kotlin.multiplatform.library"/>
-            <trusting group="com.android.legacy-kapt"/>
-            <trusting group="com.android.settings"/>
-            <trusting group="com.android.tools"/>
-            <trusting group="com.android.tools.analytics-library"/>
-            <trusting group="com.android.tools.build"/>
-            <trusting group="com.android.tools.build.jetifier"/>
-            <trusting group="com.android.tools.ddms"/>
-            <trusting group="com.android.tools.emulator"/>
-            <trusting group="com.android.tools.external.com-intellij"/>
-            <trusting group="com.android.tools.external.org-jetbrains"/>
-            <trusting group="com.android.tools.layoutlib"/>
-            <trusting group="com.android.tools.lint"/>
-            <trusting group="com.android.tools.utp"/>
-            <trusting group="com.google.ads.interactivemedia.v3"/>
-            <trusting group="com.google.android.gms"/>
-            <trusting group="com.google.android.libraries.identity.googleid"/>
-            <trusting group="com.google.ar"/>
             <trusting group="^androidx\..*" regex="true"/>
+            <trusting group="^com\.android\..*" regex="true"/>
+            <trusting group="^com\.google\..*" regex="true"/>
          </trusted-key>
          <trusted-key id="0F07D1201BDDAB67CFB84EB479752DB6C966F0B8" group="com.google.android"/>
          <trusted-key id="10F3C7A02ECA55E502BADCF3991EFB94DB91127D" group="org.ow2"/>
@@ -428,7 +410,12 @@
          <trusted-key id="82F833963889D7ED06F1E4DC6525FD70CC303655" group="org.codehaus.mojo"/>
          <trusted-key id="835A685C8C6F49C54980E5CAF406F31BC1468EBA" group="org.jcodec"/>
          <trusted-key id="842AFB86375D805422835BFD82B5574242C20D6F" group="org.antlr"/>
-         <trusted-key id="8461EFA0E74ABAE010DE66994EB27DB2A3B88B8B" group="^androidx\..*" regex="true"/>
+         <trusted-key id="8461EFA0E74ABAE010DE66994EB27DB2A3B88B8B">
+            <trusting group="com.android"/>
+            <trusting group="^androidx\..*" regex="true"/>
+            <trusting group="^com\.android\..*" regex="true"/>
+            <trusting group="^com\.google\..*" regex="true"/>
+         </trusted-key>
          <trusted-key id="84789D24DF77A32433CE1F079EB80E92EB2135B1">
             <trusting group="org.apache"/>
             <trusting group="org.apache.maven" name="maven-parent"/>
@@ -497,21 +484,9 @@
          <trusted-key id="A5BD02B93E7A40482EB1D66A5F69AD087600B22C" group="org.ow2.asm"/>
          <trusted-key id="A5F483CD733A4EBAEA378B2AE88979FB9B30ACF2">
             <trusting group="com.android"/>
-            <trusting group="com.android.databinding"/>
-            <trusting group="com.android.kotlin.multiplatform.library"/>
-            <trusting group="com.android.settings"/>
-            <trusting group="com.android.tools"/>
-            <trusting group="com.android.tools.analytics-library"/>
-            <trusting group="com.android.tools.build"/>
-            <trusting group="com.android.tools.build.jetifier"/>
-            <trusting group="com.android.tools.ddms"/>
-            <trusting group="com.android.tools.emulator"/>
-            <trusting group="com.android.tools.external.com-intellij"/>
-            <trusting group="com.android.tools.external.org-jetbrains"/>
-            <trusting group="com.android.tools.layoutlib"/>
-            <trusting group="com.android.tools.lint"/>
-            <trusting group="com.android.tools.utp"/>
             <trusting group="^androidx\..*" regex="true"/>
+            <trusting group="^com\.android\..*" regex="true"/>
+            <trusting group="^com\.google\..*" regex="true"/>
          </trusted-key>
          <trusted-key id="A6D6C97108B8585F91B158748671A8DF71296252">
             <trusting group="com.squareup"/>
