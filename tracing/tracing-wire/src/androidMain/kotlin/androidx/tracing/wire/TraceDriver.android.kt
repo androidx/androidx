@@ -64,32 +64,33 @@ constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val context: TraceContext =
         if (isEnabled) {
-            TraceContext(sink = sink, isEnabled = isEnabled)
+            TraceContext(sink = sink, isEnabled = true)
         } else {
             EmptyTraceContext
         }
 
     init {
         val pid = Process.myPid()
+        // This is only used to eagerly create the ThreadTrack for the main thread.
+        // On Android, pid == tid for main thread.
+        val longPid = pid.toLong()
         val processName = getProcessName(context = applicationContext)
         // Eagerly populate a process track
         this.context.createProcessTrack(id = pid, name = processName)
         // Eager populate the main thread track
         // For the main thread on Android pid = tid
         // Main thread
-        val mainTrack = this.context.process.getOrCreateThreadTrack(id = pid, name = processName)
+        val mainTrack =
+            this.context.process.getOrCreateThreadTrack(id = longPid, name = processName)
         // Thread Tracks
         // There are multiple ways of obtaining tids.
         // You can use android.Os.gettid(). This makes a JNI call under the hood (libcore) [SLOW].
         // This method returns an `Int`.
-        // The fastest way of getting a `tid` is by relying on `Thread.currentThread().id`. Even
-        // though this method returns a `Long` type, given the underlying tid is an `Int` as defined
-        // in libcore - this downcast is safe.
+        // The fastest way of getting a `tid` is by relying on `Thread.currentThread().id`.
         val thread = Thread.currentThread()
-        val tid = thread.id.toInt()
+        val tid = thread.id
         // Populate additional thread tracks if necessary.
-        if (tid != pid) {
-            val thread = Thread.currentThread()
+        if (tid != longPid) {
             this.context.process.getOrCreateThreadTrack(id = tid, name = thread.name)
         }
         // Trace attributes

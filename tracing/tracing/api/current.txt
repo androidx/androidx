@@ -233,23 +233,23 @@ package androidx.tracing {
   }
 
   public final class TrackDescriptor {
-    ctor public TrackDescriptor(String name, long uuid, long parentUuid, int type, int pid, int tid);
+    ctor public TrackDescriptor(String name, long uuid, long parentUuid, int type, int pid, long tid);
     method @InaccessibleFromKotlin public String getName();
     method @InaccessibleFromKotlin public long getParentUuid();
     method @InaccessibleFromKotlin public int getPid();
-    method @InaccessibleFromKotlin public int getTid();
+    method @InaccessibleFromKotlin public long getTid();
     method @InaccessibleFromKotlin public int getType();
     method @InaccessibleFromKotlin public long getUuid();
     method @InaccessibleFromKotlin public void setName(String);
     method @InaccessibleFromKotlin public void setParentUuid(long);
     method @InaccessibleFromKotlin public void setPid(int);
-    method @InaccessibleFromKotlin public void setTid(int);
+    method @InaccessibleFromKotlin public void setTid(long);
     method @InaccessibleFromKotlin public void setType(int);
     method @InaccessibleFromKotlin public void setUuid(long);
     property public String name;
     property public long parentUuid;
     property public int pid;
-    property public int tid;
+    property public long tid;
     property public int type;
     property public long uuid;
   }

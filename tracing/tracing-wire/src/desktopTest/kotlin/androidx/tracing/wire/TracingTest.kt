@@ -487,7 +487,9 @@ class TracingTest {
     @Test
     internal fun manyTracksShouldNotCauseOutOfMemory() {
         driver.use {
-            repeat(1000) { driver.context.process.getOrCreateThreadTrack(it, "Thread $it") }
+            repeat(1000) {
+                driver.context.process.getOrCreateThreadTrack(it.toLong(), "Thread $it")
+            }
         }
     }
 }
