@@ -353,6 +353,12 @@ public final class Flags {
     public static final String FLAG_ENABLE_SET_SEARCH_AND_RANKING_FEATURE =
             FLAG_PREFIX + "enable_set_search_and_ranking_feature";
 
+    /**
+     * Whether to enable client-side pagination.
+     */
+    public static final String FLAG_ENABLE_CLIENT_SIDE_PAGINATION =
+            FLAG_PREFIX + "enable_client_side_pagination";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -777,5 +783,14 @@ public final class Flags {
      */
     public static boolean enableSetSearchAndRankingFeature() {
         return true;
+    }
+
+    /**
+     * Whether to enable client-side pagination.
+     */
+    public static boolean enableClientSidePagination() {
+        // TODO(b/492234192): Enable this feature only after it rolls out to Nextfood in
+        // platform and localstorage/SearchResultsImpl.java has been updated.
+        return false;
     }
 }

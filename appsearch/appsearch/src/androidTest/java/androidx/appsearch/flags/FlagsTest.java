@@ -335,4 +335,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_EMBED_QUERY_OPTIMIZATION)
                 .isEqualTo("com.android.appsearch.flags.enable_embed_query_optimization");
     }
+
+    @Test
+    public void testFlagValue_enableClientSidePagination() {
+        assertThat(Flags.FLAG_ENABLE_CLIENT_SIDE_PAGINATION)
+                .isEqualTo("com.android.appsearch.flags.enable_client_side_pagination");
+    }
 }

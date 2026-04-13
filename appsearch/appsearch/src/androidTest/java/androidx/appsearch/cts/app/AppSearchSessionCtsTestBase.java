@@ -1918,7 +1918,7 @@ public abstract class AppSearchSessionCtsTestBase {
         inDocuments.add(inDocument);
         getByDocumentIdRequestBuilder.addIds(id);
 
-        for (int i = 101; i < 200; ++i) {
+        for (int i = 101; i < 400; ++i) {
             chars = new char[1024];
             Arrays.fill(chars, ' ');
             body = String.valueOf(chars) + "the end.";
