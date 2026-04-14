@@ -895,6 +895,92 @@ class RemoteStringTest {
         assertThat(id1).isNotEqualTo(id2)
     }
 
+    @Test
+    fun computeRequiredCodePointSet_selectIfLt_float_constant() {
+        val s = selectIfLt(RemoteFloat(10f), RemoteFloat(20f), RemoteString("A"), RemoteString("B"))
+        assertThat(s.computeRequiredCodePointSet(creationState)).containsExactly("A")
+
+        val s2 =
+            selectIfLt(RemoteFloat(20f), RemoteFloat(10f), RemoteString("A"), RemoteString("B"))
+        assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_selectIfLt_int_constant() {
+        val s = selectIfLt(RemoteInt(10), RemoteInt(20), RemoteString("A"), RemoteString("B"))
+        assertThat(s.computeRequiredCodePointSet(creationState)).containsExactly("A")
+
+        val s2 = selectIfLt(RemoteInt(20), RemoteInt(10), RemoteString("A"), RemoteString("B"))
+        assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_selectIfLe_float_constant() {
+        val s = selectIfLe(RemoteFloat(10f), RemoteFloat(10f), RemoteString("A"), RemoteString("B"))
+        assertThat(s.computeRequiredCodePointSet(creationState)).containsExactly("A")
+
+        val s2 =
+            selectIfLe(RemoteFloat(20f), RemoteFloat(10f), RemoteString("A"), RemoteString("B"))
+        assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_selectIfLe_int_constant() {
+        val s = selectIfLe(RemoteInt(10), RemoteInt(10), RemoteString("A"), RemoteString("B"))
+        assertThat(s.computeRequiredCodePointSet(creationState)).containsExactly("A")
+
+        val s2 = selectIfLe(RemoteInt(20), RemoteInt(10), RemoteString("A"), RemoteString("B"))
+        assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_selectIfGt_float_constant() {
+        val s = selectIfGt(RemoteFloat(20f), RemoteFloat(10f), RemoteString("A"), RemoteString("B"))
+        assertThat(s.computeRequiredCodePointSet(creationState)).containsExactly("A")
+
+        val s2 =
+            selectIfGt(RemoteFloat(10f), RemoteFloat(20f), RemoteString("A"), RemoteString("B"))
+        assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_selectIfGt_int_constant() {
+        val s = selectIfGt(RemoteInt(20), RemoteInt(10), RemoteString("A"), RemoteString("B"))
+        assertThat(s.computeRequiredCodePointSet(creationState)).containsExactly("A")
+
+        val s2 = selectIfGt(RemoteInt(10), RemoteInt(20), RemoteString("A"), RemoteString("B"))
+        assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_selectIfGe_float_constant() {
+        val s = selectIfGe(RemoteFloat(10f), RemoteFloat(10f), RemoteString("A"), RemoteString("B"))
+        assertThat(s.computeRequiredCodePointSet(creationState)).containsExactly("A")
+
+        val s2 =
+            selectIfGe(RemoteFloat(10f), RemoteFloat(20f), RemoteString("A"), RemoteString("B"))
+        assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_selectIfGe_int_constant() {
+        val s = selectIfGe(RemoteInt(10), RemoteInt(10), RemoteString("A"), RemoteString("B"))
+        assertThat(s.computeRequiredCodePointSet(creationState)).containsExactly("A")
+
+        val s2 = selectIfGe(RemoteInt(10), RemoteInt(20), RemoteString("A"), RemoteString("B"))
+        assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_selectIf_dynamic() {
+        val s = selectIfLt(namedRemoteInt, RemoteInt(20), RemoteString("A"), RemoteString("B"))
+        assertThat(s.computeRequiredCodePointSet(creationState)).containsExactly("A", "B")
+
+        val s2 =
+            selectIfGt(namedRemoteFloat, RemoteFloat(20f), RemoteString("C"), RemoteString("D"))
+        assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("C", "D")
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
