@@ -97,6 +97,7 @@ class TraceTest {
         Trace.setCounter(counterName = "counterName", counterValue = 42)
         Trace.setCounter(counterName = "counterName", counterValue = 47)
         Trace.setCounter(counterName = "counterName", counterValue = 9787)
+        Trace.setCounter(counterName = "counterName", counterValue = 978709L)
         Trace.endSection()
         assertTrue("Checking that tracing is enabled", Trace.isEnabled())
         dumpTrace()
@@ -104,6 +105,7 @@ class TraceTest {
         assertTraceContains("tracing_mark_write:\\ C\\|.*\\|counterName\\|42")
         assertTraceContains("tracing_mark_write:\\ C\\|.*\\|counterName\\|47")
         assertTraceContains("tracing_mark_write:\\ C\\|.*\\|counterName\\|9787")
+        assertTraceContains("tracing_mark_write:\\ C\\|.*\\|counterName\\|978709")
     }
 
     @Ignore("b/280041271")

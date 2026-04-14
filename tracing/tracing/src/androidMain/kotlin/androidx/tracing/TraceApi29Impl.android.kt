@@ -64,4 +64,14 @@ internal object TraceApi29Impl {
     fun setCounter(counterName: String, counterValue: Int) {
         android.os.Trace.setCounter(counterName, counterValue.toLong())
     }
+
+    /**
+     * Writes trace message to indicate the value of a given counter.
+     *
+     * @param counterName The counter name to appear in the trace.
+     * @param counterValue The counter value.
+     */
+    fun setCounter(counterName: String, counterValue: Long) {
+        android.os.Trace.setCounter(counterName, counterValue)
+    }
 }

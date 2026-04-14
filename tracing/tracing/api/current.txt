@@ -142,6 +142,7 @@ package androidx.tracing {
     method public static void forceEnableAppTracing();
     method public static boolean isEnabled();
     method public static void setCounter(String counterName, int counterValue);
+    method @RequiresApi(android.os.Build.VERSION_CODES.Q) public static void setCounter(String counterName, long counterValue);
     field public static final androidx.tracing.Trace INSTANCE;
   }
 
