@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("Files")
+
 package androidx.tracing.wire
 
 import androidx.annotation.RestrictTo
@@ -32,12 +34,15 @@ import java.util.TimeZone
  * @return the trace [File], for a given parent directory, that can be used by the
  *   [androidx.tracing.AbstractTraceSink].
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
-public fun File.perfettoTraceFile(): File {
+// We don't support descriptors here, given the underlying primitive is an okio.BufferedSink anyway.
+// Developers can always reach for that low level primitive.
+@Suppress("StreamFiles")
+@JvmOverloads
+public fun File.createPerfettoFile(prefix: String = PREFIX): File {
     val formatter = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
     formatter.timeZone = TimeZone.getDefault()
-    val fileName = "$PREFIX-${formatter.format(Date())}"
-    return perfettoTraceFile(fileName = fileName, sequenceId = 0)
+    val fileName = "$prefix-${formatter.format(Date())}"
+    return createPerfettoFile(fileName = fileName, sequenceId = 0)
 }
 
 /**
@@ -49,11 +54,11 @@ public fun File.perfettoTraceFile(): File {
  */
 @VisibleForTesting
 @RestrictTo(Scope.LIBRARY_GROUP)
-public tailrec fun File.perfettoTraceFile(fileName: String, sequenceId: Int = 0): File {
+public tailrec fun File.createPerfettoFile(fileName: String, sequenceId: Int = 0): File {
     val traceFile = File(this, "$fileName-$sequenceId.perfetto-trace")
     return if (traceFile.createNewFile()) {
         traceFile
     } else {
-        perfettoTraceFile(fileName = fileName, sequenceId = sequenceId + 1)
+        createPerfettoFile(fileName = fileName, sequenceId = sequenceId + 1)
     }
 }

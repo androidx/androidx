@@ -28,7 +28,7 @@ class FilesTest {
     @Test
     internal fun testTracingFileNames() {
         val tmpDir = temporaryFolder.newFolder()
-        val perfettoTraceFile = tmpDir.perfettoTraceFile()
+        val perfettoTraceFile = tmpDir.createPerfettoFile()
         val path = perfettoTraceFile.nameWithoutExtension
         // Should have the pattern PREFIX-yyyy-MM-dd-HH-mm-ss-suffix
         val parts = path.split("-")
@@ -44,7 +44,7 @@ class FilesTest {
         val fileName = "trace-yyyy-MM-dd-HH-mm-ss"
         val files = mutableListOf<File>()
         val count = 10
-        repeat(count) { files += tmpDir.perfettoTraceFile(fileName = fileName) }
+        repeat(count) { files += tmpDir.createPerfettoFile(fileName = fileName) }
         // This one should have a suffix `count`
         val path = files.last().nameWithoutExtension
         val parts = path.split("-")

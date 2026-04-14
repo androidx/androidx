@@ -47,7 +47,7 @@ public fun TraceSink(
     context: Context,
     sequenceId: Int,
     coroutineContext: CoroutineContext,
-    traceFile: File = context.filesDir.perfettoTraceFile(),
+    traceFile: File = context.filesDir.createPerfettoFile(),
 ): TraceSink {
     val sink =
         TraceSink(
