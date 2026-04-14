@@ -224,6 +224,8 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                         currentPose: Pose,
                         currentScale: Float,
                     ) {
+                        // TODO - b/415320653: Remove use of deprecated Space.REAL_WORLD
+                        @Suppress("DEPRECATION", "RestrictedApiAndroidX")
                         worldPos = entity.getPose(Space.REAL_WORLD).translation
                         parentPos = entity.getPose(Space.PARENT).translation
                         activityPos = entity.getPose(Space.ACTIVITY).translation

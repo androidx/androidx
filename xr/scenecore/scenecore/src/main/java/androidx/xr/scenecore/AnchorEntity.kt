@@ -458,6 +458,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                     "AnchorEntity is a root space and it does not have a parent."
                 )
             Space.ACTIVITY,
+            @Suppress("DEPRECATION") // TODO - b/415320653
             Space.REAL_WORLD -> super.getPose(relativeTo)
             else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
         }
@@ -513,6 +514,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                     "AnchorEntity is a root space and it does not have a parent."
                 )
             Space.ACTIVITY,
+            @Suppress("DEPRECATION") // TODO - b/415320653
             Space.REAL_WORLD -> super.getNonUniformScale(relativeTo)
             else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
         }
@@ -535,6 +537,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                     "AnchorEntity is a root space and it does not have a parent."
                 )
             Space.ACTIVITY,
+            @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
             Space.REAL_WORLD -> super.getScale(relativeTo)
             else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
         }
