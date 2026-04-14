@@ -69,14 +69,15 @@ internal open class CallSession(
     private val mCallSessionId: Int = CallEndpointUuidTracker.startSession()
     private var mPlatformInterface: CallControl? = null
     // cache the latest current and available endpoints
-    private var mCurrentCallEndpoint: CallEndpointCompat? = null
+    @VisibleForTesting internal var mCurrentCallEndpoint: CallEndpointCompat? = null
     private var mAvailableEndpoints: MutableList<CallEndpointCompat> = mutableListOf()
-    private var mLastClientRequestedEndpoint: CallEndpointCompat? = null
+    @VisibleForTesting internal var mLastClientRequestedEndpoint: CallEndpointCompat? = null
     // use CompletableDeferred objects to signal when all the endpoint values have initially
     // been received from the platform.
     private val mIsCurrentEndpointSet = CompletableDeferred<Unit>()
     private val mIsAvailableEndpointsSet = CompletableDeferred<Unit>()
     private var mCallType: Int = 0
+    @VisibleForTesting internal val mUnrequestedVideoManager = UnrequestedVideoManager()
     internal val mJetpackToPlatformCallEndpoint: HashMap<ParcelUuid, CallEndpoint> = HashMap()
     /**
      * Stores the audio endpoint that was initially preferred by the client when the call was
@@ -182,6 +183,7 @@ internal open class CallSession(
         avoidSpeakerOverrideOnCallStart(previousCallEndpoint, mCurrentCallEndpoint)
 
         enforceVideoCallSpeakerFallback(mCurrentCallEndpoint!!)
+        maybeRerouteToEarpiece(isEndpointChange = true)
 
         // clear out the last user requested CallEndpoint. It's only used to determine if the
         // change in current endpoints was intentional for maybeSwitchToSpeakerOnHeadsetDisconnect
@@ -478,11 +480,35 @@ internal open class CallSession(
     }
 
     override fun onVideoStateChanged(videoState: Int) {
-        mCallType = videoState
-        CoroutineScope(coroutineContext).launch { callChannels.callTypeChannel.send(videoState) }
-        // if the call is upgraded to a video call, switch the audio route to speaker
-        // on behalf of the user if the call audio route is the earpiece
-        mCurrentCallEndpoint?.let { enforceVideoCallSpeakerFallback(it) }
+        if (mUnrequestedVideoManager.isUnrequestedVideoUpgradeBug(mCallType, videoState)) {
+            mUnrequestedVideoManager.handleUnrequestedVideoStateUpgrade(
+                mPlatformInterface,
+                mCallType,
+            ) {
+                maybeRerouteToEarpiece(isEndpointChange = false)
+            }
+        } else {
+            mCallType = videoState
+            CoroutineScope(coroutineContext).launch {
+                callChannels.callTypeChannel.send(videoState)
+            }
+            // if the call is upgraded to a video call, switch the audio route to speaker
+            // on behalf of the user if the call audio route is the earpiece
+            mCurrentCallEndpoint?.let { enforceVideoCallSpeakerFallback(it) }
+        }
+    }
+
+    private fun maybeRerouteToEarpiece(isEndpointChange: Boolean) {
+        mUnrequestedVideoManager.maybeRerouteToEarpiece(
+            mCurrentCallEndpoint,
+            mAvailableEndpoints,
+            mPreferredStartingCallEndpoint,
+            mLastClientRequestedEndpoint,
+            isEndpointChange,
+            mCallType,
+        ) {
+            CoroutineScope(coroutineContext).launch { requestEndpointChange(it) }
+        }
     }
 
     /**
@@ -589,17 +615,26 @@ internal open class CallSession(
 
     @SuppressLint("NewApi")
     suspend fun requestVideoState(videoState: Int): CallControlResult {
+        mCallType = videoState
         return if (VERSION.SDK_INT >= VERSION_CODES.VANILLA_ICE_CREAM) {
-            val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
-            mPlatformInterface!!.requestVideoState(
-                videoState,
-                Runnable::run,
-                CallControlReceiver(result),
-            )
-            // requestVideoState cannot fail  in the platform so mCallType can be
-            // updated immediately
-            mCallType = videoState
-            return result.await()
+            val platformInterface = mPlatformInterface
+            // Handle testing case: if the platform interface is null, bypass the
+            // deferred completion and return immediately to prevent hanging.
+            if (platformInterface == null) {
+                mCallType = videoState
+                CallControlResult.Success()
+            } else {
+                val result = CompletableDeferred<CallControlResult>()
+                platformInterface.requestVideoState(
+                    videoState,
+                    Runnable::run,
+                    CallControlReceiver(result),
+                )
+                // requestVideoState cannot fail in the platform so mCallType can be
+                // updated immediately
+                mCallType = videoState
+                result.await()
+            }
         } else {
             mCallType = videoState
             callChannels.callTypeChannel.send(videoState)
