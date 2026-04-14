@@ -161,6 +161,15 @@ internal class EndpointUtils {
             return null
         }
 
+        fun getEarpieceEndpoint(endpoints: List<CallEndpointCompat>): CallEndpointCompat? {
+            for (e in endpoints) {
+                if (e.type == CallEndpointCompat.TYPE_EARPIECE) {
+                    return e
+                }
+            }
+            return null
+        }
+
         fun isBluetoothAvailable(endpoints: List<CallEndpointCompat>): Boolean {
             for (e in endpoints) {
                 if (e.type == CallEndpointCompat.TYPE_BLUETOOTH) {

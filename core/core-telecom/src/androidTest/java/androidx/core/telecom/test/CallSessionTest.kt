@@ -38,6 +38,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -275,11 +276,12 @@ class CallSessionTest : BaseTelecomTest() {
     private fun initCallSession(
         coroutineContext: CoroutineContext,
         callChannels: CallChannels,
+        attributes: CallAttributesCompat = TestUtils.INCOMING_CALL_ATTRIBUTES,
     ): CallSession {
         return CallSession(
             FakeBluetoothDeviceChecker(),
             coroutineContext,
-            TestUtils.INCOMING_CALL_ATTRIBUTES,
+            attributes,
             TestUtils.mOnAnswerLambda,
             TestUtils.mOnDisconnectLambda,
             TestUtils.mOnSetActiveLambda,
@@ -288,6 +290,16 @@ class CallSessionTest : BaseTelecomTest() {
             MutableSharedFlow(),
             { _, _ -> },
             CompletableDeferred(Unit),
+        )
+    }
+
+    private fun createAudioCallAttributes(): CallAttributesCompat {
+        return CallAttributesCompat(
+            OUTGOING_NAME,
+            TEST_ADDRESS,
+            CallAttributesCompat.DIRECTION_OUTGOING,
+            CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
+            CallAttributesCompat.SUPPORTS_STREAM,
         )
     }
 
@@ -303,5 +315,159 @@ class CallSessionTest : BaseTelecomTest() {
 
     private fun getRandomParcelUuid(): ParcelUuid {
         return ParcelUuid.fromString(UUID.randomUUID().toString())
+    }
+
+    /**
+     * Verifies that when the platform unexpectedly upgrades an audio call to a video call, the
+     * Jetpack layer intercepts this, remains in an audio call state, and forces the audio route
+     * back to the earpiece.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM)
+    @SmallTest
+    @Test
+    fun testUnrequestedVideoStateUpgrade_AudioCall() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val attributes = createAudioCallAttributes()
+            val callSession = initCallSession(coroutineContext, callChannels, attributes)
+
+            // Set initial state
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerEndpoints)
+            callSession.setCurrentCallEndpoint(mSpeakerEndpoint)
+
+            // Wait for coroutines to execute
+            yield()
+
+            // Simulate platform upgrading to video unexpectedly
+            callSession.onVideoStateChanged(CallAttributesCompat.CALL_TYPE_VIDEO_CALL)
+
+            // Wait for coroutines to execute
+            yield()
+
+            val lastEndpoint = callSession.mLastClientRequestedEndpoint
+
+            // Should fall back to EARPIECE
+            assertNotNull(lastEndpoint)
+            assertEquals(CallEndpointCompat.TYPE_EARPIECE, lastEndpoint?.type)
+
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verifies that if the user explicitly requested the speaker endpoint, the fallback to earpiece
+     * does not occur even during an unrequested video upgrade.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM)
+    @SmallTest
+    @Test
+    fun testUnrequestedVideoStateUpgrade_UserRequestedSpeaker() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val attributes = createAudioCallAttributes()
+            val callSession = initCallSession(coroutineContext, callChannels, attributes)
+
+            // Set initial state
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerEndpoints)
+            callSession.setCurrentCallEndpoint(mSpeakerEndpoint)
+
+            // Simulate user explicitly requesting speaker
+            callSession.mLastClientRequestedEndpoint = mSpeakerEndpoint
+
+            // Simulate platform upgrading to video unexpectedly
+            callSession.onVideoStateChanged(CallAttributesCompat.CALL_TYPE_VIDEO_CALL)
+
+            // Wait for coroutines to execute
+            yield()
+
+            // Should NOT fallback to EARPIECE because user requested speaker
+            val lastEndpoint = callSession.mLastClientRequestedEndpoint
+            assertEquals(CallEndpointCompat.TYPE_SPEAKER, lastEndpoint?.type)
+
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verifies that if the application initiates the video state upgrade, the fallback logic is not
+     * triggered.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM)
+    @SmallTest
+    @Test
+    fun testAppInitiatedVideoStateUpgrade_DoesNotFallback() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val attributes = createAudioCallAttributes()
+            val callSession = initCallSession(coroutineContext, callChannels, attributes)
+
+            // Set initial state
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerEndpoints)
+            callSession.setCurrentCallEndpoint(mSpeakerEndpoint)
+
+            // App requests video upgrade
+            callSession.requestVideoState(CallAttributesCompat.CALL_TYPE_VIDEO_CALL)
+
+            // Simulate platform upgrading to video as expected
+            callSession.onVideoStateChanged(CallAttributesCompat.CALL_TYPE_VIDEO_CALL)
+
+            // Wait for coroutines to execute
+            yield()
+
+            // Tracking should be false since it was app initiated
+            assertFalse(callSession.mUnrequestedVideoManager.mTrackingUnrequestedVideoStateUpgrade)
+
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verifies that if the platform upgrades the video state without request, and subsequently
+     * changes the audio route to SPEAKER, the Jetpack layer catches it and forces the route back to
+     * EARPIECE.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM)
+    @SmallTest
+    @Test
+    fun testUnrequestedVideoStateUpgrade_EndpointChangedToSpeakerAfterwards() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val attributes = createAudioCallAttributes()
+            val callSession = initCallSession(coroutineContext, callChannels, attributes)
+
+            // Set initial state
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerEndpoints)
+            callSession.setCurrentCallEndpoint(mEarpieceEndpoint)
+
+            // Wait for coroutines to execute
+            yield()
+
+            // Simulate first audio state flow emission
+            callSession.onVideoStateChanged(CallAttributesCompat.CALL_TYPE_AUDIO_CALL)
+
+            // Simulate platform upgrading to video unexpectedly
+            callSession.onVideoStateChanged(CallAttributesCompat.CALL_TYPE_VIDEO_CALL)
+
+            // Now platform changes endpoint to SPEAKER
+            val platformSpeaker =
+                CallEndpoint(
+                    mSpeakerEndpoint.name,
+                    CallEndpoint.TYPE_SPEAKER,
+                    getRandomParcelUuid(),
+                )
+            callSession.onCallEndpointChanged(platformSpeaker)
+
+            // Wait for coroutines to execute
+            yield()
+
+            // Should fall back to EARPIECE
+            val reqEndpoint = callSession.mLastClientRequestedEndpoint
+            assertEquals(CallEndpointCompat.TYPE_EARPIECE, reqEndpoint?.type)
+
+            // Tracking should be cleared
+            assertFalse(callSession.mUnrequestedVideoManager.mTrackingUnrequestedVideoStateUpgrade)
+
+            callChannels.closeAllChannels()
+        }
     }
 }
