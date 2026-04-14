@@ -143,6 +143,22 @@ class TracingTest {
     }
 
     @Test
+    internal fun testForInstantExceptions() {
+        driver.use {
+            runCatching {
+                tracer.trace(category = "category", name = "section") {
+                    throw IllegalStateException("Not allowed")
+                }
+            }
+        }
+        // 2 packets for track descriptors (process + thread)
+        // 2 packets for begin and end section.
+        // 1 for instant exception.
+        assertEquals(5, sink.packets.size)
+        assertNotNull(sink.firstStartStopWithName("section.exception"))
+    }
+
+    @Test
     internal fun testTrackEventsMultipleCategories() {
         driver.use {
             tracer.trace(

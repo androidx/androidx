@@ -134,6 +134,10 @@ package androidx.tracing {
     field public static final androidx.tracing.PropagationUnsupportedToken INSTANCE;
   }
 
+  public final class Throwables {
+    method public static Void recordException(androidx.tracing.Tracer, String category, String name, Throwable throwable);
+  }
+
   public final class Trace {
     method public static void beginAsyncSection(String methodName, int cookie);
     method public static void beginSection(String label);
