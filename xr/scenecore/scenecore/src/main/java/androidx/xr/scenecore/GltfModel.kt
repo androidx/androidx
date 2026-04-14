@@ -125,7 +125,7 @@ internal constructor(
          */
         @MainThread
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // Hasn't passed API review
         public suspend fun create(
             session: Session,
             assetData: ByteArray,
