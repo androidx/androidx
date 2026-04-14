@@ -33,6 +33,8 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RecordingRemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
+import androidx.compose.remote.core.operations.ConditionalOperations
+import androidx.compose.remote.core.operations.DrawRect
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.paint.PaintBundle
@@ -49,6 +51,7 @@ import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.tween
@@ -160,6 +163,44 @@ class RecordingCanvasTest {
         recordingCanvas.drawBitmap(bitmap, 0f, 0f, paint)
         val document = constructDocument()
         assertScreenshot(document, "remotePaint")
+    }
+
+    @Test
+    fun drawConditionally_constantTrue() {
+        recordingCanvas.drawConditionally(true.rb) {
+            recordingCanvas.drawRect(
+                10f.rf,
+                10f.rf,
+                300f.rf,
+                300f.rf,
+                Paint().apply { color = Color.YELLOW },
+            )
+        }
+
+        val operations = inflateOperations()
+        // Should not contain ConditionalOperations
+        assertThat(operations.any { it is ConditionalOperations }).isFalse()
+        // Should contain the drawRect
+        assertThat(operations.any { it is DrawRect }).isTrue()
+    }
+
+    @Test
+    fun drawConditionally_constantFalse() {
+        recordingCanvas.drawConditionally(false.rb) {
+            recordingCanvas.drawRect(
+                10f.rf,
+                10f.rf,
+                300f.rf,
+                300f.rf,
+                Paint().apply { color = Color.YELLOW },
+            )
+        }
+
+        val operations = inflateOperations()
+        // Should not contain ConditionalOperations
+        assertThat(operations.any { it is ConditionalOperations }).isFalse()
+        // Should NOT contain the drawRect
+        assertThat(operations.any { it is DrawRect }).isFalse()
     }
 
     @Test
