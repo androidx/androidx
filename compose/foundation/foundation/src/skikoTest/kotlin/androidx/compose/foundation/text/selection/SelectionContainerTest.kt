@@ -16,10 +16,13 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -149,6 +153,46 @@ class SelectionContainerTest {
     fun selectionMagnifierShouldNotCrash() {
         val sm = SelectionManager(SelectionRegistrarImpl())
         Modifier.selectionMagnifier(sm)
+    }
+
+    @Test
+    fun dragOutsideScrollsAndSelects() = androidx.compose.ui.test.v2.runComposeUiTest {
+        val scrollState by mutableStateOf(ScrollState(0))
+        var selection by mutableStateOf<Selection?>(null)
+        setContent {
+            Box(Modifier.testTag("container").size(200.dp).verticalScroll(scrollState)) {
+                SelectionContainer(
+                    selection = selection,
+                    onSelectionChange = { selection = it },
+                ) {
+                    Column(Modifier.testTag("content")) {
+                        repeat(50) { BasicText("Line $it", Modifier.testTag("tag$it")) }
+                    }
+                }
+            }
+        }
+
+        onNodeWithTag("content").performMouseInput {
+            dragAndDrop(
+                start = Offset(0f, 0f),
+                end =  Offset(width.toFloat(), height + 100f),
+                durationMillis = 10_000
+            )
+        }
+
+        // Verify that it was scrolled to the bottom
+        val contentSize = onNodeWithTag("content").fetchSemanticsNode().size
+        assertTrue(scrollState.value > 0)
+        assertEquals(contentSize.height, scrollState.value + scrollState.viewportSize)
+
+        // Verify that the selection is the entire content
+        selection.let {
+            assertNotNull(it)
+            assertEquals(1, it.start.selectableId)
+            assertEquals(0, it.start.offset)
+            assertEquals(50, it.end.selectableId)
+            assertEquals(7, it.end.offset)
+        }
     }
 }
 
