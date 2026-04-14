@@ -111,6 +111,10 @@ class MainActivity : AppCompatActivity() {
                         getResources().getString(R.string.custom_header_activity_title),
                         Intent(this, CustomHeaderActivity::class.java),
                     ),
+                    MenuListView.MenuItem(
+                        getResources().getString(R.string.prefetch_activity_title),
+                        Intent(this, PrefetchActivity::class.java),
+                    ),
                 )
             )
     }
