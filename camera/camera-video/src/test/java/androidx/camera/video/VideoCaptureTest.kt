@@ -32,6 +32,7 @@ import android.media.CamcorderProfile.QUALITY_HIGH_SPEED_720P
 import android.media.CamcorderProfile.QUALITY_HIGH_SPEED_HIGH
 import android.media.CamcorderProfile.QUALITY_HIGH_SPEED_LOW
 import android.media.CamcorderProfile.QUALITY_LOW
+import android.media.CamcorderProfile.QUALITY_QHD
 import android.media.EncoderProfiles
 import android.media.MediaFormat.MIMETYPE_VIDEO_AV1
 import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
@@ -105,6 +106,7 @@ import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_HIGH_SPEED_1080
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_HIGH_SPEED_2160P
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_HIGH_SPEED_480P
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_HIGH_SPEED_720P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_QHD
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_2160P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_480P
@@ -132,6 +134,7 @@ import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
 import androidx.camera.video.Quality.HIGHEST
 import androidx.camera.video.Quality.LOWEST
+import androidx.camera.video.Quality.QHD
 import androidx.camera.video.Quality.QUALITY_SOURCE_HIGH_SPEED
 import androidx.camera.video.Quality.QUALITY_SOURCE_REGULAR
 import androidx.camera.video.Quality.SD
@@ -2596,6 +2599,7 @@ class VideoCaptureTest {
                 SD to RESOLUTION_480P,
                 HD to RESOLUTION_720P,
                 FHD to RESOLUTION_1080P,
+                QHD to RESOLUTION_QHD,
                 UHD to RESOLUTION_2160P,
                 LOWEST to RESOLUTION_480P,
                 HIGHEST to RESOLUTION_2160P,
@@ -2657,6 +2661,7 @@ class VideoCaptureTest {
             mapOf(
                 QUALITY_HIGH to PROFILES_2160P,
                 QUALITY_2160P to PROFILES_2160P,
+                QUALITY_QHD to PROFILES_QHD,
                 QUALITY_1080P to PROFILES_1080P,
                 QUALITY_720P to PROFILES_720P,
                 QUALITY_480P to PROFILES_480P,

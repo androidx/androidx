@@ -22,6 +22,7 @@ import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.AspectRatio.RATIO_DEFAULT
 import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
+import androidx.camera.video.Quality.QHD
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
 import com.google.common.truth.Truth.assertThat
@@ -42,8 +43,16 @@ class QualityRatioToResolutionsTableTest {
                 SD to Size(640, 480),
                 HD to Size(1280, 720),
                 FHD to Size(1920, 1080),
+                QHD to Size(2560, 1440),
                 UHD to Size(3840, 2160),
             )
+    }
+
+    @Test
+    fun qualityShouldHaveHeighRangeDefinition() {
+        for (quality in Quality.getSortedQualities()) {
+            assertThat(QualityRatioToResolutionsTable.sQualityRangeMap[quality]).isNotNull()
+        }
     }
 
     @Test
@@ -55,6 +64,7 @@ class QualityRatioToResolutionsTableTest {
         assertThat(table.getResolutions(SD, RATIO_DEFAULT)).containsExactly(Size(640, 480))
         assertThat(table.getResolutions(HD, RATIO_DEFAULT)).containsExactly(Size(1280, 720))
         assertThat(table.getResolutions(FHD, RATIO_DEFAULT)).containsExactly(Size(1920, 1080))
+        assertThat(table.getResolutions(QHD, RATIO_DEFAULT)).containsExactly(Size(2560, 1440))
         assertThat(table.getResolutions(UHD, RATIO_DEFAULT)).containsExactly(Size(3840, 2160))
     }
 
@@ -126,6 +136,28 @@ class QualityRatioToResolutionsTableTest {
 
         assertThat(table.getResolutions(FHD, RATIO_16_9))
             .containsExactly(Size(1920, 1080))
+            .inOrder()
+    }
+
+    @Test
+    fun commonQHD() {
+        // Arrange.
+        val common4By3 = listOf(Size(2048, 1536), Size(1920, 1440))
+        val common16By9 = listOf(Size(2560, 1440))
+        val otherRatios = listOf(Size(1440, 1440), Size(2560, 1080))
+        val otherQualities = listOf(Size(3840, 2160), Size(1920, 1080))
+        val input = common4By3 + common16By9 + otherRatios + otherQualities
+
+        // Act.
+        val table = QualityRatioToResolutionsTable(input, qualitySizeMap)
+
+        // Assert.
+        assertThat(table.getResolutions(QHD, RATIO_4_3))
+            .containsExactly(Size(2048, 1536), Size(1920, 1440))
+            .inOrder()
+
+        assertThat(table.getResolutions(QHD, RATIO_16_9))
+            .containsExactly(Size(2560, 1440))
             .inOrder()
     }
 

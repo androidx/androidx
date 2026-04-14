@@ -44,6 +44,12 @@ public object GroupableFeatures {
     @JvmField public val FHD_RECORDING: GroupableFeature = RecordingQualityFeature(Quality.FHD)
 
     /**
+     * A feature object of type [FEATURE_TYPE_RECORDING_QUALITY] representing [Quality.QHD] video
+     * recording.
+     */
+    @JvmField public val QHD_RECORDING: GroupableFeature = RecordingQualityFeature(Quality.QHD)
+
+    /**
      * A feature object of type [FEATURE_TYPE_RECORDING_QUALITY] representing [Quality.UHD] video
      * recording.
      */

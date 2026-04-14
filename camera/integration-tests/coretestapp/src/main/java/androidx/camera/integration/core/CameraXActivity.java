@@ -2948,6 +2948,8 @@ public class CameraXActivity extends AppCompatActivity {
             return "Auto";
         } else if (quality == Quality.UHD) {
             return "UHD";
+        } else if (quality == Quality.QHD) {
+            return "QHD";
         } else if (quality == Quality.FHD) {
             return "FHD";
         } else if (quality == Quality.HD) {
@@ -2963,6 +2965,8 @@ public class CameraXActivity extends AppCompatActivity {
             return "Auto";
         } else if (quality == Quality.UHD) {
             return "UHD (2160P)";
+        } else if (quality == Quality.QHD) {
+            return "QHD (1440P)";
         } else if (quality == Quality.FHD) {
             return "FHD (1080P)";
         } else if (quality == Quality.HD) {
@@ -2978,12 +2982,14 @@ public class CameraXActivity extends AppCompatActivity {
             return 0;
         } else if (quality == Quality.UHD) {
             return 1;
-        } else if (quality == Quality.FHD) {
+        } else if (quality == Quality.QHD) {
             return 2;
-        } else if (quality == Quality.HD) {
+        } else if (quality == Quality.FHD) {
             return 3;
-        } else if (quality == Quality.SD) {
+        } else if (quality == Quality.HD) {
             return 4;
+        } else if (quality == Quality.SD) {
+            return 5;
         } else {
             throw new IllegalArgumentException("Undefined quality: " + quality);
         }
@@ -2996,10 +3002,12 @@ public class CameraXActivity extends AppCompatActivity {
             case 1:
                 return Quality.UHD;
             case 2:
-                return Quality.FHD;
+                return Quality.QHD;
             case 3:
-                return Quality.HD;
+                return Quality.FHD;
             case 4:
+                return Quality.HD;
+            case 5:
                 return Quality.SD;
             default:
                 throw new IllegalArgumentException("Undefined item id: " + itemId);

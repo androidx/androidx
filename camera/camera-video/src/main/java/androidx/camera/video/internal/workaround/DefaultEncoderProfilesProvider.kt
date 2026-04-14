@@ -31,6 +31,7 @@ import androidx.camera.video.Quality
 import androidx.camera.video.Quality.ConstantQuality
 import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
+import androidx.camera.video.Quality.QHD
 import androidx.camera.video.Quality.QUALITY_SOURCE_REGULAR
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
@@ -197,6 +198,7 @@ public class DefaultEncoderProfilesProvider(
     private fun Quality.getTypicalBitrate(): Int =
         when (this) {
             UHD -> DEFAULT_VIDEO_BITRATE_UHD
+            QHD -> DEFAULT_VIDEO_BITRATE_QHD
             FHD -> DEFAULT_VIDEO_BITRATE_FHD
             HD -> DEFAULT_VIDEO_BITRATE_HD
             SD -> DEFAULT_VIDEO_BITRATE_SD
@@ -222,6 +224,8 @@ public class DefaultEncoderProfilesProvider(
 
         internal const val DEFAULT_VIDEO_BITRATE_UHD =
             40_000_000 // 40 Mbps, scaled by FHD. See VideoConfigUtil.scaleBitrate()
+        internal const val DEFAULT_VIDEO_BITRATE_QHD =
+            18_000_000 // 18 Mbps, scaled by FHD. See VideoConfigUtil.scaleBitrate()
         internal const val DEFAULT_VIDEO_BITRATE_FHD = 10_000_000 // 10 Mbps
         internal const val DEFAULT_VIDEO_BITRATE_HD = 4_000_000 // 4 Mbps
         internal const val DEFAULT_VIDEO_BITRATE_SD = 2_000_000 // 2 Mbps

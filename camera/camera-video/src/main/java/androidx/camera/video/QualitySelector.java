@@ -48,8 +48,9 @@ import java.util.Set;
  * {@link Recorder.Builder#setQualitySelector(QualitySelector) Recorder}.
  *
  * <p>There are pre-defined quality constants that are universally used for video, such as
- * {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD} and {@link Quality#UHD}, but
- * not all of them are supported on every device since each device has its own capabilities.
+ * {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD}, {@link Quality#QHD} and
+ * {@link Quality#UHD}, but not all of them are supported on every device since each device has
+ * its own capabilities.
  * {@link #isQualitySupported(CameraInfo, Quality)} can be used to check whether a quality is
  * supported on the device or not and {@link #getResolution(CameraInfo, Quality)} can be used to get
  * the actual resolution defined in the device. Aside from checking the qualities one by one,
@@ -119,8 +120,8 @@ public final class QualitySelector {
      * {@link #getSupportedQualities} will return {@code true}.
      *
      * <p>Possible values for {@code quality} include {@link Quality#LOWEST},
-     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD}
-     * and {@link Quality#UHD}.
+     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
+     * {@link Quality#QHD} and {@link Quality#UHD}.
      *
      * <p>If this method is called with {@link Quality#LOWEST} or {@link Quality#HIGHEST}, it
      * will return {@code true} except the case that none of the qualities can be supported.
@@ -142,8 +143,8 @@ public final class QualitySelector {
      * Gets the corresponding resolution from the input quality.
      *
      * <p>Possible values for {@code quality} include {@link Quality#LOWEST},
-     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD}
-     * and {@link Quality#UHD}.
+     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
+     * {@link Quality#QHD} and {@link Quality#UHD}.
      *
      * @param cameraInfo the cameraInfo for checking the quality.
      * @param quality one of the quality constants.
@@ -191,7 +192,7 @@ public final class QualitySelector {
      *
      * @param quality the quality. Possible values include {@link Quality#LOWEST},
      * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
-     * or {@link Quality#UHD}.
+     * {@link Quality#QHD}, or {@link Quality#UHD}.
      * @return the QualitySelector instance.
      * @throws NullPointerException if {@code quality} is {@code null}.
      * @throws IllegalArgumentException if {@code quality} is not one of the possible values.
@@ -209,7 +210,7 @@ public final class QualitySelector {
      *
      * @param quality the quality. Possible values include {@link Quality#LOWEST},
      * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
-     * or {@link Quality#UHD}.
+     * {@link Quality#QHD}, or {@link Quality#UHD}.
      * @param fallbackStrategy the fallback strategy that will be applied when the device does
      *                         not support {@code quality}.
      * @return the QualitySelector instance.
@@ -232,7 +233,7 @@ public final class QualitySelector {
      *
      * @param qualities the quality list. Possible values include {@link Quality#LOWEST},
      * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
-     * or {@link Quality#UHD}.
+     * {@link Quality#QHD}, or {@link Quality#UHD}.
      * @return the QualitySelector instance.
      * @throws NullPointerException if {@code qualities} is {@code null}.
      * @throws IllegalArgumentException if {@code qualities} is empty or contains a quality that is
@@ -252,7 +253,7 @@ public final class QualitySelector {
      *
      * @param qualities the quality list. Possible values include {@link Quality#LOWEST},
      * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
-     * or {@link Quality#UHD}.
+     * {@link Quality#QHD}, or {@link Quality#UHD}.
      * @param fallbackStrategy the fallback strategy that will be applied when the device does
      *                         not support those {@code qualities}.
      * @throws NullPointerException if {@code qualities} is {@code null} or
