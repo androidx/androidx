@@ -93,10 +93,10 @@ internal class AnchorEntityImpl(
     }
 
     override fun setOnStateChangedListener(
-        onStateChangedListener: AnchorEntity.OnStateChangedListener
+        onStateChangedListener: AnchorEntity.OnStateChangedListener?
     ) {
         this.onStateChangedListener = onStateChangedListener
-        scheduledExecutor.execute { onStateChangedListener.onStateChanged(_state) }
+        scheduledExecutor.execute { onStateChangedListener?.onStateChanged(_state) }
     }
 
     override fun getPose(@SpaceValue relativeTo: Int): Pose {

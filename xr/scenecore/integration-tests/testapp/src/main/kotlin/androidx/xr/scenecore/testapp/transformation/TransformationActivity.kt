@@ -185,7 +185,7 @@ class TransformationActivity : AppCompatActivity() {
                     "onAnchorSpaceUpdatedCount",
                     (++onAnchorSpaceUpdatedCount).toString(),
                 )
-                anchor!!.setOnOriginChangedListener({
+                anchor!!.addOnOriginChangedListener({
                     panel.view.setLine(
                         "onAnchorSpaceUpdatedCount",
                         (++onAnchorSpaceUpdatedCount).toString(),
