@@ -153,6 +153,7 @@ class ActivitySpaceTest {
     @Test
     fun getRealWorldSpacePose_returnsPerceptionSpacePose() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
+        @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val pose = activitySpace.getPose(Space.REAL_WORLD)
         assertThat(pose.translation).isEqualTo(Vector3.Zero)
         assertThat(pose.rotation).isEqualTo(Quaternion.Identity)
@@ -196,6 +197,7 @@ class ActivitySpaceTest {
     @Test
     fun getRealWorldSpaceScale_returnsIdentity() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
+        @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val scale = activitySpace.getScale(Space.REAL_WORLD)
         assertThat(scale).isEqualTo(1f)
     }
@@ -203,6 +205,7 @@ class ActivitySpaceTest {
     @Test
     fun getRealWorldSpaceNonUniformScale_returnsIdentity() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
+        @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val scale = activitySpace.getNonUniformScale(Space.REAL_WORLD)
         assertThat(scale).isEqualTo(Vector3.One)
     }

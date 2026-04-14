@@ -126,6 +126,8 @@ class HeadLockedUIManager(
         if (this.mEnableHeadlock) {
             // Since the panel is parented by the activitySpace, we need to inverse its scale
             // so that the panel stays at a fixed size in the view even when ActivitySpace scales.
+            // TODO - b/415320653: Remove Space.REAL_WORLD
+            @Suppress("DEPRECATION", "RestrictedApiAndroidX")
             this.mHeadLockedPanel.setScale(
                 0.5f / mSession.scene.activitySpace.getScale(Space.REAL_WORLD)
             )

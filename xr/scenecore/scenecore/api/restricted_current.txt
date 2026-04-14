@@ -1029,13 +1029,11 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.Space ACTIVITY;
     field public static final androidx.xr.scenecore.Space.Companion Companion;
     field public static final androidx.xr.scenecore.Space PARENT;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.xr.scenecore.Space REAL_WORLD;
   }
 
   public static final class Space.Companion {
     property public androidx.xr.scenecore.Space ACTIVITY;
     property public androidx.xr.scenecore.Space PARENT;
-    property public androidx.xr.scenecore.Space REAL_WORLD;
   }
 
   public final class SpatialAudioTrack {

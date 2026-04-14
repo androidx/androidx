@@ -33,8 +33,9 @@ public class Space private constructor(private val value: Int) {
         /**
          * The global coordinate space, unscaled, at the root of the scene graph of the activity.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        // TODO - b/415320653: This will be removed, for now restrict it for internal use.
+        // TODO - b/415320653: This will be removed.
+        @Deprecated("REAL_WORLD will be removed in a subsequent release.")
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmField
         public val REAL_WORLD: Space = Space(3)
     }

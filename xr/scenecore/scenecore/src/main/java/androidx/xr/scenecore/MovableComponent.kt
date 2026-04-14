@@ -295,6 +295,7 @@ private constructor(
         // the activity space.
         if (updatedParent != null && updatedParent != initialParent) {
             entity?.let {
+                @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
                 updatedScale =
                     it.getScale() * initialParent.getScale(Space.REAL_WORLD) /
                         updatedParent.getScale(Space.REAL_WORLD)

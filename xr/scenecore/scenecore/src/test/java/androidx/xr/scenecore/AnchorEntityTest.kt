@@ -343,6 +343,7 @@ class AnchorEntityTest {
     @Test
     fun getRealWorldSpacePose_returnsPerceptionSpacePose() {
         val anchorEntity = AnchorEntity.create(session, anchor)
+        @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val pose = anchorEntity.getPose(Space.REAL_WORLD)
         assertThat(pose.translation).isEqualTo(anchor.runtimeAnchor.pose.translation)
         assertThat(pose.rotation).isEqualTo(anchor.runtimeAnchor.pose.rotation)
@@ -387,6 +388,7 @@ class AnchorEntityTest {
     @Test
     fun getRealWorldSpaceScale_returnsIdentity() {
         val anchorEntity = AnchorEntity.create(session, anchor)
+        @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val scale = anchorEntity.getScale(Space.REAL_WORLD)
         assertThat(scale).isEqualTo(1f)
     }
@@ -394,6 +396,7 @@ class AnchorEntityTest {
     @Test
     fun getRealWorldSpaceNonUniformScale_returnsIdentity() {
         val anchorEntity = AnchorEntity.create(session, anchor)
+        @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val scale = anchorEntity.getNonUniformScale(Space.REAL_WORLD)
         assertThat(scale).isEqualTo(Vector3.One)
     }
