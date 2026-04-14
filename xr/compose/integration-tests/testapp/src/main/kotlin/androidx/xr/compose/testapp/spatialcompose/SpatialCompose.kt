@@ -108,6 +108,7 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.ExperimentalGltfComposeMethod
 import androidx.xr.scenecore.GltfAnimation.AnimationState
 import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
@@ -457,7 +458,8 @@ class SpatialCompose : ComponentActivity() {
 
                     // 2. Only calculate the bounding box if the animation is actually playing.
                     if (currentState == AnimationState.PLAYING) {
-                        entitySize = entity.gltfModelBoundingBox.halfExtents.times(2f)
+                        @OptIn(ExperimentalGltfComposeMethod::class)
+                        entitySize = entity.getGltfModelBoundingBox().halfExtents.times(2f)
                     }
 
                     delay(16L)
