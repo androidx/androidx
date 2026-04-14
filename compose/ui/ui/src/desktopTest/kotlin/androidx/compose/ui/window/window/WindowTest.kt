@@ -45,6 +45,8 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.*
 import org.jetbrains.skiko.MainUIDispatcher
@@ -763,15 +765,17 @@ class WindowTest {
         lateinit var innerWindow: Window
         var showInnerWindow by mutableStateOf(false)
         val windowSize = DpSize(800.dp, 800.dp)
-        launchTestWindowApplication(
-            state = WindowState(size = windowSize),
-        ) {
+        val outerWindowState = WindowState(size = windowSize)
+        launchTestWindowApplication(state = outerWindowState) {
             outerWindow = this.window
             Box(Modifier.fillMaxSize().background(Color.Black))
             if (showInnerWindow) {
                 Window(
                     onCloseRequest = {},
-                    state = rememberWindowState(size = windowSize),
+                    state = rememberWindowState(
+                        size = windowSize,
+                        position = outerWindowState.position
+                    ),
                 ) {
                     innerWindow = this.window
                     Box(Modifier.fillMaxSize().background(Color.Black))
@@ -785,7 +789,6 @@ class WindowTest {
 
         showInnerWindow = true
         awaitIdle()
-        delay(1000)
 
         var nonBlackPixelDetected: java.awt.Color? = null
         val testLocation = innerWindow.bounds.let {
@@ -803,9 +806,10 @@ class WindowTest {
             }
         }
 
-        innerWindow.dispose()
-        awaitIdle()
-        delay(1000)
+        delay(500.milliseconds)
+        showInnerWindow = false
+        delay(500.milliseconds)
+        assertFalse(innerWindow.isVisible)
 
         stopThread.getAndSet(true)
         t.join()
