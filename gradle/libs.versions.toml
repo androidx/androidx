@@ -227,7 +227,7 @@ kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit" }
 kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlinPoet = { module = "com.squareup:kotlinpoet", version = "2.1.0" }
 kotlinPoetJavaPoet = { module = "com.squareup:kotlinpoet-javapoet", version = "2.1.0" }
-kotlinXw3c = { module = "org.jetbrains.kotlinx:kotlinx-browser", version = "0.3" }
+kotlinXw3c = { module = "org.jetbrains.kotlinx:kotlinx-browser", version = "0.5.0" }
 ksp = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version = "2.0.10-1.0.24" }
 kspCommon = { module = "com.google.devtools.ksp:symbol-processing-common-deps", version.ref = "ksp" }
