@@ -791,7 +791,6 @@ private fun SliderImpl(
             Modifier.layoutId(SliderComponents.THUMB).wrapContentWidth()
         }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     val focusRingModifier =
         if (
             LocalRippleThemeConfiguration.current ==
@@ -1229,7 +1228,6 @@ private fun RangeSliderImpl(
     val startContentDescription = getString(Strings.SliderRangeStart)
     val endContentDescription = getString(Strings.SliderRangeEnd)
 
-    @OptIn(ExperimentalMaterial3Api::class)
     val startThumbFocusRingModifier =
         if (
             LocalRippleThemeConfiguration.current ==
@@ -1251,7 +1249,6 @@ private fun RangeSliderImpl(
             Modifier
         }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     val endThumbFocusRingModifier =
         if (
             LocalRippleThemeConfiguration.current ==

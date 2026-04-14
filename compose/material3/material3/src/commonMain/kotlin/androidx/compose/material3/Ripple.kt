@@ -95,7 +95,6 @@ import androidx.compose.ui.unit.dp
  * @param enableDragIndication if true, this ripple will draw the indication for drag interactions.
  *   Set this to `false` to disable drawing any visuals for drag interactions in this ripple.
  */
-@ExperimentalMaterial3Api
 @Stable
 fun ripple(
     bounded: Boolean = true,
@@ -162,7 +161,7 @@ fun ripple(
  *   calculate the final color used to draw the ripple. If [Color.Unspecified] is provided the color
  *   used will be [LocalContentColor] instead.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Stable
 fun ripple(
     bounded: Boolean = true,
@@ -233,7 +232,6 @@ fun ripple(
  * @param enableDragIndication if true, this ripple will draw the indication for drag interactions.
  *   Set this to `false` to disable drawing any visuals for drag interactions in this ripple.
  */
-@ExperimentalMaterial3Api
 @Stable
 fun ripple(
     color: ColorProducer,
@@ -290,7 +288,7 @@ fun ripple(
  * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
  *   calculated based on the target layout size.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Stable
 fun ripple(
     color: ColorProducer,
@@ -314,6 +312,9 @@ object RippleDefaults {
      * Represents the default [RippleAlpha] that will be used for a ripple to indicate different
      * states.
      */
+    @Deprecated(
+        "Use other configuration options in RippleThemeConfiguration and RippleConfiguration"
+    )
     val RippleAlpha: RippleAlpha =
         RippleAlpha(
             pressedAlpha = StateTokens.PressedStateLayerOpacity,
@@ -325,8 +326,6 @@ object RippleDefaults {
     /**
      * The default [RippleThemeConfiguration] that corresponds to an opacity based indication style.
      */
-    @Suppress("ExperimentalPropertyAnnotation")
-    @ExperimentalMaterial3Api
     val OpacityFocusRippleThemeConfiguration =
         RippleThemeConfiguration(RippleThemeConfiguration.Focus.Opacity())
 
@@ -334,8 +333,6 @@ object RippleDefaults {
      * The default [RippleThemeConfiguration] that corresponds to an inset focus ring based
      * indication style.
      */
-    @Suppress("ExperimentalPropertyAnnotation")
-    @ExperimentalMaterial3Api
     val InsetFocusRingRippleThemeConfiguration =
         RippleThemeConfiguration(
             RippleThemeConfiguration.Focus.InsetRing(
@@ -347,8 +344,6 @@ object RippleDefaults {
         )
 
     /** The default [RippleThemeConfiguration]. */
-    @Suppress("ExperimentalPropertyAnnotation")
-    @ExperimentalMaterial3Api
     val ThemeConfiguration: RippleThemeConfiguration = OpacityFocusRippleThemeConfiguration
 }
 
@@ -365,8 +360,6 @@ object RippleDefaults {
  * - [ripple] parameters allow specifying configuration for individual indication callsites in
  *   components.
  */
-@Suppress("ExperimentalPropertyAnnotation")
-@ExperimentalMaterial3Api
 val LocalRippleThemeConfiguration: ProvidableCompositionLocal<RippleThemeConfiguration> =
     compositionLocalOf {
         RippleDefaults.ThemeConfiguration
@@ -387,13 +380,10 @@ val LocalRippleThemeConfiguration: ProvidableCompositionLocal<RippleThemeConfigu
  *
  * @param focus the themable configuration for the focus indication.
  */
-@ExperimentalMaterial3Api
 class RippleThemeConfiguration(val focus: Focus) {
     /** The configuration options for the focus indication for [RippleThemeConfiguration]. */
-    @ExperimentalMaterial3Api
     abstract class Focus private constructor() {
         /** An opacity-based focus indication. */
-        @ExperimentalMaterial3Api
         class Opacity : Focus() {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
@@ -411,7 +401,6 @@ class RippleThemeConfiguration(val focus: Focus) {
          *
          * The inner stroke is drawn first, followed by the outer stroke.
          */
-        @ExperimentalMaterial3Api
         class InsetRing(
             val outerStrokeInset: Dp,
             val outerStrokeWidth: Dp,
@@ -483,7 +472,6 @@ val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration?> =
  */
 @Immutable
 class RippleConfiguration
-@OptIn(ExperimentalMaterial3Api::class)
 internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlpha?) {
     val rippleAlpha: RippleAlpha? = rippleAlpha
 
@@ -515,7 +503,6 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
      *   color from the theme will be used instead. Note that if the ripple has a color explicitly
      *   set with the parameter on [ripple], that will always be used instead of this value.
      */
-    @ExperimentalMaterial3Api
     constructor(
         focus: Focus?,
         color: Color = Color.Unspecified,
@@ -533,16 +520,17 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
      * @param rippleAlpha the [RippleAlpha] override for this ripple. If null, then the default
      *   alpha will be used instead.
      */
+    @Deprecated(
+        "Use other configuration options in RippleThemeConfiguration and RippleConfiguration"
+    )
     constructor(
         color: Color = Color.Unspecified,
         rippleAlpha: RippleAlpha? = null,
     ) : this(color = color, focus = null, rippleAlpha = rippleAlpha)
 
     /** The configuration options for the focus indication for [RippleConfiguration]. */
-    @ExperimentalMaterial3Api
     abstract class Focus private constructor() {
         /** An opacity-based focus indication. */
-        @ExperimentalMaterial3Api
         class Opacity : Focus() {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
@@ -563,7 +551,6 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
          * @param outerStrokeColor the color of the outer stroke.
          * @param innerStrokeColor the color of the inner stroke.
          */
-        @ExperimentalMaterial3Api
         class InsetRing(val outerStrokeColor: Color, val innerStrokeColor: Color) : Focus() {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
@@ -583,7 +570,6 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RippleConfiguration) return false
@@ -595,7 +581,6 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
         return true
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun hashCode(): Int {
         var result = color.hashCode()
         result = 31 * result + (focus?.hashCode() ?: 0)
@@ -603,7 +588,6 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
         return result
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun toString(): String {
         return "RippleConfiguration(color=$color, focus=$focus, rippleAlpha=$rippleAlpha)"
     }
@@ -715,7 +699,6 @@ private constructor(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private class DelegatingThemeAwareRippleNode(
     private val interactionSource: InteractionSource,
     private val bounded: Boolean,
