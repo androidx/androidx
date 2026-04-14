@@ -101,7 +101,8 @@ internal class CustomScrollModifier(
                 -1f,
                 AnimatedFloatExpression.MUL,
             ),
-            if (snapScrolling) TouchExpression.STOP_NOTCHES_EVEN else TouchExpression.STOP_GENTLY,
+            if (snapScrolling) TouchExpression.STOP_NOTCHES_SINGLE_EVEN
+            else TouchExpression.STOP_GENTLY,
             if (snapScrolling) floatArrayOf(numItems.toFloat())
             else null, // describes how many notches
             writer.easing(MaxTimeToSettle, MaxAcceleration, MaxVelocity),
