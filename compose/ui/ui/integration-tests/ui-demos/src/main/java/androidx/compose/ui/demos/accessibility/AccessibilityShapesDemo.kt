@@ -18,26 +18,28 @@ package androidx.compose.ui.demos.accessibility
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -49,26 +51,33 @@ fun AccessibilityShapeOffscreenDemo() {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            "Scroll a shape off screen and then use the a11y inspector on it " +
-                "to see if the a11y view of the shape matches its actual shape."
+            "Use the a11y inspector on each shape to see if the a11y view of the shape" +
+                " matches its actual shape. The shadow shapes are for reference only and" +
+                " shouldn't show up under the a11y inspector."
         )
 
         @Composable
-        fun RepeatedLayoutRow(clipShape: Shape) {
+        fun RepeatedLayoutRow(clipShape: Shape, color: Color) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                repeat(10) {
-                    Box(Modifier.requiredSize(128.dp).clip(clipShape).background(Color.Blue))
-                }
+                repeat(2) { Box(Modifier.requiredSize(128.dp).clip(clipShape).background(color)) }
             }
         }
 
-        Column(
-            Modifier.border(1.dp, Color.LightGray).horizontalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            RepeatedLayoutRow(RectangleShape)
-            RepeatedLayoutRow(RoundedCornerShape(32.dp))
-            RepeatedLayoutRow(TriangleShape)
+        @Composable
+        fun ShapeRows(modifier: Modifier = Modifier, color: Color = Color.Blue) {
+            Column(
+                modifier.wrapContentSize(unbounded = true),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                RepeatedLayoutRow(RectangleShape, color)
+                RepeatedLayoutRow(RoundedCornerShape(32.dp), color)
+                RepeatedLayoutRow(TriangleShape, color)
+            }
+        }
+
+        Box(Modifier.fillMaxSize().wrapContentSize().requiredSize(200.dp, 300.dp)) {
+            ShapeRows(Modifier.matchParentSize().border(1.dp, Color.LightGray).clipToBounds())
+            ShapeRows(Modifier.clearAndSetSemantics {}, color = Color.Blue.copy(alpha = 0.1f))
         }
     }
 }
