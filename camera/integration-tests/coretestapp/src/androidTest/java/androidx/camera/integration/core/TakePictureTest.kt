@@ -24,7 +24,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.RequireForegroundRule
-import androidx.camera.testing.impl.waitForIdle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -82,7 +81,7 @@ class TakePictureTest(private val implName: String) {
         }
     }
 
-    // Take a photo, wait for callback via imageSavedIdlingResource resource.
+    // Take a photo, wait for callback via imageSavedIdlingLatch resource.
     @Test
     fun testPictureButton() {
         with(ActivityScenario.launch<CameraXActivity>(launchIntent)) {
@@ -120,13 +119,13 @@ class TakePictureTest(private val implName: String) {
                 // Act. continuously take 5 photos.
                 withActivity {
                         cleanTakePictureErrorMessage()
-                        imageSavedIdlingResource
+                        resetImageSavedIdlingLatch(5)
                     }
                     .apply {
                         for (i in 5 downTo 1) {
                             onView(withId(R.id.Picture)).perform(click())
                         }
-                        waitForIdle()
+                        await(20, TimeUnit.SECONDS)
                     }
 
                 // Assert, there's no error message.

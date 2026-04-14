@@ -413,13 +413,17 @@ class BindUnbindUseCasesStressTest(
             if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_CAPTURE) != 0) {
                 imageCapture!!.let {
                     val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
+                    val executor = Executors.newSingleThreadExecutor()
+                    try {
+                        it.takePicture(
+                            executor,
+                            imageCaptureCaptureSuccessMonitor.createCaptureCallback(),
+                        )
 
-                    it.takePicture(
-                        Executors.newSingleThreadExecutor(),
-                        imageCaptureCaptureSuccessMonitor.createCaptureCallback(),
-                    )
-
-                    imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
+                        imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
+                    } finally {
+                        executor.shutdown()
+                    }
                 }
             }
 
@@ -440,11 +444,14 @@ class BindUnbindUseCasesStressTest(
             if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_ANALYSIS) != 0) {
                 imageAnalysis!!.let {
                     val analyzerFrameAvailableMonitor = ImageAnalysisImageAvailableMonitor()
-                    it.setAnalyzer(
-                        Executors.newSingleThreadExecutor(),
-                        analyzerFrameAvailableMonitor.createAnalyzer(),
-                    )
-                    analyzerFrameAvailableMonitor.awaitAvailableFramesAndAssert()
+                    val executor = Executors.newSingleThreadExecutor()
+                    try {
+                        it.setAnalyzer(executor, analyzerFrameAvailableMonitor.createAnalyzer())
+                        analyzerFrameAvailableMonitor.awaitAvailableFramesAndAssert()
+                    } finally {
+                        it.clearAnalyzer()
+                        executor.shutdown()
+                    }
                 }
             }
 
@@ -707,13 +714,17 @@ class BindUnbindUseCasesStressTest(
         if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_CAPTURE) != 0) {
             imageCapture!!.let {
                 val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
+                val executor = Executors.newSingleThreadExecutor()
+                try {
+                    it.takePicture(
+                        executor,
+                        imageCaptureCaptureSuccessMonitor.createCaptureCallback(),
+                    )
 
-                it.takePicture(
-                    Executors.newSingleThreadExecutor(),
-                    imageCaptureCaptureSuccessMonitor.createCaptureCallback(),
-                )
-
-                imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
+                    imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
+                } finally {
+                    executor.shutdown()
+                }
             }
         }
 
@@ -734,11 +745,14 @@ class BindUnbindUseCasesStressTest(
         if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_ANALYSIS) != 0) {
             imageAnalysis!!.let {
                 val analyzerFrameAvailableMonitor = ImageAnalysisImageAvailableMonitor()
-                it.setAnalyzer(
-                    Executors.newSingleThreadExecutor(),
-                    analyzerFrameAvailableMonitor.createAnalyzer(),
-                )
-                analyzerFrameAvailableMonitor.awaitAvailableFramesAndAssert()
+                val executor = Executors.newSingleThreadExecutor()
+                try {
+                    it.setAnalyzer(executor, analyzerFrameAvailableMonitor.createAnalyzer())
+                    analyzerFrameAvailableMonitor.awaitAvailableFramesAndAssert()
+                } finally {
+                    it.clearAnalyzer()
+                    executor.shutdown()
+                }
             }
         }
     }
