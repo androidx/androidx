@@ -218,6 +218,9 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.PlaneTrackingMode HORIZONTAL_AND_VERTICAL;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is in an unstable preview state and requires a developer platform version to work properly. Do not use this API in release builds as it will likely to lead to crashes.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface PreviewProjectedApi {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This API is in an unstable preview state and requires a developer preview system image work properly. Do not use this API in release builds as it will likely to lead to crashes.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface PreviewSpatialApi {
   }
 
