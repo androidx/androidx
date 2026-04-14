@@ -14,75 +14,65 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package androidx.datastore.core.okio
 
 import androidx.datastore.core.InterProcessCoordinator
+import kotlin.js.ExperimentalWasmJsInterop
+import kotlin.js.js
 import kotlinx.browser.localStorage
 import kotlinx.browser.sessionStorage
 import kotlinx.browser.window
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import org.w3c.dom.StorageEvent
 import org.w3c.dom.events.Event
 
-/**
- * An InterProcessCoordinator for web environments.
- *
- * For [sessionStorage], coordination is not needed as it's isolated to a single tab. For
- * [localStorage], it uses the 'storage' event to coordinate reads and writes across multiple
- * browser tabs.
- */
-internal class WebInterProcessCoordinator(
-    name: String,
-    // TODO(b/441511612): Implement WebInterProcessCoordinator for LocalStorage and OPFS.
-    //  LocalStorage should handle notifications both within a single tab as well as between
-    //  multiple tabs.
+internal interface WebInterProcessCoordinator : InterProcessCoordinator {
+    fun removeStorageEventListener()
+}
+
+internal class SyncWebCoordinator(
+    private val name: String,
     private val storageType: WebStorageType,
-) : InterProcessCoordinator {
+) : WebInterProcessCoordinator {
 
     private val versionKey = "datastore_${storageType}_${name}_version"
-    private val domStorage =
+
+    private val domStorage by lazy {
         when (storageType) {
             WebStorageType.LOCAL -> localStorage
             WebStorageType.SESSION -> sessionStorage
+            WebStorageType.OPFS -> error("SyncWebCoordinator should not be used for OPFS")
         }
+    }
 
-    /**
-     * Handles notifications within the current tab.
-     *
-     * In addition to being triggered by changes within the current tab, for [localStorage], this is
-     * also triggered by the [StorageEvent] listener when another tab updates the data.
-     */
-    private val inTabNotifier = MutableStateFlow(domStorage.getItem(versionKey)?.toIntOrNull() ?: 0)
+    private val updateNotificationsMutable = MutableStateFlow(1)
+    override val updateNotifications: Flow<Unit> = updateNotificationsMutable.drop(1).map {}
 
-    /** Listen for [StorageEvent] which are fired when [localStorage] is modified in another tab. */
     private val storageEventListener: ((Event) -> Unit) = { event ->
         if (event is StorageEvent && event.key == versionKey) {
-            // Update the notifier with the new value from storage to trigger flows.
-            inTabNotifier.value = domStorage.getItem(versionKey)?.toIntOrNull() ?: 0
+            updateNotificationsMutable.value += 1
         }
     }
 
     init {
-        // StorageEvent listener is only needed for localStorage.
         if (storageType == WebStorageType.LOCAL) {
             window.addEventListener("storage", storageEventListener)
         }
     }
 
-    /** Used to notify listeners in a single tab. */
-    override val updateNotifications: Flow<Unit> = inTabNotifier.map {}
-
     override suspend fun <T> lock(block: suspend () -> T): T {
-        // Lock is always available since `sessionStorage` and `localStorage` storage are
-        // single-threaded.
         return block()
     }
 
     override suspend fun <T> tryLock(block: suspend (Boolean) -> T): T {
-        // Lock is always available since `sessionStorage` and `localStorage` storage are
-        // single-threaded.
         return block(true)
     }
 
@@ -90,32 +80,82 @@ internal class WebInterProcessCoordinator(
         return domStorage.getItem(versionKey)?.toIntOrNull() ?: 0
     }
 
-    /** Atomically increments the version in the web storage and notifies other tabs. */
     override suspend fun incrementAndGetVersion(): Int {
-        val currentVersion = getVersion()
-        val newVersion = currentVersion + 1
+        val newVersion = getVersion() + 1
         domStorage.setItem(versionKey, newVersion.toString())
-
-        // Set the notifier value to the new version to notify listeners within the current tab.
-        inTabNotifier.value = newVersion
-
+        updateNotificationsMutable.value += 1
         return newVersion
     }
 
-    /** Removes the [StorageEvent] listener from the window to prevent memory leaks. */
-    fun removeStorageEventListener() {
-        // StorageEvent listener is only needed for localStorage.
+    override fun removeStorageEventListener() {
         if (storageType == WebStorageType.LOCAL) {
             window.removeEventListener("storage", storageEventListener)
         }
     }
 }
 
-/** Create a coordinator for web use cases. */
+internal expect class AsyncWebCoordinator(name: String) : BaseAsyncWebCoordinator {
+    override suspend fun <T> lock(block: suspend () -> T): T
+
+    override suspend fun <T> tryLock(block: suspend (Boolean) -> T): T
+}
+
 internal fun createWebProcessCoordinator(
     path: String,
     storageType: WebStorageType,
 ): WebInterProcessCoordinator {
-    // TODO(b/441511612): Add support for OPFS.
-    return WebInterProcessCoordinator(path, storageType)
+    return when (storageType) {
+        WebStorageType.LOCAL,
+        WebStorageType.SESSION -> SyncWebCoordinator(path, storageType)
+        WebStorageType.OPFS -> AsyncWebCoordinator(path)
+    }
+}
+
+/**
+ * Base coordinator class for asynchronous web storage operations for OPFS.
+ *
+ * This base class is designed to avoid code duplication by sharing common state management logic
+ * (like update notifications, coroutine scopes, and versioning) between the `wasmJs` and `js`
+ * actual implementations.
+ *
+ * The actual implementations of `AsyncWebCoordinator` had to be separated per platform because the
+ * `kotlin.js.Promise` API lacks a common implementation across the `wasmJs` and `js` target
+ * platforms. Because the underlying Web Locks API heavily relies on Promises to manage exclusive
+ * access, the specific [lock] and [tryLock] implementations are delegated to the individual
+ * platform-specific actuals.
+ */
+internal abstract class BaseAsyncWebCoordinator(name: String) : WebInterProcessCoordinator {
+    internal val updateNotificationsMutable = MutableStateFlow(0)
+    override val updateNotifications: Flow<Unit> = updateNotificationsMutable.drop(1).map {}
+    internal val scope = CoroutineScope(Dispatchers.Unconfined + SupervisorJob())
+
+    internal val broadcastChannel =
+        BroadcastChannel("datastore-$name").also {
+            it.onmessage = { updateNotificationsMutable.value += 1 }
+        }
+
+    internal var isExclusiveLockHeld = false
+
+    override suspend fun getVersion(): Int {
+        return updateNotificationsMutable.value
+    }
+
+    override suspend fun incrementAndGetVersion(): Int {
+        val newVersion = getVersion() + 1
+        broadcastChannel.postMessage(null)
+        updateNotificationsMutable.value += 1
+        return newVersion
+    }
+
+    override fun removeStorageEventListener() {
+        broadcastChannel.close()
+    }
+}
+
+internal fun tryLockOptions(): LockManagerOptions = js("({mode: 'exclusive', ifAvailable: true})")
+
+internal enum class WebStorageType {
+    SESSION,
+    LOCAL,
+    OPFS,
 }

@@ -16,17 +16,10 @@
 
 package androidx.datastore.core.okio
 
-import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.ReadScope
 import androidx.datastore.core.Storage
 import androidx.datastore.core.StorageConnection
-import androidx.datastore.core.WriteScope
-import androidx.datastore.core.use
 import kotlinx.browser.localStorage
 import kotlinx.browser.sessionStorage
-import okio.Buffer
-import okio.ByteString.Companion.decodeBase64
-import org.w3c.dom.Storage as DomStorage
 
 public class WebSessionStorage<T>(serializer: OkioSerializer<T>, name: String) : Storage<T> {
     private val delegateStorage = WebStorage(serializer, name, WebStorageType.SESSION)
@@ -40,112 +33,31 @@ public class WebLocalStorage<T>(serializer: OkioSerializer<T>, name: String) : S
     override fun createConnection(): StorageConnection<T> = delegateStorage.createConnection()
 }
 
+public class WebOpfsStorage<T>(serializer: OkioSerializer<T>, private val name: String) :
+    Storage<T> {
+    private val delegateStorage = WebStorage(serializer, name, WebStorageType.OPFS)
+
+    override fun createConnection(): StorageConnection<T> = delegateStorage.createConnection()
+}
+
 private class WebStorage<T>(
     private val serializer: OkioSerializer<T>,
     private val name: String,
     private val storageType: WebStorageType,
 ) : Storage<T> {
-    private val coordinatorProducer: (String, WebStorageType) -> WebInterProcessCoordinator =
-        { name, storageType ->
-            createWebProcessCoordinator(name, storageType)
-        }
+    private val coordinator by lazy { createWebProcessCoordinator(name, storageType) }
 
     override fun createConnection(): StorageConnection<T> {
-        // TODO(b/441511612): Support OPFS.
-        val domStorage =
-            when (storageType) {
-                WebStorageType.SESSION -> sessionStorage
-                WebStorageType.LOCAL -> localStorage
+        return when (storageType) {
+            WebStorageType.SESSION,
+            WebStorageType.LOCAL -> {
+                val domStorage =
+                    if (storageType == WebStorageType.SESSION) sessionStorage else localStorage
+                SessionAndLocalWebStorageConnection(domStorage, name, serializer, coordinator)
             }
-        return WebStorageConnection(
-            domStorage,
-            name,
-            serializer,
-            coordinatorProducer.invoke(name, storageType),
-        )
-    }
-}
-
-internal class WebStorageConnection<T>(
-    private val domStorage: DomStorage,
-    private val name: String,
-    private val serializer: OkioSerializer<T>,
-    override val coordinator: WebInterProcessCoordinator,
-) : StorageConnection<T> {
-    private val closed = AtomicBoolean(false)
-
-    override suspend fun <R> readScope(block: suspend ReadScope<T>.(locked: Boolean) -> R): R {
-        checkNotClosed()
-        return coordinator.tryLock { locked ->
-            WebReadScope(domStorage, name, serializer).use { block(it, locked) }
+            WebStorageType.OPFS -> {
+                OpfsWebStorageConnection(name, serializer, coordinator)
+            }
         }
     }
-
-    override suspend fun writeScope(block: suspend WriteScope<T>.() -> Unit) {
-        checkNotClosed()
-        coordinator.lock { WebWriteScope(domStorage, name, serializer).use { block(it) } }
-    }
-
-    private fun checkNotClosed() {
-        check(!closed.get()) { "StorageConnection has already been disposed." }
-    }
-
-    override fun close() {
-        closed.set(true)
-        coordinator.removeStorageEventListener()
-    }
-}
-
-internal open class WebReadScope<T>(
-    private val domStorage: DomStorage,
-    private val name: String,
-    private val serializer: OkioSerializer<T>,
-) : ReadScope<T> {
-    private val closed = AtomicBoolean(false)
-
-    protected fun checkClose() {
-        check(!closed.get()) { "This scope has already been closed." }
-    }
-
-    override suspend fun readData(): T {
-        checkClose()
-        val stringData = domStorage.getItem(name)
-        if (stringData.isNullOrEmpty()) {
-            return serializer.defaultValue
-        }
-        val byteStringData =
-            stringData.decodeBase64()
-                ?: throw CorruptionException("Unable to decode Base64 stored data.")
-        val buffer = Buffer().write(byteStringData)
-        try {
-            return serializer.readFrom(buffer)
-        } catch (ex: Exception) {
-            if (ex is CorruptionException) throw ex
-            throw CorruptionException("Unable to deserialize stored data.", ex)
-        }
-    }
-
-    override fun close() {
-        closed.set(true)
-    }
-}
-
-internal class WebWriteScope<T>(
-    private val domStorage: DomStorage,
-    private val name: String,
-    private val serializer: OkioSerializer<T>,
-) : WebReadScope<T>(domStorage, name, serializer), WriteScope<T> {
-
-    override suspend fun writeData(value: T) {
-        checkClose()
-        val buffer = Buffer()
-        serializer.writeTo(value, buffer)
-        val stringData = buffer.readByteString().base64()
-        domStorage.setItem(name, stringData)
-    }
-}
-
-internal enum class WebStorageType {
-    SESSION,
-    LOCAL,
 }

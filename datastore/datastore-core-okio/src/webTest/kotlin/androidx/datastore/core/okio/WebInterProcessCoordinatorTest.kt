@@ -23,7 +23,6 @@ import kotlinx.browser.localStorage
 import kotlinx.browser.sessionStorage
 import kotlinx.browser.window
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.w3c.dom.StorageEvent
@@ -32,7 +31,7 @@ import org.w3c.dom.StorageEventInit
 class WebInterProcessCoordinatorTest {
     @Test
     fun coordinator_notifiesListenersInSameTab_afterAnUpdate_sessionStorage() = runTest {
-        val storeName = "test-session-store"
+        val storeName = "test-session-store-1"
         val versionKey = "datastore_SESSION_${storeName}_version"
         val coordinator =
             createWebProcessCoordinator(path = storeName, storageType = WebStorageType.SESSION)
@@ -46,8 +45,7 @@ class WebInterProcessCoordinatorTest {
             val listenerJob = launch {
                 // Have latch begin collecting
                 latch.complete(Unit)
-                // drop(1) to ignore the initial value from StateFlow
-                coordinator.updateNotifications.drop(1).collect {
+                coordinator.updateNotifications.collect {
                     notification = true
                     notificationReceived.complete(Unit)
                 }
@@ -71,13 +69,14 @@ class WebInterProcessCoordinatorTest {
 
             listenerJob.cancel()
         } finally {
+            coordinator.removeStorageEventListener()
             sessionStorage.removeItem(versionKey)
         }
     }
 
     @Test
     fun coordinator_notifiesListenersInSameTab_afterAnUpdate_localStorage() = runTest {
-        val storeName = "test-local-store"
+        val storeName = "test-local-store-1"
         val versionKey = "datastore_LOCAL_${storeName}_version"
         val coordinator =
             createWebProcessCoordinator(path = storeName, storageType = WebStorageType.LOCAL)
@@ -91,8 +90,7 @@ class WebInterProcessCoordinatorTest {
             val listenerJob = launch {
                 // Have latch begin collecting
                 latch.complete(Unit)
-                // drop(1) to ignore the initial value from StateFlow
-                coordinator.updateNotifications.drop(1).collect {
+                coordinator.updateNotifications.collect {
                     notification = true
                     notificationReceived.complete(Unit)
                 }
@@ -116,6 +114,7 @@ class WebInterProcessCoordinatorTest {
 
             listenerJob.cancel()
         } finally {
+            coordinator.removeStorageEventListener()
             // Clean up for next test
             localStorage.removeItem(versionKey)
         }
@@ -123,7 +122,7 @@ class WebInterProcessCoordinatorTest {
 
     @Test
     fun coordinator_notifiesListenersInDifferentTabs_afterAnUpdate_localStorage() = runTest {
-        val storeName = "test-local-store"
+        val storeName = "test-local-store-2"
         val versionKey = "datastore_LOCAL_${storeName}_version"
 
         // Two processes accessing the same datastore - mimic different tabs
@@ -139,8 +138,7 @@ class WebInterProcessCoordinatorTest {
 
             val listenerJob = launch {
                 latch.complete(Unit)
-                // drop(1) to ignore the initial value from StateFlow
-                tabReceivingUpdate.updateNotifications.drop(1).collect {
+                tabReceivingUpdate.updateNotifications.collect {
                     notification = true
                     notificationReceived.complete(Unit)
                 }
@@ -173,7 +171,90 @@ class WebInterProcessCoordinatorTest {
 
             listenerJob.cancel()
         } finally {
+            tabWithUpdate.removeStorageEventListener()
+            tabReceivingUpdate.removeStorageEventListener()
             localStorage.removeItem(versionKey)
+        }
+    }
+
+    @Test
+    fun coordinator_notifiesListenersInSameTab_afterAnUpdate_opfs() = runTest {
+        val storeName = "test-opfs-store-1"
+        val coordinator =
+            createWebProcessCoordinator(path = storeName, storageType = WebStorageType.OPFS)
+
+        try {
+            var notification = false
+            val latch = CompletableDeferred<Unit>()
+            val notificationReceived = CompletableDeferred<Unit>()
+
+            val listenerJob = launch {
+                latch.complete(Unit)
+                coordinator.updateNotifications.collect {
+                    notification = true
+                    notificationReceived.complete(Unit)
+                }
+            }
+            latch.await()
+
+            assertThat(notification).isFalse()
+
+            // Trigger an update. OPFS coordinator version tracking relies on domStorage which is
+            // null,
+            // so it returns 0. incrementAndGetVersion() will broadcast and return 1.
+            val newVersion = coordinator.incrementAndGetVersion()
+            assertEquals(1, newVersion)
+
+            notificationReceived.await()
+
+            assertThat(notification).isTrue()
+
+            listenerJob.cancel()
+        } finally {
+            // Closes the BroadcastChannel
+            coordinator.removeStorageEventListener()
+        }
+    }
+
+    @Test
+    fun coordinator_notifiesListenersInDifferentTabs_afterAnUpdate_opfs() = runTest {
+        val storeName = "test-opfs-store-2"
+
+        // Two processes accessing the same datastore - mimic different tabs
+        val tabWithUpdate =
+            createWebProcessCoordinator(path = storeName, storageType = WebStorageType.OPFS)
+        val tabReceivingUpdate =
+            createWebProcessCoordinator(path = storeName, storageType = WebStorageType.OPFS)
+
+        try {
+            var notification = false
+            val latch = CompletableDeferred<Unit>()
+            val notificationReceived = CompletableDeferred<Unit>()
+
+            val listenerJob = launch {
+                latch.complete(Unit)
+                tabReceivingUpdate.updateNotifications.collect {
+                    notification = true
+                    notificationReceived.complete(Unit)
+                }
+            }
+            latch.await()
+            assertThat(notification).isFalse()
+
+            // Trigger the update on the first tab.
+            // This emits to its local SharedFlow AND fires a message down the BroadcastChannel.
+            tabWithUpdate.incrementAndGetVersion()
+
+            // The second tab's BroadcastChannel should intercept the message and emit to its own
+            // Flow.
+            notificationReceived.await()
+            assertThat(notification).isTrue()
+
+            listenerJob.cancel()
+        } finally {
+            // Clean up both channels to prevent listener leaks across tests
+            tabWithUpdate.removeStorageEventListener()
+            tabReceivingUpdate.removeStorageEventListener()
         }
     }
 }
