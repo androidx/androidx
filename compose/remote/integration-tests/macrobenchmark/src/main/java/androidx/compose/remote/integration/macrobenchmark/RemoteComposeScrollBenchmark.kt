@@ -37,20 +37,17 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalMetricApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-class RemoteComposeScrollBenchmark(val compilationMode: CompilationMode, val useLocal: Boolean) {
+class RemoteComposeScrollBenchmark(val compilationMode: CompilationMode) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun scroll() {
+    fun scrollRemoteCompose() {
         val metrics =
             mutableListOf(
-                FrameTimingGfxInfoMetric(),
-                MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-            )
-
-        if (!useLocal) {
-            metrics.addAll(decodingTraces.map { TraceSectionMetric(it) })
-        }
+                    FrameTimingGfxInfoMetric(),
+                    MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
+                )
+                .also { it.addAll(decodingTraces.map { TraceSectionMetric(it) }) }
 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
@@ -60,7 +57,7 @@ class RemoteComposeScrollBenchmark(val compilationMode: CompilationMode, val use
             setupBlock = {
                 val intent = Intent()
                 intent.action = SCROLL_ACTIVITY
-                if (useLocal) intent.putExtra(BENCHMARK_MODE_ARG, MODE_LOCAL)
+                intent.putExtra(BENCHMARK_MODE_ARG, MODE_REMOTE_COMPOSE)
                 startActivityIntent(intent)
                 device.wait(Until.hasObject(By.desc(LIST_CONTENT_DESCRIPTION)), 10_000)
             },
@@ -77,28 +74,120 @@ class RemoteComposeScrollBenchmark(val compilationMode: CompilationMode, val use
         }
     }
 
-    companion object {
+    @Test
+    fun scrollLiveCompose() {
+        val metrics =
+            mutableListOf(
+                FrameTimingGfxInfoMetric(),
+                MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
+            )
 
-        @Parameterized.Parameters(name = "compilation={0},local={1}")
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = metrics,
+            compilationMode = compilationMode,
+            iterations = 5,
+            setupBlock = {
+                val intent = Intent()
+                intent.action = SCROLL_ACTIVITY
+                intent.putExtra(BENCHMARK_MODE_ARG, MODE_COMPOSE)
+                startActivityIntent(intent)
+                device.wait(Until.hasObject(By.desc(LIST_CONTENT_DESCRIPTION)), 10_000)
+            },
+        ) {
+            val list = device.findObject(By.desc(LIST_CONTENT_DESCRIPTION))
+            if (list != null) {
+                repeat(5) {
+                    list.drag(Point(list.visibleCenter.x, list.visibleCenter.y / 3))
+                    device.waitForIdle()
+                }
+            } else {
+                fail("Live list not found")
+            }
+        }
+    }
+
+    @Test
+    fun scrollWebView() {
+        val metrics =
+            mutableListOf(
+                FrameTimingGfxInfoMetric(),
+                MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
+            )
+
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = metrics,
+            compilationMode = compilationMode,
+            iterations = 5,
+            setupBlock = {
+                val intent = Intent()
+                intent.action = SCROLL_ACTIVITY
+                intent.putExtra(BENCHMARK_MODE_ARG, MODE_WEB_VIEW)
+                startActivityIntent(intent)
+                device.wait(Until.hasObject(By.scrollable(true)), 10_000)
+            },
+        ) {
+            val list = device.findObject(By.scrollable(true))
+            if (list != null) {
+                repeat(5) {
+                    list.drag(Point(list.visibleCenter.x, list.visibleCenter.y / 3))
+                    device.waitForIdle()
+                }
+            } else {
+                fail("WebView list not found")
+            }
+        }
+    }
+
+    @Test
+    fun scrollRemoteViews() {
+        val metrics =
+            mutableListOf(
+                FrameTimingGfxInfoMetric(),
+                MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
+            )
+
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = metrics,
+            compilationMode = compilationMode,
+            iterations = 5,
+            setupBlock = {
+                val intent = Intent()
+                intent.action = SCROLL_ACTIVITY
+                intent.putExtra(BENCHMARK_MODE_ARG, MODE_REMOTE_VIEW)
+                startActivityAndWait(intent)
+            },
+        ) {
+            device.wait(Until.hasObject(By.scrollable(true)), 10000)
+            val list =
+                device.findObject(By.scrollable(true))
+                    ?: device.findObject(By.desc(LIST_CONTENT_DESCRIPTION))
+            if (list != null) {
+                repeat(5) {
+                    list.drag(Point(list.visibleCenter.x, list.visibleCenter.y / 3))
+                    device.waitForIdle()
+                }
+            } else {
+                fail("RemoteViews list not found")
+            }
+        }
+    }
+
+    companion object {
+        @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic
         fun parameters() =
             listOf(
-                arrayOf(CompilationMode.None(), true),
-                arrayOf(CompilationMode.None(), false),
+                arrayOf(CompilationMode.None()),
                 arrayOf(
                     CompilationMode.Partial(
                         baselineProfileMode = BaselineProfileMode.Disable,
                         warmupIterations = 3,
-                    ),
-                    true,
+                    )
                 ),
-                arrayOf(
-                    CompilationMode.Partial(
-                        baselineProfileMode = BaselineProfileMode.Disable,
-                        warmupIterations = 3,
-                    ),
-                    false,
-                ),
+                arrayOf(CompilationMode.Full()),
             )
     }
 }

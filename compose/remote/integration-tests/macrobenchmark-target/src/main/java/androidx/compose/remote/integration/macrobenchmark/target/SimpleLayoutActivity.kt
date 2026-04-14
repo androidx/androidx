@@ -17,36 +17,27 @@
 package androidx.compose.remote.integration.macrobenchmark.target
 
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.Gravity
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.WebView
-import android.widget.BaseAdapter
+import android.webkit.WebViewClient
 import android.widget.FrameLayout
-import android.widget.ListView
 import android.widget.RemoteViews
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.ReportDrawn
 import androidx.activity.compose.setContent
 import androidx.annotation.NonNull
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
-import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.semantics
-import androidx.compose.remote.creation.compose.modifier.verticalScroll
-import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
@@ -57,18 +48,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.trace
+import androidx.core.view.doOnPreDraw
 
-class ScrollableListActivity : ComponentActivity() {
+class SimpleLayoutActivity : ComponentActivity() {
 
     @Composable
-    fun RemoteComposePlayer(@NonNull remoteDocumentBytes: ByteArray) {
+    private fun RemoteComposePlayer(@NonNull remoteDocumentBytes: ByteArray) {
         val windowInfo = LocalWindowInfo.current
         RemoteDocumentPlayer(
             document =
@@ -91,49 +83,37 @@ class ScrollableListActivity : ComponentActivity() {
         when (intent.getStringExtra(BENCHMARK_MODE_ARG)) {
             MODE_COMPOSE -> setContent { LiveCompose() }
             MODE_WEB_VIEW -> setWebViewContent()
-            MODE_REMOTE_VIEW -> setRemoteViewsScrollContent()
+            MODE_REMOTE_VIEW -> setRemoteViewsContent()
             else -> setContent { RemoteCompose() }
         }
     }
 
-    private fun setRemoteViewsScrollContent() {
-        val container =
-            FrameLayout(this).apply {
-                layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            }
-
-        val remoteViews = RemoteViews(packageName, R.layout.remoteviews_native_scroll_container)
-
-        // 3. Apply the RemoteViews hierarchy and attach it to the FrameLayout
-        val appliedView = remoteViews.apply(this, container)
-        container.addView(appliedView)
-
-        val listView = appliedView.findViewById<ListView>(R.id.list_view)
-        val adapter =
-            object : BaseAdapter() {
-                override fun getCount(): Int = 500
-
-                override fun getItem(position: Int): Any = position
-
-                override fun getItemId(position: Int): Long = position.toLong()
-
-                override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-                    val item = RemoteViews(packageName, R.layout.remoteviews_text_item)
-                    item.setTextViewText(R.id.text_view, "Item $position")
-                    return item.apply(this@ScrollableListActivity, parent ?: listView)
-                }
-            }
-        listView.adapter = adapter
-
-        setContentView(container)
-    }
-
     private fun setWebViewContent() {
         setContentView(
-            WebView(this@ScrollableListActivity).apply {
+            WebView(this@SimpleLayoutActivity).apply {
+                webViewClient =
+                    object : WebViewClient() {
+                        override fun onPageFinished(view: WebView, url: String) {
+                            super.onPageFinished(view, url)
+
+                            // At this point, the HTML is loaded, but pixels aren't on the screen
+                            // yet.
+                            val requestId = 1L // Arbitrary ID to track the request
+
+                            view.postVisualStateCallback(
+                                requestId,
+                                object : WebView.VisualStateCallback() {
+                                    override fun onComplete(id: Long) {
+                                        try {
+                                            reportFullyDrawn()
+                                        } catch (ignored: SecurityException) {}
+                                    }
+                                },
+                            )
+                        }
+                    }
                 contentDescription = LIST_CONTENT_DESCRIPTION
-                // 1. Initialize the HTML string with basic mobile styling
-                val htmlBuilder = StringBuilder()
+                val htmlBuilder = java.lang.StringBuilder()
                 htmlBuilder.append(
                     """
                     <!DOCTYPE html>
@@ -142,57 +122,62 @@ class ScrollableListActivity : ComponentActivity() {
                         <meta name="viewport" content="width=device-width, initial-scale=1">
                         <style>
                             body { font-family: sans-serif; margin: 0; padding: 0; background-color: #ffffff; }
-                            ul { list-style-type: none; padding: 0; margin: 0; }
-                            li {
+                            div {
                                 padding: 18px 16px;
-                                border-bottom: 1px solid #e0e0e0;
                                 font-size: 16px;
                                 color: #333333;
                             }
                         </style>
                     </head>
                     <body>
-                        <ul aria-label="$LIST_CONTENT_DESCRIPTION">
-                    """
-                        .trimIndent()
-                )
-
-                // 2. Loop to generate the 500 items
-                for (i in 1..500) {
-                    htmlBuilder.append("<li>Item ${i}</li>\n")
-                }
-
-                // 3. Close the HTML tags
-                htmlBuilder.append(
-                    """
-                        </ul>
+                        <div>Hello World</div>
                     </body>
                     </html>
                     """
                         .trimIndent()
                 )
-
                 loadDataWithBaseURL(null, htmlBuilder.toString(), "text/html", "UTF-8", null)
             }
         )
     }
 
-    @Composable
-    fun LiveCompose() {
-        Column(
-            modifier =
-                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).semantics {
-                    contentDescription = LIST_CONTENT_DESCRIPTION
-                }
-        ) {
-            repeat(500) { index ->
-                Text("Item $index", modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
+    private fun setRemoteViewsContent() {
+        val container =
+            android.widget.FrameLayout(this).apply {
+                contentDescription = LIST_CONTENT_DESCRIPTION
+                layoutParams =
+                    android.view.ViewGroup.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
             }
+
+        val remoteViews = RemoteViews(packageName, R.layout.remoteviews_text_item)
+        remoteViews.setTextViewText(R.id.text_view, "Hello World")
+
+        val appliedView = remoteViews.apply(this, container)
+        container.addView(
+            appliedView,
+            FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER),
+        )
+        appliedView.doOnPreDraw { reportFullyDrawn() }
+        setContentView(container)
+    }
+
+    @Composable
+    private fun LiveCompose() {
+        Box(
+            modifier =
+                Modifier.fillMaxSize().semantics { contentDescription = LIST_CONTENT_DESCRIPTION },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Hello World")
+            ReportDrawn()
         }
     }
 
     @Composable
-    fun RemoteCompose() {
+    private fun RemoteCompose() {
         var documentBytes by remember { mutableStateOf<ByteArray?>(null) }
         val context = LocalContext.current
         LaunchedEffect(Unit) {
@@ -201,20 +186,14 @@ class ScrollableListActivity : ComponentActivity() {
                         profile = RcPlatformProfiles.ANDROIDX,
                         context = context,
                     ) {
-                        val scrollState = rememberRemoteScrollState()
-                        RemoteColumn(
+                        RemoteBox(
                             modifier =
-                                RemoteModifier.fillMaxSize()
-                                    .semantics { contentDescription = LIST_CONTENT_DESCRIPTION.rs }
-                                    .verticalScroll(scrollState)
+                                RemoteModifier.fillMaxSize().semantics {
+                                    contentDescription = LIST_CONTENT_DESCRIPTION.rs
+                                },
+                            contentAlignment = RemoteAlignment.Center,
                         ) {
-                            repeat(500) { index ->
-                                RemoteText(
-                                    ("Item $index").rs,
-                                    modifier =
-                                        RemoteModifier.fillMaxWidth().padding(vertical = 8.rdp),
-                                )
-                            }
+                            RemoteText(("Hello World").rs)
                         }
                     }
                     .bytes

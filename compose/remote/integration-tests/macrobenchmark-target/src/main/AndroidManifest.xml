@@ -42,7 +42,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DocumentTraceActivity"
+            android:name=".SimpleLayoutActivity"
+            android:exported="true"
+            android:label="First frame"
+            android:taskAffinity=""
+
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="androidx.compose.remote.integration.macrobenchmark.target.FIRST_FRAME_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RemoteComposeDocumentTraceActivity"
             android:exported="true"
             android:label="Document tracing"
             android:theme="@android:style/Theme.DeviceDefault">

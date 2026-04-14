@@ -19,5 +19,7 @@ package androidx.compose.remote.integration.macrobenchmark.target
 const val LIST_CONTENT_DESCRIPTION = "ScrollableColumn"
 const val BENCHMARK_MODE_ARG = "benchmark_mode"
 const val MODE_RENDER_FROM_CACHE = "render_from_cache"
-const val MODE_LOCAL = "mode_local"
+const val MODE_COMPOSE = "mode_compose"
+const val MODE_WEB_VIEW = "mode_web_view"
+const val MODE_REMOTE_VIEW = "mode_remote_view"
 const val DOCUMENT_READY = "READY"

@@ -62,10 +62,10 @@ object BenchmarkCache {
     var documentBytes: ByteArray? = null
 }
 
-open class DocumentTraceActivity : ComponentActivity() {
+open class RemoteComposeDocumentTraceActivity : ComponentActivity() {
 
     @Composable
-    open fun RemoteComposePlayer(@NonNull remoteDocumentBytes: ByteArray) {
+    private fun RemoteComposePlayer(@NonNull remoteDocumentBytes: ByteArray) {
         val windowInfo = LocalWindowInfo.current
         RemoteDocumentPlayer(
             document =
@@ -92,31 +92,32 @@ open class DocumentTraceActivity : ComponentActivity() {
                     requireNonNull(BenchmarkCache.documentBytes, "BenchmarkCache is empty")
                     RemoteComposePlayer(BenchmarkCache.documentBytes!!)
                 }
-                MODE_LOCAL -> {
-                    Column(
-                        modifier =
-                            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).semantics {
-                                contentDescription = LIST_CONTENT_DESCRIPTION
-                            }
-                    ) {
-                        repeat(500) { index ->
-                            Text(
-                                "Item $index",
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                            )
-                        }
-                    }
+                MODE_COMPOSE -> {
+                    LiveCompose()
                 }
                 else -> {
-                    ScrollableRemoteContent()
+                    RemoteCompose()
                 }
             }
         }
     }
 
     @Composable
-    @Suppress("RestrictedApiAndroidX")
-    fun ScrollableRemoteContent() {
+    private fun LiveCompose() {
+        Column(
+            modifier =
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).semantics {
+                    contentDescription = LIST_CONTENT_DESCRIPTION
+                }
+        ) {
+            repeat(500) { index ->
+                Text("Item $index", modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
+            }
+        }
+    }
+
+    @Composable
+    private fun RemoteCompose() {
         var documentBytes by remember { mutableStateOf<ByteArray?>(null) }
         val context = LocalContext.current
         LaunchedEffect(Unit) {
