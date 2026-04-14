@@ -86,7 +86,6 @@ import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
-import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -4270,17 +4269,6 @@ internal suspend fun savePointerInputEvents(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope,
 ) {
-    if (VelocityTrackerAddPointsFix) {
-        savePointerInputEventsWithFix(tracker, pointerInputScope)
-    } else {
-        savePointerInputEventsLegacy(tracker, pointerInputScope)
-    }
-}
-
-internal suspend fun savePointerInputEventsWithFix(
-    tracker: VelocityTracker,
-    pointerInputScope: PointerInputScope,
-) {
     with(pointerInputScope) {
         coroutineScope {
             awaitPointerEventScope {
@@ -4297,33 +4285,6 @@ internal suspend fun savePointerInputEventsWithFix(
                         }
 
                         event = currentEvent
-                    }
-                }
-            }
-        }
-    }
-}
-
-internal suspend fun savePointerInputEventsLegacy(
-    tracker: VelocityTracker,
-    pointerInputScope: PointerInputScope,
-) {
-    with(pointerInputScope) {
-        coroutineScope {
-            awaitPointerEventScope {
-                while (true) {
-                    var event = awaitFirstDown()
-                    tracker.addPosition(event.uptimeMillis, event.position)
-                    while (!event.changedToUpIgnoreConsumed()) {
-                        val currentEvent = awaitPointerEvent().changes.firstOrNull()
-
-                        if (currentEvent != null) {
-                            currentEvent.historical.fastForEach {
-                                tracker.addPosition(it.uptimeMillis, it.position)
-                            }
-                            tracker.addPosition(currentEvent.uptimeMillis, currentEvent.position)
-                            event = currentEvent
-                        }
                     }
                 }
             }
