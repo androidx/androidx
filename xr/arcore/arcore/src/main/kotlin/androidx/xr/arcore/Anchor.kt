@@ -43,11 +43,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * @property state the current [State] of this anchor
  */
+@SuppressWarnings("HiddenSuperclass")
 public class Anchor
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val runtimeAnchor: RuntimeAnchor,
     private val xrResourceManager: XrResourcesManager,
-) : Updatable {
+) : Updatable() {
     public companion object {
         /**
          * Creates and attaches an [Anchor] at the given [pose].
@@ -246,7 +247,6 @@ internal constructor(
 
     override fun hashCode(): Int = runtimeAnchor.hashCode()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
         _state.emit(State(runtimeAnchor.trackingState.toTrackingState(), runtimeAnchor.pose))
         if (persistContinuation == null) {

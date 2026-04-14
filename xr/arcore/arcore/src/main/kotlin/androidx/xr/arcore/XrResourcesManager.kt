@@ -164,8 +164,7 @@ internal class XrResourcesManager {
         }
 
         // Geospatial should always be initialized if a runtime is present. This check should only
-        // fail
-        // in unit tests.
+        // fail in unit tests.
         if (_geospatial != null) {
             geospatial.update()
         }

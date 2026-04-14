@@ -2049,9 +2049,7 @@ class SubspaceTest {
 
             val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
             runtimeAnchor.pose = updatedPose
-            anchorUnderTest.update()
 
-            assertThat(anchorUnderTest.state.value.pose).isEqualTo(updatedPose)
             assertThat(assertExistenceAndGetNodeWorldPose("Panel")).isEqualTo(updatedPose)
             composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
         }
@@ -2090,10 +2088,8 @@ class SubspaceTest {
             // Update anchor's pose and verify the Panel is at the new location.
             val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
             runtimeAnchor.pose = updatedPose
-            anchorUnderTest.update()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertThat(anchorUnderTest.state.value.pose).isEqualTo(updatedPose)
             val currentTranslation = assertExistenceAndGetNodeWorldPose("Panel").translation
             val currentRotation = assertExistenceAndGetNodeWorldPose("Panel").rotation
 
@@ -2148,9 +2144,6 @@ class SubspaceTest {
             // Verify the panel doesn't move if pose changes again.
             val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
             runtimeAnchor.pose = updatedPose
-            anchorUnderTest.update()
-
-            assertThat(anchorUnderTest.state.value.pose).isEqualTo(updatedPose)
 
             composeTestRule.waitForIdle()
 

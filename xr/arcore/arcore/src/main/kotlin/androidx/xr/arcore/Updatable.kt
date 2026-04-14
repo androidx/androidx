@@ -16,9 +16,12 @@
 
 package androidx.xr.arcore
 
+import androidx.annotation.RestrictTo
+
 /** An interface for objects that need to be updated every frame. */
-internal interface Updatable {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public abstract class Updatable internal constructor() {
 
     /** Updates the state of the [Updatable]. */
-    suspend fun update()
+    internal abstract suspend fun update()
 }
