@@ -110,16 +110,7 @@ class SupportedQualitiesVerificationTest(
                 DynamicRange.HLG_10_BIT,
             )
 
-        @JvmStatic
-        private val qualities =
-            arrayOf(
-                Quality.SD,
-                Quality.HD,
-                Quality.FHD,
-                Quality.UHD,
-                Quality.LOWEST,
-                Quality.HIGHEST,
-            )
+        @JvmStatic private val qualities = Quality.ALL_QUALITIES.toTypedArray()
 
         @JvmStatic
         @Parameterized.Parameters(

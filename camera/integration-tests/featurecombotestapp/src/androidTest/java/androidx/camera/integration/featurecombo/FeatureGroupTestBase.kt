@@ -70,6 +70,7 @@ import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.util.Camera2InteropUtil
 import androidx.camera.video.GroupableFeatures.FHD_RECORDING
 import androidx.camera.video.GroupableFeatures.HD_RECORDING
+import androidx.camera.video.GroupableFeatures.QHD_RECORDING
 import androidx.camera.video.GroupableFeatures.SD_RECORDING
 import androidx.camera.video.GroupableFeatures.UHD_RECORDING
 import androidx.camera.video.GroupableFeatures.VIDEO_STABILIZATION
@@ -378,6 +379,7 @@ open class FeatureGroupTestBase(
         val expectedHeightRange =
             when (feature) {
                 UHD_RECORDING -> Range(2160, 4319)
+                QHD_RECORDING -> Range(1440, 2159)
                 FHD_RECORDING -> Range(1080, 1439)
                 HD_RECORDING -> Range(720, 1079)
                 SD_RECORDING -> Range(241, 719)
@@ -458,6 +460,7 @@ open class FeatureGroupTestBase(
                 VIDEO_STABILIZATION,
                 IMAGE_ULTRA_HDR,
                 UHD_RECORDING,
+                QHD_RECORDING,
                 FHD_RECORDING,
                 HD_RECORDING,
                 SD_RECORDING,

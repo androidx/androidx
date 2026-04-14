@@ -92,8 +92,8 @@ public interface VideoCapabilities {
      * {@link #getSupportedQualities(DynamicRange)} will return {@code true}.
      *
      * <p>Possible values for {@code quality} include {@link Quality#LOWEST},
-     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD}
-     * and {@link Quality#UHD}.
+     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD},
+     * {@link Quality#QHD} and {@link Quality#UHD}.
      *
      * <p>If this method is called with {@link Quality#LOWEST} or {@link Quality#HIGHEST}, it
      * will return {@code true} except the case that none of the qualities can be supported.
@@ -137,7 +137,8 @@ public interface VideoCapabilities {
      *
      * @param quality one of the quality constants. Possible values include
      *                {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
-     *                {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
+     *                {@link Quality#HD}, {@link Quality#FHD}, {@link Quality#QHD}, or
+     *                {@link Quality#UHD}.
      * @param dynamicRange target dynamicRange.
      * @return the corresponding resolution, or {@code null} if the quality is not supported on the
      * device.
