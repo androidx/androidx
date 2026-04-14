@@ -146,7 +146,6 @@ private fun SwitchImpl(
     val resolvedThumbColor = colors.thumbColor(enabled, checked)
     val trackShape = SwitchTokens.TrackShape.value
 
-    @OptIn(ExperimentalMaterial3Api::class)
     val focusRingModifier =
         if (
             LocalRippleThemeConfiguration.current ==
@@ -187,7 +186,6 @@ private fun SwitchImpl(
                     .indication(
                         interactionSource = interactionSource,
                         indication =
-                            @OptIn(ExperimentalMaterial3Api::class)
                             ripple(
                                 bounded = false,
                                 radius = SwitchTokens.StateLayerSize / 2,

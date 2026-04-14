@@ -307,7 +307,6 @@ fun NavigationRailItem(
                         .clip(indicatorShape)
                         .indication(
                             offsetInteractionSource,
-                            @OptIn(ExperimentalMaterial3Api::class)
                             ripple(focusRingShape = indicatorShape),
                         )
                 )

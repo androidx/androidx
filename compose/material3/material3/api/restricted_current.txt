@@ -3100,13 +3100,13 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class RippleConfiguration {
-    ctor @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public RippleConfiguration(androidx.compose.material3.RippleConfiguration.Focus? focus, optional androidx.compose.ui.graphics.Color color);
+    ctor @KotlinOnly public RippleConfiguration(androidx.compose.material3.RippleConfiguration.Focus? focus, optional androidx.compose.ui.graphics.Color color);
     ctor @BytecodeOnly public RippleConfiguration(androidx.compose.material3.RippleConfiguration.Focus!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public RippleConfiguration(androidx.compose.material3.RippleConfiguration.Focus!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public RippleConfiguration(androidx.compose.material3.RippleConfiguration.Focus!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @KotlinOnly public RippleConfiguration(optional androidx.compose.ui.graphics.Color color);
-    ctor @KotlinOnly public RippleConfiguration(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
+    ctor @KotlinOnly @Deprecated public RippleConfiguration(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
     ctor @BytecodeOnly public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @BytecodeOnly public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly @Deprecated public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public RippleConfiguration(long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public RippleConfiguration(long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public long getColor-0d7_KjU();
@@ -3117,10 +3117,10 @@ package androidx.compose.material3 {
     property public androidx.compose.material.ripple.RippleAlpha? rippleAlpha;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public abstract static class RippleConfiguration.Focus {
+  public abstract static class RippleConfiguration.Focus {
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final class RippleConfiguration.Focus.InsetRing extends androidx.compose.material3.RippleConfiguration.Focus {
+  public static final class RippleConfiguration.Focus.InsetRing extends androidx.compose.material3.RippleConfiguration.Focus {
     ctor @KotlinOnly public RippleConfiguration.Focus.InsetRing(androidx.compose.ui.graphics.Color outerStrokeColor, androidx.compose.ui.graphics.Color innerStrokeColor);
     ctor @BytecodeOnly public RippleConfiguration.Focus.InsetRing(long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public long getInnerStrokeColor-0d7_KjU();
@@ -3129,51 +3129,49 @@ package androidx.compose.material3 {
     property public androidx.compose.ui.graphics.Color outerStrokeColor;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final class RippleConfiguration.Focus.Opacity extends androidx.compose.material3.RippleConfiguration.Focus {
+  public static final class RippleConfiguration.Focus.Opacity extends androidx.compose.material3.RippleConfiguration.Focus {
     ctor public RippleConfiguration.Focus.Opacity();
   }
 
   public final class RippleDefaults {
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public androidx.compose.material3.RippleThemeConfiguration getInsetFocusRingRippleThemeConfiguration();
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public androidx.compose.material3.RippleThemeConfiguration getOpacityFocusRippleThemeConfiguration();
-    method @InaccessibleFromKotlin public androidx.compose.material.ripple.RippleAlpha getRippleAlpha();
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public androidx.compose.material3.RippleThemeConfiguration getThemeConfiguration();
-    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public androidx.compose.material3.RippleThemeConfiguration InsetFocusRingRippleThemeConfiguration;
-    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public androidx.compose.material3.RippleThemeConfiguration OpacityFocusRippleThemeConfiguration;
-    property public androidx.compose.material.ripple.RippleAlpha RippleAlpha;
-    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public androidx.compose.material3.RippleThemeConfiguration ThemeConfiguration;
+    method @InaccessibleFromKotlin public androidx.compose.material3.RippleThemeConfiguration getInsetFocusRingRippleThemeConfiguration();
+    method @InaccessibleFromKotlin public androidx.compose.material3.RippleThemeConfiguration getOpacityFocusRippleThemeConfiguration();
+    method @InaccessibleFromKotlin @Deprecated public androidx.compose.material.ripple.RippleAlpha getRippleAlpha();
+    method @InaccessibleFromKotlin public androidx.compose.material3.RippleThemeConfiguration getThemeConfiguration();
+    property public androidx.compose.material3.RippleThemeConfiguration InsetFocusRingRippleThemeConfiguration;
+    property public androidx.compose.material3.RippleThemeConfiguration OpacityFocusRippleThemeConfiguration;
+    property @Deprecated public androidx.compose.material.ripple.RippleAlpha RippleAlpha;
+    property public androidx.compose.material3.RippleThemeConfiguration ThemeConfiguration;
     field public static final androidx.compose.material3.RippleDefaults INSTANCE;
   }
 
   public final class RippleKt {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleConfiguration?> getLocalRippleConfiguration();
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleThemeConfiguration> getLocalRippleThemeConfiguration();
-    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(androidx.compose.ui.graphics.ColorProducer color, optional boolean bounded, optional androidx.compose.ui.unit.Dp radius);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(androidx.compose.ui.graphics.ColorProducer color, optional boolean bounded, optional androidx.compose.ui.unit.Dp radius, optional androidx.compose.ui.graphics.Shape? focusRingShape, optional boolean enablePressIndication, optional boolean enableFocusIndication, optional boolean enableHoverIndication, optional boolean enableDragIndication);
-    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(optional boolean bounded, optional androidx.compose.ui.unit.Dp radius, optional androidx.compose.ui.graphics.Color color);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(optional boolean bounded, optional androidx.compose.ui.unit.Dp radius, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Shape? focusRingShape, optional boolean enablePressIndication, optional boolean enableFocusIndication, optional boolean enableHoverIndication, optional boolean enableDragIndication);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple-H2RKhps(boolean, float, long);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-H2RKhps$default(boolean, float, long, int, Object!);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple-Ou1YvPQ(boolean, float, long, androidx.compose.ui.graphics.Shape?, boolean, boolean, boolean, boolean);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-Ou1YvPQ$default(boolean, float, long, androidx.compose.ui.graphics.Shape!, boolean, boolean, boolean, boolean, int, Object!);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple-TN_CM5M(androidx.compose.ui.graphics.ColorProducer, boolean, float, androidx.compose.ui.graphics.Shape?, boolean, boolean, boolean, boolean);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-TN_CM5M$default(androidx.compose.ui.graphics.ColorProducer!, boolean, float, androidx.compose.ui.graphics.Shape!, boolean, boolean, boolean, boolean, int, Object!);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple-wH6b6FI(androidx.compose.ui.graphics.ColorProducer, boolean, float);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-wH6b6FI$default(androidx.compose.ui.graphics.ColorProducer!, boolean, float, int, Object!);
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleThemeConfiguration> getLocalRippleThemeConfiguration();
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(androidx.compose.ui.graphics.ColorProducer color, optional boolean bounded, optional androidx.compose.ui.unit.Dp radius, optional androidx.compose.ui.graphics.Shape? focusRingShape, optional boolean enablePressIndication, optional boolean enableFocusIndication, optional boolean enableHoverIndication, optional boolean enableDragIndication);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(optional boolean bounded, optional androidx.compose.ui.unit.Dp radius, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Shape? focusRingShape, optional boolean enablePressIndication, optional boolean enableFocusIndication, optional boolean enableHoverIndication, optional boolean enableDragIndication);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-H2RKhps(boolean, float, long);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-H2RKhps$default(boolean, float, long, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple-Ou1YvPQ(boolean, float, long, androidx.compose.ui.graphics.Shape?, boolean, boolean, boolean, boolean);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-Ou1YvPQ$default(boolean, float, long, androidx.compose.ui.graphics.Shape!, boolean, boolean, boolean, boolean, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple-TN_CM5M(androidx.compose.ui.graphics.ColorProducer, boolean, float, androidx.compose.ui.graphics.Shape?, boolean, boolean, boolean, boolean);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-TN_CM5M$default(androidx.compose.ui.graphics.ColorProducer!, boolean, float, androidx.compose.ui.graphics.Shape!, boolean, boolean, boolean, boolean, int, Object!);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-wH6b6FI(androidx.compose.ui.graphics.ColorProducer!, boolean, float);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory! ripple-wH6b6FI$default(androidx.compose.ui.graphics.ColorProducer!, boolean, float, int, Object!);
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleConfiguration?> LocalRippleConfiguration;
-    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleThemeConfiguration> LocalRippleThemeConfiguration;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleThemeConfiguration> LocalRippleThemeConfiguration;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class RippleThemeConfiguration {
+  public final class RippleThemeConfiguration {
     ctor public RippleThemeConfiguration(androidx.compose.material3.RippleThemeConfiguration.Focus focus);
     method @InaccessibleFromKotlin public androidx.compose.material3.RippleThemeConfiguration.Focus getFocus();
     property public androidx.compose.material3.RippleThemeConfiguration.Focus focus;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public abstract static class RippleThemeConfiguration.Focus {
+  public abstract static class RippleThemeConfiguration.Focus {
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final class RippleThemeConfiguration.Focus.InsetRing extends androidx.compose.material3.RippleThemeConfiguration.Focus {
+  public static final class RippleThemeConfiguration.Focus.InsetRing extends androidx.compose.material3.RippleThemeConfiguration.Focus {
     ctor @KotlinOnly public RippleThemeConfiguration.Focus.InsetRing(androidx.compose.ui.unit.Dp outerStrokeInset, androidx.compose.ui.unit.Dp outerStrokeWidth, androidx.compose.ui.unit.Dp innerStrokeInset, androidx.compose.ui.unit.Dp innerStrokeWidth);
     ctor @BytecodeOnly public RippleThemeConfiguration.Focus.InsetRing(float, float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public float getInnerStrokeInset-D9Ej5fM();
@@ -3186,7 +3184,7 @@ package androidx.compose.material3 {
     property public androidx.compose.ui.unit.Dp outerStrokeWidth;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final class RippleThemeConfiguration.Focus.Opacity extends androidx.compose.material3.RippleThemeConfiguration.Focus {
+  public static final class RippleThemeConfiguration.Focus.Opacity extends androidx.compose.material3.RippleThemeConfiguration.Focus {
     ctor public RippleThemeConfiguration.Focus.Opacity();
   }
 
