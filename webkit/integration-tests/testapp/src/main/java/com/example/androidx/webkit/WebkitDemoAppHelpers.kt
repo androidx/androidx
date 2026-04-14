@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
 
 /**
  * Inserts the {@link android.webkit.WebView} version in the current Activity title. This assumes
@@ -84,3 +85,12 @@ fun AppCompatActivity.setUpDemoAppActivity() {
     this.appendWebViewVersionToTitle()
     this.enableEdgeToEdge()
 }
+
+/**
+ * Helper function to check if the features are supported.
+ *
+ * @param features the list of WebView features to check.
+ * @return `true` if all features are supported, `false` otherwise.
+ */
+fun areAllFeaturesSupported(vararg features: String) =
+    features.all { feature -> WebViewFeature.isFeatureSupported(feature) }
