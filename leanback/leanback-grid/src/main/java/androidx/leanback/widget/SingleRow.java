@@ -195,4 +195,17 @@ class SingleRow extends Grid {
         return mReversedFlow ? mProvider.getEdge(indexLimit)
                 : mProvider.getEdge(indexLimit) + mProvider.getSize(indexLimit);
     }
+
+    @Override
+    public int getNextPositionOfSameSpan(int focusPosition, int count, int spanGroupIndexDelta) {
+        // spanGroupIndexDelta is positive or negative
+        int position = mReversedFlow ? focusPosition - spanGroupIndexDelta
+                : focusPosition + spanGroupIndexDelta;
+        if (position < 0) {
+            position = 0;
+        } else if (position > count - 1) {
+            position = count - 1;
+        }
+        return position;
+    }
 }

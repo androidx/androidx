@@ -21,6 +21,10 @@ import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
+import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ALIGNED;
+import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ITEM;
+import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_PAGE;
+import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -701,7 +705,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Focus Scroll strategy.
      */
-    private int mFocusScrollStrategy = BaseGridView.FOCUS_SCROLL_ALIGNED;
+    private int mFocusScrollStrategy = FOCUS_SCROLL_ALIGNED;
+
     /**
      * Defines how item view is aligned in the window.
      */
@@ -2334,7 +2339,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         // check if we need align to mFocusPosition, this is usually true unless in smoothScrolling
         final boolean scrollToFocus = !isSmoothScrolling()
-                && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED;
+                && (mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED
+                || mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP);
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
             mFocusPosition = mFocusPosition + mFocusPositionOffset;
             mSubFocusPosition = 0;
@@ -2562,7 +2568,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         childCount = getChildCount();
 
         final int oldFocusPosition = mFocusPosition;
-        final boolean isInDraggingOrMotionScroll = (mFlag & PF_IN_DRAGGING_OR_MOTION_SCROLL) != 0;
+        final boolean isInDraggingOrMotionScroll = (mFlag & PF_IN_DRAGGING_OR_MOTION_SCROLL) != 0
+                && (mSnapHelper == null || !mSnapHelper.mInFling);
         if (isInDraggingOrMotionScroll && mFocusPosition >= 0) {
             // In dragging or using mouse wheel scroll, we keep adjusting mFocusedPosition to the
             // view that is closest to the aligned center.
@@ -2600,6 +2607,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             // If it's in dragging, postpone dispatchChildSelectedAndPositioned until
             // scroll state changed to idle.
             if ((mFlag & PF_IN_DRAGGING_AND_SETTLING) != PF_IN_DRAGGING_AND_SETTLING) {
+                // Mouse wheel scroll doesn't snap.
                 dispatchChildSelected();
                 dispatchChildSelectedAndPositioned();
             }
@@ -2610,15 +2618,30 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         return da;
     }
 
+    SnapHelper mSnapHelper;
     @Override
     public void onScrollStateChanged(int state) {
         if (state == SCROLL_STATE_DRAGGING) {
             mFlag |= PF_IN_DRAGGING_AND_SETTLING;
+            if (mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP) {
+                if (mSnapHelper == null) {
+                    mSnapHelper = new SnapHelper();
+                }
+                mSnapHelper.attachToRecyclerView(mBaseGridView);
+                // Fling stops by another DRAGGING.
+                mSnapHelper.mInFling = false;
+            }
         } else if (state == SCROLL_STATE_IDLE
                 && (mFlag & PF_IN_DRAGGING_AND_SETTLING) == PF_IN_DRAGGING_AND_SETTLING) {
             mFlag &= ~PF_IN_DRAGGING_AND_SETTLING;
             dispatchChildSelected();
             dispatchChildSelectedAndPositioned();
+            if (mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP) {
+                // Fling stops naturally.
+                mSnapHelper.mInFling = false;
+                mSnapHelper.detachFromRecyclerView();
+                scrollToSelection(mFocusPosition, 0, true, 0);
+            }
         }
     }
 
@@ -3180,11 +3203,12 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     boolean getScrollPosition(View view, View childView, int[] deltas) {
         switch (mFocusScrollStrategy) {
-            case BaseGridView.FOCUS_SCROLL_ALIGNED:
+            case FOCUS_SCROLL_ALIGNED:
+            case FOCUS_SCROLL_ALIGNED_AND_SNAP:
             default:
                 return getAlignedPosition(view, childView, deltas);
-            case BaseGridView.FOCUS_SCROLL_ITEM:
-            case BaseGridView.FOCUS_SCROLL_PAGE:
+            case FOCUS_SCROLL_ITEM:
+            case FOCUS_SCROLL_PAGE:
                 return getNoneAlignedPosition(view, deltas);
         }
     }
@@ -3325,7 +3349,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (((mFlag & PF_SCROLL_ENABLED) != 0) != scrollEnabled) {
             mFlag = (mFlag & ~PF_SCROLL_ENABLED) | (scrollEnabled ? PF_SCROLL_ENABLED : 0);
             if (((mFlag & PF_SCROLL_ENABLED) != 0)
-                    && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED
+                    && (mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED
+                        || mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP)
                     && mFocusPosition != NO_POSITION) {
                 scrollToSelection(mFocusPosition, mSubFocusPosition,
                         true, mPrimaryScrollExtra);
@@ -3611,7 +3636,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         } else {
             int focusableCount = views.size();
-            if (mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED) {
+            if (mFocusScrollStrategy != FOCUS_SCROLL_ALIGNED
+                    && mFocusScrollStrategy != FOCUS_SCROLL_ALIGNED_AND_SNAP) {
                 // adding views not overlapping padding area to avoid scrolling in gaining focus
                 int left = mWindowAlignment.mainAxis().getPaddingMin();
                 int right = mWindowAlignment.mainAxis().getClientSize() + left;
@@ -3676,12 +3702,13 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     boolean gridOnRequestFocusInDescendants(RecyclerView recyclerView, int direction,
             Rect previouslyFocusedRect) {
         switch (mFocusScrollStrategy) {
-            case BaseGridView.FOCUS_SCROLL_ALIGNED:
+            case FOCUS_SCROLL_ALIGNED:
+            case FOCUS_SCROLL_ALIGNED_AND_SNAP:
             default:
                 return gridOnRequestFocusInDescendantsAligned(
                         direction, previouslyFocusedRect);
-            case BaseGridView.FOCUS_SCROLL_PAGE:
-            case BaseGridView.FOCUS_SCROLL_ITEM:
+            case FOCUS_SCROLL_PAGE:
+            case FOCUS_SCROLL_ITEM:
                 return gridOnRequestFocusInDescendantsUnaligned(
                         direction, previouslyFocusedRect);
         }
