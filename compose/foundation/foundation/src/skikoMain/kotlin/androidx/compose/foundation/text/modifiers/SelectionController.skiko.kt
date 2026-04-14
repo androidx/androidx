@@ -77,11 +77,9 @@ internal class SkikoSelectionModifierElement(
         if (this === other) return true
         if (other !is SkikoSelectionModifierElement) return false
 
-        if (selectionRegistrar != other.selectionRegistrar) return false
-        if (selectableId != other.selectableId) return false
-        if (layoutCoordinates != other.layoutCoordinates) return false
-
-        return true
+        return selectionRegistrar == other.selectionRegistrar &&
+            selectableId == other.selectableId &&
+            layoutCoordinates === other.layoutCoordinates
     }
 
     override fun hashCode(): Int {
