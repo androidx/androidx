@@ -35,11 +35,12 @@ import kotlinx.coroutines.flow.transform
  *
  * @property state the current [State] of this face
  */
+@SuppressWarnings("HiddenSuperclass")
 public class Face
 internal constructor(
     internal val runtimeFace: RuntimeFace,
     internal val xrResourceManager: XrResourcesManager,
-) : Trackable<Face.State>, Updatable {
+) : Trackable<Face.State>, Updatable() {
 
     public companion object {
         /**

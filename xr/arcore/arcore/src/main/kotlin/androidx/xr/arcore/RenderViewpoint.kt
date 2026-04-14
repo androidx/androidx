@@ -38,11 +38,12 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * @property state the current [State] of the render viewpoint
  */
+@SuppressWarnings("HiddenSuperclass")
 public class RenderViewpoint
 internal constructor(
     internal val runtimeRenderViewpoint: RuntimeRenderViewpoint,
     internal val runtimeArDevice: RuntimeArDevice,
-) : Updatable {
+) : Updatable() {
 
     public companion object {
         /**
@@ -141,8 +142,9 @@ internal constructor(
 
     public val state: StateFlow<State> = _state.asStateFlow()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override suspend fun update() {
+    // TODO b/482646486: Remove public visibility and unrestrict when no longer used in G3
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public override suspend fun update() {
         val poseInPerceptionSpace = runtimeArDevice.devicePose.compose(runtimeRenderViewpoint.pose)
         _state.emit(
             State(

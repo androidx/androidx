@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.AugmentedObject as RuntimeObject
 import androidx.xr.runtime.AugmentedObjectCategory as Category
 import androidx.xr.runtime.Config
@@ -45,11 +44,12 @@ import kotlinx.coroutines.flow.transform
  *
  * @property state a [StateFlow] that contains the latest [State] of the AugmentedObject
  */
+@SuppressWarnings("HiddenSuperclass")
 public class AugmentedObject
 internal constructor(
     internal val runtimeObject: RuntimeObject,
     private val xrResourceManager: XrResourcesManager,
-) : Trackable<AugmentedObject.State>, Updatable {
+) : Trackable<AugmentedObject.State>, Updatable() {
     public companion object {
         /**
          * Subscribes to a flow of AugmentedObjects.
@@ -146,7 +146,6 @@ internal constructor(
      * This function is used by the runtime to propagate internal state changes. It is not intended
      * to be called directly by a developer.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
         _state.emit(
             State(

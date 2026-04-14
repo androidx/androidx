@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.Geospatial.State.Companion.PAUSED
 import androidx.xr.arcore.Geospatial.State.Companion.RUNNING
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException as RtAnchorNotAuthorizedException
@@ -49,11 +48,12 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * @property state the current [State] of [Geospatial]
  */
+@SuppressWarnings("HiddenSuperclass")
 public class Geospatial
 internal constructor(
     private val runtimeGeospatial: RuntimeGeospatial,
     private val xrResourcesManager: XrResourcesManager,
-) : Updatable {
+) : Updatable() {
     public companion object {
         /**
          * Returns the Geospatial object for the given [Session].
@@ -355,7 +355,6 @@ internal constructor(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
         _state.emit(runtimeStateToState(runtimeGeospatial.state))
     }
