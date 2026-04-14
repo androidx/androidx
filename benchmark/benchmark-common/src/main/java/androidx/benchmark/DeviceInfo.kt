@@ -263,7 +263,7 @@ object DeviceInfo {
      *
      * See b/368404173
      *
-     * @see androidx.benchmark.macro.MacrobenchmarkScope.KillFlushMode.ClearArtRuntimeImage
+     * @see androidx.benchmark.macro.MacrobenchmarkScope.KillMode.clearArtRuntimeImage
      * @see ART_MAINLINE_MIN_VERSION_VERIFY_CLEARS_RUNTIME_IMAGE
      */
     private const val ART_MAINLINE_MIN_VERSION_RUNTIME_IMAGE = 340800000L
