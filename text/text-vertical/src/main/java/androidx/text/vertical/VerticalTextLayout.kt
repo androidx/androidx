@@ -53,6 +53,10 @@ constructor(
     public val width: Float
         get() = impl.width
 
+    /** The number of lines (columns) in this vertical text layout. */
+    public val lineCount: Int
+        get() = impl.lineCount
+
     internal val impl: VerticalTextLayoutImpl
 
     init {
