@@ -20,14 +20,11 @@ import android.content.Intent
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.macro.MemoryUsageMetric
-import androidx.benchmark.macro.StartupMode
+import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,97 +33,89 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalMetricApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-class RemoteComposeDocumentTracingMacrobenchmark(val compilationMode: CompilationMode) {
+class RemoteComposeFirstFrameBenchmark(val compilationMode: CompilationMode) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun documentGenerationOnly() =
+    fun firstFrameRemoteCompose() {
+        val metrics =
+            mutableListOf<Metric>(StartupTimingMetric()).also {
+                it.addAll(decodingTraces.map { TraceSectionMetric(it) })
+            }
+
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics =
-                recordingTraces.map { TraceSectionMetric(it) } +
-                    MemoryUsageMetric(MemoryUsageMetric.Mode.Max),
-            iterations = 5,
+            metrics = metrics,
             compilationMode = compilationMode,
-            startupMode = StartupMode.WARM,
+            iterations = 10,
             setupBlock = { pressHome() },
             measureBlock = {
                 val intent = Intent()
-                intent.action = DOCUMENT_GENERATING_ACTIVITY
+                intent.action = FIRST_FRAME_ACTIVITY
+                intent.putExtra(BENCHMARK_MODE_ARG, MODE_REMOTE_COMPOSE)
                 startActivityAndWait(intent)
-                device.wait(Until.hasObject(By.text(DOCUMENT_READY)), 10000)
             },
         )
+    }
 
     @Test
-    fun documentRenderingOnly() =
-        benchmarkRule.measureRepeated(
-            packageName = PACKAGE_NAME,
-            metrics =
-                listOf(StartupTimingMetric()) +
-                    decodingTraces.map { TraceSectionMetric(it) } +
-                    MemoryUsageMetric(MemoryUsageMetric.Mode.Max),
-            iterations = 5,
-            compilationMode = compilationMode,
-            startupMode = StartupMode.WARM,
-            setupBlock = {
-                pressHome()
-                val intent = Intent()
-                intent.action = DOCUMENT_GENERATING_ACTIVITY
-                startActivityAndWait(intent)
-                device.wait(Until.hasObject(By.text(DOCUMENT_READY)), 10000)
-                pressHome()
-            },
-            measureBlock = {
-                val intent = Intent()
-                intent.action = DOCUMENT_TRACING_ACTIVITY
-                intent.putExtra(BENCHMARK_MODE_ARG, MODE_RENDER_FROM_CACHE)
-                startActivityAndWait(intent)
-                device.waitForIdle()
-            },
-        )
+    fun firstFrameLiveCompose() {
+        val metrics = listOf<Metric>(StartupTimingMetric())
 
-    @Test
-    fun startupWithDocumentGeneration() =
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics =
-                listOf(StartupTimingMetric()) +
-                    allTraces.map { TraceSectionMetric(it) } +
-                    MemoryUsageMetric(MemoryUsageMetric.Mode.Max),
-            iterations = 5,
+            metrics = metrics,
             compilationMode = compilationMode,
-            startupMode = StartupMode.WARM,
+            iterations = 10,
             setupBlock = { pressHome() },
             measureBlock = {
                 val intent = Intent()
-                intent.action = DOCUMENT_TRACING_ACTIVITY
-                startActivityAndWait(intent)
-                device.waitForIdle()
-            },
-        )
-
-    @Test
-    fun startupLocal() {
-        benchmarkRule.measureRepeated(
-            packageName = PACKAGE_NAME,
-            metrics = listOf(StartupTimingMetric()),
-            iterations = 5,
-            compilationMode = compilationMode,
-            startupMode = StartupMode.WARM,
-            setupBlock = { pressHome() },
-            measureBlock = {
-                val intent = Intent()
-                intent.action = DOCUMENT_TRACING_ACTIVITY
+                intent.action = FIRST_FRAME_ACTIVITY
                 intent.putExtra(BENCHMARK_MODE_ARG, MODE_COMPOSE)
                 startActivityAndWait(intent)
-                device.waitForIdle()
+            },
+        )
+    }
+
+    @Test
+    fun firstFrameWebView() {
+        val metrics = listOf<Metric>(StartupTimingMetric())
+
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = metrics,
+            compilationMode = compilationMode,
+            iterations = 10,
+            setupBlock = { pressHome() },
+            measureBlock = {
+                val intent = Intent()
+                intent.action = FIRST_FRAME_ACTIVITY
+                intent.putExtra(BENCHMARK_MODE_ARG, MODE_WEB_VIEW)
+                startActivityAndWait(intent)
+            },
+        )
+    }
+
+    @Test
+    fun firstFrameRemoteViews() {
+        val metrics = listOf<Metric>(StartupTimingMetric())
+
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = metrics,
+            compilationMode = compilationMode,
+            iterations = 10,
+            setupBlock = { pressHome() },
+            measureBlock = {
+                val intent = Intent()
+                intent.action = FIRST_FRAME_ACTIVITY
+                intent.putExtra(BENCHMARK_MODE_ARG, MODE_REMOTE_VIEW)
+                startActivityAndWait(intent)
             },
         )
     }
 
     companion object {
-
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic
         fun parameters() =
