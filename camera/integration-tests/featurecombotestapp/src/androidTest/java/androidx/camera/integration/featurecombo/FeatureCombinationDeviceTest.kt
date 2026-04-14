@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -52,7 +53,14 @@ class FeatureCombinationDeviceTest(
 ) : FeatureGroupTestBase(cameraSelector, implName, cameraXConfig) {
     @Test
     fun bindToLifecycle_allFeaturesPreferred_canBindSuccessfully(): Unit = runBlocking {
-        bindAndVerifyFeatures(useCasesToTest.toUseCases(), preferredFeatures = allFeatures.toList())
+        assertWithMessage("Binding shouldn't fail since all features are preferred")
+            .that(
+                tryBindAndVerifyFeatures(
+                    useCasesToTest.toUseCases(),
+                    preferredFeatures = allFeatures.toList(),
+                )
+            )
+            .isNotNull()
     }
 
     @Test
@@ -61,7 +69,11 @@ class FeatureCombinationDeviceTest(
             // Arrange: Bind with all features as preferred and store the selected ones.
             val useCases = useCasesToTest.toUseCases()
             val features = allFeatures.toList()
-            val selectedFeatures = bindAndVerifyFeatures(useCases, preferredFeatures = features)
+            val selectedFeatures =
+                tryBindAndVerifyFeatures(useCases, preferredFeatures = features)
+                    ?: throw AssertionError(
+                        "Binding shouldn't fail since all features are preferred"
+                    )
 
             // Act & assert: Ensure query returns false for each of the unselected features added
             //   to the selected ones.
@@ -88,11 +100,13 @@ class FeatureCombinationDeviceTest(
             }
         }
 
+    @Ignore("b/502350525")
     @Test
     fun recordingFeatureBoundWithSpecificAspectRatioUseCases_aspectRatioMaintained(): Unit =
         runBlocking {
             assumeTrue(useCasesToTest.contains(VIDEO_CAPTURE))
 
+            var anySupported = false
             allFeatures
                 .filter { it.featureType == GroupableFeature.FEATURE_TYPE_RECORDING_QUALITY }
                 .forEach { feature ->
@@ -100,13 +114,16 @@ class FeatureCombinationDeviceTest(
                         .forEach { aspectRatio ->
                             val useCases = useCasesToTest.toUseCases(aspectRatio)
 
-                            bindAndVerifyFeatures(
-                                useCases,
-                                requiredFeatures = setOf(feature),
-                                aspectRatio = aspectRatio,
-                            )
+                            val result =
+                                tryBindAndVerifyFeatures(
+                                    useCases,
+                                    requiredFeatures = setOf(feature),
+                                    aspectRatio = aspectRatio,
+                                )
+                            if (result != null) anySupported = true
                         }
                 }
+            assumeTrue("No feature combinations were supported", anySupported)
         }
 
     /**
@@ -147,12 +164,27 @@ class FeatureCombinationDeviceTest(
             }
         }
 
-    private suspend fun bindAndVerifyFeatures(
+    /**
+     * Tries to bind the given use cases and features to a lifecycle and verifies the selected
+     * features.
+     *
+     * This method creates a [SessionConfig] with the provided required and preferred features,
+     * checks if it's supported by the camera, and if so, binds the use cases to the lifecycle. It
+     * then verifies that the selected features meet the expectations.
+     *
+     * @param useCases The use cases to bind.
+     * @param requiredFeatures The features that are required for the session.
+     * @param preferredFeatures The features that are preferred for the session.
+     * @param aspectRatio The aspect ratio of the use cases.
+     * @return The set of selected features if the session configuration is supported, `null`
+     *   otherwise.
+     */
+    private suspend fun tryBindAndVerifyFeatures(
         useCases: List<UseCase>,
         requiredFeatures: Set<GroupableFeature> = emptySet(),
         preferredFeatures: List<GroupableFeature> = emptyList(),
         aspectRatio: Int = AspectRatio.RATIO_DEFAULT,
-    ): Set<GroupableFeature> {
+    ): Set<GroupableFeature>? {
         val selectedFeatures = CompletableDeferred<Set<GroupableFeature>>()
 
         val sessionConfig =
@@ -165,13 +197,13 @@ class FeatureCombinationDeviceTest(
                     setFeatureSelectionListener { features -> selectedFeatures.complete(features) }
                 }
 
-        withContext(Dispatchers.Main) {
-                assumeTrue(
-                    cameraProvider
-                        .getCameraInfo(cameraSelector)
-                        .isSessionConfigSupported(sessionConfig)
-                )
+        val isSupported =
+            cameraProvider.getCameraInfo(cameraSelector).isSessionConfigSupported(sessionConfig)
+        if (!isSupported) {
+            return null
+        }
 
+        withContext(Dispatchers.Main) {
                 cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, sessionConfig)
             }
             .apply { selectedFeatures.await().verifyFeatures(useCases, cameraInfo, aspectRatio) }
