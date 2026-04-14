@@ -117,7 +117,7 @@ class RemoteComposeScreenshotTestRule(
             }
 
         val remoteComposeDocument =
-            CoreDocument().apply {
+            CoreDocument(clock).apply {
                 ByteArrayInputStream(document).use {
                     initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                 }

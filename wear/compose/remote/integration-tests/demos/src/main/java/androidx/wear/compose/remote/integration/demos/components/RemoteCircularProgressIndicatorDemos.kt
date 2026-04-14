@@ -29,6 +29,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndeterminate
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndicatorCustomColor
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndicatorDisabled
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressNoGapCustomAngle
@@ -64,6 +65,7 @@ fun RemoteCircularProgressIndicatorDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("Custom Color") { RemoteCircularProgressIndicatorCustomColor() }
             remoteDemoItem("No Gap Custom Angle") { RemoteCircularProgressNoGapCustomAngle() }
             remoteDemoItem("Animated") { RemoteCircularProgressIndicatorAnimatedSample() }
+            remoteDemoItem("Indeterminate") { RemoteCircularProgressIndeterminate() }
         }
     }
 }

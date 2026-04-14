@@ -44,6 +44,15 @@ public fun RemoteCircularProgressIndicatorSample(modifier: RemoteModifier = Remo
 @Sampled
 @RemoteComposable
 @Composable
+public fun RemoteIndeterminateCircularProgressIndicatorSample(
+    modifier: RemoteModifier = RemoteModifier
+) {
+    RemoteCircularProgressIndicator(modifier = modifier)
+}
+
+@Sampled
+@RemoteComposable
+@Composable
 public fun RemoteCircularProgressIndicatorAnimatedSample(
     modifier: RemoteModifier = RemoteModifier.size(150.rdp)
 ) {
@@ -65,6 +74,12 @@ fun RemoteCircularProgressIndicatorAnimatedSamplePreview() = RemotePreview {
 @Composable
 fun RemoteCircularProgressIndicatorSamplePreview() = RemotePreview {
     Container { RemoteCircularProgressIndicatorSample() }
+}
+
+@WearPreviewDevices
+@Composable
+fun RemoteIndeterminateCircularProgressIndicatorSamplePreview() = RemotePreview {
+    Container { RemoteIndeterminateCircularProgressIndicatorSample() }
 }
 
 @Composable
