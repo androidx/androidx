@@ -62,7 +62,7 @@ public fun rememberRemoteDocument(
                 clock = clock,
             )
         val coreDocument =
-            CoreDocument().apply {
+            CoreDocument(clock).apply {
                 trace("CreateRemoteDocument:parsing") {
                     initFromBuffer(
                         RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(document.bytes))
