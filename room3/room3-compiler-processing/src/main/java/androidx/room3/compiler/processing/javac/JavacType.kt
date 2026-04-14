@@ -158,20 +158,6 @@ internal abstract class JavacType(
         return typeMirror.toString()
     }
 
-    override fun isStar(): Boolean {
-        return typeMirror.kind == TypeKind.WILDCARD && typeMirror.extendsBound() == null
-    }
-
-    override fun extendsBound(): XType? {
-        return typeMirror.extendsBound()?.let {
-            env.wrap<JavacType>(
-                typeMirror = it,
-                kotlinType = (kotlinType as? KmTypeContainer)?.extendsBound,
-                elementNullability = maybeNullability,
-            )
-        }
-    }
-
     override fun isAssignableFrom(other: XType): Boolean {
         return other is JavacType && env.typeUtils.isAssignable(other.typeMirror, typeMirror)
     }
@@ -220,7 +206,7 @@ internal abstract class JavacType(
             return maybeNullability
                 ?: error(
                     "XType#nullibility cannot be called from this type because it is missing nullability " +
-                        "information. Was this type derived from a type created with " +
+                        "information. Was this $javaClass derived from a type created with " +
                         "TypeMirror#toXProcessing(XProcessingEnv)?"
                 )
         }

@@ -28,6 +28,7 @@ import androidx.room3.compiler.processing.XMessager
 import androidx.room3.compiler.processing.XProcessingEnv
 import androidx.room3.compiler.processing.XRoundEnv
 import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeArgument
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.compiler.processing.XVariableElement
 import androidx.room3.compiler.processing.javac.JavacAnnotation
@@ -41,6 +42,7 @@ import androidx.room3.compiler.processing.javac.JavacProcessingEnv
 import androidx.room3.compiler.processing.javac.JavacProcessingEnvMessager
 import androidx.room3.compiler.processing.javac.JavacRoundEnv
 import androidx.room3.compiler.processing.javac.JavacType
+import androidx.room3.compiler.processing.javac.JavacTypeArgument
 import androidx.room3.compiler.processing.javac.JavacTypeElement
 import androidx.room3.compiler.processing.javac.JavacVariableElement
 import androidx.room3.compiler.processing.ksp.KSClassDeclarationAsOriginatingElement
@@ -55,6 +57,7 @@ import androidx.room3.compiler.processing.ksp.KspFieldElement
 import androidx.room3.compiler.processing.ksp.KspFileMemberContainer
 import androidx.room3.compiler.processing.ksp.KspProcessingEnv
 import androidx.room3.compiler.processing.ksp.KspType
+import androidx.room3.compiler.processing.ksp.KspTypeArgument
 import androidx.room3.compiler.processing.ksp.KspTypeElement
 import androidx.room3.compiler.processing.ksp.synthetic.KspSyntheticContinuationParameterElement
 import androidx.room3.compiler.processing.ksp.synthetic.KspSyntheticFileMemberContainer
@@ -68,6 +71,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSValueArgument
 import com.google.devtools.ksp.symbol.KSValueParameter
 import javax.annotation.processing.Filer
@@ -121,6 +125,8 @@ object XConverters {
         }
 
     @JvmStatic fun XType.toJavac(): TypeMirror = (this as JavacType).typeMirror
+
+    @JvmStatic fun XTypeArgument.toJavac(): TypeMirror = (this as JavacTypeArgument).typeMirror
 
     @JvmStatic
     fun XExecutableType.toJavac(): ExecutableType = (this as JavacExecutableType).executableType
@@ -183,6 +189,17 @@ object XConverters {
     fun TypeMirror.toXProcessing(env: XProcessingEnv): XType =
         (env as JavacProcessingEnv).wrap(this, null, null)
 
+    /**
+     * Returns an [XTypeArgument] for the given [TypeMirror].
+     *
+     * Warning: This method should be used only for migration since the returned [XTypeArgument]
+     * will be missing nullability information. Calling [XType#nullability] on these types will
+     * result in an [IllegalStateException].
+     */
+    @JvmStatic
+    fun TypeMirror.toXTypeArgument(env: XProcessingEnv): XTypeArgument =
+        (env as JavacProcessingEnv).wrapTypeArgument(this, null, null)
+
     @JvmStatic
     fun XProcessingEnv.toKS(): SymbolProcessorEnvironment = (this as KspProcessingEnv).delegate
 
@@ -223,6 +240,8 @@ object XConverters {
 
     @JvmStatic fun XType.toKS(): KSType = (this as KspType).ksType
 
+    @JvmStatic fun XTypeArgument.toKS(): KSTypeArgument = (this as KspTypeArgument).ksTypeArgument
+
     @JvmStatic
     fun KSClassDeclaration.toXProcessing(env: XProcessingEnv): XTypeElement =
         (env as KspProcessingEnv).wrapClassDeclarationForNonEnumEntry(this)
@@ -256,6 +275,10 @@ object XConverters {
     fun KSType.toXProcessing(env: XProcessingEnv): XType =
         (env as KspProcessingEnv).wrap(this, true)
 
+    @JvmStatic
+    fun KSTypeArgument.toXProcessing(env: XProcessingEnv): XTypeArgument =
+        (env as KspProcessingEnv).wrap(this)
+
     @Deprecated("This will be removed in a future version of XProcessing.")
     @JvmStatic
     fun XType.getProcessingEnv(): XProcessingEnv {
@@ -265,6 +288,11 @@ object XConverters {
             else -> error("Unexpected type: $this")
         }
     }
+
+    @Suppress("DEPRECATION")
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XTypeArgument.getProcessingEnv() = type.getProcessingEnv()
 
     // Todo(kuanyingchou): consider adding `env` to XElement as the when expression may break
     //  when we add new XElement subclasses.

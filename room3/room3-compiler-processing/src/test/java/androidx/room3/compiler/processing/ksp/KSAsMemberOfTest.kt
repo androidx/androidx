@@ -131,21 +131,25 @@ class KSAsMemberOfTest {
             val inheritedGenericProp = myInterface.getField("inheritedGenericProp")
             inheritedGenericProp.asMemberOf(nonNullSubject).let {
                 assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
-                assertThat(it.typeArguments.first().nullability).isEqualTo(XNullability.NONNULL)
+                assertThat(it.typeArguments.first().type.nullability)
+                    .isEqualTo(XNullability.NONNULL)
             }
             inheritedGenericProp.asMemberOf(nullableSubject).let {
                 assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
-                assertThat(it.typeArguments.first().nullability).isEqualTo(XNullability.NULLABLE)
+                assertThat(it.typeArguments.first().type.nullability)
+                    .isEqualTo(XNullability.NULLABLE)
             }
 
             val nullableGenericProp = myInterface.getField("nullableGenericProp")
             nullableGenericProp.asMemberOf(nonNullSubject).let {
                 assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
-                assertThat(it.typeArguments.first().nullability).isEqualTo(XNullability.NULLABLE)
+                assertThat(it.typeArguments.first().type.nullability)
+                    .isEqualTo(XNullability.NULLABLE)
             }
             nullableGenericProp.asMemberOf(nullableSubject).let {
                 assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
-                assertThat(it.typeArguments.first().nullability).isEqualTo(XNullability.NULLABLE)
+                assertThat(it.typeArguments.first().type.nullability)
+                    .isEqualTo(XNullability.NULLABLE)
             }
         }
     }

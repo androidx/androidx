@@ -495,7 +495,7 @@ class XExecutableTypeTest {
                 assertThat(method.returnType.typeArguments.first().extendsBound()).isNull()
                 if (invocation.isKsp) {
                     // kapt cannot read type parameter nullability yet
-                    assertThat(method.returnType.typeArguments.first().nullability)
+                    assertThat(method.returnType.typeArguments.first().type.nullability)
                         .isEqualTo(XNullability.NONNULL)
                 }
             }
@@ -538,7 +538,7 @@ class XExecutableTypeTest {
                     .isEqualTo(ParameterizedTypeName.get(List::class.java, String::class.java))
                 assertThat(method.returnType.nullability).isEqualTo(XNullability.NONNULL)
                 if (invocation.isKsp) {
-                    assertThat(method.returnType.typeArguments.first().nullability)
+                    assertThat(method.returnType.typeArguments.first().type.nullability)
                         .isEqualTo(XNullability.NULLABLE)
                 }
             }
@@ -547,7 +547,7 @@ class XExecutableTypeTest {
                     .isEqualTo(ParameterizedTypeName.get(List::class.java, String::class.java))
                 assertThat(method.returnType.nullability).isEqualTo(XNullability.NONNULL)
                 if (invocation.isKsp) {
-                    assertThat(method.returnType.typeArguments.first().nullability)
+                    assertThat(method.returnType.typeArguments.first().type.nullability)
                         .isEqualTo(XNullability.NULLABLE)
                 }
             }

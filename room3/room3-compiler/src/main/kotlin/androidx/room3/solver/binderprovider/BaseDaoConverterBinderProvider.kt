@@ -60,9 +60,9 @@ abstract class BaseDaoConverterBinderProvider(
                 if (pos == executeAndReturnLambda.rowAdapterTypeArgPosition) {
                     true
                 } else {
-                    convertFunctionReturnTypeArgs[pos].isAssignableFrom(
-                        daoFunctionReturnTypeArgs[pos]
-                    )
+                    convertFunctionReturnTypeArgs[pos]
+                        .type
+                        .isAssignableFrom(daoFunctionReturnTypeArgs[pos].type)
                 }
             }
 
@@ -84,7 +84,7 @@ abstract class BaseDaoConverterBinderProvider(
             if (declared.typeArguments.isEmpty()) {
                 declared
             } else {
-                declared.typeArguments[executeAndReturnLambda.rowAdapterTypeArgPosition]
+                declared.typeArguments[executeAndReturnLambda.rowAdapterTypeArgPosition].type
             }
 
         val finalTypeArg =

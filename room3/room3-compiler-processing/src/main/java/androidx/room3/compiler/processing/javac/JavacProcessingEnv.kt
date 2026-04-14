@@ -16,13 +16,16 @@
 
 package androidx.room3.compiler.processing.javac
 
+import androidx.room3.compiler.processing.XArrayType
 import androidx.room3.compiler.processing.XElement
 import androidx.room3.compiler.processing.XMessager
 import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XProcessingEnv
 import androidx.room3.compiler.processing.XProcessingEnvConfig
 import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeArgument
 import androidx.room3.compiler.processing.XTypeElement
+import androidx.room3.compiler.processing.XVariance
 import androidx.room3.compiler.processing.javac.kotlin.KmBaseTypeContainer
 import androidx.room3.compiler.processing.javac.kotlin.KmTypeContainer
 import com.google.auto.common.GeneratedAnnotations
@@ -119,22 +122,27 @@ internal class JavacProcessingEnv(
         }
     }
 
-    override fun getArrayType(type: XType): JavacArrayType {
-        check(type is JavacType) { "given type must be from java, $type is not" }
+    override fun getArrayType(typeArgument: XTypeArgument): XArrayType {
+        check(typeArgument is JavacTypeArgument) {
+            "given type must be from java, $typeArgument is not"
+        }
         return JavacArrayType(
             env = this,
-            typeMirror = typeUtils.getArrayType(type.typeMirror),
+            typeMirror = typeUtils.getArrayType(typeArgument.typeMirror),
             nullability = XNullability.UNKNOWN,
-            knownComponentNullability = type.nullability,
+            knownComponentNullability = typeArgument.type.nullability,
         )
     }
 
-    override fun getDeclaredType(type: XTypeElement, vararg types: XType): JavacType {
+    override fun getDeclaredType(
+        type: XTypeElement,
+        vararg typeArguments: XTypeArgument,
+    ): JavacType {
         check(type is JavacTypeElement)
         val args =
-            types
+            typeArguments
                 .map {
-                    check(it is JavacType)
+                    check(it is JavacTypeArgument)
                     it.typeMirror
                 }
                 .toTypedArray()
@@ -146,11 +154,11 @@ internal class JavacProcessingEnv(
         )
     }
 
-    override fun getWildcardType(consumerSuper: XType?, producerExtends: XType?): XType {
+    override fun getWildcardType(consumerSuper: XType?, producerExtends: XType?): XTypeArgument {
         check(consumerSuper == null || producerExtends == null) {
             "Cannot supply both super and extends bounds."
         }
-        return wrap(
+        return wrapTypeArgument(
             typeMirror =
                 typeUtils.getWildcardType(
                     (producerExtends as? JavacType)?.typeMirror,
@@ -162,6 +170,24 @@ internal class JavacProcessingEnv(
     }
 
     fun wrapTypeElement(element: TypeElement) = typeElementStore[element]
+
+    override fun createTypeArgument(type: XType, variance: XVariance) =
+        JavacTypeArgument.create(this, type, variance)
+
+    /**
+     * Wraps the given java processing type into an [XTypeArgument].
+     *
+     * @param typeMirror TypeMirror from java processor
+     * @param kotlinType If the type is derived from a kotlin source code, the KmType information
+     *   parsed from kotlin metadata
+     * @param elementNullability The nullability information parsed from the code. This value is
+     *   ignored if [kotlinType] is provided.
+     */
+    fun wrapTypeArgument(
+        typeMirror: TypeMirror,
+        kotlinType: KmBaseTypeContainer? = null,
+        elementNullability: XNullability? = null,
+    ) = JavacTypeArgument.create(env = this, typeMirror, kotlinType, elementNullability)
 
     /**
      * Wraps the given java processing type into an XType.
@@ -195,6 +221,9 @@ internal class JavacProcessingEnv(
     ): JavacType {
         val nullability = kotlinType?.nullability ?: elementNullability
         return when (typeMirror.kind) {
+            TypeKind.WILDCARD ->
+                // Wildcards should call wrapTypeArgument() instead.
+                error("Unexpected wildcard, use wrapTypeArgument instead: $typeMirror")
             TypeKind.ARRAY ->
                 JavacArrayType(
                     env = this,

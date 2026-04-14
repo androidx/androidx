@@ -618,7 +618,7 @@ private constructor(
             checkTypeNullability(typeMirror, extras, "Optional")
             // Handle Guava Optional by unpacking its generic type argument and adapting that.
             // The Optional adapter will re-append the Optional type.
-            val typeArg = typeMirror.typeArguments.first()
+            val typeArg = typeMirror.typeArguments.first().type
             // use nullable when finding row adapter as non-null adapters might return
             // default values
             val rowAdapter = findRowAdapter(typeArg.makeNullable(), query) ?: return null
@@ -630,7 +630,7 @@ private constructor(
             checkTypeNullability(typeMirror, extras, "Optional")
 
             // Handle java.util.Optional similarly.
-            val typeArg = typeMirror.typeArguments.first()
+            val typeArg = typeMirror.typeArguments.first().type
             // use nullable when finding row adapter as non-null adapters might return
             // default values
             val rowAdapter = findRowAdapter(typeArg.makeNullable(), query) ?: return null
@@ -847,7 +847,7 @@ private constructor(
         }
 
         collectionType.typeArguments.forEach { typeArg ->
-            if (typeArg.nullability == XNullability.NULLABLE) {
+            if (typeArg.type.nullability == XNullability.NULLABLE) {
                 context.logger.w(
                     Warning.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE,
                     ProcessorErrors.nullableComponentInDaoFunctionReturnType(

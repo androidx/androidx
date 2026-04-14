@@ -142,7 +142,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
                 val method = subject.getMethodByJvmName("myFunction")
                 val firstArg = method.returnType.typeArguments.first()
-                val annotation = firstArg.getAllAnnotations().first()
+                val annotation = firstArg.type.getAllAnnotations().first()
                 assertThat(annotation.name).isEqualTo("SomeAnnotation")
 
                 assertThat(annotation.annotationValues.first().value).isEqualTo("someString")
@@ -1577,19 +1577,19 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 // Check the annotations on the types and type arguments
                 mapOf(
                         "superClass" to superClass,
-                        "superClassArg" to superClass.typeArguments.single(),
+                        "superClassArg" to superClass.typeArguments.single().type,
                         "superInterface" to superInterface,
-                        "superInterfaceArg" to superInterface.typeArguments.single(),
+                        "superInterfaceArg" to superInterface.typeArguments.single().type,
                         "field" to field.type,
-                        "fieldArg" to field.type.typeArguments.single(),
+                        "fieldArg" to field.type.typeArguments.single().type,
                         "methodReturnType" to method.returnType,
-                        "methodReturnTypeArg" to method.returnType.typeArguments.single(),
+                        "methodReturnTypeArg" to method.returnType.typeArguments.single().type,
                         "methodParameter" to method.parameters.single().type,
                         "methodParameterArg" to
-                            method.parameters.single().type.typeArguments.single(),
+                            method.parameters.single().type.typeArguments.single().type,
                         "constructorParameter" to constructor.parameters.single().type,
                         "constructorParameterArg" to
-                            constructor.parameters.single().type.typeArguments.single(),
+                            constructor.parameters.single().type.typeArguments.single().type,
                     )
                     .forEach { (desc, type) ->
                         if (!invocation.isKsp && source == javaSource && preCompiled) {
