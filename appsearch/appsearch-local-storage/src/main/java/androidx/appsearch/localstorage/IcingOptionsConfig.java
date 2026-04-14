@@ -335,7 +335,7 @@ public interface IcingOptionsConfig {
      * @param baseDir base directory of the icing instance.
      */
     default @NonNull IcingSearchEngineOptions toIcingSearchEngineOptions(
-            @NonNull String baseDir, boolean isVMEnabled) {
+            @NonNull String baseDir, boolean isVmEnabled) {
         return IcingSearchEngineOptions.newBuilder()
                 .setBaseDir(baseDir)
                 .setMaxTokenLength(getMaxTokenLength())
@@ -384,17 +384,17 @@ public interface IcingOptionsConfig {
                 // own trunk-stable flag, therefore this can be included there. Otherwise, we should
                 // use this trank-stable flag.
                 .setEnableStrictPageByteSizeLimit(
-                        Flags.enableStrictPageByteSizeLimit() || isVMEnabled)
+                        Flags.enableStrictPageByteSizeLimit() || isVmEnabled)
                 .setCompressionThresholdBytes(
-                        (Flags.enableCompressionThreshold() || isVMEnabled)
+                        (Flags.enableCompressionThreshold() || isVmEnabled)
                                 ? Math.max(0, getCompressionThresholdBytes()) : 0)
                 .setCompressionMemLevel(getCompressionMemLevel())
                 .setEnableSchemaDatabase(
-                        Flags.enableDatabaseScopedSchemaOperations() || isVMEnabled)
+                        Flags.enableDatabaseScopedSchemaOperations() || isVmEnabled)
                 .setEnableSmallerDecompressionBufferSize(true)
-                .setEnableEigenEmbeddingScoring(Flags.enableEigenEmbeddingScoring() || isVMEnabled)
+                .setEnableEigenEmbeddingScoring(Flags.enableEigenEmbeddingScoring() || isVmEnabled)
                 .setEnablePassingFilterToChildren(
-                        Flags.enablePassingFilterToChildren() || isVMEnabled)
+                        Flags.enablePassingFilterToChildren() || isVmEnabled)
                 .setEnableProtoLogNewHeaderFormat(true)
                 .setEnableEmbeddingIteratorV2(true)
                 .setEnableReusableDecompressionBuffer(true)

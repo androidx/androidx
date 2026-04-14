@@ -400,7 +400,8 @@ public final class AppSearchImpl implements Closeable {
         long javaLockAcquisitionEndTimeMillis = 0;
         mReadWriteLock.writeLock().lock();
         try {
-            mLaunchVmFeatures = appSearchUserPlugins.getLaunchVmFeatures();
+            mLaunchVmFeatures = appSearchUserPlugins.getLaunchVmFeatures() == null
+                    ? new LaunchVmFeatures() : appSearchUserPlugins.getLaunchVmFeatures();
             javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
             // We synchronize here because we don't want to call IcingSearchEngine.initialize() more
             // than once. It's unnecessary and can be a costly operation.
