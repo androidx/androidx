@@ -88,6 +88,7 @@ package androidx.leanback.widget {
     method public void setWindowAlignmentPreferKeyLineOverHighEdge(boolean);
     method public void setWindowAlignmentPreferKeyLineOverLowEdge(boolean);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_ALIGNED = 0; // 0x0
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_ALIGNED_AND_SNAP = 4; // 0x4
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_ITEM = 1; // 0x1
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_PAGE = 2; // 0x2
     field public static final float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1.0f;

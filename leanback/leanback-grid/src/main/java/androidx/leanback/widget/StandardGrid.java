@@ -377,6 +377,32 @@ class StandardGrid extends Grid {
     }
 
     @Override
+    public int getNextPositionOfSameSpan(int focusPosition, int count, int spanGroupIndexDelta) {
+        if (spanGroupIndexDelta == 0) {
+            return focusPosition;
+        }
+        // spanGroupIndexDelta is positive or negative
+        boolean searchBackward = (mReversedFlow && spanGroupIndexDelta > 0)
+                || (!mReversedFlow && spanGroupIndexDelta < 0);
+        int searchIncremental = searchBackward ? -1 : 1;
+        int position = focusPosition;
+        int spanIndex = getSpanIndex(position);
+        int groupIndex = getSpanGroupIndex(position);
+        int targetGroupIndex = mReversedFlow ? groupIndex - spanGroupIndexDelta
+                : groupIndex + spanGroupIndexDelta;
+        for (;
+                searchBackward ? position < count : position >= 0;
+                position += searchIncremental) {
+            if (getSpanIndex(position) == spanIndex) {
+                if (getSpanGroupIndex(position) == targetGroupIndex) {
+                    break;
+                }
+            }
+        }
+        return position;
+    }
+
+    @Override
     public void debugPrint(PrintWriter pw) {
         pw.print("StandardGrid<");
         pw.print(mFirstVisibleIndex);

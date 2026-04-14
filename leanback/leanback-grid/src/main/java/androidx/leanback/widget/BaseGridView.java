@@ -70,6 +70,13 @@ public abstract class BaseGridView extends RecyclerView {
     public static final int FOCUS_SCROLL_PAGE = 2;
 
     /**
+     * In additional to FOCUS_SCROLL_ALIGNED, it snaps to aligned position when touch/mouse
+     * operation stops.
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public static final int FOCUS_SCROLL_ALIGNED_AND_SNAP = FOCUS_SCROLL_ALIGNED | (1 << 2);
+
+    /**
      * The first item is aligned with the low edge of the viewport. When
      * navigating away from the first item, the focus item is aligned to a key line location.
      * <p>
@@ -312,6 +319,7 @@ public abstract class BaseGridView extends RecyclerView {
      * Sets the strategy used to scroll in response to item focus changing:
      * <ul>
      * <li>{@link #FOCUS_SCROLL_ALIGNED} (default) </li>
+     * <li>(@link #FOCUS_SCROLL_ALIGNED_AND_SNAP}</li>
      * <li>{@link #FOCUS_SCROLL_ITEM}</li>
      * <li>{@link #FOCUS_SCROLL_PAGE}</li>
      * </ul>
@@ -320,7 +328,8 @@ public abstract class BaseGridView extends RecyclerView {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setFocusScrollStrategy(int scrollStrategy) {
         if (scrollStrategy != FOCUS_SCROLL_ALIGNED && scrollStrategy != FOCUS_SCROLL_ITEM
-                && scrollStrategy != FOCUS_SCROLL_PAGE) {
+                && scrollStrategy != FOCUS_SCROLL_PAGE
+                && scrollStrategy != FOCUS_SCROLL_ALIGNED_AND_SNAP) {
             throw new IllegalArgumentException("Invalid scrollStrategy");
         }
         mLayoutManager.setFocusScrollStrategy(scrollStrategy);

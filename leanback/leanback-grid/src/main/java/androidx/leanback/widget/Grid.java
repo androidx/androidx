@@ -565,6 +565,9 @@ abstract class Grid {
         }
     }
 
+    public abstract int getNextPositionOfSameSpan(int focusPosition, int count,
+            int spanGroupIndexDelta);
+
     /**
      * Queries items adjacent to the viewport (in the direction of da) into the prefetch registry.
      */
