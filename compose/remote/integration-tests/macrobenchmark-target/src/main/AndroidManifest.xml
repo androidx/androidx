@@ -23,7 +23,24 @@
         android:label="Remote Compose Macrobenchmark Target"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
+        <activity
+            android:name=".ScrollableListActivity"
+            android:exported="true"
+            android:label="Scrollable List"
+            android:taskAffinity=""
 
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.remote.integration.macrobenchmark.target.SCROLL_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".DocumentTraceActivity"
             android:exported="true"
