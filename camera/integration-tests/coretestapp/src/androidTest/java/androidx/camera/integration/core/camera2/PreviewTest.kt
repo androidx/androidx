@@ -151,6 +151,7 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
+        createdExecutors.forEach { it.shutdown() }
     }
 
     // ======================================================
@@ -1802,12 +1803,16 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
         frameSemaphore!!.verifyFramesReceived(frameCount = FRAMES_TO_VERIFY, timeoutInSeconds = 10)
     }
 
+    private val createdExecutors = mutableListOf<java.util.concurrent.ExecutorService>()
+
     private val workExecutorWithNamedThread: Executor
         get() {
             val threadFactory = ThreadFactory { runnable: Runnable? ->
                 Thread(runnable, ANY_THREAD_NAME)
             }
-            return Executors.newSingleThreadExecutor(threadFactory)
+            return Executors.newSingleThreadExecutor(threadFactory).also {
+                createdExecutors.add(it)
+            }
         }
 
     private fun getSurfaceProvider(

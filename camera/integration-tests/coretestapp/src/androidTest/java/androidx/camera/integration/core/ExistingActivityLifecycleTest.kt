@@ -32,7 +32,6 @@ import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.IdlingRegistry.getInstance
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -142,7 +141,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 // Go through pause/resume then check again for view to get frames then idle.
                 moveToState(CREATED)
 
-                withActivity { resetViewIdlingResource() }
+                withActivity { resetViewIdlingLatch() }
 
                 moveToState(RESUMED)
 
@@ -151,7 +150,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 // the second pass is used to protect against previous observed issues.
                 moveToState(CREATED)
 
-                withActivity { resetViewIdlingResource() }
+                withActivity { resetViewIdlingLatch() }
 
                 moveToState(RESUMED)
 
@@ -200,12 +199,12 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 onView(withId(R.id.direction_toggle)).perform(ViewActions.click())
 
                 // Check front camera is now idle
-                withActivity { resetViewIdlingResource() }
+                withActivity { resetViewIdlingLatch() }
                 waitForViewfinderIdle()
 
                 // Go through pause/resume then check again for view to get frames then idle.
                 moveToState(CREATED)
-                withActivity { resetViewIdlingResource() }
+                withActivity { resetViewIdlingLatch() }
                 moveToState(RESUMED)
                 waitForViewfinderIdle()
             }
@@ -257,11 +256,11 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 rotateDeviceLeftAndWait()
 
                 // Get idling from the re-created activity.
-                withActivity { resetViewIdlingResource() }
+                withActivity { resetViewIdlingLatch() }
                 waitForViewfinderIdle()
 
                 moveToState(CREATED)
-                withActivity { resetViewIdlingResource() }
+                withActivity { resetViewIdlingLatch() }
                 moveToState(RESUMED)
                 waitForViewfinderIdle()
             }
@@ -286,7 +285,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 rotateDeviceLeftAndWait()
 
                 // Get idling from the re-created activity.
-                withActivity { resetViewIdlingResource() }
+                withActivity { resetViewIdlingLatch() }
                 waitForViewfinderIdle()
                 // Go through pause/resume then check again.
                 moveToState(CREATED)
@@ -330,17 +329,9 @@ class ExistingActivityLifecycleTest(private val implName: String) {
 
             // Assert. Verify the preview of the New activity start successfully.
             try {
-                secondActivity.resetViewIdlingResource()
-                secondActivity.viewIdlingResource.also { idlingResource ->
-                    try {
-                        getInstance().register(idlingResource)
-                        // Check the activity launched and Preview displays frames.
-                        onView(withId(R.id.viewFinder)).check(matches(isDisplayed()))
-                    } finally {
-                        // Always release the idling resource, in case of timeout exceptions.
-                        getInstance().unregister(idlingResource)
-                    }
-                }
+                secondActivity.resetViewIdlingLatch().await(60, TimeUnit.SECONDS)
+                // Check the activity launched and Preview displays frames.
+                onView(withId(R.id.viewFinder)).check(matches(isDisplayed()))
             } finally {
                 secondActivity.finish()
             }

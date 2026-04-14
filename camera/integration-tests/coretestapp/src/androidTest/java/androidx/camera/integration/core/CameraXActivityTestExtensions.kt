@@ -19,120 +19,99 @@ package androidx.camera.integration.core
 import androidx.camera.integration.core.util.StressTestUtil.VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
-/** Waits until the viewfinder has received frames and its idling resource has become idle. */
+private const val DEFAULT_TIMEOUT_SECONDS = 30L
+
+/** Helper to assert that a latch completes within the standard timeout. */
+private fun CountDownLatch.awaitOrThrow(
+    timeout: Long = DEFAULT_TIMEOUT_SECONDS,
+    message: String = "Timed out waiting for latch",
+) {
+    assertWithMessage(message).that(await(timeout, TimeUnit.SECONDS)).isTrue()
+}
+
+/** Waits until the viewfinder has received frames. */
 internal fun ActivityScenario<CameraXActivity>.waitForViewfinderIdle() {
-    val idlingResource = withActivity {
-        resetViewIdlingResource()
-        viewIdlingResource
-    }
-    try {
-        IdlingRegistry.getInstance().register(idlingResource)
-        // Check the activity launched and Preview displays frames.
-        Espresso.onView(ViewMatchers.withId(R.id.viewFinder))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-    } finally { // Always release the idling resource, in case of timeout exceptions.
-        IdlingRegistry.getInstance().unregister(idlingResource)
-    }
+    val latch = withActivity { resetViewIdlingLatch() }
+    latch.awaitOrThrow(message = "Viewfinder failed to receive frames.")
+
+    Espresso.onView(withId(R.id.viewFinder)).check(matches(isDisplayed()))
 }
 
-/** Waits until the viewfinder has received frames and its idling resource has become idle. */
+/** Handles switching cameras and waiting for the new stream to become ready. */
 internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderIdle() {
-    val idlingResource = withActivity {
-        resetViewIdlingResource()
-        viewIdlingResource
-    }
-    try {
-        IdlingRegistry.getInstance().register(idlingResource)
-        Espresso.onView(ViewMatchers.withId(R.id.direction_toggle)).perform(click())
-    } finally { // Always release the idling resource, in case of timeout exceptions.
-        IdlingRegistry.getInstance().unregister(idlingResource)
-    }
+    // 1. Ensure current state is stable before clicking
+    waitForViewfinderIdle()
+
+    // 2. Perform toggle
+    Espresso.onView(withId(R.id.direction_toggle)).perform(click())
+
+    // 3. Wait for the new camera stream
+    val latch = withActivity { resetViewIdlingLatch() }
+    latch.awaitOrThrow(message = "Viewfinder failed to restart after camera switch.")
 }
 
-/**
- * Waits until an image has been saved and its idling resource has become idle.
- *
- * @param captureRequestsCount the capture requests count to issue to continuously take pictures
- *   without waiting for the previous capture requests to be done.
- */
+/** Issues capture requests and waits for them to be saved. */
 internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedIdle(
     captureRequestsCount: Int = 1
 ) {
-    val idlingResource = withActivity {
+    val latch = withActivity {
         cleanTakePictureErrorMessage()
-        imageSavedIdlingResource
+        resetImageSavedIdlingLatch(captureRequestsCount)
     }
+
     try {
-        // Perform click to take a picture.
-        Espresso.onView(ViewMatchers.withId(R.id.Picture)).apply {
+        Espresso.onView(withId(R.id.Picture)).apply {
             repeat(captureRequestsCount) { perform(click()) }
         }
-        // Registers the idling resource and wait for it being idle after performing the click
-        // operations. So that the click operations can be performed continuously without wait for
-        // previous capture results.
-        IdlingRegistry.getInstance().register(idlingResource)
-        Espresso.onIdle()
-    } finally { // Always release the idling resource, in case of timeout exceptions.
-        IdlingRegistry.getInstance().unregister(idlingResource)
+
+        latch.awaitOrThrow(
+            message = "Captured images failed to save within $DEFAULT_TIMEOUT_SECONDS seconds."
+        )
+    } finally {
         withActivity {
-            // Idling resource will also become idle when an error occurs. Checks the last error
-            // message and throw an Exception to make the test failed if the error message is not
-            // null.
-            if (lastTakePictureErrorMessage != null) {
-                throw Exception(lastTakePictureErrorMessage)
-            } else {
-                deleteSessionImages()
-            }
+            val error = lastTakePictureErrorMessage
+            deleteSessionImages()
+            if (error != null) throw Exception("Image capture error: $error")
         }
     }
 }
 
-/**
- * Waits until the imageAnalysis has received the required number of images and its idling resource
- * has become idle.
- */
+/** Waits until ImageAnalysis receives the required frames. */
 internal fun ActivityScenario<CameraXActivity>.waitForImageAnalysisIdle() {
-    val idlingResource = withActivity {
-        resetAnalysisIdlingResource()
-        analysisIdlingResource
-    }
-    try {
-        IdlingRegistry.getInstance().register(idlingResource)
-        // Check the activity launched and the image analysis info is displayed on the text view.
-        Espresso.onView(ViewMatchers.withId(R.id.textView))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-    } finally { // Always release the idling resource, in case of timeout exceptions.
-        IdlingRegistry.getInstance().unregister(idlingResource)
-    }
+    val latch = withActivity { resetAnalysisIdlingLatch() }
+    latch.awaitOrThrow(message = "Image analysis failed to receive required frames.")
+
+    Espresso.onView(withId(R.id.textView)).check(matches(isDisplayed()))
 }
 
-/** Waits until a video has been saved and its idling resource has become idle. */
+/** Records a video and waits for it to be saved. */
 internal fun ActivityScenario<CameraXActivity>.recordVideoAndWaitForVideoSavedIdle() {
-    val idlingResource = withActivity {
-        // Make sure that the test target use case is not null
+    val latch = withActivity {
         assertThat(videoCapture).isNotNull()
         cleanVideoRecordingErrorMessage()
         setVideoCaptureAutoStopLength(VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS)
-        videoSavedIdlingResource
+        resetVideoSavedIdlingLatch()
     }
+
+    Espresso.onView(withId(R.id.Video)).perform(click())
+
     try {
-        IdlingRegistry.getInstance().register(idlingResource)
-        // Perform click to record a video.
-        Espresso.onView(ViewMatchers.withId(R.id.Video)).perform(click())
-    } finally { // Always release the idling resource, in case of timeout exceptions.
-        IdlingRegistry.getInstance().unregister(idlingResource)
+        latch.awaitOrThrow(timeout = 30L, message = "Video failed to record and save.")
+    } finally {
         withActivity {
+            val error = lastVideoRecordingErrorMessage
             deleteSessionVideos()
-            if (lastVideoRecordingErrorMessage != null) {
-                throw Exception("Failed to record video due to $lastVideoRecordingErrorMessage.")
-            }
+            if (error != null) throw Exception("Video recording error: $error")
         }
     }
 }
