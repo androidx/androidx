@@ -21,6 +21,7 @@ import androidx.room3.compiler.processing.XEquality
 import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XRawType
 import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeArgument
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.compiler.processing.XTypeVariableType
 import com.google.devtools.ksp.symbol.KSTypeParameter
@@ -83,7 +84,7 @@ internal class KspMethodTypeVariableType(
     override val typeElement: XTypeElement?
         get() = null
 
-    override val typeArguments: List<XType>
+    override val typeArguments: List<XTypeArgument>
         get() = emptyList()
 
     override fun isAssignableFrom(other: XType): Boolean {
@@ -97,8 +98,6 @@ internal class KspMethodTypeVariableType(
     }
 
     override fun isError() = false
-
-    override fun isStar() = false
 
     override fun defaultValue() = "null"
 
@@ -117,8 +116,6 @@ internal class KspMethodTypeVariableType(
             }
         return ksTypeVariable == typeVar
     }
-
-    override fun extendsBound(): XType? = null
 
     override fun makeNullable(): XType = this
 

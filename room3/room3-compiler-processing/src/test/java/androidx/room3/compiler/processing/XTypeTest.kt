@@ -22,8 +22,8 @@ import androidx.room3.compiler.codegen.XClassName
 import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.codegen.XTypeName.Companion.ANY_OBJECT
 import androidx.room3.compiler.processing.compat.XConverters.toKS
-import androidx.room3.compiler.processing.javac.JavacType
-import androidx.room3.compiler.processing.ksp.KspTypeArgumentType
+import androidx.room3.compiler.processing.javac.JavacTypeArgument
+import androidx.room3.compiler.processing.ksp.KspTypeArgument
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.XTestInvocation
 import androidx.room3.compiler.processing.util.asJClassName
@@ -136,7 +136,7 @@ class XTypeTest {
 
             type.typeElement!!.getMethodByJvmName("wildcardParam").let { method ->
                 val wildcardParam = method.parameters.first()
-                val extendsBoundOrSelf = wildcardParam.type.extendsBoundOrSelf()
+                val extendsBoundOrSelf = wildcardParam.type
                 assertThat(wildcardParam.type.asTypeName().java)
                     .isEqualTo(
                         JParameterizedTypeName.get(
@@ -223,8 +223,8 @@ class XTypeTest {
         fun checkKsp(invocation: XTestInvocation) {
             invocation.processingEnv.requireTypeElement("foo.bar.Test").let { cls ->
                 cls.getMethodByJvmName("f").returnType.let { returnType ->
-                    returnType.typeArguments.single().let { typeArgType ->
-                        (typeArgType as KspTypeArgumentType).typeArg.let { ksTypeArg ->
+                    returnType.typeArguments.single().let { typeArg ->
+                        (typeArg as KspTypeArgument).ksTypeArgument.let { ksTypeArg ->
                             assertThat(ksTypeArg.variance).isEqualTo(Variance.STAR)
                             // The type is resolved to the upper bound in KSP1 but is null in KSP2.
                             if (invocation.kspProcessingEnv.isKsp2) {
@@ -235,14 +235,14 @@ class XTypeTest {
                             }
                         }
 
-                        assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
-                        assertThat(typeArgType.asTypeName().kotlin).isEqualTo(STAR)
+                        assertThat(typeArg.asTypeName().java).isEqualTo(UNKNOWN)
+                        assertThat(typeArg.asTypeName().kotlin).isEqualTo(STAR)
                     }
                 }
 
                 cls.getMethodByJvmName("fOut").returnType.let { returnType ->
-                    returnType.typeArguments.single().let { typeArgType ->
-                        (typeArgType as KspTypeArgumentType).typeArg.let { ksTypeArg ->
+                    returnType.typeArguments.single().let { typeArg ->
+                        (typeArg as KspTypeArgument).ksTypeArgument.let { ksTypeArg ->
                             // The variance doesn't get replaced to OUT/COVARIANT.
                             assertThat(ksTypeArg.variance).isEqualTo(Variance.STAR)
                             if (invocation.kspProcessingEnv.isKsp2) {
@@ -252,14 +252,14 @@ class XTypeTest {
                                     .isEqualTo("TUpper")
                             }
                         }
-                        assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
-                        assertThat(typeArgType.asTypeName().kotlin).isEqualTo(STAR)
+                        assertThat(typeArg.asTypeName().java).isEqualTo(UNKNOWN)
+                        assertThat(typeArg.asTypeName().kotlin).isEqualTo(STAR)
                     }
                 }
 
                 cls.getMethodByJvmName("fIn").returnType.let { returnType ->
-                    returnType.typeArguments.single().let { typeArgType ->
-                        (typeArgType as KspTypeArgumentType).typeArg.let { ksTypeArg ->
+                    returnType.typeArguments.single().let { typeArg ->
+                        (typeArg as KspTypeArgument).ksTypeArgument.let { ksTypeArg ->
                             // The variance doesn't get replaced to IN/CONTRAVARIANT.
                             assertThat(ksTypeArg.variance).isEqualTo(Variance.STAR)
                             if (invocation.kspProcessingEnv.isKsp2) {
@@ -269,8 +269,8 @@ class XTypeTest {
                                 assertThat(ksTypeArg.type!!.resolve().toString()).isEqualTo("Any?")
                             }
                         }
-                        assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
-                        assertThat(typeArgType.asTypeName().kotlin).isEqualTo(STAR)
+                        assertThat(typeArg.asTypeName().java).isEqualTo(UNKNOWN)
+                        assertThat(typeArg.asTypeName().kotlin).isEqualTo(STAR)
                     }
                 }
             }
@@ -281,7 +281,7 @@ class XTypeTest {
                     cls.getMethodByJvmName(methodName)
                         .returnType
                         .typeArguments
-                        .map { it as JavacType }
+                        .map { it as JavacTypeArgument }
                         .single()
                         .let {
                             assertThat(it.toString()).isEqualTo("?")
@@ -325,10 +325,10 @@ class XTypeTest {
         fun handler(invocation: XTestInvocation) {
             invocation.processingEnv.requireTypeElement("foo.bar.Test").let { cls ->
                 cls.getMethodByJvmName("f").returnType.let { returnType ->
-                    returnType.typeArguments.single().let { typeArgType ->
+                    returnType.typeArguments.single().let { typeArg ->
                         if (invocation.isKsp) {
                             val kspVersion = invocation.processingEnv.toKS().kspVersion
-                            (typeArgType as KspTypeArgumentType).typeArg.type.let { typeRef ->
+                            (typeArg as KspTypeArgument).ksTypeArgument.type.let { typeRef ->
                                 if (kspVersion >= KotlinVersion(2, 0)) {
                                     assertThat(typeRef).isNull()
                                 } else {
@@ -336,11 +336,11 @@ class XTypeTest {
                                         .isEqualTo("(TUpper..TUpper?)")
                                 }
                             }
-                            assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
-                            assertThat(typeArgType.asTypeName().kotlin).isEqualTo(STAR)
+                            assertThat(typeArg.asTypeName().java).isEqualTo(UNKNOWN)
+                            assertThat(typeArg.asTypeName().kotlin).isEqualTo(STAR)
                         } else {
-                            assertThat(typeArgType.toString()).isEqualTo("?")
-                            assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
+                            assertThat(typeArg.toString()).isEqualTo("?")
+                            assertThat(typeArg.asTypeName().java).isEqualTo(UNKNOWN)
                         }
                     }
                 }
@@ -770,14 +770,14 @@ class XTypeTest {
                 element.getField("badField").let { field ->
                     assertThat(field.type.isError()).isFalse()
                     assertThat(field.type.asTypeName()).isEqualTo(listOfErrorTypeName)
-                    assertThat(field.type.typeArguments.single().isError()).isTrue()
+                    assertThat(field.type.typeArguments.single().type.isError()).isTrue()
                     assertThat(field.type.typeArguments.single().asTypeName())
                         .isEqualTo(errorTypeName)
                 }
                 element.getDeclaredMethodByJvmName("badMethod").let { method ->
                     assertThat(method.returnType.isError()).isFalse()
                     assertThat(method.returnType.asTypeName()).isEqualTo(listOfErrorTypeName)
-                    assertThat(method.returnType.typeArguments.single().isError()).isTrue()
+                    assertThat(method.returnType.typeArguments.single().type.isError()).isTrue()
                     assertThat(method.returnType.typeArguments.single().asTypeName())
                         .isEqualTo(errorTypeName)
                 }
@@ -846,14 +846,14 @@ class XTypeTest {
                 element.getField("badField").let { field ->
                     assertThat(field.type.isError()).isFalse()
                     assertThat(field.type.asTypeName()).isEqualTo(listOfErrorTypeName)
-                    assertThat(field.type.typeArguments.single().isError()).isTrue()
+                    assertThat(field.type.typeArguments.single().type.isError()).isTrue()
                     assertThat(field.type.typeArguments.single().asTypeName())
                         .isEqualTo(errorTypeName)
                 }
                 element.getDeclaredMethodByJvmName("badMethod").let { method ->
                     assertThat(method.returnType.isError()).isFalse()
                     assertThat(method.returnType.asTypeName()).isEqualTo(listOfErrorTypeName)
-                    assertThat(method.returnType.typeArguments.single().isError()).isTrue()
+                    assertThat(method.returnType.typeArguments.single().type.isError()).isTrue()
                     assertThat(method.returnType.typeArguments.single().asTypeName())
                         .isEqualTo(errorTypeName)
                 }
@@ -1355,35 +1355,30 @@ class XTypeTest {
                 val usage = invocation.processingEnv.requireTypeElement("test.Usage")
 
                 usage.getDeclaredField("fooStar").type.let { type ->
-                    assertThat(type.isStar()).isFalse()
                     type.typeArguments.single().let { typeArg ->
                         assertThat(typeArg.isStar()).isTrue()
                         assertThat(typeArg.extendsBound()).isNull()
                     }
                 }
                 usage.getDeclaredField("fooBar").type.let { type ->
-                    assertThat(type.isStar()).isFalse()
                     type.typeArguments.single().let { typeArg ->
                         assertThat(typeArg.isStar()).isFalse()
                         assertThat(typeArg.extendsBound()).isNull()
                     }
                 }
                 usage.getDeclaredField("fooExtendsObject").type.let { type ->
-                    assertThat(type.isStar()).isFalse()
                     type.typeArguments.single().let { typeArg ->
                         assertThat(typeArg.isStar()).isFalse()
                         assertThat(typeArg.extendsBound()).isNotNull()
                     }
                 }
                 usage.getDeclaredField("fooExtendsBar").type.let { type ->
-                    assertThat(type.isStar()).isFalse()
                     type.typeArguments.single().let { typeArg ->
                         assertThat(typeArg.isStar()).isFalse()
                         assertThat(typeArg.extendsBound()).isNotNull()
                     }
                 }
                 usage.getDeclaredField("fooSuperBar").type.let { type ->
-                    assertThat(type.isStar()).isFalse()
                     type.typeArguments.single().let { typeArg ->
                         assertThat(typeArg.isStar()).isFalse()
                         assertThat(typeArg.extendsBound()).isNotNull()
@@ -1393,28 +1388,24 @@ class XTypeTest {
                 // Additional tests that only apply to Kotlin sources
                 if (source is Source.KotlinSource) {
                     usage.getDeclaredField("fooInBar").type.let { type ->
-                        assertThat(type.isStar()).isFalse()
                         type.typeArguments.single().let { typeArg ->
                             assertThat(typeArg.isStar()).isFalse()
                             assertThat(typeArg.extendsBound()).isNull()
                         }
                     }
                     usage.getDeclaredField("fooOutBar").type.let { type ->
-                        assertThat(type.isStar()).isFalse()
                         type.typeArguments.single().let { typeArg ->
                             assertThat(typeArg.isStar()).isFalse()
                             assertThat(typeArg.extendsBound()).isNull()
                         }
                     }
                     usage.getDeclaredField("fooOutJvmWildcardBar").type.let { type ->
-                        assertThat(type.isStar()).isFalse()
                         type.typeArguments.single().let { typeArg ->
                             assertThat(typeArg.isStar()).isFalse()
                             assertThat(typeArg.extendsBound()).isNull()
                         }
                     }
                     usage.getDeclaredField("jvmSuppressWildcardsFooStar").type.let { type ->
-                        assertThat(type.isStar()).isFalse()
                         type.typeArguments.single().let { typeArg ->
                             assertThat(typeArg.isStar()).isTrue()
                             assertThat(typeArg.extendsBound()).isNull()
@@ -1442,20 +1433,17 @@ class XTypeTest {
         runProcessorTest(sources = listOf(kotlinSubject)) { invocation ->
             invocation.processingEnv.requireTypeElement("KotlinSubject").let {
                 val continuationParam = it.getMethodByJvmName("unitSuspend").parameters.last()
-                val typeArg =
-                    continuationParam.type.typeArguments.first().let {
-                        // KAPT will include the bounds directly whereas in KSP, we use bounds only
-                        // when resolving the jvm wildcard type.
-                        if (invocation.isKsp) {
-                            it
-                        } else {
-                            checkNotNull(it.extendsBound()) {
-                                "In KAPT, continuation should've had an extends bound"
-                            }
-                        }
-                    }
-                assertThat(typeArg.isKotlinUnit()).isTrue()
-                assertThat(typeArg.extendsBound()).isNull()
+                val typeArg = continuationParam.type.typeArguments.first()
+                // KAPT will include the bounds directly whereas in KSP, we use bounds
+                // only when resolving the jvm wildcard type.
+                if (invocation.isKsp) {
+                    // In KSP, continuation should've had no bounds
+                    assertThat(typeArg.extendsBound()).isNull()
+                } else {
+                    // In KAPT, continuation should've had an extends bound
+                    assertThat(typeArg.extendsBound()).isNotNull()
+                }
+                assertThat(typeArg.type.isKotlinUnit()).isTrue()
             }
         }
     }
@@ -2281,8 +2269,8 @@ class XTypeTest {
                 assertThat(fooType.isError()).isFalse()
 
                 val typeArgument = fooType.typeArguments.single()
-                assertThat(typeArgument.typeName).isEqualTo(missingTypeName)
-                assertThat(typeArgument.isError()).isTrue()
+                assertThat(typeArgument.type.typeName).isEqualTo(missingTypeName)
+                assertThat(typeArgument.type.isError()).isTrue()
 
                 return emptySet()
             }
@@ -2368,8 +2356,8 @@ class XTypeTest {
                 assertThat(fooType.isError()).isFalse()
 
                 val wildcardType = fooType.typeArguments.single()
-                assertThat(wildcardType.typeName).isEqualTo(wildcardTypeName)
-                assertThat(wildcardType.isError()).isFalse()
+                assertThat(wildcardType.asTypeName().java).isEqualTo(wildcardTypeName)
+                assertThat(wildcardType.type.isError()).isTrue()
 
                 assertThat(wildcardType.extendsBound()).isNotNull()
                 val errorType = wildcardType.extendsBound()!!
@@ -2601,11 +2589,7 @@ class XTypeTest {
             )
         runProcessorTest(sources = listOf(src)) {
             val fooTypeElement = it.processingEnv.requireTypeElement("Foo")
-            fooTypeElement.getMethodByJvmName("justOneGeneric").returnType.let { type ->
-                assertThat(type.extendsBound()).isNull()
-            }
             fooTypeElement.getMethodByJvmName("listOfGeneric").returnType.let { type ->
-                assertThat(type.extendsBound()).isNull()
                 type.typeArguments.forEach { typeArg ->
                     assertThat(typeArg.extendsBound()).isNull()
                 }
@@ -2741,18 +2725,18 @@ class XTypeTest {
             // Test manually unwrapping a type with a raw type argument:
             subject.getDeclaredField("fooFoo").type.let { fooFoo ->
                 assertHasTypeName(
-                    type = fooFoo.typeArguments.single(),
+                    type = fooFoo.typeArguments.single().type,
                     expectedTypeName = fooTypeName.copy(nullable = true),
                 )
             }
             subject.getDeclaredField("barFooFoo").type.let { barFooFoo ->
                 assertThat(barFooFoo.typeArguments).hasSize(2)
                 assertHasTypeName(
-                    type = barFooFoo.typeArguments[0],
+                    type = barFooFoo.typeArguments[0].type,
                     expectedTypeName = fooTypeName.copy(nullable = true),
                 )
                 assertHasTypeName(
-                    type = barFooFoo.typeArguments[1],
+                    type = barFooFoo.typeArguments[1].type,
                     expectedTypeName = fooTypeName.copy(nullable = true),
                 )
             }
@@ -3008,13 +2992,13 @@ class XTypeTest {
 
             kotlinElm.getMethodByJvmName("getPackageNames").apply {
                 assertThat(returnType.typeName.toString()).isEqualTo("java.util.Set<PackageName>")
-                assertThat(returnType.typeArguments.single().typeName.toString())
+                assertThat(returnType.typeArguments.single().asTypeName().java.toString())
                     .isEqualTo("PackageName")
             }
             kotlinElm.getMethodByJvmName("setPackageNames").apply {
                 val paramType = parameters.single().type
                 assertThat(paramType.typeName.toString()).isEqualTo("java.util.Set<PackageName>")
-                assertThat(paramType.typeArguments.single().typeName.toString())
+                assertThat(paramType.typeArguments.single().asTypeName().java.toString())
                     .isEqualTo("PackageName")
             }
         }

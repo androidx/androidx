@@ -185,7 +185,7 @@ class XNullabilityTest {
             element.getField("genericFieldWithNullableTypeParam").let { field ->
                 assertThat(field.type.nullability).isEqualTo(NONNULL)
                 val declared = field.type
-                assertThat(declared.typeArguments.first().nullability).isEqualTo(NULLABLE)
+                assertThat(declared.typeArguments.first().type.nullability).isEqualTo(NULLABLE)
             }
             element.getMethodByJvmName("nullableReturn").let { method ->
                 assertThat(method.returnType.nullability).isEqualTo(NULLABLE)
@@ -203,8 +203,8 @@ class XNullabilityTest {
             element.getMethodByJvmName("genericWithNullableTypeArgReturn").let { method ->
                 listOf(method.returnType, method.executableType.returnType).forEach { type ->
                     assertThat(type.nullability).isEqualTo(NONNULL)
-                    assertThat(type.typeArguments[0].nullability).isEqualTo(NONNULL)
-                    assertThat(type.typeArguments[1].nullability).isEqualTo(NULLABLE)
+                    assertThat(type.typeArguments[0].type.nullability).isEqualTo(NONNULL)
+                    assertThat(type.typeArguments[1].type.nullability).isEqualTo(NULLABLE)
                 }
             }
             element.getMethodByJvmName("suspendGenericWithNullableTypeArgReturn").let { method ->
@@ -212,8 +212,8 @@ class XNullabilityTest {
                 check(executableType.isSuspendFunction())
                 executableType.getSuspendFunctionReturnType().let { type ->
                     assertThat(type.nullability).isEqualTo(NONNULL)
-                    assertThat(type.typeArguments[0].nullability).isEqualTo(NONNULL)
-                    assertThat(type.typeArguments[1].nullability).isEqualTo(NULLABLE)
+                    assertThat(type.typeArguments[0].type.nullability).isEqualTo(NONNULL)
+                    assertThat(type.typeArguments[1].type.nullability).isEqualTo(NULLABLE)
                 }
                 listOf(method.returnType, executableType.returnType).forEach { type ->
                     // kotlin suspend functions return nullable in jvm stub
@@ -244,7 +244,7 @@ class XNullabilityTest {
                                 Triple(
                                     first = it.name,
                                     second = it.type.nullability,
-                                    third = it.type.typeArguments.single().nullability,
+                                    third = it.type.typeArguments.single().type.nullability,
                                 )
                             }
                     )
@@ -319,21 +319,21 @@ class XNullabilityTest {
                     invocation.processingEnv.requireTypeElement(it).getField("subject").type
                 val typeArg = subject.typeArguments.first()
                 assertThat(typeArg.asTypeName().java).isEqualTo(JTypeName.INT.box())
-                typeArg.makeNonNullable().let {
+                typeArg.type.makeNonNullable().let {
                     assertThat(it.asTypeName().java).isEqualTo(JTypeName.INT.box())
                     assertThat(it.nullability).isEqualTo(NONNULL)
                 }
-                typeArg.makeNonNullable().makeNullable().let {
+                typeArg.type.makeNonNullable().makeNullable().let {
                     assertThat(it.asTypeName().java).isEqualTo(JTypeName.INT.box())
                     assertThat(it.nullability).isEqualTo(NULLABLE)
                 }
                 if (invocation.isKsp) {
                     assertThat(typeArg.asTypeName().kotlin).isEqualTo(INT.copy(nullable = true))
 
-                    typeArg.makeNonNullable().let {
+                    typeArg.type.makeNonNullable().let {
                         assertThat(it.asTypeName().kotlin).isEqualTo(INT)
                     }
-                    typeArg.makeNonNullable().makeNullable().let {
+                    typeArg.type.makeNonNullable().makeNullable().let {
                         assertThat(it.asTypeName().kotlin).isEqualTo(INT.copy(nullable = true))
                     }
                 }

@@ -72,7 +72,7 @@ class ShortcutParameterProcessor(
         if (paramType.isArray() && paramType.componentType.nullability == XNullability.NULLABLE) {
             return true
         }
-        return paramType.typeArguments.any { it.nullability == XNullability.NULLABLE }
+        return paramType.typeArguments.any { it.type.nullability == XNullability.NULLABLE }
     }
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -81,19 +81,13 @@ class ShortcutParameterProcessor(
         val processingEnv = context.processingEnv
 
         fun verifyAndPair(dataClassType: XType, isMultiple: Boolean): Pair<XType?, Boolean> {
-            // kotlin may generate ? extends T so we should reduce it.
-            val boundedVar = dataClassType.extendsBound()
-            return if (boundedVar != null) {
-                verifyAndPair(boundedVar, isMultiple)
-            } else {
-                Pair(dataClassType, isMultiple)
-            }
+            return Pair(dataClassType, isMultiple)
         }
 
         fun extractDataClassTypeFromIterator(iterableType: XType): XType {
             iterableType.typeElement!!.getAllNonPrivateInstanceMethods().forEach {
                 if (it.jvmName == "iterator") {
-                    return it.asMemberOf(iterableType).returnType.typeArguments.first()
+                    return it.asMemberOf(iterableType).returnType.typeArguments.first().type
                 }
             }
             throw IllegalArgumentException("iterator() not found in Iterable $iterableType")

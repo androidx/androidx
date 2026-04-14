@@ -84,11 +84,24 @@ interface XProcessingEnv {
     /** Returns the [XTypeElement] for the annotation that should be added to the generated code. */
     fun findGeneratedAnnotation(): XTypeElement?
 
+    /** Returns an [XTypeArgument] for the given [type] and with [XVariance.INVARIANT]. */
+    fun createTypeArgument(type: XType) = createTypeArgument(type, XVariance.INVARIANT)
+
+    /** Returns an [XTypeArgument] for the given [type] and [variance]. */
+    fun createTypeArgument(type: XType, variance: XVariance): XTypeArgument
+
     /**
      * Returns an [XType] for the given [type] element with the type arguments specified as in
      * [types].
      */
-    fun getDeclaredType(type: XTypeElement, vararg types: XType): XType
+    fun getDeclaredType(type: XTypeElement, vararg types: XType) =
+        getDeclaredType(
+            type = type,
+            typeArguments = types.map { createTypeArgument(it) }.toTypedArray(),
+        )
+
+    /** Returns an [XType] for the given [type] element and [typeArguments]. */
+    fun getDeclaredType(type: XTypeElement, vararg typeArguments: XTypeArgument): XType
 
     /**
      * Returns an [XType] representing a wildcard type.
@@ -97,10 +110,14 @@ interface XProcessingEnv {
      *
      * In Kotlin source, this represents types like `*`, `out T`, and `in T`.
      */
-    fun getWildcardType(consumerSuper: XType? = null, producerExtends: XType? = null): XType
+    fun getWildcardType(consumerSuper: XType? = null, producerExtends: XType? = null): XTypeArgument
 
     /** Return an [XArrayType] that has [type] as the [XArrayType.componentType]. */
-    fun getArrayType(type: XType): XArrayType
+    fun getArrayType(type: XType): XArrayType =
+        getArrayType(createTypeArgument(type, XVariance.INVARIANT))
+
+    /** Return an [XArrayType] that has [typeArgument] as the [XArrayType.componentType]. */
+    fun getArrayType(typeArgument: XTypeArgument): XArrayType
 
     /**
      * Returns the [XTypeElement] with the given qualified name or throws an exception if it does

@@ -352,7 +352,9 @@ class XArrayTypeTest {
                 invocation.processingEnv.getWildcardType(producerExtends = numberType)
             invocation.processingEnv.getArrayType(outNumberType).let {
                 assertThat(it.isArray()).isTrue()
-                assertThat(it.componentType).isEqualTo(outNumberType)
+                // TODO(b/): Technically, we should have componentType == outNumberType, but
+                //  we need to change the XArrayType.componentType to be an XTypeArgument for that.
+                assertThat(it.componentType).isEqualTo(outNumberType.type)
                 assertThat(it.asTypeName().java)
                     .isEqualTo(JArrayTypeName.of(numberType.asTypeName().java))
                 assertThat(it.asTypeName().kotlin)
@@ -366,7 +368,9 @@ class XArrayTypeTest {
             val inNumberType = invocation.processingEnv.getWildcardType(consumerSuper = numberType)
             invocation.processingEnv.getArrayType(inNumberType).let {
                 assertThat(it.isArray()).isTrue()
-                assertThat(it.componentType).isEqualTo(inNumberType)
+                // TODO(b/): Technically, we should have componentType == inNumberType, but
+                //  we need to change the XArrayType.componentType to be an XTypeArgument for that.
+                assertThat(it.componentType).isEqualTo(inNumberType.type)
                 assertThat(it.asTypeName().java).isEqualTo(JArrayTypeName.of(JTypeName.OBJECT))
                 assertThat(it.asTypeName().kotlin)
                     .isEqualTo(
@@ -379,7 +383,9 @@ class XArrayTypeTest {
             val starType = invocation.processingEnv.getWildcardType()
             invocation.processingEnv.getArrayType(starType).let {
                 assertThat(it.isArray()).isTrue()
-                assertThat(it.componentType).isEqualTo(starType)
+                // TODO(b/): Technically, we should have componentType == starType, but
+                //  we need to change the XArrayType.componentType to be an XTypeArgument for that.
+                assertThat(it.componentType).isEqualTo(starType.type)
                 assertThat(it.asTypeName().java).isEqualTo(JArrayTypeName.of(JTypeName.OBJECT))
                 assertThat(it.asTypeName().kotlin)
                     .isEqualTo(

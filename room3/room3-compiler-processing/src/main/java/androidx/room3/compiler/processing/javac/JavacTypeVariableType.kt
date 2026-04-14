@@ -18,6 +18,7 @@ package androidx.room3.compiler.processing.javac
 
 import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeArgument
 import androidx.room3.compiler.processing.XTypeVariableType
 import androidx.room3.compiler.processing.javac.kotlin.KmBaseTypeContainer
 import com.google.auto.common.MoreTypes.asIntersection
@@ -33,7 +34,7 @@ internal class JavacTypeVariableType(
 
     override val equalityItems by lazy { arrayOf(typeMirror) }
 
-    override val typeArguments: List<XType>
+    override val typeArguments: List<XTypeArgument>
         get() = emptyList()
 
     override val upperBounds: List<XType>

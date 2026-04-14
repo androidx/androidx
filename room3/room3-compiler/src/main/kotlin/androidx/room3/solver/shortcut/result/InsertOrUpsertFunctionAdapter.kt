@@ -160,7 +160,7 @@ class InsertOrUpsertFunctionAdapter private constructor(private val functionInfo
                     null
                 }
             } else if (returnType.isList()) {
-                val param = returnType.typeArguments.first()
+                val param = returnType.typeArguments.first().type
                 if (param.isLong()) {
                     ReturnInfo.ID_LIST
                 } else {

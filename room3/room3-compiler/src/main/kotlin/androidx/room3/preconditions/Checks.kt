@@ -65,7 +65,8 @@ class Checks(private val logger: RLog) {
         // TODO support bounds cases like <T extends Foo> T bar()
         val failed = check(!type.isTypeVariable(), element, errorMsg, args)
         if (type.typeArguments.isNotEmpty()) {
-            val nestedFailure = type.typeArguments.any { notUnbound(it, element, errorMsg, args) }
+            val nestedFailure =
+                type.typeArguments.any { notUnbound(it.type, element, errorMsg, args) }
             return !(failed || nestedFailure)
         }
         return !failed

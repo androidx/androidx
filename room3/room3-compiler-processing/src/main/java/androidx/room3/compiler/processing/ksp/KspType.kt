@@ -20,6 +20,7 @@ import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XEquality
 import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeArgument
 import androidx.room3.compiler.processing.isArray
 import androidx.room3.compiler.processing.tryBox
 import androidx.room3.compiler.processing.tryUnbox
@@ -71,26 +72,14 @@ internal abstract class KspType(
      * [XTypeName] represents those differences as [JTypeName] and [KTypeName], respectively.
      */
     private val xTypeName: XTypeName by lazy {
-        val jvmWildcardType =
-            env.resolveWildcards(originalKSType, scope).let {
-                if (ksType == it) {
-                    if (ksType.arguments != it.arguments) {
-                        // Replacing the type arguments to retain the variances resolved in
-                        // `resolveWildcards`. See https://github.com/google/ksp/issues/1778.
-                        copy(env = env, ksType = ksType.replace(it.arguments), scope = scope)
-                    } else {
-                        this
-                    }
-                } else {
-                    env.wrap(ksType = it, allowPrimitives = this is KspPrimitiveType)
-                }
-            }
-        XTypeName(jvmWildcardType.resolveJTypeName(), resolveKTypeName(), nullability)
+        XTypeName(resolveJTypeName(), resolveKTypeName(), nullability)
     }
 
-    protected abstract fun resolveJTypeName(): JTypeName
+    internal val jvmKsType by lazy { env.resolveWildcards(originalKSType, scope) }
 
-    protected abstract fun resolveKTypeName(): KTypeName
+    protected open fun resolveJTypeName() = jvmKsType.asJTypeName(env.resolver)
+
+    protected open fun resolveKTypeName() = ksType.asKTypeName(env.resolver)
 
     override val nullability by lazy {
         when (ksType.nullability) {
@@ -205,7 +194,7 @@ internal abstract class KspType(
     }
 
     @OptIn(KspExperimental::class)
-    override val typeArguments: List<XType> by lazy {
+    override val typeArguments: List<XTypeArgument> by lazy {
         if (env.resolver.isJavaRawType(ksType)) {
             emptyList()
         } else {
@@ -219,14 +208,7 @@ internal abstract class KspType(
     }
 
     override fun isError(): Boolean {
-        // Avoid returning true if this type represents a java wildcard type, e.g. "? extends Foo"
-        // since in that case the wildcard type is not the error type itself. Instead, the error
-        // type should be on the XType#extendsBound() type, "Foo", instead.
-        return ksType.isError && !isJavaWildcardType()
-    }
-
-    private fun isJavaWildcardType(): Boolean {
-        return extendsBound() != null || isStar()
+        return ksType.isError
     }
 
     override fun defaultValue(): String {
@@ -275,17 +257,6 @@ internal abstract class KspType(
         // NOTE: this is inconsistent with java where nullability is ignored.
         // it is intentional but might be reversed if it happens to break use cases.
         return ksType == other.ksType
-    }
-
-    override fun isStar(): Boolean {
-        // This is overridden by KspTypeArgumentType.
-        return false
-    }
-
-    override fun extendsBound(): XType? {
-        // when we detect that there should be an extends bounds, KspProcessingEnv creates
-        // [KspTypeArgumentType].
-        return null
     }
 
     override val equalityItems: Array<out Any?> by lazy { arrayOf(ksType) }
