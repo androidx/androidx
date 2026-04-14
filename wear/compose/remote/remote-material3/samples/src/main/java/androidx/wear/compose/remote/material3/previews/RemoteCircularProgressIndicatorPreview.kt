@@ -106,6 +106,17 @@ fun RemoteCircularProgressIndicatorDisabled() {
     )
 }
 
+@Composable
+fun RemoteCircularProgressIndeterminate() {
+    RemoteCircularProgressIndicator()
+}
+
+@WearPreviewDevices
+@Composable
+public fun RemoteCircularProgressIndeterminatePreview() {
+    RemotePreview { Container { RemoteCircularProgressIndeterminate() } }
+}
+
 @WearPreviewDevices
 @Composable
 public fun RemoteCircularProgressIndicatorAnimatedPreview() {

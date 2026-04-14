@@ -17,6 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -30,6 +31,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndeterminate
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndicatorCustomColor
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndicatorDisabled
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressNoGapCustomAngle
@@ -42,9 +44,13 @@ import org.junit.runners.JUnit4
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
 class RemoteCircularProgressIndicatorTest {
+
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteComposeScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            clock = TestClock(),
+        )
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val creationDisplayInfo =
@@ -64,6 +70,13 @@ class RemoteCircularProgressIndicatorTest {
             layoutDirection = LayoutDirection.Rtl,
         ) {
             Center { RemoteCircularProgressEnabled() }
+        }
+    }
+
+    @Test
+    fun indicator_indeterminate() {
+        remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
+            Center { RemoteCircularProgressIndeterminate() }
         }
     }
 
@@ -95,5 +108,46 @@ class RemoteCircularProgressIndicatorTest {
         content: @Composable @RemoteComposable () -> Unit,
     ) {
         RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
+    }
+}
+
+@Suppress("RestrictedApiAndroidX")
+private class TestClock(val baseTimeMillis: Long = 10 * 3600000L + 10 * 60000L) : RemoteClock {
+    var offsetMillis: Long = 500
+
+    override fun millis() = baseTimeMillis + offsetMillis
+
+    override fun nanoTime() = (baseTimeMillis + offsetMillis) * 1_000_000L
+
+    override fun getZoneId() = "UTC"
+
+    override fun snapshot(millis: Long?): RemoteClock.TimeSnapshot {
+        val m = millis ?: (baseTimeMillis + offsetMillis)
+        return ManualTimeSnapshot(m)
+    }
+
+    @Suppress("RestrictedApiAndroidX")
+    private class ManualTimeSnapshot(val m: Long) : RemoteClock.TimeSnapshot {
+        override fun getMillis() = m
+
+        override fun getYear() = 2026
+
+        override fun getMonth() = 2
+
+        override fun getDayOfMonth() = 13
+
+        override fun getDayOfYear() = 44
+
+        override fun getHour() = (m / 3600000).toInt() % 24
+
+        override fun getMinute() = (m / 60000).toInt() % 60
+
+        override fun getSecond() = (m / 1000).toInt() % 60
+
+        override fun getMillisOfSecond() = (m % 1000).toInt()
+
+        override fun getDayOfWeek() = 5
+
+        override fun getOffsetSeconds() = 0
     }
 }
