@@ -26,9 +26,12 @@ public interface AnchorEntity : SystemSpaceEntity {
     /** The current state of the anchor. */
     public val state: @State Int
 
-    /** Registers a listener to be called when the state of the anchor changes. */
+    /**
+     * Registers a listener to be called when the state of the anchor changes. Set to null to
+     * unregister a current listener.
+     */
     @Suppress("ExecutorRegistration")
-    public fun setOnStateChangedListener(onStateChangedListener: OnStateChangedListener)
+    public fun setOnStateChangedListener(onStateChangedListener: OnStateChangedListener?)
 
     /** Sets the runtime anchor for this AnchorEntity. */
     public fun setAnchor(anchor: Anchor): Boolean

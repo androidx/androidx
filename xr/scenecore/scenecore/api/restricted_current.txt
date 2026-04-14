@@ -47,15 +47,17 @@ package androidx.xr.scenecore {
   }
 
   public final class AnchorEntity extends androidx.xr.scenecore.BaseEntity<androidx.xr.scenecore.runtime.AnchorEntity> {
+    method public void addOnOriginChangedListener(Runnable listener);
+    method public void addOnOriginChangedListener(java.util.concurrent.Executor executor, Runnable listener);
+    method public void addOnStateChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
+    method public void addOnStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
     method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.arcore.Anchor anchor);
     method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes);
     method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes, optional java.time.Duration timeout);
     method @InaccessibleFromKotlin public androidx.xr.arcore.Anchor? getAnchor();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.AnchorEntity.State getState();
-    method public void setOnOriginChangedListener(Runnable? listener);
-    method public void setOnOriginChangedListener(java.util.concurrent.Executor executor, Runnable? listener);
-    method public void setOnStateChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State>? listener);
-    method public void setOnStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State>? listener);
+    method public void removeOnOriginChangedListener(Runnable listener);
+    method public void removeOnStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
     property public androidx.xr.arcore.Anchor? anchor;
     property public androidx.xr.scenecore.AnchorEntity.State state;
     field public static final androidx.xr.scenecore.AnchorEntity.Companion Companion;
