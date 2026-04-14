@@ -18,7 +18,6 @@ package androidx.xr.scenecore.spatial.core
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.PointerCaptureComponent
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.InputEvent
 import com.android.extensions.xr.node.Node
@@ -37,12 +36,12 @@ import org.robolectric.annotation.Config
 class PointerCaptureComponentImplTest {
     private val stateListener = FakeStateListener()
     private val inputListener = FakeInputEventListener()
-    private val xrExtensions = getXrExtensions()
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val fakeScheduler = FakeScheduledExecutorService()
-    private val node: Node = xrExtensions!!.createNode()
+    private val node: Node = xrExtensions.createNode()
     private val shadowNode: ShadowNode = ShadowNode.extract(node)
     private val entity: Entity =
-        object : AndroidXrEntity(null, node, xrExtensions!!, SceneNodeRegistry(), fakeScheduler) {}
+        object : AndroidXrEntity(null, node, xrExtensions, SceneNodeRegistry(), fakeScheduler) {}
 
     private fun sendInputEvent(inputEvent: InputEvent?) {
         shadowNode.inputExecutor.execute { shadowNode.inputListener.accept(inputEvent) }

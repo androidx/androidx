@@ -25,7 +25,6 @@ import androidx.xr.scenecore.runtime.SoundEffect
 import androidx.xr.scenecore.runtime.SoundEffectPlayer
 import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper
 import androidx.xr.scenecore.runtime.Stream
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -47,7 +46,7 @@ class SoundEffectPoolComponentImplTest {
         Robolectric.buildActivity(Activity::class.java)
     private val activity: Activity = activityController.create().start().get()
     private val fakeExecutor = FakeScheduledExecutorService()
-    private val xrExtensions = getXrExtensions()
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private lateinit var fakeRuntime: SpatialSceneRuntime
 
     @Before

@@ -20,9 +20,7 @@ import androidx.xr.scenecore.runtime.ExrImageResource
 import androidx.xr.scenecore.runtime.GltfModelResource
 import androidx.xr.scenecore.runtime.SpatialEnvironment
 import androidx.xr.scenecore.runtime.SpatialEnvironmentFeature
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import com.android.extensions.xr.ShadowXrExtensions
-import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.environment.EnvironmentVisibilityState
 import com.android.extensions.xr.environment.PassthroughVisibilityState
 import com.android.extensions.xr.environment.ShadowEnvironmentVisibilityState
@@ -59,7 +57,7 @@ class SpatialEnvironmentImplTest {
         mock<SpatialEnvironmentFeature>()
     private val activityController = Robolectric.buildActivity(Activity::class.java)
     private val activity = activityController.create().start().get()
-    private val xrExtensions: XrExtensions = getXrExtensions()!!
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private lateinit var spatialEnvironmentImpl: SpatialEnvironmentImpl
 
     @Before

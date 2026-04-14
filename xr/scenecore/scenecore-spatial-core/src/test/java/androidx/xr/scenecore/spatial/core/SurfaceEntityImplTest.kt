@@ -29,7 +29,6 @@ import androidx.xr.scenecore.runtime.PerceivedResolutionResult
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SurfaceEntity
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeScenePose
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
@@ -56,7 +55,7 @@ class SurfaceEntityImplTest {
     private val activityController: ActivityController<Activity> =
         Robolectric.buildActivity(Activity::class.java)
     private val activity: Activity = activityController.create().start().get()
-    private val xrExtensions = requireNotNull(getXrExtensions())
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val fakeScheduledExecutorService = FakeScheduledExecutorService()
     private val spatialStateProvider = Supplier { ShadowSpatialState.create() }
     private val viewPlaneResolution = PixelDimensions(2000, 1000)

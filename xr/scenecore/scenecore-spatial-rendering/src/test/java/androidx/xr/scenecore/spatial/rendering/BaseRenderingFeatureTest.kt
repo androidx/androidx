@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ import androidx.xr.runtime.TypeHolder
 import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl
 import androidx.xr.scenecore.impl.impress.ImpressApi
 import androidx.xr.scenecore.impl.impress.ImpressNode
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
@@ -44,7 +43,7 @@ import org.robolectric.annotation.Config
 class BaseRenderingFeatureTest {
 
     private val nodeRepository = NodeRepository.getInstance()
-    private val xrExtensions = XrExtensionsProvider.getXrExtensions()!!
+    private val xrExtensions = XrExtensions()
     private val fakeImpressApi = FakeImpressApiImpl()
     private val splitEngineSubspaceManager = Mockito.mock(SplitEngineSubspaceManager::class.java)
     private val subspaceNode = xrExtensions.createNode()

@@ -21,7 +21,6 @@ import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.InteractableComponent
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.InputEvent
 import com.android.extensions.xr.node.ShadowInputEvent
@@ -48,7 +47,7 @@ class InteractableComponentImplTest {
         Robolectric.buildActivity(Activity::class.java)
     private val activity: Activity = activityController.create().start().get()
     private val fakeExecutor = FakeScheduledExecutorService()
-    private val xrExtensions = getXrExtensions()
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private lateinit var fakeRuntime: SpatialSceneRuntime
 
     @Before

@@ -54,7 +54,6 @@ import androidx.xr.scenecore.runtime.PlaneType
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener
 import androidx.xr.scenecore.runtime.SpatialVisibility
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeComponent
 import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
@@ -106,7 +105,7 @@ import org.robolectric.annotation.Config
 class SpatialSceneRuntimeTest {
     private val sceneNodeRegistry = SceneNodeRegistry()
     private val nodeRepository = NodeRepository.getInstance()
-    private val xrExtensions = requireNotNull(getXrExtensions())
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val fakeExecutor = FakeScheduledExecutorService()
     private val mockGltfFeature = mock<GltfFeature>()
     private val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()

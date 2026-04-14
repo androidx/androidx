@@ -21,7 +21,6 @@ package androidx.xr.scenecore.spatial.core
 import android.app.Activity
 import androidx.xr.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.MaterialResource
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeMeshFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
@@ -42,7 +41,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class MeshEntityImplTest {
-    private val xrExtensions = requireNotNull(getXrExtensions())
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val sceneNodeRegistry = SceneNodeRegistry()
     private val fakeScheduledExecutorService = FakeScheduledExecutorService()
     private lateinit var activitySpace: ActivitySpaceImpl

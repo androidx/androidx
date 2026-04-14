@@ -27,7 +27,6 @@ import androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper;
 import androidx.xr.scenecore.runtime.PointSourceParams;
 import androidx.xr.scenecore.runtime.SoundFieldAttributes;
 import androidx.xr.scenecore.runtime.SpatializerConstants;
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider;
 
 import com.android.extensions.xr.XrExtensions;
 import com.android.extensions.xr.media.MediaPlayerExtensions;
@@ -51,7 +50,7 @@ public class MediaPlayerExtensionsWrapperImplTest {
 
     @Before
     public void setUp() {
-        mXrExtensions = XrExtensionsProvider.getXrExtensions();
+        mXrExtensions = SpatialCoreXrExtensionsHolderProvider.Companion.getExtensionsLegacy();
         mSpatialAudioExtensions = mXrExtensions.getXrSpatialAudioExtensions();
         mMediaPlayerExtensions = mSpatialAudioExtensions.getMediaPlayerExtensions();
     }
