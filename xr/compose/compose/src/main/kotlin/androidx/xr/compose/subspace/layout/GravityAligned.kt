@@ -67,11 +67,8 @@ internal class GravityAlignedNode :
             // 3. Convert this goal world rotation back into a local rotation relative to the parent
             // layout.
             // 4. Apply this new local rotation to the placeable.
-            // The "World" here in variables names refer to SceneCore's [Space.REAL_WORLD] which is
-            // the global coordinate space, unscaled and gravity aligned at the root of the scene
-            // graph of the activity.
             val rootWorldRotation =
-                currentValueOf(LocalSubspaceRootNode)?.getPose(Space.REAL_WORLD)?.rotation
+                currentValueOf(LocalSubspaceRootNode)?.getPose(Space.ACTIVITY)?.rotation
                     ?: Quaternion.Identity
             val nodePoseInRoot = coordinates?.poseInRoot?.rotation ?: Quaternion.Identity
             val currentWorldRotation = rootWorldRotation * nodePoseInRoot

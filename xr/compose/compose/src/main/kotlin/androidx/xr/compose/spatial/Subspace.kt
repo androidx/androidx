@@ -454,7 +454,7 @@ public fun FollowingSubspace(
         }
         // TODO(b/491504073): Use observers to update the scale instead of SideEffect.
         SideEffect {
-            session.scene.keyEntity?.getScale(relativeTo = Space.REAL_WORLD)?.let { scale ->
+            session.scene.keyEntity?.getScale(relativeTo = Space.ACTIVITY)?.let { scale ->
                 subspaceRoot.setScale(scale)
             }
         }
