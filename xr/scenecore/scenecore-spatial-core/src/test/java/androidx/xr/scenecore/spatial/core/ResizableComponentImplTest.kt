@@ -32,7 +32,6 @@ import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.ResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEventListener
 import androidx.xr.scenecore.runtime.SurfaceEntity
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import androidx.xr.scenecore.testing.FakeSurfaceFeature
 import com.android.extensions.xr.node.Node
@@ -66,7 +65,7 @@ class ResizableComponentImplTest {
         Robolectric.buildActivity(Activity::class.java)
     private val activity: Activity = activityController.create().start().get()
     private val fakeExecutor = FakeScheduledExecutorService()
-    private val xrExtensions = getXrExtensions()!!
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val sceneNodeRegistry = SceneNodeRegistry()
     private val panelShadowRenderer: EntityShadowRenderer = mock<EntityShadowRenderer>()
     private val nodeRepository: NodeRepository = NodeRepository.getInstance()

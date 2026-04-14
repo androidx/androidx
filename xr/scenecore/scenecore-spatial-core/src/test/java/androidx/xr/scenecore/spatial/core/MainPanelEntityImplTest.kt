@@ -20,10 +20,8 @@ import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PixelDimensions
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
-import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
 import org.junit.After
@@ -38,7 +36,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class MainPanelEntityImplTest {
-    private val xrExtensions: XrExtensions = getXrExtensions()!!
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val activityController: ActivityController<Activity> =
         Robolectric.buildActivity(Activity::class.java)
     private val hostActivity: Activity = activityController.create().start().get()

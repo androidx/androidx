@@ -27,7 +27,6 @@ import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.SpatialCapabilities as RuntimeSpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialPointerIcon
 import androidx.xr.scenecore.runtime.SpatialVisibility
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.environment.EnvironmentVisibilityState
@@ -56,6 +55,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class RuntimeUtilsTest {
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
 
     fun createSceneRuntime(sceneNodeRegistry: SceneNodeRegistry): SpatialSceneRuntime {
         val activityController: ActivityController<Activity> =
@@ -63,8 +63,6 @@ class RuntimeUtilsTest {
         val activity: Activity = activityController.create().start().get()
 
         val fakeExecutor = FakeScheduledExecutorService()
-        val xrExtensions = getXrExtensions()
-        checkNotNull(xrExtensions) { "XrExtensions is null. Stop testing" }
         return SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions, sceneNodeRegistry)
     }
 
@@ -461,7 +459,7 @@ class RuntimeUtilsTest {
         val sceneNodeRegistry = SceneNodeRegistry()
         val sceneRuntime = createSceneRuntime(sceneNodeRegistry)
         sceneRuntime.createEntity(Pose(), "testGroup", sceneRuntime.activitySpace)
-        val testNode = getXrExtensions()!!.createNode()
+        val testNode = xrExtensions.createNode()
 
         val transformData =
             floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f, 16f)

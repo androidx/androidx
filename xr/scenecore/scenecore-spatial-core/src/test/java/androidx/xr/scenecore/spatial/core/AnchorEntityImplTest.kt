@@ -34,7 +34,6 @@ import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.runtime.AnchorEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.Space
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
@@ -58,7 +57,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 @SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
-    private val xrExtensions = getXrExtensions()!!
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val anchorStateListener = mock<AnchorEntity.OnStateChangedListener>()
     private val sharedAnchorToken: IBinder = mock<IBinder>()
     private val executor = FakeScheduledExecutorService()
