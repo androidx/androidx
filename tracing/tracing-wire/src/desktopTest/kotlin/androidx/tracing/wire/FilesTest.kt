@@ -19,31 +19,35 @@ package androidx.tracing.wire
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 
 class FilesTest {
+    @get:Rule val temporaryFolder = TemporaryFolder()
+
     @Test
     internal fun testTracingFileNames() {
-        // We are not really creating files here. We just need some paths.
-        val tmpDir = File("/tmp")
+        val tmpDir = temporaryFolder.newFolder()
         val perfettoTraceFile = tmpDir.perfettoTraceFile()
         val path = perfettoTraceFile.nameWithoutExtension
         // Should have the pattern PREFIX-yyyy-MM-dd-HH-mm-ss-suffix
         val parts = path.split("-")
         // There should a total of 8 tokens
         assertEquals(parts.size, 8)
-        assertEquals(parts[0], PREFIX)
+        assertEquals(PREFIX, parts.first())
     }
 
     @Test
     internal fun testTracingFileNameSuffix() {
-        // We are not really creating files here. We just need some paths.
-        val tmpDir = File("/tmp")
+        val tmpDir = temporaryFolder.newFolder()
+        // Using placeholders for time
+        val fileName = "trace-yyyy-MM-dd-HH-mm-ss"
+        val files = mutableListOf<File>()
         val count = 10
-        repeat(count) { tmpDir.perfettoTraceFile() }
+        repeat(count) { files += tmpDir.perfettoTraceFile(fileName = fileName) }
         // This one should have a suffix `count`
-        val perfettoTraceFile = tmpDir.perfettoTraceFile()
-        val path = perfettoTraceFile.nameWithoutExtension
+        val path = files.last().nameWithoutExtension
         val parts = path.split("-")
-        assertEquals(parts.last(), "$count")
+        assertEquals("${count - 1}", parts.last())
     }
 }
