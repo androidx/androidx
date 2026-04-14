@@ -25,7 +25,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeTrue;
 
-import androidx.appsearch.flags.appfunctions.Flags;
 import androidx.appsearch.testutil.AppSearchTestUtils;
 import androidx.appsearch.testutil.flags.RequiresFlagsDisabled;
 import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
@@ -62,7 +61,7 @@ public class SetSchemaRequestInternalTest {
 
     @Test
     @RequiresFlagsEnabled(
-            Flags.FLAG_ENABLE_APP_FUNCTION_PERMISSION_V2)
+            androidx.appsearch.flags.appfunctions.Flags.FLAG_ENABLE_APP_FUNCTION_PERMISSION_V2)
     public void testSetExecuteAppFunctionsSystemPermissions() {
         assumeFlagIsEnabled(
                 androidx.appsearch.flags.appfunctions.Flags.FLAG_ENABLE_APP_FUNCTION_PERMISSION_V2);
@@ -79,7 +78,7 @@ public class SetSchemaRequestInternalTest {
 
     @Test
     @RequiresFlagsDisabled(
-            Flags.FLAG_ENABLE_APP_FUNCTION_PERMISSION_V2)
+            androidx.appsearch.flags.appfunctions.Flags.FLAG_ENABLE_APP_FUNCTION_PERMISSION_V2)
     public void testSetExecuteAppFunctionsSystemPermissions_disabled() {
         assumeFlagIsDisabled(
                 androidx.appsearch.flags.appfunctions.Flags.FLAG_ENABLE_APP_FUNCTION_PERMISSION_V2);

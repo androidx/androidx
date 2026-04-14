@@ -30,7 +30,7 @@ public class Flags {
     }
 
     // The prefix of all the flags defined for appfunctions.
-    public static final String FLAG_PREFIX = "com.android.appfunctions.flags.";
+    public static final String FLAG_PREFIX = "androidx.appsearch.flags.appfunctions.";
 
     // This flags the App Interaction Feature.
     public static final String FLAG_ENABLE_APP_FUNCTION_PERMISSION_V2 =
