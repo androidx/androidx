@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget.lazy
 
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.unit.Dp
 
@@ -29,7 +30,8 @@ public sealed interface VerticalScrollMode {
     public object Normal : VerticalScrollMode
 
     /** Items will snap into place */
-    @RequiresApi(36) public object SnapScroll : VerticalScrollMode
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    public object SnapScroll : VerticalScrollMode
 
     /**
      * Items will snap into place and match the height of the parent view.
@@ -38,6 +40,6 @@ public sealed interface VerticalScrollMode {
      *   has been run. The container will always try to make the child match its height. Pass in the
      *   intended height of the parent container here.
      */
-    @RequiresApi(36)
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
     public class SnapScrollMatchHeight(public val initialChildHeight: Dp) : VerticalScrollMode
 }
