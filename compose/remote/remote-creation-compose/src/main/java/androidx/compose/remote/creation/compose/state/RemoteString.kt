@@ -557,11 +557,18 @@ private class SelectFloatImpl(
         )
     }
 
-    override fun computeRequiredCodePointSet(creationState: RemoteComposeCreationState) =
-        mergeSets(
+    override fun computeRequiredCodePointSet(
+        creationState: RemoteComposeCreationState
+    ): Set<String>? {
+        if (a.hasConstantValue && b.hasConstantValue) {
+            val selected = if (a.constantValue < b.constantValue) ifTrue else ifFalse
+            return selected.computeRequiredCodePointSet(creationState)
+        }
+        return mergeSets(
             ifTrue.computeRequiredCodePointSet(creationState),
             ifFalse.computeRequiredCodePointSet(creationState),
         )
+    }
 }
 
 private class SelectIntImpl(
@@ -594,11 +601,18 @@ private class SelectIntImpl(
         )
     }
 
-    override fun computeRequiredCodePointSet(creationState: RemoteComposeCreationState) =
-        mergeSets(
+    override fun computeRequiredCodePointSet(
+        creationState: RemoteComposeCreationState
+    ): Set<String>? {
+        if (a.hasConstantValue && b.hasConstantValue) {
+            val selected = if (a.constantValue < b.constantValue) ifTrue else ifFalse
+            return selected.computeRequiredCodePointSet(creationState)
+        }
+        return mergeSets(
             ifTrue.computeRequiredCodePointSet(creationState),
             ifFalse.computeRequiredCodePointSet(creationState),
         )
+    }
 }
 
 /**

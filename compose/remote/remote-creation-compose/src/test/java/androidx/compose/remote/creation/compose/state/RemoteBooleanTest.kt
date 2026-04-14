@@ -705,6 +705,30 @@ class RemoteBooleanTest {
             )
     }
 
+    @Test
+    fun computeRequiredCodePointSet_true() {
+        val bool = RemoteBoolean(true)
+        val str = bool.select(RemoteString("A"), RemoteString("B"))
+
+        assertThat(str.computeRequiredCodePointSet(creationState)).containsExactly("A")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_false() {
+        val bool = RemoteBoolean(false)
+        val str = bool.select(RemoteString("A"), RemoteString("B"))
+
+        assertThat(str.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_dynamic() {
+        val bool = RemoteBoolean.createNamedRemoteBoolean("test", true)
+        val str = bool.select(RemoteString("A"), RemoteString("B"))
+
+        assertThat(str.computeRequiredCodePointSet(creationState)).containsExactly("A", "B")
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
