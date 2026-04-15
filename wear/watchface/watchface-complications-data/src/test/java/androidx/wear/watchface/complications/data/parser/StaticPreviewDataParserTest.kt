@@ -746,6 +746,27 @@ class StaticPreviewDataParserTest {
         }
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun integerInstantComplication() {
+        runTestForLocale(Locale.US) { context ->
+            context.resources.getXml(R.xml.static_preview_data_integer_instants).use { parser ->
+                val previewData = PreviewData.inflate(TEST_PROVIDER, context, context, parser)
+                val complicationData =
+                    previewData[ComplicationType.SHORT_TEXT] as ShortTextComplicationData
+
+                val timeText =
+                    complicationData.text.getTextAt(context.resources, Instant.ofEpochMilli(0))
+                val dateText =
+                    complicationData.title!!.getTextAt(context.resources, Instant.ofEpochMilli(0))
+
+                expect.that(timeText).isEqualTo("10:09AM")
+                expect.that(dateText).isEqualTo("May 24")
+                expect.that(complicationData.dataSource).isEqualTo(TEST_PROVIDER)
+            }
+        }
+    }
+
     private fun runTestForLocale(locale: Locale, testLogic: (Context) -> Unit) {
         Locale.setDefault(locale)
         val baseContext = ApplicationProvider.getApplicationContext<Context>()
