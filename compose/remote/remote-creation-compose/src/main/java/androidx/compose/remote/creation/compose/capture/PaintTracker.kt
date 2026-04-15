@@ -35,6 +35,7 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontVariation
 
 /** Tracks the state of a [RemotePaint] to optimize serialization by only sending deltas. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -56,6 +57,7 @@ internal class PaintTracker {
     var blendMode: BlendMode? = null
     var shader: RemoteShader? = null
     var usingShaderMatrix: Boolean = false
+    var fontVariationSettings: FontVariation.Settings? = null
 
     fun reset(force: Boolean) {
         this.force = force
@@ -167,6 +169,24 @@ internal class PaintTracker {
             isChanged = true
         }
 
+        val targetFontVariationSettings = newPaint.fontVariationSettings
+        updateIfChanged(targetFontVariationSettings, fontVariationSettings) {
+            fontVariationSettings = targetFontVariationSettings
+            if (targetFontVariationSettings != null) {
+                val (fontAxisNames, fontAxisValues) =
+                    extractFontSettings(targetFontVariationSettings.settings)
+                if (fontAxisNames != null && fontAxisValues != null) {
+                    val axisTags =
+                        IntArray(fontAxisNames.size) { i ->
+                            creationState.document.addText(fontAxisNames[i])
+                        }
+                    paintBundle.setTextAxis(axisTags, fontAxisValues)
+                }
+            } else {
+                paintBundle.setTextAxis(intArrayOf(), floatArrayOf())
+            }
+        }
+
         val targetColorFilter = newPaint.colorFilter
         updateIfChanged(targetColorFilter, colorFilter) {
             val wasSet = colorFilter != null
@@ -263,5 +283,16 @@ internal class PaintTracker {
                 }
             }
         }
+    }
+
+    private fun extractFontSettings(
+        settings: List<FontVariation.Setting>?
+    ): Pair<Array<String>?, FloatArray?> {
+        val size = settings?.size ?: return Pair(null, null)
+
+        val fontAxisNames = Array(size) { settings[it].axisName }
+        val fontAxisValues = FloatArray(size) { settings[it].toVariationValue(null) }
+
+        return Pair(fontAxisNames, fontAxisValues)
     }
 }
