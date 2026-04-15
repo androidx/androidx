@@ -34,7 +34,6 @@ import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import androidx.pdf.util.PAGE_BITMAP_REQUEST_NAME
 import androidx.pdf.util.PAGE_BITMAP_TILE_REQUEST_NAME
-import androidx.pdf.util.PAGE_RELEASE_REQUEST_NAME
 import androidx.pdf.util.RectUtils
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
@@ -247,24 +246,7 @@ internal class BitmapFetcher(
         pageBitmaps = null
         fetchingWorkHandle?.cancel()
         fetchingWorkHandle = null
-        try {
-            bitmapSource.close()
-        } catch (e: RemoteException) {
-            if (!e.isHandledRemoteException) throw e
-
-            val exception =
-                RequestFailedException(
-                    requestMetadata =
-                        RequestMetadata(
-                            requestName = PAGE_RELEASE_REQUEST_NAME,
-                            pageRange = pageNum..pageNum,
-                        ),
-                    throwable = e,
-                    // Release page is a fire-and-forget request, no need to show error on UI
-                    showError = false,
-                )
-            errorFlow.tryEmit(exception)
-        }
+        bitmapSource.close()
     }
 
     /** Fetch a [FullPageBitmap] */

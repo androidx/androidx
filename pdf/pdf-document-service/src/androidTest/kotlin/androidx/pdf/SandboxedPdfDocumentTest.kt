@@ -25,6 +25,7 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import android.os.RemoteException
 import android.util.Size
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.models.ImagePdfObject
@@ -63,6 +64,10 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName = "VanillaIceCream")
@@ -806,6 +811,44 @@ class SandboxedPdfDocumentTest {
         // Close the final handle, now the connection should be disconnected.
         handle2.close()
         assertThat(isServiceConnected).isFalse()
+    }
+
+    @Test
+    fun pageBitmapSourceClose_handlesRemoteException() = runTest {
+        if (!areCorePdfApisAvailableInSdk()) return@runTest
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val mockRemote = mock<PdfDocumentRemote>()
+
+        // Mock methods needed for opening the document
+        whenever(mockRemote.openPdfDocument(any(), any()))
+            .thenReturn(PdfLoadingStatus.SUCCESS.ordinal)
+        whenever(mockRemote.numPages()).thenReturn(1)
+        whenever(mockRemote.linearizationStatus).thenReturn(0)
+        whenever(mockRemote.getFormType()).thenReturn(0)
+
+        // Mock releasePage to throw a RemoteException
+        whenever(mockRemote.releasePage(any())).thenThrow(RemoteException())
+
+        val fakeConnection =
+            FakePdfServiceConnection(context, isConnected = true, documentBinder = mockRemote)
+
+        val document =
+            openDocument(PDF_DOCUMENT, fakeServiceConnection = fakeConnection)
+                as SandboxedPdfDocument
+        val bitmapSource = document.getPageBitmapSource(0)
+
+        // This call initiates an async releasePage which is mocked to throw a RemoteException.
+        // It should be caught and handled internally by the try-catch block in
+        // PageBitmapSource.close().
+        bitmapSource.close()
+
+        // Wait for all coroutines to complete in the fakeConnection's pendingJobs.
+        while (fakeConnection.pendingJobs.isNotEmpty()) {
+            yield()
+        }
+
+        // Verify that releasePage was actually called and the exception was handled
+        verify(mockRemote).releasePage(0)
     }
 
     data class AppliedEdit(public val pageNum: Int, public val editId: String)

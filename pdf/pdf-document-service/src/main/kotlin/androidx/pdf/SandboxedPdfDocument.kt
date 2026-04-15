@@ -26,6 +26,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.DeadObjectException
 import android.os.ParcelFileDescriptor
+import android.os.RemoteException
 import android.util.Size
 import android.util.SparseArray
 import androidx.annotation.RequiresExtension
@@ -427,7 +428,14 @@ public class SandboxedPdfDocument(
         override fun close() {
             if (connection.isConnected) {
                 // We can't block the main thread with this IPC
-                closeScope.launch { withDocument { it.releasePage(pageNumber) } }
+                closeScope.launch {
+                    try {
+                        withDocument { it.releasePage(pageNumber) }
+                    } catch (_: RemoteException) {
+                        // Ignore remote exceptions during releasePage as it's a fire-and-forget
+                        // operation
+                    }
+                }
             }
 
             // TODO(b/397324529): Enqueue releasePage requests and execute when connection is
