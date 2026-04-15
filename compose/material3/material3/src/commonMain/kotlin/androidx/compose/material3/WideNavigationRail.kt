@@ -20,12 +20,10 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +39,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.internal.MaterialAnchoredDraggableDefaults
+import androidx.compose.material3.internal.MaterialAnchoredDraggableDefaults.materialAnchoredDraggable
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.material3.internal.getString
@@ -1449,7 +1449,7 @@ private fun ModalWideNavigationRailContent(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val railPaneTitle = getString(string = Strings.WideNavigationRailPaneTitle)
     val anchoredDraggableFlingBehavior =
-        AnchoredDraggableDefaults.flingBehavior(
+        MaterialAnchoredDraggableDefaults.flingBehavior(
             state = railState.anchoredDraggableState,
             positionalThreshold = { distance -> distance * 0.5f },
             animationSpec = railState.animationSpec,
@@ -1515,7 +1515,7 @@ private fun ModalWideNavigationRailContent(
                         WideNavigationRailValue.Expanded at maxValue
                     } to railState.targetValue
                 }
-                .anchoredDraggable(
+                .materialAnchoredDraggable(
                     state = railState.anchoredDraggableState,
                     orientation = Orientation.Horizontal,
                     enabled = gesturesEnabled,
