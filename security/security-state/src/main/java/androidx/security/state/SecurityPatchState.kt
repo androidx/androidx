@@ -876,12 +876,19 @@ constructor(
                 .flatMap { it.updates }
                 .filter { update -> update.component == component }
                 .mapNotNull { update ->
-                    try {
-                        getComponentSecurityPatchLevel(component, update.securityPatchLevel)
-                    } catch (e: IllegalArgumentException) {
+                    val spl = update.securityPatchLevel
+
+                    // Only consider updates that match the device's current SPL format.
+                    // This prevents IllegalArgumentExceptions during the maxOrNull() comparison
+                    // and safely filters out malformed strings that were parsed as the
+                    // fallback GenericStringSecurityPatchLevel.
+                    if (spl::class == deviceSpl::class) {
+                        spl
+                    } else {
                         Log.w(
                             TAG,
-                            "Ignoring invalid SPL format from provider: ${update.securityPatchLevel}",
+                            "Ignoring SPL from provider for $component: format mismatch. " +
+                                "Expected ${deviceSpl::class.simpleName}, but received ${spl::class.simpleName}.",
                         )
                         null
                     }

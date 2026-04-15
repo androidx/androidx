@@ -22,6 +22,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.os.Process
 import androidx.security.state.IUpdateInfoService
+import androidx.security.state.SecurityPatchState
 import androidx.security.state.UpdateCheckResult
 import androidx.security.state.UpdateInfo
 import androidx.test.core.app.ApplicationProvider
@@ -354,7 +355,9 @@ class UpdateInfoServiceTelemetryTest {
         val update =
             UpdateInfo.Builder()
                 .setComponent("SYSTEM")
-                .setSecurityPatchLevel("2026-01-01")
+                .setSecurityPatchLevel(
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2026-01-01")
+                )
                 .setPublishedDateMillis(1L)
                 .setLastCheckTimeMillis(1L)
                 .build()

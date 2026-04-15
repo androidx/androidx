@@ -140,18 +140,18 @@ package androidx.security.state {
   }
 
   public final class UpdateInfo implements android.os.Parcelable {
-    ctor public UpdateInfo(String component, String securityPatchLevel, long publishedDateMillis, long lastCheckTimeMillis);
+    ctor public UpdateInfo(String component, androidx.security.state.SecurityPatchState.SecurityPatchLevel securityPatchLevel, long publishedDateMillis, long lastCheckTimeMillis);
     method public int describeContents();
     method @InaccessibleFromKotlin @androidx.security.state.SecurityPatchState.Component public String getComponent();
     method @InaccessibleFromKotlin public long getLastCheckTimeMillis();
     method @InaccessibleFromKotlin public long getPublishedDateMillis();
-    method @InaccessibleFromKotlin public String getSecurityPatchLevel();
+    method @InaccessibleFromKotlin public androidx.security.state.SecurityPatchState.SecurityPatchLevel getSecurityPatchLevel();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.security.state.SerializableUpdateInfo toSerializableUpdateInfo();
     method public void writeToParcel(android.os.Parcel parcel, int flags);
     property @androidx.security.state.SecurityPatchState.Component public String component;
     property public long lastCheckTimeMillis;
     property public long publishedDateMillis;
-    property public String securityPatchLevel;
+    property public androidx.security.state.SecurityPatchState.SecurityPatchLevel securityPatchLevel;
     field public static final android.os.Parcelable.Creator<androidx.security.state.UpdateInfo> CREATOR;
     field public static final androidx.security.state.UpdateInfo.Companion Companion;
   }
@@ -162,7 +162,7 @@ package androidx.security.state {
     method public androidx.security.state.UpdateInfo.Builder setComponent(String component);
     method public androidx.security.state.UpdateInfo.Builder setLastCheckTimeMillis(long lastCheckTimeMillis);
     method public androidx.security.state.UpdateInfo.Builder setPublishedDateMillis(long publishedDateMillis);
-    method public androidx.security.state.UpdateInfo.Builder setSecurityPatchLevel(String securityPatchLevel);
+    method public androidx.security.state.UpdateInfo.Builder setSecurityPatchLevel(androidx.security.state.SecurityPatchState.SecurityPatchLevel securityPatchLevel);
   }
 
   public static final class UpdateInfo.Companion {
