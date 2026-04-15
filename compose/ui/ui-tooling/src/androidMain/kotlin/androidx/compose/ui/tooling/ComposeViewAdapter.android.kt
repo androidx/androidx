@@ -74,6 +74,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
+import org.jetbrains.annotations.TestOnly
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 private const val DESIGN_INFO_METHOD = "getDesignInfo"
@@ -401,6 +402,10 @@ internal class ComposeViewAdapter : FrameLayout {
 
     /** Clock that controls the animations defined in the context of this [ComposeViewAdapter]. */
     @VisibleForTesting internal lateinit var clock: PreviewAnimationClock
+
+    @get:TestOnly
+    internal val clockInitialized: Boolean
+        get() = this::clock.isInitialized
 
     /** Wraps a given [Preview] method an does any necessary setup. */
     @Composable

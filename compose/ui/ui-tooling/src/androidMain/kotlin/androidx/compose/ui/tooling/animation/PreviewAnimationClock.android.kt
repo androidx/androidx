@@ -75,6 +75,14 @@ internal open class PreviewAnimationClock(
             }
         }
 
+    /** Map of existing [TriggerComposeAnimation]. */
+    @VisibleForTesting
+    internal val triggersToTrack = mutableMapOf<Any, TriggerComposeAnimation<*>>()
+
+    fun trackTrigger(trigger: TriggerComposeAnimation<*>) {
+        triggersToTrack[trigger.animationObject] = trigger
+    }
+
     /**
      * Track [ComposeAnimation] and it's [ComposeAnimationClock] created for target [SearchInfo]. If
      * [ComposeAnimation] is not supported or there is an issue with parsing (for example API is not
@@ -245,6 +253,7 @@ internal open class PreviewAnimationClock(
         animationClocks.forEach { notifyUnsubscribe(it.key) }
         trackedUnsupportedAnimations.forEach { notifyUnsubscribe(it) }
         trackedUnsupportedAnimations.clear()
+        triggersToTrack.clear()
         animationClocks.clear()
         trackedAnimations.clear()
     }
