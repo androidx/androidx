@@ -87,7 +87,7 @@ include(":shared")
 def isCI = System.getenv("CI") == "true"
 buildCache {
     remote(HttpBuildCache) {
-        url = "https://ge.androidx.dev/cache/"
+        url = "https://androidx.develocity.cloud/cache/"
         var buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")
         if (isCI && buildCachePassword != null && !buildCachePassword.empty) {
             push = true

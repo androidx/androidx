@@ -33,20 +33,18 @@ class GradleDevelocityConventionsPlugin : Plugin<Settings> {
         val isCI = System.getenv("CI") != null
 
         settings.develocity {
-            server.set("https://ge.androidx.dev")
+            server.set("https://androidx.develocity.cloud")
             buildScan.apply {
                 uploadInBackground.set(!isCI)
                 capture.fileFingerprints.set(true)
                 obfuscation.hostname(HostnameHider())
                 obfuscation.ipAddresses(IpAddressHider())
-                publishing.onlyIf {
-                    it.isAuthenticated
-                }
+                publishing.onlyIf { it.isAuthenticated }
             }
         }
 
         settings.buildCache.remote(HttpBuildCache::class.java) { remote ->
-            remote.url = URI("https://ge.androidx.dev/cache/")
+            remote.url = URI("https://androidx.develocity.cloud/cache/")
             val buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")
             if (isCI && !buildCachePassword.isNullOrEmpty()) {
                 remote.isPush = true

@@ -104,7 +104,7 @@ apply(from: "buildSrc/ndk.gradle")
 
 def buildNumberProvider = providers.environmentVariable("BUILD_NUMBER").orElse("unset")
 develocity {
-    server = "https://ge.androidx.dev"
+    server = "https://androidx.develocity.cloud"
 
     buildScan {
         capture {
