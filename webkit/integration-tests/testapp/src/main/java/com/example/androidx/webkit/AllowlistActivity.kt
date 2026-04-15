@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -27,8 +28,8 @@ import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * An {@link Activity} to demonstrate how to allowlist a set of domains from Safe Browsing checks.
- * This includes buttons to toggle whether the allowlist is on or off.
+ * An [Activity] to demonstrate how to allowlist a set of domains from Safe Browsing checks. This
+ * includes buttons to toggle whether the allowlist is on or off.
  */
 class AllowlistActivity : AppCompatActivity() {
 

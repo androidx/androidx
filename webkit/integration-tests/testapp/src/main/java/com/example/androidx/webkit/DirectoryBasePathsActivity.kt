@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -26,10 +27,7 @@ import androidx.webkit.ProcessGlobalConfig
 import androidx.webkit.WebViewFeature
 import java.io.File
 
-/**
- * An {@link Activity} which makes use of {@link
- * androidx.webkit.ProcessGlobalConfig#setDirectoryBasePaths(Context, File, File)}
- */
+/** An [Activity] which makes use of [ProcessGlobalConfig.setDirectoryBasePaths] */
 class DirectoryBasePathsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

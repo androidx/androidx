@@ -16,17 +16,18 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * An {@link android.app.Activity} to demonstrate Safe Browsing behavior with a {@link WebView}
- * instance which is detached from the view hierarchy. This behaves identically to {@link
- * InvisibleActivity}: the WebView emits a network error with error code {@link
- * android.webkit.WebViewClient#ERROR_UNSAFE_RESOURCE}.
+ * An [Activity] to demonstrate Safe Browsing behavior with a [WebView] instance which is detached
+ * from the view hierarchy. This behaves identically to [InvisibleActivity]: the WebView emits a
+ * network error with error code [WebViewClient.ERROR_UNSAFE_RESOURCE].
  *
  * @see InvisibleActivity
  */

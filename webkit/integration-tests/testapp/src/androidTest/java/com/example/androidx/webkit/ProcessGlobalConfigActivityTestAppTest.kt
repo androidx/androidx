@@ -29,7 +29,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Integration test for {@link ProcessGlobalConfigActivity}. */
+/** Integration test for [ProcessGlobalConfigActivity]. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class ProcessGlobalConfigActivityTestAppTest {

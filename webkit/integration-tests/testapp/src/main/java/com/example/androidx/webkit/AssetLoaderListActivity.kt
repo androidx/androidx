@@ -16,14 +16,17 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.webkit.WebView
+import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * An {@link Activity} for exercising various WebView functionality. This Activity is a {@link
- * ListView} which starts other Activities, each of which may similarly be a ListView, or may
- * actually exercise specific {@link android.webkit.WebView} features.
+ * An [Activity] for exercising various WebView functionality. This Activity is a [ListView] which
+ * starts other Activities, each of which may similarly be a ListView, or may actually exercise
+ * specific [WebView] features.
  */
 class AssetLoaderListActivity : AppCompatActivity() {
 

@@ -18,6 +18,7 @@ package com.example.androidx.webkit
 
 import android.app.Activity
 import android.view.View
+import android.webkit.WebView
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -27,9 +28,9 @@ import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * Inserts the {@link android.webkit.WebView} version in the current Activity title. This assumes
- * the title has already been set to something interesting, and we want to append the WebView
- * version to the end of the title.
+ * Inserts the [WebView] version in the current Activity title. This assumes the title has already
+ * been set to something interesting, and we want to append the WebView version to the end of the
+ * title.
  */
 fun Activity.appendWebViewVersionToTitle() {
     val versionName =
@@ -41,14 +42,14 @@ fun Activity.appendWebViewVersionToTitle() {
 }
 
 /**
- * Replaces the entire view hierarchy of this {@link Activity} to show an error message.
+ * Replaces the entire view hierarchy of this [Activity] to show an error message.
  *
- * <p>Returns the {@link TextView} holding the error message, so callers can optionally add more
- * functionality (ex. {@code setOnClickListener()}).
+ * Returns the [TextView] holding the error message, so callers can optionally add more
+ * functionality (ex. `setOnClickListener()`).
  *
  * @param activity the Activity to show the message in.
  * @param messageResourceId the resource ID of the message to show.
- * @return the {@link TextView} holding the error message.
+ * @return the [TextView] holding the error message.
  */
 fun Activity.showMessage(@StringRes messageResourceId: Int): TextView {
     val errorMessage = TextView(this)
@@ -60,8 +61,7 @@ fun Activity.showMessage(@StringRes messageResourceId: Int): TextView {
 /**
  * Enable edge to edge rendering and handle insets.
  *
- * <p>
- * Must be called after {@link Activity#setContentView(View)}
+ * Must be called after [Activity.setContentView]
  */
 fun AppCompatActivity.enableEdgeToEdge() {
     ViewCompat.setOnApplyWindowInsetsListener(this.findViewById(android.R.id.content)) {
@@ -74,10 +74,10 @@ fun AppCompatActivity.enableEdgeToEdge() {
 }
 
 /**
- * Sets up the {@link Activity} to be used in the Webkit demo app
+ * Sets up the [Activity] to be used in the Webkit demo app
  *
- * <p>Appends the {@link android.webkit.WebView} version into the current title Enables edge to edge
- * rendering and handle insets
+ * Appends the [WebView] version into the current title Enables edge to edge rendering and handle
+ * insets
  *
  * @param activity the demo app Activity to be set up
  */

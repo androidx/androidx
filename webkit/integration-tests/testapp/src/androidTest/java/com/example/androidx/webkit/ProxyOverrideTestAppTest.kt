@@ -25,7 +25,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Integration test for {@link ProxyOverrideActivity}. */
+/** Integration test for [ProxyOverrideActivity]. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class ProxyOverrideTestAppTest {

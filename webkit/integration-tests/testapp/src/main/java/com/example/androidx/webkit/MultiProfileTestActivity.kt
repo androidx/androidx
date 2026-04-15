@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.webkit.WebView
@@ -28,9 +29,7 @@ import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * An {@link android.app.Activity} to demonstrate using Multi-Profile feature.
- *
- * <p>
+ * An [Activity] to demonstrate using Multi-Profile feature.
  *
  * It creates two WebViews and assigns the default profile to one and a newly created profile to the
  * other one. There's a button above each WebView to print the cookie value as a confirmation that

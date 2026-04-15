@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
@@ -23,13 +24,11 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * An {@link android.app.Activity} to demonstrate small ("Quiet") interstitials.
+ * An [Activity] to demonstrate small ("Quiet") interstitials.
  *
- * <p>
  * For Safe Browsing, WebView displays a grey error page with very little text when it is
  * sufficiently small (and loads a malicious resource).
  *
- * <p>
  * For Restricted Content blocking, WebView displays a grey error page with a blocked sign on it
  * (when a restricted resource is loaded). No text or "learn more" link is shown.
  */

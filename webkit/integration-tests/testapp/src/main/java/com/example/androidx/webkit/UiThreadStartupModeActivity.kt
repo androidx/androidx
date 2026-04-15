@@ -17,6 +17,7 @@
 package com.example.androidx.webkit
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -31,10 +32,7 @@ import androidx.webkit.WebViewStartUpConfig
 import androidx.webkit.WebViewStartUpResult
 import java.util.concurrent.Executors
 
-/**
- * An {@link Activity} which makes use of {@link
- * androidx.webkit.ProcessGlobalConfig#setUiThreadStartupMode(Context, int)}.
- */
+/** An [Activity] which makes use of [ProcessGlobalConfig.setUiThreadStartupMode]. */
 @SuppressLint("NullAnnotationGroup")
 @OptIn(WebViewCompat.ExperimentalAsyncStartUp::class)
 class UiThreadStartupModeActivity : AppCompatActivity() {

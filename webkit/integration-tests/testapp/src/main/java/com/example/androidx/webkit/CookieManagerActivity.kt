@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.CookieManager
 import android.webkit.WebView
@@ -25,7 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.CookieManagerCompat
 import androidx.webkit.WebViewFeature
 
-/** An {@link android.app.Activity} to demonstrate {@link CookieManagerCompat#getCookieInfo}. */
+/** An [Activity] to demonstrate [CookieManagerCompat.getCookieInfo]. */
 class CookieManagerActivity : AppCompatActivity() {
 
     val MAIN_PAGE_URL = "https://developer.android.com/reference/androidx/webkit/package-summary"

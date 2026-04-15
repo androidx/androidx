@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -25,7 +26,7 @@ import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import com.google.common.collect.ImmutableMap
 
-/** An {@link android.app.Activity} to demonstrate the getVariationsHeader() API. */
+/** An [Activity] to demonstrate the getVariationsHeader() API. */
 class GetVariationsHeaderActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -16,11 +16,12 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-/** An {@link Activity} to exercise Restricted Content blocking functionality. */
+/** An [Activity] to exercise Restricted Content blocking functionality. */
 class RestrictedContentActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

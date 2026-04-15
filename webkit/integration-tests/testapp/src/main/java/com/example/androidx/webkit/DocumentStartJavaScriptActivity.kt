@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.WebView
@@ -27,10 +28,7 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 
-/**
- * An {@link Activity} to exercise {@link WebViewCompat#addDocumentStartJavaScript(WebView, String,
- * java.util.Set)} related functionality.
- */
+/** An [Activity] to exercise [WebViewCompat.addDocumentStartJavaScript] related functionality. */
 class DocumentStartJavaScriptActivity : AppCompatActivity() {
 
     private inner class ReplyMessageListener : WebViewCompat.WebMessageListener {

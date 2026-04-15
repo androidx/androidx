@@ -16,19 +16,20 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * An {@link android.app.Activity} to demonstrate Safe Browsing behavior with a {@link WebView}
- * instance which is attached to the view hierarchy, but marked as {@link
- * android.view.View#INVISIBLE}. In this case, the WebView will immediately emit a network error via
- * {@link android.webkit.WebViewClient#onReceivedError(WebView, WebResourceRequest,
- * WebResourceError)} (or the other {@code #onReceivedError} overload). The network error code
- * should be {@link android.webkit.WebViewClient#ERROR_UNSAFE_RESOURCE}.
+ * An [Activity] to demonstrate Safe Browsing behavior with a [WebView] instance which is attached
+ * to the view hierarchy, but marked as [View.INVISIBLE]. In this case, the WebView will immediately
+ * emit a network error via [WebViewClient.onReceivedError] (or the other `#onReceivedError`
+ * overload). The network error code should be [WebViewClient.ERROR_UNSAFE_RESOURCE].
  *
  * @see UnattachedActivity
  */
