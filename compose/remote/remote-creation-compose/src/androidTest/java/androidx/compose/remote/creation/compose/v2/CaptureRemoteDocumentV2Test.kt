@@ -23,6 +23,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -67,7 +68,7 @@ class CaptureRemoteDocumentV2Test {
     fun captureDocumentV2_withDefaultDensity() = runTest {
         val creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160)
         val bytes =
-            captureSingleRemoteDocumentV2(
+            captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
                     context = context,
                 ) {
@@ -98,7 +99,7 @@ class CaptureRemoteDocumentV2Test {
     fun captureDocumentV2_withCustomDensity() = runTest {
         val creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160)
         val bytes =
-            captureSingleRemoteDocumentV2(
+            captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
                     remoteDensity = RemoteDensity(3f.rf, 1.5f.rf),
                     context = context,

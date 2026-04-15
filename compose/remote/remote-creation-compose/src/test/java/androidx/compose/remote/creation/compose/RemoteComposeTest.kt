@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.creation.compose.v2
+package androidx.compose.remote.creation.compose
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.FitBox
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -25,6 +26,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteRow
+import androidx.compose.remote.creation.compose.layout.RemoteSpacer
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -44,15 +46,15 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-class RemoteComposeV2Test {
+class RemoteComposeTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
     fun testCaptureDocument() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
-            captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
-                RemoteBoxV2 { RemoteTextV2(text = "Hello V2".rs) }
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
+                RemoteBox { RemoteText(text = "Hello V2".rs) }
             }
 
         assertNotNull(document)
@@ -63,10 +65,10 @@ class RemoteComposeV2Test {
     fun testComplexComposition() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
-            captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
-                RemoteColumnV2 {
-                    RemoteTextV2(text = "Item 1".rs)
-                    RemoteRowV2 { RemoteTextV2(text = "Nested Item".rs) }
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
+                RemoteColumn {
+                    RemoteText(text = "Item 1".rs)
+                    RemoteRow { RemoteText(text = "Nested Item".rs) }
                 }
             }
 
@@ -78,10 +80,10 @@ class RemoteComposeV2Test {
     fun testScopeAndSpacer() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
-            captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
-                RemoteRowV2 {
-                    RemoteSpacerV2(modifier = RemoteModifier.weight(1f))
-                    RemoteTextV2(text = "End".rs)
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
+                RemoteRow {
+                    RemoteSpacer(modifier = RemoteModifier.weight(1f))
+                    RemoteText(text = "End".rs)
                 }
             }
 
@@ -93,7 +95,7 @@ class RemoteComposeV2Test {
     fun testV1toV2Switching() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
-            captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 // Using V1 components inside V2 capture
                 RemoteBox {
                     RemoteColumn {
@@ -111,7 +113,7 @@ class RemoteComposeV2Test {
     fun testRemoteCanvasV2() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
-            captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 RemoteCanvas { drawRect(paint = RemotePaint { color = Color.Red.rc }) }
             }
 
@@ -123,7 +125,7 @@ class RemoteComposeV2Test {
     fun testFitBoxV2() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
-            captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 FitBox { RemoteText(text = "Fit Content") }
             }
 
@@ -135,7 +137,7 @@ class RemoteComposeV2Test {
     fun testCollapsibleLayoutsV2() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
-            captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 RemoteCollapsibleColumn {
                     RemoteText(text = "Fixed")
                     RemoteCollapsibleRow(modifier = RemoteModifier.weight(1f)) {
@@ -152,7 +154,7 @@ class RemoteComposeV2Test {
     fun testStateLayoutV2() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
         val document =
-            captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 val checked = rememberMutableRemoteEnum(ToggleState.On)
                 RemoteStateLayout(state = checked) { state -> RemoteText(text = "State $state".rs) }
             }

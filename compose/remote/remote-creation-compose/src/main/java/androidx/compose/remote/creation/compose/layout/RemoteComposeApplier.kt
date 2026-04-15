@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.creation.compose.v2
+package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.runtime.AbstractApplier
 
-internal class RemoteComposeApplierV2(root: RemoteComposeNodeV2) :
-    AbstractApplier<RemoteComposeNodeV2>(root) {
+internal class RemoteComposeApplier(root: RemoteComposeNode) :
+    AbstractApplier<RemoteComposeNode>(root) {
 
-    override fun insertTopDown(index: Int, instance: RemoteComposeNodeV2) {
+    override fun insertTopDown(index: Int, instance: RemoteComposeNode) {
         // Ignored as we build the tree bottom-up for efficiency
     }
 
-    override fun insertBottomUp(index: Int, instance: RemoteComposeNodeV2) {
+    override fun insertBottomUp(index: Int, instance: RemoteComposeNode) {
         current.children.add(index, instance)
     }
 

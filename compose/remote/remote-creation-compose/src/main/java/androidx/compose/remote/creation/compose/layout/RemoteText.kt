@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
@@ -30,9 +31,9 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
-import androidx.compose.remote.creation.compose.v2.RemoteTextV2
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
@@ -172,25 +173,106 @@ public fun RemoteText(
     textDecoration: TextDecoration? = null,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
-    RemoteTextV2(
-        text = text,
-        modifier = modifier,
-        color = color,
-        fontSize = fontSize,
-        fontWeight = fontWeight,
-        fontStyle = fontStyle,
-        fontFamily = fontFamily,
-        textAlign = textAlign,
-        overflow = overflow,
-        maxLines = maxLines,
-        minFontSize = minFontSize,
-        maxFontSize = maxFontSize,
-        letterSpacing = letterSpacing,
-        lineHeightAdd = lineHeightAdd,
-        lineHeightMultiply = lineHeightMultiply,
-        textDecoration = textDecoration ?: TextDecoration.None,
-        fontVariationSettings = fontVariationSettings,
+    RemoteComposeNode(
+        factory = ::RemoteTextNode,
+        update = {
+            set(text) { this.text = it }
+            set(modifier) { this.modifier = it }
+            set(color) { this.color = it }
+            set(fontSize) { this.fontSize = it }
+            set(fontWeight) { this.fontWeight = it }
+            set(fontStyle) { this.fontStyle = it }
+            set(fontFamily) { this.fontFamily = it }
+            set(textAlign) { this.textAlign = it }
+            set(overflow) { this.overflow = it }
+            set(maxLines) { this.maxLines = it }
+            set(minFontSize) { this.minFontSize = it }
+            set(maxFontSize) { this.maxFontSize = it }
+            set(letterSpacing) { this.letterSpacing = it }
+            set(lineHeightAdd) { this.lineHeightAdd = it }
+            set(lineHeightMultiply) { this.lineHeightMultiply = it }
+            set(textDecoration ?: TextDecoration.None) { this.textDecoration = it }
+            set(fontVariationSettings) { this.fontVariationSettings = it }
+        },
     )
+}
+
+internal class RemoteTextNode : RemoteComposeNode() {
+    lateinit var text: RemoteString
+    lateinit var color: RemoteColor
+    var fontSize: RemoteFloat = 14f.rf
+    var fontWeight: RemoteFloat = 400f.rf
+    var fontStyle: FontStyle = FontStyle.Normal
+    var fontFamily: String? = null
+    var textAlign: TextAlign = TextAlign.Start
+    var overflow: TextOverflow = TextOverflow.Clip
+    var maxLines: Int = Int.MAX_VALUE
+    var minFontSize: Float? = null
+    var maxFontSize: Float? = null
+    var letterSpacing: RemoteFloat = 0f.rf
+    var lineHeightAdd: Float? = null
+    var lineHeightMultiply: RemoteFloat = 1f.rf
+    var textDecoration: TextDecoration = TextDecoration.None
+    var fontVariationSettings: FontVariation.Settings? = null
+
+    private fun extractFontSettings(
+        settings: List<FontVariation.Setting>?
+    ): Pair<Array<String>?, FloatArray?> {
+        val size = settings?.size ?: return Pair(null, null)
+
+        val fontAxisNames = Array(size) { settings[it].axisName }
+        val fontAxisValues = FloatArray(size) { settings[it].toVariationValue(null) }
+
+        return Pair(fontAxisNames, fontAxisValues)
+    }
+
+    override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
+        val textIdValue = text.getIdForCreationState(creationState)
+
+        val colorInt = color.constantValueOrNull?.toArgb() ?: Color.Black.toArgb()
+        val colorId =
+            if (!color.hasConstantValue) {
+                color.getIdForCreationState(creationState)
+            } else {
+                -1
+            }
+
+        val (fontAxisNames, fontAxisValues) = extractFontSettings(fontVariationSettings?.settings)
+
+        val fontSizePx = fontSize.getFloatIdForCreationState(creationState)
+        val letterSpacingId = letterSpacing.getFloatIdForCreationState(creationState)
+        val lineHeightMultiplyId = lineHeightMultiply.getFloatIdForCreationState(creationState)
+
+        creationState.document.startTextComponent(
+            with(modifier) { creationState.toRecordingModifier() },
+            textIdValue,
+            -1,
+            colorInt,
+            colorId,
+            fontSizePx,
+            minFontSize ?: -1f,
+            maxFontSize ?: -1f,
+            fontStyle.encode(),
+            fontWeight.getFloatIdForCreationState(creationState),
+            fontFamily,
+            textAlign.encode(),
+            overflow.encode(),
+            maxLines,
+            letterSpacingId,
+            lineHeightAdd ?: 0f,
+            lineHeightMultiplyId,
+            0, // lineBreakStrategy
+            0, // hyphenationFrequency
+            0, // justificationMode
+            textDecoration.contains(TextDecoration.Underline),
+            textDecoration.contains(TextDecoration.LineThrough),
+            fontAxisNames,
+            fontAxisValues,
+            false, // autosize
+            0, // flags
+        )
+        creationState.document.endTextComponent()
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

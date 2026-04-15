@@ -17,7 +17,7 @@
 package androidx.compose.remote.integration.view.demos
 
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -72,7 +72,7 @@ fun RemoteComposeDumper(
             if (!isCaptureFinished) {
                 LaunchedEffect(sample) {
                     val doc =
-                        captureSingleRemoteDocumentV2(
+                        captureSingleRemoteDocument(
                             creationDisplayInfo = creationDisplayInfo,
                             context = context,
                         ) {

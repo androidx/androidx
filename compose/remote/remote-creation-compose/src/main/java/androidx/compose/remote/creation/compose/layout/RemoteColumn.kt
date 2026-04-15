@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.HeightModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.v2.RemoteColumnV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 
 /** Receiver scope used by [RemoteColumn] for its content. */
 public class RemoteColumnScope {
@@ -38,6 +41,26 @@ public class RemoteColumnScope {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun RemoteModifier.weight(weight: Float): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, RemoteFloat(weight)))
+}
+
+internal class RemoteColumnNode : RemoteComposeNode() {
+    var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
+    var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
+    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+
+    override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+        (verticalArrangement as? RemoteSpaced)?.let {
+            recordingModifier.spacedBy(it.space.getFloatIdForCreationState(creationState))
+        }
+        creationState.document.startColumn(
+            recordingModifier,
+            horizontalAlignment.toRemote(layoutDirection),
+            verticalArrangement.toRemote(),
+        )
+        renderChildren(creationState, remoteCanvas)
+        creationState.document.endColumn()
+    }
 }
 
 /**
@@ -59,14 +82,22 @@ public fun RemoteColumn(
     horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
     content: @Composable RemoteColumnScope.() -> Unit,
 ) {
-    RemoteColumnV2(
-        modifier,
-        verticalArrangement,
-        horizontalAlignment,
-        LocalLayoutDirection.current,
-    ) {
-        // Bridge V1 scope to V2 scope
-        val v1Scope = remember { RemoteColumnScope() }
-        v1Scope.content()
-    }
+    val scope = remember { RemoteColumnScope() }
+    val layoutDirection = LocalLayoutDirection.current
+    RemoteComposeNode(
+        factory = ::RemoteColumnNode,
+        update = {
+            set(modifier) { nodeModifier -> this.modifier = nodeModifier }
+            set(verticalArrangement) { nodeVerticalArrangement ->
+                this.verticalArrangement = nodeVerticalArrangement
+            }
+            set(horizontalAlignment) { nodeHorizontalAlignment ->
+                this.horizontalAlignment = nodeHorizontalAlignment
+            }
+            set(layoutDirection) { nodeLayoutDirection ->
+                this.layoutDirection = nodeLayoutDirection
+            }
+        },
+        content = { scope.content() },
+    )
 }
