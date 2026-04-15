@@ -106,8 +106,8 @@ public constructor(viewModelStoreProvider: ViewModelStoreProvider) :
         decorate = { entry ->
             val owner =
                 rememberViewModelStoreOwner(
-                    viewModelStoreProvider,
                     entry.contentKey,
+                    viewModelStoreProvider,
                     savedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
                 )
             CompositionLocalProvider(LocalViewModelStoreOwner provides owner) { entry.Content() }

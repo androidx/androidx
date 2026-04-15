@@ -78,8 +78,8 @@ public fun rememberViewModelStoreOwner(
     val key = currentCompositeKeyHashCode
     val provider =
         rememberViewModelStoreProvider(
-            parent,
             key,
+            parent,
             defaultArgs,
             defaultCreationExtras,
             defaultFactory,
@@ -94,9 +94,37 @@ public fun rememberViewModelStoreOwner(
 /**
  * Remembers a [ViewModelStoreOwner] scoped to the current composable using an existing [provider].
  *
- * This function creates an owner unique to this specific call site in the composition hierarchy.
- * While this composable is active, it maintains an active reference to the underlying
- * [ViewModelStore], preventing it from being cleared.
+ * This function creates an owner scoped to this specific call site in the composition.
+ *
+ * This function is responsible for releasing its reference to the store when it leaves the
+ * composition, allowing the [provider] to perform cleanup if the store has been marked for
+ * clearing.
+ *
+ * @param provider The [ViewModelStoreProvider] that manages the creation and cleanup of the
+ *   underlying [ViewModelStore].
+ * @param savedStateRegistryOwner An optional [SavedStateRegistryOwner] to delegate saved state
+ *   operations. When `null`, ViewModels created in this scope do not support saved state.
+ * @return A [ViewModelStoreOwner] remembered across compositions and scoped to this call site.
+ * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreProviderSample
+ */
+@Composable
+public fun rememberViewModelStoreOwner(
+    provider: ViewModelStoreProvider,
+    savedStateRegistryOwner: SavedStateRegistryOwner? = LocalSavedStateRegistryOwner.current,
+): ViewModelStoreOwner {
+    val key = currentCompositeKeyHashCode
+    return rememberViewModelStoreOwner(key, provider, savedStateRegistryOwner)
+}
+
+/**
+ * Remembers a [ViewModelStoreOwner] scoped to the current composable using an existing [provider]
+ * and a specific [key].
+ *
+ * This function allows you to scope a [ViewModelStoreOwner] to a custom [key]. This is useful in
+ * cases where using a key in different parts of the UI should yield the same state or instance
+ * (similar to how a ViewModel is shared). For example, you might use a key derived from navigation
+ * arguments, such as `ViewModelNavEntryDecorator.contentKey`, to share the same owner across
+ * different screens or components.
  *
  * **Note:** Unlike many other scoped owners, ViewModels created with this owner are **not**
  * automatically cleared simply because this composable leaves the composition. The [ViewModelStore]
@@ -106,21 +134,20 @@ public fun rememberViewModelStoreOwner(
  * composition, allowing the [provider] to perform cleanup if the store has been marked for
  * clearing.
  *
+ * @param key A unique identifier to isolate this store from others. Providing the same [key] and
+ *   [provider] to multiple [rememberViewModelStoreOwner] calls will yield the same
+ *   [ViewModelStoreOwner] and shared state.
  * @param provider The [ViewModelStoreProvider] that manages the creation and cleanup of the
  *   underlying [ViewModelStore].
- * @param key A unique identifier for this call site to isolate its store from others. Defaults to
- *   [currentCompositeKeyHashCode]. If called multiple times in the same scope or loop, provide a
- *   custom key to ensure each instance gets its own [ViewModelStore]. A `null` key is valid and is
- *   treated as a distinct scope.
  * @param savedStateRegistryOwner An optional [SavedStateRegistryOwner] to delegate saved state
  *   operations. When `null`, ViewModels created in this scope do not support saved state.
- * @return A [ViewModelStoreOwner] remembered across compositions and scoped to this call site.
- * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreProviderSample
+ * @return A [ViewModelStoreOwner] remembered across compositions and scoped to the provided [key].
+ * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreOwnerWithKeySample
  */
 @Composable
 public fun rememberViewModelStoreOwner(
+    key: Any?,
     provider: ViewModelStoreProvider,
-    key: Any? = currentCompositeKeyHashCode,
     savedStateRegistryOwner: SavedStateRegistryOwner? = LocalSavedStateRegistryOwner.current,
 ): ViewModelStoreOwner {
     val owner =

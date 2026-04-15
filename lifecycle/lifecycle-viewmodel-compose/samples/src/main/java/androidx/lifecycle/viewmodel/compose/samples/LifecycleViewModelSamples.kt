@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused")
+
 package androidx.lifecycle.viewmodel.compose.samples
 
 import androidx.annotation.Sampled
@@ -37,6 +39,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
@@ -250,27 +253,29 @@ fun SnapshotStateViewModelWithDelegates() {
 @Sampled
 @Composable
 fun RememberViewModelStoreOwnerSample() {
-    // Create a ViewModelStoreOwner scoped to this specific call site.
-    // When `showFeature` becomes false, this composable leaves the composition,
-    // and the associated ViewModelStore will be cleared.
-    val scopedOwner = rememberViewModelStoreOwner()
+    var showDetail by remember { mutableStateOf(false) }
 
-    CompositionLocalProvider(LocalViewModelStoreOwner provides scopedOwner) {
-        // This ViewModel is scoped to `scopedOwner`.
-        // It will survive configuration changes but will be cleared when `showFeature` is false.
-        val viewModel = viewModel { TestViewModel("scoped_data") }
-        // Use the ViewModel
+    if (showDetail) {
+        // Creates a ViewModelStoreOwner scoped to this specific call site.
+        // When showDetail becomes false, the owner leaves composition and ViewModels are cleared.
+        val scopedOwner = rememberViewModelStoreOwner()
+
+        CompositionLocalProvider(LocalViewModelStoreOwner provides scopedOwner) {
+            val viewModel = viewModel { TestViewModel("detail_data") }
+            // Use viewModel
+        }
     }
 }
 
 @Sampled
 @Composable
-fun RememberViewModelStoreProviderSample() {
+fun RememberViewModelStoreOwnerWithKeySample() {
     val storeProvider = rememberViewModelStoreProvider()
     val pages = listOf("Page 1", "Page 2", "Page 3")
 
     HorizontalPager(pageCount = pages.size) { page ->
-        // Create a ViewModelStoreOwner for the specific page using the provider.
+        // Create a ViewModelStoreOwner for the specific page using the provider and a key.
+        // This ensures each page gets its own isolated ViewModel instance.
         val pageOwner = rememberViewModelStoreOwner(provider = storeProvider, key = page)
 
         CompositionLocalProvider(LocalViewModelStoreOwner provides pageOwner) {
@@ -280,8 +285,53 @@ fun RememberViewModelStoreProviderSample() {
     }
 }
 
+@Sampled
+@Composable
+fun RememberViewModelStoreProviderSample() {
+    // Creates a provider unique to this feature branch using hashCode.
+    val storeProvider = rememberViewModelStoreProvider()
+
+    // Use the provider to get an owner (without key)
+    val owner = rememberViewModelStoreOwner(provider = storeProvider)
+
+    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+        val viewModel = viewModel { TestViewModel("isolated_data") }
+    }
+}
+
+@Sampled
+@Composable
+fun RememberViewModelStoreProviderWithKeySample() {
+    val featureKey = "shared_feature_flow"
+
+    // Creates a provider scoped to a custom key.
+    // This allows sharing the same provider (and its stores) across different parts of the UI
+    // that might not share the same parent composition node but share the same feature key.
+    val storeProvider = rememberViewModelStoreProvider(key = featureKey)
+
+    // Component A
+    FeaturePartA(storeProvider)
+
+    // Component B
+    FeaturePartB(storeProvider)
+}
+
 @Composable
 private fun HorizontalPager(pageCount: Int, content: @Composable (Int) -> Unit) {
-    // Dummy implementation for sample compilation
-    content(pageCount)
+    // Dummy implementation for sample compilation.
+}
+
+@Composable
+private fun FeatureContent(provider: ViewModelStoreProvider) {
+    // Dummy implementation for sample compilation.
+}
+
+@Composable
+private fun FeaturePartA(provider: ViewModelStoreProvider) {
+    // Dummy implementation for sample compilation.
+}
+
+@Composable
+private fun FeaturePartB(provider: ViewModelStoreProvider) {
+    // Dummy implementation for sample compilation.
 }
