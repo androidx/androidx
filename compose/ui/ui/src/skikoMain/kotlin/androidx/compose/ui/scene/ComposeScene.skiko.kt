@@ -190,6 +190,13 @@ sealed interface ComposeScene : AutoCloseable {
     fun render(canvas: Canvas, nanoTime: Long)
 
     /**
+     * Performs pending recompositions and layout passes without rendering.
+     *
+     * @param nanoTime the time to use for animations and any other code that uses [withFrameNanos]
+     */
+    fun recomposeAndLayout(nanoTime: Long)
+
+    /**
      * Send pointer event to the content.
      *
      * @param eventType Indicates the primary reason that the event was sent.
