@@ -16,6 +16,8 @@
 
 package androidx.xr.glimmer.list
 
+import androidx.compose.foundation.gestures.Orientation
+
 /**
  * Keeps the auto focus calculations from the previous measure pass for use in the next measure one.
  *
@@ -51,14 +53,8 @@ package androidx.xr.glimmer.list
  * * `userScroll = contentScroll + focusScroll = focus_line - content_start`
  */
 internal class GlimmerListAutoFocusProperties(
-    /**
-     * This is an estimate of how far a user should scroll backward to bring the content and focus
-     * line to the top. This value is always the sum of [focusScroll] and [contentScroll]. We need
-     * it to correctly calculate the next [contentScroll] value, since transformation is non-linear
-     * and depends on the previous value. The maximum value of [userScroll] is always equal to the
-     * [contentLength].
-     */
-    val userScroll: Double,
+    /** The orientation of the list's main-axis. */
+    val orientation: Orientation,
     /**
      * The position of the focus line relative to the start of the viewport and it doesn't include
      * the paddings.
@@ -87,9 +83,6 @@ internal class GlimmerListAutoFocusProperties(
      * focus line centers.
      */
     val scrollThreshold: Double,
-    /** Extra information on the layout properties (e.g. paddings). */
-    val layoutProperties: ListLayoutProperties,
-) {
     /**
      * The area within a list where content is displayed, excluding padding. This area defines the
      * region in which the focus line can move.
@@ -97,6 +90,14 @@ internal class GlimmerListAutoFocusProperties(
      * E.g., if the list size is 100dp and the paddings are 20dp, then the value of [viewportSize]
      * would be 60dp.
      */
-    val viewportSize: Int
-        get() = layoutProperties.mainAxisAvailableSize
+    val viewportSize: Int,
+) {
+    /**
+     * This is an estimate of how far a user should scroll backward to bring the content and focus
+     * line to the top. This value is always the sum of [focusScroll] and [contentScroll]. We need
+     * it to correctly calculate the next [contentScroll] value, since transformation is non-linear
+     * and depends on the previous value. The maximum value of [userScroll] is always equal to the
+     * [contentLength].
+     */
+    val userScroll: Double = focusScroll + contentScroll
 }

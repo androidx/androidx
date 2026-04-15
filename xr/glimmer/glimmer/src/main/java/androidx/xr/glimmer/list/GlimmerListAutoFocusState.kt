@@ -16,6 +16,7 @@
 
 package androidx.xr.glimmer.list
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.focus.requestFocusForChildInRootBounds
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.DelegatableNode
@@ -41,12 +42,18 @@ internal class GlimmerListAutoFocusState {
 
     private var pendingRequestFocus = false
 
-    internal var properties: GlimmerListAutoFocusProperties? = null
+    var properties: GlimmerListAutoFocusProperties? = null
         private set
 
     internal var isAutoFocusEnabled: Boolean = true
 
-    internal fun applyAutoFocusProperties(newProperties: GlimmerListAutoFocusProperties?) {
+    private var beforeContentPadding: Int = 0
+
+    internal fun applyAutoFocusProperties(
+        newProperties: GlimmerListAutoFocusProperties?,
+        newBeforeContentPadding: Int,
+    ) {
+        beforeContentPadding = newBeforeContentPadding
         properties = newProperties
         pendingRequestFocus = newProperties != null
     }
@@ -54,11 +61,10 @@ internal class GlimmerListAutoFocusState {
     internal fun onAfterLayout(node: DelegatableNode) {
         val properties = properties
         if (isAutoFocusEnabled && pendingRequestFocus && properties != null) {
-            val layoutProperties = properties.layoutProperties
-            val focusLinePosition = getFocusLinePosition(properties)
+            val focusLinePosition = getFocusLinePosition(properties, beforeContentPadding)
             val size = node.requireLayoutCoordinates().size
 
-            if (layoutProperties.isVertical) {
+            if (properties.orientation == Orientation.Vertical) {
                 node.requestFocusForChildInLocalBounds(
                     // Focus line along the main-axis (height)
                     top = focusLinePosition,
@@ -105,13 +111,15 @@ private fun DelegatableNode.requestFocusForChildInLocalBounds(
 }
 
 /** Returns the focus line position along the main axis */
-private fun getFocusLinePosition(state: GlimmerListAutoFocusProperties): Int {
+private fun getFocusLinePosition(
+    state: GlimmerListAutoFocusProperties,
+    beforeContentPadding: Int,
+): Int {
     // The FocusScroll doesn't include paddings, but the RectList API requires us to respect them.
-    val focusLinePosition =
-        state.layoutProperties.beforeContentPadding + state.focusScroll.fastRoundToInt()
+    val focusLinePosition = beforeContentPadding + state.focusScroll.fastRoundToInt()
     // Specifies the boundaries where the focus line can be.
-    val start = state.layoutProperties.beforeContentPadding
-    val end = start + state.layoutProperties.mainAxisAvailableSize
+    val start = beforeContentPadding
+    val end = start + state.viewportSize
     // If the focus line lies exactly on the edge of an item, they are considered non-overlapping.
     // This breaks the behavior at the very beginning and end of the list. To avoid this, we shrink
     // the area where the focus line can exist by one pixel on both sides.
