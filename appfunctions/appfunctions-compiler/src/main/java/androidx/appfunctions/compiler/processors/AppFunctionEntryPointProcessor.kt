@@ -19,7 +19,9 @@ package androidx.appfunctions.compiler.processors
 import androidx.annotation.VisibleForTesting
 import androidx.appfunctions.compiler.AppFunctionCompiler
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionEntryPoint
+import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
+import androidx.appfunctions.compiler.core.AppFunctionXmlGenerator
 import androidx.appfunctions.compiler.core.IntrospectionHelper.APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionExecutionDispatcherClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceClass
@@ -80,17 +82,38 @@ class AppFunctionEntryPointProcessor(
         isProcessed = true
 
         val appFunctionSymbolResolver = AppFunctionSymbolResolver(resolver)
+        val resolvedAnnotatedSerializableProxies =
+            ResolvedAnnotatedSerializableProxies(
+                appFunctionSymbolResolver.resolveAllAnnotatedSerializableProxiesFromModule()
+            )
+        val descriptionMap = appFunctionSymbolResolver.getAppFunctionSerializablesDescriptionMap()
+
         val entryPoints = appFunctionSymbolResolver.resolveAnnotatedAppFunctionEntryPoints()
         for (entryPoint in entryPoints) {
             try {
                 entryPoint.validate()
                 generateAppFunctionService(entryPoint)
-                // TODO(b/463909015): Generate XML
+                generateXml(entryPoint, resolvedAnnotatedSerializableProxies, descriptionMap)
             } catch (e: ProcessingException) {
                 logger.logException(e)
             }
         }
         return emptyList()
+    }
+
+    private fun generateXml(
+        entryPoint: AnnotatedAppFunctionEntryPoint,
+        resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
+        descriptionMap: Map<String, String>,
+    ) {
+        val generator = AppFunctionXmlGenerator(codeGenerator, logger)
+        generator.generateXml(
+            appFunctionsByClass = listOf(entryPoint.annotatedAppFunctions),
+            resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
+            appFunctionSerializablesDescriptionMap = descriptionMap,
+            packageName = XML_PACKAGE_NAME,
+            fileName = entryPoint.appFunctionXmlFileName,
+        )
     }
 
     // TODO(b/463909015): Generate IDs for each AppFunction.
@@ -171,5 +194,9 @@ class AppFunctionEntryPointProcessor(
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
             return AppFunctionEntryPointProcessor(environment.codeGenerator, environment.logger)
         }
+    }
+
+    private companion object {
+        const val XML_PACKAGE_NAME = "assets"
     }
 }
