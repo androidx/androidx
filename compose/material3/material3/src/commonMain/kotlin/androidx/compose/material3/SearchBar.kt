@@ -1379,7 +1379,7 @@ fun rememberContainedSearchBarState(
  */
 @ExperimentalMaterial3Api
 @Composable
-fun rememberWithGapSearchBarState(
+fun rememberSearchBarWithGapState(
     initialValue: SearchBarValue = SearchBarValue.Collapsed,
     animationSpecForExpand: AnimationSpec<Float> = MotionSchemeKeyTokens.DefaultSpatial.value(),
     animationSpecForCollapse: AnimationSpec<Float> = MotionSchemeKeyTokens.FastSpatial.value(),

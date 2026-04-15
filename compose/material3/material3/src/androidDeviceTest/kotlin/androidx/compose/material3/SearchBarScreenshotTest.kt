@@ -748,7 +748,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun appBarWithSearch_withNavigationIconAndActions_dockedAndExpanded_withGap() {
         rule.setMaterialContent(scheme.colorScheme) {
             val searchBarState =
-                rememberWithGapSearchBarState(initialValue = SearchBarValue.Expanded)
+                rememberSearchBarWithGapState(initialValue = SearchBarValue.Expanded)
             val inputField =
                 @Composable {
                     SearchBarDefaults.InputField(
