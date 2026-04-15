@@ -85,7 +85,7 @@ internal constructor(
     // TODO(b/392660855): Disable all features by default once this API is fully implemented.
     public override var config: Config = Config()
         private set(value) {
-            this.lifecycleManager.configure(config)
+            this.lifecycleManager.configure(value)
             field = value
         }
 
