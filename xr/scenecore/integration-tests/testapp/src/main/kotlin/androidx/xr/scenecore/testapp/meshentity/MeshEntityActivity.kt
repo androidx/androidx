@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testapp.meshentity
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,7 +40,9 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
@@ -50,6 +53,7 @@ import androidx.xr.scenecore.ByteBufferRegion
 import androidx.xr.scenecore.CustomMesh
 import androidx.xr.scenecore.ExperimentalCustomMeshApi
 import androidx.xr.scenecore.KhronosPbrMaterial
+import androidx.xr.scenecore.KhronosUnlitMaterial
 import androidx.xr.scenecore.MeshBuffer
 import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.MeshSubset
@@ -67,11 +71,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@SuppressLint("RestrictedApi", "RestrictedApiAndroidX")
 @OptIn(ExperimentalCustomMeshApi::class)
 class MeshEntityActivity : ComponentActivity() {
     private var session: Session? = null
     private var material: KhronosPbrMaterial? = null
-    private var material2: KhronosPbrMaterial? = null
+    private var material2: KhronosUnlitMaterial? = null
     private var cubeEntity: MeshEntity? = null
     private var twoSubsetsEntity: MeshEntity? = null
     private var sharedBufferBottomEntity: MeshEntity? = null
@@ -268,6 +273,7 @@ class MeshEntityActivity : ComponentActivity() {
                 pixelDimensions = IntSize2d(1600, 800),
                 name = "Panel_$text",
                 pose = pose,
+                parent = session.scene.activitySpace,
             )
         panel.size = FloatSize2d(0.8f, 0.4f)
     }
@@ -304,9 +310,7 @@ class MeshEntityActivity : ComponentActivity() {
             material?.setMetallicFactor(0f)
             material?.setRoughnessFactor(1f)
 
-            material2 = KhronosPbrMaterial.create(currentSession, AlphaMode.OPAQUE)
-            material2?.setMetallicFactor(1f)
-            material2?.setRoughnessFactor(1f)
+            material2 = KhronosUnlitMaterial.create(currentSession, AlphaMode.OPAQUE)
 
             createTest1_Cube(currentSession, vertexLayout, stride)
             createTest2_TwoSubsets(currentSession, vertexLayout, stride)
@@ -315,6 +319,11 @@ class MeshEntityActivity : ComponentActivity() {
             createTest5_TwoMaterials(currentSession, vertexLayout, stride)
             createTest6_WigglingStick(currentSession)
         }
+    }
+
+    private fun addMovableComponent(session: Session, entity: MeshEntity?) {
+        val movableComponent = MovableComponent.createSystemMovable(session, scaleInZ = false)
+        entity?.addComponent(movableComponent)
     }
 
     private fun createTest1_Cube(currentSession: Session, vertexLayout: VertexLayout, stride: Int) {
@@ -341,6 +350,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!),
                 pose = Pose(Vector3(-2f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, cubeEntity)
         createPanel(
             currentSession,
             "A cube with six different colored faces.\nBox: " +
@@ -379,6 +389,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!, material!!),
                 pose = Pose(Vector3(-1f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, twoSubsetsEntity)
         createPanel(
             currentSession,
             "Two Subsets: One mesh with two subsets rendered on top of each other.",
@@ -412,10 +423,22 @@ class MeshEntityActivity : ComponentActivity() {
         val bottomCubeMesh =
             CustomMesh.FromMeshBufferBuilder(currentSession, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
+                .setBounds(
+                    BoundingBox.fromCenterAndHalfExtents(
+                        Vector3(0f, -0.2f, 0f),
+                        FloatSize3d(0.15f, 0.15f, 0.15f),
+                    )
+                )
                 .build()
         val topCubeMesh =
             CustomMesh.FromMeshBufferBuilder(currentSession, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
+                .setBounds(
+                    BoundingBox.fromCenterAndHalfExtents(
+                        Vector3(0f, 0.2f, 0f),
+                        FloatSize3d(0.15f, 0.15f, 0.15f),
+                    )
+                )
                 .build()
         sharedBufferBottomEntity =
             MeshEntity.create(
@@ -424,6 +447,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!),
                 pose = Pose(Vector3(0f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, sharedBufferBottomEntity)
         sharedBufferTopEntity =
             MeshEntity.create(
                 currentSession,
@@ -431,6 +455,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!),
                 pose = Pose(Vector3(0f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, sharedBufferTopEntity)
         createPanel(
             currentSession,
             "Shared Buffer: Two meshes sharing the same buffer rendered on top of each other.",
@@ -466,6 +491,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!),
                 pose = Pose(Vector3(1f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, triangleStripEntity)
         createPanel(
             currentSession,
             "Triangle Strip: A cube rendered with TRIANGLE_STRIP.",
@@ -512,6 +538,7 @@ class MeshEntityActivity : ComponentActivity() {
                 pixelDimensions = IntSize2d(1600, 400),
                 name = "Panel_SwapMaterials",
                 pose = pose,
+                parent = session.scene.activitySpace,
             )
         panel.size = FloatSize2d(0.8f, 0.2f)
     }
@@ -679,6 +706,12 @@ class MeshEntityActivity : ComponentActivity() {
         val stickMesh =
             CustomMesh.FromMeshBufferBuilder(currentSession, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, indexCount * 3))
+                .setBounds(
+                    BoundingBox.fromCenterAndHalfExtents(
+                        Vector3(0f, height / 2f, 0f),
+                        FloatSize3d(halfSize, height / 2f, halfSize),
+                    )
+                )
                 .build()
 
         wigglingStickEntity =
@@ -689,6 +722,7 @@ class MeshEntityActivity : ComponentActivity() {
                 boneCount = 3,
                 pose = Pose(Vector3(3f, -0.5f, -1.5f)),
             )
+        addMovableComponent(currentSession, wigglingStickEntity)
 
         createPanel(
             currentSession,
@@ -762,6 +796,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!, material2!!),
                 pose = Pose(Vector3(2f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, twoMaterialsEntity)
         createPanel(
             currentSession,
             "Two Materials: One mesh with two subsets using different materials.",

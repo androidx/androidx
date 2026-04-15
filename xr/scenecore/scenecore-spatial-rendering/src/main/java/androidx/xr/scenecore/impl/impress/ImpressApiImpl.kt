@@ -392,6 +392,27 @@ public class ImpressApiImpl : ImpressApi {
         )
 
     /**
+     * Enables reform affordance on a custom mesh.
+     *
+     * @param node The integer ID of the impress node for the custom mesh
+     * @param enableAffordance A boolean indicated whether to add or remove the reform affordance
+     *   for the custom mesh.
+     * @param systemMovable A boolean indicating whether to handle the move input events or not.
+     */
+    override fun setCustomMeshReformAffordanceEnabled(
+        node: ImpressNode,
+        enableAffordance: Boolean,
+        systemMovable: Boolean,
+    ) {
+        nSetCustomMeshReformAffordanceEnabled(
+            getViewNativeHandle(view),
+            node.handle,
+            enableAffordance,
+            systemMovable,
+        )
+    }
+
+    /**
      * Starts an animation on an instanced glTF model on a specific channel.
      *
      * @param impressNode The integer ID of the Impress node for the instance of the GLTF
@@ -1713,12 +1734,14 @@ public class ImpressApiImpl : ImpressApi {
         customMeshHandle: Long,
         materialHandles: LongArray,
         boneCount: Int,
+        enableCollider: Boolean,
     ): Int =
         nCreateCustomMeshNode(
             getViewNativeHandle(view),
             customMeshHandle,
             materialHandles,
             boneCount,
+            enableCollider,
         )
 
     override fun setCustomMeshNodeMaterial(
@@ -1805,6 +1828,13 @@ public class ImpressApiImpl : ImpressApi {
         view: Long,
         impressNode: Int,
         enabled: Boolean,
+        systemMovable: Boolean,
+    )
+
+    private external fun nSetCustomMeshReformAffordanceEnabled(
+        view: Long,
+        impressNode: Int,
+        enableAffordance: Boolean,
         systemMovable: Boolean,
     )
 
@@ -2520,6 +2550,7 @@ public class ImpressApiImpl : ImpressApi {
         customMeshHandle: Long,
         materialHandles: LongArray,
         boneCount: Int,
+        enableCollider: Boolean,
     ): Int
 
     private external fun nSetCustomMeshNodeMaterial(
