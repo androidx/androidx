@@ -217,7 +217,7 @@ class RendererTerminationActivity : AppCompatActivity() {
         }
     }
 
-    /** A renderer terminated {@link DialogFragment}. */
+    /** A renderer terminated [DialogFragment]. */
     class RendererTerminatedDialogFragment : DialogFragment() {
         /** Creates a new RendererTerminatedDialogFragment instance. */
         fun newInstance(): RendererTerminatedDialogFragment {
@@ -237,7 +237,7 @@ class RendererTerminationActivity : AppCompatActivity() {
         }
     }
 
-    /** A renderer unresponsive {@link DialogFragment}. */
+    /** A renderer unresponsive [DialogFragment]. */
     class RendererUnresponsiveDialogFragment : DialogFragment() {
         /** Creates a new RendererUnresponsiveDialogFragment instance. */
         fun newInstance(): RendererUnresponsiveDialogFragment {

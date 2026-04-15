@@ -27,7 +27,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Integration test for {@link WebStorageCompatActivity}. */
+/** Integration test for [WebStorageCompatActivity]. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class WebStorageCompatActivityTestAppTest {

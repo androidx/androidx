@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.WebResourceRequest
@@ -29,8 +30,8 @@ import androidx.test.espresso.idling.net.UriIdlingResource
 import androidx.webkit.WebViewAssetLoader
 
 /**
- * An {@link Activity} to show a more useful use case: performing ajax calls to load files from
- * local app assets and resources in a safer way using WebViewAssetLoader.
+ * An [Activity] to show a more useful use case: performing ajax calls to load files from local app
+ * assets and resources in a safer way using WebViewAssetLoader.
  */
 class AssetLoaderAjaxActivity : AppCompatActivity() {
 

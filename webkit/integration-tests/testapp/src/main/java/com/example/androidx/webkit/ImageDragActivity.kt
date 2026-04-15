@@ -25,8 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
  * An Activity to demonstrate example for dragging image out to other apps. You can use google logo
  * to test.
  *
- * <p>
- * This activity relies on {@code androidx.webkit.DropDataContentProvider} configured in the
+ * This activity relies on `androidx.webkit.DropDataContentProvider` configured in the
  * AndroidManifest.xml to function correctly.
  */
 class ImageDragActivity : AppCompatActivity() {

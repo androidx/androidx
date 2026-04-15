@@ -22,20 +22,18 @@ import android.util.AttributeSet
 import android.widget.ArrayAdapter
 import android.widget.ListView
 
-/**
- * A {@link ListView} which serves as a menu of elements firing {@link Intent}s to other Activities.
- */
+/** A [ListView] which serves as a menu of elements firing [Intent]s to other Activities. */
 class MenuListView(context: Context, attrs: AttributeSet) : ListView(context, attrs) {
 
-    /** An item in the {@link MenuListView}. */
+    /** An item in the [MenuListView]. */
     class MenuItem(private val name: String, private val intentToLaunch: Intent) {
 
         override fun toString(): String = name
 
         /**
-         * Starts the {@link Intent} for this MenuItem. This accepts the {@link Context} for the
-         * current Activity on the stack, which will be used as the {@code this} argument to call
-         * {@link Context#startActivity(Intent)}.
+         * Starts the [Intent] for this MenuItem. This accepts the [Context] for the current
+         * Activity on the stack, which will be used as the `this` argument to call
+         * [Context.startActivity].
          *
          * @param activityContext the Activity Context of the current Activity on the stack.
          */
@@ -44,7 +42,7 @@ class MenuListView(context: Context, attrs: AttributeSet) : ListView(context, at
         }
     }
 
-    /** Sets the menu items for this {@link MenuListView}. */
+    /** Sets the menu items for this [MenuListView]. */
     fun setItems(items: List<MenuItem>) {
         val featureArrayAdapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, items)
         adapter = featureArrayAdapter

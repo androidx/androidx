@@ -17,6 +17,7 @@
 package com.example.androidx.webkit
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.webkit.WebView
@@ -34,9 +35,8 @@ import java.io.StringWriter
 import java.util.concurrent.Executors
 
 /**
- * An {@link Activity} that calls {@link WebViewCompat#startUpWebView(android.content.Context,
- * WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)} to startup WebView asynchronously
- * and displays the summary of startup.
+ * An [Activity] that calls [WebViewCompat.startUpWebView] to startup WebView asynchronously and
+ * displays the summary of startup.
  */
 @SuppressLint("NullAnnotationGroup")
 class AsyncStartUpActivity : AppCompatActivity() {

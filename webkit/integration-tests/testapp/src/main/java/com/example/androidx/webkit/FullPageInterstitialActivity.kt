@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -25,21 +26,18 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * An {@link android.app.Activity} to demonstrate full page interstitials. WebView displays a red or
- * grey error page with considerable description when it's "full" sized (takes up almost the entire
- * available device screen), and we believe it's likely the predominant part of the UI.
+ * An [Activity] to demonstrate full page interstitials. WebView displays a red or grey error page
+ * with considerable description when it's "full" sized (takes up almost the entire available device
+ * screen), and we believe it's likely the predominant part of the UI.
  *
- * <p>
- * This {@link android.app.Activity} points to a safe page, but that page itself has links to (fake)
- * malicious resources of various threat types and (fake) restricted resources, to allow testing
- * each threat type.
+ * This [Activity] points to a safe page, but that page itself has links to (fake) malicious
+ * resources of various threat types and (fake) restricted resources, to allow testing each threat
+ * type.
  *
- * <p>
  * For Safe Browsing, within the interstitial, the user can click any of several links which provide
  * more information about Safe Browsing overall, including "proceed" and "back to safety" buttons
  * for navigation.
  *
- * <p>
  * For Restricted Content blocking, user can click on "learn more", but there is no option to
  * proceed.
  */

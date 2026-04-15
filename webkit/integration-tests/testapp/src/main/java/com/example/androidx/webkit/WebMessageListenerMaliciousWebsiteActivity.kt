@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.WebResourceRequest
@@ -30,7 +31,7 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 
-/** An {@link Activity} to show how WebMessageListener deals with malicious websites. */
+/** An [Activity] to show how WebMessageListener deals with malicious websites. */
 class WebMessageListenerMaliciousWebsiteActivity : AppCompatActivity() {
 
     private class AssetLoaderWebViewClient(val assetLoaders: List<WebViewAssetLoader>) :

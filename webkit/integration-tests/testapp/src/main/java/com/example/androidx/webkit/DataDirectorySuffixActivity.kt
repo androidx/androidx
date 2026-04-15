@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -24,10 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.ProcessGlobalConfig
 import androidx.webkit.WebViewFeature
 
-/**
- * An {@link Activity} which makes use of {@link
- * androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(Context, String)}.
- */
+/** An [Activity] which makes use of [ProcessGlobalConfig.setDataDirectorySuffix]. */
 class DataDirectorySuffixActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

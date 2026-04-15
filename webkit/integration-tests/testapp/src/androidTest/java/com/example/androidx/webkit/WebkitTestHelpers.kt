@@ -84,11 +84,10 @@ fun assertHtmlElementContainsText(@IdRes webViewId: Int, tagId: String, text: St
 }
 
 /**
- * Throws {@link org.junit.AssumptionViolatedException} if the device does not support the
- * particular feature, otherwise returns.
+ * Throws [org.junit.AssumptionViolatedException] if the device does not support the particular
+ * feature, otherwise returns.
  *
- * <p>
- * This provides a more descriptive message than a bare {@code assumeTrue} call.
+ * This provides a more descriptive message than a bare `assumeTrue` call.
  *
  * @param featureName the feature to be checked
  */
@@ -98,11 +97,10 @@ fun assumeFeature(@WebViewFeature.WebViewSupportFeature featureName: String) {
 }
 
 /**
- * Throws {@link org.junit.AssumptionViolatedException} if the device supports the particular
- * feature, otherwise returns.
+ * Throws [org.junit.AssumptionViolatedException] if the device supports the particular feature,
+ * otherwise returns.
  *
- * <p>
- * This provides a more descriptive message than a bare {@code assumeFalse} call.
+ * This provides a more descriptive message than a bare `assumeFalse` call.
  *
  * @param featureName the feature to be checked
  */
@@ -112,11 +110,10 @@ fun assumeFeatureNotAvailable(@WebViewFeature.WebViewSupportFeature featureName:
 }
 
 /**
- * Throws {@link org.junit.AssumptionViolatedException} if the device supports the particular
- * startup feature, otherwise returns.
+ * Throws [org.junit.AssumptionViolatedException] if the device supports the particular startup
+ * feature, otherwise returns.
  *
- * <p>
- * This provides a more descriptive message than a bare {@code assumeFalse} call.
+ * This provides a more descriptive message than a bare `assumeFalse` call.
  *
  * @param featureName the feature to be checked
  */
