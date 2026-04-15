@@ -24,7 +24,9 @@ import androidx.compose.ui.sendCharTypedEvents
 import androidx.compose.ui.sendInputMethodEvent
 import androidx.compose.ui.sendKeyEvent
 import androidx.compose.ui.sendKeyTypedEvent
+import androidx.compose.ui.sendPressAndReleaseKeyEvents
 import androidx.compose.ui.text.TextRange
+import java.awt.event.KeyEvent
 import java.awt.event.KeyEvent.KEY_PRESSED
 import java.awt.event.KeyEvent.KEY_RELEASED
 import kotlin.test.Test
@@ -903,4 +905,29 @@ class WindowTypeTest : BaseWindowTextFieldTest() {
             window.sendInputMethodEvent("·", committedCharacterCount = 1)
             assertStateEquals("·", selection = TextRange(1), composition = null)
         }
+
+    @Theory
+    internal fun `select text backwards, then input via IME`(
+        textFieldKind: TextFieldKind<*>
+    ) = runTextFieldTest(
+        textFieldKind = textFieldKind,
+        name = "Select text backwards, then input via IME",
+        initialText = "abcdef",
+        initialSelection = TextRange(6)
+    ) {
+        // Select "def"
+        window.sendKeyEvent(KeyEvent.VK_SHIFT, id = KEY_PRESSED)
+        repeat(3) {
+            window.sendPressAndReleaseKeyEvents(KeyEvent.VK_LEFT, modifiers = KeyEvent.SHIFT_DOWN_MASK)
+            awaitIdle()
+        }
+
+        assertStateEquals("abcdef", selection = TextRange(6, 3), composition = null)
+
+        // Insert character via IME
+        window.sendInputMethodEvent("ㅂ", 0)
+        window.sendKeyEvent(81, 'q', KEY_RELEASED)
+
+        assertStateEquals("abcㅂ", selection = TextRange(4, 4), composition = TextRange(3, 4))
+    }
 }

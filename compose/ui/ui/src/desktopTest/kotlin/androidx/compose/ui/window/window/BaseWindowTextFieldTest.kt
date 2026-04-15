@@ -63,6 +63,8 @@ open class BaseWindowTextFieldTest {
     internal fun <S: TextFieldTestScope> runTextFieldTest(
         textFieldKind: TextFieldKind<S>,
         name: String,
+        initialText: String = "",
+        initialSelection: TextRange = TextRange.Zero,
         body: suspend S.() -> Unit
     ) = runApplicationTest {
         var scope: S? = null
@@ -75,7 +77,12 @@ open class BaseWindowTextFieldTest {
                 modifier = Modifier.fillMaxSize()
             ) {
                 if (scope == null) {
-                    scope = textFieldKind.createScope(this@runApplicationTest, window)
+                    scope = textFieldKind.createScope(
+                        windowTestScope = this@runApplicationTest,
+                        window = window,
+                        initialText = initialText,
+                        initialSelection = initialSelection
+                    )
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("$name ($scope)")
@@ -153,10 +160,17 @@ open class BaseWindowTextFieldTest {
 
     internal abstract class TextField1Scope(
         windowTestScope: WindowTestScope,
-        window: ComposeWindow
+        window: ComposeWindow,
+        initialText: String,
+        initialSelection: TextRange,
     ): TextFieldTestScope(windowTestScope, window) {
 
-        protected var textFieldValue by mutableStateOf(TextFieldValue())
+        protected var textFieldValue by mutableStateOf(
+            TextFieldValue(
+                text = initialText,
+                selection = initialSelection,
+            )
+        )
 
         override val text: String
             get() = textFieldValue.text
@@ -175,9 +189,14 @@ open class BaseWindowTextFieldTest {
 
     internal abstract class TextField2Scope(
         windowTestScope: WindowTestScope,
-        window: ComposeWindow
+        window: ComposeWindow,
+        initialText: String,
+        initialSelection: TextRange,
     ): TextFieldTestScope(windowTestScope, window) {
-        protected val textFieldState = TextFieldState()
+        protected val textFieldState = TextFieldState(
+            initialText = initialText,
+            initialSelection = initialSelection,
+        )
         var inputTransformation: InputTransformation? by mutableStateOf(null)
 
         override val text: String
@@ -198,99 +217,115 @@ open class BaseWindowTextFieldTest {
         windowTestScope: WindowTestScope,
         window: ComposeWindow,
         textObfuscationMode: TextObfuscationMode,
-    ): TextField2Scope(windowTestScope, window) {
+        initialText: String = "",
+        initialSelection: TextRange = TextRange.Zero,
+    ): TextField2Scope(windowTestScope, window, initialText, initialSelection) {
 
         var textObfuscationMode by mutableStateOf(textObfuscationMode)
 
     }
 
     internal fun interface TextFieldKind<S: TextFieldTestScope> {
-        fun createScope(windowTestScope: WindowTestScope, window: ComposeWindow): S
+        fun createScope(
+            windowTestScope: WindowTestScope,
+            window: ComposeWindow,
+            initialText: String,
+            initialSelection: TextRange,
+        ): S
     }
 
     companion object {
         @JvmField
         @DataPoint
-        internal val TextField1 = TextFieldKind<TextField1Scope> { windowTestScope, window ->
-            object : TextField1Scope(windowTestScope, window) {
-                @Composable
-                override fun TextField() {
-                    val focusRequester = remember { FocusRequester() }
-                    BasicTextField(
-                        value = textFieldValue,
-                        onValueChange = {
-                            textFieldValue = it
-                        },
-                        onTextLayout = { textLayoutResult = it },
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .onPlaced {
-                                textBoundingBox = it.boundsInWindow()
-                            }
-                    )
+        internal val TextField1 = TextFieldKind<TextField1Scope> {
+            windowTestScope, window, initialText, initialSelection ->
+                object : TextField1Scope(windowTestScope, window, initialText, initialSelection) {
+                    @Composable
+                    override fun TextField() {
+                        val focusRequester = remember { FocusRequester() }
+                        BasicTextField(
+                            value = textFieldValue,
+                            onValueChange = {
+                                textFieldValue = it
+                            },
+                            onTextLayout = { textLayoutResult = it },
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .onPlaced {
+                                    textBoundingBox = it.boundsInWindow()
+                                }
+                        )
 
-                    LaunchedEffect(focusRequester) {
-                        focusRequester.requestFocus()
+                        LaunchedEffect(focusRequester) {
+                            focusRequester.requestFocus()
+                        }
                     }
-                }
 
-                override fun toString() = "TextField1"
-            }
+                    override fun toString() = "TextField1"
+                }
         }
 
         @JvmField
         @DataPoint
-        internal val TextField2 = TextFieldKind<TextField2Scope> { windowTestScope, window ->
-            object : TextField2Scope(windowTestScope, window) {
-                @Composable
-                override fun TextField() {
-                    val focusRequester = remember { FocusRequester() }
-                    BasicTextField(
-                        state = textFieldState,
-                        inputTransformation = inputTransformation,
-                        onTextLayout = { textLayoutResultGetter = it },
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .onPlaced {
-                                textBoundingBox = it.boundsInWindow()
-                            }
-                    )
+        internal val TextField2 = TextFieldKind<TextField2Scope> {
+            windowTestScope, window, initialText, initialSelection ->
+                object : TextField2Scope(windowTestScope, window, initialText, initialSelection) {
+                    @Composable
+                    override fun TextField() {
+                        val focusRequester = remember { FocusRequester() }
+                        BasicTextField(
+                            state = textFieldState,
+                            inputTransformation = inputTransformation,
+                            onTextLayout = { textLayoutResultGetter = it },
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .onPlaced {
+                                    textBoundingBox = it.boundsInWindow()
+                                }
+                        )
 
-                    LaunchedEffect(focusRequester) {
-                        focusRequester.requestFocus()
+                        LaunchedEffect(focusRequester) {
+                            focusRequester.requestFocus()
+                        }
                     }
-                }
 
-                override fun toString() = "TextField2"
-            }
+                    override fun toString() = "TextField2"
+                }
         }
 
         @JvmField
         @DataPoint
-        internal val SecureTextField = TextFieldKind<SecureTextFieldScope> { windowTestScope, window ->
-            object : SecureTextFieldScope(windowTestScope, window, TextObfuscationMode.Hidden) {
-                @Composable
-                override fun TextField() {
-                    val focusRequester = remember { FocusRequester() }
+        internal val SecureTextField = TextFieldKind<SecureTextFieldScope> {
+            windowTestScope, window, initialText, initialSelection ->
+                object : SecureTextFieldScope(
+                    windowTestScope,
+                    window,
+                    TextObfuscationMode.Hidden,
+                    initialText,
+                    initialSelection
+                ) {
+                    @Composable
+                    override fun TextField() {
+                        val focusRequester = remember { FocusRequester() }
 
-                    BasicSecureTextField(
-                        state = textFieldState,
-                        textObfuscationMode = textObfuscationMode,
-                        onTextLayout = { textLayoutResultGetter = it },
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .onPlaced {
-                                textBoundingBox = it.boundsInWindow()
-                            }
-                    )
+                        BasicSecureTextField(
+                            state = textFieldState,
+                            textObfuscationMode = textObfuscationMode,
+                            onTextLayout = { textLayoutResultGetter = it },
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .onPlaced {
+                                    textBoundingBox = it.boundsInWindow()
+                                }
+                        )
 
-                    LaunchedEffect(focusRequester) {
-                        focusRequester.requestFocus()
+                        LaunchedEffect(focusRequester) {
+                            focusRequester.requestFocus()
+                        }
                     }
-                }
 
-                override fun toString() = "SecureTextField"
-            }
+                    override fun toString() = "SecureTextField"
+                }
         }
     }
 }

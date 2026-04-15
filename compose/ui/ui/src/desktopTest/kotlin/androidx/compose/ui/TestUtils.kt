@@ -91,6 +91,16 @@ fun Window.sendKeyEvent(
     return event.isConsumed
 }
 
+fun Window.sendPressAndReleaseKeyEvents(
+    code: Int,
+    char: Char = code.toChar(),
+    location: Int = KeyEvent.KEY_LOCATION_STANDARD,
+    modifiers: Int = 0
+) {
+    sendKeyEvent(code, char, id = KeyEvent.KEY_PRESSED, location, modifiers)
+    sendKeyEvent(code, char, id = KeyEvent.KEY_RELEASED, location, modifiers)
+}
+
 fun Window.focusedInputMethodRequests(): InputMethodRequests? =
     mostRecentFocusOwner!!.inputMethodRequests
 

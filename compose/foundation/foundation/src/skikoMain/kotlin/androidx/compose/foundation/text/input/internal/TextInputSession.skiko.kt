@@ -155,6 +155,9 @@ private fun TextEditingScope(buffer: TextFieldBuffer) = object : TextEditingScop
             setSelectionCoerced(value, value)
         }
 
+    // Be careful about using TextRange.start/end, as the selection can be reversed (start > end).
+    // Prefer to use TextRange.min/max.
+
     override fun deleteSurroundingTextInCodePoints(
         lengthBeforeCursor: Int,
         lengthAfterCursor: Int
@@ -162,26 +165,26 @@ private fun TextEditingScope(buffer: TextFieldBuffer) = object : TextEditingScop
         val charSequence = buffer.asCharSequence()
         val selection = buffer.selection
         buffer.delete(
-            start = selection.end,
+            start = selection.max,
             end = charSequence.offsetByCodePoints(
-                index = selection.end,
+                index = selection.max,
                 offset = lengthAfterCursor
             )
         )
         buffer.delete(
             start = charSequence.offsetByCodePoints(
-                index = selection.start,
+                index = selection.min,
                 offset = -lengthBeforeCursor
             ),
-            end = selection.start
+            end = selection.min
         )
     }
 
     override fun commitText(text: CharSequence, newCursorPosition: Int) {
         // API description says replace ongoing composition text if there. Then, if there is no
-        // composition text, insert text into cursor position or replace selection.
+        // composition text, insert text into the cursor position or replace selection.
         val replacementRange = buffer.composition ?: buffer.selection
-        buffer.replace(replacementRange.start, replacementRange.end, text)
+        buffer.replace(replacementRange.min, replacementRange.max, text)
 
         // After replace function is called, the editing buffer places the cursor at the end of the
         // modified range.
@@ -200,11 +203,11 @@ private fun TextEditingScope(buffer: TextFieldBuffer) = object : TextEditingScop
     override fun setComposingText(text: CharSequence, newCursorPosition: Int) {
         val replacementRange = buffer.composition ?: buffer.selection
         // API doc says, if there is ongoing composing text, replace it with new text.
-        // If there is no composing text, insert composing text into cursor position with
+        // If there is no composing text, insert composing text into the cursor position with
         // removing selected text if any.
-        buffer.replace(replacementRange.start, replacementRange.end, text)
+        buffer.replace(replacementRange.min, replacementRange.max, text)
         if (text.isNotEmpty()) {
-            buffer.setComposition(replacementRange.start, replacementRange.start + text.length)
+            buffer.setComposition(replacementRange.min, replacementRange.max + text.length)
         }
 
         // After replace function is called, the editing buffer places the cursor at the end of the
