@@ -25,6 +25,8 @@ import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.Transition
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.ui.tooling.AnimationDebugMutableState
+import androidx.compose.ui.tooling.animation.TriggerComposeAnimation.Companion.parse
 import androidx.compose.ui.tooling.animation.search.AnimateXAsStateSearchInfo
 import androidx.compose.ui.tooling.animation.search.AnimatedContentSearchInfo
 import androidx.compose.ui.tooling.animation.search.AnimatedVisibilitySearchInfo
@@ -36,6 +38,7 @@ import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.findAll
 import androidx.compose.ui.tooling.firstOrNull
+import androidx.compose.ui.tooling.isAnimationPreviewEnabled
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
@@ -79,6 +82,11 @@ private inline fun <reified T> Group.findData(includeGrandchildren: Boolean = fa
 /** Contains tree parsers for different animation types. */
 @OptIn(UiToolingDataApi::class)
 internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
+
+    private val triggerSearch =
+        if (isAnimationPreviewEnabled) listOf(TriggerSearch { clock().trackTrigger(it) })
+        else emptyList()
+
     private val transitionSearch = TransitionSearch { clock().trackComposeAnimation(it) }
     private val animatedContentSearch = AnimatedContentSearch { clock().trackComposeAnimation(it) }
     private val animatedVisibilitySearch = AnimatedVisibilitySearch {
@@ -100,6 +108,7 @@ internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
         setOf(transitionSearch, animatedVisibilitySearch) +
             animateXAsStateSearch() +
             infiniteTransitionSearch() +
+            triggerSearch +
             (if (AnimatedContentComposeAnimation.apiAvailable) setOf(animatedContentSearch)
             else emptySet())
 
@@ -465,6 +474,33 @@ internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
                         updateTransitionCall.name == UPDATE_TRANSITION
                     }
                 }
+        }
+    }
+
+    /** Search for [AnimationDebugMutableState]s. */
+    class TriggerSearch(track: (TriggerComposeAnimation<*>) -> Unit) :
+        Search<TriggerComposeAnimation<*>>(track) {
+        override fun hasAnimation(group: Group): Boolean {
+            return group.data.contains { element: Any? -> element is AnimationDebugMutableState<*> }
+        }
+
+        override fun addAnimations(groups: Collection<Group>) {
+            val groupsWithState =
+                groups
+                    .filter { it.name == REMEMBER }
+                    .filter { it.data.any { data -> data is AnimationDebugMutableState<*> } }
+
+            val triggers =
+                groupsWithState
+                    .flatMap { group ->
+                        group.data.filterIsInstance<AnimationDebugMutableState<*>>().map {
+                            it.parse()
+                        }
+                    }
+                    .filterNotNull()
+                    .distinctBy { it.animationObject }
+
+            animations.addAll(triggers)
         }
     }
 }
