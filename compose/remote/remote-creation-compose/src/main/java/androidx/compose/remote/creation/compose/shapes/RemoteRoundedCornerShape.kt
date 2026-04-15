@@ -57,6 +57,21 @@ constructor(
     ): RemoteOutline {
         return RemoteOutline.Rounded(topStart, topEnd, bottomEnd, bottomStart)
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun copy(
+        topStart: RemoteCornerSize,
+        topEnd: RemoteCornerSize,
+        bottomEnd: RemoteCornerSize,
+        bottomStart: RemoteCornerSize,
+    ): RemoteCornerBasedShape {
+        return RemoteRoundedCornerShape(
+            topStart = topStart,
+            topEnd = topEnd,
+            bottomEnd = bottomEnd,
+            bottomStart = bottomStart,
+        )
+    }
 }
 
 /** Circular shape with all the corners sized as the 50% of the shape size. */
