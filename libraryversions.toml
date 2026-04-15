@@ -1,4 +1,5 @@
 [versions]
+A2UI = "1.0.0-alpha01"
 ACTIVITY = "1.14.0-alpha01"
 ANNOTATION = "1.10.0"
 ANNOTATION_EXPERIMENTAL = "1.6.0"
@@ -187,6 +188,7 @@ XR_RUNTIME = "1.0.0-alpha13"
 XR_SCENECORE = "1.0.0-alpha14"
 
 [groups]
+A2UI = { group = "androidx.a2ui", atomicGroupVersion = "versions.A2UI" }
 ACTIVITY = { group = "androidx.activity", atomicGroupVersion = "versions.ACTIVITY" }
 ANNOTATION = { group = "androidx.annotation" }
 APPCOMPAT = { group = "androidx.appcompat", atomicGroupVersion = "versions.APPCOMPAT" }
