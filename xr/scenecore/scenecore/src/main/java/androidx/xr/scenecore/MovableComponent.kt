@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("BanConcurrentHashMap")
+@file:Suppress("BanConcurrentHashMap", "OPT_IN_USAGE")
 
 package androidx.xr.scenecore
 
@@ -71,12 +71,13 @@ private constructor(
         sceneRuntime.createMovableComponent(systemMovable, scaleInZ, anchorable)
     }
     private val moveListenersMap = ConcurrentHashMap<EntityMoveListener, Executor>()
+    @OptIn(ExperimentalCustomMeshApi::class)
     private val rtMoveEventListener: RtMoveEventListener = RtMoveEventListener { rtMoveEvent ->
         val moveEvent = rtMoveEvent.toMoveEvent(entityRegistry)
         var updatedReformEventInfo: UpdatedReformEventInfo? = null
         if (anchorable) {
             updatedReformEventInfo = getUpdatedReformEventPoseAndParent(moveEvent)
-        } else if (systemMovable && entity is GltfModelEntity) {
+        } else if (systemMovable && (entity is GltfModelEntity || entity is MeshEntity)) {
             entity?.apply {
                 // TODO(b/495925250): Add SceneCore unit tests for movable gLTFs
                 setPose(moveEvent.currentPose)
@@ -195,6 +196,7 @@ private constructor(
 
     private data class UpdatedReformEventInfo(val pose: Pose, val parent: Entity?, val scale: Float)
 
+    @OptIn(ExperimentalCustomMeshApi::class)
     private fun getUpdatedReformEventPoseAndParent(moveEvent: MoveEvent): UpdatedReformEventInfo {
         val initialParent = moveEvent.initialParent
         val initialPose = moveEvent.currentPose
@@ -251,11 +253,12 @@ private constructor(
                     when (entity) {
                         is PanelEntity ->
                             moveEventPoseInOxr.getForwardVectorToUpRotation(anchorablePlanePose)
-                        is GltfModelEntity ->
+                        is GltfModelEntity,
+                        is MeshEntity ->
                             moveEventPoseInOxr.getUpVectorToUpRotation(anchorablePlanePose)
                         else ->
                             throw IllegalArgumentException(
-                                "Movable component can be applied to either a PanelEntity or GltfModelEntity"
+                                "Movable component can be applied to either a PanelEntity, GltfModelEntity, or MeshEntity"
                             )
                     }
                 val rotatedPose = Pose(moveEventPoseInOxr.translation, rotation)

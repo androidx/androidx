@@ -27,6 +27,7 @@ import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.InputEvent
 import androidx.xr.scenecore.runtime.InputEventListener
+import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MovableComponent
 import androidx.xr.scenecore.runtime.MoveEvent
 import androidx.xr.scenecore.runtime.MoveEventListener
@@ -69,7 +70,7 @@ internal class MovableComponentImpl(
                 return
             }
             field = value
-            if ((entity == null) or (entity is GltfEntity)) {
+            if ((entity == null) or (entity is GltfEntity) or (entity is MeshEntity)) {
                 return
             }
             val reformOptions = (entity as AndroidXrEntity).getReformOptions()
@@ -174,7 +175,7 @@ internal class MovableComponentImpl(
             InputEvent.Action.UP -> {
                 moveState = MoveEvent.MOVE_STATE_END
                 isMoving = false
-                if (entity is GltfEntityImpl) entityShadowRenderer?.hideShadow()
+                if (entity is GltfEntity || entity is MeshEntity) entityShadowRenderer?.hideShadow()
             }
             else -> return null
         }
@@ -243,6 +244,12 @@ internal class MovableComponentImpl(
         return true
     }
 
+    private fun updateReformsForMeshEntity(): Boolean {
+        (entity as MeshEntity).setReformAffordanceEnabled(enabled = true, systemMovable = false)
+        (entity as AndroidXrEntity).addInputEventListener(runtimeExecutor, inputEventListener)
+        return true
+    }
+
     private fun updateReformsForSurfaceEntity(): Boolean {
         updateEntityReformOptionsForMove()
         // Update the size to match surface entity's current size if user hasn't explicitly set it.
@@ -262,6 +269,7 @@ internal class MovableComponentImpl(
             when (entity) {
                 is PanelEntity -> updateReformsForPanelEntity()
                 is GltfEntity -> updateReformsForGltfEntity()
+                is MeshEntity -> updateReformsForMeshEntity()
                 is SurfaceEntity -> updateReformsForSurfaceEntity()
                 else -> {
                     updateEntityReformOptionsForMove()
@@ -269,7 +277,7 @@ internal class MovableComponentImpl(
                 }
             }
 
-        if (success && entity !is GltfEntity) {
+        if (success && entity !is GltfEntity && entity !is MeshEntity) {
             (entity as AndroidXrEntity).addReformEventConsumer(reformEventConsumer, runtimeExecutor)
         }
         if (userAnchorable) entityShadowRenderer?.enableShadow()
@@ -295,6 +303,13 @@ internal class MovableComponentImpl(
     override fun onDetach(entity: Entity) {
         when (entity) {
             is GltfEntity -> {
+                entity.setReformAffordanceEnabled(
+                    enabled = false,
+                    systemMovable = systemMovable && !userAnchorable,
+                )
+                entity.removeInputEventListener(inputEventListener)
+            }
+            is MeshEntity -> {
                 entity.setReformAffordanceEnabled(
                     enabled = false,
                     systemMovable = systemMovable && !userAnchorable,
@@ -334,13 +349,18 @@ internal class MovableComponentImpl(
             is GltfEntity -> {
                 shadowDim = calculateSizesForGltfEntity(entity as GltfEntity)
             }
+            is MeshEntity -> {
+                shadowDim = calculateSizesForMeshEntity(entity as MeshEntity)
+            }
         }
 
         entityShadowRenderer?.updateShadow(proposedPose, planePose, shadowDim = shadowDim)
     }
 
     private fun shouldRenderPlaneShadow(): Boolean {
-        return (entity is BasePanelEntity || entity is GltfEntity) && userAnchorable && isMoving
+        return (entity is BasePanelEntity || entity is GltfEntity || entity is MeshEntity) &&
+            userAnchorable &&
+            isMoving
     }
 
     override fun setPlanePoseForMoveUpdatePose(planePose: Pose?, moveUpdatePose: Pose) {
@@ -359,6 +379,22 @@ internal class MovableComponentImpl(
         val sizeZ: Float =
             (panelEntity.size.height * entityScale.z / activitySpaceImpl.worldSpaceScale.x)
         return FloatSize2d(sizeX, sizeZ)
+    }
+
+    private fun calculateSizesForMeshEntity(meshEntity: MeshEntity): FloatSize2d {
+        val (entityScale, meshBounds) =
+            runBlocking(Dispatchers.Main) {
+                meshEntity.worldSpaceScale to meshEntity.meshBoundingBox
+            }
+
+        val width: Float =
+            meshBounds.halfExtents.width.times(HALF_EXTENTS_MULTIPLIER) * entityScale.x /
+                activitySpaceImpl.worldSpaceScale.x
+        val depth: Float =
+            meshBounds.halfExtents.depth.times(HALF_EXTENTS_MULTIPLIER) * entityScale.z /
+                activitySpaceImpl.worldSpaceScale.x
+
+        return FloatSize2d(width, depth)
     }
 
     private fun calculateSizesForGltfEntity(gltfEntity: GltfEntity): FloatSize2d {

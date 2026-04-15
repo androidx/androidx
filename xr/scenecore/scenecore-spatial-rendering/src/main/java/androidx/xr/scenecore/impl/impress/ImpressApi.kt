@@ -278,6 +278,22 @@ public interface ImpressApi {
     )
 
     /**
+     * Toggles the interaction affordance on a CustomMesh entity node in Impress.
+     *
+     * @param node The [ImpressNode] instance wrapping the handle of the target Impress CustomMesh
+     *   entity node.
+     * @param enableAffordance A Boolean value indicating whether the interaction affordance should
+     *   be enabled (`true`) or disabled (`false`) for the CustomMesh entity node.
+     * @param systemMovable A Boolean value indicating whether the interaction should be handled by
+     *   the system.
+     */
+    public fun setCustomMeshReformAffordanceEnabled(
+        node: ImpressNode,
+        enableAffordance: Boolean,
+        systemMovable: Boolean,
+    )
+
+    /**
      * Starts an animation on an instanced glTF model on a specific channel.
      *
      * @param impressNode The object of the Impress node for the instance of the glTF model.
@@ -1354,12 +1370,15 @@ public interface ImpressApi {
      *
      * @param customMeshHandle The native handle of the custom mesh.
      * @param materialHandles The native handles of the materials.
+     * @param boneCount The number of bones in the mesh.
+     * @param enableCollider Whether to enable the collider for the custom mesh.
      * @return An int handle for the created Impress node.
      */
     public fun createCustomMeshNode(
         customMeshHandle: Long,
         materialHandles: LongArray,
         boneCount: Int,
+        enableCollider: Boolean,
     ): Int
 
     /**

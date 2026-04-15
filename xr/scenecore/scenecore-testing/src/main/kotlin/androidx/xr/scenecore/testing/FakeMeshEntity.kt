@@ -19,21 +19,35 @@
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
+import java.util.concurrent.Executor
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MeshEntity] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class FakeMeshEntity(private val feature: MeshFeature? = null) :
-    FakeEntity(), MeshEntity {
+public open class FakeMeshEntity(
+    private val feature: MeshFeature? = null,
+    private val executor: Executor? = null,
+) : FakeEntity(), MeshEntity {
+    override val meshBoundingBox: BoundingBox =
+        feature?.meshBoundingBox ?: BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
         feature?.setMaterial(material, subsetIndex)
     }
 
     override fun setBoneTransforms(transforms: List<Matrix4>) {
         feature?.setBoneTransforms(transforms)
+    }
+
+    override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
+        if (executor != null) {
+            feature?.setReformAffordanceEnabled(this, enabled, executor, systemMovable)
+        }
     }
 }
