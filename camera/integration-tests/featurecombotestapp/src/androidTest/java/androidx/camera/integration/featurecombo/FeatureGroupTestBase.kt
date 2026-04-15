@@ -84,7 +84,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.math.min
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -386,26 +385,38 @@ open class FeatureGroupTestBase(
                 else -> throw IllegalStateException("Unknown recording quality feature: $feature")
             }
 
-        checkNotNull(videoCapture.attachedStreamSpec?.resolution).apply {
-            if (aspectRatio != AspectRatio.RATIO_DEFAULT) {
-                assertThat(
-                        AspectRatioUtil.hasMatchingAspectRatio(
-                            this,
-                            when (aspectRatio) {
-                                AspectRatio.RATIO_16_9 -> AspectRatioUtil.ASPECT_RATIO_16_9
-                                AspectRatio.RATIO_4_3 -> AspectRatioUtil.ASPECT_RATIO_4_3
-                                else ->
-                                    throw IllegalStateException(
-                                        "Unknown aspect ratio: $aspectRatio"
-                                    )
-                            },
-                        )
-                    )
-                    .isTrue()
+        val resolution =
+            checkNotNull(videoCapture.attachedStreamSpec?.resolution).run {
+                if (width >= height) this else Size(height, width)
             }
 
-            assertThat(expectedHeightRange.contains(min(this.width, this.height))).isTrue()
+        if (aspectRatio != AspectRatio.RATIO_DEFAULT) {
+            assertWithMessage(
+                    "AspectRatio matching failed for VideoCapture resolution = $resolution" +
+                        ", feature = $feature, aspectRatio = $aspectRatio" +
+                        ", expectedHeightRange = $expectedHeightRange"
+                )
+                .that(
+                    AspectRatioUtil.hasMatchingAspectRatio(
+                        resolution,
+                        when (aspectRatio) {
+                            AspectRatio.RATIO_16_9 -> AspectRatioUtil.ASPECT_RATIO_16_9
+                            AspectRatio.RATIO_4_3 -> AspectRatioUtil.ASPECT_RATIO_4_3
+                            else ->
+                                throw IllegalStateException("Unknown aspect ratio: $aspectRatio")
+                        },
+                    )
+                )
+                .isTrue()
         }
+
+        assertWithMessage(
+                "Height range matching failed for VideoCapture resolution = $resolution" +
+                    ", feature = $feature, aspectRatio = $aspectRatio" +
+                    ", expectedHeightRange = $expectedHeightRange"
+            )
+            .that(expectedHeightRange.contains(resolution.height))
+            .isTrue()
     }
 
     private suspend fun <T> verifyCaptureResult(
