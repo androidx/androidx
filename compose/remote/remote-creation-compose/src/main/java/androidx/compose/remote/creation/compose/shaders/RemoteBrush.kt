@@ -55,8 +55,8 @@ public abstract class RemoteBrush internal constructor() {
     /**
      * Applies this [RemoteBrush] to a paint.
      *
-     * Depending on whether the brush is a shader or a solid color, this method updates [shader] and
-     * [color] accordingly.
+     * Depending on whether the brush is a shader or a solid color, this method updates
+     * [RemotePaint.shader] and [RemotePaint.color] accordingly.
      *
      * @param paint The paint to apply to.
      * @param size The size of the area being drawn, used for shader calculation.
@@ -73,8 +73,8 @@ public abstract class RemoteBrush internal constructor() {
     /**
      * Applies this [RemoteBrush] to a paint.
      *
-     * Depending on whether the brush is a shader or a solid color, this method updates [shader] and
-     * [color] accordingly.
+     * Depending on whether the brush is a shader or a solid color, this method updates
+     * [RemotePaint.shader] and [RemotePaint.color] accordingly.
      *
      * @param paint The paint to apply to.
      * @param size The size of the area being drawn, used for shader calculation.
