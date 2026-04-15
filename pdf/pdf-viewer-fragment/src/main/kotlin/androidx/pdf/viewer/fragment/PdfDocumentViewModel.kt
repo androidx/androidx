@@ -30,6 +30,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.pdf.EditablePdfDocument
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfFeature
 import androidx.pdf.PdfLoader
 import androidx.pdf.PdfPasswordException
 import androidx.pdf.SandboxedPdfLoader
@@ -310,7 +311,9 @@ public open class PdfDocumentViewModel(
         formEditInfo: FormEditInfo,
     ) {
         try {
-            pdfDocument.applyEdit(formEditInfo)
+            if (pdfDocument.isFeatureSupported(PdfFeature.FORM_FILLING)) {
+                pdfDocument.applyEdit(formEditInfo)
+            }
         } catch (e: RemoteException) {
             if (!e.isHandledRemoteException) throw e
             // TODO b/493776658 Show error/retry UI

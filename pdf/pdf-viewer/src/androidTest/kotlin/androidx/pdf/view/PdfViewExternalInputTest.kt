@@ -869,6 +869,7 @@ class PdfViewExternalInputTest {
 
     @Test
     fun testCtrlC_copiesSelectionToClipboardAndClearsSelection() {
+
         val expectedSelectedText = FAKE_PAGE_TEXT[0]
 
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {

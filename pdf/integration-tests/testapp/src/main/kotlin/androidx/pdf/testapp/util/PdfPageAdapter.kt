@@ -24,7 +24,6 @@ import android.graphics.pdf.PdfRenderer
 import android.graphics.pdf.PdfRendererPreV
 import android.graphics.pdf.RenderParams
 import android.os.Build
-import android.os.ext.SdkExtensions
 import androidx.core.util.Supplier
 
 public class PdfPageAdapter {
@@ -38,14 +37,17 @@ public class PdfPageAdapter {
     }
 
     constructor(pdfRendererPreV: PdfRendererPreV, pageNum: Int) {
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+        if (arePdfContentFeaturesAvailable()) {
             this.pageNum = pageNum
             pdfRendererPreVPage = pdfRendererPreV.openPage(pageNum)
         }
     }
 
     fun render(bitmap: Bitmap) {
-        if (pdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
+        if (
+            pdfRendererPage != null &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+        ) {
             pdfRendererPage?.render(bitmap, null, null, getRenderParams())
         } else {
             checkAndExecute { pdfRendererPreVPage?.render(bitmap, null, null, getRenderParams()) }
@@ -53,7 +55,10 @@ public class PdfPageAdapter {
     }
 
     fun getWidth(): Int {
-        return if (pdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
+        return if (
+            pdfRendererPage != null &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+        ) {
             pdfRendererPage?.width ?: 0
         } else {
             checkAndExecute { pdfRendererPreVPage?.width ?: 0 }
@@ -61,7 +66,10 @@ public class PdfPageAdapter {
     }
 
     fun getHeight(): Int {
-        return if (pdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
+        return if (
+            pdfRendererPage != null &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+        ) {
             pdfRendererPage?.height ?: 0
         } else {
             checkAndExecute { pdfRendererPreVPage?.height ?: 0 }
@@ -79,18 +87,11 @@ public class PdfPageAdapter {
         }
     }
 
-    /*
-     *  fun addPageObject(pdfPageObject: PdfPageObject): Int {
-     *      return if (pdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
-     *          pdfRendererPage?.addPageObject(pdfPageObject) ?: 0
-     *      } else {
-     *          checkAndExecute { pdfRendererPreVPage?.addPageObject(pdfPageObject) ?: 0 }
-     *      }
-     *  }
-     */
-
     fun close() {
-        if (pdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
+        if (
+            pdfRendererPage != null &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+        ) {
             pdfRendererPage?.close()
             pdfRendererPage = null
         } else {
@@ -101,16 +102,8 @@ public class PdfPageAdapter {
         }
     }
 
-    private fun checkAndExecute(block: Runnable) {
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
-            block.run()
-            return
-        }
-        throw UnsupportedOperationException("Operation support above S")
-    }
-
     private fun <T> checkAndExecute(block: Supplier<T>): T {
-        return if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+        return if (arePdfContentFeaturesAvailable()) {
             block.get()
         } else {
             throw UnsupportedOperationException("Operation support above S")

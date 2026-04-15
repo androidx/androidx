@@ -23,7 +23,6 @@ import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.pdf.R
-import androidx.pdf.TestUtils.assertNotNullObjectByText
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.selection.ContextMenuComponent
 import androidx.pdf.selection.PdfSelectionMenuKeys
@@ -106,11 +105,18 @@ class PdfViewSelectionMenuTest {
         longClickAtCenter()
 
         assert(selectionMenuItemPreparer.components.size == 2)
-        assertNotNullObjectByText(pdfView.context.resources.getString(androidR.string.copy))
-        assertNotNullObjectByText(pdfView.context.resources.getString(androidR.string.selectAll))
+        onView(withText(androidR.string.copy))
+            .inRoot(RootMatchers.isPlatformPopup())
+            .check(matches(isDisplayed()))
+
+        onView(withText(androidR.string.selectAll))
+            .inRoot(RootMatchers.isPlatformPopup())
+            .check(matches(isDisplayed()))
     }
 
-    @SdkSuppress(maxSdkVersion = 35)
+    // On SDK < 25: Extra menu options collapses into an overflow menu.
+    // For SDK 25+: Full menu options are displayed by default.
+    @SdkSuppress(minSdkVersion = 25, maxSdkVersion = 35)
     @Test
     fun testContextMenu_afterAddingAddCommentItem() {
         var addCommentClickCounter = 0
@@ -168,7 +174,9 @@ class PdfViewSelectionMenuTest {
         longClickAtCenter()
 
         assert(selectionMenuItemPreparer.components.size == 1)
-        assertNotNullObjectByText(pdfView.context.resources.getString(androidR.string.copy))
+        onView(withText(androidR.string.copy))
+            .inRoot(RootMatchers.isPlatformPopup())
+            .check(matches(isDisplayed()))
     }
 
     private fun longClickAtCenter() {

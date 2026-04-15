@@ -44,6 +44,10 @@ import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.service.PdfDocumentServiceImpl
 import androidx.pdf.service.connect.PdfServiceConnection
+import androidx.pdf.utils.areCorePdfApisAvailableInSdk
+import androidx.pdf.utils.isAnnotationsFeatureAvailable
+import androidx.pdf.utils.isFormFillingAvailable
+import androidx.pdf.utils.isGetTopObjectAvailable
 import androidx.pdf.utils.toAndroidClass
 import androidx.pdf.utils.toContentClass
 import java.util.Collections
@@ -143,7 +147,10 @@ public class SandboxedPdfDocument(
 
             // Check if the INCLUDE_FORM_WIDGET_INFO flag is set
             val formWidgetInfo =
-                if (pageInfoFlags and PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET != 0L) {
+                if (
+                    isFormFillingAvailable() &&
+                        (pageInfoFlags and PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET) != 0L
+                ) {
                     document.getFormWidgetInfos(pageNumber).map { it.toContentClass() }
                 } else {
                     emptyList()
@@ -173,6 +180,7 @@ public class SandboxedPdfDocument(
         return pageRange.map { getPageInfo(pageNumber = it, pageInfoFlags = pageInfoFlags) }
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override suspend fun searchDocument(
         query: String,
         pageRange: IntRange,
@@ -231,6 +239,7 @@ public class SandboxedPdfDocument(
         }
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override suspend fun getPageContent(pageNumber: Int): PdfPageContent {
         return withDocument { document ->
             val textContents =
@@ -241,6 +250,7 @@ public class SandboxedPdfDocument(
         }
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override suspend fun getPageLinks(pageNumber: Int): PdfDocument.PdfPageLinks {
         return withDocument { document ->
             val gotoLinks =
@@ -253,6 +263,7 @@ public class SandboxedPdfDocument(
 
     override fun getPageBitmapSource(pageNumber: Int): BitmapSource = PageBitmapSource(pageNumber)
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override suspend fun getFormWidgetInfos(pageNum: Int, types: Long): List<FormWidgetInfo> {
         return withDocument { document ->
             document.getFormWidgetInfosOfType(pageNum, getFormWidgetTypesArray(types)).map {
@@ -286,6 +297,7 @@ public class SandboxedPdfDocument(
         }
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override suspend fun applyEdit(record: FormEditInfo) {
         val dirtyAreas = withDocument { document ->
             document.applyEdit(record.pageNumber, record.toAndroidClass())
@@ -295,6 +307,7 @@ public class SandboxedPdfDocument(
         }
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     override suspend fun applyEdits(editsDraft: EditsDraft): List<String> {
         return batchPdfAnnotationsProcessor.process(editsDraft) { appliedBatchEdits ->
             appliedBatchEdits.forEach { appliedEdit ->
@@ -312,11 +325,13 @@ public class SandboxedPdfDocument(
      *
      * @return A [PdfWriteHandle] for the document.
      */
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override fun createWriteHandle(): PdfWriteHandle {
         refCount.incrementAndGet()
         return PdfWriteHandleImpl(this)
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> =
         getKeyedAnnotationsForPage(pageNum)
 
@@ -333,6 +348,19 @@ public class SandboxedPdfDocument(
                 onEditsAppliedListenerEntries.remove(onEditsAppliedListener)
                 break
             }
+        }
+    }
+
+    override fun isFeatureSupported(feature: PdfFeature): Boolean {
+        return when (feature) {
+            PdfFeature.TEXT_SELECTION,
+            PdfFeature.SEARCH,
+            PdfFeature.TEXT_EXTRACTION,
+            PdfFeature.LINKS -> areCorePdfApisAvailableInSdk()
+            PdfFeature.FORM_FILLING -> isFormFillingAvailable()
+            PdfFeature.ANNOTATIONS -> isAnnotationsFeatureAvailable()
+            PdfFeature.IMAGE_EXTRACTION -> isGetTopObjectAvailable()
+            else -> false
         }
     }
 
@@ -484,6 +512,7 @@ public class SandboxedPdfDocument(
         }
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     private suspend fun getKeyedAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
         val firstBatch = withDocument { it.getPageAnnotations(pageNum) } ?: return emptyList()
         if (firstBatch.totalBatchCount <= 1) {

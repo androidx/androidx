@@ -35,8 +35,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.kotlin.verify
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -178,11 +176,11 @@ class PdfViewAccessibilityManagerTest {
                     "Form widget Type: Multi select List Box. Title: ListBox. Value: Banana. Widget is read only and cannot be changed.",
             )
         testCases.forEach { (virtualViewId, expectedDescription) ->
-            val node = mock(AccessibilityNodeInfoCompat::class.java)
+            val node = AccessibilityNodeInfoCompat.obtain()
             pdfViewAccessibilityManager.onPopulateNodeForVirtualView(virtualViewId, node)
 
-            verify(node).contentDescription = expectedDescription
-            verify(node).isFocusable = true
+            assertThat(node.contentDescription).isEqualTo(expectedDescription)
+            assertThat(node.isFocusable).isTrue()
         }
     }
 
@@ -219,17 +217,25 @@ class PdfViewAccessibilityManagerTest {
             )
 
         testCases.forEach { (virtualViewId, boundsInParent) ->
-            val node = mock(AccessibilityNodeInfoCompat::class.java)
+            val node = AccessibilityNodeInfoCompat.obtain()
             val expectedBounds =
                 pdfViewAccessibilityManager.scalePageBounds(boundsInParent, pdfView.zoom)
 
             pdfViewAccessibilityManager.onPopulateNodeForVirtualView(virtualViewId, node)
-            verify(node).let {
-                pdfViewAccessibilityManager.setBoundsInScreenFromBoundsInParent(
-                    node,
-                    expectedBounds,
-                )
-            }
+
+            val actualRect = android.graphics.Rect()
+            node.getBoundsInScreen(actualRect)
+
+            val expectedNode = AccessibilityNodeInfoCompat.obtain()
+            pdfViewAccessibilityManager.setBoundsInScreenFromBoundsInParent(
+                expectedNode,
+                expectedBounds,
+            )
+
+            val expectedRect = android.graphics.Rect()
+            expectedNode.getBoundsInScreen(expectedRect)
+
+            assertThat(actualRect).isEqualTo(expectedRect)
         }
     }
 
@@ -243,19 +249,19 @@ class PdfViewAccessibilityManagerTest {
         // Wait until layout completes for the required pages
         pdfDocument.waitForLayout(untilPage = 1)
 
-        val node = mock(AccessibilityNodeInfoCompat::class.java)
+        val node = AccessibilityNodeInfoCompat.obtain()
         var virtualViewId = 0 // Page 1
 
         pdfViewAccessibilityManager.onPageTextReady(virtualViewId)
 
         // Verify content description is set as expected for Page 1
         pdfViewAccessibilityManager.onPopulateNodeForVirtualView(virtualViewId, node)
-        verify(node).contentDescription = "Page 1: Sample text for page 1"
+        assertThat(node.contentDescription).isEqualTo("Page 1: Sample text for page 1")
 
         // Verify default content description for non-visible page
         virtualViewId = 7 // Page 8
         pdfViewAccessibilityManager.onPopulateNodeForVirtualView(virtualViewId, node)
-        verify(node).contentDescription = "Page 8" // Default value
+        assertThat(node.contentDescription).isEqualTo("Page 8") // Default value
     }
 
     @Test
@@ -272,11 +278,11 @@ class PdfViewAccessibilityManagerTest {
         pdfView.fastScrollVisibility = PdfView.FastScrollVisibility.ALWAYS_SHOW
         pdfView.lastFastScrollerVisibility = true
 
-        val node = mock(AccessibilityNodeInfoCompat::class.java)
+        val node = AccessibilityNodeInfoCompat.obtain()
         val thumbVirtualId = PdfViewAccessibilityManager.FAST_SCROLLER_OFFSET + 1
         pdfViewAccessibilityManager.onPopulateNodeForVirtualView(thumbVirtualId, node)
-        verify(node).contentDescription = "Scroll Bar"
-        verify(node).isFocusable = true
+        assertThat(node.contentDescription).isEqualTo("Scroll Bar")
+        assertThat(node.isFocusable).isTrue()
     }
 
     @Test
@@ -293,10 +299,10 @@ class PdfViewAccessibilityManagerTest {
         pdfView.fastScrollVisibility = PdfView.FastScrollVisibility.ALWAYS_SHOW
         pdfView.lastFastScrollerVisibility = true
 
-        val node = mock(AccessibilityNodeInfoCompat::class.java)
+        val node = AccessibilityNodeInfoCompat.obtain()
         val pageIndicatorVirtualId = PdfViewAccessibilityManager.FAST_SCROLLER_OFFSET + 2
         pdfViewAccessibilityManager.onPopulateNodeForVirtualView(pageIndicatorVirtualId, node)
-        verify(node).isFocusable = true
+        assertThat(node.isFocusable).isTrue()
     }
 
     @Test

@@ -26,6 +26,7 @@ import android.view.MotionEvent
 import androidx.annotation.IntDef
 import androidx.annotation.VisibleForTesting
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
 import androidx.pdf.annotation.models.ImagePdfObject
 import androidx.pdf.annotation.models.toImageSelection
@@ -140,6 +141,7 @@ internal class SelectionStateManager(
         currentZoom: Float,
         isSourceMouse: Boolean,
     ): Boolean {
+        if (!pdfDocument.isFeatureSupported(PdfFeature.TEXT_SELECTION)) return false
         return when (action) {
             MotionEvent.ACTION_DOWN -> {
                 location ?: return false // We can't handle an ACTION_DOWN without a location
@@ -158,6 +160,8 @@ internal class SelectionStateManager(
     /** Asynchronously attempts to select the nearest block of content to [pdfPoint] */
     fun maybeSelectContentAtPoint(pdfPoint: PdfPoint) {
         _selectionUiSignalBus.tryEmit(SelectionUiSignal.ToggleActionMode(show = false))
+        if (!pdfDocument.isFeatureSupported(PdfFeature.TEXT_SELECTION)) return
+
         _selectionUiSignalBus.tryEmit(
             SelectionUiSignal.PlayHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
         )

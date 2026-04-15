@@ -115,7 +115,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     resources.getDimensionPixelSize(R.dimen.brush_preview_height),
                 )
             // Brush preview is for static visual appearance; mark it unfocusable
-            focusable = NOT_FOCUSABLE
+            isFocusable = false
             gravity = Gravity.CENTER
         }
 

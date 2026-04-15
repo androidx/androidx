@@ -27,6 +27,7 @@ import androidx.pdf.RenderParams.Companion.RENDER_MODE_FOR_DISPLAY
 import androidx.pdf.adapter.FakePdfDocumentRenderer
 import androidx.pdf.adapter.FakePdfDocumentRendererFactory
 import androidx.pdf.annotation.createStampAnnotationWithPath
+import androidx.pdf.utils.isAnnotationsFeatureAvailable
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.FileOutputStream
@@ -153,6 +154,7 @@ class PdfDocumentRemoteImplTest {
 
     @Test
     fun applyDraftEdits_delegatesToProcessor_returnsSuccess() {
+        if (!isAnnotationsFeatureAvailable()) return
         // Arrange
         val fakeRenderer = FakePdfDocumentRenderer()
         val remote = createRemoteWithRenderer(fakeRenderer)

@@ -30,6 +30,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.pdf.EditablePdfDocument
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfFeature
 import androidx.pdf.PdfLoader
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.annotation.PdfAnnotationsEditor
@@ -252,6 +253,8 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
 
     internal fun applyDraftEdits() {
         val document = editablePdfDocument
+        if (document?.isFeatureSupported(PdfFeature.ANNOTATIONS) == false)
+            throw UnsupportedOperationException("Operation supported above S + SDK extension >= 18")
         val localAnnotationsManager = annotationsManager
 
         if (document == null || localAnnotationsManager == null) {

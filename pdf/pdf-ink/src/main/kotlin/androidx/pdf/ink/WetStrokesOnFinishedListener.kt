@@ -38,7 +38,8 @@ internal class WetStrokesOnFinishedListener(
     override fun onStrokesFinished(strokes: Map<InProgressStrokeId, Stroke>) {
         super.onStrokesFinished(strokes)
         wetStrokesView.removeFinishedStrokes(strokes.keys)
-        strokes.forEach { id, stroke ->
+
+        for ((id, stroke) in strokes) {
             strokeIdToPageNumMap[id]?.let { pageNum ->
                 val annotation = stroke.toStampAnnotation(pageNum)
                 annotationsViewModel.addDraftAnnotation(annotation)

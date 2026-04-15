@@ -137,11 +137,11 @@
 
     <!-- Message to show which match is selected out of how many matches when searching for query text inside the file.
       e.g. "3 of 12" meaning "match 3 is selected, out of 12 matches" [CHAR LIMIT=10] -->
-    <string name="message_match_status"><xliff:g id="position" example="3">%1$d</xliff:g> / <xliff:g id="total" example="12">%2$d</xliff:g></string>
+    <string name="message_match_status"><xliff:g example="3" id="position">%1$d</xliff:g> / <xliff:g example="12" id="total">%2$d</xliff:g></string>
 
     <!-- Content description for the match status, indicating which match is selected out of the total number of matches
     when searching for a query text within the file. -->
-    <string name="match_status_description"><xliff:g id="position" example="3">%1$d</xliff:g> of <xliff:g id="total" example="12">%2$d</xliff:g></string>
+    <string name="match_status_description"><xliff:g example="3" id="position">%1$d</xliff:g> of <xliff:g example="12" id="total">%2$d</xliff:g></string>
 
     <!-- Message to show when no matches occur when searching for query text inside the file -->
     <string name="message_no_match_status">No matching results</string>
@@ -179,6 +179,9 @@
     <!-- Error Message on PDF File Load Error -->
     <string name="error_cannot_open_pdf">Can\'t open PDF file</string>
 
+    <!-- Error Message on PDF File Load Error -->
+    <string name="error_cannot_open_password_protected_pdf">Password protected PDFs are not supported.</string>
+
     <!-- Error Message on Failure to start Edit Mode -->
     <string name="cannot_edit_pdf">This PDF can\'t be edited</string>
 
@@ -196,23 +199,23 @@
     <string name="form_widget">Form widget</string>
 
     <!-- Form Widget type string -->
-    <string name="form_type">Type: <xliff:g id="widget_type_name" example="LISTBOX">%1$s</xliff:g>.</string>
+    <string name="form_type">Type: <xliff:g example="LISTBOX" id="widget_type_name">%1$s</xliff:g>.</string>
 
     <!-- Form Widget title string for accessibility -->
-    <string name="form_title">Title: <xliff:g id="widget_accessibility_title" example="Family Name">%1$s</xliff:g>.</string>
+    <string name="form_title">Title: <xliff:g example="Family Name" id="widget_accessibility_title">%1$s</xliff:g>.</string>
 
     <!-- The text value of the read-only form widget for accessibility -->
-    <string name="form_value">Value: <xliff:g id="widget_value" example="Smith">%1$s</xliff:g>.</string>
+    <string name="form_value">Value: <xliff:g example="Smith" id="widget_value">%1$s</xliff:g>.</string>
 
     <!-- The current text value of the form widget for accessibility.
          The text value can be changed based on the user interaction with the form widget -->
-    <string name="form_current_value">Current value: <xliff:g id="widget_value" example="Smith">%1$s</xliff:g>.</string>
+    <string name="form_current_value">Current value: <xliff:g example="Smith" id="widget_value">%1$s</xliff:g>.</string>
 
     <!-- Read-only form widget label -->
     <string name="form_read_only">Widget is read only and cannot be changed.</string>
 
     <!-- Multi-select form widget label -->
-    <string name="form_multiselect_type">Type: Multi select <xliff:g id="widget_type_name" example="LISTBOX">%1$s</xliff:g>.</string>
+    <string name="form_multiselect_type">Type: Multi select <xliff:g example="LISTBOX" id="widget_type_name">%1$s</xliff:g>.</string>
 
     <!-- Instruction for click action when it toggles the selected value (click type form widget) -->
     <string name="form_click_toggle_instruction">Click will toggle value.</string>

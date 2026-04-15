@@ -171,6 +171,7 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
      * will be invoked with the result.
      *
      * @throws ApplyInProgressException if another apply operation is already in progress.
+     * @throws UnsupportedOperationException Operation supported above S+ device with sdk-ext >= 18
      */
     public fun applyDraftEdits() {
         if (isApplyEditsInProgress) {

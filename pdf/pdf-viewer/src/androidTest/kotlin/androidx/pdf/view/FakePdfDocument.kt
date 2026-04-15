@@ -30,6 +30,7 @@ import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
+import androidx.pdf.PdfFeature
 import androidx.pdf.RenderParams
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.PdfObject
@@ -43,6 +44,7 @@ import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.models.ListItem
 import java.util.concurrent.Executor
+import kotlin.collections.emptyList
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -151,13 +153,17 @@ internal open class FakePdfDocument(
         return
     }
 
+    override fun isFeatureSupported(feature: PdfFeature): Boolean {
+        return true
+    }
+
     override suspend fun getPageLinks(pageNumber: Int): PdfDocument.PdfPageLinks {
         return pageLinks[pageNumber] ?: PdfDocument.PdfPageLinks(emptyList(), emptyList())
     }
 
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
         if (exceptionToThrow != null) throw exceptionToThrow
-        return annotationsPerPage.getOrDefault(pageNum, emptyList())
+        return annotationsPerPage[pageNum] ?: emptyList()
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)

@@ -20,7 +20,7 @@ import android.graphics.RectF
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.createStampAnnotationWithPath
-import androidx.pdf.utils.AnnotationUtilsTest.Companion.isRequiredSdkExtensionAvailable
+import androidx.pdf.utils.isAnnotationsFeatureAvailable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -41,7 +41,7 @@ class StampAnnotationConverterTest {
 
     @Test
     fun convert_emptyPdfObjects_returnsAospStampAnnotationWithNoObjects() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         val stampAnnotation = createStampAnnotationWithPath(pageNum = 0, pathSize = 0)
         val expectedBounds = RectF(0f, 0f, 0f, 0f)
@@ -54,7 +54,7 @@ class StampAnnotationConverterTest {
 
     @Test
     fun convert_withPdfObjects_returnsAospStampAnnotationWithObjects() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         val stampAnnotation = createStampAnnotationWithPath(pageNum = 0, pathSize = 1)
 

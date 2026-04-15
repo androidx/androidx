@@ -29,6 +29,7 @@ import androidx.pdf.PdfDocument.Companion.PDF_FORM_TYPE_ACRO_FORM
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.util.PAGE_INFO_REQUEST_NAME
+import androidx.pdf.util.compatContentEquals
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -249,7 +250,7 @@ class PageLayoutManagerTest {
         // changes
         assertThat(visiblePageAreas.size).isEqualTo(3)
         val firstAreas = visiblePageAreas[1]
-        assertThat(firstAreas.contentEquals(visiblePageAreas[2])).isFalse()
+        assertThat(firstAreas.compatContentEquals(visiblePageAreas[2])).isFalse()
         // Before we learn the viewport, we don't know what's visible
         assertThat(visiblePageAreas[0].size()).isEqualTo(0)
         // First viewport should include all of page 0 through part of page 5
@@ -288,7 +289,7 @@ class PageLayoutManagerTest {
         // change
         assertThat(visiblePageAreas.size).isEqualTo(3)
         val firstAreas = visiblePageAreas[1]
-        assertThat(firstAreas.contentEquals(visiblePageAreas[2])).isTrue()
+        assertThat(firstAreas.compatContentEquals(visiblePageAreas[2])).isTrue()
         // Before we learn the viewport, we don't know what's visible
         assertThat(visiblePageAreas[0].size()).isEqualTo(0)
         // First viewport should include all of page 0 through part of page 5
@@ -320,7 +321,7 @@ class PageLayoutManagerTest {
         // changes
         assertThat(pageLocations.size).isEqualTo(3)
         val firstLocations = pageLocations[1]
-        assertThat(firstLocations.contentEquals(pageLocations[2])).isFalse()
+        assertThat(firstLocations.compatContentEquals(pageLocations[2])).isFalse()
         // Before we learn the viewport, we don't know what's visible
         assertThat(pageLocations[0].size()).isEqualTo(0)
         // First viewport should include pages 0-5
@@ -367,7 +368,7 @@ class PageLayoutManagerTest {
         // change
         assertThat(pageLocations.size).isEqualTo(3)
         val firstLocations = pageLocations[1]
-        assertThat(firstLocations.contentEquals(pageLocations[2])).isTrue()
+        assertThat(firstLocations.compatContentEquals(pageLocations[2])).isTrue()
         // Before we learn the viewport, we don't know what's visible
         assertThat(pageLocations[0].size()).isEqualTo(0)
         // First viewport should include pages 0-5

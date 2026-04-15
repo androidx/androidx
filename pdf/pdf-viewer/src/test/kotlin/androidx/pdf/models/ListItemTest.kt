@@ -117,7 +117,7 @@ class ListItemTest {
     fun listItem_createFromParcel_nullLabel_createsInstanceWithEmptyLabel() {
         val parcel = Parcel.obtain()
         parcel.writeString(null)
-        parcel.writeBoolean(true)
+        parcel.writeInt(1)
         parcel.setDataPosition(0)
 
         val createdListItem = ListItem.CREATOR.createFromParcel(parcel)

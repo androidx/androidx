@@ -19,6 +19,7 @@ package androidx.pdf.viewer.fragment
 import android.net.Uri
 import android.util.SparseArray
 import androidx.lifecycle.SavedStateHandle
+import androidx.pdf.PdfFeature
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.viewer.coroutines.toListDuring
@@ -75,7 +76,12 @@ class PdfDocumentViewSearchScenarioTest {
         pdfDocumentViewModel =
             PdfDocumentViewModel(
                 savedStateHandle,
-                FakePdfLoader(FakePdfDocument(searchResults = searchResults)),
+                FakePdfLoader(
+                    FakePdfDocument(
+                        searchResults = searchResults,
+                        supportedFeatures = setOf(PdfFeature.SEARCH),
+                    )
+                ),
             )
     }
 
@@ -423,7 +429,15 @@ class PdfDocumentViewSearchScenarioTest {
             }
         val fakeResults = createFakeSearchResults(0, 1, 2, 2, 5, 5, 10, 10, 10, 10)
         val pdfDocumentViewModel =
-            PdfDocumentViewModel(state, FakePdfLoader(FakePdfDocument(searchResults = fakeResults)))
+            PdfDocumentViewModel(
+                state,
+                FakePdfLoader(
+                    FakePdfDocument(
+                        searchResults = fakeResults,
+                        supportedFeatures = setOf(PdfFeature.SEARCH),
+                    )
+                ),
+            )
 
         val searchStates = pdfDocumentViewModel.searchViewUiState.take(3).toList()
         // assert initially search view is closed
@@ -452,7 +466,15 @@ class PdfDocumentViewSearchScenarioTest {
 
         val fakeResults = createFakeSearchResults(0, 1, 2, 2, 5, 5, 10, 10, 10, 10)
         val pdfDocumentViewModel =
-            PdfDocumentViewModel(state, FakePdfLoader(FakePdfDocument(searchResults = fakeResults)))
+            PdfDocumentViewModel(
+                state,
+                FakePdfLoader(
+                    FakePdfDocument(
+                        searchResults = fakeResults,
+                        supportedFeatures = setOf(PdfFeature.SEARCH),
+                    )
+                ),
+            )
         // wait for document load to complete after init.
         advanceUntilIdle()
 

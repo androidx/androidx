@@ -105,10 +105,10 @@ private constructor(
             ParcelCompat.readParcelable(parcel, Rect::class.java.classLoader, Rect::class.java)!!,
         textValue = parcel.readString(),
         accessibilityLabel = parcel.readString(),
-        isReadOnly = parcel.readBoolean(),
-        isEditableText = parcel.readBoolean(),
-        isMultiSelect = parcel.readBoolean(),
-        isMultiLineText = parcel.readBoolean(),
+        isReadOnly = parcel.readInt() != 0,
+        isEditableText = parcel.readInt() != 0,
+        isMultiSelect = parcel.readInt() != 0,
+        isMultiLineText = parcel.readInt() != 0,
         maxLength = parcel.readInt(),
         fontSize = parcel.readFloat(),
         listItems = parcel.createTypedArrayList(ListItem.CREATOR)?.toList() ?: emptyList(),
@@ -122,10 +122,10 @@ private constructor(
         dest.writeParcelable(widgetRect, flags)
         dest.writeString(textValue)
         dest.writeString(accessibilityLabel)
-        dest.writeBoolean(isReadOnly)
-        dest.writeBoolean(isEditableText)
-        dest.writeBoolean(isMultiSelect)
-        dest.writeBoolean(isMultiLineText)
+        dest.writeInt(if (isReadOnly) 1 else 0)
+        dest.writeInt(if (isEditableText) 1 else 0)
+        dest.writeInt(if (isMultiSelect) 1 else 0)
+        dest.writeInt(if (isMultiLineText) 1 else 0)
         dest.writeInt(maxLength)
         dest.writeFloat(fontSize)
         dest.writeTypedList(listItems)

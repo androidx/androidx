@@ -84,7 +84,8 @@ class PdfViewerFragmentExternalInputTest {
     fun testEsc_closeSearchView() {
         assumeFalse(
             "Test fails on Medium Phone Emulator API 35 b/485139704",
-            Build.MODEL.contains("gphone", ignoreCase = true) && Build.VERSION.SDK_INT == 35,
+            Build.MODEL.contains("gphone", ignoreCase = true) &&
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.VANILLA_ICE_CREAM,
         )
 
         // Load a document into the fragment.

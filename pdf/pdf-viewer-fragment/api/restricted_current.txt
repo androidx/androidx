@@ -7,7 +7,7 @@ package androidx.pdf.viewer.fragment {
     property public int containerStyleResId;
   }
 
-  @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=13) public class PdfViewerFragment extends androidx.fragment.app.Fragment {
+  public class PdfViewerFragment extends androidx.fragment.app.Fragment {
     ctor public PdfViewerFragment();
     ctor protected PdfViewerFragment(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
     method @InaccessibleFromKotlin public final android.net.Uri? getDocumentUri();

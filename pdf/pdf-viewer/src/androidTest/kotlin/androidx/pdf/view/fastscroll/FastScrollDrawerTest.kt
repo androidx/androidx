@@ -28,6 +28,7 @@ import androidx.pdf.view.FakePdfDocument
 import androidx.pdf.view.fastscroll.FastScrollDrawer.Companion.VISIBLE_ALPHA
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
@@ -43,6 +44,7 @@ import org.mockito.kotlin.verify
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 26)
 class FastScrollDrawerTest {
     private lateinit var context: Context
 
