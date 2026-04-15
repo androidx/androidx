@@ -17,10 +17,40 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.v2.RemoteFlowRowV2
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+
+internal class RemoteFlowRowNode : RemoteComposeNode() {
+    var horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start
+    var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
+    var maxItemsInEachRow: Int = Int.MAX_VALUE
+    var maxLines: Int = Int.MAX_VALUE
+    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+
+    override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+        (horizontalArrangement as? RemoteSpaced)?.let {
+            recordingModifier.spacedBy(it.space.getFloatIdForCreationState(creationState))
+        }
+        creationState.document.startFlow(
+            recordingModifier,
+            horizontalArrangement.toRemote(layoutDirection),
+            verticalArrangement.toRemote(),
+            maxItemsInEachRow,
+            maxLines,
+        )
+        renderChildren(
+            creationState,
+            remoteCanvas,
+            reversed = shouldReverse(horizontalArrangement, layoutDirection),
+        )
+        creationState.document.endFlow()
+    }
+}
 
 /**
  * A layout composable that places its children in a horizontal flow.
@@ -46,13 +76,25 @@ public fun RemoteFlowRow(
     maxLines: Int = Int.MAX_VALUE,
     content: @Composable () -> Unit,
 ) {
-    RemoteFlowRowV2(
-        modifier,
-        horizontalArrangement,
-        verticalArrangement,
-        maxItemsInEachRow,
-        maxLines,
-        LocalLayoutDirection.current,
-        content,
+    val layoutDirection = LocalLayoutDirection.current
+    RemoteComposeNode(
+        factory = ::RemoteFlowRowNode,
+        update = {
+            set(modifier) { nodeModifier -> this.modifier = nodeModifier }
+            set(horizontalArrangement) { nodeHorizontalArrangement ->
+                this.horizontalArrangement = nodeHorizontalArrangement
+            }
+            set(verticalArrangement) { nodeVerticalArrangement ->
+                this.verticalArrangement = nodeVerticalArrangement
+            }
+            set(maxItemsInEachRow) { nodeMaxItemsInEachRow ->
+                this.maxItemsInEachRow = nodeMaxItemsInEachRow
+            }
+            set(maxLines) { nodeMaxLines -> this.maxLines = nodeMaxLines }
+            set(layoutDirection) { nodeLayoutDirection ->
+                this.layoutDirection = nodeLayoutDirection
+            }
+        },
+        content = content,
     )
 }

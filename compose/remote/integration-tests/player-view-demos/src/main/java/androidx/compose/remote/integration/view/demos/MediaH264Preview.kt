@@ -44,7 +44,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
@@ -427,7 +427,7 @@ fun mediaH264Preview(
     if (sample is DumperSample.ComposableSample && videoDocument == null) {
         LaunchedEffect(sample) {
             val doc =
-                captureSingleRemoteDocumentV2(
+                captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
                     context = context,
                 ) {

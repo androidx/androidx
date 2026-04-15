@@ -28,10 +28,10 @@ import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
-import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
@@ -517,7 +517,7 @@ class RemoteColorTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
 
         val document =
-            captureSingleRemoteDocumentV2(
+            captureSingleRemoteDocument(
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
