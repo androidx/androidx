@@ -39,7 +39,7 @@ public value class VisiblePdfAnnotations(
      *   no annotations.
      */
     public fun getKeyedAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> =
-        pageAnnotations.getOrDefault(pageNum, emptyList())
+        pageAnnotations[pageNum] ?: emptyList()
 
     public companion object {
         public val EMPTY: VisiblePdfAnnotations = VisiblePdfAnnotations(pageAnnotations = mapOf())

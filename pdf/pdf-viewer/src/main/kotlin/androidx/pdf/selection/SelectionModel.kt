@@ -118,13 +118,13 @@ internal class SelectionModel(
  */
 @SuppressLint("BanParcelableUsage")
 internal class UiSelectionBoundary(val location: PdfPoint, val isRtl: Boolean) : Parcelable {
-    constructor(parcel: Parcel) : this(pdfPointFromParcel(parcel), parcel.readBoolean())
+    constructor(parcel: Parcel) : this(pdfPointFromParcel(parcel), parcel.readInt() == 1)
 
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         location.writeToParcel(dest)
-        dest.writeBoolean(isRtl)
+        dest.writeInt(if (isRtl) 1 else 0)
     }
 
     override fun equals(other: Any?): Boolean {

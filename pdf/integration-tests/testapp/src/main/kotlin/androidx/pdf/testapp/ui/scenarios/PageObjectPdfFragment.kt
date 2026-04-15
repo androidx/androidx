@@ -27,7 +27,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.OpenableColumns
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -58,15 +57,6 @@ class PageObjectPdfFragment : Fragment() {
                     // Open the PDF file
                     openPdf(uri)
                 }
-            }
-        }
-
-    // Register for activity result
-    private val manageExternalStorageLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
-            if (Environment.isExternalStorageManager()) {
-                // Permission granted
-                saveAsNewPdf()
             }
         }
 
@@ -152,16 +142,6 @@ class PageObjectPdfFragment : Fragment() {
         } catch (e: Exception) {
             Log.e(TAG, "Save PDF Failed", e)
         }
-    }
-
-    private fun checkFileCreatePermission(): Boolean {
-        if (!Environment.isExternalStorageManager()) {
-            // Request MANAGE_EXTERNAL_STORAGE permission
-            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-            intent.data = Uri.parse("package:${requireContext().packageName}")
-            manageExternalStorageLauncher.launch(intent)
-        }
-        return Environment.isExternalStorageManager()
     }
 
     private fun saveAsNewPdf() {

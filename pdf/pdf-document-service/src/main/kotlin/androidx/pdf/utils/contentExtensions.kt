@@ -19,7 +19,7 @@ package androidx.pdf.utils
 import android.annotation.SuppressLint
 import android.graphics.Point
 import android.os.Build
-import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.pdf.RenderParams
 import androidx.pdf.content.PageMatchBounds
@@ -34,25 +34,28 @@ import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.models.ListItem
 import kotlin.math.roundToInt
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun android.graphics.pdf.models.PageMatchBounds.toContentClass(): PageMatchBounds =
-    requireSdkExtensionVersion {
+    requirePdfContentFeatures {
         PageMatchBounds(bounds, textStartIndex)
     }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun SelectionBoundary.toAndroidClass():
     android.graphics.pdf.models.selection.SelectionBoundary {
-    return requireSdkExtensionVersion {
+    return requirePdfContentFeatures {
         point?.let { android.graphics.pdf.models.selection.SelectionBoundary(it) }
             ?: android.graphics.pdf.models.selection.SelectionBoundary(index)
     }
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun android.graphics.pdf.models.selection.SelectionBoundary.toContentClass():
     SelectionBoundary {
-    return requireSdkExtensionVersion {
+    return requirePdfContentFeatures {
         if (point == null) {
             SelectionBoundary(index = index, isRtl = isRtl)
         }
@@ -60,9 +63,10 @@ public fun android.graphics.pdf.models.selection.SelectionBoundary.toContentClas
     }
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun android.graphics.pdf.models.selection.PageSelection.toContentClass(): PageSelection =
-    requireSdkExtensionVersion {
+    requirePdfContentFeatures {
         PageSelection(
             page = page,
             start = start.toContentClass(),
@@ -71,40 +75,46 @@ public fun android.graphics.pdf.models.selection.PageSelection.toContentClass():
         )
     }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun android.graphics.pdf.content.PdfPageTextContent.toContentClass(): PdfPageTextContent =
-    requireSdkExtensionVersion {
+    requirePdfContentFeatures {
         PdfPageTextContent(bounds, text)
     }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun android.graphics.pdf.content.PdfPageImageContent.toContentClass(): PdfPageImageContent =
-    requireSdkExtensionVersion {
+    requirePdfContentFeatures {
         PdfPageImageContent(altText)
     }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun android.graphics.pdf.content.PdfPageGotoLinkContent.toContentClass():
-    PdfPageGotoLinkContent = requireSdkExtensionVersion {
+    PdfPageGotoLinkContent = requirePdfContentFeatures {
     PdfPageGotoLinkContent(bounds, destination.toContentClass())
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun android.graphics.pdf.content.PdfPageGotoLinkContent.Destination.toContentClass():
-    PdfPageGotoLinkContent.Destination = requireSdkExtensionVersion {
+    PdfPageGotoLinkContent.Destination = requirePdfContentFeatures {
     PdfPageGotoLinkContent.Destination(pageNumber, xCoordinate, yCoordinate, zoom)
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun android.graphics.pdf.content.PdfPageLinkContent.toContentClass(): PdfPageLinkContent =
-    requireSdkExtensionVersion {
+    requirePdfContentFeatures {
         PdfPageLinkContent(bounds, uri)
     }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("WrongConstant")
 public fun android.graphics.pdf.models.FormWidgetInfo.toContentClass(): FormWidgetInfo =
-    requireSdkExtensionVersion {
+    requirePdfContentFeatures {
         return when (widgetType) {
             FormWidgetInfo.WIDGET_TYPE_CHECKBOX ->
                 FormWidgetInfo.createCheckbox(
@@ -182,16 +192,17 @@ public fun android.graphics.pdf.models.FormWidgetInfo.toContentClass(): FormWidg
         }
     }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun android.graphics.pdf.models.ListItem.toContentClass(): ListItem =
-    requireSdkExtensionVersion {
+    requirePdfContentFeatures {
         ListItem(label, isSelected)
     }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("WrongConstant")
 public fun FormEditInfo.toAndroidClass(): android.graphics.pdf.models.FormEditRecord =
-    requireSdkExtensionVersion {
+    requirePdfContentFeatures {
         val builder =
             android.graphics.pdf.models.FormEditRecord.Builder(type, pageNumber, widgetIndex)
         when (type) {
@@ -216,17 +227,17 @@ public fun FormEditInfo.toAndroidClass(): android.graphics.pdf.models.FormEditRe
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("WrongConstant")
 public fun RenderParams.toAndroidClass(): android.graphics.pdf.RenderParams =
-    requireSdkExtensionVersion {
+    requirePdfContentFeatures {
         val builder = android.graphics.pdf.RenderParams.Builder(renderMode)
         builder.setRenderFlags(renderFlags)
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 19) {
+        if (isRenderFormContentModeAvailable()) {
             builder.setRenderFormContentMode(renderFormContentMode)
         }
         builder.build()
     }
 
-private inline fun <T> requireSdkExtensionVersion(block: () -> T): T {
-    return if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+private inline fun <T> requirePdfContentFeatures(block: () -> T): T {
+    return if (areCorePdfApisAvailableInSdk()) {
         block()
     } else {
         throw UnsupportedOperationException("Operation supported above S")

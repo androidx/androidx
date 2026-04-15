@@ -95,6 +95,11 @@ class EditablePdfViewerFragmentTestSuite {
     fun cleanup() {
         if (!::scenario.isInitialized) return
 
+        // Advance the lifecycle state to CREATED (or RESUMED) before teardown.
+        // This ensures onCreate() has run and the ViewModelStore is available,
+        // preventing the onSaveInstanceState crash on API 23-26 when close() is called.
+        scenario.moveToState(Lifecycle.State.CREATED)
+
         scenario.onFragment { fragment ->
             IdlingRegistry.getInstance()
                 .unregister(fragment.pdfLoadingIdlingResource.countingIdlingResource)
@@ -655,6 +660,7 @@ class EditablePdfViewerFragmentTestSuite {
 
         fun isRequiredSdkExtensionAvailable(): Boolean {
             // Get the device's version for the specified SDK extension
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false
             val deviceExtensionVersion = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R)
             return deviceExtensionVersion >= REQUIRED_EXTENSION_VERSION
         }

@@ -160,7 +160,7 @@ internal class PageManager(
         for (pageNum in pages.keyIterator()) {
             if (pageNum < nearPages.lower || pageNum > nearPages.upper) {
                 pages[pageNum]?.setInvisible()
-            } else if (!visiblePageAreas.contains(pageNum)) {
+            } else if (visiblePageAreas.indexOfKey(pageNum) < 0) {
                 pages[pageNum]?.setNearlyVisible()
             }
         }
@@ -200,7 +200,7 @@ internal class PageManager(
         pdfFormFillingConfig: PdfFormFillingConfig,
         formWidgetInfos: List<FormWidgetInfo>? = null,
     ) {
-        if (pages.contains(pageNum)) return
+        if (pages.indexOfKey(pageNum) >= 0) return
         val page =
             Page(
                     pageNum,
@@ -266,7 +266,7 @@ internal class PageManager(
 
     /** Draws the [Page] at [pageNum] to the canvas at [locationInView] */
     fun drawPage(pageNum: Int, canvas: Canvas, locationInView: RectF) {
-        val highlightsForPage = highlights.getOrDefault(pageNum, EMPTY_HIGHLIGHTS)
+        val highlightsForPage = highlights[pageNum] ?: EMPTY_HIGHLIGHTS
         pages.get(pageNum)?.draw(canvas, locationInView, highlightsForPage)
     }
 

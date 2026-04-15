@@ -29,6 +29,7 @@ import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
+import androidx.pdf.PdfFeature
 import androidx.pdf.RenderParams
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.PdfObject
@@ -61,6 +62,7 @@ internal open class FakePdfDocument(
     private val pages: List<Point> = listOf(Point(600, 800)),
     override val formType: Int = PDF_FORM_TYPE_NONE,
     override val linearizationStatus: Int = LINEARIZATION_STATUS_UNKNOWN,
+    private val supportedFeatures: Set<PdfFeature> = setOf(),
     @Deprecated(
         "Deprecated, Use linearizationStatus instead",
         replaceWith = ReplaceWith("linearizationStatus"),
@@ -96,6 +98,10 @@ internal open class FakePdfDocument(
         listener: PdfDocument.OnPdfContentInvalidatedListener
     ) {
         TODO("Not yet implemented")
+    }
+
+    override fun isFeatureSupported(feature: PdfFeature): Boolean {
+        return supportedFeatures.contains(feature)
     }
 
     override suspend fun getPageLinks(pageNumber: Int): PdfDocument.PdfPageLinks {

@@ -22,7 +22,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
-import android.os.ext.SdkExtensions
 import android.view.ActionMode
 import android.view.LayoutInflater
 import android.view.View
@@ -45,6 +44,7 @@ import androidx.pdf.ink.R
 import androidx.pdf.selection.Selection
 import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.testapp.R as testR
+import androidx.pdf.testapp.util.isGetTopObjectAvailable
 import androidx.pdf.view.PdfView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -139,7 +139,7 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
                 }
             }
         }
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 19) {
+        if (isGetTopObjectAvailable()) {
             pdfView.isImageSelectionEnabled = true
         }
         pdfView.isFormFillingEnabled = true

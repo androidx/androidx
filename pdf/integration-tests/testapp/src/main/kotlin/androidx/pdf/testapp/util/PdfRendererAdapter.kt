@@ -20,7 +20,6 @@ import android.graphics.pdf.PdfRenderer
 import android.graphics.pdf.PdfRendererPreV
 import android.os.Build
 import android.os.ParcelFileDescriptor
-import android.os.ext.SdkExtensions
 
 class PdfRendererAdapter(parcelFileDescriptor: ParcelFileDescriptor) {
 
@@ -31,7 +30,7 @@ class PdfRendererAdapter(parcelFileDescriptor: ParcelFileDescriptor) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             pdfRenderer = PdfRenderer(parcelFileDescriptor)
         } else {
-            if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+            if (arePdfContentFeaturesAvailable()) {
                 pdfRendererPreV = PdfRendererPreV(parcelFileDescriptor)
             }
         }
@@ -49,7 +48,7 @@ class PdfRendererAdapter(parcelFileDescriptor: ParcelFileDescriptor) {
         pdfRenderer?.close()
         pdfRenderer = null
 
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+        if (arePdfContentFeaturesAvailable()) {
             pdfRendererPreV?.close()
         }
         pdfRendererPreV = null

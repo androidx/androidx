@@ -156,7 +156,7 @@ internal open class FakeEditablePdfDocument(
                 }
                 is RemoveDraftEditOperation -> {
                     val pageEdits = edits[operation.pageNum]
-                    val removed = pageEdits?.removeIf { it.key == operation.id } ?: false
+                    val removed = pageEdits?.removeAll { it.key == operation.id } ?: false
                     if (removed) {
                         results.add(operation.id)
                     }
@@ -320,6 +320,10 @@ internal open class FakeEditablePdfDocument(
     override fun removeOnPdfContentInvalidatedListener(
         listener: PdfDocument.OnPdfContentInvalidatedListener
     ) {}
+
+    override fun isFeatureSupported(feature: PdfFeature): Boolean {
+        return true
+    }
 
     override fun createWriteHandle(): PdfWriteHandle {
         return object : PdfWriteHandle {

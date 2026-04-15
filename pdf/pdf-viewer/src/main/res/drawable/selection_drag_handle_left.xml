@@ -1,5 +1,5 @@
 <!--
-  Copyright 2024 The Android Open Source Project
+  Copyright 2025 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
     android:viewportWidth="44">
 
     <path
-        android:fillColor="?attr/colorPrimaryFixedDim"
+        android:fillColor="@color/selection_handle_color"
         android:fillType="evenOdd"
         android:pathData="M33.939,9.899L33.897,23.94C33.874,31.695 27.569,38.001 19.814,38.024C12.059,38.047 5.791,31.779 5.814,24.024C5.837,16.269 12.142,9.963 19.897,9.94L33.939,9.899Z" />
 

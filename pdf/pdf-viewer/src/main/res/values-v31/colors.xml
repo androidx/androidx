@@ -1,5 +1,5 @@
-<!--
-  Copyright 2023 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2026 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,10 +15,5 @@
   -->
 
 <resources>
-    <!-- m3_sys_color_primary_fixed_dim doesn't have a day/night version, therefore defined only once -->
-    <color name="pdf_viewer_selection_handles">@color/m3_sys_color_primary_fixed_dim</color>
-    <color name="form_fields_highlight_color">#d3e3fd</color>
-    <color name="default_highlight_color">#99FFED45</color>
-    <color name="selection_handle_color">#FFD0BCFF</color>
+    <color name="selection_handle_color">?attr/colorPrimaryFixedDim</color>
 </resources>
-

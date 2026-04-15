@@ -23,6 +23,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.os.RemoteException
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfFeature
 import androidx.pdf.PdfRect
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.exceptions.RequestFailedException
@@ -54,9 +55,10 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class PageTest {
     private val testDispatcher = StandardTestDispatcher()
     private val testScope = TestScope(testDispatcher)
@@ -72,6 +74,8 @@ class PageTest {
                 { invocation ->
                     FakeBitmapSource(invocation.getArgument(0))
                 }
+            on { isFeatureSupported(PdfFeature.TEXT_EXTRACTION) } doReturn true
+            on { isFeatureSupported(PdfFeature.LINKS) } doReturn true
             onBlocking { getPageContent(pageNumber = 0) } doReturn pageContent
             onBlocking { getFormWidgetInfos(any(), any()) } doReturn UPDATED_PAGE_WIDGET_INFOS
         }
@@ -358,6 +362,8 @@ private fun createDocumentWithError(error: Throwable): PdfDocument {
             { invocation ->
                 FakeBitmapSource(invocation.getArgument(0))
             }
+        on { isFeatureSupported(PdfFeature.TEXT_EXTRACTION) } doReturn true
+        on { isFeatureSupported(PdfFeature.LINKS) } doReturn true
         onBlocking { getPageContent(any()) } doAnswer { throw error }
         onBlocking { getPageLinks(any()) } doAnswer { throw error }
     }

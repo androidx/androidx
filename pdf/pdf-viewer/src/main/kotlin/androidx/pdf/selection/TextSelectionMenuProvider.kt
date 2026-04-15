@@ -28,11 +28,10 @@ import kotlinx.coroutines.ensureActive
 
 internal class TextSelectionMenuProvider(private val context: Context) :
     SelectionMenuProvider<TextSelection> {
-    private var textClassificationManager: TextClassificationManager? = null
     private var textClassifier: TextClassifier? = null
 
     init {
-        textClassificationManager =
+        val textClassificationManager =
             context.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE)
                 as? TextClassificationManager?
         textClassifier = textClassificationManager?.textClassifier
@@ -45,6 +44,7 @@ internal class TextSelectionMenuProvider(private val context: Context) :
         return menuItems
     }
 
+    // Text Classification actions are available on Android P+ (API Level 28 or above) devices
     internal suspend fun getSmartMenuItems(text: CharSequence): List<ContextMenuComponent> =
         coroutineScope {
             val smartMenuItems: MutableList<ContextMenuComponent> = mutableListOf()
@@ -88,32 +88,28 @@ internal class TextSelectionMenuProvider(private val context: Context) :
             smartMenuItems
         }
 
-    @Suppress("DEPRECATION")
     private fun sendIntentAllowBackgroundActivityStart(pendingIntent: PendingIntent) {
-        if (Build.VERSION.SDK_INT >= 36) {
-            // For API 36+, MODE_BACKGROUND_ACTIVITY_START_ALLOWED is deprecated.
-            // Use MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS to grant background start privileges.
-            pendingIntent.send(
-                ActivityOptions.makeBasic()
-                    .setPendingIntentBackgroundActivityStartMode(
-                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS
-                    )
-                    .toBundle()
-            )
-        } else if (Build.VERSION.SDK_INT >= 34) {
-            // For API 34 & 35, use MODE_BACKGROUND_ACTIVITY_START_ALLOWED.
-            pendingIntent.send(
-                ActivityOptions.makeBasic()
-                    .setPendingIntentBackgroundActivityStartMode(
-                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
-                    )
-                    .toBundle()
-            )
-        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+        val intent =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                // For API 36 and above, MODE_BACKGROUND_ACTIVITY_START_ALLOWED is deprecated.
+                // Use MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS to grant background start
+                // privileges.
+                ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS
+            } else {
+                // For API 34 & 35, use MODE_BACKGROUND_ACTIVITY_START_ALLOWED.
+                @Suppress("DEPRECATION") ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+            }
+
+        pendingIntent.send(
+            ActivityOptions.makeBasic()
+                .setPendingIntentBackgroundActivityStartMode(intent)
+                .toBundle()
+        )
     }
 
     private fun sendPendingIntent(pendingIntent: PendingIntent) {
-        if (Build.VERSION.SDK_INT >= 34) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             sendIntentAllowBackgroundActivityStart(pendingIntent)
         } else {
             pendingIntent.send()

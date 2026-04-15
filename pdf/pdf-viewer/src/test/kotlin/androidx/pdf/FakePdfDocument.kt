@@ -129,13 +129,17 @@ internal open class FakePdfDocument(
         return
     }
 
+    override fun isFeatureSupported(feature: PdfFeature): Boolean {
+        return true
+    }
+
     override suspend fun getPageLinks(pageNumber: Int): PdfDocument.PdfPageLinks {
         return pageLinks[pageNumber] ?: PdfDocument.PdfPageLinks(emptyList(), emptyList())
     }
 
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
         if (exceptionToThrow != null) throw exceptionToThrow
-        return annotationsPerPage.getOrDefault(pageNum, emptyList())
+        return annotationsPerPage[pageNum] ?: emptyList()
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)

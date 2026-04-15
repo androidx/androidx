@@ -30,12 +30,15 @@ public interface PdfDocumentRendererFactory {
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PdfDocumentRendererFactoryImpl : PdfDocumentRendererFactory {
     override fun create(pfd: ParcelFileDescriptor, password: String?): PdfDocumentRenderer {
-        return if (Build.VERSION.SDK_INT >= 35) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             PdfDocumentRendererAdapter(pfd, password.orEmpty())
-        } else if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+        } else if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13
+        ) {
             PdfDocumentRendererPreVAdapter(pfd, password.orEmpty())
         } else {
-            throw UnsupportedOperationException("Operation supported above S")
+            PdfRendererCompatAdapter(pfd)
         }
     }
 }

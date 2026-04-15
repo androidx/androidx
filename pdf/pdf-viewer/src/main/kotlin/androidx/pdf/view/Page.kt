@@ -29,6 +29,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfFeature
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.models.FormWidgetInfo
@@ -199,6 +200,7 @@ internal class Page(
     }
 
     private fun maybeFetchPageText() {
+        if (!pdfDocument.isFeatureSupported(PdfFeature.TEXT_EXTRACTION)) return
         if (fetchPageTextJob?.isActive == true || pageText != null) return
 
         fetchPageTextJob =
@@ -280,6 +282,7 @@ internal class Page(
     }
 
     private fun maybeFetchLinks() {
+        if (!pdfDocument.isFeatureSupported(PdfFeature.LINKS)) return
         if (fetchLinksJob?.isActive == true || links != null) return
         fetchLinksJob =
             backgroundScope

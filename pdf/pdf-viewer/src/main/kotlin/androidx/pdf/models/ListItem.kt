@@ -27,13 +27,13 @@ public class ListItem(public val label: String, public val isSelected: Boolean) 
 
     private constructor(
         parcel: Parcel?
-    ) : this(label = parcel?.readString() ?: "", isSelected = parcel?.readBoolean() ?: false)
+    ) : this(label = parcel?.readString() ?: "", isSelected = (parcel?.readInt() ?: 0) != 0)
 
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(label)
-        dest.writeBoolean(isSelected)
+        dest.writeInt(if (isSelected) 1 else 0)
     }
 
     override fun hashCode(): Int {

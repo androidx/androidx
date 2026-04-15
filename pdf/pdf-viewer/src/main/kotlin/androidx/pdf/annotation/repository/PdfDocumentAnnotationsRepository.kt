@@ -19,6 +19,7 @@ package androidx.pdf.annotation.repository
 import android.os.RemoteException
 import androidx.annotation.VisibleForTesting
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfFeature
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import java.util.Collections
@@ -67,7 +68,9 @@ internal class PdfDocumentAnnotationsRepository(private val document: PdfDocumen
             // prevents a redundant fetch.
             if (cachedAnnotationsPerPage[pageNum] == null) {
                 try {
-                    cachedAnnotationsPerPage[pageNum] = document.getAnnotationsForPage(pageNum)
+                    if (document.isFeatureSupported(PdfFeature.ANNOTATIONS)) {
+                        cachedAnnotationsPerPage[pageNum] = document.getAnnotationsForPage(pageNum)
+                    }
                 } catch (e: RemoteException) {
                     if (!e.isHandledRemoteException) throw e
                     // Gracefully recover from known remote failures (e.g., service crashes or

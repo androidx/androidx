@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.pdf.utils
+package androidx.pdf.util
 
 import android.os.Build
 import android.os.ext.SdkExtensions
 
-fun isRequiredSdkExtensionAvailable(extensionVersion: Int = REQUIRED_EXTENSION_VERSION): Boolean {
-    // Get the device's version for the specified SDK extension
-    val deviceExtensionVersion = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S)
-    return deviceExtensionVersion >= extensionVersion
-}
-
-private const val REQUIRED_EXTENSION_VERSION = 18
+internal fun isImageSelectionAvailableInSdk(): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 19
