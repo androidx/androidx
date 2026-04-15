@@ -309,11 +309,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                     }
                 }
 
-                @UiThread
-                fun getAndSet(newValue: BuffersState?): BuffersState? {
-                    assertOnUiThread()
-                    return stateInternal.getAndSet(newValue)
-                }
+                @AnyThread fun getAndClear(): BuffersState? = stateInternal.getAndSet(null)
 
                 @AnyThread fun get(): BuffersState? = stateInternal.get()
             }
@@ -385,7 +381,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                         // by setting
                         // buffersState to null. So whichever place gets to that first does the
                         // cleanup.
-                        buffersState.getAndSet(null)?.cleanup()
+                        buffersState.getAndClear()?.cleanup()
                         return@drawAsync
                     }
                     SurfaceControlCompat.Transaction()
@@ -562,9 +558,6 @@ internal class CanvasInProgressStrokesRenderHelperV33<
             callback.onDraw()
             renderThreadState.frontBufferCanvas = null
 
-            // Clear the client-defined masked area.
-            maskPath?.let { frontBufferCanvas.drawPath(it, maskPaint) }
-
             callback.onDrawComplete()
             // Check that the save/restore count is balanced, if we haven't bailed out of the draw
             // early
@@ -698,9 +691,21 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                 checkNotNull(renderThreadState.drawingTo).frontBufferRenderNode
             val frontBufferCanvas = checkNotNull(renderThreadState.frontBufferCanvas)
             val offScreenRenderNode = checkNotNull(renderThreadState.drawingTo).offScreenRenderNode
+            val offScreenCanvas = checkNotNull(renderThreadState.offScreenCanvas)
+
+            // Clear the masked area in the offscreen frame buffer rather than the front buffer to
+            // avoid
+            // scanline racing artifacts where content "behind" the mask is temporarily visible. If
+            // the
+            // masked area was cleared in the front buffer, then these artifacts can happen if the
+            // front
+            // buffer was read out to the display after the stroke content was drawn but before the
+            // masked
+            // area was cleared.
+            maskPath?.let { offScreenCanvas.drawPath(it, maskPaint) }
 
             // Previously saved in `prepareToDrawInModifiedRegion`.
-            checkNotNull(renderThreadState.offScreenCanvas).restore()
+            offScreenCanvas.restore()
 
             offScreenRenderNode.endRecording()
             check(offScreenRenderNode.hasDisplayList())
@@ -849,7 +854,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
         fun discard() {
             assertOnUiThread()
             if (discarded.getAndSet(true)) return
-            val state = buffersState.getAndSet(null) ?: return
+            val state = buffersState.getAndClear() ?: return
             SurfaceControlCompat.Transaction()
                 .unsetAndHide(state.active)
                 .unsetAndHide(state.inactive)

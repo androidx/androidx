@@ -67,10 +67,12 @@ public abstract class ColorFunction private constructor(internal val nativePoint
     public class OpacityMultiplier internal constructor(nativePointer: Long) :
         ColorFunction(nativePointer) {
 
+        /** Constructs a color function that applies the specified opacity multiplier. */
         public constructor(
             @FloatRange(from = 0.0) multiplier: Float
         ) : this(ColorFunctionNative.createOpacityMultiplier(multiplier))
 
+        /** The opacity multiplier to apply. */
         @get:FloatRange(from = 0.0)
         public val multiplier: Float
             get() = ColorFunctionNative.getOpacityMultiplier(nativePointer)
@@ -108,9 +110,11 @@ public abstract class ColorFunction private constructor(internal val nativePoint
             // newly constructed color functions.
             ComposeColor(ColorFunctionNative.computeReplaceColorLong(nativePointer).toULong())
 
+        /** The color that will replace the input color, as a `@ColorLong`. */
         public val colorLong: Long
             @ColorLong get(): Long = internalColor.value.toLong()
 
+        /** The color that will replace the input color, as a `@ColorInt`. */
         public val colorIntArgb: Int
             @ColorInt get(): Int = internalColor.toArgb()
 
@@ -129,7 +133,7 @@ public abstract class ColorFunction private constructor(internal val nativePoint
         override fun toString(): String = "ColorFunction.ReplaceColor($internalColor)"
 
         public companion object {
-
+            /** Returns a color function that will replace its input color with the given color. */
             @JvmStatic
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public fun withComposeColor(color: ComposeColor): ReplaceColor =
@@ -145,10 +149,12 @@ public abstract class ColorFunction private constructor(internal val nativePoint
                     }
                 )
 
+            /** Returns a color function that will replace its input color with the given color. */
             @JvmStatic
             public fun withColorLong(@ColorLong colorLong: Long): ReplaceColor =
                 ReplaceColor.withComposeColor(ComposeColor(colorLong.toULong()))
 
+            /** Returns a color function that will replace its input color with the given color. */
             @JvmStatic
             public fun withColorIntArgb(@ColorInt colorIntArgb: Int): ReplaceColor =
                 ReplaceColor.withComposeColor(ComposeColor(colorIntArgb))

@@ -40,6 +40,8 @@ import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.Mesh as InkMesh
 import androidx.ink.geometry.MeshAttributeUnpackingParams
 import androidx.ink.geometry.MeshFormat
+import androidx.ink.geometry.getMeshOwnedRawTriangleIndexBuffer
+import androidx.ink.geometry.getMeshOwnedRawVertexBuffer
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 import androidx.ink.strokes.InProgressStroke
@@ -251,7 +253,7 @@ internal class CanvasMeshRenderer(
         inkMesh: InkMesh,
         meshToCanvasTransform: Matrix,
         brushColor: ComposeColor,
-        textureMapping: BrushPaint.TextureMapping,
+        textureMapping: BrushPaint.TextureLayer.Mapping,
         textureAnimationProgress: Float,
         numTextureAnimationFrames: Int,
         numTextureAnimationRows: Int,
@@ -279,7 +281,7 @@ internal class CanvasMeshRenderer(
                         ))
             ) {
                 val newMesh =
-                    createAndroidMesh(inkMesh) ?: return // Nothing to draw if the mesh is empty.
+                    inkMesh.createAndroidMesh() ?: return // Nothing to draw if the mesh is empty.
                 updateAndroidMesh(
                     newMesh,
                     inkMesh.format,
@@ -425,15 +427,15 @@ internal class CanvasMeshRenderer(
     }
 
     /** Create a new [AndroidMesh] for the given [InkMesh]. */
-    private fun createAndroidMesh(inkMesh: InkMesh): AndroidMesh? {
-        val bounds = inkMesh.bounds ?: return null // Nothing to render with an empty mesh.
-        val meshSpec = obtainShaderMetadata(inkMesh.format, isPacked = true).meshSpecification
+    private fun InkMesh.createAndroidMesh(): AndroidMesh? {
+        val bounds = bounds ?: return null // Nothing to render with an empty mesh.
+        val meshSpec = obtainShaderMetadata(format, isPacked = true).meshSpecification
         return AndroidMesh(
             meshSpec,
             AndroidMesh.TRIANGLES,
-            inkMesh.rawVertexData,
-            inkMesh.vertexCount,
-            inkMesh.rawTriangleIndexData,
+            getMeshOwnedRawVertexBuffer(),
+            vertexCount,
+            getMeshOwnedRawTriangleIndexBuffer(),
             RectF(bounds.xMin, bounds.yMin, bounds.xMax, bounds.yMax),
         )
     }
@@ -449,7 +451,7 @@ internal class CanvasMeshRenderer(
         @Size(min = 4) meshToCanvasLinearComponent: FloatArray,
         brushColor: ComposeColor,
         attributeUnpackingParams: List<MeshAttributeUnpackingParams>?,
-        textureMapping: BrushPaint.TextureMapping,
+        textureMapping: BrushPaint.TextureLayer.Mapping,
         textureAnimationProgress: Float,
         numTextureAnimationFrames: Int,
         numTextureAnimationRows: Int,
@@ -939,9 +941,9 @@ internal class CanvasMeshRenderer(
             FORWARD_DERIVATIVE_UNPACKING_TRANSFORM(4),
 
             /**
-             * The integer value of the [BrushPaint.TextureMapping] mode used for this brush coat.
-             * Set it with [AndroidMesh.setIntUniform]. Must be specified for every format. It is an
-             * `int`.
+             * The integer value of the [BrushPaint.TextureLayer.Mapping] mode used for this brush
+             * coat. Set it with [AndroidMesh.setIntUniform]. Must be specified for every format. It
+             * is an `int`.
              */
             // TODO: b/375203215 - Get rid of this uniform once we are able to mix tiling and
             // winding

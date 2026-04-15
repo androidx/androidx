@@ -16,6 +16,16 @@
 
 package androidx.ink.brush
 
+import androidx.ink.brush.behavior.DampingNode
+import androidx.ink.brush.behavior.EasingFunction
+import androidx.ink.brush.behavior.OutOfRange
+import androidx.ink.brush.behavior.ProgressDomain
+import androidx.ink.brush.behavior.ResponseNode
+import androidx.ink.brush.behavior.SourceNode
+import androidx.ink.brush.behavior.SourceNode.Source
+import androidx.ink.brush.behavior.TargetNode
+import androidx.ink.brush.behavior.TargetNode.Target
+import androidx.ink.brush.behavior.ToolTypeFilterNode
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.colorspace.ColorSpaces
 import androidx.ink.brush.color.toArgb
@@ -397,34 +407,31 @@ class BrushTest {
                         behaviors =
                             listOf(
                                 BrushBehavior(
-                                    BrushBehavior.TargetNode(
-                                        target = BrushBehavior.Target.HEIGHT_MULTIPLIER,
+                                    TargetNode(
+                                        target = Target.HEIGHT_MULTIPLIER,
                                         targetModifierRangeStart = 1.1f,
                                         targetModifierRangeEnd = 1.7f,
                                         input =
-                                            BrushBehavior.DampingNode(
-                                                dampingSource =
-                                                    BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                                            DampingNode(
+                                                dampingSource = ProgressDomain.TIME_IN_SECONDS,
                                                 dampingGap = 0.001f,
                                                 input =
-                                                    BrushBehavior.ResponseNode(
+                                                    ResponseNode(
                                                         responseCurve =
                                                             EasingFunction.Predefined.EASE_IN_OUT,
                                                         input =
-                                                            BrushBehavior.ToolTypeFilterNode(
+                                                            ToolTypeFilterNode(
                                                                 enabledToolTypes =
                                                                     setOf(InputToolType.STYLUS),
                                                                 input =
-                                                                    BrushBehavior.SourceNode(
+                                                                    SourceNode(
                                                                         source =
-                                                                            BrushBehavior.Source
-                                                                                .TILT_IN_RADIANS,
+                                                                            Source.TILT_IN_RADIANS,
                                                                         sourceValueRangeStart =
                                                                             0.2f,
                                                                         sourceValueRangeEnd = .8f,
                                                                         sourceOutOfRangeBehavior =
-                                                                            BrushBehavior.OutOfRange
-                                                                                .MIRROR,
+                                                                            OutOfRange.MIRROR,
                                                                     ),
                                                             ),
                                                     ),

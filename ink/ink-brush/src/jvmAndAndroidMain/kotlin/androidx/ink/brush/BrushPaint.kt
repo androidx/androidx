@@ -53,6 +53,7 @@ private constructor(
     textureLayers: List<TextureLayer>,
     // The [colorFunctions] val below is a defensive copy of this parameter.
     colorFunctions: List<ColorFunction>,
+    /** The rendering behavior to use for strokes that overlap themselves. */
     public val selfOverlap: SelfOverlap,
 ) {
 
@@ -132,319 +133,6 @@ private constructor(
         return BrushPaintNative.isCompatibleWithMeshFormat(nativePointer, meshFormat.nativePointer)
     }
 
-    /** Specification of how the texture should apply to the stroke. */
-    public class TextureMapping
-    private constructor(
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-        public val value: Int,
-        private val name: String,
-    ) {
-
-        init {
-            check(value !in VALUE_TO_INSTANCE) { "Duplicate TextureMapping value: $value." }
-            VALUE_TO_INSTANCE[value] = this
-        }
-
-        override fun toString(): String = "BrushPaint.TextureMapping.$name"
-
-        public companion object {
-            private val VALUE_TO_INSTANCE = MutableIntObjectMap<TextureMapping>()
-
-            internal fun fromInt(value: Int): TextureMapping =
-                checkNotNull(VALUE_TO_INSTANCE.get(value)) {
-                    "Invalid TextureMapping value: $value"
-                }
-
-            /**
-             * The texture will repeat according to a 2D affine transformation of vertex positions.
-             * Each copy of the texture will have the same size and shape, modulo reflections.
-             *
-             * This mode does not support texture animations, so it ignores the `animationFrames`,
-             * `animationRows`, `animationColumns`, and `animationDuration` fields.
-             */
-            @JvmField public val TILING: TextureMapping = TextureMapping(0, "TILING")
-            /**
-             * This mode is intended for use with particle brush coats (i.e. with a brush tip with a
-             * nonzero particle gap). A copy of the texture (or one animation frame thereof) will be
-             * "stamped" onto each particle of the stroke, scaled or rotated appropriately to cover
-             * the whole particle.
-             *
-             * Since the whole texture (or animation frame) is always scaled to the size of each
-             * particle and positioned atop each one, this mode ignores the `origin`, `sizeUnit`,
-             * `wrapX`, `wrapY`, `sizeX`, and `sizeY` fields.
-             */
-            @JvmField public val STAMPING: TextureMapping = TextureMapping(1, "STAMPING")
-        }
-    }
-
-    /** Specification of the origin point to use for the texture. */
-    public class TextureOrigin
-    private constructor(internal val value: Int, private val name: String) {
-        init {
-            check(value !in VALUE_TO_INSTANCE) { "Duplicate TextureOrigin value: $value." }
-            VALUE_TO_INSTANCE[value] = this
-        }
-
-        override fun toString(): String = "BrushPaint.TextureOrigin.$name"
-
-        public companion object {
-            private val VALUE_TO_INSTANCE = MutableIntObjectMap<TextureOrigin>()
-
-            internal fun fromInt(value: Int): TextureOrigin =
-                checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid TextureOrigin value: $value" }
-
-            /**
-             * The texture origin is the origin of stroke space, however that happens to be defined
-             * for a given stroke.
-             */
-            @JvmField
-            public val STROKE_SPACE_ORIGIN: TextureOrigin = TextureOrigin(0, "STROKE_SPACE_ORIGIN")
-            /** The texture origin is the first input position for the stroke. */
-            @JvmField
-            public val FIRST_STROKE_INPUT: TextureOrigin = TextureOrigin(1, "FIRST_STROKE_INPUT")
-            /**
-             * The texture origin is the last input position (including predicted inputs) for the
-             * stroke. Note that this means that the texture origin for an in-progress stroke will
-             * move as more inputs are added.
-             */
-            @JvmField
-            public val LAST_STROKE_INPUT: TextureOrigin = TextureOrigin(2, "LAST_STROKE_INPUT")
-        }
-    }
-
-    /** Units for specifying [TextureLayer.sizeX] and [TextureLayer.sizeY]. */
-    public class TextureSizeUnit
-    private constructor(internal val value: Int, private val name: String) {
-        init {
-            check(value !in VALUE_TO_INSTANCE) { "Duplicate TextureSizeUnit value: $value." }
-            VALUE_TO_INSTANCE[value] = this
-        }
-
-        override fun toString(): String = "BrushPaint.TextureSizeUnit.$name"
-
-        public companion object {
-            private val VALUE_TO_INSTANCE = MutableIntObjectMap<TextureSizeUnit>()
-
-            internal fun fromInt(value: Int): TextureSizeUnit =
-                checkNotNull(VALUE_TO_INSTANCE.get(value)) {
-                    "Invalid TextureSizeUnit value: $value"
-                }
-
-            /** As multiples of brush size. */
-            @JvmField public val BRUSH_SIZE: TextureSizeUnit = TextureSizeUnit(0, "BRUSH_SIZE")
-            /** In the same units as the stroke's input positions and stored geometry. */
-            @JvmField
-            public val STROKE_COORDINATES: TextureSizeUnit =
-                TextureSizeUnit(1, "STROKE_COORDINATES")
-        }
-    }
-
-    /** Wrap modes for specifying [TextureLayer.wrapX] and [TextureLayer.wrapY]. */
-    public class TextureWrap
-    private constructor(internal val value: Int, private val name: String) {
-        init {
-            check(value !in VALUE_TO_INSTANCE) { "Duplicate TextureWrap value: $value." }
-            VALUE_TO_INSTANCE[value] = this
-        }
-
-        override fun toString(): String = "BrushPaint.TextureWrap.$name"
-
-        public companion object {
-            private val VALUE_TO_INSTANCE = MutableIntObjectMap<TextureWrap>()
-
-            internal fun fromInt(value: Int): TextureWrap =
-                checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid TextureWrap value: $value" }
-
-            /** Repeats texture image horizontally/vertically. */
-            @JvmField public val REPEAT: TextureWrap = TextureWrap(0, "REPEAT")
-            /**
-             * Repeats texture image horizontally/vertically, alternating mirror images so that
-             * adjacent edges always match.
-             */
-            @JvmField public val MIRROR: TextureWrap = TextureWrap(1, "MIRROR")
-            /**
-             * Points outside of the texture have the color of the nearest texture edge point. This
-             * mode is typically most useful when the edge pixels of the texture image are all the
-             * same, e.g. either transparent or a single solid color.
-             */
-            @JvmField public val CLAMP: TextureWrap = TextureWrap(2, "CLAMP")
-        }
-    }
-
-    /**
-     * The method by which the combined texture layers (index <= i) are blended with the next layer.
-     * The blend mode on the final layer controls how the combined texture is blended with the brush
-     * color, and should typically be a mode whose output alpha is proportional to the destination
-     * alpha, so that it can be adjusted by anti-aliasing.
-     */
-    public class BlendMode private constructor(internal val value: Int, private val name: String) {
-        init {
-            check(value !in VALUE_TO_INSTANCE) { "Duplicate BlendMode value: $value." }
-            VALUE_TO_INSTANCE[value] = this
-        }
-
-        override fun toString(): String = "BrushPaint.BlendMode.$name"
-
-        public companion object {
-            private val VALUE_TO_INSTANCE = MutableIntObjectMap<BlendMode>()
-
-            internal fun fromInt(value: Int): BlendMode =
-                checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid BlendMode value: $value" }
-
-            /**
-             * Source and destination are component-wise multiplied, including opacity.
-             *
-             * ```
-             * Alpha = Alpha_src * Alpha_dst
-             * Color = Color_src * Color_dst
-             * ```
-             */
-            @JvmField public val MODULATE: BlendMode = BlendMode(0, "MODULATE")
-            /**
-             * Keeps destination pixels that cover source pixels. Discards remaining source and
-             * destination pixels.
-             *
-             * ```
-             * Alpha = Alpha_src * Alpha_dst
-             * Color = Alpha_src * Color_dst
-             * ```
-             */
-            @JvmField public val DST_IN: BlendMode = BlendMode(1, "DST_IN")
-            /**
-             * Keeps the destination pixels not covered by source pixels. Discards destination
-             * pixels that are covered by source pixels and all source pixels.
-             *
-             * ```
-             * Alpha = (1 - Alpha_src) * Alpha_dst
-             * Color = (1 - Alpha_src) * Color_dst
-             * ```
-             */
-            @JvmField public val DST_OUT: BlendMode = BlendMode(2, "DST_OUT")
-            /**
-             * Discards source pixels that do not cover destination pixels. Draws remaining pixels
-             * over destination pixels.
-             *
-             * ```
-             * Alpha = Alpha_dst
-             * Color = Alpha_dst * Color_src + (1 - Alpha_src) * Color_dst
-             * ```
-             */
-            @JvmField public val SRC_ATOP: BlendMode = BlendMode(3, "SRC_ATOP")
-            /**
-             * Keeps the source pixels that cover destination pixels. Discards remaining source and
-             * destination pixels.
-             *
-             * ```
-             * Alpha = Alpha_src * Alpha_dst
-             * Color = Color_src * Alpha_dst
-             * ```
-             */
-            @JvmField public val SRC_IN: BlendMode = BlendMode(4, "SRC_IN")
-
-            /*
-             * The following modes can't be used for the last TextureLayer, which defines the mode for
-             * blending the combined texture with the (possibly adjusted per-vertex) brush color. That blend
-             * mode needs the output Alpha to be a multiple of Alpha_dst so that per-vertex adjustment for
-             * anti-aliasing is preserved correctly.
-             */
-
-            /**
-             * The source pixels are drawn over the destination pixels.
-             *
-             * ```
-             * Alpha = Alpha_src + (1 - Alpha_src) * Alpha_dst
-             * Color = Color_src + (1 - Alpha_src) * Color_dst
-             * ```
-             *
-             * This mode shouldn't normally be used for the final [TextureLayer], since its output
-             * alpha is not proportional to the destination alpha (so it wouldn't preserve alpha
-             * adjustments from anti-aliasing).
-             */
-            @JvmField public val SRC_OVER: BlendMode = BlendMode(5, "SRC_OVER")
-            /**
-             * The source pixels are drawn behind the destination pixels.
-             *
-             * ```
-             * Alpha = Alpha_dst + (1 - Alpha_dst) * Alpha_src
-             * Color = Color_dst + (1 - Alpha_dst) * Color_src
-             * ```
-             *
-             * This mode shouldn't normally be used for the final [TextureLayer], since its output
-             * alpha is not proportional to the destination alpha (so it wouldn't preserve alpha
-             * adjustments from anti-aliasing).
-             */
-            @JvmField public val DST_OVER: BlendMode = BlendMode(6, "DST_OVER")
-            /**
-             * Keeps the source pixels and discards the destination pixels.
-             *
-             * ```
-             * Alpha = Alpha_src
-             * Color = Color_src
-             * ```
-             *
-             * This mode shouldn't normally be used for the final [TextureLayer], since its output
-             * alpha is not proportional to the destination alpha (so it wouldn't preserve alpha
-             * adjustments from anti-aliasing).
-             */
-            @JvmField public val SRC: BlendMode = BlendMode(7, "SRC")
-            /**
-             * Keeps the destination pixels and discards the source pixels.
-             *
-             * ```
-             * Alpha = Alpha_dst
-             * Color = Color_dst
-             * ```
-             *
-             * This mode is unlikely to be useful, since it effectively causes the renderer to just
-             * ignore this [TextureLayer] and all layers before it, but it is included for
-             * completeness.
-             */
-            @JvmField public val DST: BlendMode = BlendMode(8, "DST")
-            /**
-             * Keeps the source pixels that do not cover destination pixels. Discards destination
-             * pixels and all source pixels that cover destination pixels.
-             *
-             * ```
-             * Alpha = (1 - Alpha_dst) * Alpha_src
-             * Color = (1 - Alpha_dst) * Color_src
-             * ```
-             *
-             * This mode shouldn't normally be used for the final [TextureLayer], since its output
-             * alpha is not proportional to the destination alpha (so it wouldn't preserve alpha
-             * adjustments from anti-aliasing).
-             */
-            @JvmField public val SRC_OUT: BlendMode = BlendMode(9, "SRC_OUT")
-            /**
-             * Discards destination pixels that aren't covered by source pixels. Remaining
-             * destination pixels are drawn over source pixels.
-             *
-             * ```
-             * Alpha = Alpha_src
-             * Color = Alpha_src * Color_dst + (1 - Alpha_dst) * Color_src
-             * ```
-             *
-             * This mode shouldn't normally be used for the final [TextureLayer], since its output
-             * alpha is not proportional to the destination alpha (so it wouldn't preserve alpha
-             * adjustments from anti-aliasing).
-             */
-            @JvmField public val DST_ATOP: BlendMode = BlendMode(10, "DST_ATOP")
-            /**
-             * Discards source and destination pixels that intersect; keeps source and destination
-             * pixels that do not intersect.
-             *
-             * ```
-             * Alpha = (1 - Alpha_dst) * Alpha_src + (1 - Alpha_src) * Alpha_dst
-             * Color = (1 - Alpha_dst) * Color_src + (1 - Alpha_src) * Color_dst
-             * ```
-             *
-             * This mode shouldn't normally be used for the final [TextureLayer], since its output
-             * alpha is not proportional to the destination alpha (so it wouldn't preserve alpha
-             * adjustments from anti-aliasing).
-             */
-            @JvmField public val XOR: BlendMode = BlendMode(11, "XOR")
-        }
-    }
-
     /** An explicit layer defined by an image. */
     @Suppress("NotCloseable") // Finalize is only used to free the native peer.
     public class TextureLayer private constructor(internal val nativePointer: Long) {
@@ -457,9 +145,9 @@ private constructor(
          * @param clientTextureId A string identifier of an image that provides the color for a
          *   particular pixel for this layer. The coordinates within this image that will be used
          *   are determined by the other parameters.
-         * @param sizeX The X size in [TextureSizeUnit] of (one animation frame of) the image
+         * @param sizeX The X size in [TextureLayer.SizeUnit] of (one animation frame of) the image
          *   specified by [clientTextureId].
-         * @param sizeY The Y size in [TextureSizeUnit] of (one animation frame of) the image
+         * @param sizeY The Y size in [TextureLayer.SizeUnit] of (one animation frame of) the image
          *   specified by [clientTextureId].
          * @param offsetX An offset into the texture, specified as fractions of the texture [sizeX].
          * @param offsetY An offset into the texture, specified as fractions of the texture [sizeY].
@@ -506,11 +194,11 @@ private constructor(
             @IntRange(from = 1, to = 1 shl 12) animationRows: Int = 1,
             @IntRange(from = 1, to = 1 shl 12) animationColumns: Int = 1,
             @IntRange(from = 1, to = 1 shl 24) animationDurationMillis: Long = 1000L,
-            sizeUnit: TextureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
-            origin: TextureOrigin = TextureOrigin.STROKE_SPACE_ORIGIN,
-            mapping: TextureMapping = TextureMapping.TILING,
-            wrapX: TextureWrap = TextureWrap.REPEAT,
-            wrapY: TextureWrap = TextureWrap.REPEAT,
+            sizeUnit: SizeUnit = SizeUnit.STROKE_COORDINATES,
+            origin: Origin = Origin.STROKE_SPACE_ORIGIN,
+            mapping: Mapping = Mapping.TILING,
+            wrapX: Wrap = Wrap.REPEAT,
+            wrapY: Wrap = Wrap.REPEAT,
             blendMode: BlendMode = BlendMode.MODULATE,
         ) : this(
             TextureLayerNative.create(
@@ -539,42 +227,68 @@ private constructor(
         // mostly
         // in Kotlin.
 
+        /** The width of the texture, specified in `sizeUnit`s. */
         @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false)
         public val sizeX: Float = TextureLayerNative.getSizeX(nativePointer)
 
+        /** The height of the texture, specified in `sizeUnit`s. */
         @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false)
         public val sizeY: Float = TextureLayerNative.getSizeY(nativePointer)
 
+        /** The horizontal offset for the texture, specified as a fraction of the texture width. */
         public val offsetX: Float = TextureLayerNative.getOffsetX(nativePointer)
 
+        /** The vertical offset for the texture, specified as a fraction of the texture height. */
         public val offsetY: Float = TextureLayerNative.getOffsetY(nativePointer)
 
+        /**
+         * Angle specifying the rotation of the texture. The rotation is carried out about the
+         * center of the texture's first repetition along both axes.
+         */
         @AngleDegreesFloat
         public val rotationDegrees: Float = TextureLayerNative.getRotationDegrees(nativePointer)
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @IntRange(from = 1, to = 1 shl 24)
         public val animationFrames: Int = TextureLayerNative.getAnimationFrames(nativePointer)
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @IntRange(from = 1, to = 1 shl 12)
         public val animationRows: Int = TextureLayerNative.getAnimationRows(nativePointer)
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @IntRange(from = 1, to = 1 shl 12)
         public val animationColumns: Int = TextureLayerNative.getAnimationColumns(nativePointer)
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @IntRange(from = 1, to = 1 shl 24)
         public val animationDurationMillis: Long =
             TextureLayerNative.getAnimationDurationMillis(nativePointer)
 
-        public val sizeUnit: TextureSizeUnit = TextureLayerNative.getSizeUnit(nativePointer)
+        /** The units in which this texture layer's width and height are measured. */
+        public val sizeUnit: SizeUnit = TextureLayerNative.getSizeUnit(nativePointer)
 
-        public val origin: TextureOrigin = TextureLayerNative.getOrigin(nativePointer)
+        /** The origin that will be used for positioning this texture layer. */
+        public val origin: Origin = TextureLayerNative.getOrigin(nativePointer)
 
-        public val mapping: TextureMapping = TextureLayerNative.getMapping(nativePointer)
+        /** The mapping mode used for applying this texture layer. */
+        public val mapping: Mapping = TextureLayerNative.getMapping(nativePointer)
 
-        public val wrapX: TextureWrap = TextureLayerNative.getWrapX(nativePointer)
+        /** The horizontal wrapping mode for this texture layer. */
+        public val wrapX: Wrap = TextureLayerNative.getWrapX(nativePointer)
 
-        public val wrapY: TextureWrap = TextureLayerNative.getWrapY(nativePointer)
+        /** The vertical wrapping mode for this texture layer. */
+        public val wrapY: Wrap = TextureLayerNative.getWrapY(nativePointer)
 
+        /**
+         * The rule by which the texture layers up to and including this one are combined with the
+         * subsequent layer.
+         *
+         * I.e. `BrushPaint::texture_layers[index].blend_mode` will be used to combine "src", which
+         * is the result of blending layers [0..index], with "dst", which is the layer at index + 1.
+         * If index refers to the last texture layer, then the layer at "index + 1" is the brush
+         * color layer.
+         */
         public val blendMode: BlendMode = TextureLayerNative.getBlendMode(nativePointer)
 
         init {
@@ -603,11 +317,11 @@ private constructor(
             @IntRange(from = 1, to = 1 shl 12) animationColumns: Int = this.animationColumns,
             @IntRange(from = 1, to = 1 shl 24)
             animationDurationMillis: Long = this.animationDurationMillis,
-            sizeUnit: TextureSizeUnit = this.sizeUnit,
-            origin: TextureOrigin = this.origin,
-            mapping: TextureMapping = this.mapping,
-            wrapX: TextureWrap = this.wrapX,
-            wrapY: TextureWrap = this.wrapY,
+            sizeUnit: SizeUnit = this.sizeUnit,
+            origin: Origin = this.origin,
+            mapping: Mapping = this.mapping,
+            wrapX: Wrap = this.wrapX,
+            wrapY: Wrap = this.wrapY,
             blendMode: BlendMode = this.blendMode,
         ): TextureLayer {
             if (
@@ -737,7 +451,9 @@ private constructor(
         /**
          * Builder for [TextureLayer].
          *
-         * Construct from `textureLayer.toBuilder()` or `TextureLayer.builder()`.
+         * For Java developers, use `TextureLayer.Builder` to construct a [TextureLayer] with
+         * default values, overriding only as needed. For example: `TextureLayer layer =
+         * TextureLayer.builder().setClientTextureId(id).setSizeX(width).setSizeY(height).build();`
          */
         @Suppress(
             "ScopeReceiverThis"
@@ -754,67 +470,102 @@ private constructor(
             @IntRange(from = 1, to = 1 shl 12) private var animationRows: Int = 1,
             @IntRange(from = 1, to = 1 shl 12) private var animationColumns: Int = 1,
             @IntRange(from = 1, to = 1 shl 24) private var animationDurationMillis: Long = 1000,
-            private var sizeUnit: TextureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
-            private var origin: TextureOrigin = TextureOrigin.STROKE_SPACE_ORIGIN,
-            private var mapping: TextureMapping = TextureMapping.TILING,
-            private var wrapX: TextureWrap = TextureWrap.REPEAT,
-            private var wrapY: TextureWrap = TextureWrap.REPEAT,
+            private var sizeUnit: SizeUnit = SizeUnit.STROKE_COORDINATES,
+            private var origin: Origin = Origin.STROKE_SPACE_ORIGIN,
+            private var mapping: Mapping = Mapping.TILING,
+            private var wrapX: Wrap = Wrap.REPEAT,
+            private var wrapY: Wrap = Wrap.REPEAT,
             private var blendMode: BlendMode = BlendMode.MODULATE,
         ) {
+            /** Sets the client texture ID for this texture layer. */
             public fun setClientTextureId(clientTextureId: String): Builder = apply {
                 this.clientTextureId = clientTextureId
             }
 
+            /**
+             * Sets the width of this texture layer, measured in the units specified by `sizeUnit`.
+             */
             public fun setSizeX(
                 @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false) sizeX: Float
             ): Builder = apply { this.sizeX = sizeX }
 
+            /**
+             * Sets the height of this texture layer, measured in the units specified by `sizeUnit`.
+             */
             public fun setSizeY(
                 @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false) sizeY: Float
             ): Builder = apply { this.sizeY = sizeY }
 
+            /**
+             * Sets the horizontal offset of this texture layer, expressed as a fraction of the
+             * texture width.
+             */
             public fun setOffsetX(offsetX: Float): Builder = apply { this.offsetX = offsetX }
 
+            /**
+             * Sets the vertical offset of this texture layer, expressed as a fraction of the
+             * texture height.
+             */
             public fun setOffsetY(offsetY: Float): Builder = apply { this.offsetY = offsetY }
 
+            /** Sets the rotation angle of this texture layer. */
             public fun setRotationDegrees(@AngleDegreesFloat degrees: Float): Builder = apply {
                 rotationDegrees = degrees
             }
 
+            /** Sets the number of animation frames in this texture layer. */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             public fun setAnimationFrames(
                 @IntRange(from = 1, to = 1 shl 24) animationFrames: Int
             ): Builder = apply { this.animationFrames = animationFrames }
 
+            /** Sets the number of animation rows in this texture layer. */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             public fun setAnimationRows(
                 @IntRange(from = 1, to = 1 shl 12) animationRows: Int
             ): Builder = apply { this.animationRows = animationRows }
 
+            /** Sets the number of animation columns in this texture layer. */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             public fun setAnimationColumns(
                 @IntRange(from = 1, to = 1 shl 12) animationColumns: Int
             ): Builder = apply { this.animationColumns = animationColumns }
 
+            /** Sets the duration of the animation for this texture layer. */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             public fun setAnimationDurationMillis(
                 @IntRange(from = 1, to = 1 shl 24) animationDurationMillis: Long
             ): Builder = apply { this.animationDurationMillis = animationDurationMillis }
 
-            public fun setSizeUnit(sizeUnit: TextureSizeUnit): Builder = apply {
-                this.sizeUnit = sizeUnit
-            }
+            /** Sets the units in which this texture layer's width and height are measured. */
+            public fun setSizeUnit(sizeUnit: SizeUnit): Builder = apply { this.sizeUnit = sizeUnit }
 
-            public fun setOrigin(origin: TextureOrigin): Builder = apply { this.origin = origin }
+            /** Sets the origin that should be used for positioning this texture layer. */
+            public fun setOrigin(origin: Origin): Builder = apply { this.origin = origin }
 
-            public fun setMapping(mapping: TextureMapping): Builder = apply {
-                this.mapping = mapping
-            }
+            /** Sets the mapping mode used for applying this texture layer. */
+            public fun setMapping(mapping: Mapping): Builder = apply { this.mapping = mapping }
 
-            public fun setWrapX(wrapX: TextureWrap): Builder = apply { this.wrapX = wrapX }
+            /** Sets the horizontal wrapping mode for this texture layer. */
+            public fun setWrapX(wrapX: Wrap): Builder = apply { this.wrapX = wrapX }
 
-            public fun setWrapY(wrapY: TextureWrap): Builder = apply { this.wrapY = wrapY }
+            /** Sets the vertical wrapping mode for this texture layer. */
+            public fun setWrapY(wrapY: Wrap): Builder = apply { this.wrapY = wrapY }
 
+            /**
+             * Sets the blend mode used for blending this and all previous texture layers with the
+             * next one.
+             */
             public fun setBlendMode(blendMode: BlendMode): Builder = apply {
                 this.blendMode = blendMode
             }
 
+            /**
+             * Constructs a [TextureLayer] from this [Builder].
+             *
+             * @throws IllegalStateException if `clientTextureId`, `sizeX`, and/or `sizeY` were
+             *   never set
+             */
             @Suppress("Range") // we check() before passing floats
             public fun build(): TextureLayer {
                 val clientTextureId =
@@ -856,6 +607,312 @@ private constructor(
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public fun wrapNative(unownedNativePointer: Long): TextureLayer =
                 TextureLayer(unownedNativePointer)
+        }
+
+        /** Specification of how the texture should apply to the stroke. */
+        public class Mapping
+        private constructor(
+            @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+            public val value: Int,
+            private val name: String,
+        ) {
+
+            init {
+                check(value !in VALUE_TO_INSTANCE) { "Duplicate Mapping value: $value." }
+                VALUE_TO_INSTANCE[value] = this
+            }
+
+            override fun toString(): String = "TextureLayer.Mapping.$name"
+
+            public companion object {
+                private val VALUE_TO_INSTANCE = MutableIntObjectMap<Mapping>()
+
+                internal fun fromInt(value: Int): Mapping =
+                    checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid Mapping value: $value" }
+
+                /**
+                 * The texture will repeat according to a 2D affine transformation of vertex
+                 * positions. Each copy of the texture will have the same size and shape, modulo
+                 * reflections.
+                 *
+                 * This mode does not support texture animations, so it ignores the
+                 * `animationFrames`, `animationRows`, `animationColumns`, and `animationDuration`
+                 * fields.
+                 */
+                @JvmField public val TILING: Mapping = Mapping(0, "TILING")
+                /**
+                 * This mode is intended for use with particle brush coats (i.e. with a brush tip
+                 * with a nonzero particle gap). A copy of the texture (or one animation frame
+                 * thereof) will be "stamped" onto each particle of the stroke, scaled or rotated
+                 * appropriately to cover the whole particle.
+                 *
+                 * Since the whole texture (or animation frame) is always scaled to the size of each
+                 * particle and positioned atop each one, this mode ignores the `origin`,
+                 * `sizeUnit`, `wrapX`, `wrapY`, `sizeX`, and `sizeY` fields.
+                 */
+                @JvmField public val STAMPING: Mapping = Mapping(1, "STAMPING")
+            }
+        }
+
+        /** Specification of the origin point to use for the texture. */
+        public class Origin private constructor(internal val value: Int, private val name: String) {
+            init {
+                check(value !in VALUE_TO_INSTANCE) { "Duplicate Origin value: $value." }
+                VALUE_TO_INSTANCE[value] = this
+            }
+
+            override fun toString(): String = "TextureLayer.Origin.$name"
+
+            public companion object {
+                private val VALUE_TO_INSTANCE = MutableIntObjectMap<Origin>()
+
+                internal fun fromInt(value: Int): Origin =
+                    checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid Origin value: $value" }
+
+                /**
+                 * The texture origin is the origin of stroke space, however that happens to be
+                 * defined for a given stroke.
+                 */
+                @JvmField public val STROKE_SPACE_ORIGIN: Origin = Origin(0, "STROKE_SPACE_ORIGIN")
+                /** The texture origin is the first input position for the stroke. */
+                @JvmField public val FIRST_STROKE_INPUT: Origin = Origin(1, "FIRST_STROKE_INPUT")
+                /**
+                 * The texture origin is the last input position (including predicted inputs) for
+                 * the stroke. Note that this means that the texture origin for an in-progress
+                 * stroke will move as more inputs are added.
+                 */
+                @JvmField public val LAST_STROKE_INPUT: Origin = Origin(2, "LAST_STROKE_INPUT")
+            }
+        }
+
+        /** Units for specifying [TextureLayer.sizeX] and [TextureLayer.sizeY]. */
+        public class SizeUnit
+        private constructor(internal val value: Int, private val name: String) {
+            init {
+                check(value !in VALUE_TO_INSTANCE) { "Duplicate SizeUnit value: $value." }
+                VALUE_TO_INSTANCE[value] = this
+            }
+
+            override fun toString(): String = "TextureLayer.SizeUnit.$name"
+
+            public companion object {
+                private val VALUE_TO_INSTANCE = MutableIntObjectMap<SizeUnit>()
+
+                internal fun fromInt(value: Int): SizeUnit =
+                    checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid SizeUnit value: $value" }
+
+                /** As multiples of brush size. */
+                @JvmField public val BRUSH_SIZE: SizeUnit = SizeUnit(0, "BRUSH_SIZE")
+                /** In the same units as the stroke's input positions and stored geometry. */
+                @JvmField
+                public val STROKE_COORDINATES: SizeUnit = SizeUnit(1, "STROKE_COORDINATES")
+            }
+        }
+
+        /** Wrap modes for specifying [TextureLayer.wrapX] and [TextureLayer.wrapY]. */
+        public class Wrap private constructor(internal val value: Int, private val name: String) {
+            init {
+                check(value !in VALUE_TO_INSTANCE) { "Duplicate Wrap value: $value." }
+                VALUE_TO_INSTANCE[value] = this
+            }
+
+            override fun toString(): String = "TextureLayer.Wrap.$name"
+
+            public companion object {
+                private val VALUE_TO_INSTANCE = MutableIntObjectMap<Wrap>()
+
+                internal fun fromInt(value: Int): Wrap =
+                    checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid Wrap value: $value" }
+
+                /** Repeats texture image horizontally/vertically. */
+                @JvmField public val REPEAT: Wrap = Wrap(0, "REPEAT")
+                /**
+                 * Repeats texture image horizontally/vertically, alternating mirror images so that
+                 * adjacent edges always match.
+                 */
+                @JvmField public val MIRROR: Wrap = Wrap(1, "MIRROR")
+                /**
+                 * Points outside of the texture have the color of the nearest texture edge point.
+                 * This mode is typically most useful when the edge pixels of the texture image are
+                 * all the same, e.g. either transparent or a single solid color.
+                 */
+                @JvmField public val CLAMP: Wrap = Wrap(2, "CLAMP")
+            }
+        }
+
+        /**
+         * The method by which the combined texture layers (index <= i) are blended with the next
+         * layer. The blend mode on the final layer controls how the combined texture is blended
+         * with the brush color, and should typically be a mode whose output alpha is proportional
+         * to the destination alpha, so that it can be adjusted by anti-aliasing.
+         */
+        public class BlendMode
+        private constructor(internal val value: Int, private val name: String) {
+            init {
+                check(value !in VALUE_TO_INSTANCE) { "Duplicate BlendMode value: $value." }
+                VALUE_TO_INSTANCE[value] = this
+            }
+
+            override fun toString(): String = "TextureLayer.BlendMode.$name"
+
+            public companion object {
+                private val VALUE_TO_INSTANCE = MutableIntObjectMap<BlendMode>()
+
+                internal fun fromInt(value: Int): BlendMode =
+                    checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid BlendMode value: $value" }
+
+                /**
+                 * Source and destination are component-wise multiplied, including opacity.
+                 *
+                 * ```
+                 * Alpha = Alpha_src * Alpha_dst
+                 * Color = Color_src * Color_dst
+                 * ```
+                 */
+                @JvmField public val MODULATE: BlendMode = BlendMode(0, "MODULATE")
+                /**
+                 * Keeps destination pixels that cover source pixels. Discards remaining source and
+                 * destination pixels.
+                 *
+                 * ```
+                 * Alpha = Alpha_src * Alpha_dst
+                 * Color = Alpha_src * Color_dst
+                 * ```
+                 */
+                @JvmField public val DST_IN: BlendMode = BlendMode(1, "DST_IN")
+                /**
+                 * Keeps the destination pixels not covered by source pixels. Discards destination
+                 * pixels that are covered by source pixels and all source pixels.
+                 *
+                 * ```
+                 * Alpha = (1 - Alpha_src) * Alpha_dst
+                 * Color = (1 - Alpha_src) * Color_dst
+                 * ```
+                 */
+                @JvmField public val DST_OUT: BlendMode = BlendMode(2, "DST_OUT")
+                /**
+                 * Discards source pixels that do not cover destination pixels. Draws remaining
+                 * pixels over destination pixels.
+                 *
+                 * ```
+                 * Alpha = Alpha_dst
+                 * Color = Alpha_dst * Color_src + (1 - Alpha_src) * Color_dst
+                 * ```
+                 */
+                @JvmField public val SRC_ATOP: BlendMode = BlendMode(3, "SRC_ATOP")
+                /**
+                 * Keeps the source pixels that cover destination pixels. Discards remaining source
+                 * and destination pixels.
+                 *
+                 * ```
+                 * Alpha = Alpha_src * Alpha_dst
+                 * Color = Color_src * Alpha_dst
+                 * ```
+                 */
+                @JvmField public val SRC_IN: BlendMode = BlendMode(4, "SRC_IN")
+
+                /*
+                 * The following modes can't be used for the last TextureLayer, which defines the mode for
+                 * blending the combined texture with the (possibly adjusted per-vertex) brush color. That
+                 * blend mode needs the output Alpha to be a multiple of Alpha_dst so that per-vertex
+                 * adjustment for anti-aliasing is preserved correctly.
+                 */
+
+                /**
+                 * The source pixels are drawn over the destination pixels.
+                 *
+                 * ```
+                 * Alpha = Alpha_src + (1 - Alpha_src) * Alpha_dst
+                 * Color = Color_src + (1 - Alpha_src) * Color_dst
+                 * ```
+                 *
+                 * This mode shouldn't normally be used for the final [TextureLayer], since its
+                 * output alpha is not proportional to the destination alpha (so it wouldn't
+                 * preserve alpha adjustments from anti-aliasing).
+                 */
+                @JvmField public val SRC_OVER: BlendMode = BlendMode(5, "SRC_OVER")
+                /**
+                 * The source pixels are drawn behind the destination pixels.
+                 *
+                 * ```
+                 * Alpha = Alpha_dst + (1 - Alpha_dst) * Alpha_src
+                 * Color = Color_dst + (1 - Alpha_dst) * Color_src
+                 * ```
+                 *
+                 * This mode shouldn't normally be used for the final [TextureLayer], since its
+                 * output alpha is not proportional to the destination alpha (so it wouldn't
+                 * preserve alpha adjustments from anti-aliasing).
+                 */
+                @JvmField public val DST_OVER: BlendMode = BlendMode(6, "DST_OVER")
+                /**
+                 * Keeps the source pixels and discards the destination pixels.
+                 *
+                 * ```
+                 * Alpha = Alpha_src
+                 * Color = Color_src
+                 * ```
+                 *
+                 * This mode shouldn't normally be used for the final [TextureLayer], since its
+                 * output alpha is not proportional to the destination alpha (so it wouldn't
+                 * preserve alpha adjustments from anti-aliasing).
+                 */
+                @JvmField public val SRC: BlendMode = BlendMode(7, "SRC")
+                /**
+                 * Keeps the destination pixels and discards the source pixels.
+                 *
+                 * ```
+                 * Alpha = Alpha_dst
+                 * Color = Color_dst
+                 * ```
+                 *
+                 * This mode is unlikely to be useful, since it effectively causes the renderer to
+                 * just ignore this [TextureLayer] and all layers before it, but it is included for
+                 * completeness.
+                 */
+                @JvmField public val DST: BlendMode = BlendMode(8, "DST")
+                /**
+                 * Keeps the source pixels that do not cover destination pixels. Discards
+                 * destination pixels and all source pixels that cover destination pixels.
+                 *
+                 * ```
+                 * Alpha = (1 - Alpha_dst) * Alpha_src
+                 * Color = (1 - Alpha_dst) * Color_src
+                 * ```
+                 *
+                 * This mode shouldn't normally be used for the final [TextureLayer], since its
+                 * output alpha is not proportional to the destination alpha (so it wouldn't
+                 * preserve alpha adjustments from anti-aliasing).
+                 */
+                @JvmField public val SRC_OUT: BlendMode = BlendMode(9, "SRC_OUT")
+                /**
+                 * Discards destination pixels that aren't covered by source pixels. Remaining
+                 * destination pixels are drawn over source pixels.
+                 *
+                 * ```
+                 * Alpha = Alpha_src
+                 * Color = Alpha_src * Color_dst + (1 - Alpha_dst) * Color_src
+                 * ```
+                 *
+                 * This mode shouldn't normally be used for the final [TextureLayer], since its
+                 * output alpha is not proportional to the destination alpha (so it wouldn't
+                 * preserve alpha adjustments from anti-aliasing).
+                 */
+                @JvmField public val DST_ATOP: BlendMode = BlendMode(10, "DST_ATOP")
+                /**
+                 * Discards source and destination pixels that intersect; keeps source and
+                 * destination pixels that do not intersect.
+                 *
+                 * ```
+                 * Alpha = (1 - Alpha_dst) * Alpha_src + (1 - Alpha_src) * Alpha_dst
+                 * Color = (1 - Alpha_dst) * Color_src + (1 - Alpha_src) * Color_dst
+                 * ```
+                 *
+                 * This mode shouldn't normally be used for the final [TextureLayer], since its
+                 * output alpha is not proportional to the destination alpha (so it wouldn't
+                 * preserve alpha adjustments from anti-aliasing).
+                 */
+                @JvmField public val XOR: BlendMode = BlendMode(11, "XOR")
+            }
         }
     }
 
@@ -981,33 +1038,33 @@ private object TextureLayerNative {
 
     @UsedByNative external fun getAnimationDurationMillis(nativePointer: Long): Long
 
-    fun getSizeUnit(nativePointer: Long): BrushPaint.TextureSizeUnit =
-        BrushPaint.TextureSizeUnit.fromInt(getSizeUnitInt(nativePointer))
+    fun getSizeUnit(nativePointer: Long): BrushPaint.TextureLayer.SizeUnit =
+        BrushPaint.TextureLayer.SizeUnit.fromInt(getSizeUnitInt(nativePointer))
 
     @UsedByNative external fun getSizeUnitInt(nativePointer: Long): Int
 
-    fun getOrigin(nativePointer: Long): BrushPaint.TextureOrigin =
-        BrushPaint.TextureOrigin.fromInt(getOriginInt(nativePointer))
+    fun getOrigin(nativePointer: Long): BrushPaint.TextureLayer.Origin =
+        BrushPaint.TextureLayer.Origin.fromInt(getOriginInt(nativePointer))
 
     @UsedByNative private external fun getOriginInt(nativePointer: Long): Int
 
-    fun getMapping(nativePointer: Long): BrushPaint.TextureMapping =
-        BrushPaint.TextureMapping.fromInt(getMappingInt(nativePointer))
+    fun getMapping(nativePointer: Long): BrushPaint.TextureLayer.Mapping =
+        BrushPaint.TextureLayer.Mapping.fromInt(getMappingInt(nativePointer))
 
     @UsedByNative private external fun getMappingInt(nativePointer: Long): Int
 
-    fun getWrapX(nativePointer: Long): BrushPaint.TextureWrap =
-        BrushPaint.TextureWrap.fromInt(getWrapXInt(nativePointer))
+    fun getWrapX(nativePointer: Long): BrushPaint.TextureLayer.Wrap =
+        BrushPaint.TextureLayer.Wrap.fromInt(getWrapXInt(nativePointer))
 
     @UsedByNative private external fun getWrapXInt(nativePointer: Long): Int
 
-    fun getWrapY(nativePointer: Long): BrushPaint.TextureWrap =
-        BrushPaint.TextureWrap.fromInt(getWrapYInt(nativePointer))
+    fun getWrapY(nativePointer: Long): BrushPaint.TextureLayer.Wrap =
+        BrushPaint.TextureLayer.Wrap.fromInt(getWrapYInt(nativePointer))
 
     @UsedByNative private external fun getWrapYInt(nativePointer: Long): Int
 
-    fun getBlendMode(nativePointer: Long): BrushPaint.BlendMode =
-        BrushPaint.BlendMode.fromInt(getBlendModeInt(nativePointer))
+    fun getBlendMode(nativePointer: Long): BrushPaint.TextureLayer.BlendMode =
+        BrushPaint.TextureLayer.BlendMode.fromInt(getBlendModeInt(nativePointer))
 
     @UsedByNative private external fun getBlendModeInt(nativePointer: Long): Int
 

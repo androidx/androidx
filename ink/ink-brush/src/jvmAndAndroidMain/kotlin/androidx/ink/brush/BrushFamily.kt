@@ -59,6 +59,19 @@ private constructor(
     public val developerComment: String = BrushFamilyNative.getDeveloperComment(nativePointer)
 
     /**
+     * Returns true if this [BrushFamily] contains serialized fallback data representing similar
+     * [BrushFamily]s that are compatible with other versions of Ink. If true, the stored data will
+     * be used when serializing this [BrushFamily] to a proto instead of recomputing it from the
+     * [BrushFamily]. This data is created by serializing multiple [BrushFamily]s together with
+     * `encodeMultiple`, and stored in a [BrushFamily] created by `decode`, if it exists in the
+     * proto. Fallback data is not preserved when modifying a [BrushFamily] with [copy] or
+     * [toBuilder].
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @get:JvmName("hasFallbacks")
+    public val hasFallbacks: Boolean = BrushFamilyNative.hasFallbacks(nativePointer)
+
+    /**
      * Returns the minimum required [Version] for this [BrushFamily].
      *
      * By default, decoding a [BrushFamily] with a minimum required version higher than
@@ -200,9 +213,9 @@ private constructor(
     /**
      * Builder for [BrushFamily].
      *
-     * For Java developers, use BrushFamily.Builder to construct [BrushFamily] with default values,
-     * overriding only as needed. For example: `BrushFamily family = new
-     * BrushFamily.Builder().coat(presetBrushCoat).build();`
+     * For Java developers, use `BrushFamily.Builder` to construct a [BrushFamily] with default
+     * values, overriding only as needed. For example: `BrushFamily family =
+     * BrushFamily.builder().setCoat(presetBrushCoat).build();`
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
@@ -212,29 +225,35 @@ private constructor(
         private var clientBrushFamilyId: String = ""
         private var developerComment: String = ""
 
+        /** Sets the list of brush coats for this brush family to a single coat. */
         @Suppress("MissingGetterMatchingBuilder")
         public fun setCoat(coat: BrushCoat): Builder = setCoats(listOf(coat))
 
+        /** Sets the list of brush coats for this brush family. */
         public fun setCoats(coats: List<BrushCoat>): Builder {
             this.coats = coats.toList()
             return this
         }
 
+        /** Sets the input model for this brush family. */
         public fun setInputModel(inputModel: InputModel): Builder {
             this.inputModel = inputModel
             return this
         }
 
+        /** Sets the client ID for this brush family. */
         public fun setClientBrushFamilyId(clientBrushFamilyId: String): Builder {
             this.clientBrushFamilyId = clientBrushFamilyId
             return this
         }
 
+        /** Sets the developer comment for this brush family. */
         public fun setDeveloperComment(developerComment: String): Builder {
             this.developerComment = developerComment
             return this
         }
 
+        /** Constructs a [BrushFamily] from this [Builder]. */
         public fun build(): BrushFamily =
             BrushFamily(
                 coats = coats,
@@ -305,15 +324,20 @@ private constructor(
         public fun builder(): Builder = Builder()
 
         /**
-         * A naive model that passes through raw inputs mostly unchanged. This is an experimental
-         * configuration which may be adjusted or removed later.
+         * A naive input model that passes raw inputs through unchanged, performing only
+         * base-minimal modeling to derive velocity and acceleration values for the modeled inputs.
+         * This can be useful as a point of comparison for other input models, or for callers who
+         * wish to do their own input modeling prior to passing inputs into Ink.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
         @ExperimentalInkCustomBrushApi
         @JvmField
-        public val EXPERIMENTAL_NAIVE_MODEL: InputModel = NoParametersModel.EXPERIMENTAL_NAIVE_MODEL
+        public val PASSTHROUGH_MODEL: InputModel = NoParametersModel.PASSTHROUGH_MODEL
 
-        /** The default [InputModel] that will be used by a [BrushFamily] when none is specified. */
+        /**
+         * The default [InputModel] that will be used by a [BrushFamily] when none is specified.
+         * Currently, this is the [SlidingWindowModel], with default parameters.
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkCustomBrushApi
         @JvmField
@@ -372,17 +396,27 @@ private constructor(
             fun fromInputModelType(type: Int): NoParametersModel =
                 checkNotNull(TYPE_TO_INSTANCE[type]) { "Invalid NoParametersModel type: $type" }
 
-            val EXPERIMENTAL_NAIVE_MODEL = NoParametersModel(3, "ExperimentalNaiveModel")
+            val PASSTHROUGH_MODEL = NoParametersModel(3, "PassthroughModel")
             // SlidingWindowModel, below, uses type 4.
         }
     }
 
+    /** An [InputModel] that averages nearby inputs together within a sliding time window. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     public class SlidingWindowModel internal constructor(nativePointer: Long) :
         InputModel(nativePointer) {
+        /**
+         * The duration over which to average together nearby raw inputs. Typically this should be
+         * somewhere in the 1 ms to 100 ms range.
+         */
         public val windowDurationMillis: Long =
             InputModelNative.getSlidingWindowDurationMillis(nativePointer)
+
+        /**
+         * The minimum frequency at which modeled inputs should occur, or zero to disable
+         * upsampling.
+         */
         public val upsamplingFrequencyHz: Int =
             InputModelNative.getSlidingUpsamplingFrequencyHz(nativePointer)
 
@@ -390,6 +424,7 @@ private constructor(
         public constructor() :
             this(InputModelNative.createSlidingWindowModelWithDefaultParameters())
 
+        /** Constructs a `SlidingWindowModel` with the given parameters. */
         public constructor(
             windowDurationMillis: Long,
             upsamplingFrequencyHz: Int,
@@ -442,6 +477,8 @@ private object BrushFamilyNative {
     @UsedByNative external fun getDeveloperComment(nativePointer: Long): String
 
     @UsedByNative external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
+
+    @UsedByNative external fun hasFallbacks(nativePointer: Long): Boolean
 
     /**
      * Returns a new, unowned native pointer to a copy of the `BrushCoat` at index for the

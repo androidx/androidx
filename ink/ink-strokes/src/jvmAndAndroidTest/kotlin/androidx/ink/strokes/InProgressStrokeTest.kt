@@ -23,6 +23,8 @@ import androidx.ink.brush.BrushTip
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
+import androidx.ink.brush.behavior.SourceNode
+import androidx.ink.brush.behavior.TargetNode
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.ImmutableVec
 import androidx.ink.geometry.MutableVec
@@ -849,14 +851,13 @@ class InProgressStrokeTest {
                     behaviors =
                         listOf(
                             BrushBehavior(
-                                BrushBehavior.TargetNode(
-                                    target = BrushBehavior.Target.CORNER_ROUNDING_OFFSET,
+                                TargetNode(
+                                    target = TargetNode.Target.CORNER_ROUNDING_OFFSET,
                                     targetModifierRangeStart = 0F,
                                     targetModifierRangeEnd = 1F,
                                     input =
-                                        BrushBehavior.SourceNode(
-                                            source =
-                                                BrushBehavior.Source.TIME_SINCE_INPUT_IN_SECONDS,
+                                        SourceNode(
+                                            source = SourceNode.Source.TIME_SINCE_INPUT_IN_SECONDS,
                                             sourceValueRangeStart =
                                                 timeSinceInputStartMillis / 1000f,
                                             sourceValueRangeEnd = timeSinceInputEndMillis / 1000f,

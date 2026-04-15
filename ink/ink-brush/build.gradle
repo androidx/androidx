@@ -34,6 +34,8 @@ androidXMultiplatform {
     namespace = "androidx.ink.brush"
     androidResources.enable = true
   }
+  // TODO: b/462064872 - Turn on ios() support and enable BuildType.KMP
+  // ios()
 
   defaultPlatform(PlatformIdentifier.JVM)
 
@@ -42,15 +44,16 @@ androidXMultiplatform {
       api(libs.androidx.annotation)
       implementation("androidx.collection:collection:1.4.3")
       implementation(project(":ink:ink-nativeloader"))
+      implementation(project(":ink:ink-geometry"))
     }
 
-    jvmAndAndroidMain.dependencies {
-      implementation(project(":ink:ink-geometry"))
+    commonTest.dependencies {
+      implementation(libs.kotlinTest)
+      implementation(project(":kruth:kruth"))
     }
 
     jvmAndAndroidTest.dependencies {
       implementation(libs.junit)
-      implementation(libs.kotlinTest)
       implementation(libs.truth)
     }
 

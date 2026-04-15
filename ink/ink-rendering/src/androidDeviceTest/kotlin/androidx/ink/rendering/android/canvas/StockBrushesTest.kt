@@ -20,11 +20,16 @@ import android.content.Context
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.ink.brush.Brush
-import androidx.ink.brush.BrushBehavior
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
+import androidx.ink.brush.behavior.Node
+import androidx.ink.brush.behavior.SourceNode
+import androidx.ink.brush.behavior.SourceNode.Source
+import androidx.ink.brush.behavior.TargetNode
+import androidx.ink.brush.behavior.TargetNode.Target
+import androidx.ink.brush.behavior.ToolTypeFilterNode
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.MutableStrokeInputBatch
@@ -157,8 +162,7 @@ class StockBrushesTest(val brushName: String) {
             for (behavior in coat.tip.behaviors) {
                 for (terminalNode in behavior.terminalNodes) {
                     if (
-                        terminalNode is BrushBehavior.TargetNode &&
-                            terminalNode.target == BrushBehavior.Target.SIZE_MULTIPLIER
+                        terminalNode is TargetNode && terminalNode.target == Target.SIZE_MULTIPLIER
                     ) {
                         assertNotEquals(0f, terminalNode.targetModifierRangeStart)
                         assertNotEquals(0f, terminalNode.targetModifierRangeEnd)
@@ -175,7 +179,7 @@ class StockBrushesTest(val brushName: String) {
                 for (terminalNode in behavior.terminalNodes) {
                     // Every `SourceNode` with a source of `NORMALIZED_PRESSURE` must pass through a
                     // `ToolTypeFilterNode` that excludes `TOUCH` input before reaching the target.
-                    val stack = mutableListOf<BrushBehavior.Node>(terminalNode)
+                    val stack = mutableListOf<Node>(terminalNode)
                     while (!stack.isEmpty()) {
                         // stack.removeLast() isn't available until API 35 (V).
                         val node = stack.removeAt(stack.lastIndex)
@@ -183,7 +187,7 @@ class StockBrushesTest(val brushName: String) {
                         // ignore
                         // everything beyond it in the node graph.
                         if (
-                            node is BrushBehavior.ToolTypeFilterNode &&
+                            node is ToolTypeFilterNode &&
                                 !node.enabledToolTypes.contains(InputToolType.TOUCH)
                         ) {
                             continue
@@ -192,8 +196,8 @@ class StockBrushesTest(val brushName: String) {
                         // that
                         // excludes `TOUCH` input, it shouldn't be using the `NORMALIZED_PRESSURE`
                         // source.
-                        if (node is BrushBehavior.SourceNode) {
-                            assertNotEquals(node.source, BrushBehavior.Source.NORMALIZED_PRESSURE)
+                        if (node is SourceNode) {
+                            assertNotEquals(node.source, Source.NORMALIZED_PRESSURE)
                         }
                         stack.addAll(node.inputs)
                     }
