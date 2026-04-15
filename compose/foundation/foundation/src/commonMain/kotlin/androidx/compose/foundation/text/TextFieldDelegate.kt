@@ -77,19 +77,28 @@ internal fun computeSizeForDefaultText(
     text: String = EmptyTextReplacement,
     maxLines: Int = 1,
 ): IntSize {
-    val paragraph =
-        Paragraph(
-            text = text,
-            style = style,
-            spanStyles = listOf(),
-            maxLines = maxLines,
-            overflow = TextOverflow.Clip,
-            density = density,
-            fontFamilyResolver = fontFamilyResolver,
-            constraints = Constraints(),
-        )
+    val paragraph = paragraphForDefaultText(style, density, fontFamilyResolver, text, maxLines)
     return IntSize(paragraph.minIntrinsicWidth.ceilToIntPx(), paragraph.height.ceilToIntPx())
 }
+
+/** See [computeSizeForDefaultText] for details. */
+internal fun paragraphForDefaultText(
+    style: TextStyle,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    text: String = EmptyTextReplacement,
+    maxLines: Int = 1,
+) =
+    Paragraph(
+        text = text,
+        style = style,
+        spanStyles = listOf(),
+        maxLines = maxLines,
+        overflow = TextOverflow.Clip,
+        density = density,
+        fontFamilyResolver = fontFamilyResolver,
+        constraints = Constraints(),
+    )
 
 internal class TextFieldDelegate {
     companion object {
