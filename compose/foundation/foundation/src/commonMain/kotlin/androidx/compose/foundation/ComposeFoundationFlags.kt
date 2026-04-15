@@ -121,6 +121,16 @@ object ComposeFoundationFlags {
     var isBasicTextFieldMinSizeOptimizationEnabled = true
 
     /**
+     * This flag controls performance optimizations related to
+     * [androidx.compose.foundation.text.BasicTextField]'s internal calculations of the minimum and
+     * maximum height.
+     */
+    // TODO: Remove this flag once it has soaked (b/501503945)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isBasicTextFieldHeightInLinesOptimizationEnabled = true
+
+    /**
      * This flag controls the fix where item placement animation in
      * [androidx.compose.foundation.lazy.LazyColumn] and [androidx.compose.foundation.lazy.LazyRow]
      * is disabled when animated scroll happens.

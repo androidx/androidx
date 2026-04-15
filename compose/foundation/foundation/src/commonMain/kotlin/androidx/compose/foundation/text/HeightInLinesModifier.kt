@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.ComposeFoundationFlags.isBasicTextFieldHeightInLinesOptimizationEnabled
 import androidx.compose.foundation.ComposeFoundationFlags.isBasicTextFieldMinSizeOptimizationEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.requirePrecondition
@@ -54,7 +55,9 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.util.fastCoerceAtLeast
+import androidx.compose.ui.util.fastCoerceAtMost
 import androidx.compose.ui.util.fastCoerceIn
+import kotlin.math.roundToInt
 
 /**
  * The default minimum height in terms of minimum number of visible lines.
@@ -124,6 +127,7 @@ private class HeightInLinesElement(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private class HeightInLinesNode(
     private var textStyle: TextStyle,
     private var minLines: Int,
@@ -290,46 +294,69 @@ private class HeightInLinesNode(
         resolvedStyle: TextStyle,
         fontFamilyResolver: FontFamily.Resolver,
     ) {
-        // TODO (jossiwolf): It's unfortunate we do two layouts here. Can we optimize this?
-        //  b/486871837
-        val firstLineHeight =
-            computeSizeForDefaultText(
+        if (isBasicTextFieldHeightInLinesOptimizationEnabled) {
+            val threeLinesParagraph =
+                paragraphForDefaultText(
                     style = resolvedStyle,
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
-                    text = EmptyTextReplacement,
-                    maxLines = 1,
+                    text =
+                        EmptyTextReplacement +
+                            "\n" +
+                            EmptyTextReplacement +
+                            "\n" +
+                            EmptyTextReplacement,
+                    maxLines = 3,
                 )
-                .height
+            val first = threeLinesParagraph.getLineHeight(0)
+            val second = threeLinesParagraph.getLineHeight(1)
+            val third = threeLinesParagraph.getLineHeight(2)
 
-        val firstTwoLinesHeight =
-            computeSizeForDefaultText(
-                    style = resolvedStyle,
-                    density = density,
-                    fontFamilyResolver = fontFamilyResolver,
-                    text = EmptyTextReplacement + "\n" + EmptyTextReplacement,
-                    maxLines = 2,
-                )
-                .height
+            precomputedMinLinesHeight =
+                computeHeightFromThreeLines(first, second, third, minLines, DefaultMinLines)
+            precomputedMaxLinesHeight =
+                computeHeightFromThreeLines(first, second, third, maxLines, Int.MAX_VALUE)
+        } else {
+            val firstLineHeight =
+                computeSizeForDefaultText(
+                        style = resolvedStyle,
+                        density = density,
+                        fontFamilyResolver = fontFamilyResolver,
+                        text = EmptyTextReplacement,
+                        maxLines = 1,
+                    )
+                    .height
 
-        val lineHeight = firstTwoLinesHeight - firstLineHeight
+            val firstTwoLinesHeight =
+                computeSizeForDefaultText(
+                        style = resolvedStyle,
+                        density = density,
+                        fontFamilyResolver = fontFamilyResolver,
+                        text = EmptyTextReplacement + "\n" + EmptyTextReplacement,
+                        maxLines = 2,
+                    )
+                    .height
 
-        precomputedMinLinesHeight =
-            if (minLines == DefaultMinLines) {
-                -1
-            } else {
-                firstLineHeight + lineHeight * (minLines - 1)
-            }
+            val lineHeight = firstTwoLinesHeight - firstLineHeight
 
-        precomputedMaxLinesHeight =
-            if (maxLines == Int.MAX_VALUE) {
-                -1
-            } else {
-                firstLineHeight + lineHeight * (maxLines - 1)
-            }
+            precomputedMinLinesHeight =
+                if (minLines == DefaultMinLines) {
+                    -1
+                } else {
+                    firstLineHeight + lineHeight * (minLines - 1)
+                }
+
+            precomputedMaxLinesHeight =
+                if (maxLines == Int.MAX_VALUE) {
+                    -1
+                } else {
+                    firstLineHeight + lineHeight * (maxLines - 1)
+                }
+        }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 internal fun Modifier.legacyHeightInLines(
     textStyle: TextStyle,
     minLines: Int = DefaultMinLines,
@@ -360,35 +387,65 @@ internal fun Modifier.legacyHeightInLines(
                 )
             }
 
-        val firstLineHeight =
-            remember(density, fontFamilyResolver, textStyle, layoutDirection, typeface) {
-                computeSizeForDefaultText(
-                        style = resolvedStyle,
-                        density = density,
-                        fontFamilyResolver = fontFamilyResolver,
-                        text = EmptyTextReplacement,
-                        maxLines = 1,
-                    )
-                    .height
-            }
+        var precomputedMinLinesHeight: Int? = null
+        var precomputedMaxLinesHeight: Int? = null
 
-        val firstTwoLinesHeight =
-            remember(density, fontFamilyResolver, textStyle, layoutDirection, typeface) {
-                val twoLines = EmptyTextReplacement + "\n" + EmptyTextReplacement
-                computeSizeForDefaultText(
-                        style = resolvedStyle,
-                        density = density,
-                        fontFamilyResolver = fontFamilyResolver,
-                        text = twoLines,
-                        maxLines = 2,
-                    )
-                    .height
-            }
-        val lineHeight = firstTwoLinesHeight - firstLineHeight
-        val precomputedMinLinesHeight =
-            if (minLines == DefaultMinLines) null else firstLineHeight + lineHeight * (minLines - 1)
-        val precomputedMaxLinesHeight =
-            if (maxLines == Int.MAX_VALUE) null else firstLineHeight + lineHeight * (maxLines - 1)
+        if (isBasicTextFieldHeightInLinesOptimizationEnabled) {
+            val threeLinesParagraph =
+                paragraphForDefaultText(
+                    style = resolvedStyle,
+                    density = density,
+                    fontFamilyResolver = fontFamilyResolver,
+                    text =
+                        EmptyTextReplacement +
+                            "\n" +
+                            EmptyTextReplacement +
+                            "\n" +
+                            EmptyTextReplacement,
+                    maxLines = 3,
+                )
+            val first = threeLinesParagraph.getLineHeight(0)
+            val second = threeLinesParagraph.getLineHeight(1)
+            val third = threeLinesParagraph.getLineHeight(2)
+
+            precomputedMinLinesHeight =
+                computeHeightFromThreeLines(first, second, third, minLines, DefaultMinLines)
+            precomputedMaxLinesHeight =
+                computeHeightFromThreeLines(first, second, third, maxLines, Int.MAX_VALUE)
+        } else {
+            // Legacy path
+            val firstLineHeight =
+                remember(density, fontFamilyResolver, textStyle, layoutDirection, typeface) {
+                    computeSizeForDefaultText(
+                            style = resolvedStyle,
+                            density = density,
+                            fontFamilyResolver = fontFamilyResolver,
+                            text = EmptyTextReplacement,
+                            maxLines = 1,
+                        )
+                        .height
+                }
+
+            val firstTwoLinesHeight =
+                remember(density, fontFamilyResolver, textStyle, layoutDirection, typeface) {
+                    val twoLines = EmptyTextReplacement + "\n" + EmptyTextReplacement
+                    computeSizeForDefaultText(
+                            style = resolvedStyle,
+                            density = density,
+                            fontFamilyResolver = fontFamilyResolver,
+                            text = twoLines,
+                            maxLines = 2,
+                        )
+                        .height
+                }
+            val lineHeight = firstTwoLinesHeight - firstLineHeight
+            precomputedMinLinesHeight =
+                if (minLines == DefaultMinLines) null
+                else firstLineHeight + lineHeight * (minLines - 1)
+            precomputedMaxLinesHeight =
+                if (maxLines == Int.MAX_VALUE) null
+                else firstLineHeight + lineHeight * (maxLines - 1)
+        }
 
         with(density) {
             Modifier.heightIn(
@@ -404,5 +461,29 @@ internal fun validateMinMaxLines(minLines: Int, maxLines: Int) {
     }
     requirePrecondition(minLines <= maxLines) {
         "minLines $minLines must be less than or equal to maxLines $maxLines"
+    }
+}
+
+/**
+ * A helper function that calculates the height for [linesLimit] based on height of top, bottom and
+ * middle line height. If the function is called with a *default* [linesLimit] value (which comes
+ * from the BasicTextField, we won't do the calculations and simply return early. This is to ensure
+ * that the text field doesn't perform unnecessary calculations if the user of the API doesn't
+ * actually constrain the height with the minLines and/or maxLines.
+ */
+private fun computeHeightFromThreeLines(
+    topLine: Float,
+    middleLine: Float,
+    bottomLine: Float,
+    linesLimit: Int,
+    defaultLinesLimit: Int,
+): Int {
+    return if (linesLimit == defaultLinesLimit) {
+        -1
+    } else {
+        (topLine +
+                middleLine * (linesLimit - 2).fastCoerceAtLeast(0) +
+                bottomLine * (linesLimit - 1).fastCoerceAtMost(1))
+            .roundToInt()
     }
 }
