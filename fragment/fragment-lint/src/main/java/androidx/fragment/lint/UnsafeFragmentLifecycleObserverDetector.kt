@@ -172,7 +172,14 @@ private class RecursiveMethodVisitor(
         if (visitedMethods.contains(node) || visitedMethods.size > MAX_RECURSION_DEPTH) {
             return super.visitCallExpression(node)
         }
+        // Fast-path: short-circuit on Compose boundaries which often generate large UI ASTs.
+        if (node.methodName == "setContent") {
+            return super.visitCallExpression(node)
+        }
         val psiMethod = node.resolve() ?: return super.visitCallExpression(node)
+        if (psiMethod.hasAnnotation("androidx.compose.runtime.Composable")) {
+            return super.visitCallExpression(node)
+        }
         if (!checkCall(node, psiMethod) && node.isInteresting(context)) {
             val uastNode =
                 UastFacade.convertElementWithParent(psiMethod, UMethod::class.java) as? UMethod
