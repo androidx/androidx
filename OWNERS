@@ -19,7 +19,6 @@ sindhujasubr@google.com
 # docs
 per-file docs-tip-of-tree/build.gradle = set noparent
 per-file docs-tip-of-tree/build.gradle = asfalcone@google.com, juliamcclellan@google.com, aurimas@google.com, omarismail@google.com
-
 # settings.gradle
 per-file *settings.gradle = set noparent
 per-file *settings.gradle = aurimas@google.com, omarismail@google.com
@@ -37,6 +36,8 @@ per-file *libraryversions.toml = juanrdz@google.com
 per-file *libraryversions.toml = helenqin@google.com, leecam@google.com, reemabajwa@google.com
 # Glance
 per-file *libraryversions.toml = zakcohen@google.com
+# Android BTS (Build Test Suite)
+per-file *libraryversions.toml = joeyong@google.com
 # AppSearch
 per-file *libraryversions.toml = adorokhine@google.com, tjbarron@google.com, xyj@google.com
 # AppFunctions
