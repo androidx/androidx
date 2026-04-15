@@ -19,6 +19,7 @@ package androidx.xr.arcore.testing
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory as InternalFactory
 import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
@@ -37,15 +38,21 @@ public class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
         public var hasCreatePermission: Boolean = true
 
         /**
-         * Exception that will be thrown when [FakeLifecycleManager.create] is called.
+         * Exception that will be thrown when [FakePerceptionRuntime.initialize] is called.
          *
-         * Setting this value will cause the next call to [FakeLifecycleManager.create] to throw
-         * this exception. Setting this value to null will clear the exception and allow the next
-         * call to succeed.
+         * Setting this value will cause the next call to [FakePerceptionRuntime.initialize] to
+         * throw this exception. Setting this value to null will clear the exception and allow the
+         * next call to succeed.
          */
-        public var lifecycleCreateException: Exception? = null
-
         internal var createNewFakeRuntime: Boolean = false
+
+        public var lifecycleCreateException: Exception?
+            get() {
+                return InternalFactory.runtimeInitializeException
+            }
+            set(value) {
+                InternalFactory.runtimeInitializeException = value
+            }
     }
 
     override val requirements: Set<Feature> = emptySet()
@@ -67,13 +74,8 @@ public class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
         coroutineContext: CoroutineContext,
     ): PerceptionRuntime =
         if (createNewFakeRuntime) {
-            androidx.xr.arcore.testing.internal
-                .FakePerceptionRuntimeFactory()
-                .createRuntime(context, coroutineContext)
+            InternalFactory().createRuntime(context, coroutineContext)
         } else {
-            FakePerceptionRuntime(
-                FakeLifecycleManager(hasCreatePermission),
-                FakePerceptionManager(),
-            )
+            FakePerceptionRuntime(FakePerceptionManager(), hasCreatePermission)
         }
 }

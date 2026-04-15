@@ -29,7 +29,7 @@ import androidx.xr.arcore.VpsAvailabilityResult
 import androidx.xr.arcore.VpsAvailabilityUnavailable
 import androidx.xr.arcore.runtime.Geospatial.State as RuntimeGeospatialState
 import androidx.xr.arcore.runtime.VpsAvailabilityResult as RuntimeVpsAvailabilityResult
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeGeospatial
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.math.GeospatialPose
@@ -69,7 +69,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             if (isConfigured()) {
                 fakeRuntimeGeospatial.expectedPose = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var expectedGeospatialPose: GeospatialPose =
@@ -79,7 +79,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             if (isConfigured()) {
                 fakeRuntimeGeospatial.expectedGeospatialPose = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var expectedHorizontalAccuracy: Double = 0.0
@@ -88,7 +88,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             if (isConfigured()) {
                 fakeRuntimeGeospatial.expectedHorizontalAccuracy = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var expectedVerticalAccuracy: Double = 0.0
@@ -97,7 +97,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             if (isConfigured()) {
                 fakeRuntimeGeospatial.expectedVerticalAccuracy = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var expectedOrientationYawAccuracy: Double = 0.0
@@ -106,7 +106,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             if (isConfigured()) {
                 fakeRuntimeGeospatial.expectedOrientationYawAccuracy = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var expectedAnchorPose: Pose? = Pose()
@@ -115,7 +115,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             if (isConfigured()) {
                 fakeRuntimeGeospatial.expectedAnchorPose = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     @Deprecated("Convert to androidx.xr.arcore.GeospatialState")
@@ -125,7 +125,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             if (isConfigured()) {
                 fakeRuntimeGeospatial.state = value.toRuntimeType()
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var expectedVpsResult: VpsAvailabilityResult = VpsAvailabilityAvailable()
@@ -134,7 +134,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             if (isConfigured()) {
                 fakeRuntimeGeospatial.expectedVpsAvailabilityResult = value.toRuntimeType()
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var allowedAnchorLatitudeRange: Range<Double> = Range(-90.0, 90.0)
@@ -143,7 +143,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             if (isConfigured()) {
                 fakeRuntimeGeospatial.allowedAnchorLatitudeRange = value.lower..value.upper
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     private fun isConfigured() =

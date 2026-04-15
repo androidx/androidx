@@ -16,40 +16,112 @@
 
 package androidx.xr.arcore.testing.internal
 
-import android.app.Activity
-import android.content.pm.PackageManager
 import androidx.xr.arcore.runtime.PerceptionRuntime
+import androidx.xr.runtime.AnchorPersistenceMode
+import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.DisplayBlendMode
-import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.FaceTrackingMode
-import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import kotlin.time.ComparableTimeMark
+import kotlin.time.TestTimeSource
+import kotlinx.coroutines.sync.Semaphore
 
 internal class FakePerceptionRuntime(
-    override val lifecycleManager: FakeLifecycleManager,
     override val perceptionManager: FakePerceptionManager,
-    private val activityContext: Activity? = null,
+    /** If false, [initialize] will throw an exception during testing. */
+    @get:JvmName("hasCreatePermission") var hasCreatePermission: Boolean = true,
 ) : PerceptionRuntime {
-
+    override val lifecycleManager: FakeLifecycleManager = FakeLifecycleManager(this)
     var xrDevicePreferredDisplayBlendMode: DisplayBlendMode = DisplayBlendMode.NO_DISPLAY
 
-    override var config: Config = Config()
+    companion object {
+        private val semaphore = Semaphore(1)
+
+        @JvmStatic
+        internal fun allowOneMoreCallToUpdate() {
+            if (semaphore.availablePermits == 0) {
+                semaphore.release()
+            }
+        }
+
+        @JvmField
+        val TestPermissions: List<String> = listOf("android.permission.SCENE_UNDERSTANDING_COARSE")
+    }
+
+    /** Set of possible states of the runtime. */
+    enum class State {
+        NOT_INITIALIZED,
+        INITIALIZED,
+        RESUMED,
+        PAUSED,
+        DESTROYED,
+    }
+
+    /** The current state of the runtime. */
+    var state: State = State.NOT_INITIALIZED
         private set
 
+    /** The time source used for this runtime. */
+    val timeSource: TestTimeSource = TestTimeSource()
+
+    /** If true, [configure] will emulate the failure case for missing permissions. */
+    @get:JvmName("hasMissingPermission") var hasMissingPermission: Boolean = false
+
+    /** If false, [configure] will throw an Exception if the config enables PlaneTracking. */
+    @get:JvmName("shouldSupportPlaneTracking") var shouldSupportPlaneTracking: Boolean = true
+
+    /** If false, [configure] will throw an exception if the config enables FaceTracking */
+    @get:JvmName("shouldSupportFaceTracking") var shouldSupportFaceTracking: Boolean = true
+
+    override var config: Config =
+        Config(
+            PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+            HandTrackingMode.BOTH,
+            DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+            DepthEstimationMode.SMOOTH_AND_RAW,
+            AnchorPersistenceMode.LOCAL,
+            augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
+        )
+
     override fun initialize() {
-        lifecycleManager.create()
+        check(state == State.NOT_INITIALIZED)
+        if (!hasCreatePermission) throw SecurityException()
+        if (FakePerceptionRuntimeFactory.runtimeInitializeException != null) {
+            // FakeRuntimeFactory will continue to throw exception on subsequent tests unless
+            // cleared.
+            val exceptionToThrow = FakePerceptionRuntimeFactory.runtimeInitializeException!!
+            FakePerceptionRuntimeFactory.runtimeInitializeException = null
+            throw exceptionToThrow
+        }
+        state = State.INITIALIZED
+        allowOneMoreCallToUpdate()
     }
 
     override fun configure(config: Config) {
+        check(
+            state == State.NOT_INITIALIZED ||
+                state == State.INITIALIZED ||
+                state == State.RESUMED ||
+                state == State.PAUSED
+        )
+
+        if (!shouldSupportPlaneTracking && config.planeTracking != PlaneTrackingMode.DISABLED) {
+            throw UnsupportedOperationException()
+        }
+
+        if (!shouldSupportFaceTracking && config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
+            throw UnsupportedOperationException()
+        }
+
+        if (hasMissingPermission) throw SecurityException()
+
         this.config = config
-        checkPermissions(config)
-        lifecycleManager.configure(config)
-        perceptionManager.updateTrackingStates(config)
+        allowOneMoreCallToUpdate()
+        this.perceptionManager.updateTrackingStates(config)
     }
 
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
@@ -57,63 +129,28 @@ internal class FakePerceptionRuntime(
     }
 
     override fun resume() {
-        lifecycleManager.resume()
+        check(state == State.INITIALIZED || state == State.PAUSED)
+        state = State.RESUMED
     }
 
+    /**
+     * Retrieves the latest time mark. The first call to this method will execute immediately.
+     * Subsequent calls will be blocked until [allowOneMoreCallToUpdate] is called.
+     */
     override suspend fun update(): ComparableTimeMark {
-        val timeMark = lifecycleManager.update()
-
-        perceptionManager.updateTrackingStates(config)
-
-        return timeMark
+        check(state == State.RESUMED)
+        semaphore.acquire()
+        this.perceptionManager.updateTrackingStates(this.config)
+        return timeSource.markNow()
     }
 
     override fun pause() {
-        lifecycleManager.pause()
+        check(state == State.RESUMED)
+        state = State.PAUSED
     }
 
     override fun destroy() {
-        lifecycleManager.stop()
-    }
-
-    private fun checkPermissions(config: Config) {
-        if (activityContext != null) {
-            val requiredPermissions: MutableSet<String> = mutableSetOf()
-            if (config.planeTracking == PlaneTrackingMode.HORIZONTAL_AND_VERTICAL) {
-                requiredPermissions.add(androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE)
-            }
-            if (config.depthEstimation != DepthEstimationMode.DISABLED) {
-                requiredPermissions.add(androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE)
-            }
-            if (config.handTracking != HandTrackingMode.DISABLED) {
-                requiredPermissions.add(androidx.xr.runtime.manifest.HAND_TRACKING)
-            }
-            if (config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
-                requiredPermissions.add(androidx.xr.runtime.manifest.FACE_TRACKING)
-            }
-            if (config.deviceTracking != DeviceTrackingMode.DISABLED) {
-                requiredPermissions.add(androidx.xr.runtime.manifest.HEAD_TRACKING)
-            }
-            if (config.eyeTracking == EyeTrackingMode.COARSE_TRACKING) {
-                requiredPermissions.add(androidx.xr.runtime.manifest.EYE_TRACKING_COARSE)
-            }
-            if (config.eyeTracking == EyeTrackingMode.FINE_TRACKING) {
-                requiredPermissions.add(androidx.xr.runtime.manifest.EYE_TRACKING_FINE)
-            }
-            if (config.geospatial == GeospatialMode.VPS_AND_GPS) {
-                requiredPermissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-            requiredPermissions
-                .filter {
-                    activityContext.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
-                }
-                .let {
-                    if (it.isNotEmpty()) {
-                        throw SecurityException(
-                            "Found missing Permissions required for config: $it"
-                        )
-                    }
-                }
-        }
+        check(state == State.PAUSED || state == State.INITIALIZED)
+        state = State.DESTROYED
     }
 }

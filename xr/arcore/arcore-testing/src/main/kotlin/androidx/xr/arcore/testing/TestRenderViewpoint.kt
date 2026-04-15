@@ -17,7 +17,7 @@
 package androidx.xr.arcore.testing
 
 import androidx.xr.arcore.RenderViewpoint
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeRenderViewpoint
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
@@ -37,7 +37,7 @@ internal constructor(
         set(value) {
             field = value
             fakeRuntimeRenderViewpoint.pose = value
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     @Suppress("DEPRECATION")
@@ -51,6 +51,6 @@ internal constructor(
                     value.angleUp,
                     value.angleDown,
                 )
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 }

@@ -18,15 +18,13 @@ package androidx.xr.arcore.testing
 
 import androidx.xr.arcore.HandJointType
 import androidx.xr.arcore.runtime.TrackingState
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeHand
 import androidx.xr.arcore.testing.internal.FakeRuntimeHand.Companion.bufferSize
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.math.Pose
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.collections.iterator
 
 /**
@@ -55,7 +53,7 @@ internal constructor(
                         TrackingState.PAUSED
                     }
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var handJointMap: Map<HandJointType, Pose>
@@ -81,6 +79,6 @@ internal constructor(
                 buffer.flip()
                 fakeRuntimeHand.handJointsBuffer = buffer.asFloatBuffer()
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 }
