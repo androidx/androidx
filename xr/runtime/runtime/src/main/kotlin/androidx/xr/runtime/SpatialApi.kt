@@ -63,7 +63,7 @@ public object SpatialApiVersions {
  * support the required API version.
  *
  * Example of annotating an API and performing a runtime check:
- * <pre><code class="language-kotlin">
+ * ```kotlin
  * @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
  * fun newApiForV2() {
  *     // ...
@@ -76,7 +76,7 @@ public object SpatialApiVersions {
  *         // Handle the case where the API is not available.
  *     }
  * }
- * </code></pre>
+ * ```
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
@@ -103,7 +103,7 @@ public annotation class RequiresSpatialApi(
  * version.
  *
  * Example of opting-in and performing a runtime check:
- * <pre><code class="language-kotlin">
+ * ```kotlin
  * @PreviewSpatialApi
  * fun newPreviewApi() {
  *     // ...
@@ -117,7 +117,7 @@ public annotation class RequiresSpatialApi(
  *         // Handle the case where the preview API is not available.
  *     }
  * }
- * </code></pre>
+ * ```
  */
 @RequiresOptIn(
     level = RequiresOptIn.Level.ERROR,
