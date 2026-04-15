@@ -40,8 +40,14 @@ internal fun Project.fetchDevelocityKeysIfNeeded() {
     val keys = File("${System.getenv("GRADLE_USER_HOME")}/develocity/keys.properties")
 
     // User already has the keys
-    if (keys.exists()) return
-
+    if (keys.exists()) {
+        if (keys.readText().startsWith("ge.androidx.dev=")) {
+            // User has the old key
+            keys.delete()
+        } else {
+            return
+        }
+    }
     keys.parentFile.mkdirs()
 
     val keysProvider = providers.of(DevelocityKeysValueSource::class.java) {}
