@@ -31,14 +31,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-internal class OpenXrDeviceCapabilityProvider(override val context: Context) :
-    XrDeviceCapabilityProvider {
+internal class OpenXrDeviceCapabilityProvider(
+    override val context: Context,
+    private val nativeManager: Long,
+) : XrDeviceCapabilityProvider {
 
     // See b/496257589: Use a stub class to avoid dependency on lifecycle-process.
     override val lifecycle: Lifecycle = StubProcessLifecycleOwner.lifecycle
 
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
-        return nativeGetPreferredBlendMode(OpenXrInstanceManager.nativePointer)
+        return nativeGetPreferredBlendMode(nativeManager)
             ?: throw IllegalStateException("Failed to get preferred blend mode.")
     }
 
@@ -46,7 +48,7 @@ internal class OpenXrDeviceCapabilityProvider(override val context: Context) :
         return if (mode == HandTrackingMode.DISABLED) {
             true
         } else {
-            nativeIsHandTrackingSupported(OpenXrInstanceManager.nativePointer)
+            nativeIsHandTrackingSupported(nativeManager)
         }
     }
 
@@ -54,7 +56,7 @@ internal class OpenXrDeviceCapabilityProvider(override val context: Context) :
         return if (mode == EyeTrackingMode.DISABLED) {
             true
         } else {
-            nativeIsEyeTrackingSupported(OpenXrInstanceManager.nativePointer)
+            nativeIsEyeTrackingSupported(nativeManager)
         }
     }
 
@@ -62,7 +64,7 @@ internal class OpenXrDeviceCapabilityProvider(override val context: Context) :
         return if (mode == GeospatialMode.DISABLED) {
             true
         } else {
-            nativeIsGeospatialSupported(OpenXrInstanceManager.nativePointer)
+            nativeIsGeospatialSupported(nativeManager)
         }
     }
 
@@ -70,25 +72,25 @@ internal class OpenXrDeviceCapabilityProvider(override val context: Context) :
         return if (mode == DepthEstimationMode.DISABLED) {
             true
         } else {
-            nativeIsDepthTrackingSupported(OpenXrInstanceManager.nativePointer)
+            nativeIsDepthTrackingSupported(nativeManager)
         }
     }
 
     override fun isRenderingModeSupported(mode: RenderingMode): Boolean {
-        return nativeIsRenderingModeSupported(OpenXrInstanceManager.nativePointer, mode.value)
+        return nativeIsRenderingModeSupported(nativeManager, mode.value)
     }
 
-    private external fun nativeGetPreferredBlendMode(nativePointer: Long): DisplayBlendMode?
+    private external fun nativeGetPreferredBlendMode(nativeManager: Long): DisplayBlendMode?
 
-    private external fun nativeIsHandTrackingSupported(nativePointer: Long): Boolean
+    private external fun nativeIsHandTrackingSupported(nativeManager: Long): Boolean
 
-    private external fun nativeIsEyeTrackingSupported(nativePointer: Long): Boolean
+    private external fun nativeIsEyeTrackingSupported(nativeManager: Long): Boolean
 
-    private external fun nativeIsGeospatialSupported(nativePointer: Long): Boolean
+    private external fun nativeIsGeospatialSupported(nativeManager: Long): Boolean
 
-    private external fun nativeIsDepthTrackingSupported(nativePointer: Long): Boolean
+    private external fun nativeIsDepthTrackingSupported(nativeManager: Long): Boolean
 
-    private external fun nativeIsRenderingModeSupported(nativePointer: Long, mode: Int): Boolean
+    private external fun nativeIsRenderingModeSupported(nativeManager: Long, mode: Int): Boolean
 }
 
 /**

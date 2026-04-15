@@ -23,6 +23,7 @@ import androidx.xr.runtime.XrDevice.Companion.getCurrentDevice
 import androidx.xr.runtime.interfaces.DisplayBlendMode as InternalDisplayBlendMode
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
+import androidx.xr.runtime.internal.XrInstanceManager
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -128,7 +129,11 @@ private constructor(
             val device =
                 XrDevice(
                     session = null,
-                    xrDeviceCapabilityProviderFactory?.create(context, coroutineContext),
+                    xrDeviceCapabilityProviderFactory?.create(
+                        context,
+                        coroutineContext,
+                        XrInstanceManager.getProvider(context),
+                    ),
                 )
             synchronized(deviceCache) { deviceCache[context] = device }
             return device

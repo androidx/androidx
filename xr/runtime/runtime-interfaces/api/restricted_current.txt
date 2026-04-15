@@ -115,7 +115,16 @@ package androidx.xr.runtime.interfaces {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrDeviceCapabilityProviderFactory extends androidx.xr.runtime.interfaces.Service {
-    method public androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider create(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+    method public androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider create(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.xr.runtime.interfaces.XrNativeInstanceProvider? nativeInstanceProvider);
+    method @BytecodeOnly public static androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider! create$default(androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory!, android.content.Context!, kotlin.coroutines.CoroutineContext!, androidx.xr.runtime.interfaces.XrNativeInstanceProvider!, int, Object!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrNativeInstanceProvider extends androidx.xr.runtime.interfaces.Service {
+    method @InaccessibleFromKotlin public long getXrInstanceHandle();
+    method @InaccessibleFromKotlin public long getXrInstanceProcAddr();
+    method public void initialize(android.content.Context context);
+    property public abstract long xrInstanceHandle;
+    property public abstract long xrInstanceProcAddr;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrServiceUpdateRequester {

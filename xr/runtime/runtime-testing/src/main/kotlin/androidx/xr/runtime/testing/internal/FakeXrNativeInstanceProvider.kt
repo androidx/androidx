@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.xr.projected
+package androidx.xr.runtime.testing.internal
 
 import android.content.Context
 import androidx.xr.runtime.interfaces.Feature
-import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
-import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
 import androidx.xr.runtime.interfaces.XrNativeInstanceProvider
-import kotlin.coroutines.CoroutineContext
 
-internal class ProjectedDeviceCapabilityProviderFactory : XrDeviceCapabilityProviderFactory {
+internal class FakeXrNativeInstanceProvider : XrNativeInstanceProvider {
 
-    override val requirements: Set<Feature> = setOf(Feature.FULLSTACK, Feature.PROJECTED)
+    override val requirements: Set<Feature> = emptySet()
 
-    override fun create(
-        context: Context,
-        coroutineContext: CoroutineContext,
-        nativeInstanceProvider: XrNativeInstanceProvider?,
-    ): XrDeviceCapabilityProvider = ProjectedDeviceCapabilityProvider(context, coroutineContext)
+    override fun initialize(context: Context) {
+        return
+    }
+
+    /** The handle of the native instance if available for the runtime. */
+    override val xrInstanceHandle: Long = 1111L
+
+    /** The handle of the function table if available for the runtime. */
+    override val xrInstanceProcAddr: Long = 2222L
 }

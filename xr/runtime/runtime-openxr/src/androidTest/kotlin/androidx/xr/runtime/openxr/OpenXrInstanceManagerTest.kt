@@ -27,13 +27,22 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 29)
 class OpenXrInstanceManagerTest {
 
-    @Test
-    fun getXrInstanceHandle_returnsNonZeroHandle() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val handle = OpenXrInstanceManager.getXrInstanceHandle(context)
+    companion object {
+        init {
+            System.loadLibrary("androidx.xr.runtime.openxr.test")
+        }
+    }
 
-        // The value below comes from kInstance in
+    @Test
+    fun initialize_setsXrInstanceHandleAndInstanceProcAddrToNonZero() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val provider = OpenXrInstanceManager()
+
+        provider.initialize(context)
+
+        // The values below comes from kInstance a in
         // third_party/jetpack_xr_natives/common/openxr_stub.cc
-        assertThat(handle).isEqualTo(1111L)
+        assertThat(provider.xrInstanceHandle).isEqualTo(1111L)
+        assertThat(provider.xrInstanceProcAddr).isNotEqualTo(0L)
     }
 }

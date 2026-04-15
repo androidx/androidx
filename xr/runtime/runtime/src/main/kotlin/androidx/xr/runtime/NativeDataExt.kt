@@ -20,8 +20,7 @@ package androidx.xr.runtime
 
 import android.content.Context
 import androidx.lifecycle.Lifecycle
-import androidx.xr.runtime.interfaces.Feature
-import androidx.xr.runtime.openxr.OpenXrInstanceManager
+import androidx.xr.runtime.internal.XrInstanceManager
 
 @RequiresOptIn(
     "Access to native pointers is discouraged and the data returned by this API may change in the future."
@@ -36,24 +35,10 @@ public annotation class UnstableNativeResourceApi
  * The pointers are owned by the underlying runtime and should only be used to access APIs available
  * in the native C spec for the relevant runtime. Applications should not trigger any lifecycle
  * events on their own.
- *
- * @throws [IllegalStateException] if the device context is not using a runtime backed by an OpenXR
- *   native instance.
  */
 @UnstableNativeResourceApi
 public fun XrDevice.getNativeInstanceData(context: Context): NativeInstanceData {
-    check(getDeviceContextFeatures(context).contains(Feature.OPEN_XR)) {
-        "The device context is not using an OpenXR-enabled runtime." +
-            " Native handle access is only supported for OpenXR" +
-            " runtimes."
-    }
-
-    val instancePointer = OpenXrInstanceManager.getXrInstanceHandle(context)
-    // TODO(b/467096822) - Add support for getting the ARCore 1.x function table once it is a
-    // dependency.
-    val functionTablePointer = OpenXrInstanceManager.getXrInstanceProcAddr()
-
-    return NativeInstanceData(instancePointer, functionTablePointer)
+    return XrInstanceManager.getNativeInstanceData(context) ?: NativeInstanceData(0L, 0L)
 }
 
 /**
