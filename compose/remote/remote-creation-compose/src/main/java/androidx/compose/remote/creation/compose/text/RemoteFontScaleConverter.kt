@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.text
 
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.lerp
@@ -114,7 +115,7 @@ private object NonLinearRemoteFontScaleConverter : RemoteFontScaleConverter {
 
     /**
      * Performs piecewise linear interpolation across a table of anchor points. Uses [foldRight] to
-     * construct a flattened conditional tree of [RemoteFloat.select] calls.
+     * construct a flattened conditional tree of [RemoteBoolean.select] calls.
      *
      * @param x The current font size being evaluated.
      * @param table The list of threshold-to-calculation pairs.
