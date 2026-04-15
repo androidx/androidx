@@ -152,9 +152,6 @@ internal class CanvasInProgressStrokesRenderHelperV29<
                 // NOMUTANTS -- Defensive programming to avoid bad state being used later.
                 onDrawState.frontBufferCanvas = null
 
-                // Clear the client-defined masked area.
-                maskPath?.let { canvas.drawPath(it, maskPaint) }
-
                 callback.onDrawComplete()
                 check(canvas.saveCount == originalSaveCount) {
                     "Unbalanced saves and restores. Expected save count of $originalSaveCount, got ${canvas.saveCount}."
@@ -303,9 +300,18 @@ internal class CanvasInProgressStrokesRenderHelperV29<
         val frontBufferCanvas = checkNotNull(onDrawState.frontBufferCanvas)
 
         val offScreenRenderNode = checkNotNull(offScreenFrameBuffer)
+        val offScreenCanvas = checkNotNull(onDrawState.offScreenCanvas)
+
+        // Clear the masked area in the offscreen frame buffer rather than the front buffer to avoid
+        // scanline racing artifacts where content "behind" the mask is temporarily visible. If the
+        // masked area was cleared in the front buffer, then these artifacts can happen if the front
+        // buffer was read out to the display after the stroke content was drawn but before the
+        // masked
+        // area was cleared.
+        maskPath?.let { offScreenCanvas.drawPath(it, maskPaint) }
 
         // Previously saved in `prepareToDrawInModifiedRegion`.
-        checkNotNull(onDrawState.offScreenCanvas).restore()
+        offScreenCanvas.restore()
 
         offScreenRenderNode.endRecording()
         check(offScreenRenderNode.hasDisplayList())

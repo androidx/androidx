@@ -23,25 +23,27 @@ import android.graphics.PorterDuff
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 
-/** Returns the Android [PorterDuff.Mode] that is equivalent to this Ink [BrushPaint.BlendMode]. */
-internal fun BrushPaint.BlendMode.toPorterDuffMode() =
+/**
+ * Returns the Android [PorterDuff.Mode] that is equivalent to this Ink [TextureLayer.BlendMode].
+ */
+internal fun TextureLayer.BlendMode.toPorterDuffMode() =
     when (this) {
         // Note that the MODULATE behavior is incorrectly called MULTIPLY in [PorterDuff.Mode].
-        BrushPaint.BlendMode.MODULATE -> PorterDuff.Mode.MULTIPLY
-        BrushPaint.BlendMode.DST_IN -> PorterDuff.Mode.DST_IN
-        BrushPaint.BlendMode.DST_OUT -> PorterDuff.Mode.DST_OUT
-        BrushPaint.BlendMode.SRC_ATOP -> PorterDuff.Mode.SRC_ATOP
-        BrushPaint.BlendMode.SRC_IN -> PorterDuff.Mode.SRC_IN
-        BrushPaint.BlendMode.SRC_OVER -> PorterDuff.Mode.SRC_OVER
-        BrushPaint.BlendMode.DST_OVER -> PorterDuff.Mode.DST_OVER
-        BrushPaint.BlendMode.SRC -> PorterDuff.Mode.SRC
-        BrushPaint.BlendMode.DST -> PorterDuff.Mode.DST
-        BrushPaint.BlendMode.SRC_OUT -> PorterDuff.Mode.SRC_OUT
-        BrushPaint.BlendMode.DST_ATOP -> PorterDuff.Mode.DST_ATOP
-        BrushPaint.BlendMode.XOR -> PorterDuff.Mode.XOR
+        TextureLayer.BlendMode.MODULATE -> PorterDuff.Mode.MULTIPLY
+        TextureLayer.BlendMode.DST_IN -> PorterDuff.Mode.DST_IN
+        TextureLayer.BlendMode.DST_OUT -> PorterDuff.Mode.DST_OUT
+        TextureLayer.BlendMode.SRC_ATOP -> PorterDuff.Mode.SRC_ATOP
+        TextureLayer.BlendMode.SRC_IN -> PorterDuff.Mode.SRC_IN
+        TextureLayer.BlendMode.SRC_OVER -> PorterDuff.Mode.SRC_OVER
+        TextureLayer.BlendMode.DST_OVER -> PorterDuff.Mode.DST_OVER
+        TextureLayer.BlendMode.SRC -> PorterDuff.Mode.SRC
+        TextureLayer.BlendMode.DST -> PorterDuff.Mode.DST
+        TextureLayer.BlendMode.SRC_OUT -> PorterDuff.Mode.SRC_OUT
+        TextureLayer.BlendMode.DST_ATOP -> PorterDuff.Mode.DST_ATOP
+        TextureLayer.BlendMode.XOR -> PorterDuff.Mode.XOR
         else -> {
             Log.e(
                 "BlendModeConversion",
@@ -52,21 +54,21 @@ internal fun BrushPaint.BlendMode.toPorterDuffMode() =
     }
 
 /** Like [toPorterDuffMode], but with SRC and DST swapped. */
-internal fun BrushPaint.BlendMode.toReversePorterDuffMode() =
+internal fun TextureLayer.BlendMode.toReversePorterDuffMode() =
     when (this) {
         // Note that the MODULATE behavior is incorrectly called MULTIPLY in [PorterDuff.Mode].
-        BrushPaint.BlendMode.MODULATE -> PorterDuff.Mode.MULTIPLY
-        BrushPaint.BlendMode.DST_IN -> PorterDuff.Mode.SRC_IN
-        BrushPaint.BlendMode.DST_OUT -> PorterDuff.Mode.SRC_OUT
-        BrushPaint.BlendMode.SRC_ATOP -> PorterDuff.Mode.DST_ATOP
-        BrushPaint.BlendMode.SRC_IN -> PorterDuff.Mode.DST_IN
-        BrushPaint.BlendMode.SRC_OVER -> PorterDuff.Mode.DST_OVER
-        BrushPaint.BlendMode.DST_OVER -> PorterDuff.Mode.SRC_OVER
-        BrushPaint.BlendMode.SRC -> PorterDuff.Mode.DST
-        BrushPaint.BlendMode.DST -> PorterDuff.Mode.SRC
-        BrushPaint.BlendMode.SRC_OUT -> PorterDuff.Mode.DST_OUT
-        BrushPaint.BlendMode.DST_ATOP -> PorterDuff.Mode.SRC_ATOP
-        BrushPaint.BlendMode.XOR -> PorterDuff.Mode.XOR
+        TextureLayer.BlendMode.MODULATE -> PorterDuff.Mode.MULTIPLY
+        TextureLayer.BlendMode.DST_IN -> PorterDuff.Mode.SRC_IN
+        TextureLayer.BlendMode.DST_OUT -> PorterDuff.Mode.SRC_OUT
+        TextureLayer.BlendMode.SRC_ATOP -> PorterDuff.Mode.DST_ATOP
+        TextureLayer.BlendMode.SRC_IN -> PorterDuff.Mode.DST_IN
+        TextureLayer.BlendMode.SRC_OVER -> PorterDuff.Mode.DST_OVER
+        TextureLayer.BlendMode.DST_OVER -> PorterDuff.Mode.SRC_OVER
+        TextureLayer.BlendMode.SRC -> PorterDuff.Mode.DST
+        TextureLayer.BlendMode.DST -> PorterDuff.Mode.SRC
+        TextureLayer.BlendMode.SRC_OUT -> PorterDuff.Mode.DST_OUT
+        TextureLayer.BlendMode.DST_ATOP -> PorterDuff.Mode.SRC_ATOP
+        TextureLayer.BlendMode.XOR -> PorterDuff.Mode.XOR
         else -> {
             Log.e(
                 "BlendModeConversion",
@@ -76,22 +78,22 @@ internal fun BrushPaint.BlendMode.toReversePorterDuffMode() =
         }
     }
 
-/** Returns the Android [BlendMode] that is equivalent to this Ink [BrushPaint.BlendMode]. */
+/** Returns the Android [BlendMode] that is equivalent to this Ink [TextureLayer.BlendMode]. */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-internal fun BrushPaint.BlendMode.toBlendMode() =
+internal fun TextureLayer.BlendMode.toBlendMode() =
     when (this) {
-        BrushPaint.BlendMode.MODULATE -> BlendMode.MODULATE
-        BrushPaint.BlendMode.DST_IN -> BlendMode.DST_IN
-        BrushPaint.BlendMode.DST_OUT -> BlendMode.DST_OUT
-        BrushPaint.BlendMode.SRC_ATOP -> BlendMode.SRC_ATOP
-        BrushPaint.BlendMode.SRC_IN -> BlendMode.SRC_IN
-        BrushPaint.BlendMode.SRC_OVER -> BlendMode.SRC_OVER
-        BrushPaint.BlendMode.DST_OVER -> BlendMode.DST_OVER
-        BrushPaint.BlendMode.SRC -> BlendMode.SRC
-        BrushPaint.BlendMode.DST -> BlendMode.DST
-        BrushPaint.BlendMode.SRC_OUT -> BlendMode.SRC_OUT
-        BrushPaint.BlendMode.DST_ATOP -> BlendMode.DST_ATOP
-        BrushPaint.BlendMode.XOR -> BlendMode.XOR
+        TextureLayer.BlendMode.MODULATE -> BlendMode.MODULATE
+        TextureLayer.BlendMode.DST_IN -> BlendMode.DST_IN
+        TextureLayer.BlendMode.DST_OUT -> BlendMode.DST_OUT
+        TextureLayer.BlendMode.SRC_ATOP -> BlendMode.SRC_ATOP
+        TextureLayer.BlendMode.SRC_IN -> BlendMode.SRC_IN
+        TextureLayer.BlendMode.SRC_OVER -> BlendMode.SRC_OVER
+        TextureLayer.BlendMode.DST_OVER -> BlendMode.DST_OVER
+        TextureLayer.BlendMode.SRC -> BlendMode.SRC
+        TextureLayer.BlendMode.DST -> BlendMode.DST
+        TextureLayer.BlendMode.SRC_OUT -> BlendMode.SRC_OUT
+        TextureLayer.BlendMode.DST_ATOP -> BlendMode.DST_ATOP
+        TextureLayer.BlendMode.XOR -> BlendMode.XOR
         else -> {
             Log.e(
                 "BlendModeConversion",

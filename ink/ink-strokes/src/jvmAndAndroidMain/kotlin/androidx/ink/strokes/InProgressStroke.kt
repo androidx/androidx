@@ -533,8 +533,7 @@ public class InProgressStroke {
         // ByteBuffers
         // defaults to a fixed endianness instead of using the endianness of the device, insist on
         // ByteOrder.nativeOrder. Note that the order of operations seems to be important:
-        // asShortBuffer() must be called
-        // immediately after order(ByteOrder.nativeOrder()).
+        // asShortBuffer() must be called immediately after order(ByteOrder.nativeOrder()).
         return (InProgressStrokeNative.getUnsafelyMutableRawTriangleIndexData(
                 nativePointer,
                 coatIndex,
@@ -554,9 +553,9 @@ public class InProgressStroke {
         require(coatIndex >= 0 && coatIndex < getBrushCoatCount()) {
             "Cannot get mesh format at coatIndex $coatIndex out of range [0, ${getBrushCoatCount()})."
         }
-        return MeshFormat.wrapNative(
+        return MeshFormat.wrapNative {
             InProgressStrokeNative.newCopyOfMeshFormat(nativePointer, coatIndex)
-        )
+        }
     }
 
     // NOMUTANTS -- Not tested post garbage collection.

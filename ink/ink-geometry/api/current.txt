@@ -124,6 +124,7 @@ package androidx.ink.geometry {
   public final class ImmutableAffineTransform extends androidx.ink.geometry.AffineTransform {
     ctor public ImmutableAffineTransform(float m00, float m10, float m20, float m01, float m11, float m21);
     ctor public ImmutableAffineTransform(@Size(min=6L) float[] values);
+    method public operator boolean equals(Object? other);
     method public static androidx.ink.geometry.ImmutableAffineTransform rotateDegrees(@androidx.ink.geometry.AngleDegreesFloat float degrees);
     method public static androidx.ink.geometry.ImmutableAffineTransform scale(float scaleFactor);
     method public static androidx.ink.geometry.ImmutableAffineTransform scale(float xScaleFactor, float yScaleFactor);
@@ -269,6 +270,7 @@ package androidx.ink.geometry {
 
   public final class MutableAffineTransform extends androidx.ink.geometry.AffineTransform {
     ctor public MutableAffineTransform();
+    method public operator boolean equals(Object? other);
     method public androidx.ink.geometry.MutableAffineTransform populateFrom(androidx.ink.geometry.AffineTransform input);
     method public androidx.ink.geometry.MutableAffineTransform populateFromIdentity();
     method public androidx.ink.geometry.MutableAffineTransform populateFromRotationDegrees(@androidx.ink.geometry.AngleDegreesFloat float degrees);
@@ -424,7 +426,6 @@ package androidx.ink.geometry {
     method @BytecodeOnly public static boolean computeCoverageIsGreaterThan$default(androidx.ink.geometry.PartitionedMesh!, androidx.ink.geometry.Parallelogram!, float, androidx.ink.geometry.AffineTransform!, int, Object!);
     method @BytecodeOnly public static boolean computeCoverageIsGreaterThan$default(androidx.ink.geometry.PartitionedMesh!, androidx.ink.geometry.PartitionedMesh!, float, androidx.ink.geometry.AffineTransform!, int, Object!);
     method @BytecodeOnly public static boolean computeCoverageIsGreaterThan$default(androidx.ink.geometry.PartitionedMesh!, androidx.ink.geometry.Triangle!, float, androidx.ink.geometry.AffineTransform!, int, Object!);
-    method protected void finalize();
     method @IntRange(from=0L) public int getOutlineCount(@IntRange(from=0L) int groupIndex);
     method @IntRange(from=0L) public int getOutlineVertexCount(@IntRange(from=0L) int groupIndex, @IntRange(from=0L) int outlineIndex);
     method @IntRange(from=0L) public int getRenderGroupCount();

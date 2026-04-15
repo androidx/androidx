@@ -21,6 +21,7 @@ import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushCoat
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.SelfOverlap
@@ -104,11 +105,11 @@ class CanvasPathRendererRobolectricTest {
             BrushPaint(
                 textureLayers =
                     listOf(
-                        BrushPaint.TextureLayer(
+                        TextureLayer(
                             clientTextureId = "foo",
                             sizeX = 16F,
                             sizeY = 16F,
-                            mapping = BrushPaint.TextureMapping.STAMPING,
+                            mapping = TextureLayer.Mapping.STAMPING,
                         )
                     )
             )

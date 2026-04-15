@@ -25,6 +25,7 @@ import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushCoat
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.SelfOverlap
@@ -417,7 +418,7 @@ class CanvasMeshRendererTest {
     fun drawStroke_whenAndroidU_withTextureAnimation_shouldSaveRecentlyDrawnMesh() {
         // Create a stroke with a texture animation.
         val texture =
-            BrushPaint.TextureLayer(
+            TextureLayer(
                 clientTextureId = "test",
                 sizeX = 10f,
                 sizeY = 10f,
@@ -498,12 +499,7 @@ class CanvasMeshRendererTest {
     fun drawStroke_whenAndroidU_withoutTextureAnimation_shouldIgnoreTextureProgressForMeshReuse() {
         // Create a stroke without a texture animation.
         val texture =
-            BrushPaint.TextureLayer(
-                clientTextureId = "test",
-                sizeX = 10f,
-                sizeY = 10f,
-                animationFrames = 1,
-            )
+            TextureLayer(clientTextureId = "test", sizeX = 10f, sizeY = 10f, animationFrames = 1)
         val family = BrushFamily(paint = BrushPaint(listOf(texture)))
         val brush = Brush(family = family, size = 10f, epsilon = 0.1f)
         val stroke =

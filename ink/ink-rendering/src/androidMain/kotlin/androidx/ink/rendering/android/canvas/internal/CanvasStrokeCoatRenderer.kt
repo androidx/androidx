@@ -74,8 +74,8 @@ internal interface CanvasStrokeCoatRenderer {
  * same texture mapping mode.)
  */
 @OptIn(ExperimentalInkCustomBrushApi::class)
-internal fun BrushPaint.getTextureMapping(): BrushPaint.TextureMapping =
-    textureLayers.firstOrNull()?.mapping ?: BrushPaint.TextureMapping.TILING
+internal fun BrushPaint.getTextureMapping(): BrushPaint.TextureLayer.Mapping =
+    textureLayers.firstOrNull()?.mapping ?: BrushPaint.TextureLayer.Mapping.TILING
 
 @OptIn(ExperimentalInkCustomBrushApi::class)
 internal fun Brush.getPaint(coatIndex: Int, paintPreferenceIndex: Int) =

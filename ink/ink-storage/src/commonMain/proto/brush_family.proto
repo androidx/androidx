@@ -27,11 +27,12 @@ import "options.proto";
 message BrushFamily {
   option (ink.proto.message_min_version) = 0;
 
-  // A naive model that passes through raw inputs mostly unchanged.  This is an
-  // experimental configuration which may be adjusted or removed later. Strokes
-  // generated with this input model might change shape if read with a later
-  // version of the code that has removed this feature.
-  message ExperimentalNaiveModel {
+  // A naive input model that passes raw inputs through unchanged, performing
+  // only base-minimal modeling to derive velocity and acceleration values for
+  // the modeled inputs. This can be useful as a point of comparison for other
+  // input models, or for callers who wish to do their own input modeling prior
+  // to passing inputs into Ink.
+  message PassthroughModel {
     option (ink.proto.message_min_version) = 0;
   }
 
@@ -58,7 +59,7 @@ message BrushFamily {
     option (ink.proto.message_min_version) = 0;
 
     oneof input_model {
-      ExperimentalNaiveModel experimental_naive_model = 4
+      PassthroughModel passthrough_model = 4
           [(ink.proto.field_min_version) = 0];
       SlidingWindowModel sliding_window_model = 5
           [(ink.proto.field_min_version) = 0];
@@ -106,6 +107,19 @@ message BrushFamily {
   // with. This field should not be set by clients, only by the Ink serializer,
   // as it is computed based on the features used in the brush family.
   optional int32 min_version = 8 [(ink.proto.field_min_version) = 0];
+
+  // Specifies a list of brush families that are similar in behavior to this
+  // brush family, but with a higher `min_version`. This is intended to provide
+  // a fallback for sharing brushes between devices with different Ink API
+  // versions. The serializer will only populate this field on the lowest
+  // version, "top-level" brush family passed to `EncodeMultipleBrushFamilies`.
+  // The deserializer will only decode this field from the top-level brush
+  // family as well. Though a deeper recursive structure is possible, it is not
+  // supported, to avoid hitting parser recursion depth limits (100 for C++ by
+  // default) which are more likely to be hit than repeated field limits (only
+  // restricted by the overall message size limit of 2GiB).
+  repeated BrushFamily newer_brush_families = 9
+      [(ink.proto.field_min_version) = 0];
 }
 
 // A `BrushCoat` represents one coat of ink applied by a brush. It includes a
