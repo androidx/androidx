@@ -180,6 +180,7 @@ internal class RemoteOperationCacheKey(
 internal fun toCacheKeyList(args: Array<out Any>): List<RemoteStateCacheKey> {
     return args.map {
         when (it) {
+            is RemoteConstantCacheKey -> it
             is RemoteState<*> -> it.cacheKey
             is RemoteStateCacheKey -> it
             is Byte,
