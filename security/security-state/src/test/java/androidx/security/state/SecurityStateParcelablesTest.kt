@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlin.test.assertNotEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,7 +35,8 @@ class SecurityStateParcelablesTest {
         val original =
             UpdateInfo(
                 component = "SYSTEM",
-                securityPatchLevel = "2026-01-01",
+                securityPatchLevel =
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2026-01-01"),
                 publishedDateMillis = 123456789L,
                 lastCheckTimeMillis = 987654321L,
             )
@@ -44,6 +46,49 @@ class SecurityStateParcelablesTest {
 
         // THEN the restored object is identical to the original
         assertEquals(original, restored)
+    }
+
+    @Test
+    fun testUpdateInfo_equalsAndHashCode_comparesSplStrings() {
+        // GIVEN an UpdateInfo built with a strongly-typed DateBasedSecurityPatchLevel
+        val update1 =
+            UpdateInfo.Builder()
+                .setComponent("SYSTEM")
+                .setSecurityPatchLevel(
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2026-01-01")
+                )
+                .setPublishedDateMillis(100L)
+                .setLastCheckTimeMillis(200L)
+                .build()
+
+        // AND an UpdateInfo built with a fallback GenericStringSecurityPatchLevel
+        // that has the exact same string value
+        val update2 =
+            UpdateInfo.Builder()
+                .setComponent("SYSTEM")
+                .setSecurityPatchLevel(
+                    SecurityPatchState.GenericStringSecurityPatchLevel("2026-01-01")
+                )
+                .setPublishedDateMillis(100L)
+                .setLastCheckTimeMillis(200L)
+                .build()
+
+        // THEN they should be considered equal
+        assertEquals(update1, update2)
+        assertEquals(update1.hashCode(), update2.hashCode())
+
+        // AND an update with a different value should not be equal
+        val differentUpdate =
+            UpdateInfo.Builder()
+                .setComponent("SYSTEM")
+                .setSecurityPatchLevel(
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2026-02-01")
+                )
+                .setPublishedDateMillis(100L)
+                .setLastCheckTimeMillis(200L)
+                .build()
+
+        assertNotEquals(update1, differentUpdate)
     }
 
     @Test
@@ -70,7 +115,7 @@ class SecurityStateParcelablesTest {
 
         // THEN the object is created successfully, ignoring the unknown key
         assertEquals("SYSTEM", restored.component)
-        assertEquals("2026-01-01", restored.securityPatchLevel)
+        assertEquals("2026-01-01", restored.securityPatchLevel.toString())
         assertEquals(100L, restored.publishedDateMillis)
         assertEquals(200L, restored.lastCheckTimeMillis)
     }
@@ -90,7 +135,7 @@ class SecurityStateParcelablesTest {
 
         // THEN reasonable defaults are used instead of crashing or nulls
         assertEquals("", restored.component)
-        assertEquals("", restored.securityPatchLevel)
+        assertEquals("", restored.securityPatchLevel.toString())
         assertEquals(0L, restored.publishedDateMillis)
         assertEquals(0L, restored.lastCheckTimeMillis)
     }
@@ -115,7 +160,34 @@ class SecurityStateParcelablesTest {
         // THEN it falls back to the default string instead of crashing
         // (Bundle.getString() returns null for type mismatch, and we use ?: "")
         assertEquals("SYSTEM", restored.component)
-        assertEquals("", restored.securityPatchLevel)
+        assertEquals("", restored.securityPatchLevel.toString())
+    }
+
+    @Test
+    fun testUpdateInfo_handlesInvalidSplFormatGracefully() {
+        // GIVEN a Bundle where 'securityPatchLevel' is an invalid date string for the SYSTEM
+        // component
+        val badFormatBundle =
+            Bundle().apply {
+                putString("component", "SYSTEM")
+                putString("securityPatchLevel", "NOT_A_DATE") // Invalid format!
+            }
+
+        // WHEN we read it back using the Creator
+        val parcel = Parcel.obtain()
+        badFormatBundle.writeToParcel(parcel, 0)
+        parcel.setDataPosition(0)
+
+        val restored = UpdateInfo.CREATOR.createFromParcel(parcel)
+        parcel.recycle()
+
+        // THEN it falls back to a GenericStringSecurityPatchLevel instead of crashing
+        assertEquals("SYSTEM", restored.component)
+        assertTrue(
+            "Should fallback to Generic type",
+            restored.securityPatchLevel is SecurityPatchState.GenericStringSecurityPatchLevel,
+        )
+        assertEquals("NOT_A_DATE", restored.securityPatchLevel.toString())
     }
 
     @Test
@@ -123,8 +195,18 @@ class SecurityStateParcelablesTest {
         // GIVEN an UpdateCheckResult containing a list of updates
         val updates =
             listOf(
-                UpdateInfo("SYSTEM", "2026-02-01", 100L, 200L),
-                UpdateInfo("SYSTEM_MODULES", "2026-01-01", 300L, 400L),
+                UpdateInfo(
+                    "SYSTEM",
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2026-02-01"),
+                    100L,
+                    200L,
+                ),
+                UpdateInfo(
+                    "SYSTEM_MODULES",
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2026-01-01"),
+                    300L,
+                    400L,
+                ),
             )
         val original =
             UpdateCheckResult(

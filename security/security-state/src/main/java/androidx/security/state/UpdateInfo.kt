@@ -32,8 +32,15 @@ public class SerializableUpdateInfo(
     private val publishedDateMillis: Long,
     private val lastCheckTimeMillis: Long,
 ) {
-    public fun toUpdateInfo(): UpdateInfo =
-        UpdateInfo(component, securityPatchLevel, publishedDateMillis, lastCheckTimeMillis)
+    public fun toUpdateInfo(): UpdateInfo {
+        val spl =
+            try {
+                SecurityPatchState.getComponentSecurityPatchLevel(component, securityPatchLevel)
+            } catch (e: IllegalArgumentException) {
+                SecurityPatchState.GenericStringSecurityPatchLevel(securityPatchLevel)
+            }
+        return UpdateInfo(component, spl, publishedDateMillis, lastCheckTimeMillis)
+    }
 }
 
 /** Represents information about an available update for a component. */
@@ -52,10 +59,13 @@ public class UpdateInfo(
     @get:SecurityPatchState.Component public val component: String,
 
     /**
-     * Security patch level of the available update ready to be applied by the reporting client. Use
-     * [SecurityPatchState.getComponentSecurityPatchLevel] method to get encapsulated value.
+     * Security patch level of the available update ready to be applied by the reporting client.
+     *
+     * This is represented as a [SecurityPatchState.SecurityPatchLevel] object (e.g.,
+     * [SecurityPatchState.DateBasedSecurityPatchLevel] or
+     * [SecurityPatchState.VersionedSecurityPatchLevel]) appropriate for the component.
      */
-    public val securityPatchLevel: String,
+    public val securityPatchLevel: SecurityPatchState.SecurityPatchLevel,
 
     /** Timestamp when the available update was published, in milliseconds since the epoch. */
     public val publishedDateMillis: Long,
@@ -74,7 +84,7 @@ public class UpdateInfo(
     public fun toSerializableUpdateInfo(): SerializableUpdateInfo =
         SerializableUpdateInfo(
             component,
-            securityPatchLevel,
+            securityPatchLevel.toString(),
             publishedDateMillis,
             lastCheckTimeMillis,
         )
@@ -86,7 +96,7 @@ public class UpdateInfo(
         val bundle =
             Bundle().apply {
                 putString(KEY_COMPONENT, component)
-                putString(KEY_SECURITY_PATCH_LEVEL, securityPatchLevel)
+                putString(KEY_SECURITY_PATCH_LEVEL, securityPatchLevel.toString())
                 putLong(KEY_PUBLISHED_DATE_MILLIS, publishedDateMillis)
                 putLong(KEY_LAST_CHECK_TIME_MILLIS, lastCheckTimeMillis)
             }
@@ -112,9 +122,18 @@ public class UpdateInfo(
                     // later
                     bundle?.classLoader = UpdateInfo::class.java.classLoader
 
+                    val component = bundle?.getString(KEY_COMPONENT) ?: ""
+                    val splString = bundle?.getString(KEY_SECURITY_PATCH_LEVEL) ?: ""
+                    val spl =
+                        try {
+                            SecurityPatchState.getComponentSecurityPatchLevel(component, splString)
+                        } catch (e: IllegalArgumentException) {
+                            SecurityPatchState.GenericStringSecurityPatchLevel(splString)
+                        }
+
                     return UpdateInfo(
-                        component = bundle?.getString(KEY_COMPONENT) ?: "",
-                        securityPatchLevel = bundle?.getString(KEY_SECURITY_PATCH_LEVEL) ?: "",
+                        component = component,
+                        securityPatchLevel = spl,
                         publishedDateMillis = bundle?.getLong(KEY_PUBLISHED_DATE_MILLIS) ?: 0L,
                         lastCheckTimeMillis = bundle?.getLong(KEY_LAST_CHECK_TIME_MILLIS) ?: 0L,
                     )
@@ -145,7 +164,7 @@ public class UpdateInfo(
     public override fun equals(other: Any?): Boolean =
         other is UpdateInfo &&
             component == other.component &&
-            securityPatchLevel == other.securityPatchLevel &&
+            securityPatchLevel.toString() == other.securityPatchLevel.toString() &&
             publishedDateMillis == other.publishedDateMillis &&
             lastCheckTimeMillis == other.lastCheckTimeMillis
 
@@ -155,12 +174,19 @@ public class UpdateInfo(
      * @return A hash code produced by the properties of the update info.
      */
     public override fun hashCode(): Int =
-        Objects.hash(component, securityPatchLevel, publishedDateMillis, lastCheckTimeMillis)
+        Objects.hash(
+            component,
+            securityPatchLevel.toString(),
+            publishedDateMillis,
+            lastCheckTimeMillis,
+        )
 
     /** Builder class for creating an instance of UpdateInfo. */
     public class Builder {
         @set:JvmSynthetic private var component: String = ""
-        @set:JvmSynthetic private var securityPatchLevel: String = ""
+        @set:JvmSynthetic
+        private var securityPatchLevel: SecurityPatchState.SecurityPatchLevel =
+            SecurityPatchState.GenericStringSecurityPatchLevel("")
         @set:JvmSynthetic private var publishedDateMillis: Long = 0L
         @set:JvmSynthetic private var lastCheckTimeMillis: Long = 0L
 
@@ -175,12 +201,15 @@ public class UpdateInfo(
         /**
          * Sets the security patch level of the update.
          *
-         * @param securityPatchLevel The security patch level to set.
+         * @param securityPatchLevel The [SecurityPatchState.SecurityPatchLevel] to set. Depending
+         *   on the component, this should be a concrete subclass such as
+         *   [SecurityPatchState.DateBasedSecurityPatchLevel] (for SYSTEM and VENDOR) or
+         *   [SecurityPatchState.VersionedSecurityPatchLevel] (for KERNEL).
          * @return The builder instance for chaining.
          */
-        public fun setSecurityPatchLevel(securityPatchLevel: String): Builder = apply {
-            this.securityPatchLevel = securityPatchLevel
-        }
+        public fun setSecurityPatchLevel(
+            securityPatchLevel: SecurityPatchState.SecurityPatchLevel
+        ): Builder = apply { this.securityPatchLevel = securityPatchLevel }
 
         /**
          * Sets the publication date of the update.

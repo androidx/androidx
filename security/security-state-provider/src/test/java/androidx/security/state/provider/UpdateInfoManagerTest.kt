@@ -25,6 +25,7 @@ import androidx.security.state.UpdateInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,7 +45,9 @@ class UpdateInfoManagerTest {
     private val updateInfo =
         UpdateInfo.Builder()
             .setComponent(COMPONENT_SYSTEM)
-            .setSecurityPatchLevel("2022-01-01")
+            .setSecurityPatchLevel(
+                SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2022-01-01")
+            )
             .setPublishedDateMillis(publishedDateMillis)
             .build()
     private val expectedJson =
@@ -124,6 +127,35 @@ class UpdateInfoManagerTest {
     }
 
     @Test
+    fun testCleanupUpdateInfo_removesMalformedSplEntries() {
+        // GIVEN the device SPL is a valid DateBased SPL
+        `when`(mockSecurityState.getDeviceSecurityPatchLevel(COMPONENT_SYSTEM))
+            .thenReturn(SecurityPatchState.DateBasedSecurityPatchLevel(2020, 1, 1))
+
+        // AND the shared preferences contain an update with a malformed SPL string.
+        // When getAllUpdates() parses this, it will become a GenericStringSecurityPatchLevel.
+        val badUpdateJson =
+            """
+            {
+                "component": "SYSTEM",
+                "securityPatchLevel": "NOT_A_DATE",
+                "publishedDateMillis": 100,
+                "lastCheckTimeMillis": 200
+            }
+            """
+                .trimIndent()
+
+        `when`(mockPrefs.all).thenReturn(mapOf("SYSTEM" to badUpdateJson))
+
+        // WHEN cleanup is triggered (e.g. by registering a new update)
+        manager.registerUpdate(updateInfo)
+
+        // THEN the cleanup logic catches the exception during the comparison between
+        // the generic SPL and the date-based SPL, and removes the corrupted entry.
+        Mockito.verify(mockEditor).remove("SYSTEM")
+    }
+
+    @Test
     fun testLastCheckTime_storesInSeparateFile() {
         // 1. Verify retrieval reads from metadata prefs
         assertEquals(0L, manager.getLastCheckTimeMillis())
@@ -148,7 +180,36 @@ class UpdateInfoManagerTest {
 
         assertEquals(1, results.size)
         assertEquals("SYSTEM", results[0].component)
-        assertEquals("2022-01-01", results[0].securityPatchLevel)
+        assertEquals("2022-01-01", results[0].securityPatchLevel.toString())
         assertEquals(publishedDateMillis, results[0].publishedDateMillis)
+    }
+
+    @Test
+    fun testGetAllUpdates_withMalformedSpl_fallsBackToGenericStringSpl() {
+        // GIVEN a JSON string in SharedPreferences with an invalid date format
+        val badUpdateJson =
+            """
+            {
+                "component": "SYSTEM",
+                "securityPatchLevel": "NOT_A_DATE",
+                "publishedDateMillis": 100,
+                "lastCheckTimeMillis": 200
+            }
+            """
+                .trimIndent()
+
+        `when`(mockPrefs.all).thenReturn(mapOf("SYSTEM" to badUpdateJson))
+
+        // WHEN we retrieve all updates from the manager
+        val results = manager.getAllUpdates()
+
+        // THEN it safely deserializes and uses the fallback GenericStringSecurityPatchLevel
+        assertEquals(1, results.size)
+        assertEquals("SYSTEM", results[0].component)
+        assertTrue(
+            "Should fallback to Generic type",
+            results[0].securityPatchLevel is SecurityPatchState.GenericStringSecurityPatchLevel,
+        )
+        assertEquals("NOT_A_DATE", results[0].securityPatchLevel.toString())
     }
 }
