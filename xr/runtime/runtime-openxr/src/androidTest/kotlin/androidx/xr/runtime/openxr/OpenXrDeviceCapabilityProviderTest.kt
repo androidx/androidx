@@ -39,6 +39,12 @@ import org.junit.Before
 @OptIn(ExperimentalCoroutinesApi::class)
 class OpenXrDeviceCapabilityProviderTest {
 
+    companion object {
+        init {
+            System.loadLibrary("androidx.xr.runtime.openxr.test")
+        }
+    }
+
     private lateinit var context: Context
 
     private lateinit var underTest: OpenXrDeviceCapabilityProvider
@@ -46,7 +52,9 @@ class OpenXrDeviceCapabilityProviderTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        underTest = OpenXrDeviceCapabilityProvider(context)
+        val instanceManager = OpenXrInstanceManager()
+        instanceManager.initialize(context)
+        underTest = OpenXrDeviceCapabilityProvider(context, instanceManager.nativeManager)
     }
 
     @Test

@@ -1,11 +1,1 @@
 // Signature format: 4.0
-package androidx.xr.runtime.openxr {
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrInstanceManager {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public long getXrInstanceHandle(android.content.Context context);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public long getXrInstanceProcAddr();
-    field public static final androidx.xr.runtime.openxr.OpenXrInstanceManager INSTANCE;
-  }
-
-}
-

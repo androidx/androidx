@@ -29,9 +29,12 @@ public interface XrDeviceCapabilityProviderFactory : Service {
      *
      * @param context The [Context] used to select an appropriate [XrDeviceCapabilityProvider].
      * @param coroutineContext The [CoroutineContext] used to execute background operations.
+     * @param nativeInstanceProvider the [XrNativeInstanceProvider] if needed for providing native
+     *   implementations for capability discovery APIs.
      */
     public fun create(
         context: Context,
         coroutineContext: CoroutineContext,
+        nativeInstanceProvider: XrNativeInstanceProvider? = null,
     ): XrDeviceCapabilityProvider
 }

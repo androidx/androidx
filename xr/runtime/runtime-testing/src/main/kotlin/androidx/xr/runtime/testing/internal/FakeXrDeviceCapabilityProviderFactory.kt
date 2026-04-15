@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
+import androidx.xr.runtime.interfaces.XrNativeInstanceProvider
 import androidx.xr.runtime.testing.XrDeviceTestRule
 import kotlin.coroutines.CoroutineContext
 
@@ -34,6 +35,7 @@ internal class FakeXrDeviceCapabilityProviderFactory : XrDeviceCapabilityProvide
     override fun create(
         context: Context,
         coroutineContext: CoroutineContext,
+        nativeInstanceProvider: XrNativeInstanceProvider?,
     ): XrDeviceCapabilityProvider {
         val provider = FakeXrDeviceCapabilityProvider(context)
         xrDeviceTestRule?.capabilityProvider = provider
