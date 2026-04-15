@@ -17,18 +17,10 @@
 package androidx.xr.arcore.testing
 
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.AnchorPersistenceMode
-import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.DepthEstimationMode
-import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.FaceTrackingMode
-import androidx.xr.runtime.HandTrackingMode
-import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.internal.LifecycleManager
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
-import kotlinx.coroutines.sync.Semaphore
 
 /**
  * Fake implementation of [LifecycleManager] used to validate state transitions.
@@ -48,13 +40,13 @@ import kotlinx.coroutines.sync.Semaphore
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FakeLifecycleManager(
-    @get:JvmName("hasCreatePermission") public var hasCreatePermission: Boolean = true
+    @Suppress("DEPRECATION") private val owner: FakePerceptionRuntime
 ) : LifecycleManager {
 
     public companion object {
+        @Suppress("DEPRECATION")
         @JvmField
-        public val TestPermissions: List<String> =
-            listOf("android.permission.SCENE_UNDERSTANDING_COARSE")
+        public val TestPermissions: List<String> = FakePerceptionRuntime.TestPermissions
     }
 
     /** Set of possible states of the runtime. */
@@ -66,66 +58,69 @@ public class FakeLifecycleManager(
         DESTROYED,
     }
 
-    public var state: State = State.NOT_INITIALIZED
-        private set
+    @get:Suppress("DEPRECATION")
+    public val state: State
+        get() {
+            return when (owner.state) {
+                FakePerceptionRuntime.State.NOT_INITIALIZED -> State.NOT_INITIALIZED
+                FakePerceptionRuntime.State.INITIALIZED -> State.INITIALIZED
+                FakePerceptionRuntime.State.RESUMED -> State.RESUMED
+                FakePerceptionRuntime.State.PAUSED -> State.PAUSED
+                FakePerceptionRuntime.State.DESTROYED -> State.DESTROYED
+            }
+        }
 
-    public val timeSource: TestTimeSource = TestTimeSource()
+    public val timeSource: TestTimeSource
+        get() {
+            return owner.timeSource
+        }
 
-    private val semaphore = Semaphore(1)
+    @get:JvmName("hasMissingPermission")
+    public var hasMissingPermission: Boolean
+        get() {
+            return owner.hasMissingPermission
+        }
+        set(value) {
+            owner.hasMissingPermission = value
+        }
 
-    @get:JvmName("hasMissingPermission") public var hasMissingPermission: Boolean = false
+    @get:JvmName("shouldSupportPlaneTracking")
+    public var shouldSupportPlaneTracking: Boolean
+        get() {
+            return owner.shouldSupportPlaneTracking
+        }
+        set(value) {
+            owner.shouldSupportPlaneTracking = value
+        }
 
-    @get:JvmName("shouldSupportPlaneTracking") public var shouldSupportPlaneTracking: Boolean = true
-
-    @get:JvmName("shouldSupportFaceTracking") public var shouldSupportFaceTracking: Boolean = true
+    @get:JvmName("shouldSupportFaceTracking")
+    public var shouldSupportFaceTracking: Boolean
+        get() {
+            return owner.shouldSupportFaceTracking
+        }
+        set(value) {
+            owner.shouldSupportFaceTracking = value
+        }
 
     @Suppress("DEPRECATION")
     override fun create() {
-        check(state == State.NOT_INITIALIZED)
-        if (!hasCreatePermission) throw SecurityException()
-        if (FakePerceptionRuntimeFactory.lifecycleCreateException != null) {
-            // FakeRuntimeFactory will continue to throw exception on subsequent tests unless
-            // cleared.
-            val exceptionToThrow = FakePerceptionRuntimeFactory.lifecycleCreateException!!
-            FakePerceptionRuntimeFactory.lifecycleCreateException = null
-            throw exceptionToThrow
-        }
-        state = State.INITIALIZED
+        owner.initialize()
     }
 
-    override var config: Config =
-        Config(
-            PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-            HandTrackingMode.BOTH,
-            DeviceTrackingMode.SPATIAL_LAST_KNOWN,
-            DepthEstimationMode.SMOOTH_AND_RAW,
-            AnchorPersistenceMode.LOCAL,
-            // Needs to contain at least one AugmentedObjectCategory to enable
-            augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
-        )
+    override var config: Config
+        get() {
+            return owner.config
+        }
+        set(value) {
+            owner.config = value
+        }
 
     override fun configure(config: Config) {
-        check(
-            state == State.NOT_INITIALIZED ||
-                state == State.INITIALIZED ||
-                state == State.RESUMED ||
-                state == State.PAUSED
-        )
-        if (!shouldSupportPlaneTracking && config.planeTracking != PlaneTrackingMode.DISABLED) {
-            throw UnsupportedOperationException()
-        }
-
-        if (!shouldSupportFaceTracking && config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
-            throw UnsupportedOperationException()
-        }
-
-        if (hasMissingPermission) throw SecurityException()
-        this.config = config
+        owner.configure(config)
     }
 
     override fun resume() {
-        check(state == State.INITIALIZED || state == State.PAUSED)
-        state = State.RESUMED
+        owner.resume()
     }
 
     /**
@@ -135,9 +130,7 @@ public class FakeLifecycleManager(
      * until [allowOneMoreCallToUpdate] is called.
      */
     override suspend fun update(): ComparableTimeMark {
-        check(state == State.RESUMED)
-        semaphore.acquire()
-        return timeSource.markNow()
+        return owner.update()
     }
 
     /**
@@ -147,16 +140,14 @@ public class FakeLifecycleManager(
      * to do so will result in an [IllegalStateException].
      */
     public fun allowOneMoreCallToUpdate() {
-        semaphore.release()
+        owner.allowOneMoreCallToUpdate()
     }
 
     override fun pause() {
-        check(state == State.RESUMED)
-        state = State.PAUSED
+        owner.pause()
     }
 
     override fun stop() {
-        check(state == State.PAUSED || state == State.INITIALIZED)
-        state = State.DESTROYED
+        owner.destroy()
     }
 }

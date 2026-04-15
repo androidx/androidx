@@ -16,33 +16,23 @@
 
 package androidx.xr.arcore.testing.internal
 
-import androidx.xr.runtime.AnchorPersistenceMode
-import androidx.xr.runtime.AugmentedObjectCategory
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.DepthEstimationMode
-import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.HandTrackingMode
-import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.internal.LifecycleManager
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
-import kotlinx.coroutines.sync.Semaphore
 
-internal class FakeLifecycleManager : LifecycleManager {
-
-    companion object {
-        private val semaphore = Semaphore(1)
-
-        @JvmStatic
+internal class FakeLifecycleManager(private val owner: FakePerceptionRuntime) : LifecycleManager {
+    internal companion object {
         internal fun allowOneMoreCallToUpdate() {
-            if (semaphore.availablePermits == 0) {
-                semaphore.release()
-            }
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
+
+        @JvmField internal val TestPermissions: List<String> = FakePerceptionRuntime.TestPermissions
     }
 
     /** Set of possible states of the runtime. */
-    enum class State {
+    internal enum class State {
         NOT_INITIALIZED,
         INITIALIZED,
         RESUMED,
@@ -50,58 +40,86 @@ internal class FakeLifecycleManager : LifecycleManager {
         DESTROYED,
     }
 
-    var state: State = State.NOT_INITIALIZED
-        private set
+    val state: State
+        get() {
+            return when (owner.state) {
+                FakePerceptionRuntime.State.NOT_INITIALIZED -> State.NOT_INITIALIZED
+                FakePerceptionRuntime.State.INITIALIZED -> State.INITIALIZED
+                FakePerceptionRuntime.State.RESUMED -> State.RESUMED
+                FakePerceptionRuntime.State.PAUSED -> State.PAUSED
+                FakePerceptionRuntime.State.DESTROYED -> State.DESTROYED
+            }
+        }
 
-    val timeSource: TestTimeSource = TestTimeSource()
+    val timeSource: TestTimeSource
+        get() {
+            return owner.timeSource
+        }
+
+    @get:JvmName("hasMissingPermission")
+    var hasMissingPermission: Boolean
+        get() {
+            return owner.hasMissingPermission
+        }
+        set(value) {
+            owner.hasMissingPermission = value
+        }
+
+    @get:JvmName("shouldSupportPlaneTracking")
+    var shouldSupportPlaneTracking: Boolean
+        get() {
+            return owner.shouldSupportPlaneTracking
+        }
+        set(value) {
+            owner.shouldSupportPlaneTracking = value
+        }
+
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @get:JvmName("shouldSupportFaceTracking")
+    var shouldSupportFaceTracking: Boolean
+        get() {
+            return owner.shouldSupportFaceTracking
+        }
+        set(value) {
+            owner.shouldSupportFaceTracking = value
+        }
 
     override fun create() {
-        check(state == State.NOT_INITIALIZED)
-        state = State.INITIALIZED
-        allowOneMoreCallToUpdate()
+        owner.initialize()
     }
 
-    override var config: Config =
-        Config(
-            PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-            HandTrackingMode.BOTH,
-            DeviceTrackingMode.SPATIAL_LAST_KNOWN,
-            DepthEstimationMode.SMOOTH_AND_RAW,
-            AnchorPersistenceMode.LOCAL,
-            // Needs to contain at least one AugmentedObjectCategory to enable
-            augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
-        )
+    override var config: Config
+        get() {
+            return owner.config
+        }
+        set(value) {
+            owner.config = value
+        }
 
     override fun configure(config: Config) {
-        check(
-            state == State.NOT_INITIALIZED ||
-                state == State.INITIALIZED ||
-                state == State.RESUMED ||
-                state == State.PAUSED
-        )
-
-        this.config = config
-        allowOneMoreCallToUpdate()
+        owner.configure(config)
     }
 
     override fun resume() {
-        check(state == State.INITIALIZED || state == State.PAUSED)
-        state = State.RESUMED
+        owner.resume()
     }
 
+    /**
+     * Retrieves the latest time mark.
+     *
+     * The first call to this method will execute immediately. Subsequent calls will be blocked
+     * until [allowOneMoreCallToUpdate] is called.
+     */
     override suspend fun update(): ComparableTimeMark {
-        check(state == State.RESUMED)
-        semaphore.acquire()
-        return timeSource.markNow()
+        return owner.update()
     }
 
     override fun pause() {
-        check(state == State.RESUMED)
-        state = State.PAUSED
+        owner.pause()
     }
 
     override fun stop() {
-        check(state == State.PAUSED || state == State.INITIALIZED)
-        state = State.DESTROYED
+        owner.destroy()
     }
 }

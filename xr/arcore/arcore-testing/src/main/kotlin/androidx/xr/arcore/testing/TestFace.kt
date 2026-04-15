@@ -19,7 +19,7 @@ package androidx.xr.arcore.testing
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Mesh
 import androidx.xr.arcore.runtime.TrackingState
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeFace
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.math.Pose
@@ -54,7 +54,7 @@ public class TestFace public constructor() : TestTrackable() {
                         TrackingState.PAUSED
                     }
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     private var isUserFace: Boolean = false
@@ -71,7 +71,7 @@ public class TestFace public constructor() : TestTrackable() {
                         TrackingState.PAUSED
                     }
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     internal val fakeRuntimeTrackable: FakeRuntimeFace by lazy {
@@ -95,7 +95,7 @@ public class TestFace public constructor() : TestTrackable() {
             if (isConfiguredForBlendShapes() && value.isNotEmpty() && value.all { it in 0f..1f }) {
                 fakeRuntimeTrackable.blendShapeValues = value.toFloatArray()
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var confidenceValues: List<Float> = listOf()
@@ -104,7 +104,7 @@ public class TestFace public constructor() : TestTrackable() {
             if (isConfiguredForBlendShapes() && value.isNotEmpty() && value.all { it in 0f..1f }) {
                 fakeRuntimeTrackable.confidenceValues = value.toFloatArray()
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     // TODO b/452680433: Unrestrict when the ArCore Face meshing APIs are unrestricted
@@ -116,7 +116,7 @@ public class TestFace public constructor() : TestTrackable() {
             if (isConfiguredForMeshing()) {
                 fakeRuntimeTrackable.centerPose = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     // TODO b/452680433: Unrestrict when the ArCore Face meshing APIs are unrestricted
@@ -128,7 +128,7 @@ public class TestFace public constructor() : TestTrackable() {
             if (isConfiguredForMeshing()) {
                 fakeRuntimeTrackable.mesh = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     // TODO b/452680433: Unrestrict when the ArCore Face meshing APIs are unrestricted
@@ -140,7 +140,7 @@ public class TestFace public constructor() : TestTrackable() {
             if (isConfiguredForMeshing()) {
                 fakeRuntimeTrackable.noseTipPose = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     // TODO b/452680433: Unrestrict when the ArCore Face meshing APIs are unrestricted
@@ -152,7 +152,7 @@ public class TestFace public constructor() : TestTrackable() {
             if (isConfiguredForMeshing()) {
                 fakeRuntimeTrackable.foreheadLeftPose = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     // TODO b/452680433: Unrestrict when the ArCore Face meshing APIs are unrestricted
@@ -164,7 +164,7 @@ public class TestFace public constructor() : TestTrackable() {
             if (isConfiguredForMeshing()) {
                 fakeRuntimeTrackable.foreheadRightPose = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     internal fun isConfiguredForMeshing() =

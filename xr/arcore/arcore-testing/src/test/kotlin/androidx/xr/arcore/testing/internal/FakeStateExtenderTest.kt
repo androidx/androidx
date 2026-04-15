@@ -49,11 +49,8 @@ class FakeStateExtenderTest {
     @Test
     fun initialize_setsInitializedToTrue() {
         check(!underTest.isInitialized)
-        val lifecycleManager = FakeLifecycleManager()
 
-        underTest.initialize(
-            listOf(FakePerceptionRuntime(FakeLifecycleManager(), FakePerceptionManager()))
-        )
+        underTest.initialize(listOf(FakePerceptionRuntime(FakePerceptionManager())))
 
         assertThat(underTest.isInitialized).isTrue()
     }

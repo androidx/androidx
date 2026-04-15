@@ -22,7 +22,7 @@ import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.PlaneType
 import androidx.xr.arcore.runtime.Plane as RuntimePlane
 import androidx.xr.arcore.runtime.TrackingState
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimePlane
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.math.FloatSize2d
@@ -55,7 +55,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
                         TrackingState.PAUSED
                     }
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     // TODO b/482675376 remove Suppress when no longer needed
@@ -67,7 +67,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
             if (isConfigured()) {
                 fakeRuntimeTrackable.type = value.toRuntimeType()
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     // TODO b/482675376 remove Suppress when no longer needed
@@ -79,7 +79,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
             if (isConfigured()) {
                 fakeRuntimeTrackable.label = value.toRuntimeType()
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var centerPose: Pose = Pose()
@@ -88,7 +88,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
             if (isConfigured()) {
                 fakeRuntimeTrackable.centerPose = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var extents: FloatSize2d = FloatSize2d()
@@ -97,7 +97,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
             if (isConfigured()) {
                 fakeRuntimeTrackable.extents = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var vertices: List<Vector2> = emptyList()
@@ -106,7 +106,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
             if (isConfigured()) {
                 fakeRuntimeTrackable.vertices = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var subsumedBy: TestPlane? = null
@@ -115,7 +115,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
             if (isConfigured()) {
                 fakeRuntimeTrackable.subsumedBy = value?.fakeRuntimeTrackable
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     internal fun isConfigured(): Boolean =

@@ -17,7 +17,7 @@
 package androidx.xr.arcore.testing
 
 import androidx.xr.arcore.runtime.TrackingState
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeAugmentedObject
 import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.math.FloatSize3d
@@ -45,7 +45,7 @@ public class TestAugmentedObject(category: AugmentedObjectCategory) : TestTracka
                         TrackingState.PAUSED
                     }
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var category: AugmentedObjectCategory = category
@@ -54,7 +54,7 @@ public class TestAugmentedObject(category: AugmentedObjectCategory) : TestTracka
             if (isConfigured()) {
                 fakeRuntimeTrackable.category = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var centerPose: Pose = Pose()
@@ -63,7 +63,7 @@ public class TestAugmentedObject(category: AugmentedObjectCategory) : TestTracka
             if (isConfigured()) {
                 fakeRuntimeTrackable.centerPose = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var extents: FloatSize3d = FloatSize3d()
@@ -72,7 +72,7 @@ public class TestAugmentedObject(category: AugmentedObjectCategory) : TestTracka
             if (isConfigured()) {
                 fakeRuntimeTrackable.extents = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     internal fun isConfigured(): Boolean =

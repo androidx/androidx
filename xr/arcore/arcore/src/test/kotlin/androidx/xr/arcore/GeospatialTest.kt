@@ -23,8 +23,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException as RtAnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.Geospatial as RuntimeGeospatial
 import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
-import androidx.xr.arcore.testing.FakeLifecycleManager
 import androidx.xr.arcore.testing.FakePerceptionManager
+import androidx.xr.arcore.testing.FakePerceptionRuntime
 import androidx.xr.arcore.testing.FakeRuntimeGeospatial
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.GeospatialMode
@@ -219,9 +219,9 @@ class GeospatialTest {
     @Test
     fun createPoseFromGeospatialPose_withVpsDisabled_throwsIllegalStateException() {
         val newConfig = Config(geospatial = GeospatialMode.DISABLED)
-        val fakeLifecycleManager = FakeLifecycleManager()
-        fakeLifecycleManager.config = newConfig
-        xrResourcesManager.lifecycleManager = fakeLifecycleManager
+        val fakePerceptionRuntime = FakePerceptionRuntime(FakePerceptionManager())
+        fakePerceptionRuntime.config = newConfig
+        xrResourcesManager.lifecycleManager = fakePerceptionRuntime.lifecycleManager
         val underTest = Geospatial(runtimeGeospatial, xrResourcesManager)
         val geospatialPose = GeospatialPose(1.0, 2.0, 3.0, Quaternion(0.1f, 0.2f, 0.3f, 0.4f))
 

@@ -18,7 +18,6 @@ package androidx.xr.arcore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.TrackingState
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.internal.FakeRuntimeAnchor
@@ -54,7 +53,7 @@ public class ArCoreTestRule : ExternalResource() {
         set(value) {
             field = value
             FakeRuntimeAnchor.anchorResourceLimit = value
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     /**
@@ -218,7 +217,7 @@ public class ArCoreTestRule : ExternalResource() {
             // retroactively added to the PerceptionManager
             updateFakeRuntimeTrackable(it)
         }
-        FakeLifecycleManager.allowOneMoreCallToUpdate()
+        FakePerceptionRuntime.allowOneMoreCallToUpdate()
     }
 
     /**
@@ -234,7 +233,7 @@ public class ArCoreTestRule : ExternalResource() {
         if (runtime.config.anchorPersistence == AnchorPersistenceMode.LOCAL) {
             runtime.perceptionManager.persistedAnchorUUIDs[uuid] = pose
         }
-        FakeLifecycleManager.allowOneMoreCallToUpdate()
+        FakePerceptionRuntime.allowOneMoreCallToUpdate()
         return uuid
     }
 
@@ -242,7 +241,7 @@ public class ArCoreTestRule : ExternalResource() {
     public fun clearPersistedAnchors() {
         _persistedAnchorPoses.clear()
         runtime.perceptionManager.persistedAnchorUUIDs.clear()
-        FakeLifecycleManager.allowOneMoreCallToUpdate()
+        FakePerceptionRuntime.allowOneMoreCallToUpdate()
     }
 
     @Suppress("DEPRECATION")
