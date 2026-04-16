@@ -30,10 +30,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
+import androidx.wear.compose.material3.onehandedgesture.GesturePriority
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
@@ -82,6 +87,72 @@ fun OneHandedGestureSwipeDismissableNavHostDemo() {
                 Spacer(Modifier.height(4.dp))
                 OneHandedGestureButton(onClick = { navController.popBackStack() }) {
                     Text("Go to Previous screen")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
+    var buttonText by remember { mutableStateOf("Gesture me") }
+    val onClick = remember { { buttonText = "Gestured" } }
+    val tlcState = rememberTransformingLazyColumnState()
+    var scrollGestureIndicatorVisible by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    ScreenScaffold(
+        scrollState = tlcState,
+        scrollIndicator = {
+            OneHandedGestureDefaults.ScrollGestureIndicator(
+                scrollGestureIndicatorVisible,
+                onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
+                tlcState,
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
+        },
+    ) { contentPadding ->
+        TransformingLazyColumn(
+            state = tlcState,
+            contentPadding = contentPadding,
+            modifier =
+                Modifier.fillMaxSize()
+                    .oneHandedGesture(
+                        action = GestureAction.Primary,
+                        priority = GesturePriority.Scrollable,
+                        onGesture = { OneHandedGestureDefaults.scrollDown(tlcState) },
+                        onShowIndicator = { scrollGestureIndicatorVisible = true },
+                    ),
+        ) {
+            items(10) { Text("Item $it") }
+            item {
+                var buttonGestureIndicatorVisible by remember { mutableStateOf(false) }
+                var buttonVisible by remember { mutableStateOf(false) }
+                Button(
+                    onClick = onClick,
+                    interactionSource = interactionSource,
+                    modifier =
+                        Modifier.onVisibilityChanged { buttonVisible = it } then
+                            if (buttonVisible) {
+                                // Apply the one-handed gesture modifier only when the button is
+                                // visible
+                                Modifier.oneHandedGesture(
+                                    action = GestureAction.Primary,
+                                    priority = GesturePriority.Clickable,
+                                    interactionSource = interactionSource,
+                                    onShowIndicator = { buttonGestureIndicatorVisible = true },
+                                    onGesture = onClick,
+                                )
+                            } else {
+                                Modifier
+                            },
+                ) {
+                    OneHandedGestureDefaults.GestureIndicator(
+                        buttonGestureIndicatorVisible,
+                        { buttonGestureIndicatorVisible = false },
+                    ) {
+                        Text(buttonText)
+                    }
                 }
             }
         }

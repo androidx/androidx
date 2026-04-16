@@ -306,8 +306,11 @@ val WearMaterial3Demos =
                     title = "One Handed Gestures",
                     listOf(
                         ComposableDemo("Button") { OneHandedGestureButtonSample() },
-                        ComposableDemo("TransformingLazyColumn") {
+                        ComposableDemo("TransformingLazyColumn with EdgeButton") {
                             OneHandedGestureTransformingLazyColumnSample()
+                        },
+                        ComposableDemo("TransformingLazyColumn with Button") {
+                            OneHandedGestureTransformingLazyColumnWithButtonDemo()
                         },
                         ComposableDemo("Horizontal Pager") {
                             OneHandedGestureHorizontalPagerSample()
