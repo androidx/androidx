@@ -70,6 +70,19 @@ class CameraGraphSimulatorTest {
     private val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
 
     @Test
+    fun closingCameraGraphSimulatorShouldStopCameraGraph() =
+        testScope.runTest {
+            simulator.start()
+            simulator.simulateCameraStarted()
+            simulator.initializeSurfaces()
+
+            simulator.close()
+            advanceUntilIdle()
+
+            assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
+        }
+
+    @Test
     fun simulatorCanSimulateRepeatingFrames() =
         testScope.runTest {
             val stream = simulator.streams[streamConfig]!!
