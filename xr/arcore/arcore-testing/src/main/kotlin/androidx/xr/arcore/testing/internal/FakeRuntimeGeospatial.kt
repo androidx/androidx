@@ -20,7 +20,6 @@ import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException
 import androidx.xr.arcore.runtime.AnchorNotTrackingException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
-import androidx.xr.arcore.runtime.AnchorUnsupportedLocationException
 import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.arcore.runtime.Geospatial.GeospatialPoseResult
 import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
@@ -88,15 +87,7 @@ internal class FakeRuntimeGeospatial(
         eastUpSouthQuaternion: Quaternion,
         surface: Geospatial.Surface,
     ): Anchor {
-        require(latitude in allowedAnchorLatitudeRange)
-        if (altitudeAboveSurface < 0) {
-            throw AnchorUnsupportedLocationException(
-                cause =
-                    IllegalArgumentException(
-                        "altitudeAboveSurface < 0: can't create anchor below surface"
-                    )
-            )
-        }
+        require(latitude in allowedAnchorLatitudeRange && altitudeAboveSurface >= 0.0)
         if (state == Geospatial.State.ERROR_NOT_AUTHORIZED) {
             throw AnchorNotAuthorizedException()
         } else if (state == Geospatial.State.ERROR_RESOURCE_EXHAUSTED) {

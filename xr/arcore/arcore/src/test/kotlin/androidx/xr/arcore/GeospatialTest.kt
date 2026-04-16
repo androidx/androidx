@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
-
 package androidx.xr.arcore
 
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import androidx.activity.ComponentActivity
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException as RtAnchorResourcesExhaustedException
-import androidx.xr.arcore.runtime.Geospatial as RuntimeGeospatial
-import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
-import androidx.xr.arcore.testing.FakePerceptionManager
-import androidx.xr.arcore.testing.FakePerceptionRuntime
-import androidx.xr.arcore.testing.FakeRuntimeGeospatial
+import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.Session
@@ -36,120 +29,140 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.android.controller.ActivityController
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
+@Suppress("DEPRECATION")
 class GeospatialTest {
 
-    companion object {
-        private val ROTATION: Quaternion = Quaternion.Identity
-        private val TRANSLATION: Vector3 = Vector3(1f, 2f, 3f)
-        private val POSE: Pose = Pose(TRANSLATION, ROTATION)
-        private val GEOSPATIAL_POSE: GeospatialPose = GeospatialPose(1.0, 2.0, 3.0, ROTATION)
-        private const val HORIZONTAL_ACCURACY: Double = 1.0
-        private const val VERTICAL_ACCURACY: Double = 2.0
-        private const val ORIENTATION_YAW_ACCURACY: Double = 3.0
-        private const val LATITUDE: Double = 10.0
-        private const val LONGITUDE: Double = 20.0
-        private const val ALTITUDE: Double = 30.0
-        private const val ALTITUDE_ABOVE_SURFACE: Double = 5.0
-        private val EUS_QUATERNION: Quaternion = Quaternion.Identity
-    }
+    @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
 
-    private lateinit var xrResourcesManager: XrResourcesManager
-    private lateinit var runtimeGeospatial: FakeRuntimeGeospatial
+    private lateinit var activityController: ActivityController<ComponentActivity>
+    private lateinit var activity: ComponentActivity
+    private lateinit var testDispatcher: TestDispatcher
+    private lateinit var testScope: TestScope
     private lateinit var session: Session
-
-    private fun doBlocking(block: suspend CoroutineScope.() -> Unit) {
-        runBlocking(block = block)
-    }
 
     @Before
     fun setUp() {
-        xrResourcesManager = XrResourcesManager()
-        runtimeGeospatial = FakeRuntimeGeospatial(RuntimeGeospatial.State.NOT_RUNNING)
+        testDispatcher = StandardTestDispatcher()
+        testScope = TestScope(testDispatcher)
+        activityController = Robolectric.buildActivity(ComponentActivity::class.java)
+        activity = activityController.get()
+
+        shadowOf(activity.application).grantPermissions(ACCESS_FINE_LOCATION)
+
+        activityController.create().start().resume()
+
+        session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
+        session.configure(Config(geospatial = GeospatialMode.VPS_AND_GPS))
+
+        arCoreTestRule.geospatial.state = GeospatialState.NOT_RUNNING
     }
 
     @Test
-    fun getInstance_returnsGeospatial() {
-        createTestSessionAndRunTest() { assertThat(Geospatial.getInstance(session)).isNotNull() }
-    }
+    fun getInstance_returnsGeospatial() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
 
-    private fun createTestSessionAndRunTest(
-        coroutineDispatcher: CoroutineDispatcher = StandardTestDispatcher(),
-        testBody: () -> Unit,
-    ) {
-        ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
-            scenario.onActivity { activity ->
-                session =
-                    (Session.create(activity, coroutineDispatcher) as SessionCreateSuccess).session
-                xrResourcesManager.lifecycleManager = session.perceptionRuntime.lifecycleManager
-                session.configure(Config(geospatial = GeospatialMode.VPS_AND_GPS))
-
-                testBody()
-            }
+            assertThat(underTest).isNotNull()
         }
-    }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun state_defaultStateIsNotRunning() = runBlocking {
-        val runtimeGeospatial = FakeRuntimeGeospatial()
-        val underTest = Geospatial(runtimeGeospatial, xrResourcesManager)
+    fun getInstance_initialStateIsNotRunning() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
 
-        assertThat(underTest.state.value).isEqualTo(GeospatialState.NOT_RUNNING)
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun update_stateMatchesRuntimeGeospatial() = runBlocking {
-        val runtimeGeospatial = FakeRuntimeGeospatial(RuntimeGeospatial.State.NOT_RUNNING)
-        val underTest = Geospatial(runtimeGeospatial, xrResourcesManager)
-        check(underTest.state.value == GeospatialState.NOT_RUNNING)
-
-        // Update to Running state.
-        runtimeGeospatial.state = RuntimeGeospatial.State.RUNNING
-        underTest.update()
-
-        assertThat(underTest.state.value).isEqualTo(GeospatialState.RUNNING)
-
-        // Update to NotRunning state with error.
-        runtimeGeospatial.state = RuntimeGeospatial.State.ERROR_INTERNAL
-        underTest.update()
-
-        assertThat(underTest.state.value).isEqualTo(GeospatialState.ERROR_INTERNAL)
-    }
+            assertThat(underTest.state.value).isEqualTo(GeospatialState.NOT_RUNNING)
+        }
 
     @Test
-    fun createGeospatialPoseFromPose_success_returnsSuccessResult() = createTestSessionAndRunTest {
-        val underTest = Geospatial.getInstance(session)
-        getFakeRuntimeGeospatial().nextGeospatialPoseResult =
-            RuntimeGeospatial.GeospatialPoseResult(
-                GEOSPATIAL_POSE,
-                HORIZONTAL_ACCURACY,
-                VERTICAL_ACCURACY,
-                ORIENTATION_YAW_ACCURACY,
-            )
+    fun update_stateMatchesDeviceState_whenRunning() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            advanceUntilIdle()
 
-        val result = underTest.createGeospatialPoseFromPose(Pose(Vector3(), Quaternion()))
-        val successResult = result as CreateGeospatialPoseFromPoseSuccess
-        assertThat(successResult.pose).isEqualTo(GEOSPATIAL_POSE)
-        assertThat(successResult.horizontalAccuracy).isEqualTo(HORIZONTAL_ACCURACY)
-        assertThat(successResult.verticalAccuracy).isEqualTo(VERTICAL_ACCURACY)
-        assertThat(successResult.orientationYawAccuracy).isEqualTo(ORIENTATION_YAW_ACCURACY)
-    }
+            assertThat(underTest.state.value).isEqualTo(GeospatialState.RUNNING)
+        }
+
+    @Test
+    fun update_stateMatchesDeviceState_whenPaused() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.PAUSED
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value).isEqualTo(GeospatialState.PAUSED)
+        }
+
+    @Test
+    fun update_stateMatchesDeviceState_whenInternalError() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.ERROR_INTERNAL
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value).isEqualTo(GeospatialState.ERROR_INTERNAL)
+        }
+
+    @Test
+    fun update_stateMatchesDeviceState_whenNotAuthorized() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.ERROR_NOT_AUTHORIZED
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value).isEqualTo(GeospatialState.ERROR_NOT_AUTHORIZED)
+        }
+
+    @Test
+    fun update_stateMatchesDeviceState_whenResourcesExhausted() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.ERROR_RESOURCE_EXHAUSTED
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value).isEqualTo(GeospatialState.ERROR_RESOURCE_EXHAUSTED)
+        }
+
+    @Test
+    fun createGeospatialPoseFromPose_success_returnsSuccessResult() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            advanceUntilIdle()
+
+            val result = underTest.createGeospatialPoseFromPose(Pose(Vector3(), Quaternion()))
+            check(result is CreateGeospatialPoseFromPoseSuccess)
+
+            assertThat(result.pose).isEqualTo(arCoreTestRule.geospatial.expectedGeospatialPose)
+            assertThat(result.horizontalAccuracy)
+                .isEqualTo(arCoreTestRule.geospatial.expectedHorizontalAccuracy)
+            assertThat(result.verticalAccuracy)
+                .isEqualTo(arCoreTestRule.geospatial.expectedVerticalAccuracy)
+            assertThat(result.orientationYawAccuracy)
+                .isEqualTo(arCoreTestRule.geospatial.expectedOrientationYawAccuracy)
+        }
 
     @Test
     fun createGeospatialPoseFromPose_notTracking_returnsNotTrackingResult() =
-        createTestSessionAndRunTest {
+        runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            getFakeRuntimeGeospatial().nextException = GeospatialPoseNotTrackingException()
+            check(underTest.state.value == GeospatialState.NOT_RUNNING)
 
             val result = underTest.createGeospatialPoseFromPose(Pose(Vector3(), Quaternion()))
 
@@ -157,21 +170,23 @@ class GeospatialTest {
         }
 
     @Test
-    fun createPoseFromGeospatialPose_success_returnsSuccessResult() = createTestSessionAndRunTest {
-        val underTest = Geospatial.getInstance(session)
-        getFakeRuntimeGeospatial().nextPose = POSE
+    fun createPoseFromGeospatialPose_success_returnsSuccessResult() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            advanceUntilIdle()
 
-        val result = underTest.createPoseFromGeospatialPose(GeospatialPose())
-        val successResult = result as CreatePoseFromGeospatialPoseSuccess
+            val result = underTest.createPoseFromGeospatialPose(GeospatialPose())
+            check(result is CreatePoseFromGeospatialPoseSuccess)
 
-        assertThat(successResult.pose).isEqualTo(POSE)
-    }
+            assertThat(result.pose).isEqualTo(arCoreTestRule.geospatial.expectedPose)
+        }
 
     @Test
     fun createPoseFromGeospatialPose_notTracking_returnsNotTrackingResult() =
-        createTestSessionAndRunTest {
+        runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            getFakeRuntimeGeospatial().nextException = GeospatialPoseNotTrackingException()
+            check(underTest.state.value == GeospatialState.NOT_RUNNING)
 
             val result = underTest.createPoseFromGeospatialPose(GeospatialPose())
 
@@ -179,169 +194,274 @@ class GeospatialTest {
         }
 
     @Test
-    fun createAnchor_success_returnsSuccessResultWithAnchor() = createTestSessionAndRunTest {
-        val underTest = Geospatial(runtimeGeospatial, xrResourcesManager)
-        val fakePerceptionManager = getFakePerceptionManager()
-        val fakeAnchor = fakePerceptionManager.createAnchor(Pose.Identity)
-        runtimeGeospatial.nextAnchor = fakeAnchor
+    fun createAnchor_success_returnsSuccessResultWithAnchor() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatial.expectedAnchorPose = Pose()
+            advanceUntilIdle()
 
-        val result = underTest.createAnchor(LATITUDE, LONGITUDE, ALTITUDE, EUS_QUATERNION)
+            val latitude = 10.0
+            val longitude = 20.0
+            val altitude = 30.0
+            val eastUpSouthQuaternion: Quaternion = Quaternion.Identity
+            check(latitude in arCoreTestRule.geospatial.allowedAnchorLatitudeRange)
 
-        assertThat(result).isInstanceOf(AnchorCreateSuccess::class.java)
-        val successResult = result as AnchorCreateSuccess
-        assertThat(successResult.anchor.runtimeAnchor).isEqualTo(fakeAnchor)
-        assertThat((xrResourcesManager.updatables.firstOrNull() as Anchor).runtimeAnchor)
-            .isEqualTo(fakeAnchor)
-    }
+            val result =
+                underTest.createAnchor(latitude, longitude, altitude, eastUpSouthQuaternion)
+
+            assertThat(result).isInstanceOf(AnchorCreateSuccess::class.java)
+            val successResult = result as AnchorCreateSuccess
+            assertThat(successResult.anchor.state.value.pose).isEqualTo(Pose.Identity)
+        }
 
     @Test
     fun createAnchor_resourceExhausted_returnsResourcesExhaustedResult() =
-        createTestSessionAndRunTest {
+        runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            getFakeRuntimeGeospatial().nextException = RtAnchorResourcesExhaustedException()
+            arCoreTestRule.anchorResourceLimit = 6
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            advanceUntilIdle()
 
-            val result = underTest.createAnchor(LATITUDE, LONGITUDE, ALTITUDE, EUS_QUATERNION)
+            repeat(arCoreTestRule.anchorResourceLimit) {
+                underTest.createAnchor(0.0, 0.0, 0.0, Quaternion.Identity)
+            }
+
+            val result = underTest.createAnchor(0.0, 0.0, 0.0, Quaternion.Identity)
 
             assertThat(result).isInstanceOf(AnchorCreateResourcesExhausted::class.java)
         }
 
     @Test
     fun createAnchor_invalidLatitude_throwsIllegalArgumentException() =
-        createTestSessionAndRunTest {
+        runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            getFakeRuntimeGeospatial().nextException = IllegalArgumentException()
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            advanceUntilIdle()
+
+            val latitude = 99999.0
+            val longitude = 20.0
+            val altitude = 30.0
+            val eastUpSouthQuaternion: Quaternion = Quaternion.Identity
+
+            assertThat(latitude in arCoreTestRule.geospatial.allowedAnchorLatitudeRange).isFalse()
 
             assertFailsWith<IllegalArgumentException> {
-                underTest.createAnchor(90.0, LONGITUDE, ALTITUDE, EUS_QUATERNION)
+                underTest.createAnchor(latitude, longitude, altitude, eastUpSouthQuaternion)
             }
         }
 
     @Test
     fun createPoseFromGeospatialPose_withVpsDisabled_throwsIllegalStateException() {
-        val newConfig = Config(geospatial = GeospatialMode.DISABLED)
-        val fakePerceptionRuntime = FakePerceptionRuntime(FakePerceptionManager())
-        fakePerceptionRuntime.config = newConfig
-        xrResourcesManager.lifecycleManager = fakePerceptionRuntime.lifecycleManager
-        val underTest = Geospatial(runtimeGeospatial, xrResourcesManager)
-        val geospatialPose = GeospatialPose(1.0, 2.0, 3.0, Quaternion(0.1f, 0.2f, 0.3f, 0.4f))
+        val underTest = Geospatial.getInstance(session)
 
-        val exception =
-            assertFailsWith<IllegalStateException> {
-                underTest.createPoseFromGeospatialPose(geospatialPose)
-            }
-        assertThat(exception)
-            .hasMessageThat()
-            .isEqualTo("To use this function, Config.GeospatialMode must be set to VPS_AND_GPS.")
+        session.configure(Config(geospatial = GeospatialMode.DISABLED))
+
+        assertFailsWith<IllegalStateException> {
+            underTest.createPoseFromGeospatialPose(
+                GeospatialPose(0.0, 0.0, 0.0, Quaternion.Identity)
+            )
+        }
     }
 
     @Test
     fun createAnchorOnSurface_success_returnsSuccessResultWithAnchor() =
-        createTestSessionAndRunTest {
-            doBlocking {
-                val underTest = Geospatial(runtimeGeospatial, xrResourcesManager)
-                val fakePerceptionManager = getFakePerceptionManager()
-                val fakeAnchor = fakePerceptionManager.createAnchor(Pose.Identity)
-                runtimeGeospatial.nextAnchor = fakeAnchor
-
-                val result =
-                    underTest.createAnchorOnSurface(
-                        LATITUDE,
-                        LONGITUDE,
-                        ALTITUDE_ABOVE_SURFACE,
-                        EUS_QUATERNION,
-                        GeospatialSurface.TERRAIN,
-                    )
-
-                assertThat(result).isInstanceOf(AnchorCreateSuccess::class.java)
-                val successResult = result as AnchorCreateSuccess
-                assertThat(successResult.anchor.runtimeAnchor).isEqualTo(fakeAnchor)
-                assertThat((xrResourcesManager.updatables.firstOrNull() as Anchor).runtimeAnchor)
-                    .isEqualTo(fakeAnchor)
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.apply {
+                state = GeospatialState.RUNNING
+                expectedAnchorPose = Pose()
             }
+            advanceUntilIdle()
+
+            val latitude = 10.0
+            val longitude = 20.0
+            val altitudeAboveSurface = 30.0
+            val eastUpSouthQuaternion = Quaternion.Identity
+            check(latitude in arCoreTestRule.geospatial.allowedAnchorLatitudeRange)
+
+            val result =
+                underTest.createAnchorOnSurface(
+                    latitude,
+                    longitude,
+                    altitudeAboveSurface,
+                    eastUpSouthQuaternion,
+                    GeospatialSurface.TERRAIN,
+                )
+
+            assertThat(result).isInstanceOf(AnchorCreateSuccess::class.java)
+            val successResult = result as AnchorCreateSuccess
+            assertThat(successResult.anchor.state.value.pose).isEqualTo(Pose.Identity)
         }
 
     @Test
     fun createAnchorOnSurface_resourceExhausted_returnsResourcesExhaustedResult() =
-        createTestSessionAndRunTest {
-            doBlocking {
-                val underTest = Geospatial.getInstance(session)
-                getFakeRuntimeGeospatial().nextException = RtAnchorResourcesExhaustedException()
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.anchorResourceLimit = 6
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            advanceUntilIdle()
 
-                val result =
-                    underTest.createAnchorOnSurface(
-                        LATITUDE,
-                        LONGITUDE,
-                        ALTITUDE_ABOVE_SURFACE,
-                        EUS_QUATERNION,
-                        GeospatialSurface.TERRAIN,
-                    )
-
-                assertThat(result).isInstanceOf(AnchorCreateResourcesExhausted::class.java)
+            repeat(arCoreTestRule.anchorResourceLimit) {
+                underTest.createAnchorOnSurface(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Quaternion.Identity,
+                    GeospatialSurface.TERRAIN,
+                )
             }
+
+            val result =
+                underTest.createAnchorOnSurface(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Quaternion.Identity,
+                    GeospatialSurface.TERRAIN,
+                )
+
+            assertThat(result).isInstanceOf(AnchorCreateResourcesExhausted::class.java)
         }
 
     @Test
     fun createAnchorOnSurface_notAuthorized_throwsAnchorNotAuthorizedException() =
-        createTestSessionAndRunTest {
-            doBlocking {
-                val underTest = Geospatial.getInstance(session)
-                getFakeRuntimeGeospatial().nextException = AnchorNotAuthorizedException()
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.ERROR_NOT_AUTHORIZED
+            advanceUntilIdle()
 
-                assertFailsWith<AnchorNotAuthorizedException> {
-                    underTest.createAnchorOnSurface(
-                        LATITUDE,
-                        LONGITUDE,
-                        ALTITUDE_ABOVE_SURFACE,
-                        EUS_QUATERNION,
-                        GeospatialSurface.TERRAIN,
-                    )
-                }
+            assertFailsWith<AnchorNotAuthorizedException> {
+                underTest.createAnchorOnSurface(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Quaternion.Identity,
+                    GeospatialSurface.TERRAIN,
+                )
             }
         }
 
     @Test
-    fun createAnchorOnSurface_unsupportedLocation_returnsUnsupportedLocationResult() =
-        createTestSessionAndRunTest {
-            doBlocking {
-                val underTest = Geospatial.getInstance(session)
-                getFakeRuntimeGeospatial().nextException = IllegalArgumentException()
+    fun createAnchorOnSurface_unsupportedLocation_throwsIllegalArgumentException() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            advanceUntilIdle()
 
-                assertFailsWith<IllegalArgumentException> {
-                    underTest.createAnchorOnSurface(
-                        LATITUDE,
-                        LONGITUDE,
-                        ALTITUDE_ABOVE_SURFACE,
-                        EUS_QUATERNION,
-                        GeospatialSurface.TERRAIN,
-                    )
-                }
+            val latitude = 10.0
+            val longitude = 20.0
+            val altitudeAboveSurface = -30.0
+            val eastUpSouthQuaternion: Quaternion = Quaternion.Identity
+            check(latitude in arCoreTestRule.geospatial.allowedAnchorLatitudeRange)
+
+            assertFailsWith<IllegalArgumentException> {
+                underTest.createAnchorOnSurface(
+                    latitude,
+                    longitude,
+                    altitudeAboveSurface,
+                    eastUpSouthQuaternion,
+                    GeospatialSurface.TERRAIN,
+                )
             }
         }
 
     @Test
     fun createAnchorOnSurface_invalidLatitude_throwsIllegalArgumentException() =
-        createTestSessionAndRunTest {
-            doBlocking {
-                val underTest = Geospatial.getInstance(session)
-                getFakeRuntimeGeospatial().nextException = IllegalArgumentException()
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatial.expectedAnchorPose = Pose()
+            advanceUntilIdle()
 
-                assertFailsWith<IllegalArgumentException> {
-                    underTest.createAnchorOnSurface(
-                        90.0,
-                        LONGITUDE,
-                        ALTITUDE_ABOVE_SURFACE,
-                        EUS_QUATERNION,
-                        GeospatialSurface.TERRAIN,
-                    )
-                }
+            val latitude = 99999.0
+            val longitude = 20.0
+            val altitude = 30.0
+            val eastUpSouthQuaternion: Quaternion = Quaternion.Identity
+
+            assertThat(latitude in arCoreTestRule.geospatial.allowedAnchorLatitudeRange).isFalse()
+
+            assertFailsWith<IllegalArgumentException> {
+                underTest.createAnchorOnSurface(
+                    latitude,
+                    longitude,
+                    altitude,
+                    eastUpSouthQuaternion,
+                    GeospatialSurface.TERRAIN,
+                )
             }
         }
 
-    private fun getFakePerceptionManager(): FakePerceptionManager {
-        return session.perceptionRuntime.perceptionManager as FakePerceptionManager
-    }
+    @Test
+    fun checkVpsAvailability_vpsUnavailable_returnsVpsAvailabilityUnavailable() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatial.expectedVpsResult = VpsAvailabilityUnavailable()
+            advanceUntilIdle()
 
-    private fun getFakeRuntimeGeospatial(): FakeRuntimeGeospatial {
-        return getFakePerceptionManager().geospatial as FakeRuntimeGeospatial
-    }
+            val result = underTest.checkVpsAvailability(10.0, 20.0)
+            assertThat(result).isInstanceOf(VpsAvailabilityUnavailable::class.java)
+        }
+
+    @Test
+    fun checkVpsAvailability_vpsAvailable_returnsVpsAvailabilityAvailable() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatial.expectedVpsResult = VpsAvailabilityAvailable()
+            advanceUntilIdle()
+
+            val result = underTest.checkVpsAvailability(10.0, 20.0)
+
+            assertThat(result).isInstanceOf(VpsAvailabilityAvailable::class.java)
+        }
+
+    @Test
+    fun checkVpsAvailability_errorInternal_returnsVpsAvailabilityErrorInternal() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatial.expectedVpsResult = VpsAvailabilityErrorInternal()
+            advanceUntilIdle()
+
+            val result = underTest.checkVpsAvailability(10.0, 20.0)
+            assertThat(result).isInstanceOf(VpsAvailabilityErrorInternal::class.java)
+        }
+
+    @Test
+    fun checkVpsAvailability_networkError_returnsVpsAvailabilityNetworkError() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatial.expectedVpsResult = VpsAvailabilityNetworkError()
+            advanceUntilIdle()
+
+            val result = underTest.checkVpsAvailability(10.0, 20.0)
+            assertThat(result).isInstanceOf(VpsAvailabilityNetworkError::class.java)
+        }
+
+    @Test
+    fun checkVpsAvailability_notAuthorized_returnsVpsAvailabilityNotAuthorized() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatial.expectedVpsResult = VpsAvailabilityNotAuthorized()
+            advanceUntilIdle()
+
+            val result = underTest.checkVpsAvailability(10.0, 20.0)
+            assertThat(result).isInstanceOf(VpsAvailabilityNotAuthorized::class.java)
+        }
+
+    @Test
+    fun checkVpsAvailability_resourcesExhausted_returnsVpsAvailabilityResourceExhausted() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            arCoreTestRule.geospatial.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatial.expectedVpsResult = VpsAvailabilityResourceExhausted()
+            advanceUntilIdle()
+
+            val result = underTest.checkVpsAvailability(10.0, 20.0)
+            assertThat(result).isInstanceOf(VpsAvailabilityResourceExhausted::class.java)
+        }
 }
