@@ -31,8 +31,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
@@ -54,7 +52,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -334,12 +331,7 @@ class IndirectPointerEventNavigationSystemTests {
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
@@ -502,12 +494,7 @@ class IndirectPointerEventNavigationSystemTests {
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
@@ -673,12 +660,7 @@ class IndirectPointerEventNavigationSystemTests {
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
@@ -844,12 +826,7 @@ class IndirectPointerEventNavigationSystemTests {
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
@@ -2014,12 +1991,7 @@ class IndirectPointerEventNavigationSystemTests {
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
@@ -2182,12 +2154,7 @@ class IndirectPointerEventNavigationSystemTests {
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
@@ -2354,12 +2321,7 @@ class IndirectPointerEventNavigationSystemTests {
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
@@ -2525,12 +2487,7 @@ class IndirectPointerEventNavigationSystemTests {
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
@@ -5045,18 +5002,8 @@ class IndirectPointerEventNavigationSystemTests {
             // Because a ui element with indirect pointer was focused, indirect pointer callbacks
             // WILL receive cancel events.
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-            }
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
+            assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
@@ -5239,20 +5186,9 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(receivedEvent).isEqualTo(null)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-            }
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(onIndirectPointerCancelForParent2).isTrue()
-                assertThat(onIndirectPointerCancelForParent2Child1).isTrue()
-            } else {
-                assertThat(onIndirectPointerCancelForParent2).isFalse()
-                assertThat(onIndirectPointerCancelForParent2Child1).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
+            assertThat(onIndirectPointerCancelForParent2).isTrue()
+            assertThat(onIndirectPointerCancelForParent2Child1).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -5341,12 +5277,7 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(receivedEvent).isEqualTo(null)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -5436,12 +5367,7 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(receivedEvent).isEqualTo(null)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -5532,14 +5458,8 @@ class IndirectPointerEventNavigationSystemTests {
             // For situations where the focus wraps around (start of the list going to end of the
             // list or vice versa), an indirect cancel will be sent to existing focused indirect
             // nodes.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-                assertThat(indirectPointerCancelForBox1).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-                assertThat(indirectPointerCancelForBox1).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
+            assertThat(indirectPointerCancelForBox1).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -5704,12 +5624,7 @@ class IndirectPointerEventNavigationSystemTests {
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
             assertThat(onIndirectPointerCancelForParent2).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(onIndirectPointerCancelForParent2Child1).isTrue()
-            } else {
-                assertThat(onIndirectPointerCancelForParent2Child1).isFalse()
-            }
+            assertThat(onIndirectPointerCancelForParent2Child1).isTrue()
             assertThat(onIndirectPointerCancelForParent2Child2).isFalse()
             assertThat(onIndirectPointerCancelForParent3).isFalse()
             assertThat(onIndirectPointerCancelForParent3Child1).isFalse()
@@ -5730,14 +5645,8 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(receivedEvent).isEqualTo(null)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(onIndirectPointerCancelForParent2).isTrue()
-                assertThat(onIndirectPointerCancelForParent2Child2).isTrue()
-            } else {
-                assertThat(onIndirectPointerCancelForParent2).isFalse()
-                assertThat(onIndirectPointerCancelForParent2Child2).isFalse()
-            }
+            assertThat(onIndirectPointerCancelForParent2).isTrue()
+            assertThat(onIndirectPointerCancelForParent2Child2).isTrue()
             assertThat(onIndirectPointerCancelForParent2Child1).isFalse()
             assertThat(onIndirectPointerCancelForParent3).isFalse()
             assertThat(onIndirectPointerCancelForParent3Child1).isFalse()
@@ -5761,14 +5670,8 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(onIndirectPointerCancelForParent2).isFalse()
             assertThat(onIndirectPointerCancelForParent2Child1).isFalse()
             assertThat(onIndirectPointerCancelForParent2Child2).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(onIndirectPointerCancelForParent3).isTrue()
-                assertThat(onIndirectPointerCancelForParent3Child1).isTrue()
-            } else {
-                assertThat(onIndirectPointerCancelForParent3).isFalse()
-                assertThat(onIndirectPointerCancelForParent3Child1).isFalse()
-            }
+            assertThat(onIndirectPointerCancelForParent3).isTrue()
+            assertThat(onIndirectPointerCancelForParent3Child1).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -5935,16 +5838,9 @@ class IndirectPointerEventNavigationSystemTests {
             // For situations where the focus wraps around (start of the list going to end of the
             // list or vice versa), an indirect cancel will be sent to existing focused indirect
             // nodes.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-                assertThat(onIndirectPointerCancelForParent1).isTrue()
-                assertThat(onIndirectPointerCancelForParent1Child1).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-                assertThat(onIndirectPointerCancelForParent1).isFalse()
-                assertThat(onIndirectPointerCancelForParent1Child1).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
+            assertThat(onIndirectPointerCancelForParent1).isTrue()
+            assertThat(onIndirectPointerCancelForParent1Child1).isTrue()
             assertThat(onIndirectPointerCancelForParent3).isFalse()
             assertThat(onIndirectPointerCancelForParent3Child2).isFalse()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -5964,16 +5860,9 @@ class IndirectPointerEventNavigationSystemTests {
             // event for any losing focus.
             assertThat(onIndirectPointerCancelForParent1).isFalse()
             assertThat(onIndirectPointerCancelForParent1Child1).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-                assertThat(onIndirectPointerCancelForParent3).isTrue()
-                assertThat(onIndirectPointerCancelForParent3Child2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-                assertThat(onIndirectPointerCancelForParent3).isFalse()
-                assertThat(onIndirectPointerCancelForParent3Child2).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
+            assertThat(onIndirectPointerCancelForParent3).isTrue()
+            assertThat(onIndirectPointerCancelForParent3Child2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
@@ -5991,12 +5880,7 @@ class IndirectPointerEventNavigationSystemTests {
             // event for any losing focus.
             assertThat(indirectPointerCancelForTopContainer).isFalse()
             assertThat(onIndirectPointerCancelForParent1).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(onIndirectPointerCancelForParent1Child1).isTrue()
-            } else {
-                assertThat(onIndirectPointerCancelForParent1Child1).isFalse()
-            }
+            assertThat(onIndirectPointerCancelForParent1Child1).isTrue()
             assertThat(onIndirectPointerCancelForParent3).isFalse()
             assertThat(onIndirectPointerCancelForParent3Child2).isFalse()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -6111,12 +5995,7 @@ class IndirectPointerEventNavigationSystemTests {
 
         rule.runOnIdle {
             assertThat(receivedEvent).isEqualTo(null)
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -6268,12 +6147,7 @@ class IndirectPointerEventNavigationSystemTests {
 
         rule.runOnIdle {
             assertThat(receivedEvent).isEqualTo(null)
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -6439,12 +6313,7 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelForBox3).isFalse()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
@@ -6462,12 +6331,7 @@ class IndirectPointerEventNavigationSystemTests {
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
             assertThat(indirectPointerCancelForBox2).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox3).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox3).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox3).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -6568,9 +6432,7 @@ class IndirectPointerEventNavigationSystemTests {
     @Test
     fun simpleUI_detachAllUINodesWithSomeFocused_triggersIndirectCancelsInFocusPath() {
         // This test will only run if the flag is true. Otherwise, it will be skipped.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isOptimizedFocusEventDispatchEnabled)
-        var indirectPointerCancelForTopContainer = false
+        @OptIn(ExperimentalComposeUiApi::class) var indirectPointerCancelForTopContainer = false
         var indirectPointerCancelForBox2 = false
 
         var showContent by mutableStateOf(true)
@@ -6754,9 +6616,7 @@ class IndirectPointerEventNavigationSystemTests {
     @Test
     fun simpleUI_detachOneFocusedUiNode_triggersIndirectCancelsInFocusPath() {
         // This test will only run if the flag is true. Otherwise, it will be skipped.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isOptimizedFocusEventDispatchEnabled)
-        var indirectPointerCancelForTopContainer = false
+        @OptIn(ExperimentalComposeUiApi::class) var indirectPointerCancelForTopContainer = false
         var indirectPointerCancelForBox1 = false
 
         val showBox1Content = mutableStateOf(true)
@@ -6849,9 +6709,7 @@ class IndirectPointerEventNavigationSystemTests {
     @Test
     fun simpleUI_removeIndirectModifierFocusedUiNode_triggersIndirectCancelsInFocusPath() {
         // This test will only run if the flag is true. Otherwise, it will be skipped.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isOptimizedFocusEventDispatchEnabled)
-        var indirectPointerCancelForBox1 = false
+        @OptIn(ExperimentalComposeUiApi::class) var indirectPointerCancelForBox1 = false
 
         var enableBox1IndirectModifier by mutableStateOf(true)
 
@@ -7125,9 +6983,7 @@ class IndirectPointerEventNavigationSystemTests {
     @Test
     fun complexUI_detachAllUIWithSomeFocused_triggersIndirectCancelsInFocusPath() {
         // This test will only run if the flag is true. Otherwise, it will be skipped.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isOptimizedFocusEventDispatchEnabled)
-        var indirectPointerCancelForTopContainer = false
+        @OptIn(ExperimentalComposeUiApi::class) var indirectPointerCancelForTopContainer = false
         var onIndirectPointerCancelForParent1 = false
         var onIndirectPointerCancelForParent1Child2 = false
 
@@ -7484,9 +7340,7 @@ class IndirectPointerEventNavigationSystemTests {
     @Test
     fun complexUI_detachChildFocusedUiNode_triggersIndirectCancelsInFocusPath() {
         // This test will only run if the flag is true. Otherwise, it will be skipped.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isOptimizedFocusEventDispatchEnabled)
-        var indirectPointerCancelForTopContainer = false
+        @OptIn(ExperimentalComposeUiApi::class) var indirectPointerCancelForTopContainer = false
         var onIndirectPointerCancelForParent2 = false
         var onIndirectPointerCancelForParent2Child2 = false
 
@@ -7835,9 +7689,7 @@ class IndirectPointerEventNavigationSystemTests {
     @Test
     fun complexUI_detachParentUiNodeWithFocusedChild_triggersIndirectCancelsInFocusPath() {
         // This test will only run if the flag is true. Otherwise, it will be skipped.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isOptimizedFocusEventDispatchEnabled)
-        var indirectPointerCancelForTopContainer = false
+        @OptIn(ExperimentalComposeUiApi::class) var indirectPointerCancelForTopContainer = false
         var onIndirectPointerCancelForParent2 = false
         var onIndirectPointerCancelForParent2Child2 = false
 
@@ -8016,9 +7868,7 @@ class IndirectPointerEventNavigationSystemTests {
     @Test
     fun simpleUI_requestFocusAndDetachAllUI_triggersIndirectCancelsInFocusPath() {
         // This test will only run if the flag is true. Otherwise, it will be skipped.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isOptimizedFocusEventDispatchEnabled)
-        var indirectPointerCancelForTopContainer = false
+        @OptIn(ExperimentalComposeUiApi::class) var indirectPointerCancelForTopContainer = false
         var indirectPointerCancelForBox2 = false
 
         var showContent by mutableStateOf(true)
@@ -8116,9 +7966,7 @@ class IndirectPointerEventNavigationSystemTests {
     @Test
     fun complexUI_requestFocusAndDetachAllUI_triggersIndirectCancelsInFocusPath() {
         // This test will only run if the flag is true. Otherwise, it will be skipped.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isOptimizedFocusEventDispatchEnabled)
-        var indirectPointerCancelForTopContainer = false
+        @OptIn(ExperimentalComposeUiApi::class) var indirectPointerCancelForTopContainer = false
         var onIndirectPointerCancelForParent2 = false
         var onIndirectPointerCancelForParent2Child1 = false
 

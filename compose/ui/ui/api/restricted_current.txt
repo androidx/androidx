@@ -155,7 +155,6 @@ package androidx.compose.ui {
     property public boolean isFocusRestorationEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isMediaQueryIntegrationEnabled;
-    property public boolean isOptimizedFocusEventDispatchEnabled;
     property public boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     property public boolean isViewFocusFixEnabled;
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
@@ -164,7 +163,6 @@ package androidx.compose.ui {
     field public static boolean isFocusRestorationEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isMediaQueryIntegrationEnabled;
-    field public static boolean isOptimizedFocusEventDispatchEnabled;
     field public static boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     field public static boolean isViewFocusFixEnabled;
   }
