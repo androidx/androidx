@@ -32,12 +32,13 @@ enum class ApiType {
 }
 
 /**
- * Returns the API file containing the public API that this library promises to support This is API
- * file that checkApiRelease validates against
+ * Returns the API file containing the public API that this library promises to support.
+ *
+ * This is the API file that checkApiRelease validates against.
  *
  * @return the API file
  */
-fun Project.getRequiredCompatibilityApiFile(): File? {
+private fun Project.getRequiredCompatibilityApiFile(): File? {
     return getRequiredCompatibilityApiFileFromDir(
         project.getApiFileDirectory(),
         project.version(),
@@ -46,12 +47,34 @@ fun Project.getRequiredCompatibilityApiFile(): File? {
     )
 }
 
-/*
- * Same as getRequiredCompatibilityApiFile but also contains a restricted API file
+/**
+ * Returns the directory for the previously released multiplatform API which is used for
+ * compatibility checks.
+ */
+private fun Project.getRequiredCompatibilityMultiplatformApiDir(): File? {
+    return getRequiredCompatibilityApiFileFromDir(
+        getApiFileDirectory(),
+        version(),
+        enforceVersionContinuity = true,
+    ) { path ->
+        // Return a version number for multiplatform API directories.
+        val versionString = path.substringAfter("multiplatform-", missingDelimiterValue = "")
+        Version.parseOrNull(versionString)
+    }
+}
+
+/**
+ * The [ApiLocation] for the previously released API surface which is used for compatibility checks.
  */
 fun Project.getRequiredCompatibilityApiLocation(): ApiLocation? {
-    val publicFile = project.getRequiredCompatibilityApiFile() ?: return null
-    return ApiLocation.fromPublicApiFile(publicFile)
+    // If there is a public API file, use that version.
+    return project.getRequiredCompatibilityApiFile()?.let { publicFile ->
+        ApiLocation.fromPublicApiFile(publicFile)
+    }
+        // If there is no public API file, check for a multiplatform API dir.
+        ?: project.getRequiredCompatibilityMultiplatformApiDir()?.let { multiplatformDir ->
+            ApiLocation.fromMultiplatformApiDirectory(multiplatformDir)
+        }
 }
 
 /**
@@ -84,15 +107,41 @@ fun isValidArtifactVersion(version: Version): Boolean {
 }
 
 /**
- * Returns the api file that version <version> is required to be compatible with. If apiType is
- * RESOURCEAPI, it will return the resource api file and if it is CLASSAPI, it will return the
- * regular api file.
+ * Returns the api file from [apiDir] that version [apiVersion] is required to be compatible with.
+ * If [apiType] is [ApiType.RESOURCEAPI], it will return the resource api file and if it is
+ * [ApiType.CLASSAPI], it will return the regular api file.
  */
 fun getRequiredCompatibilityApiFileFromDir(
     apiDir: File,
     apiVersion: Version,
     apiType: ApiType,
     enforceVersionContinuity: Boolean = true,
+): File? {
+    return getRequiredCompatibilityApiFileFromDir(apiDir, apiVersion, enforceVersionContinuity) {
+        // Return a version number for either RESOURCEAPI or CLASSAPI files depending on apiType.
+        path ->
+        if (
+            (apiType == ApiType.RESOURCEAPI && isResourceApiFilename(path)) ||
+                (apiType == ApiType.CLASSAPI && !isResourceApiFilename(path))
+        ) {
+            Version.parseFilenameOrNull(path)
+        } else {
+            null
+        }
+    }
+}
+
+/**
+ * Returns the API from [apiDir] that [apiVersion] is required to be compatible with, using
+ * [pathToVersion] to determine the API version of the files in [apiDir].
+ *
+ * If [enforceVersionContinuity] is true, this checks that no API versions were skipped.
+ */
+private fun getRequiredCompatibilityApiFileFromDir(
+    apiDir: File,
+    apiVersion: Version,
+    enforceVersionContinuity: Boolean,
+    pathToVersion: (String) -> Version?,
 ): File? {
     if (!apiDir.exists()) {
         return null
@@ -101,16 +150,8 @@ fun getRequiredCompatibilityApiFileFromDir(
     val stream = Files.newDirectoryStream(apiDir.toPath())
     val versions =
         stream.mapNotNull { path ->
-            val pathName = path.name
-            if (
-                (apiType == ApiType.RESOURCEAPI && isResourceApiFilename(pathName)) ||
-                    (apiType == ApiType.CLASSAPI && !isResourceApiFilename(pathName))
-            ) {
-                val pathVersion = Version.parseFilenameOrNull(pathName)
-                if (pathVersion == null) return@mapNotNull null
-                return@mapNotNull pathVersion to path
-            }
-            return@mapNotNull null
+            val version = pathToVersion(path.name) ?: return@mapNotNull null
+            version to path
         }
     stream.close()
 

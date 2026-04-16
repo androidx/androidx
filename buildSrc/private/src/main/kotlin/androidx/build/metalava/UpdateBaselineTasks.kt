@@ -87,8 +87,6 @@ internal abstract class IgnoreApiChangesTask @Inject constructor(workerExecutor:
 
     @TaskAction
     fun exec() {
-        check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
-
         val freezeApis = shouldFreezeApis(referenceApi.get().version(), version.get())
         updateBaseline(restricted = false, freezeApis)
         if (restrictedApisExist()) {
