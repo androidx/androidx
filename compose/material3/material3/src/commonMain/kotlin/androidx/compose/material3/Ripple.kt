@@ -813,7 +813,7 @@ private class DelegatingThemeAwareRippleNode(
                                         rippleThemeConfiguration.focus.innerStrokeWidth,
                                     innerStrokeColor = calculateInnerStrokeColor,
                                     focusingAnimationSpec = motionScheme.fastSpatialSpec(),
-                                    unfocusingAnimationSpec = motionScheme.fastSpatialSpec(),
+                                    unfocusingAnimationSpec = motionScheme.fastEffectsSpec(),
                                 )
                             else -> error("Unknown focus ripple theme configuration")
                         }
