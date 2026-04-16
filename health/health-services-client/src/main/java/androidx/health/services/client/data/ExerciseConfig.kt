@@ -91,9 +91,17 @@ constructor(
                 "ExerciseConfig. "
         }
 
-        if (exerciseType == ExerciseType.SWIMMING_POOL) {
+        // Distance for swimming pools can only be provided if the pool length is specified. Note
+        // that requesting no dataTypes implicitly requests all datatypes, so enforce on that as
+        // well.
+        if (
+            exerciseType == ExerciseType.SWIMMING_POOL &&
+                (dataTypes.isEmpty() ||
+                    dataTypes.contains(DataType.DISTANCE) ||
+                    dataTypes.contains(DataType.DISTANCE_TOTAL))
+        ) {
             require(swimmingPoolLengthMeters != 0.0f) {
-                "If exercise type is SWIMMING_POOL, " +
+                "If exercise type is SWIMMING_POOL and DISTANCE is requested, " +
                     "then swimming pool length must also be specified"
             }
         }
