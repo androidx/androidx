@@ -16,13 +16,10 @@
 
 package androidx.camera.extensions;
 
-import android.hardware.camera2.CameraCharacteristics;
-
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Identifier;
-import androidx.camera.extensions.internal.ExtensionsUtils;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.core.util.Preconditions;
 
@@ -30,7 +27,6 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A filter that filters camera based on extender implementation. If the implementation is
@@ -40,7 +36,7 @@ final class ExtensionCameraFilter implements CameraFilter {
     private final Identifier mId;
     private final VendorExtender mVendorExtender;
 
-    ExtensionCameraFilter(@NonNull String filterId, @NonNull VendorExtender vendorExtender)  {
+    ExtensionCameraFilter(@NonNull String filterId, @NonNull VendorExtender vendorExtender) {
         mId = Identifier.create(filterId);
         mVendorExtender = vendorExtender;
     }
@@ -56,12 +52,7 @@ final class ExtensionCameraFilter implements CameraFilter {
         for (CameraInfo cameraInfo : cameraInfos) {
             Preconditions.checkArgument(cameraInfo instanceof CameraInfoInternal,
                     "The camera info doesn't contain internal implementation.");
-            CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) cameraInfo;
-            String cameraId = cameraInfoInternal.getCameraId();
-            Map<String, CameraCharacteristics> cameraCharacteristicsMap =
-                    ExtensionsUtils.getCameraCharacteristicsMap(cameraInfoInternal);
-            if (mVendorExtender
-                    .isExtensionAvailable(cameraId, cameraCharacteristicsMap)) {
+            if (mVendorExtender.isExtensionAvailable(cameraInfo)) {
                 result.add(cameraInfo);
             }
         }

@@ -18,16 +18,11 @@ package androidx.camera.extensions
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
-import android.util.Range
-import android.util.Size
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.core.impl.SessionProcessor
-import androidx.camera.extensions.internal.ExtensionsUtils
-import androidx.camera.extensions.internal.VendorExtender
 import androidx.camera.extensions.internal.sessionprocessor.Camera2ExtensionsSessionProcessor
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -40,7 +35,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
-import java.util.Collections
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -204,38 +198,6 @@ class ExtensionsManagerTest(
     }
 
     @Test
-    fun getEstimatedCaptureLatencyRange_returnValueFromExtender(): Unit = runBlocking {
-        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
-
-        assumeTrue(
-            extensionsManager.extensionsAvailability ==
-                ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
-        )
-
-        val estimatedCaptureLatency = Range(100L, 1000L)
-
-        val fakeVendorExtender =
-            object : VendorExtender {
-                override fun isExtensionAvailable(
-                    cameraId: String,
-                    characteristicsMap: MutableMap<String, CameraCharacteristics>,
-                ): Boolean {
-                    return true
-                }
-
-                override fun getEstimatedCaptureLatencyRange(size: Size?): Range<Long> {
-                    return estimatedCaptureLatency
-                }
-            }
-        extensionsManager.setVendorExtenderFactory { _ -> fakeVendorExtender }
-
-        assertThat(
-                extensionsManager.getEstimatedCaptureLatencyRange(baseCameraSelector, extensionMode)
-            )
-            .isEqualTo(estimatedCaptureLatency)
-    }
-
-    @Test
     fun getEstimatedCaptureLatencyRangeReturnsNull_whenNoCameraCanBeFound() {
         checkExtensionAvailabilityAndInit()
 
@@ -332,127 +294,11 @@ class ExtensionsManagerTest(
     }
 
     @Test
-    fun isImageAnalysisSupportedReturnsFalse_whenHasNoAnalysisSizes(): Unit = runBlocking {
-        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
-
-        val fakeVendorExtender =
-            object : VendorExtender {
-                override fun isExtensionAvailable(
-                    cameraId: String,
-                    characteristicsMap: MutableMap<String, CameraCharacteristics>,
-                ): Boolean {
-                    return true
-                }
-
-                override fun getSupportedYuvAnalysisResolutions(): Array<Size> {
-                    return emptyArray()
-                }
-            }
-        extensionsManager.setVendorExtenderFactory { _ -> fakeVendorExtender }
-
-        assumeTrue(
-            extensionsManager.extensionsAvailability ==
-                ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
-        )
-
-        assertThat(extensionsManager.isImageAnalysisSupported(baseCameraSelector, extensionMode))
-            .isFalse()
-    }
-
-    @Test
-    fun isImageAnalysisSupportedReturnsTrue_whenHasAnalysisSizes(): Unit = runBlocking {
-        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
-
-        val fakeVendorExtender =
-            object : VendorExtender {
-                override fun isExtensionAvailable(
-                    cameraId: String,
-                    characteristicsMap: MutableMap<String, CameraCharacteristics>,
-                ): Boolean {
-                    return true
-                }
-
-                override fun getSupportedYuvAnalysisResolutions(): Array<Size> {
-                    return arrayOf(Size(1920, 1080))
-                }
-            }
-        extensionsManager.setVendorExtenderFactory { _ -> fakeVendorExtender }
-
-        assumeTrue(
-            extensionsManager.extensionsAvailability ==
-                ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
-        )
-
-        assertThat(extensionsManager.isImageAnalysisSupported(baseCameraSelector, extensionMode))
-            .isTrue()
-    }
-
-    @Test
-    fun isImageAnalysisSupportedIsFalse_whenNoCameraCanBeFound() {
+    fun isImageAnalysisSupportedAlwaysReturnsFalse() {
         checkExtensionAvailabilityAndInit()
-        val emptyCameraSelector =
-            CameraSelector.Builder().addCameraFilter { _ -> ArrayList<CameraInfo>() }.build()
 
-        assertThat(extensionsManager.isImageAnalysisSupported(emptyCameraSelector, extensionMode))
+        assertThat(extensionsManager.isImageAnalysisSupported(baseCameraSelector, extensionMode))
             .isFalse()
-    }
-
-    @Test
-    fun postviewSupportedIsSetCorrectlyOnCameraConfig() = runBlocking {
-        // 1. Arrange
-        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
-        val fakeVendorExtender =
-            object : VendorExtender {
-                override fun isExtensionAvailable(
-                    cameraId: String,
-                    characteristicsMap: MutableMap<String, CameraCharacteristics>,
-                ): Boolean {
-                    return true
-                }
-
-                override fun isPostviewAvailable(): Boolean {
-                    return true
-                }
-            }
-        extensionsManager.setVendorExtenderFactory { _ -> fakeVendorExtender }
-
-        // 2. Act
-        val camera =
-            withContext(Dispatchers.Main) {
-                cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
-            }
-
-        // 3. Assert
-        assertThat(camera.extendedConfig.isPostviewSupported).isTrue()
-    }
-
-    @Test
-    fun captureProcessProgressSupportedIsSetCorrectlyOnCameraConfig() = runBlocking {
-        // 1. Arrange
-        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
-        val fakeVendorExtender =
-            object : VendorExtender {
-                override fun isExtensionAvailable(
-                    cameraId: String,
-                    characteristicsMap: MutableMap<String, CameraCharacteristics>,
-                ): Boolean {
-                    return true
-                }
-
-                override fun isCaptureProcessProgressAvailable(): Boolean {
-                    return true
-                }
-            }
-        extensionsManager.setVendorExtenderFactory { _ -> fakeVendorExtender }
-
-        // 2. Act
-        val camera =
-            withContext(Dispatchers.Main) {
-                cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
-            }
-
-        // 3. Assert
-        assertThat(camera.extendedConfig.isCaptureProcessProgressSupported).isTrue()
     }
 
     @Test
@@ -509,43 +355,6 @@ class ExtensionsManagerTest(
                     AdapterCameraInfo.CAMERA_OPERATION_EXTENSION_STRENGTH
                 )
             )
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 31)
-    fun returnsCorrectCurrentExtensionTypeAvailabilityFromCameraExtensionsInfo() = runBlocking {
-        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
-
-        // Inject fake VendorExtenderFactory to provide custom VendorExtender
-        extensionsManager.setVendorExtenderFactory { _ ->
-            object : VendorExtender {
-                override fun isExtensionAvailable(
-                    cameraId: String,
-                    characteristicsMap: MutableMap<String, CameraCharacteristics>,
-                ): Boolean {
-                    return true
-                }
-
-                override fun isCurrentExtensionModeAvailable(): Boolean {
-                    return true
-                }
-
-                override fun createSessionProcessor(context: Context): SessionProcessor? {
-                    return Camera2ExtensionsSessionProcessor(
-                        Collections.emptyList(),
-                        extensionMode,
-                        this,
-                    )
-                }
-            }
-        }
-
-        val camera =
-            withContext(Dispatchers.Main) {
-                cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
-            }
-        val cameraExtensionsInfo = extensionsManager.getCameraExtensionsInfo(camera.cameraInfo)
-        assertThat(cameraExtensionsInfo.isCurrentExtensionModeAvailable).isTrue()
     }
 
     @Test
@@ -629,9 +438,6 @@ class ExtensionsManagerTest(
         var vendorExtender = ExtensionsTestUtil.createVendorExtender(context, extensionMode)
         val cameraId = (cameraInfo as CameraInfoInternal).cameraId
 
-        return vendorExtender.isExtensionAvailable(
-            cameraId,
-            ExtensionsUtils.getCameraCharacteristicsMap(cameraInfo),
-        )
+        return vendorExtender.isExtensionAvailable(cameraInfo)
     }
 }

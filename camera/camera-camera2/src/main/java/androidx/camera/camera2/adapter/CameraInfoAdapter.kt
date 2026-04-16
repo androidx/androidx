@@ -24,6 +24,7 @@ import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.GuardedBy
 import androidx.annotation.OptIn
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.compat.DynamicRangeProfilesCompat
@@ -67,6 +68,7 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.UseCase
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
+import androidx.camera.core.impl.CameraExtensionCapabilities
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.DynamicRanges
 import androidx.camera.core.impl.EncoderProfilesProvider
@@ -98,6 +100,11 @@ constructor(
     private val intrinsicZoomCalculator: IntrinsicZoomCalculator,
     private val streamSpecsCalculator: StreamSpecsCalculator,
 ) : CameraInfoInternal, UnsafeWrapper {
+    private val lock = Any()
+
+    @GuardedBy("lock")
+    private val extensionCapabilitiesCache = mutableMapOf<Int, CameraExtensionCapabilities>()
+
     init {
         DeviceInfoLogger.logDeviceInfo(cameraProperties)
     }
@@ -384,6 +391,21 @@ constructor(
     override fun getAvailableCapabilities(): Set<Int> {
         return cameraProperties.metadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]
             ?.toSet() ?: emptySet()
+    }
+
+    override fun getSupportedExtensions(): Set<Int> = cameraProperties.metadata.supportedExtensions
+
+    override fun getCameraExtensionCapabilities(extensionMode: Int): CameraExtensionCapabilities? {
+        if (Build.VERSION.SDK_INT < 31 || !supportedExtensions.contains(extensionMode)) {
+            return null
+        }
+        synchronized(lock) {
+            return extensionCapabilitiesCache.getOrPut(extensionMode) {
+                CameraExtensionCapabilitiesAdapter(
+                    cameraProperties.metadata.awaitExtensionMetadata(extensionMode)
+                )
+            }
+        }
     }
 
     public companion object {

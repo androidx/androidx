@@ -44,16 +44,10 @@ public interface VendorExtender {
      *
      * <p>isExtensionAvailable is the only method that can be called ahead of init().
      *
-     * @param cameraId           The camera2 id string of the camera.
-     * @param characteristicsMap A map consisting of the camera ids and the
-     *                           {@link CameraCharacteristics}s. For every camera, the map
-     *                           contains at least the CameraCharacteristics for the camera id.
-     *                           If the camera is logical camera, it will also contain associated
-     *                           physical camera ids and their CameraCharacteristics.
+     * @param cameraInfo The {@link CameraInfo} of the camera.
      * @return true if the extension is supported, otherwise false
      */
-    default boolean isExtensionAvailable(@NonNull String cameraId,
-            @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
+    default boolean isExtensionAvailable(@NonNull CameraInfo cameraInfo) {
         return false;
     }
 
@@ -65,11 +59,11 @@ public interface VendorExtender {
     }
 
     /**
-     * Gets the estimated latency range of image capture.
+     * Gets the estimated latency range of image capture in milliseconds.
      *
      * <p>It must be called after init() is called.
      */
-    default @Nullable Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size size) {
+    default @Nullable Range<Long> getEstimatedCaptureLatencyRangeMillis(@Nullable Size size) {
         return null;
     }
 

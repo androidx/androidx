@@ -405,4 +405,22 @@ public interface CameraInfoInternal extends CameraInfo {
     default boolean isExternalCamera() {
         return getLensFacing() == CameraSelector.LENS_FACING_EXTERNAL;
     }
+
+    /**
+     * Returns the supported extension modes for this camera.
+     */
+    default @NonNull Set<Integer> getSupportedExtensions() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Returns the camera extension capabilities for the specified extension mode.
+     *
+     * @param extensionMode the extension mode
+     * @return the camera extension capabilities, or null if the extension mode is not supported
+     */
+    default @Nullable CameraExtensionCapabilities getCameraExtensionCapabilities(
+            int extensionMode) {
+        return null;
+    }
 }
