@@ -44,7 +44,7 @@ package androidx.wear.compose.material3
  * paths being completely removed from the artifact, which can often have nontrivial positive
  * performance impact.
  *
- *      -assumevalues class androidx.wear.compose.foundation.WearComposeMaterial3Flags {
+ *      -assumevalues class androidx.wear.compose.material3.WearComposeMaterial3Flags {
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
