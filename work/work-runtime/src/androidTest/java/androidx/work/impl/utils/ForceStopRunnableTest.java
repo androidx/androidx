@@ -23,11 +23,13 @@ import static androidx.work.impl.utils.ForceStopRunnable.MAX_ATTEMPTS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -236,5 +238,18 @@ public class ForceStopRunnableTest {
         doReturn(false).when(runnable).multiProcessChecks();
         runnable.run();
         verify(mWorkManager).onForceStopRunnableCompleted();
+    }
+
+    @Test
+    public void test_retriesForGenericSqliteExceptions() {
+        ForceStopRunnable runnable = spy(mRunnable);
+        doNothing().when(runnable).sleep(anyLong());
+        doReturn(true).when(runnable).multiProcessChecks();
+        doThrow(new SQLiteException("no such table: SystemIdInfo"))
+                .when(runnable).forceStopRunnable();
+
+        assertThrows(SQLiteException.class, runnable::run);
+        verify(runnable, times(MAX_ATTEMPTS)).forceStopRunnable();
+        verify(runnable, times(MAX_ATTEMPTS - 1)).sleep(anyLong());
     }
 }
