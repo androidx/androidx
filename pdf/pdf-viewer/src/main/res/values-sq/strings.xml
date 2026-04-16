@@ -67,6 +67,8 @@
     <string name="page_broken" msgid="2968770793669433462">"Faqe e dëmtuar për dokumentin PDF"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"Të dhëna të pamjaftueshme për përpunimin e dokumentit PDF"</string>
     <string name="error_cannot_open_pdf" msgid="2361919778558145071">"Skedari PDF nuk mund të hapet"</string>
+    <!-- no translation found for error_cannot_open_password_protected_pdf (3400883576932438749) -->
+    <skip />
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"Ky skedar PDF nuk mund të modifikohet"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"Përmbajtja e kopjuar nga PDF-ja"</string>
     <string name="fast_scroller_thumb" msgid="6712048991132846541">"Shiriti i lëvizjes"</string>
