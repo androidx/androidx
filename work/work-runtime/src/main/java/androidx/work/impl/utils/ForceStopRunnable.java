@@ -135,45 +135,44 @@ public class ForceStopRunnable implements Runnable {
                 try {
                     forceStopRunnable();
                     break;
-                } catch (SQLiteAccessPermException
-                         | SQLiteCantOpenDatabaseException
-                         | SQLiteConstraintException
-                         | SQLiteDatabaseCorruptException
-                         | SQLiteDatabaseLockedException
-                         | SQLiteDiskIOException
-                         | SQLiteFullException
-                         | SQLiteTableLockedException exception) {
+                } catch (SQLiteException exception) {
                     mRetryCount++;
                     if (mRetryCount >= MAX_ATTEMPTS) {
-                        // ForceStopRunnable is usually the first thing that accesses a database
-                        // (or an app's internal data directory). This means that weird
-                        // PackageManager bugs are attributed to ForceStopRunnable, which is
-                        // unfortunate. This gives the developer a better error
-                        // message.
-                        String message;
-                        if (UserManagerCompat.isUserUnlocked(mContext)) {
-                            message = "The file system on the device is in a bad state. "
-                                    + "WorkManager cannot access the app's internal data store.";
+                        if (isActionableException(exception)) {
+                            // ForceStopRunnable is usually the first thing that accesses a database
+                            // (or an app's internal data directory). This means that weird
+                            // PackageManager bugs are attributed to ForceStopRunnable, which is
+                            // unfortunate. This gives the developer a better error
+                            // message.
+                            String message;
+                            if (UserManagerCompat.isUserUnlocked(mContext)) {
+                                message = "The file system on the device is in a bad state. "
+                                        + "WorkManager cannot access the app's internal data "
+                                        + "store.";
+                            } else {
+                                message = "WorkManager can't be accessed from direct boot, because "
+                                        + "credential encrypted storage isn't accessible.\n"
+                                        + "Don't access or initialise WorkManager from directAware "
+                                        + "components. See "
+                                        + "https://developer.android.com/training/articles/direct-boot";
+                            }
+                            Logger.get().error(TAG, message, exception);
+                            IllegalStateException throwable = new IllegalStateException(message,
+                                    exception);
+                            Consumer<Throwable> exceptionHandler =
+                                    mWorkManager.getConfiguration()
+                                            .getInitializationExceptionHandler();
+                            if (exceptionHandler != null) {
+                                Logger.get().debug(TAG,
+                                        "Routing exception to the specified exception handler",
+                                        throwable);
+                                exceptionHandler.accept(throwable);
+                                break;
+                            } else {
+                                throw throwable;
+                            }
                         } else {
-                            message = "WorkManager can't be accessed from direct boot, because "
-                                    + "credential encrypted storage isn't accessible.\n"
-                                    + "Don't access or initialise WorkManager from directAware "
-                                    + "components. See "
-                                    + "https://developer.android.com/training/articles/direct-boot";
-                        }
-                        Logger.get().error(TAG, message, exception);
-                        IllegalStateException throwable = new IllegalStateException(message,
-                                exception);
-                        Consumer<Throwable> exceptionHandler =
-                                mWorkManager.getConfiguration().getInitializationExceptionHandler();
-                        if (exceptionHandler != null) {
-                            Logger.get().debug(TAG,
-                                    "Routing exception to the specified exception handler",
-                                    throwable);
-                            exceptionHandler.accept(throwable);
-                            break;
-                        } else {
-                            throw throwable;
+                            throw exception;
                         }
                     } else {
                         long duration = mRetryCount * BACKOFF_DURATION_MS;
@@ -187,6 +186,21 @@ public class ForceStopRunnable implements Runnable {
         } finally {
             mWorkManager.onForceStopRunnableCompleted();
         }
+    }
+
+    /**
+     * @return {@code true} if the exception is a {@link SQLiteException} that is
+     * expected to be actionable by the app.
+     */
+    private static boolean isActionableException(SQLiteException exception) {
+        return exception instanceof SQLiteAccessPermException
+                || exception instanceof SQLiteCantOpenDatabaseException
+                || exception instanceof SQLiteConstraintException
+                || exception instanceof SQLiteDatabaseCorruptException
+                || exception instanceof SQLiteDatabaseLockedException
+                || exception instanceof SQLiteDiskIOException
+                || exception instanceof SQLiteFullException
+                || exception instanceof SQLiteTableLockedException;
     }
 
     /**
