@@ -215,4 +215,17 @@ class CameraPipeSimulatorTest {
             assertThat(unsupportedResult).isEqualTo(expectedResult)
         }
     }
+
+    @Test
+    fun cameraDevicesCanBeDisconnectedAfterGraphClose() {
+        testScope.runTest {
+            val cameraGraphSimulator = cameraPipe.createCameraGraph(graphConfig)
+            cameraGraphSimulator.start()
+            cameraGraphSimulator.simulateCameraStarted()
+            cameraGraphSimulator.initializeSurfaces()
+
+            cameraGraphSimulator.close()
+            cameraPipe.cameras().disconnectAll()
+        }
+    }
 }

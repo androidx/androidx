@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.view.Surface
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
@@ -57,19 +58,11 @@ public class CameraControllerSimulator(
     private var currentSurfaceMap: Map<StreamId, Surface> = emptyMap()
     private var currentGraphRequestProcessor: GraphRequestProcessor? = null
 
-    private var _closed = false
-    public var closed: Boolean
-        get() = _closed
-        private set(value) {
-            _closed = value
-        }
+    public var closed: Boolean = false
+        private set
 
-    private var _started = false
-    public var started: Boolean
-        get() = _started
-        private set(value) {
-            _started = value
-        }
+    public var started: Boolean = false
+        private set
 
     public var currentCaptureSequenceProcessor: FakeCaptureSequenceProcessor? = null
         private set
@@ -81,6 +74,8 @@ public class CameraControllerSimulator(
 
     public val simulatedCaptureLatency: Long = 5L
     public val simulatedProcessingLatency: Long = 10L
+
+    private var cameraStarted = false
 
     init {
         check(cameraContext.cameraBackends.allIds.isNotEmpty()) {
@@ -100,6 +95,7 @@ public class CameraControllerSimulator(
             check(!closed) {
                 "Attempted to invoke simulateStarted after the CameraController was closed."
             }
+            cameraStarted = true
 
             val captureSequenceProcessor =
                 FakeCaptureSequenceProcessor(graphConfig.camera, graphConfig.defaultTemplate)
@@ -113,19 +109,22 @@ public class CameraControllerSimulator(
     }
 
     public fun simulateCameraStopped() {
-        synchronized(lock) {
-            check(!closed) {
-                "Attempted to invoke simulateCameraStopped after the CameraController was closed."
-            }
-            val captureSequenceProcessor = currentCaptureSequenceProcessor
-            val graphRequestProcessor = currentGraphRequestProcessor
+        synchronized(lock) { stopCamera() }
+    }
 
-            currentCaptureSequenceProcessor = null
-            currentGraphRequestProcessor = null
+    @GuardedBy("lock")
+    private fun stopCamera() {
+        if (!cameraStarted) return
+        cameraStarted = false
 
-            if (captureSequenceProcessor != null && graphRequestProcessor != null) {
-                graphListener.onGraphStopped(graphRequestProcessor)
-            }
+        val captureSequenceProcessor = currentCaptureSequenceProcessor
+        val graphRequestProcessor = currentGraphRequestProcessor
+
+        currentCaptureSequenceProcessor = null
+        currentGraphRequestProcessor = null
+
+        if (captureSequenceProcessor != null && graphRequestProcessor != null) {
+            graphListener.onGraphStopped(graphRequestProcessor)
         }
     }
 
@@ -173,6 +172,7 @@ public class CameraControllerSimulator(
 
     override fun close() {
         synchronized(lock) {
+            stopCamera()
             closed = true
             started = false
         }
