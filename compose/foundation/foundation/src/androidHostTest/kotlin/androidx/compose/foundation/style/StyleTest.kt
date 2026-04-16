@@ -18,15 +18,30 @@
 
 package androidx.compose.foundation.style
 
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -98,92 +113,92 @@ class StyleTest {
     @Test
     fun resolveStyle_height_dp_fraction() {
         resolved(Style({ height(10.dp) }, { height(0.5f) })) {
-            assertEquals(Float.NaN, height)
-            assertEquals(0.5f, heightFraction)
+            assertEquals(Float.NaN, it.height)
+            assertEquals(0.5f, it.heightFraction)
         }
     }
 
     @Test
     fun resolveStyle_height_fraction_dp() {
         resolved(Style({ height(0.5f) }, { height(10.dp) })) {
-            assertEquals(10.dp.toPx(), height)
-            assertEquals(Float.NaN, heightFraction)
+            assertEquals(10.dp.toPx(), it.height)
+            assertEquals(Float.NaN, it.heightFraction)
         }
     }
 
     @Test
     fun resolveStyle_width_dp_fraction() {
         resolved(Style({ width(10.dp) }, { width(0.5f) })) {
-            assertEquals(Float.NaN, width)
-            assertEquals(0.5f, widthFraction)
+            assertEquals(Float.NaN, it.width)
+            assertEquals(0.5f, it.widthFraction)
         }
     }
 
     @Test
     fun resolveStyle_width_fraction_dp() {
         resolved(Style({ width(0.5f) }, { width(10.dp) })) {
-            assertEquals(10.dp.toPx(), width)
-            assertEquals(Float.NaN, widthFraction)
+            assertEquals(10.dp.toPx(), it.width)
+            assertEquals(Float.NaN, it.widthFraction)
         }
     }
 
     @Test
     fun resolve_size_fraction_height() {
         resolved(Style({ size(10.dp, 20.dp) }, { height(0.5f) })) {
-            assertEquals(10.dp.toPx(), width)
-            assertEquals(Float.NaN, widthFraction)
-            assertEquals(Float.NaN, height)
-            assertEquals(0.5f, heightFraction)
+            assertEquals(10.dp.toPx(), it.width)
+            assertEquals(Float.NaN, it.widthFraction)
+            assertEquals(Float.NaN, it.height)
+            assertEquals(0.5f, it.heightFraction)
         }
     }
 
     @Test
     fun resolve_size_fraction_width() {
         resolved(Style({ size(10.dp, 20.dp) }, { width(0.5f) })) {
-            assertEquals(Float.NaN, width)
-            assertEquals(0.5f, widthFraction)
-            assertEquals(20.dp.toPx(), height)
-            assertEquals(Float.NaN, heightFraction)
+            assertEquals(Float.NaN, it.width)
+            assertEquals(0.5f, it.widthFraction)
+            assertEquals(20.dp.toPx(), it.height)
+            assertEquals(Float.NaN, it.heightFraction)
         }
     }
 
     @Test
     fun resolve_width_then_size() {
         resolved(Style({ width(10.dp) }, { size(20.dp) })) {
-            assertEquals(20.dp.toPx(), width)
-            assertEquals(Float.NaN, widthFraction)
-            assertEquals(20.dp.toPx(), height)
-            assertEquals(Float.NaN, heightFraction)
+            assertEquals(20.dp.toPx(), it.width)
+            assertEquals(Float.NaN, it.widthFraction)
+            assertEquals(20.dp.toPx(), it.height)
+            assertEquals(Float.NaN, it.heightFraction)
         }
     }
 
     @Test
     fun resolve_size_then_width() {
         resolved(Style({ size(20.dp) }, { width(10.dp) })) {
-            assertEquals(10.dp.toPx(), width)
-            assertEquals(Float.NaN, widthFraction)
-            assertEquals(20.dp.toPx(), height)
-            assertEquals(Float.NaN, heightFraction)
+            assertEquals(10.dp.toPx(), it.width)
+            assertEquals(Float.NaN, it.widthFraction)
+            assertEquals(20.dp.toPx(), it.height)
+            assertEquals(Float.NaN, it.heightFraction)
         }
     }
 
     @Test
     fun resolve_height_then_size() {
         resolved(Style({ height(10.dp) }, { size(20.dp) })) {
-            assertEquals(20.dp.toPx(), width)
-            assertEquals(Float.NaN, widthFraction)
-            assertEquals(20.dp.toPx(), height)
-            assertEquals(Float.NaN, heightFraction)
+            assertEquals(20.dp.toPx(), it.width)
+            assertEquals(Float.NaN, it.widthFraction)
+            assertEquals(20.dp.toPx(), it.height)
+            assertEquals(Float.NaN, it.heightFraction)
         }
     }
 
     @Test
     fun resolve_size_then_height() {
         resolved(Style({ size(20.dp) }, { height(10.dp) })) {
-            assertEquals(20.dp.toPx(), width)
-            assertEquals(Float.NaN, widthFraction)
-            assertEquals(10.dp.toPx(), height)
-            assertEquals(Float.NaN, heightFraction)
+            assertEquals(20.dp.toPx(), it.width)
+            assertEquals(Float.NaN, it.widthFraction)
+            assertEquals(10.dp.toPx(), it.height)
+            assertEquals(Float.NaN, it.heightFraction)
         }
     }
 
@@ -191,8 +206,8 @@ class StyleTest {
     fun resolve_background_color_brush() {
         val brush = Brush.linearGradient()
         resolved(Style({ background(Color.Blue) }, { background(brush) })) {
-            assertEquals(Color.Unspecified, backgroundColor)
-            assertEquals(brush, backgroundBrush)
+            assertEquals(Color.Unspecified, it.backgroundColor)
+            assertEquals(brush, it.backgroundBrush)
         }
     }
 
@@ -200,8 +215,8 @@ class StyleTest {
     fun resolve_background_brush_color() {
         val brush = Brush.linearGradient()
         resolved(Style({ background(brush) }, { background(Color.Blue) })) {
-            assertEquals(Color.Blue, backgroundColor)
-            assertEquals(null, backgroundBrush)
+            assertEquals(Color.Blue, it.backgroundColor)
+            assertEquals(null, it.backgroundBrush)
         }
     }
 
@@ -209,8 +224,8 @@ class StyleTest {
     fun resolve_contentColor_contentBrush() {
         val brush = Brush.linearGradient()
         resolved(Style({ contentColor(Color.Blue) }, { contentBrush(brush) })) {
-            assertEquals(Color.Unspecified, contentColor)
-            assertEquals(brush, contentBrush)
+            assertEquals(Color.Unspecified, it.contentColor)
+            assertEquals(brush, it.contentBrush)
         }
     }
 
@@ -218,8 +233,8 @@ class StyleTest {
     fun resolved_contentBrush_contentColor() {
         val brush = Brush.linearGradient()
         resolved(Style({ contentBrush(brush) }, { contentColor(Color.Blue) })) {
-            assertEquals(Color.Blue, contentColor)
-            assertEquals(null, contentBrush)
+            assertEquals(Color.Blue, it.contentColor)
+            assertEquals(null, it.contentBrush)
         }
     }
 
@@ -227,8 +242,8 @@ class StyleTest {
     fun resolve_foreground_color_brush() {
         val brush = Brush.linearGradient()
         resolved(Style({ foreground(Color.Blue) }, { foreground(brush) })) {
-            assertEquals(Color.Unspecified, foregroundColor)
-            assertEquals(brush, foregroundBrush)
+            assertEquals(Color.Unspecified, it.foregroundColor)
+            assertEquals(brush, it.foregroundBrush)
         }
     }
 
@@ -236,31 +251,362 @@ class StyleTest {
     fun resolve_foreground_brush_color() {
         val brush = Brush.linearGradient()
         resolved(Style({ foreground(brush) }, { foreground(Color.Blue) })) {
-            assertEquals(Color.Blue, foregroundColor)
-            assertEquals(null, foregroundBrush)
+            assertEquals(Color.Blue, it.foregroundColor)
+            assertEquals(null, it.foregroundBrush)
         }
-    }
-
-    @Test
-    fun diff_foregroundColor() {
-        val style1 = ResolvedStyle()
-        style1.resolveForTesting({ foreground(Color.Red) }, Density(1f), false)
-
-        val style2 = ResolvedStyle()
-        style2.resolveForTesting({ foreground(Color.Blue) }, Density(1f), false)
-
-        val changes = style1.diff(style2)
-        assertEquals(
-            DrawFlag,
-            changes and DrawFlag,
-            "DrawFlag should be set when foregroundColor changes",
-        )
     }
 
     @Test
     fun resolve_colorFilter() {
         val filter = ColorFilter.tint(Color.Red)
-        resolved(Style { colorFilter(filter) }) { assertEquals(filter, colorFilter) }
+        resolved({ colorFilter(filter) }) { assertEquals(filter, it.colorFilter) }
+    }
+
+    @Test
+    fun diff_contentPaddingTop() {
+        diff({ contentPaddingTop(10.dp) }, { contentPaddingTop(20.dp) }, InnerLayoutFlag)
+    }
+
+    @Test
+    fun diff_contentPaddingBottom() {
+        diff({ contentPaddingBottom(10.dp) }, { contentPaddingBottom(20.dp) }, InnerLayoutFlag)
+    }
+
+    @Test
+    fun diff_contentPaddingStart() {
+        diff({ contentPaddingStart(10.dp) }, { contentPaddingStart(20.dp) }, InnerLayoutFlag)
+    }
+
+    @Test
+    fun diff_contentPaddingEnd() {
+        diff({ contentPaddingEnd(10.dp) }, { contentPaddingEnd(20.dp) }, InnerLayoutFlag)
+    }
+
+    @Test
+    fun diff_externalPaddingTop() {
+        diff({ externalPaddingTop(10.dp) }, { externalPaddingTop(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_externalPaddingBottom() {
+        diff({ externalPaddingBottom(10.dp) }, { externalPaddingBottom(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_externalPaddingStart() {
+        diff({ externalPaddingStart(10.dp) }, { externalPaddingStart(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_externalPaddingEnd() {
+        diff({ externalPaddingEnd(10.dp) }, { externalPaddingEnd(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_borderWidth() {
+        diff({ borderWidth(10.dp) }, { borderWidth(20.dp) }, InnerLayoutFlag or DrawFlag)
+    }
+
+    @Test
+    fun diff_borderColor() {
+        diff({ borderColor(Color.Blue) }, { borderColor(Color.Green) }, DrawFlag)
+    }
+
+    @Test
+    fun diff_borderBrush() {
+        diff(
+            { borderBrush(SolidColor(Color.Blue)) },
+            { borderBrush(SolidColor(Color.Green)) },
+            DrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_width() {
+        diff({ width(10.dp) }, { width(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_height() {
+        diff({ height(10.dp) }, { height(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_widthFraction() {
+        diff({ width(1f) }, { width(0.5f) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_heightFraction() {
+        diff({ height(1f) }, { height(0.5f) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_left() {
+        diff({ left(10.dp) }, { left(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_top() {
+        diff({ top(10.dp) }, { top(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_right() {
+        diff({ right(10.dp) }, { right(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_bottom() {
+        diff({ bottom(10.dp) }, { bottom(20.dp) }, OuterLayoutFlag)
+    }
+
+    @Test
+    fun diff_alpha() {
+        diff({ alpha(1f) }, { alpha(0.5f) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_scaleX() {
+        diff({ scaleX(1f) }, { scaleX(0.5f) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_scaleY() {
+        diff({ scaleY(1f) }, { scaleY(0.5f) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_translationX() {
+        diff({ translationX(1f) }, { translationX(0.5f) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_translationY() {
+        diff({ translationY(1f) }, { translationY(0.5f) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_transformOriginX() {
+        diff(
+            { transformOrigin(TransformOrigin(1f, 0f)) },
+            { transformOrigin(TransformOrigin(0.5f, 0f)) },
+            LayerFlag,
+        )
+    }
+
+    @Test
+    fun diff_transformOriginY() {
+        diff(
+            { transformOrigin(TransformOrigin(0f, 1f)) },
+            { transformOrigin(TransformOrigin(0f, 0.5f)) },
+            LayerFlag,
+        )
+    }
+
+    @Test
+    fun diff_rotationX() {
+        diff({ rotationX(1f) }, { rotationX(0.5f) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_rotationY() {
+        diff({ rotationY(1f) }, { rotationY(0.5f) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_rotationZ() {
+        diff({ rotationZ(1f) }, { rotationZ(0.5f) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_zIndex() {
+        diff({ zIndex(1f) }, { zIndex(0.5f) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_backgroundColor() {
+        diff({ background(Color.Red) }, { background(Color.Blue) }, DrawFlag)
+    }
+
+    @Test
+    fun diff_backgroundBrush() {
+        diff(
+            { background(SolidColor(Color.Blue)) },
+            { background(SolidColor(Color.Green)) },
+            DrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_foregroundColor() {
+        diff({ foreground(Color.Red) }, { foreground(Color.Blue) }, DrawFlag)
+    }
+
+    @Test
+    fun diff_foregroundBrush() {
+        diff(
+            { foreground(SolidColor(Color.Blue)) },
+            { foreground(SolidColor(Color.Green)) },
+            DrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_clip() {
+        diff({ clip(true) }, { clip(false) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_shape() {
+        diff({ shape(RectangleShape) }, { shape(CircleShape) }, DrawFlag)
+    }
+
+    @Test
+    fun diff_colorFilter() {
+        diff({ colorFilter(null) }, { colorFilter(ColorFilter.tint(Color.Blue)) }, LayerFlag)
+    }
+
+    @Test
+    fun diff_dropShadow() {
+        diff(
+            { dropShadow(Shadow(5.dp, Color.Black)) },
+            { dropShadow(Shadow(10.dp, Color.White)) },
+            DrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_innerShadow() {
+        diff(
+            { innerShadow(Shadow(5.dp, Color.Black)) },
+            { innerShadow(Shadow(10.dp, Color.White)) },
+            DrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_contentColor() {
+        diff({ contentColor(Color.Red) }, { contentColor(Color.Blue) }, TextDrawFlag)
+    }
+
+    @Test
+    fun diff_contentBrush() {
+        diff(
+            { contentBrush(SolidColor(Color.Blue)) },
+            { contentBrush(SolidColor(Color.Green)) },
+            TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_fontFamily() {
+        diff(
+            { fontFamily(FontFamily.Serif) },
+            { fontFamily(FontFamily.Cursive) },
+            TextLayoutFlag or TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_textMotion() {
+        diff(
+            { textMotion(TextMotion.Static) },
+            { textMotion(TextMotion.Animated) },
+            TextLayoutFlag or TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_textIndent() {
+        diff(
+            { textIndent(TextIndent()) },
+            { textIndent(TextIndent(5.sp, 10.sp)) },
+            TextLayoutFlag or TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_fontSize() {
+        diff({ fontSize(12.sp) }, { fontSize(24.sp) }, TextLayoutFlag or TextDrawFlag)
+    }
+
+    @Test
+    fun diff_letterSpacing() {
+        diff({ letterSpacing(12.sp) }, { letterSpacing(24.sp) }, TextLayoutFlag or TextDrawFlag)
+    }
+
+    @Test
+    fun diff_lineHeight() {
+        diff({ lineHeight(12.sp) }, { lineHeight(24.sp) }, TextLayoutFlag or TextDrawFlag)
+    }
+
+    @Test
+    fun diff_baselineShift() {
+        diff(
+            { baselineShift(BaselineShift.None) },
+            { baselineShift(BaselineShift.Subscript) },
+            TextLayoutFlag or TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_lineBreak() {
+        diff(
+            { lineBreak(LineBreak.Simple) },
+            { lineBreak(LineBreak.Paragraph) },
+            TextLayoutFlag or TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_fontWeight() {
+        diff(
+            { fontWeight(FontWeight.Normal) },
+            { fontWeight(FontWeight.Bold) },
+            TextLayoutFlag or TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_fontStyle() {
+        diff(
+            { fontStyle(FontStyle.Normal) },
+            { fontStyle(FontStyle.Italic) },
+            TextLayoutFlag or TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_textAlign() {
+        diff(
+            { textAlign(TextAlign.Center) },
+            { textAlign(TextAlign.End) },
+            TextLayoutFlag or TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_textDirection() {
+        diff(
+            { textDirection(TextDirection.Rtl) },
+            { textDirection(TextDirection.Ltr) },
+            TextLayoutFlag or TextDrawFlag,
+        )
+    }
+
+    @Test
+    fun diff_hyphens() {
+        diff({ hyphens(Hyphens.None) }, { hyphens(Hyphens.Auto) }, TextLayoutFlag or TextDrawFlag)
+    }
+
+    @Test
+    fun diff_fontSynthesis() {
+        diff(
+            { fontSynthesis(FontSynthesis.Weight) },
+            { fontSynthesis(FontSynthesis.None) },
+            TextLayoutFlag or TextDrawFlag,
+        )
     }
 
     @Test
@@ -272,7 +618,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isPressed = true },
         ) {
-            assertEquals(Color.Red, contentColor)
+            assertEquals(Color.Red, it.contentColor)
         }
         resolved(
             {
@@ -281,7 +627,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isPressed = false },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
     }
 
@@ -294,7 +640,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isChecked = true },
         ) {
-            assertEquals(Color.Red, contentColor)
+            assertEquals(Color.Red, it.contentColor)
         }
         resolved(
             {
@@ -303,7 +649,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isChecked = false },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
     }
 
@@ -316,7 +662,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.triStateToggle = ToggleableState.On },
         ) {
-            assertEquals(Color.Red, contentColor)
+            assertEquals(Color.Red, it.contentColor)
         }
         resolved(
             {
@@ -325,7 +671,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.triStateToggle = ToggleableState.Off },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
         resolved(
             {
@@ -334,7 +680,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.triStateToggle = ToggleableState.Indeterminate },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
     }
 
@@ -347,7 +693,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.triStateToggle = ToggleableState.Off },
         ) {
-            assertEquals(Color.Red, contentColor)
+            assertEquals(Color.Red, it.contentColor)
         }
         resolved(
             {
@@ -356,7 +702,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.triStateToggle = ToggleableState.On },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
         resolved(
             {
@@ -365,7 +711,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.triStateToggle = ToggleableState.Indeterminate },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
     }
 
@@ -378,7 +724,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.triStateToggle = ToggleableState.Indeterminate },
         ) {
-            assertEquals(Color.Red, contentColor)
+            assertEquals(Color.Red, it.contentColor)
         }
         resolved(
             {
@@ -387,7 +733,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.triStateToggle = ToggleableState.On },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
         resolved(
             {
@@ -396,7 +742,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.triStateToggle = ToggleableState.Off },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
     }
 
@@ -409,7 +755,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isEnabled = false },
         ) {
-            assertEquals(Color.Red, contentColor)
+            assertEquals(Color.Red, it.contentColor)
         }
         resolved(
             {
@@ -418,7 +764,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isEnabled = true },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
     }
 
@@ -431,7 +777,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isFocused = true },
         ) {
-            assertEquals(Color.Red, contentColor)
+            assertEquals(Color.Red, it.contentColor)
         }
         resolved(
             {
@@ -440,7 +786,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isFocused = false },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
     }
 
@@ -453,7 +799,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isHovered = true },
         ) {
-            assertEquals(Color.Red, contentColor)
+            assertEquals(Color.Red, it.contentColor)
         }
         resolved(
             {
@@ -462,7 +808,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isHovered = false },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
     }
 
@@ -475,7 +821,7 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isSelected = true },
         ) {
-            assertEquals(Color.Red, contentColor)
+            assertEquals(Color.Red, it.contentColor)
         }
         resolved(
             {
@@ -484,28 +830,28 @@ class StyleTest {
             },
             MutableStyleState(null).also { it.isSelected = false },
         ) {
-            assertEquals(Color.Blue, contentColor)
+            assertEquals(Color.Blue, it.contentColor)
         }
     }
 
     @Test
     fun resolve_textStyle_textMotion() {
         resolved({ textStyle(TextStyle(textMotion = TextMotion.Animated)) }) {
-            assertEquals(TextMotion.Animated, textMotion)
+            assertEquals(TextMotion.Animated, it.textMotion)
         }
     }
 
     @Test
     fun resolve_textStyle_fontFamily() {
         resolved({ textStyle(TextStyle(fontFamily = FontFamily.Serif)) }) {
-            assertEquals(FontFamily.Serif, fontFamily)
+            assertEquals(FontFamily.Serif, it.fontFamily)
         }
     }
 
     @Test
     fun resolve_textMotion() {
         resolved({ textMotion(TextMotion.Animated) }) {
-            assertEquals(TextMotion.Animated, textMotion)
+            assertEquals(TextMotion.Animated, it.textMotion)
         }
     }
 }
@@ -521,11 +867,42 @@ fun styleTest(vararg expected: String, block: MutableList<String>.() -> Style) {
 internal inline fun resolved(
     style: Style,
     state: StyleState? = null,
-    block: ResolvedStyle.() -> Unit,
+    block: Density.(properties: StyleProperties) -> Unit,
 ) {
     val resolvedStyle = ResolvedStyle()
-    resolvedStyle.resolveForTesting(style, Density(100f), true, state)
-    resolvedStyle.block()
+    resolvedStyle.buildForTesting(style, Density(100f), state)
+    val properties = StyleProperties()
+    resolvedStyle.resolveInto(PhaseFlagMask, properties)
+    resolvedStyle.block(properties)
+}
+
+internal fun diff(a: Style, b: Style, phases: Int) {
+    val resolvedStyles = ResolvedStyle()
+
+    val emptyProperties = StyleProperties()
+    resolvedStyles.buildForTesting({}, Density(1f))
+    resolvedStyles.resolveInto(PhaseFlagMask, emptyProperties)
+
+    val propertiesA1 = StyleProperties()
+    resolvedStyles.buildForTesting(a, Density(1f))
+    resolvedStyles.resolveInto(PhaseFlagMask, propertiesA1)
+
+    val propertiesA2 = StyleProperties()
+    resolvedStyles.buildForTesting(a, Density(1f))
+    resolvedStyles.resolveInto(PhaseFlagMask, propertiesA2)
+
+    val propertiesB = StyleProperties()
+    resolvedStyles.buildForTesting(b, Density(1f))
+    resolvedStyles.resolveInto(PhaseFlagMask, propertiesB)
+
+    val changesEA = emptyProperties.diff(propertiesA1)
+    assertEquals(phases, changesEA)
+
+    val changes12 = propertiesA1.diff(propertiesA2)
+    assertEquals(0, changes12)
+
+    val changesAB = propertiesA1.diff(propertiesB)
+    assertEquals(phases, changesAB)
 }
 
 fun invoke(style: Style) {
