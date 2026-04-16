@@ -92,11 +92,6 @@ public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
     }
 
     @Override
-    public boolean getLiteIndexSortAtIndexing() {
-        return DEFAULT_LITE_INDEX_SORT_AT_INDEXING;
-    }
-
-    @Override
     public int getLiteIndexSortSize() {
         return DEFAULT_LITE_INDEX_SORT_SIZE;
     }

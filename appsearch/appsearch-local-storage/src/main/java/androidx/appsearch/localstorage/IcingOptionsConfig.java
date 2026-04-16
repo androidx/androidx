@@ -72,8 +72,6 @@ public interface IcingOptionsConfig {
      */
     int DEFAULT_INTEGER_INDEX_BUCKET_SPLIT_THRESHOLD = 65536;
 
-    boolean DEFAULT_LITE_INDEX_SORT_AT_INDEXING = true;
-
     /**
      * The default sort threshold for the lite index when sort at indexing is enabled.
      * 8192 is picked based on Icing microbenchmarks (icing-search-engine_benchmarks.cc).
@@ -81,8 +79,6 @@ public interface IcingOptionsConfig {
     int DEFAULT_LITE_INDEX_SORT_SIZE = 8192;   // 8Kib
 
     boolean DEFAULT_USE_NEW_QUALIFIED_ID_JOIN_INDEX = false;
-
-    boolean DEFAULT_BUILD_PROPERTY_EXISTENCE_METADATA_HITS = false;
 
     long DEFAULT_ORPHAN_BLOB_TIME_TO_LIVE_MS = 7 * 24 * 60 * 60 * 1000L; // 1 week.
 
@@ -231,18 +227,6 @@ public interface IcingOptionsConfig {
     /**
      * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
      *
-     * <p>Whether Icing should sort and merge its lite index HitBuffer unsorted tail at indexing
-     * time.
-     *
-     * <p>If set to true, the HitBuffer will be sorted at indexing time after exceeding the sort
-     * threshold. If false, the HifBuffer will be sorted at querying time, before the first query
-     * after inserting new elements into the HitBuffer.
-     */
-    boolean getLiteIndexSortAtIndexing();
-
-    /**
-     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
-     *
      * <p>Size (in bytes) at which Icing's lite index should sort and merge the HitBuffer's
      * unsorted tail into the sorted head for sorting at indexing time. Size specified here is
      * unsorted tail section.
@@ -351,7 +335,6 @@ public interface IcingOptionsConfig {
                 .setUsePersistentHashMap(getUsePersistentHashMap())
                 .setIntegerIndexBucketSplitThreshold(
                         getIntegerIndexBucketSplitThreshold())
-                .setLiteIndexSortAtIndexing(getLiteIndexSortAtIndexing())
                 .setLiteIndexSortSize(getLiteIndexSortSize())
                 .setUseNewQualifiedIdJoinIndex(
                         getUseNewQualifiedIdJoinIndex())
@@ -359,10 +342,6 @@ public interface IcingOptionsConfig {
                         getBuildPropertyExistenceMetadataHits())
                 .setEnableBlobStore(Flags.enableBlobStore())
                 .setOrphanBlobTimeToLiveMs(getOrphanBlobTimeToLiveMs())
-                .setEnableEmbeddingIndex(
-                        Flags.enableSchemaEmbeddingPropertyConfig())
-                .setEnableEmbeddingQuantization(
-                        Flags.enableSchemaEmbeddingQuantization())
                 .setEnableScorableProperties(Flags.enableScorableProperty())
                 .setIcuDataFileAbsolutePath(getIcuDataFileAbsolutePath())
                 .setManageBlobFiles(!Flags.enableAppSearchManageBlobFiles())
@@ -392,11 +371,9 @@ public interface IcingOptionsConfig {
                 .setEnableSchemaDatabase(
                         Flags.enableDatabaseScopedSchemaOperations() || isVmEnabled)
                 .setEnableSmallerDecompressionBufferSize(true)
-                .setEnableEigenEmbeddingScoring(Flags.enableEigenEmbeddingScoring() || isVmEnabled)
                 .setEnablePassingFilterToChildren(
                         Flags.enablePassingFilterToChildren() || isVmEnabled)
                 .setEnableProtoLogNewHeaderFormat(true)
-                .setEnableEmbeddingIteratorV2(true)
                 .setEnableReusableDecompressionBuffer(true)
                 .setEmbeddingIndexNumShards(
                         Flags.enableShardedEmbeddingStorage()
