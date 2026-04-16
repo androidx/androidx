@@ -22,7 +22,9 @@ plugins {
 }
 
 androidXMultiplatform {
+    // Only supported on non-Android JVM for Linux on x86_64
     jvm()
+
     androidLibrary {
         namespace = "androidx.ink.storage"
         compileSdk { version = release(35) }

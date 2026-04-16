@@ -29,11 +29,14 @@ plugins {
 }
 
 androidXMultiplatform {
+  // Only supported on non-Android JVM for Linux on x86_64
   jvm()
+
   androidLibrary {
     namespace = "androidx.ink.brush"
     androidResources.enable = true
   }
+
   // TODO: b/462064872 - Turn on ios() support and enable BuildType.KMP
   // ios()
 
