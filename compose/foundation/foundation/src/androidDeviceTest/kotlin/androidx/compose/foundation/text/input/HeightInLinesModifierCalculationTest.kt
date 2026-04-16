@@ -18,13 +18,16 @@ package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.EmptyTextReplacement
+import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.foundation.text.computeSizeForDefaultText
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.MediumTest
@@ -96,8 +99,6 @@ class HeightInLinesModifierCalculationTest(private val config: TestConfig) {
                             style = textStyle,
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
-                            text = EmptyTextReplacement,
-                            maxLines = 1,
                         )
                         .height
 
@@ -106,8 +107,7 @@ class HeightInLinesModifierCalculationTest(private val config: TestConfig) {
                             style = textStyle,
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
-                            text = EmptyTextReplacement + "\n" + EmptyTextReplacement,
-                            maxLines = 2,
+                            lines = 2,
                         )
                         .height
 
@@ -133,14 +133,16 @@ class HeightInLinesModifierCalculationTest(private val config: TestConfig) {
 
                 val textToMeasure = config.text.ifEmpty { EmptyTextReplacement }
                 val rawHeight =
-                    computeSizeForDefaultText(
+                    Paragraph(
+                            text = textToMeasure,
                             style = textStyle,
+                            maxLines = 1000,
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
-                            text = textToMeasure,
-                            maxLines = 1000,
+                            constraints = Constraints(),
                         )
                         .height
+                        .ceilToIntPx()
 
                 expectedHeight =
                     rawHeight.coerceIn(

@@ -300,13 +300,7 @@ private class HeightInLinesNode(
                     style = resolvedStyle,
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
-                    text =
-                        EmptyTextReplacement +
-                            "\n" +
-                            EmptyTextReplacement +
-                            "\n" +
-                            EmptyTextReplacement,
-                    maxLines = 3,
+                    lines = 3,
                 )
             val first = threeLinesParagraph.getLineHeight(0)
             val second = threeLinesParagraph.getLineHeight(1)
@@ -322,8 +316,7 @@ private class HeightInLinesNode(
                         style = resolvedStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        text = EmptyTextReplacement,
-                        maxLines = 1,
+                        lines = 1,
                     )
                     .height
 
@@ -332,8 +325,7 @@ private class HeightInLinesNode(
                         style = resolvedStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        text = EmptyTextReplacement + "\n" + EmptyTextReplacement,
-                        maxLines = 2,
+                        lines = 2,
                     )
                     .height
 
@@ -396,13 +388,7 @@ internal fun Modifier.legacyHeightInLines(
                     style = resolvedStyle,
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
-                    text =
-                        EmptyTextReplacement +
-                            "\n" +
-                            EmptyTextReplacement +
-                            "\n" +
-                            EmptyTextReplacement,
-                    maxLines = 3,
+                    lines = 3,
                 )
             val first = threeLinesParagraph.getLineHeight(0)
             val second = threeLinesParagraph.getLineHeight(1)
@@ -420,21 +406,17 @@ internal fun Modifier.legacyHeightInLines(
                             style = resolvedStyle,
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
-                            text = EmptyTextReplacement,
-                            maxLines = 1,
                         )
                         .height
                 }
 
             val firstTwoLinesHeight =
                 remember(density, fontFamilyResolver, textStyle, layoutDirection, typeface) {
-                    val twoLines = EmptyTextReplacement + "\n" + EmptyTextReplacement
                     computeSizeForDefaultText(
                             style = resolvedStyle,
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
-                            text = twoLines,
-                            maxLines = 2,
+                            lines = 2,
                         )
                         .height
                 }

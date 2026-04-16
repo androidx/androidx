@@ -1121,7 +1121,6 @@ class TextFieldTest : FocusedWindowTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1,
                     )
                     .width
 
@@ -1159,7 +1158,6 @@ class TextFieldTest : FocusedWindowTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1,
                     )
                     .width
 
