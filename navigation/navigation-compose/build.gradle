@@ -60,11 +60,6 @@ androidXMultiplatform {
         commonTest.dependencies {
             implementation(libs.kotlinTest)
         }
-        create("nonAndroidMain").dependsOn(commonMain)
-        create("nonAndroidTest").dependsOn(commonTest)
-
-        jvmStubsMain.dependsOn(nonAndroidMain)
-        jvmStubsTest.dependsOn(nonAndroidTest)
 
         androidMain.dependencies {
             api("androidx.activity:activity-compose:1.8.0")
@@ -105,8 +100,6 @@ androidXMultiplatform {
             implementation(project(":compose:ui:ui-tooling"))
             implementation(project(":internal-testutils-navigation"))
         }
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nonJvmTest.dependsOn(nonAndroidTest)
     }
 }
 
