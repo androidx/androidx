@@ -85,6 +85,10 @@ data class ApiLocation(
             return filename.startsWith(PREFIX_RESOURCE)
         }
 
+        fun fromMultiplatformApiDirectory(dir: File): ApiLocation {
+            return fromBaseName(dir.parentFile, dir.name.substringAfter(PREFIX_MULTIPLATFORM))
+        }
+
         private fun fromBaseName(apiFileDir: File, baseName: String): ApiLocation {
             return ApiLocation(
                 apiFileDirectory = apiFileDir,
