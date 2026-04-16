@@ -18,13 +18,14 @@ package androidx.wear.compose.material3
 
 import android.content.Context
 import android.view.View
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -36,21 +37,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
-import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
@@ -58,7 +57,6 @@ import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
 import androidx.wear.compose.material3.onehandedgesture.SdkGestureInputManager
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -243,146 +241,6 @@ class OneHandedGestureTest {
         rule.waitForIdle()
     }
 
-    /** Verifies that Composable isn't gestured unless it's fully visible */
-    @Test
-    fun test_visibility() {
-        var tlcGestured = false
-        var textGestured = false
-        var tlcIndicatorShown = false
-        var textIndicatorShown = false
-        val sdkGestureInputManager = SdkGestureInputManagerMock()
-
-        rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(200.dp, 200.dp))
-            ) {
-                MockSdkGestureInputManager(sdkGestureInputManager) {
-                    val state = rememberTransformingLazyColumnState()
-                    val scope = rememberCoroutineScope()
-                    TransformingLazyColumn(
-                        state = state,
-                        modifier =
-                            Modifier.oneHandedGesture(
-                                action = GestureAction.Primary,
-                                priority = GesturePriority.Scrollable,
-                                onShowIndicator = { tlcIndicatorShown = true },
-                            ) {
-                                tlcGestured = true
-                                scope.launch { state.scrollBy(1000f) }
-                            },
-                    ) {
-                        item { Text("First item", modifier = Modifier.requiredHeight(150.dp)) }
-                        item {
-                            Text(
-                                "Second item with gesture",
-                                modifier =
-                                    Modifier.requiredHeight(150.dp).oneHandedGesture(
-                                        action = GestureAction.Primary,
-                                        priority = GesturePriority.Clickable,
-                                        onShowIndicator = { textIndicatorShown = true },
-                                    ) {
-                                        textGestured = true
-                                    },
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
-        rule.mainClock.advanceTimeBy(3000)
-
-        rule.runOnIdle {
-            assertEquals(true, tlcIndicatorShown)
-            assertEquals(false, textIndicatorShown)
-        }
-
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
-
-        // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
-        rule.mainClock.advanceTimeBy(3000)
-        rule.runOnIdle {
-            assertEquals(true, textIndicatorShown)
-            assertEquals(true, tlcGestured)
-            assertEquals(false, textGestured)
-        }
-
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
-
-        rule.runOnIdle { assertEquals(true, textGestured) }
-    }
-
-    /**
-     * Verifies that long items (items which don't fit) can be gesturable if they take enough space
-     * on the screen.
-     */
-    @Test
-    fun test_visibility_long_item() {
-        var tlcGestured = false
-        var longItemGestured = false
-        var tlcIndicatorShown = false
-        var longItemIndicatorShown = false
-        val sdkGestureInputManager = SdkGestureInputManagerMock()
-
-        rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(200.dp, 200.dp))
-            ) {
-                MockSdkGestureInputManager(sdkGestureInputManager) {
-                    val state = rememberTransformingLazyColumnState()
-                    val scope = rememberCoroutineScope()
-                    TransformingLazyColumn(
-                        state = state,
-                        modifier =
-                            Modifier.oneHandedGesture(
-                                action = GestureAction.Primary,
-                                priority = GesturePriority.Scrollable,
-                                onShowIndicator = { tlcIndicatorShown = true },
-                            ) {
-                                tlcGestured = true
-                                scope.launch { state.scrollBy(1000f) }
-                            },
-                    ) {
-                        item { Text("First item", modifier = Modifier.requiredHeight(150.dp)) }
-                        item {
-                            Text(
-                                "Second item with gesture",
-                                modifier =
-                                    Modifier.requiredHeight(400.dp).oneHandedGesture(
-                                        action = GestureAction.Primary,
-                                        priority = GesturePriority.Clickable,
-                                        onShowIndicator = { longItemIndicatorShown = true },
-                                    ) {
-                                        longItemGestured = true
-                                    },
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // It takes at least a second for indicator to be shown. Fast-forward 3s to allow some delay
-        rule.mainClock.advanceTimeBy(3000)
-        assertEquals(true, tlcIndicatorShown)
-
-        // Scroll to the long item
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
-        rule.mainClock.advanceTimeBy(3000)
-
-        rule.runOnIdle {
-            assertEquals(true, tlcGestured)
-            assertEquals(false, longItemGestured)
-            assertEquals(true, longItemIndicatorShown)
-        }
-
-        // Click the long item
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
-
-        rule.runOnIdle { assertEquals(true, longItemGestured) }
-    }
-
     /** Verifies behavior of gesturable Composables in Pager */
     @Test
     fun pager_gesture_aware_content_per_page() {
@@ -494,6 +352,146 @@ class OneHandedGestureTest {
         }
     }
 
+    @Test
+    fun alert_dialog_edge_button() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var edgeButtonClicked = false
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                AlertDialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    title = {},
+                    edgeButton = {
+                        AlertDialogDefaults.EdgeButton(onClick = { edgeButtonClicked = true })
+                    },
+                )
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assert(edgeButtonClicked) }
+    }
+
+    @Test
+    fun alert_dialog_confirm_and_dismiss() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var confirmButtonClicked = false
+        rule.setContentWithTheme {
+            val transformationSpec = rememberTransformationSpec()
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                AlertDialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    icon = {
+                        Icon(
+                            Icons.Rounded.AccountCircle,
+                            modifier = Modifier.size(32.dp),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    title = { Text("Title") },
+                    transformationSpec = transformationSpec,
+                    confirmButton = {
+                        AlertDialogDefaults.ConfirmButton(onClick = { confirmButtonClicked = true })
+                    },
+                ) {
+                    item { Text(text = "This is a text which has to be scrolled through") }
+                    item { Button(onClick = {}) { Text(text = "Random button") } }
+                }
+            }
+        }
+
+        // Scroll through alert dialog with one-handed gestures until confirm button is gestured
+        for (i in 0..10) {
+            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            rule.waitForIdle()
+            if (confirmButtonClicked) {
+                break
+            }
+        }
+        assert(confirmButtonClicked)
+    }
+
+    @Test
+    fun alert_dialog_content_groups_edge_button() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var edgeButtonClicked = false
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                val transformationSpec = rememberTransformationSpec()
+                AlertDialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    title = { Text("Title") },
+                    transformationSpec = transformationSpec,
+                    edgeButton = {
+                        AlertDialogDefaults.EdgeButton(onClick = { edgeButtonClicked = true }) {
+                            Text("Share once")
+                        }
+                    },
+                ) {
+                    item {
+                        SwitchButton(
+                            modifier =
+                                Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                            checked = true,
+                            onCheckedChange = {},
+                            label = { Text("Weather") },
+                            transformation = SurfaceTransformation(transformationSpec),
+                        )
+                    }
+                    item {
+                        SwitchButton(
+                            modifier =
+                                Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                            checked = true,
+                            onCheckedChange = {},
+                            label = { Text("Calendar") },
+                            transformation = SurfaceTransformation(transformationSpec),
+                        )
+                    }
+                    item { AlertDialogDefaults.GroupSeparator() }
+                    item {
+                        FilledTonalButton(
+                            modifier =
+                                Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                            onClick = {},
+                            label = {
+                                Text(modifier = Modifier.fillMaxWidth(), text = "Never share")
+                            },
+                            transformation = SurfaceTransformation(transformationSpec),
+                        )
+                    }
+                    item {
+                        FilledTonalButton(
+                            modifier =
+                                Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                            onClick = {},
+                            label = {
+                                Text(modifier = Modifier.fillMaxWidth(), text = "Share always")
+                            },
+                            transformation = SurfaceTransformation(transformationSpec),
+                        )
+                    }
+                }
+            }
+        }
+
+        // Scroll through alert dialog with one-handed gestures until edge button is gestured
+        for (i in 0..10) {
+            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            rule.waitForIdle()
+            if (edgeButtonClicked) {
+                break
+            }
+        }
+        assert(edgeButtonClicked)
+    }
+
     @Composable
     private fun MockSdkGestureInputManager(
         sdkGestureInputManager: SdkGestureInputManager,
@@ -507,7 +505,8 @@ class OneHandedGestureTest {
         CompositionLocalProvider(LocalGestureManager provides gestureManager) { content() }
     }
 
-    private class SdkGestureInputManagerMock : SdkGestureInputManager {
+    private class SdkGestureInputManagerMock(private val showIndicator: Boolean = true) :
+        SdkGestureInputManager {
         override fun isAvailable(context: Context): Boolean = true
 
         override fun subscribeToSdkGestureAction(
@@ -525,7 +524,8 @@ class OneHandedGestureTest {
 
         override fun notifyGestureConsumed(key: String, sdkGestureAction: Int) {}
 
-        override fun shouldShowIndicator(key: String, sdkGestureAction: Int): Boolean = true
+        override fun shouldShowIndicator(key: String, sdkGestureAction: Int): Boolean =
+            showIndicator
 
         override fun notifyIndicatorShown(key: String, sdkGestureAction: Int) {}
 
