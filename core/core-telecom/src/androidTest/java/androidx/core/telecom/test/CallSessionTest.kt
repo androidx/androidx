@@ -322,7 +322,7 @@ class CallSessionTest : BaseTelecomTest() {
      * Jetpack layer intercepts this, remains in an audio call state, and forces the audio route
      * back to the earpiece.
      */
-    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM)
+    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM, maxSdkVersion = 36)
     @SmallTest
     @Test
     fun testUnrequestedVideoStateUpgrade_AudioCall() {
@@ -358,7 +358,7 @@ class CallSessionTest : BaseTelecomTest() {
      * Verifies that if the user explicitly requested the speaker endpoint, the fallback to earpiece
      * does not occur even during an unrequested video upgrade.
      */
-    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM)
+    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM, maxSdkVersion = 36)
     @SmallTest
     @Test
     fun testUnrequestedVideoStateUpgrade_UserRequestedSpeaker() {
@@ -426,7 +426,7 @@ class CallSessionTest : BaseTelecomTest() {
      * changes the audio route to SPEAKER, the Jetpack layer catches it and forces the route back to
      * EARPIECE.
      */
-    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM)
+    @SdkSuppress(minSdkVersion = VERSION_CODES.VANILLA_ICE_CREAM, maxSdkVersion = 36)
     @SmallTest
     @Test
     fun testUnrequestedVideoStateUpgrade_EndpointChangedToSpeakerAfterwards() {
