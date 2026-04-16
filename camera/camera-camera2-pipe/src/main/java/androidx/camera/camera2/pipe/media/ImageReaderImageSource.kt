@@ -221,10 +221,18 @@ public class ImageReaderImageSource(
     override fun toString(): String = "ImageSource($imageReader)"
 
     override fun discardFreeBuffers() {
+        if (state.value == State.CLOSED) {
+            Log.debug { "Calling discardFreeBuffers on $this on closed image source." }
+            return
+        }
         imageReader.discardFreeBuffers()
     }
 
     override fun flush() {
+        if (state.value == State.CLOSED) {
+            Log.debug { "Calling flush on $this on closed image source." }
+            return
+        }
         imageReader.flush()
     }
 

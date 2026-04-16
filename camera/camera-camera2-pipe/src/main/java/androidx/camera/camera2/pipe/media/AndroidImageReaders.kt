@@ -88,7 +88,18 @@ private constructor(
         // ImageReader is closed. This method call actively frees these unused buffers from the
         // internal buffer pool.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Api28Compat.discardFreeBuffers(imageReader)
+            try {
+                Api28Compat.discardFreeBuffers(imageReader)
+            } catch (_: IllegalStateException) {
+                // When ImageSource is closed, the underlying ImageReader is not immediately closed,
+                // because there may be outstanding images. At that point,  whenever an image is
+                // closed, the wrapped image calls discardFreeBuffers under the hood to immediately
+                // deallocate memory. Hence, it's reasonable for discardFreeBuffes or flush to
+                // still be callable even after close.
+                Log.debug {
+                    "Failed to discardFreeBuffers on $this. Expected if invoked after close()."
+                }
+            }
         }
     }
 
@@ -280,12 +291,24 @@ public class AndroidMultiResolutionImageReader(
         // ImageReaders are pools of shared memory that is not actively released until the
         // ImageReader is closed. This method call actively frees these unused buffers from the
         // internal buffer pool(s).
-        multiResolutionImageReader.flush()
+        try {
+            multiResolutionImageReader.flush()
+        } catch (_: IllegalStateException) {
+            // See [AndroidImageReaders.discardFreeBuffers].
+            Log.debug { "Failed to flush $this. Expected if invoked after close()." }
+        }
     }
 
     override fun discardFreeBuffers() {
         for (imageReader in imageReaderSet) {
-            imageReader.discardFreeBuffers()
+            try {
+                imageReader.discardFreeBuffers()
+            } catch (_: IllegalStateException) {
+                // See [AndroidImageReaders.discardFreeBuffers].
+                Log.debug {
+                    "Failed to discardFreeBuffers on $this. Expected if invoked after close()."
+                }
+            }
         }
     }
 
