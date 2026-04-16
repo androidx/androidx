@@ -86,7 +86,6 @@ import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.InternalComposeUiApi
@@ -1405,19 +1404,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         previous: FocusTargetModifierNode?,
         current: FocusTargetModifierNode?,
     ) {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (isOptimizedFocusEventDispatchEnabled) {
-            val previousIndirectPointerEventModifiers =
-                previous?.ancestors(type = Nodes.IndirectPointerInput, includeSelf = true) ?: return
+        val previousIndirectPointerEventModifiers =
+            previous?.ancestors(type = Nodes.IndirectPointerInput, includeSelf = true) ?: return
 
-            val currentIndirectPointerEventModifiers =
-                current?.setOfAncestors(type = Nodes.IndirectPointerInput, includeSelf = true)
+        val currentIndirectPointerEventModifiers =
+            current?.setOfAncestors(type = Nodes.IndirectPointerInput, includeSelf = true)
 
-            previousIndirectPointerEventModifiers.fastForEach {
-                val stillHasFocus = currentIndirectPointerEventModifiers?.contains(it) ?: false
-                if (!stillHasFocus) {
-                    it.onCancelIndirectPointerInput()
-                }
+        previousIndirectPointerEventModifiers.fastForEach {
+            val stillHasFocus = currentIndirectPointerEventModifiers?.contains(it) ?: false
+            if (!stillHasFocus) {
+                it.onCancelIndirectPointerInput()
             }
         }
     }

@@ -85,12 +85,6 @@ object ComposeUiFlags {
     // TODO: b/485962036
     @field:Suppress("MutableBareField") @JvmField var isFocusRestorationEnabled: Boolean = false
 
-    /** Flag enables optimized focus change dispatching logic. */
-    // TODO: b/455603009
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isOptimizedFocusEventDispatchEnabled: Boolean = true
-
     /**
      * Enables a change where off-screen children of the partially visible merging nodes (e.g. a
      * Text node of a Button) inside scrollable container are now also reported in the semantics
