@@ -46,7 +46,6 @@ import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -60,7 +59,8 @@ internal const val DefaultWidthCharCount = 10 // min width for TextField is 10 c
 internal val EmptyTextReplacement = "H".repeat(DefaultWidthCharCount) // just a reference character.
 
 /**
- * Computed the default width and height for TextField.
+ * Computes a width and height of the default string with [lines] amount of lines that is then used
+ * to calculate the default size of the text field.
  *
  * The bounding box or x-advance of the empty text is empty, i.e. 0x0 box or 0px advance. However
  * this is not useful for TextField since text field want to reserve some amount of height for
@@ -74,10 +74,9 @@ internal fun computeSizeForDefaultText(
     style: TextStyle,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-    text: String = EmptyTextReplacement,
-    maxLines: Int = 1,
+    lines: Int = 1,
 ): IntSize {
-    val paragraph = paragraphForDefaultText(style, density, fontFamilyResolver, text, maxLines)
+    val paragraph = paragraphForDefaultText(style, density, fontFamilyResolver, lines)
     return IntSize(paragraph.minIntrinsicWidth.ceilToIntPx(), paragraph.height.ceilToIntPx())
 }
 
@@ -86,15 +85,12 @@ internal fun paragraphForDefaultText(
     style: TextStyle,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-    text: String = EmptyTextReplacement,
-    maxLines: Int = 1,
+    lines: Int,
 ) =
     Paragraph(
-        text = text,
+        text = (0..<lines).joinToString("\n") { EmptyTextReplacement },
         style = style,
-        spanStyles = listOf(),
-        maxLines = maxLines,
-        overflow = TextOverflow.Clip,
+        maxLines = lines,
         density = density,
         fontFamilyResolver = fontFamilyResolver,
         constraints = Constraints(),
