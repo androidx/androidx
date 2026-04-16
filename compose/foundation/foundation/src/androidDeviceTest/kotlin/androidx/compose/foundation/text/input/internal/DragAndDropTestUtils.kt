@@ -133,6 +133,12 @@ object DragAndDropTestUtils {
         if (Build.VERSION.SDK_INT >= 35) {
             parcel.writeInt(0)
         }
+        // mInputSource and mMetaState
+        // These fields were added in API 37.
+        if (Build.VERSION.SDK_INT >= 37) {
+            parcel.writeInt(0) // Input source
+            parcel.writeInt(0) // Meta state
+        }
         // mDragResult
         parcel.writeInt(0)
         // mClipData
