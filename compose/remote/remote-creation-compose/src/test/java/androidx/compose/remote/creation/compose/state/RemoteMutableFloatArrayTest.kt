@@ -19,9 +19,16 @@ package androidx.compose.remote.creation.compose.state
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
+import androidx.compose.remote.core.RecordingRemoteComposeBuffer
+import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.ConditionalOperations
+import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.test.filters.SdkSuppress
@@ -109,11 +116,59 @@ class RemoteMutableFloatArrayTest {
         assertThat(context.getFloat(resultId2)).isEqualTo(5678f)
     }
 
-    private fun makeAndPaintCoreDocument() =
+    @Test
+    fun writeToRemoteComposeCreationState_inside_conditional() {
+        val platform = AndroidxRcPlatformServices()
+        val recordingBuffer = RecordingRemoteComposeBuffer()
+        val profile =
+            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
+                creationDisplayInfo,
+                profile,
+                callback ->
+                TestRemoteComposeWriter(
+                    profile,
+                    recordingBuffer,
+                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
+                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
+                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
+                )
+            }
+        val creationState = RemoteComposeCreationState(Size(100f, 100f), profile)
+        creationState.document.conditionalOperations(ConditionalOperations.TYPE_EQ, 0f, 0f)
+        val remoteFloatArray = RemoteMutableFloatArray(4)
+        val index = RemoteInt.createNamedRemoteInt("testInt", 2)
+
+        remoteFloatArray[index] = 1234.rf
+        val result1 = remoteFloatArray[2]
+        val resultId1 = result1.getIdForCreationState(creationState)
+        val resultFloatId1 = result1.getFloatIdForCreationState(creationState)
+        remoteFloatArray[index] = 5678.rf
+        val result2 = remoteFloatArray[2]
+        val resultId2 = result2.getIdForCreationState(creationState)
+        val resultFloatId2 = result2.getFloatIdForCreationState(creationState)
+        creationState.document.translate(resultFloatId1, resultFloatId2)
+        creationState.document.endConditionalOperations()
+
+        recordingBuffer.writeToBuffer()
+
+        makeAndPaintCoreDocument(creationState)
+
+        assertThat(context.getFloat(resultId1)).isEqualTo(1234f)
+        assertThat(context.getFloat(resultId2)).isEqualTo(5678f)
+    }
+
+    private fun makeAndPaintCoreDocument(cs: RemoteComposeCreationState = creationState) =
         CoreDocument().apply {
-            val buffer = creationState.document.buffer
+            val buffer = cs.document.buffer
             buffer.buffer.index = 0
             initFromBuffer(buffer)
+            initializeContext(context)
             paint(context, 0)
         }
 }
+
+private class TestRemoteComposeWriter(
+    profile: Profile,
+    buffer: RemoteComposeBuffer,
+    vararg tags: HTag,
+) : RemoteComposeWriter(profile, buffer, *tags)

@@ -1787,7 +1787,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
         @Override
         public void addCollection(int id, @NonNull ArrayAccess collection) {
-            throw new UnsupportedOperationException("Not yet implemented");
+            // Ignore, called by RecordingRemoteComposeBuffer.addDynamicFloatArray.
         }
 
         @Override
