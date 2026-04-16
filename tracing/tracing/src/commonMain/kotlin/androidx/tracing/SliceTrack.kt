@@ -143,6 +143,7 @@ public abstract class SliceTrack(
      * un-paired calls to [endSection] are ignored when the trace is displayed.
      */
     public open fun endSection() {
+        if (!context.isEnabled) return
         val event = obtainTraceEvent()
         event?.apply {
             event.setEndSection(trackUuid = uuid)

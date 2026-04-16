@@ -33,6 +33,7 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -507,5 +508,22 @@ class TracingTest {
                 driver.context.process.getOrCreateThreadTrack(it.toLong(), "Thread $it")
             }
         }
+    }
+
+    @Test
+    internal fun imperativeBeginEndShouldNotEmitPackets() {
+        TraceDriver(sink = sink, isEnabled = false).use { driver ->
+            driver.tracer.beginSection(
+                category = "category",
+                name = "name",
+                token = null,
+                metadataBlock = {},
+            )
+            driver.context.process.currentThreadTrack().endSection()
+        }
+        // The only packet we should see is one that we eagerly emit for the process track.
+        assertEquals(1, sink.packets.size)
+        // We should not find any track event packets.
+        assertFails { sink.firstStartStopWithName("name") }
     }
 }
