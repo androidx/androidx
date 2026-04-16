@@ -232,6 +232,24 @@ val message = when (command) {
 }
 ```
 
+How can we prevent this issue?
+
+To prevent exhaustive when expressions and allow for future extension of a
+sealed hierarchy, add a private subtype. This forces clients to include an else
+branch in their when expressions, making their code compatible with newly added
+subtypes in the future.
+
+```kotlin
+sealed interface Payment {
+    data class CreditCard(val number: String, val expiryDate: String) : Payment
+    data object Cash : Payment
+
+    // Prevents exhaustive `when` usage for Kotlin consumers, making it safe
+    // to add new types in the future
+    private object Hidden : Payment
+}
+```
+
 #### Non-exhaustive alternatives to `enum class`
 
 For APIs with no Java clients, Kotlin's `@JvmInline value class` with a `private
