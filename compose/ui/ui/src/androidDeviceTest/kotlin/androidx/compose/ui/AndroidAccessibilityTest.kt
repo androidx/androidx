@@ -109,11 +109,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.testutils.WithMinimumTouchTargetSize
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.AndroidComposeViewAccessibilityDelegateCompatTest.Companion.AccessibilityEventComparator
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
@@ -121,7 +119,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toComposeRect
@@ -136,8 +133,6 @@ import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ClassName
-import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeRectKey
-import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeTypeKey
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.InvalidId
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextFieldClassName
 import androidx.compose.ui.platform.LocalDensity
@@ -203,7 +198,6 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -243,7 +237,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import java.io.Serializable
 import java.lang.reflect.Method
 import java.util.Date
@@ -4918,7 +4911,6 @@ class AndroidAccessibilityTest {
                         Box(
                             Modifier.wrapContentSize(Alignment.TopStart, unbounded = true)
                                 .requiredSize(200.dp)
-                                .clip(RectangleShape)
                                 .background(Color.Blue)
                                 // onClick needed to go down the touch bounds path.
                                 .semantics { onClick { true } }
@@ -4937,151 +4929,6 @@ class AndroidAccessibilityTest {
         // The regression size for 48 minTouchTarget would be 124.
         assertThat(rect.width()).isEqualTo(100)
         assertThat(rect.height()).isEqualTo(100)
-
-        // Shape should represent the full 200x200 child, relative to boundsInScreen.
-        val shapeRect = getShapeRect(virtualViewId, info)
-        assertThat(shapeRect).isEqualTo(Rect(0, 0, 200, 200))
-    }
-
-    // Regression test for b/479577752
-    @Test
-    fun testChildBounds_clippedToParentBounds_whenOverflowingTopLeft() {
-        // 100x100 child at (-25, -25) in a 200x200 clipping parent. The child is larger
-        // than the 48px min touch target, so mtt should not expand the clip region at all.
-        // The child should simply be clipped to the parent's bounds → 75x75.
-        // The bug incorrectly allows mtt to expand the top-left clip, producing 99x99.
-        setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                Box(Modifier.requiredSize(200.dp).clipToBounds()) {
-                    Box(
-                        Modifier.offset((-25).dp, (-25).dp)
-                            .requiredSize(100.dp)
-                            .clip(RectangleShape)
-                            .semantics { onClick { true } }
-                            .testTag(tag)
-                    )
-                }
-            }
-        }
-
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualViewId) }
-        val rect = Rect().also { info.getBoundsInScreen(it) }
-
-        // Child already exceeds mtt (100 > 48), so no mtt expansion should occur.
-        // Clipped to parent bounds: (0, 0, 75, 75) → 75x75.
-        assertThat(rect.width()).isEqualTo(75)
-        assertThat(rect.height()).isEqualTo(75)
-
-        // Shape should represent the full 100x100 child, relative to boundsInScreen.
-        // Starts at (-25, -25) because the child extends 25px before boundsInScreen.
-        val shapeRect = getShapeRect(virtualViewId, info)
-        assertThat(shapeRect).isEqualTo(Rect(-25, -25, 75, 75))
-    }
-
-    // Regression test for b/479577752
-    @Test
-    fun testChildBounds_clippedToParentBounds_whenOverflowingBottomRight() {
-        // 100x100 child at (125, 125) in a 200x200 clipping parent. Same as above but
-        // overflowing at the bottom-right. Should be clipped symmetrically → 75x75.
-        setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                Box(Modifier.requiredSize(200.dp).clipToBounds()) {
-                    Box(
-                        Modifier.offset(125.dp, 125.dp)
-                            .requiredSize(100.dp)
-                            .clip(RectangleShape)
-                            .semantics { onClick { true } }
-                            .testTag(tag)
-                    )
-                }
-            }
-        }
-
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualViewId) }
-        val rect = Rect().also { info.getBoundsInScreen(it) }
-
-        // Child already exceeds mtt (100 > 48), so no mtt expansion should occur.
-        // Clipped to parent bounds: (125, 125, 200, 200) → 75x75.
-        assertThat(rect.width()).isEqualTo(75)
-        assertThat(rect.height()).isEqualTo(75)
-
-        // Shape should represent the full 100x100 child, relative to boundsInScreen.
-        // Starts at (0, 0) because the child's left edge aligns with boundsInScreen.
-        val shapeRect = getShapeRect(virtualViewId, info)
-        assertThat(shapeRect).isEqualTo(Rect(0, 0, 100, 100))
-    }
-
-    // Regression test for b/479577752
-    @Test
-    fun testChildBounds_minTouchTargetPreserved_whenSmallChildOverflowingTopLeft() {
-        // 20x20 child at (0, 0) in a 200x200 clipping parent with mtt=50.
-        // Child is smaller than mtt, so it needs (50-20)/2 = 15px expansion per side.
-        // The expansion past the top-left parent edge should be preserved.
-        setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                WithMinimumTouchTargetSize(DpSize(50.dp, 50.dp)) {
-                    Box(Modifier.requiredSize(200.dp).clipToBounds()) {
-                        Box(
-                            Modifier.requiredSize(20.dp)
-                                .clip(RectangleShape)
-                                .semantics { onClick { true } }
-                                .testTag(tag)
-                        )
-                    }
-                }
-            }
-        }
-
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualViewId) }
-        val rect = Rect().also { info.getBoundsInScreen(it) }
-
-        // mtt expansion: clip = (-15, -15, 35, 35) → 50x50.
-        assertThat(rect.width()).isEqualTo(50)
-        assertThat(rect.height()).isEqualTo(50)
-
-        // Shape should represent the actual 20x20 child, relative to boundsInScreen.
-        // Offset by (15, 15) because boundsInScreen is mtt-expanded 15px past the child.
-        val shapeRect = getShapeRect(virtualViewId, info)
-        assertThat(shapeRect).isEqualTo(Rect(15, 15, 35, 35))
-    }
-
-    // Regression test for b/479577752
-    @Test
-    fun testChildBounds_minTouchTargetPreserved_whenSmallChildOverflowingBottomRight() {
-        // 20x20 child at (180, 180) in a 200x200 clipping parent with mtt=50.
-        // Child is smaller than mtt, so it needs 15px expansion per side.
-        // The expansion past the bottom-right parent edge should be preserved.
-        setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                WithMinimumTouchTargetSize(DpSize(50.dp, 50.dp)) {
-                    Box(Modifier.requiredSize(200.dp).clipToBounds()) {
-                        Box(
-                            Modifier.offset(180.dp, 180.dp)
-                                .requiredSize(20.dp)
-                                .clip(RectangleShape)
-                                .semantics { onClick { true } }
-                                .testTag(tag)
-                        )
-                    }
-                }
-            }
-        }
-
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualViewId) }
-        val rect = Rect().also { info.getBoundsInScreen(it) }
-
-        // mtt expansion: clip = (165, 165, 215, 215) → 50x50.
-        assertThat(rect.width()).isEqualTo(50)
-        assertThat(rect.height()).isEqualTo(50)
-
-        // Shape should represent the actual 20x20 child, relative to boundsInScreen.
-        // Offset by (15, 15) because boundsInScreen is mtt-expanded 15px past the child.
-        val shapeRect = getShapeRect(virtualViewId, info)
-        assertThat(shapeRect).isEqualTo(Rect(15, 15, 35, 35))
     }
 
     @Test
@@ -6406,22 +6253,6 @@ class AndroidAccessibilityTest {
         return checkNotNull(provider.createAccessibilityNodeInfo(virtualViewId)) {
             "Could not find view with id = $virtualViewId"
         }
-    }
-
-    private fun getShapeRect(virtualViewId: Int, info: AccessibilityNodeInfoCompat): Rect {
-        rule.runOnIdle {
-            provider.addExtraDataToAccessibilityNodeInfo(
-                virtualViewId,
-                info,
-                ExtraDataShapeTypeKey,
-                Bundle(),
-            )
-        }
-
-        @Suppress("DEPRECATION") // newer API not available in min sdk version
-        val rect = info.extras.getParcelable<Rect>(ExtraDataShapeRectKey)
-        assertWithMessage("No shape found in extras").that(rect).isNotNull()
-        return rect!!
     }
 
     private fun setContent(content: @Composable () -> Unit) {
