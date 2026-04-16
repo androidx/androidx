@@ -63,23 +63,6 @@ internal class FakeRuntimeAnchor(
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is RuntimeAnchor) return false
-        return pose == other.pose &&
-            trackingState == other.trackingState &&
-            persistenceState == other.persistenceState &&
-            uuid == other.uuid
-    }
-
-    override fun hashCode(): Int {
-        var result = pose.hashCode()
-        result = 31 * result + trackingState.hashCode()
-        result = 31 * result + persistenceState.hashCode()
-        uuid?.let { result = 31 * result + it.hashCode() }
-        return result
-    }
-
     companion object {
         /** Limit for the number of anchors that can be created. */
         @JvmStatic var anchorResourceLimit: Int = 6
