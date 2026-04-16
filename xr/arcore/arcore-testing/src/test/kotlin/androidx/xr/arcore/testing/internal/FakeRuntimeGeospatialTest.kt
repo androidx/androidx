@@ -18,7 +18,6 @@ package androidx.xr.arcore.testing.internal
 
 import androidx.kruth.assertThat
 import androidx.xr.arcore.runtime.AnchorNotTrackingException
-import androidx.xr.arcore.runtime.AnchorUnsupportedLocationException
 import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
 import androidx.xr.arcore.runtime.VpsAvailabilityAvailable
@@ -170,11 +169,11 @@ class FakeRuntimeGeospatialTest {
         }
 
     @Test
-    fun createAnchorOnSurface_belowSurface_throwsAnchorUnsupportedLocationException() =
+    fun createAnchorOnSurface_belowSurface_throwsIllegalArgumentException() =
         runTest(testDispatcher) {
             underTest.state = Geospatial.State.RUNNING
 
-            assertFailsWith<AnchorUnsupportedLocationException> {
+            assertFailsWith<IllegalArgumentException> {
                 underTest.createAnchorOnSurface(
                     0.0,
                     0.0,
