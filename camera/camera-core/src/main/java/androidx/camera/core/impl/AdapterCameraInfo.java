@@ -41,6 +41,7 @@ import org.jspecify.annotations.Nullable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A {@link CameraInfoInternal} that returns disabled state if the corresponding operation in the
@@ -306,5 +307,16 @@ public class AdapterCameraInfo extends ForwardingCameraInfo {
             int cameraMode, boolean isFeatureComboInvocation) {
         return mCameraInfo.isUseCaseCombinationSupported(useCases, cameraMode,
                 isFeatureComboInvocation, mCameraConfig);
+    }
+
+    @Override
+    public @NonNull Set<Integer> getSupportedExtensions() {
+        return mCameraInfo.getSupportedExtensions();
+    }
+
+    @Override
+    public @Nullable CameraExtensionCapabilities getCameraExtensionCapabilities(
+            int extensionMode) {
+        return mCameraInfo.getCameraExtensionCapabilities(extensionMode);
     }
 }

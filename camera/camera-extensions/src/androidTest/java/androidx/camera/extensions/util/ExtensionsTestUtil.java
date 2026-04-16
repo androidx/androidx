@@ -24,13 +24,11 @@ import static androidx.camera.extensions.ExtensionMode.NIGHT;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.os.Build;
 
 import androidx.camera.core.CameraSelector;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
-import androidx.camera.extensions.internal.Camera2ExtensionsInfo;
 import androidx.camera.extensions.internal.Camera2ExtensionsVendorExtender;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -157,10 +155,7 @@ public class ExtensionsTestUtil {
         // API level 33 that allows app to clearly know whether features like tap-to-focus or zoom
         // ratio are supported or not.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            CameraManager cameraManager = applicationContext.getSystemService(
-                    CameraManager.class);
-            return new Camera2ExtensionsVendorExtender(mode,
-                    new Camera2ExtensionsInfo(cameraManager));
+            return new Camera2ExtensionsVendorExtender(mode);
         } else {
             return new VendorExtender() {
             };

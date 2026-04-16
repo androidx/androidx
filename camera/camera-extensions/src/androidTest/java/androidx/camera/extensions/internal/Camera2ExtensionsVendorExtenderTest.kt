@@ -18,7 +18,6 @@ package androidx.camera.extensions.internal
 
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.util.Size
@@ -49,11 +48,7 @@ class Camera2ExtensionsVendorExtenderTest(
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val cameraId2ExtensionCharacteristicsMap =
         Camera2ExtensionsUtil.createCameraId2CameraExtensionCharacteristicsMap(context)
-    private val camera2ExtensionsVendorExtender =
-        Camera2ExtensionsVendorExtender(
-            mode,
-            Camera2ExtensionsInfo(context.getSystemService(CameraManager::class.java)),
-        )
+    private val camera2ExtensionsVendorExtender = Camera2ExtensionsVendorExtender(mode)
     private val cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
     private val camera2ExtensionMode = Camera2ExtensionsUtil.convertCameraXModeToCamera2Mode(mode)
     private val cameraExtensionsCharacteristics = cameraId2ExtensionCharacteristicsMap[cameraId]!!
@@ -83,7 +78,7 @@ class Camera2ExtensionsVendorExtenderTest(
 
     @Test
     fun isExtensionsAvailable_returnCorrectValue() {
-        assertThat(camera2ExtensionsVendorExtender.isExtensionAvailable(cameraId, emptyMap()))
+        assertThat(camera2ExtensionsVendorExtender.isExtensionAvailable(cameraInfo))
             .isEqualTo(
                 cameraExtensionsCharacteristics.supportedExtensions.contains(camera2ExtensionMode)
             )
@@ -185,7 +180,7 @@ class Camera2ExtensionsVendorExtenderTest(
     }
 
     private fun checkAvailabilityAndInit() {
-        assumeTrue(camera2ExtensionsVendorExtender.isExtensionAvailable(cameraId, emptyMap()))
+        assumeTrue(camera2ExtensionsVendorExtender.isExtensionAvailable(cameraInfo))
         camera2ExtensionsVendorExtender.init(cameraInfo)
     }
 

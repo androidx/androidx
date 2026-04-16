@@ -18,22 +18,18 @@ package androidx.camera.extensions.internal
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.impl.fakes.FakeCameraExtensionCapabilities
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyInt
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
@@ -77,18 +73,19 @@ class SupportedCameraOperationsTest {
         supportedCaptureRequestKeys: List<CaptureRequest.Key<out Any>>,
         @AdapterCameraInfo.CameraOperation expectSupportedOperations: Set<Int>,
     ) {
-        val fakeCamera2ExtensionsInfo: Camera2ExtensionsInfoProvider =
-            mock(Camera2ExtensionsInfoProvider::class.java)
-        val fakeCameraExtensionCharacteristics = mock(CameraExtensionCharacteristics::class.java)
-        `when`(fakeCameraExtensionCharacteristics.getAvailableCaptureRequestKeys(anyInt()))
-            .thenReturn(supportedCaptureRequestKeys.toSet())
-        `when`(fakeCamera2ExtensionsInfo.getExtensionCharacteristics(anyString()))
-            .thenReturn(fakeCameraExtensionCharacteristics)
-        `when`(fakeCamera2ExtensionsInfo.isExtensionAvailable(anyString(), anyInt()))
-            .thenReturn(true)
-        val vendorExtender =
-            Camera2ExtensionsVendorExtender(ExtensionMode.NIGHT, fakeCamera2ExtensionsInfo)
+        val cameraExtensionCapabilities =
+            FakeCameraExtensionCapabilities(
+                availableCaptureRequestKeys = supportedCaptureRequestKeys.toSet()
+            )
+        val vendorExtender = Camera2ExtensionsVendorExtender(ExtensionMode.NIGHT)
         val cameraInfo = FakeCameraInfoInternal("0", context)
+        cameraInfo.setSupportedExtensions(
+            setOf(Camera2ExtensionsUtil.convertCameraXModeToCamera2Mode(ExtensionMode.NIGHT))
+        )
+        cameraInfo.setCameraExtensionCapabilities(
+            Camera2ExtensionsUtil.convertCameraXModeToCamera2Mode(ExtensionMode.NIGHT),
+            cameraExtensionCapabilities,
+        )
         vendorExtender.init(cameraInfo)
         val sessionProcessor = vendorExtender.createSessionProcessor(context)!!
         assertThat(sessionProcessor.supportedCameraOperations)
