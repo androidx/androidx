@@ -17,14 +17,9 @@
 package androidx.xr.arcore.testing.internal
 
 import androidx.xr.arcore.runtime.PerceptionRuntime
-import androidx.xr.runtime.AnchorPersistenceMode
-import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.DepthEstimationMode
-import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.DisplayBlendMode
 import androidx.xr.runtime.FaceTrackingMode
-import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
@@ -77,15 +72,7 @@ internal class FakePerceptionRuntime(
     /** If false, [configure] will throw an exception if the config enables FaceTracking */
     @get:JvmName("shouldSupportFaceTracking") var shouldSupportFaceTracking: Boolean = true
 
-    override var config: Config =
-        Config(
-            PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-            HandTrackingMode.BOTH,
-            DeviceTrackingMode.SPATIAL_LAST_KNOWN,
-            DepthEstimationMode.SMOOTH_AND_RAW,
-            AnchorPersistenceMode.LOCAL,
-            augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
-        )
+    override var config: Config = Config()
 
     override fun initialize() {
         check(state == State.NOT_INITIALIZED)

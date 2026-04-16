@@ -18,7 +18,10 @@ package androidx.xr.arcore.testing.internal
 
 import androidx.kruth.assertThat
 import androidx.xr.arcore.runtime.Anchor
+import androidx.xr.arcore.runtime.AnchorNotTrackingException
+import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.runtime.math.Pose
+import kotlin.test.assertFailsWith
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,7 +38,8 @@ class FakeRuntimeAnchorTest {
 
     @Test
     fun constructor_anchorHolderNotNull_isAttached() {
-        val underTest = FakeRuntimeAnchor(Pose(), FakeRuntimePlane())
+        val underTest = FakeRuntimeAnchor(Pose())
+        underTest.anchorHolder = FakeRuntimePlane()
 
         assertThat(underTest.isAttached).isTrue()
     }
@@ -45,6 +49,20 @@ class FakeRuntimeAnchorTest {
         val underTest = FakeRuntimeAnchor(Pose())
 
         assertThat(underTest.isAttached).isFalse()
+    }
+
+    @Test
+    fun constructor_trackingNotAvailable_throws_AnchorNotTrackingException() {
+        assertFailsWith<AnchorNotTrackingException> {
+            FakeRuntimeAnchor(Pose(), isTrackingAvailable = false)
+        }
+    }
+
+    @Test
+    fun constructor_limitReached_throws_AnchorResourcesExhaustedException() {
+        repeat(FakeRuntimeAnchor.anchorResourceLimit) { FakeRuntimeAnchor(Pose()) }
+
+        assertFailsWith<AnchorResourcesExhaustedException> { FakeRuntimeAnchor(Pose()) }
     }
 
     @Test
@@ -61,8 +79,9 @@ class FakeRuntimeAnchorTest {
 
     @Test
     fun detach_attachedBecomesFalse() {
-        val underTest = FakeRuntimeAnchor(Pose(), FakeRuntimePlane())
-        check(underTest.isAttached.equals(true))
+        val underTest = FakeRuntimeAnchor(Pose())
+        underTest.anchorHolder = FakeRuntimePlane()
+        check(underTest.isAttached)
 
         underTest.detach()
 
