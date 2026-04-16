@@ -448,6 +448,9 @@ abstract class AndroidXExtension(
         configureRobolectric(project)
     }
 
+    val usePlatformSpecificCacheForJvmTests: Property<Boolean> =
+        project.objects.property<Boolean>().convention(false)
+
     /** Sets the minimum supported version of Gradle for this Gradle plugin */
     fun setMinimumGradleVersion(version: String) {
         listOf("runtimeElements", "apiElements").forEach { configurationName ->

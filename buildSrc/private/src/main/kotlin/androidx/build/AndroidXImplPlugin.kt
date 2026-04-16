@@ -286,6 +286,12 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         project.addToModuleInfo(testName, buildFeatures.isIsolatedProjectsEnabled())
         androidXExtension.testModuleNames.add(testName)
         val archiveName = "$testName.zip"
+        project.afterEvaluate {
+            if (androidXExtension.usePlatformSpecificCacheForJvmTests.get()) {
+                task.inputs.property("os.name", System.getProperty("os.name"))
+                task.inputs.property("os.arch", System.getProperty("os.arch"))
+            }
+        }
         if (project.isDisplayTestOutput()) {
             // Enable tracing to see results in command line
             task.testLogging.apply {

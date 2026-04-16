@@ -71,6 +71,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Define brushes for freehand input."
+    usePlatformSpecificCacheForJvmTests = true
 }
 
 // TODO: b/374774638 - Run tests on host as well as device.
