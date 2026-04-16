@@ -51,6 +51,12 @@ abstract class ValidationWriter {
         var statementCount = 0
             private set
 
+        override fun add(code: XCodeBlock): XCodeBlock.Builder {
+            statementCount++
+            builder.add(code)
+            return this
+        }
+
         override fun add(format: String, vararg args: Any?): XCodeBlock.Builder {
             statementCount++
             builder.add(format, *args)
@@ -80,8 +86,9 @@ abstract class ValidationWriter {
             return this
         }
 
-        override fun endControlFlow(): CodeBlockWrapper {
-            builder.endControlFlow()
+        override fun nextControlFlow(controlFlow: String, vararg args: Any?): CodeBlockWrapper {
+            statementCount++
+            builder.nextControlFlow(controlFlow, *args)
             return this
         }
     }
