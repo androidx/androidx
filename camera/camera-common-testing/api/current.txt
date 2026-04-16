@@ -1,1 +1,35 @@
 // Signature format: 4.0
+package androidx.camera.common.testing {
+
+  public final class FakeImage implements androidx.camera.common.MutableImageWrapper {
+    ctor public FakeImage(int width, int height, int format, long timestamp, optional android.hardware.HardwareBuffer? hardwareBuffer, optional android.graphics.Rect cropRect);
+    ctor @BytecodeOnly public FakeImage(int, int, int, long, android.hardware.HardwareBuffer!, android.graphics.Rect!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void close();
+    method @InaccessibleFromKotlin public int getCloseCount();
+    method @InaccessibleFromKotlin public android.graphics.Rect getCropRect();
+    method @InaccessibleFromKotlin public int getFormat();
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.common.ImagePlane> getImagePlanes();
+    method @InaccessibleFromKotlin public long getTimestamp();
+    method @InaccessibleFromKotlin public int getWidth();
+    method @InaccessibleFromKotlin public boolean isClosed();
+    method @InaccessibleFromKotlin public void setCropRect(android.graphics.Rect);
+    method @InaccessibleFromKotlin public void setDataSpace(int);
+    method @InaccessibleFromKotlin public void setSyncFence(android.hardware.SyncFence?);
+    method @InaccessibleFromKotlin public void setTimestamp(long);
+    method public <T> T? unwrapAs(Class<T> type);
+    property public int closeCount;
+    property public android.graphics.Rect cropRect;
+    property public int dataSpace;
+    property public int format;
+    property public android.hardware.HardwareBuffer? hardwareBuffer;
+    property public int height;
+    property public java.util.List<androidx.camera.common.ImagePlane> imagePlanes;
+    property public boolean isClosed;
+    property public android.hardware.SyncFence? syncFence;
+    property public long timestamp;
+    property public int width;
+  }
+
+}
+
