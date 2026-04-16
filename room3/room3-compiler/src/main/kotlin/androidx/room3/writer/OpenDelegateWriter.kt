@@ -32,12 +32,6 @@ import androidx.room3.vo.Entity
 import androidx.room3.vo.FtsEntity
 import java.util.ArrayDeque
 
-/**
- * The threshold amount of statements in a onValidateSchema() function before creating additional
- * secondary validate methods.
- */
-const val VALIDATE_CHUNK_SIZE = 500
-
 /** Create an open helper using SupportSQLiteOpenHelperFactory */
 class OpenDelegateWriter(val database: Database) {
 
@@ -97,7 +91,8 @@ class OpenDelegateWriter(val database: Database) {
                         returns(RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT)
                         addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
                         var statementCount = 0
-                        while (!entities.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
+                        val validateChunkSize = scope.writer.context.validateChunkSize
+                        while (!entities.isEmpty() && statementCount < validateChunkSize) {
                             val methodScope = scope.fork()
                             val entity = entities.poll()
                             val validationWriter =
@@ -109,7 +104,7 @@ class OpenDelegateWriter(val database: Database) {
                             addCode(methodScope.generate())
                             statementCount += validationWriter.statementCount()
                         }
-                        while (!views.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
+                        while (!views.isEmpty() && statementCount < validateChunkSize) {
                             val methodScope = scope.fork()
                             val view = views.poll()
                             val validationWriter = ViewInfoValidationWriter(view)

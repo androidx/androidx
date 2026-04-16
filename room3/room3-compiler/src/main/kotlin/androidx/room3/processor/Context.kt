@@ -100,6 +100,10 @@ private constructor(
         canRewriteQueriesToDropUnusedColumns = false,
     )
 
+    val validateChunkSize by lazy {
+        processingEnv.options[ProcessorOptions.VALIDATION_SPLIT_SIZE.argName]?.toIntOrNull() ?: 300
+    }
+
     val schemaInFolderPath by lazy {
         val internalInputFolder =
             processingEnv.options[ProcessorOptions.INTERNAL_SCHEMA_INPUT_FOLDER.argName]
@@ -239,6 +243,7 @@ private constructor(
         OPTION_SCHEMA_FOLDER("room.schemaLocation"),
         INTERNAL_SCHEMA_INPUT_FOLDER("room.internal.schemaInput"),
         INTERNAL_SCHEMA_OUTPUT_FOLDER("room.internal.schemaOutput"),
+        VALIDATION_SPLIT_SIZE("room.validationSplitSize"),
     }
 
     enum class BooleanProcessorOptions(val argName: String, private val defaultValue: Boolean) {
