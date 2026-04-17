@@ -113,7 +113,7 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
         mHeadLockedPanelView.setLine("State", "UNKNOWN")
         this.mHeadLockedUIManager = HeadLockedUIManager(session!!, this, mHeadLockedPanelView)
 
-        session!!.scene.setSpatialVisibilityChangedListener { visibility: SpatialVisibility ->
+        session!!.scene.addSpatialVisibilityChangedListener { visibility: SpatialVisibility ->
             mSpatialVisibility = visibility
             Log.i(TAG, "Spatial visibility changed listener called $visibility")
             mHeadLockedPanelView.setLine("State", visibility.toString())
