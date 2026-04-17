@@ -1,2 +1,6 @@
-# Keep all classes in the scenecore.spatial.core package. They can be used externally.
+-if class androidx.xr.runtime.Session
 -keep class androidx.xr.scenecore.spatial.core.SpatialSceneRuntimeFactory { *; }
+
+# Instantiated via reflection in androidx.xr.scenecore.spatial.rendering.SpatialRenderingRuntime
+-if class androidx.xr.scenecore.runtime.RenderingRuntime
+-keep class androidx.xr.scenecore.spatial.core.SpatialCoreXrExtensionsHolderProvider{ *; }
