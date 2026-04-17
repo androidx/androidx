@@ -393,7 +393,7 @@ private fun CardImpl(
 
                 if (subtitle != null) {
                     CompositionLocalProvider(
-                        LocalTextStyle provides typography.bodySmall,
+                        LocalTextStyle provides typography.caption,
                         content = subtitle,
                     )
                 }
