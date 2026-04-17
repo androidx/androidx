@@ -113,4 +113,6 @@ public interface PerceptionManager {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val rightDepthMap: DepthMap?
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val monoDepthMap: DepthMap?
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val userFace: Face?
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val conversationSceneSignal: ConversationState?
 }

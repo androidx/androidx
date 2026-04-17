@@ -19,6 +19,7 @@ package androidx.xr.arcore.projected
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.ArDevice
+import androidx.xr.arcore.runtime.ConversationState
 import androidx.xr.arcore.runtime.DepthMap
 import androidx.xr.arcore.runtime.Eye
 import androidx.xr.arcore.runtime.Face
@@ -143,6 +144,8 @@ internal constructor(private val timeSource: ProjectedTimeSource) : PerceptionMa
     override val monoDepthMap: DepthMap? = null
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) override val userFace: Face? = null
+
+    override val conversationSceneSignal: ConversationState? = null
 
     /**
      * Updates the perception manager.
