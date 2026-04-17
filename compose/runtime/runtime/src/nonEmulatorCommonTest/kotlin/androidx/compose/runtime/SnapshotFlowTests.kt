@@ -211,6 +211,44 @@ class SnapshotFlowTests {
         collector2.cancel()
     }
 
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    @Test
+    fun cancelSoleManagedSnapshotFlowThenReuseManager() = runTest {
+        val state = mutableStateOf(false)
+
+        val manager = SnapshotFlowManager()
+
+        val results = mutableListOf<Boolean>()
+
+        val collector1 =
+            snapshotFlow(manager) { state.value }.onEach { results.add(it) }.launchIn(this)
+
+        // This test uses the `runTest` single-threaded dispatcher, which means that changes aren't
+        // flushed to observers until we `yield()` intentionally.
+        yield()
+
+        state.value = true
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        collector1.cancel()
+        val collector2 =
+            snapshotFlow(manager) { state.value }.onEach { results.add(it) }.launchIn(this)
+        val collector3 =
+            snapshotFlow(manager) { state.value }.onEach { results.add(it) }.launchIn(this)
+
+        yield()
+
+        state.value = false
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        assertEquals(listOf(false, true, true, true, false, false), results)
+
+        collector2.cancel()
+        collector3.cancel()
+    }
+
     @Test
     fun twoSnapshotFlowsWithDistinctManagers() = runTest {
         val state = mutableStateOf(false)
