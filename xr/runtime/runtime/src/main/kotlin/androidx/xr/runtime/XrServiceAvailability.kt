@@ -18,9 +18,11 @@ package androidx.xr.runtime
 
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RestrictTo
 
 /** Provides information about the XR API availability. */
 @ExperimentalXrServiceAvailabilityApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object XrServiceAvailability {
     /** Includes all supported states for the XR service availability. */
     @ExperimentalXrServiceAvailabilityApi
