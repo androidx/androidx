@@ -1266,6 +1266,17 @@ package androidx.car.app.model {
     method public void sendDismiss(androidx.car.app.OnDoneCallback);
   }
 
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class Background {
+    method public androidx.car.app.model.CarIcon? getImage();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class Background.Builder {
+    ctor public Background.Builder();
+    ctor public Background.Builder(androidx.car.app.model.Background);
+    method public androidx.car.app.model.Background build();
+    method public androidx.car.app.model.Background.Builder setImage(androidx.car.app.model.CarIcon);
+  }
+
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public class Badge {
     method @Deprecated public androidx.car.app.model.CarColor? getBackgroundColor();
     method public androidx.car.app.model.CarColor? getDotColor();
@@ -1568,8 +1579,10 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class Header {
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Background? getBackground();
     method public java.util.List<androidx.car.app.model.Action!> getEndHeaderActions();
     method public androidx.car.app.model.Action? getStartHeaderAction();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText? getTitle();
   }
 
@@ -1577,7 +1590,10 @@ package androidx.car.app.model {
     ctor public Header.Builder();
     method public androidx.car.app.model.Header.Builder addEndHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Header build();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setBackground(androidx.car.app.model.Background);
     method public androidx.car.app.model.Header.Builder setStartHeaderAction(androidx.car.app.model.Action);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(androidx.car.app.model.CarText);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(CharSequence);
     method public androidx.car.app.model.Header.Builder setTitle(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Header.Builder setTitle(CharSequence);
   }
