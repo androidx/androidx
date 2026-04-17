@@ -90,7 +90,7 @@ class HitTestActivity : AppCompatActivity() {
                 panelContentView,
                 IntSize2d(640, 480),
                 "panel",
-                Pose(Vector3(0f, -0.85f, .5f)),
+                Pose(Vector3(-.8f, -0.5f, .5f)),
                 parent = session!!.scene.activitySpace,
             )
         panelEntity.parent = session!!.scene.activitySpace
