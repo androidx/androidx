@@ -19,7 +19,8 @@
 package androidx.tracing
 
 /**
- * Records an exceptional event in a trace.
+ * Records an exceptional event in a trace. This method rethrows the [throwable] after having
+ * extracting all metadata worth tracing.
  *
  * @param category The [String] category. It's useful to categorize [TraceEvent]s, so that they can
  *   be filtered if necessary using the appropriate trace configuration.
