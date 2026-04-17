@@ -143,6 +143,45 @@ package androidx.navigation3.runtime {
 
 }
 
+package androidx.navigation3.runtime.result {
+
+  public final class LocalResultEventBus {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.navigation3.runtime.result.ResultEventBus getCurrent(androidx.compose.runtime.Composer?, int);
+    method public infix androidx.compose.runtime.ProvidedValue<androidx.navigation3.runtime.result.ResultEventBus?> provides(androidx.navigation3.runtime.result.ResultEventBus eventBus);
+    property @androidx.compose.runtime.Composable public androidx.navigation3.runtime.result.ResultEventBus current;
+    field public static final androidx.navigation3.runtime.result.LocalResultEventBus INSTANCE;
+  }
+
+  public final class ResultEffectKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <reified T> void ResultEffect(optional androidx.navigation3.runtime.result.ResultEventBus resultEventBus, kotlin.jvm.functions.Function2<T,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onResult);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> void ResultEffect(String, androidx.navigation3.runtime.result.ResultEventBus?, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> void ResultEffect(String resultKey, optional androidx.navigation3.runtime.result.ResultEventBus resultEventBus, kotlin.jvm.functions.Function2<T,kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onResult);
+  }
+
+  public final class ResultEventBus {
+    ctor public ResultEventBus();
+    method @KotlinOnly @androidx.compose.runtime.Composable public <T> androidx.compose.runtime.State<T> conflateAsState(String resultKey, T defaultValue);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public <T> androidx.compose.runtime.State<T> conflateAsState(String, T, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public inline <reified T> androidx.compose.runtime.State<T> conflateAsState(T defaultValue);
+    method @KotlinOnly public inline <reified T> void removeResult();
+    method public void removeResult(String resultKey);
+    method public <T> void sendResult(String resultKey, T result);
+    method @KotlinOnly public inline <reified T> void sendResult(T result);
+  }
+
+  public final class ResultEventBusNavEntryDecorator<T> extends androidx.navigation3.runtime.NavEntryDecorator<T> {
+    ctor public ResultEventBusNavEntryDecorator();
+    ctor public ResultEventBusNavEntryDecorator(optional androidx.navigation3.runtime.result.ResultEventBus bus);
+    ctor @BytecodeOnly public ResultEventBusNavEntryDecorator(androidx.navigation3.runtime.result.ResultEventBus!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+  public final class ResultEventBusNavEntryDecoratorKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.result.ResultEventBusNavEntryDecorator<T> rememberResultEventBusNavEntryDecorator();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.result.ResultEventBusNavEntryDecorator<T> rememberResultEventBusNavEntryDecorator(androidx.compose.runtime.Composer?, int);
+  }
+
+}
+
 package androidx.navigation3.runtime.serialization {
 
   public final class NavBackStackSerializer<T extends androidx.navigation3.runtime.NavKey> implements kotlinx.serialization.KSerializer<androidx.navigation3.runtime.NavBackStack<T>> {
