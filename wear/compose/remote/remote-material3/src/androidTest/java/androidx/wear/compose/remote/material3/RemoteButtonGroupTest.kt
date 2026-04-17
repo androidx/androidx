@@ -17,15 +17,18 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -77,6 +80,24 @@ class RemoteButtonGroupTest {
             creationDisplayInfo = creationDisplayInfo,
         ) {
             Center { RemoteButtonGroupTwoButtons() }
+        }
+    }
+
+    @Test
+    fun buttonGroup_dynamicColor() {
+        val colorOverrides = buildObjectIntMap {
+            put("WearM3.primary", Color(0xFFB8D0A0).toArgb())
+            put("WearM3.onPrimary", Color(0xFF24361A).toArgb())
+            put("WearM3.surfaceContainer", Color(0xFF1C1D1A).toArgb())
+            put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
+        }
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            backgroundColor = Color.Black,
+            creationDisplayInfo = creationDisplayInfo,
+            colorOverrides = colorOverrides,
+        ) {
+            Center { RemoteButtonGroupThreeButtons() }
         }
     }
 
