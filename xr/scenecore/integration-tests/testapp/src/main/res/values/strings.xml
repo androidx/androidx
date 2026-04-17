@@ -122,6 +122,7 @@
     <string name="resizable_label" description="Label for switch that enables main panel resize [CHAR_LIMIT=30]">Resizable</string>
     <string name="system_movable_label" description="Label for the aspect ratio radio button [CHAR LIMIT=50]">System Movable</string>
     <string name="scale_in_z_label" description="Label for the aspect ratio radio button [CHAR LIMIT=30]">Scale In Z</string>
+    <string name="gltf_movable" description="Label for switch that enables GLTF movable [CHAR_LIMIT=30]">GLTF Movable</string>
 
     <string name="launch_settings_app_in_fsm">Launch Settings App in a new task in FSM</string>
     <string name="launch_settings_app_in_fsm_with_environment_inherited">Launch Settings App in a new task in FSM with environment inherited</string>
