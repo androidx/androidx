@@ -22,8 +22,6 @@ import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
 import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ALIGNED;
-import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ITEM;
-import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_PAGE;
 import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP;
 
 import android.annotation.SuppressLint;
@@ -2043,10 +2041,6 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private boolean prependOneColumnVisibleItems() {
-        return mGrid.prependOneColumnVisibleItems();
-    }
-
     private void appendVisibleItems() {
         mGrid.appendVisibleItems((mFlag & PF_REVERSE_FLOW_PRIMARY) != 0
                 ? -mExtraLayoutSpace - mExtraLayoutSpaceInPreLayout
@@ -2338,9 +2332,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             updatePositionToRowMapInPostLayout();
         }
         // check if we need align to mFocusPosition, this is usually true unless in smoothScrolling
-        final boolean scrollToFocus = !isSmoothScrolling()
-                && (mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED
-                || mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP);
+        final boolean scrollToFocus = !isSmoothScrolling();
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
             mFocusPosition = mFocusPosition + mFocusPositionOffset;
             mSubFocusPosition = 0;
@@ -3202,92 +3194,6 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     boolean getScrollPosition(View view, View childView, int[] deltas) {
-        switch (mFocusScrollStrategy) {
-            case FOCUS_SCROLL_ALIGNED:
-            case FOCUS_SCROLL_ALIGNED_AND_SNAP:
-            default:
-                return getAlignedPosition(view, childView, deltas);
-            case FOCUS_SCROLL_ITEM:
-            case FOCUS_SCROLL_PAGE:
-                return getNoneAlignedPosition(view, deltas);
-        }
-    }
-
-    private boolean getNoneAlignedPosition(View view, int[] deltas) {
-        int pos = getAdapterPositionByView(view);
-        int viewMin = getViewMin(view);
-        int viewMax = getViewMax(view);
-        // we either align "firstView" to left/top padding edge
-        // or align "lastView" to right/bottom padding edge
-        View firstView = null;
-        View lastView = null;
-        int paddingMin = mWindowAlignment.mainAxis().getPaddingMin();
-        int clientSize = mWindowAlignment.mainAxis().getClientSize();
-        final int row = mGrid.getRowIndex(pos);
-        if (viewMin < paddingMin) {
-            // view enters low padding area:
-            firstView = view;
-            if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_PAGE) {
-                // scroll one "page" left/top,
-                // align first visible item of the "page" at the low padding edge.
-                while (prependOneColumnVisibleItems()) {
-                    CircularIntArray positions =
-                            mGrid.getItemPositionsInRows(mGrid.getFirstVisibleIndex(), pos)[row];
-                    firstView = findViewByPosition(positions.get(0));
-                    if (viewMax - getViewMin(firstView) > clientSize) {
-                        if (positions.size() > 2) {
-                            firstView = findViewByPosition(positions.get(2));
-                        }
-                        break;
-                    }
-                }
-            }
-        } else if (viewMax > clientSize + paddingMin) {
-            // view enters high padding area:
-            if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_PAGE) {
-                // scroll whole one page right/bottom, align view at the low padding edge.
-                firstView = view;
-                do {
-                    CircularIntArray positions =
-                            mGrid.getItemPositionsInRows(pos, mGrid.getLastVisibleIndex())[row];
-                    lastView = findViewByPosition(positions.get(positions.size() - 1));
-                    if (getViewMax(lastView) - viewMin > clientSize) {
-                        lastView = null;
-                        break;
-                    }
-                } while (appendOneColumnVisibleItems());
-                if (lastView != null) {
-                    // however if we reached end,  we should align last view.
-                    firstView = null;
-                }
-            } else {
-                lastView = view;
-            }
-        }
-        int scrollPrimary = 0;
-        if (firstView != null) {
-            scrollPrimary = getViewMin(firstView) - paddingMin;
-        } else if (lastView != null) {
-            scrollPrimary = getViewMax(lastView) - (paddingMin + clientSize);
-        }
-        View secondaryAlignedView;
-        if (firstView != null) {
-            secondaryAlignedView = firstView;
-        } else if (lastView != null) {
-            secondaryAlignedView = lastView;
-        } else {
-            secondaryAlignedView = view;
-        }
-        int scrollSecondary = getSecondaryScrollDistance(secondaryAlignedView);
-        if (scrollPrimary != 0 || scrollSecondary != 0) {
-            deltas[0] = scrollPrimary;
-            deltas[1] = scrollSecondary;
-            return true;
-        }
-        return false;
-    }
-
-    private boolean getAlignedPosition(View view, View childView, int[] deltas) {
         int scrollPrimary = getPrimaryAlignedScrollDistance(view);
         if (childView != null) {
             scrollPrimary = getAdjustedPrimaryAlignedScrollDistance(scrollPrimary, view, childView);
@@ -3348,10 +3254,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     void setScrollEnabled(boolean scrollEnabled) {
         if (((mFlag & PF_SCROLL_ENABLED) != 0) != scrollEnabled) {
             mFlag = (mFlag & ~PF_SCROLL_ENABLED) | (scrollEnabled ? PF_SCROLL_ENABLED : 0);
-            if (((mFlag & PF_SCROLL_ENABLED) != 0)
-                    && (mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED
-                        || mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP)
-                    && mFocusPosition != NO_POSITION) {
+            if (((mFlag & PF_SCROLL_ENABLED) != 0) && mFocusPosition != NO_POSITION) {
                 scrollToSelection(mFocusPosition, mSubFocusPosition,
                         true, mPrimaryScrollExtra);
             }
@@ -3636,33 +3539,9 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         } else {
             int focusableCount = views.size();
-            if (mFocusScrollStrategy != FOCUS_SCROLL_ALIGNED
-                    && mFocusScrollStrategy != FOCUS_SCROLL_ALIGNED_AND_SNAP) {
-                // adding views not overlapping padding area to avoid scrolling in gaining focus
-                int left = mWindowAlignment.mainAxis().getPaddingMin();
-                int right = mWindowAlignment.mainAxis().getClientSize() + left;
-                for (int i = 0, count = getChildCount(); i < count; i++) {
-                    View child = getChildAt(i);
-                    if (child.getVisibility() == View.VISIBLE) {
-                        if (getViewMin(child) >= left && getViewMax(child) <= right) {
-                            child.addFocusables(views, direction, focusableMode);
-                        }
-                    }
-                }
-                // if we cannot find any, then just add all children.
-                if (views.size() == focusableCount) {
-                    for (int i = 0, count = getChildCount(); i < count; i++) {
-                        View child = getChildAt(i);
-                        if (child.getVisibility() == View.VISIBLE) {
-                            child.addFocusables(views, direction, focusableMode);
-                        }
-                    }
-                }
-            } else {
-                View view = findViewByPosition(mFocusPosition);
-                if (view != null) {
-                    view.addFocusables(views, direction, focusableMode);
-                }
+            View view = findViewByPosition(mFocusPosition);
+            if (view != null) {
+                view.addFocusables(views, direction, focusableMode);
             }
             // if still cannot find any, fall through and add itself
             if (views.size() != focusableCount) {
@@ -3701,21 +3580,6 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     boolean gridOnRequestFocusInDescendants(RecyclerView recyclerView, int direction,
             Rect previouslyFocusedRect) {
-        switch (mFocusScrollStrategy) {
-            case FOCUS_SCROLL_ALIGNED:
-            case FOCUS_SCROLL_ALIGNED_AND_SNAP:
-            default:
-                return gridOnRequestFocusInDescendantsAligned(
-                        direction, previouslyFocusedRect);
-            case FOCUS_SCROLL_PAGE:
-            case FOCUS_SCROLL_ITEM:
-                return gridOnRequestFocusInDescendantsUnaligned(
-                        direction, previouslyFocusedRect);
-        }
-    }
-
-    private boolean gridOnRequestFocusInDescendantsAligned(int direction,
-            Rect previouslyFocusedRect) {
         View view = findViewByPosition(mFocusPosition);
         if (view != null) {
             boolean result = view.requestFocus(direction, previouslyFocusedRect);
@@ -3723,37 +3587,6 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                 Log.w(getTag(), "failed to request focus on " + view);
             }
             return result;
-        }
-        return false;
-    }
-
-    private boolean gridOnRequestFocusInDescendantsUnaligned(int direction,
-            Rect previouslyFocusedRect) {
-        // focus to view not overlapping padding area to avoid scrolling in gaining focus
-        int index;
-        int increment;
-        int end;
-        int count = getChildCount();
-        if ((direction & View.FOCUS_FORWARD) != 0) {
-            index = 0;
-            increment = 1;
-            end = count;
-        } else {
-            index = count - 1;
-            increment = -1;
-            end = -1;
-        }
-        int left = mWindowAlignment.mainAxis().getPaddingMin();
-        int right = mWindowAlignment.mainAxis().getClientSize() + left;
-        for (int i = index; i != end; i += increment) {
-            View child = getChildAt(i);
-            if (child.getVisibility() == View.VISIBLE) {
-                if (getViewMin(child) >= left && getViewMax(child) <= right) {
-                    if (child.requestFocus(direction, previouslyFocusedRect)) {
-                        return true;
-                    }
-                }
-            }
         }
         return false;
     }

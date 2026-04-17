@@ -45,35 +45,31 @@ import org.jspecify.annotations.Nullable;
 public abstract class BaseGridView extends RecyclerView {
 
     /**
-     * Always keep focused item at a aligned position.  Developer can use
-     * WINDOW_ALIGN_XXX and ITEM_ALIGN_XXX to define how focused item is aligned.
-     * In this mode, the last focused position will be remembered and restored when focus
-     * is back to the view.
-     *
+     * Always keep focused item at an aligned position in non-touch mode.  Developer can use
+     * {@link #setWindowAlignment(int)} and custom item alignment to define how focused item is
+     * aligned. In this mode, the last focused position will be remembered and restored when focus
+     * is back to the view.  In touch mode, the item is not aligned after user drags the content
+     * by arbitrary distance.  To also keep it aligned in touch mode, use
+     * {@link #FOCUS_SCROLL_ALIGNED_AND_SNAP}.
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int FOCUS_SCROLL_ALIGNED = 0;
 
     /**
-     * Scroll to make the focused item inside client area.
-     *
+     * Do not use, unsupported.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int FOCUS_SCROLL_ITEM = 1;
 
     /**
-     * Scroll a page of items when focusing to item outside the client area.
-     * The page size matches the client area size of RecyclerView.
-     *
+     * Do not use, unsupported.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int FOCUS_SCROLL_PAGE = 2;
 
     /**
-     * In additional to FOCUS_SCROLL_ALIGNED, it snaps to aligned position when touch/mouse
+     * In addition to {@link #FOCUS_SCROLL_ALIGNED}, it snaps to aligned position when touch/mouse
      * operation stops.
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int FOCUS_SCROLL_ALIGNED_AND_SNAP = FOCUS_SCROLL_ALIGNED | (1 << 2);
 
     /**
@@ -318,17 +314,13 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Sets the strategy used to scroll in response to item focus changing:
      * <ul>
-     * <li>{@link #FOCUS_SCROLL_ALIGNED} (default) </li>
-     * <li>(@link #FOCUS_SCROLL_ALIGNED_AND_SNAP}</li>
-     * <li>{@link #FOCUS_SCROLL_ITEM}</li>
-     * <li>{@link #FOCUS_SCROLL_PAGE}</li>
+     * <li>{@link #FOCUS_SCROLL_ALIGNED} (default)</li>
+     * <li>{@link #FOCUS_SCROLL_ALIGNED_AND_SNAP}</li>
      * </ul>
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setFocusScrollStrategy(int scrollStrategy) {
-        if (scrollStrategy != FOCUS_SCROLL_ALIGNED && scrollStrategy != FOCUS_SCROLL_ITEM
-                && scrollStrategy != FOCUS_SCROLL_PAGE
+        if (scrollStrategy != FOCUS_SCROLL_ALIGNED
                 && scrollStrategy != FOCUS_SCROLL_ALIGNED_AND_SNAP) {
             throw new IllegalArgumentException("Invalid scrollStrategy");
         }
@@ -337,15 +329,13 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Returns the strategy used to scroll in response to item focus changing.
+     * Returns the strategy used to scroll in response to item focus changing and touch events.
      * <ul>
-     * <li>{@link #FOCUS_SCROLL_ALIGNED} (default) </li>
-     * <li>{@link #FOCUS_SCROLL_ITEM}</li>
-     * <li>{@link #FOCUS_SCROLL_PAGE}</li>
+     * <li>{@link #FOCUS_SCROLL_ALIGNED} (default)</li>
+     * <li>{@link #FOCUS_SCROLL_ALIGNED_AND_SNAP}</li>
      * </ul>
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getFocusScrollStrategy() {
         return mLayoutManager.getFocusScrollStrategy();
     }
