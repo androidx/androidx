@@ -86,7 +86,7 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
         }
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
-        session!!.scene.activitySpace.addOnBoundsChangedListener { dimensions ->
+        session!!.scene.activitySpace.addBoundsChangedListener { dimensions ->
             inFsm = dimensions.width == Float.POSITIVE_INFINITY
             updateTextViews()
         }

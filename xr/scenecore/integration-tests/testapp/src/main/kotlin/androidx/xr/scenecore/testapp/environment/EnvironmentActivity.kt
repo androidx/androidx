@@ -279,7 +279,7 @@ class EnvironmentActivity : AppCompatActivity() {
             addEvent(EventType.CAPABILITIES_CHANGED, logCapabilities(session!!))
         }
         // Listener for bounds change
-        session!!.scene.activitySpace.addOnBoundsChangedListener { bounds ->
+        session!!.scene.activitySpace.addBoundsChangedListener { bounds ->
             addEvent(
                 EventType.BOUNDS_CHANGED,
                 "w=${bounds.width}, h=${bounds.height}, d=${bounds.depth}",
@@ -372,7 +372,7 @@ class EnvironmentActivity : AppCompatActivity() {
             }
         )
 
-        session!!.scene.spatialEnvironment.addOnPassthroughOpacityChangedListener { newOpacity ->
+        session!!.scene.spatialEnvironment.addPassthroughOpacityChangedListener { newOpacity ->
             currentPassthroughOpacity.value = newOpacity
             opacityTextView.text =
                 opacityValueText(

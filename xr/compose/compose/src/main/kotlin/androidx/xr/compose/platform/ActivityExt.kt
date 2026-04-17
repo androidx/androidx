@@ -135,13 +135,13 @@ private suspend fun ActivitySpace.awaitSpaceUpdated(expectedSpace: Space) {
             object : Consumer<FloatSize3d> {
                 override fun accept(nextBounds: FloatSize3d) {
                     if (Space.fromBounds(nextBounds) == expectedSpace) {
-                        continuation.resume(Unit) { _, _, _ -> removeOnBoundsChangedListener(this) }
-                        removeOnBoundsChangedListener(this)
+                        continuation.resume(Unit) { _, _, _ -> removeBoundsChangedListener(this) }
+                        removeBoundsChangedListener(this)
                     }
                 }
             }
-        continuation.invokeOnCancellation { removeOnBoundsChangedListener(listener) }
-        addOnBoundsChangedListener(listener)
+        continuation.invokeOnCancellation { removeBoundsChangedListener(listener) }
+        addBoundsChangedListener(listener)
     }
 }
 

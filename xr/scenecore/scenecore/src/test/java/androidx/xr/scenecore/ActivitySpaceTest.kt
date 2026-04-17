@@ -64,7 +64,7 @@ class ActivitySpaceTest {
     }
 
     @Test
-    fun addOnBoundsChangedListener_receivesBoundsChangedCallback() {
+    fun addBoundsChangedListener_receivesBoundsChangedCallback() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
         val boundsChangedListener =
@@ -74,7 +74,7 @@ class ActivitySpaceTest {
                 assertThat(newBounds.depth).isEqualTo(0.1f)
             }
 
-        activitySpace.addOnBoundsChangedListener(directExecutor(), boundsChangedListener)
+        activitySpace.addBoundsChangedListener(directExecutor(), boundsChangedListener)
 
         // Already one listener by default.
         assertThat((activitySpace.rtEntity as FakeActivitySpace).onBoundsChangedListeners)
@@ -83,19 +83,19 @@ class ActivitySpaceTest {
         // Simulates a runtime callback.
         rtActivitySpace.onBoundsChanged(Dimensions(0.3f, 0.2f, 0.1f))
 
-        activitySpace.removeOnBoundsChangedListener(boundsChangedListener)
+        activitySpace.removeBoundsChangedListener(boundsChangedListener)
 
         assertThat((activitySpace.rtEntity as FakeActivitySpace).onBoundsChangedListeners)
             .hasSize(1)
     }
 
     @Test
-    fun addOnOriginChangedListener_receivesRuntimeSetOnOriginChangedListenerCallbacks() {
+    fun addOriginChangedListener_receivesRuntimeSetOnOriginChangedListenerCallbacks() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
 
         var listenerCalled = false
-        activitySpace.addOnOriginChangedListener(directExecutor()) { listenerCalled = true }
+        activitySpace.addOriginChangedListener(directExecutor()) { listenerCalled = true }
         // Simulates a runtime callback.
         rtActivitySpace.onOriginChanged()
 
@@ -103,19 +103,19 @@ class ActivitySpaceTest {
     }
 
     @Test
-    fun removeOnOriginChangedListener_callsRuntimeSetOnOriginChangedListener() {
+    fun removeOriginChangedListener_callsRuntimeSetOnOriginChangedListener() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
 
         var listenCount = 0
         val listener = Runnable { listenCount++ }
-        activitySpace.addOnOriginChangedListener(listener)
+        activitySpace.addOriginChangedListener(listener)
         // Simulates a runtime callback.
         rtActivitySpace.onOriginChanged()
 
         assertThat(listenCount).isEqualTo(1)
 
-        activitySpace.removeOnOriginChangedListener(listener)
+        activitySpace.removeOriginChangedListener(listener)
         // Simulates a runtime callback.
         rtActivitySpace.onOriginChanged()
 
@@ -232,7 +232,7 @@ class ActivitySpaceTest {
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
         val listener = Consumer<FloatSize3d> {}
 
-        activitySpace.addOnBoundsChangedListener(listener)
+        activitySpace.addBoundsChangedListener(listener)
 
         // Already one listener by default.
         assertThat(rtActivitySpace.onBoundsChangedListeners).hasSize(2)
@@ -248,7 +248,7 @@ class ActivitySpaceTest {
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
         var listenCount = 0
         val listener = Runnable { listenCount++ }
-        activitySpace.addOnOriginChangedListener(listener)
+        activitySpace.addOriginChangedListener(listener)
         // Simulates a runtime callback.
         rtActivitySpace.onOriginChanged()
 

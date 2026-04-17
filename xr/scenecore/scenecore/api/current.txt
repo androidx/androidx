@@ -18,17 +18,14 @@ package androidx.xr.scenecore {
   }
 
   public final class ActivitySpace extends androidx.xr.scenecore.BaseEntity<androidx.xr.scenecore.runtime.ActivitySpace> {
-    method public void addOnBoundsChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
-    method public void addOnBoundsChangedListener(java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
-    method public void addOnOriginChangedListener(Runnable listener);
-    method public void addOnOriginChangedListener(java.util.concurrent.Executor executor, Runnable listener);
-    method @Deprecated public void addOnSpaceUpdatedListener(Runnable listener);
-    method @Deprecated public void addOnSpaceUpdatedListener(java.util.concurrent.Executor executor, Runnable listener);
+    method public void addBoundsChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
+    method public void addBoundsChangedListener(java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
+    method public void addOriginChangedListener(Runnable listener);
+    method public void addOriginChangedListener(java.util.concurrent.Executor executor, Runnable listener);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getBounds();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getRecommendedContentBoxInFullSpace();
-    method public void removeOnBoundsChangedListener(java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
-    method public void removeOnOriginChangedListener(Runnable listener);
-    method @Deprecated public void removeOnSpaceUpdatedListener(Runnable listener);
+    method public void removeBoundsChangedListener(java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
+    method public void removeOriginChangedListener(Runnable listener);
     property public androidx.xr.runtime.math.FloatSize3d bounds;
     property public androidx.xr.runtime.math.BoundingBox recommendedContentBoxInFullSpace;
   }
@@ -47,17 +44,17 @@ package androidx.xr.scenecore {
   }
 
   public final class AnchorEntity extends androidx.xr.scenecore.BaseEntity<androidx.xr.scenecore.runtime.AnchorEntity> {
-    method public void addOnOriginChangedListener(Runnable listener);
-    method public void addOnOriginChangedListener(java.util.concurrent.Executor executor, Runnable listener);
-    method public void addOnStateChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
-    method public void addOnStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
+    method public void addOriginChangedListener(Runnable listener);
+    method public void addOriginChangedListener(java.util.concurrent.Executor executor, Runnable listener);
+    method public void addStateChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
+    method public void addStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
     method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.arcore.Anchor anchor);
     method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes);
     method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes, optional java.time.Duration timeout);
     method @InaccessibleFromKotlin public androidx.xr.arcore.Anchor? getAnchor();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.AnchorEntity.State getState();
-    method public void removeOnOriginChangedListener(Runnable listener);
-    method public void removeOnStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
+    method public void removeOriginChangedListener(Runnable listener);
+    method public void removeStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
     property public androidx.xr.arcore.Anchor? anchor;
     property public androidx.xr.scenecore.AnchorEntity.State state;
     field public static final androidx.xr.scenecore.AnchorEntity.Companion Companion;
@@ -142,12 +139,12 @@ package androidx.xr.scenecore {
   }
 
   public final class BoundsComponent extends androidx.xr.scenecore.Component {
-    method public void addOnBoundsUpdateListener(java.util.concurrent.Executor executor, java.util.function.BiConsumer<androidx.xr.scenecore.Entity,androidx.xr.runtime.math.BoundingBox> listener);
-    method public void addOnBoundsUpdateListener(java.util.function.BiConsumer<androidx.xr.scenecore.Entity,androidx.xr.runtime.math.BoundingBox> listener);
+    method public void addBoundsUpdateListener(java.util.concurrent.Executor executor, java.util.function.BiConsumer<androidx.xr.scenecore.Entity,androidx.xr.runtime.math.BoundingBox> listener);
+    method public void addBoundsUpdateListener(java.util.function.BiConsumer<androidx.xr.scenecore.Entity,androidx.xr.runtime.math.BoundingBox> listener);
     method public static androidx.xr.scenecore.BoundsComponent create(androidx.xr.runtime.Session session);
     method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
     method protected void onDetach(androidx.xr.scenecore.Entity entity);
-    method public void removeOnBoundsUpdateListener(java.util.function.BiConsumer<androidx.xr.scenecore.Entity,androidx.xr.runtime.math.BoundingBox> listener);
+    method public void removeBoundsUpdateListener(java.util.function.BiConsumer<androidx.xr.scenecore.Entity,androidx.xr.runtime.math.BoundingBox> listener);
     field public static final androidx.xr.scenecore.BoundsComponent.Companion Companion;
   }
 
@@ -1062,16 +1059,16 @@ package androidx.xr.scenecore {
   }
 
   public final class SpatialEnvironment {
-    method public void addOnPassthroughOpacityChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<java.lang.Float> listener);
-    method public void addOnPassthroughOpacityChangedListener(java.util.function.Consumer<java.lang.Float> listener);
-    method public void addOnSpatialEnvironmentChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<java.lang.Boolean> listener);
-    method public void addOnSpatialEnvironmentChangedListener(java.util.function.Consumer<java.lang.Boolean> listener);
+    method public void addPassthroughOpacityChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<java.lang.Float> listener);
+    method public void addPassthroughOpacityChangedListener(java.util.function.Consumer<java.lang.Float> listener);
+    method public void addSpatialEnvironmentChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<java.lang.Boolean> listener);
+    method public void addSpatialEnvironmentChangedListener(java.util.function.Consumer<java.lang.Boolean> listener);
     method @InaccessibleFromKotlin public float getCurrentPassthroughOpacity();
     method @InaccessibleFromKotlin public float getPreferredPassthroughOpacity();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference? getPreferredSpatialEnvironment();
     method @InaccessibleFromKotlin public boolean isPreferredSpatialEnvironmentActive();
-    method public void removeOnPassthroughOpacityChangedListener(java.util.function.Consumer<java.lang.Float> listener);
-    method public void removeOnSpatialEnvironmentChangedListener(java.util.function.Consumer<java.lang.Boolean> listener);
+    method public void removePassthroughOpacityChangedListener(java.util.function.Consumer<java.lang.Float> listener);
+    method public void removeSpatialEnvironmentChangedListener(java.util.function.Consumer<java.lang.Boolean> listener);
     method @InaccessibleFromKotlin public void setPreferredPassthroughOpacity(float);
     method @InaccessibleFromKotlin public void setPreferredSpatialEnvironment(androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference?);
     property public float currentPassthroughOpacity;

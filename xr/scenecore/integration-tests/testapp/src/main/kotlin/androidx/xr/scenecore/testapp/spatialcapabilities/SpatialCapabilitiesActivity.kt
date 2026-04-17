@@ -112,7 +112,7 @@ class SpatialCapabilitiesActivity : AppCompatActivity() {
             )
         }
 
-        renderingSession.scene.activitySpace.addOnBoundsChangedListener { bounds ->
+        renderingSession.scene.activitySpace.addBoundsChangedListener { bounds ->
             addNewSpatialLogEvent(
                 SpatialEventLog(
                     currentTimestamp(),

@@ -142,7 +142,7 @@ private class ContextOnlySpatialConfiguration(private val context: Context) : Sp
 internal class SessionSpatialConfiguration(private val session: Session) : SpatialConfiguration {
     private var boundsState by
         mutableStateOf(session.scene.activitySpace.bounds).apply {
-            session.scene.activitySpace.addOnBoundsChangedListener { value = it }
+            session.scene.activitySpace.addBoundsChangedListener { value = it }
         }
 
     override val hasXrSpatialFeature: Boolean = true

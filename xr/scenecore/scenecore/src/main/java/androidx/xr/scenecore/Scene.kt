@@ -262,8 +262,8 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      *   explanation of the states.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public fun addOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
-        addOnBoundaryConsentChangedListener(HandlerExecutor.mainThreadExecutor, listener)
+    public fun addBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
+        addBoundaryConsentChangedListener(HandlerExecutor.mainThreadExecutor, listener)
     }
 
     /**
@@ -276,7 +276,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      *   [Scene.isBoundaryConsentGranted] for a detailed explanation of the states.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public fun addOnBoundaryConsentChangedListener(
+    public fun addBoundaryConsentChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<Boolean>,
     ) {
@@ -292,7 +292,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * @param listener The [Consumer] to be removed. It will no longer receive change events.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public fun removeOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
+    public fun removeBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
         sceneRuntime.removeOnBoundaryConsentChangedListener(listener)
     }
 

@@ -291,7 +291,7 @@ class AnchorEntityTest {
     }
 
     @Test
-    fun addOnStateChangedListener_receivesStateChangedCallback() {
+    fun addStateChangedListener_receivesStateChangedCallback() {
         val anchorEntity = AnchorEntity.create(session, anchor)
         var callbackInvoked = false
         val stateChangedListener =
@@ -300,15 +300,15 @@ class AnchorEntityTest {
                 assertThat(newState).isEqualTo(AnchorEntity.State.ANCHORED)
             }
 
-        anchorEntity.addOnStateChangedListener(directExecutor(), stateChangedListener)
+        anchorEntity.addStateChangedListener(directExecutor(), stateChangedListener)
         assertThat(callbackInvoked).isTrue()
     }
 
     @Test
-    fun addOnOriginChangedListener_receivesOnOriginChangedListenerCallbacks() {
+    fun addOriginChangedListener_receivesOnOriginChangedListenerCallbacks() {
         var listenerCalled = false
         val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityRegistry)
-        anchorEntity.addOnOriginChangedListener(directExecutor()) { listenerCalled = true }
+        anchorEntity.addOriginChangedListener(directExecutor()) { listenerCalled = true }
 
         assertThat(fakeAnchorEntity.onOriginChangedListener).isNotNull()
         assertThat(listenerCalled).isFalse()

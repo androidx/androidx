@@ -154,7 +154,7 @@ class AnchorEntityActivity : AppCompatActivity() {
             }
 
             val boundsComponent = BoundsComponent.create(session!!)
-            boundsComponent.addOnBoundsUpdateListener(onBoundsUpdateListener)
+            boundsComponent.addBoundsUpdateListener(onBoundsUpdateListener)
             xyzModelEntity.addComponent(boundsComponent)
         }
     }

@@ -19,6 +19,7 @@
 package androidx.xr.scenecore
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.xr.scenecore.SpatialEnvironment.Companion.NO_PASSTHROUGH_OPACITY_PREFERENCE
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SpatialEnvironment as RtSpatialEnvironment
@@ -136,7 +137,7 @@ internal constructor(
      * preference, allowing the system to manage passthrough opacity.
      *
      * The actual value visible to the user can be observed by calling [currentPassthroughOpacity]
-     * or by registering a listener with [addOnPassthroughOpacityChangedListener].
+     * or by registering a listener with [addPassthroughOpacityChangedListener].
      */
     public var preferredPassthroughOpacity: Float
         get() = rtEnvironment.preferredPassthroughOpacity
@@ -165,9 +166,25 @@ internal constructor(
      *
      * @param listener The [Consumer<Float>] to be added to listen for passthrough opacity changes.
      */
-    public fun addOnPassthroughOpacityChangedListener(listener: Consumer<Float>) {
-        addOnPassthroughOpacityChangedListener(HandlerExecutor.mainThreadExecutor, listener)
-    }
+    // TODO - b/502272748: Cleanup deprecated listener methods
+    @Deprecated(
+        "Use addPassthroughOpacityChangedListener",
+        replaceWith = ReplaceWith("addPassthroughOpacityChangedListener()"),
+    )
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public fun addOnPassthroughOpacityChangedListener(listener: Consumer<Float>): Unit =
+        addPassthroughOpacityChangedListener(listener)
+
+    /**
+     * Notifies an application when the user visible passthrough state changes, such as when the
+     * application enters or exits passthrough or when the passthrough opacity changes.
+     *
+     * This [listener] will be called on the Application's main thread.
+     *
+     * @param listener The [Consumer<Float>] to be added to listen for passthrough opacity changes.
+     */
+    public fun addPassthroughOpacityChangedListener(listener: Consumer<Float>): Unit =
+        addPassthroughOpacityChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
      * Notifies an application when the user visible passthrough state changes, such as when the
@@ -178,21 +195,34 @@ internal constructor(
      * @param executor The [Executor] to invoke the listener on.
      * @param listener The [Consumer<Float>] to be added to listen for passthrough opacity changes.
      */
-    public fun addOnPassthroughOpacityChangedListener(
-        executor: Executor,
-        listener: Consumer<Float>,
-    ) {
+    public fun addPassthroughOpacityChangedListener(executor: Executor, listener: Consumer<Float>) {
         rtEnvironment.addOnPassthroughOpacityChangedListener(executor, listener)
     }
 
     /**
-     * Remove a listener previously added by [addOnPassthroughOpacityChangedListener].
+     * Remove a listener previously added by [addPassthroughOpacityChangedListener].
      *
      * Remaining listeners are automatically removed when the SpatialEnvironment is destroyed.
      *
      * @param listener The previously-added [Consumer<Float>] listener to be removed.
      */
-    public fun removeOnPassthroughOpacityChangedListener(listener: Consumer<Float>) {
+    // TODO - b/502272748: Cleanup deprecated listener methods
+    @Deprecated(
+        "Use removePassthroughOpacityChangedListener",
+        replaceWith = ReplaceWith("removePassthroughOpacityChangedListener()"),
+    )
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public fun removeOnPassthroughOpacityChangedListener(listener: Consumer<Float>): Unit =
+        removePassthroughOpacityChangedListener(listener)
+
+    /**
+     * Remove a listener previously added by [addPassthroughOpacityChangedListener].
+     *
+     * Remaining listeners are automatically removed when the SpatialEnvironment is destroyed.
+     *
+     * @param listener The previously-added [Consumer<Float>] listener to be removed.
+     */
+    public fun removePassthroughOpacityChangedListener(listener: Consumer<Float>) {
         rtEnvironment.removeOnPassthroughOpacityChangedListener(listener)
     }
 
@@ -245,8 +275,8 @@ internal constructor(
         }
 
     /**
-     * Notifies an application whether or not the preferred spatial environment for the application
-     * is active.
+     * Notifies an application whether the preferred spatial environment for the application is
+     * active.
      *
      * The environment will try to transition to the application environment when a non-null
      * preference is set through [preferredSpatialEnvironment] and the application has the
@@ -261,13 +291,38 @@ internal constructor(
      * @param listener The [Consumer<Boolean>] to be added to listen for spatial environment
      *   changes.
      */
-    public fun addOnSpatialEnvironmentChangedListener(listener: Consumer<Boolean>) {
-        addOnSpatialEnvironmentChangedListener(HandlerExecutor.mainThreadExecutor, listener)
-    }
+    // TODO - b/502272748: Cleanup deprecated listener methods
+    @Deprecated(
+        "Use addSpatialEnvironmentChangedListener",
+        replaceWith = ReplaceWith("addSpatialEnvironmentChangeListener()"),
+    )
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public fun addOnSpatialEnvironmentChangedListener(listener: Consumer<Boolean>): Unit =
+        addSpatialEnvironmentChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
-     * Notifies an application whether or not the preferred spatial environment for the application
-     * is active.
+     * Notifies an application whether the preferred spatial environment for the application is
+     * active.
+     *
+     * The environment will try to transition to the application environment when a non-null
+     * preference is set through [preferredSpatialEnvironment] and the application has the
+     * [SpatialCapability.APP_ENVIRONMENT] capability. The environment preferences will otherwise
+     * not be active.
+     *
+     * The listener consumes a boolean value that is true if the environment preference is active
+     * when the listener is notified.
+     *
+     * This listener will be invoked on the Application's main thread.
+     *
+     * @param listener The [Consumer<Boolean>] to be added to listen for spatial environment
+     *   changes.
+     */
+    public fun addSpatialEnvironmentChangedListener(listener: Consumer<Boolean>): Unit =
+        addSpatialEnvironmentChangedListener(HandlerExecutor.mainThreadExecutor, listener)
+
+    /**
+     * Notifies an application whether the preferred spatial environment for the application is
+     * active.
      *
      * The environment will try to transition to the application environment when a non-null
      * preference is set through [preferredSpatialEnvironment] and the application has the
@@ -283,7 +338,7 @@ internal constructor(
      * @param listener The [Consumer<Boolean>] to be added to listen for spatial environment
      *   changes.
      */
-    public fun addOnSpatialEnvironmentChangedListener(
+    public fun addSpatialEnvironmentChangedListener(
         executor: Executor,
         listener: Consumer<Boolean>,
     ) {
@@ -297,7 +352,23 @@ internal constructor(
      *
      * @param listener The previously-added [Consumer<Boolean>] listener to be removed.
      */
-    public fun removeOnSpatialEnvironmentChangedListener(listener: Consumer<Boolean>) {
+    // TODO - b/502272748: Cleanup deprecated listener methods
+    @Deprecated(
+        "Use removeSpatialEnvironmentChangedListener",
+        replaceWith = ReplaceWith("removeSpatialEnvironmentChangedListener()"),
+    )
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public fun removeOnSpatialEnvironmentChangedListener(listener: Consumer<Boolean>): Unit =
+        removeSpatialEnvironmentChangedListener(listener)
+
+    /**
+     * Remove a listener previously added by [addOnSpatialEnvironmentChangedListener].
+     *
+     * Remaining listeners are automatically removed when the SpatialEnvironment is destroyed.
+     *
+     * @param listener The previously-added [Consumer<Boolean>] listener to be removed.
+     */
+    public fun removeSpatialEnvironmentChangedListener(listener: Consumer<Boolean>) {
         rtEnvironment.removeOnSpatialEnvironmentChangedListener(listener)
     }
 

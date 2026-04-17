@@ -280,7 +280,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
         }
 
         // Add bounds check listener for activity space bounds
-        session!!.scene.activitySpace.addOnBoundsChangedListener { dimensions ->
+        session!!.scene.activitySpace.addBoundsChangedListener { dimensions ->
             val dimsString =
                 "{w:${dimensions.width.format(2)}, " +
                     "h:${dimensions.height.format(2)}, " +

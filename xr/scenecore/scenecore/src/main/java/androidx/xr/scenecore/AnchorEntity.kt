@@ -377,9 +377,8 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      * immediately upon registration. It will be automatically unregistered when the entity is
      * disposed.
      */
-    public fun addOnStateChangedListener(listener: Consumer<State>) {
-        addOnStateChangedListener(HandlerExecutor.mainThreadExecutor, listener)
-    }
+    public fun addStateChangedListener(listener: Consumer<State>): Unit =
+        addStateChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
      * Adds a listener to be invoked on the given [Executor] when the AnchorEntity's state changes.
@@ -391,7 +390,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      * @param listener: The listener to fire upon invoking this method, and all subsequent state
      *   changes.
      */
-    public fun addOnStateChangedListener(executor: Executor, listener: Consumer<State>) {
+    public fun addStateChangedListener(executor: Executor, listener: Consumer<State>) {
         checkNotDisposed()
         onStateChangedListeners.add(executor, listener)
         executor.execute { listener.accept(state) }
@@ -402,7 +401,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      *
      * @param listener: The listener to be removed.
      */
-    public fun removeOnStateChangedListener(listener: Consumer<State>) {
+    public fun removeStateChangedListener(listener: Consumer<State>) {
         checkNotDisposed()
         onStateChangedListeners.remove(listener)
     }
@@ -420,7 +419,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      * @param executor The executor to run the listener on.
      * @param listener The listener to register.
      */
-    public fun addOnOriginChangedListener(executor: Executor, listener: Runnable) {
+    public fun addOriginChangedListener(executor: Executor, listener: Runnable) {
         checkNotDisposed()
         onOriginChangedListeners.add(executor, listener)
     }
@@ -437,6 +436,29 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      *
      * @param listener The listener to register. Events will fire on the main thread.
      */
+    public fun addOriginChangedListener(listener: Runnable) {
+        checkNotDisposed()
+        onOriginChangedListeners.add(HandlerExecutor.mainThreadExecutor, listener)
+    }
+
+    /**
+     * Adds a listener to be called when the [Anchor]'s origin moves relative to its underlying
+     * space.
+     *
+     * The callback is triggered on the main thread by any anchor movements, for example when the
+     * perception system moves the anchor's origin to maintain the anchor's position relative to the
+     * real world. Any cached data relative to the activity space or any other "space" should be
+     * updated when this callback is triggered. It will be automatically unregistered when the
+     * entity is disposed.
+     *
+     * @param listener The listener to register. Events will fire on the main thread.
+     */
+    // TODO - b/502272748: Cleanup deprecated listener methods
+    @Deprecated(
+        "Use addOriginChangedListener",
+        replaceWith = ReplaceWith("addOriginChangedListener()"),
+    )
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public fun addOnOriginChangedListener(listener: Runnable) {
         checkNotDisposed()
         onOriginChangedListeners.add(HandlerExecutor.mainThreadExecutor, listener)
@@ -448,7 +470,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      *
      * @param listener The listener to remove.
      */
-    public fun removeOnOriginChangedListener(listener: Runnable) {
+    public fun removeOriginChangedListener(listener: Runnable) {
         checkNotDisposed()
         onOriginChangedListeners.remove(listener)
     }
