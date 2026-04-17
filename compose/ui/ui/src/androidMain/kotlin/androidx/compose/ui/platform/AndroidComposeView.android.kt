@@ -95,7 +95,6 @@ import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.autofill.AndroidAutofill
 import androidx.compose.ui.autofill.AndroidAutofillManager
 import androidx.compose.ui.autofill.Autofill
-import androidx.compose.ui.autofill.AutofillLoggingCallback
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.PlatformAutofillManagerImpl
@@ -2306,13 +2305,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         invalidateLayoutNodeMeasurement(root)
         invalidateLayers(root)
         snapshotObserver.startObserving()
-        ifAutofillDebug {
-            if (autofillSupported()) {
-                // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
-                // system.
-                _autofill?.let { AutofillLoggingCallback.register(it) }
-            }
-        }
         // Moving this work outside of frame, as this callback is not trivial. The initial value
         // will be requested and read synchronously anyway.
         val outOfFrameExecutor =
@@ -2389,13 +2381,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         val lifecycle = composeViewContext.lifecycleOwner.lifecycle
         lifecycle.removeObserver(contentCaptureManager)
         lifecycle.removeObserver(this)
-        ifAutofillDebug {
-            if (autofillSupported()) {
-                // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
-                // system.
-                _autofill?.let { AutofillLoggingCallback.unregister(it) }
-            }
-        }
         viewTreeObserver.removeOnGlobalLayoutListener(this)
         viewTreeObserver.removeOnScrollChangedListener(this)
         viewTreeObserver.removeOnTouchModeChangeListener(this)

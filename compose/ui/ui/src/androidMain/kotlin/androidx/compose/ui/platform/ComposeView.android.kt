@@ -638,22 +638,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     companion object
 }
 
-internal inline fun ifAutofillDebug(block: () -> Unit) {
-    if (isAutofillDebugEnabled) {
-        block()
-    }
-}
-
-private var isAutofillDebugEnabled = false
-
-/**
- * Used to enable [androidx.compose.ui.autofill.AutofillLoggingCallback]. Adds debug logs to help
- * debug autofill input events.
- */
-fun ComposeView.Companion.setAutofillDebugEnabled(enabled: Boolean) {
-    isAutofillDebugEnabled = enabled
-}
-
 /**
  * Flag to disable WindowInsetsRulers. System UI needs to disable WindowInsets Rulers for all
  * ComposeViews, so this is a global switch. We don't want to have them add a ComposeView and the
