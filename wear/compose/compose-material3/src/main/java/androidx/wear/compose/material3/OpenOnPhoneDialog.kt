@@ -50,7 +50,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalAccessibilityManager
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceAtLeast
@@ -295,7 +295,7 @@ public object OpenOnPhoneDialogDefaults {
 
     /** The default message for an [OpenOnPhoneDialog]. */
     public val text: String
-        @Composable get() = LocalContext.current.getString(R.string.wear_m3c_open_on_phone)
+        @Composable get() = stringResource(R.string.wear_m3c_open_on_phone)
 
     /**
      * A default composable used in [OpenOnPhoneDialog] that displays an open on phone icon with an
