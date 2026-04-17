@@ -476,26 +476,6 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.XrLog.Level WARN;
   }
 
-  @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrServiceAvailabilityApi public final class XrServiceAvailability {
-    method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrServiceAvailabilityApi public static androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus checkProjectedServiceAvailability(android.content.Context context);
-    field public static final androidx.xr.runtime.XrServiceAvailability INSTANCE;
-  }
-
-  @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrServiceAvailabilityApi public static final class XrServiceAvailability.XrServiceAvailabilityStatus {
-    field public static final androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus AVAILABLE;
-    field public static final androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus.Companion Companion;
-    field public static final androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus OUTDATED;
-    field public static final androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus UNKNOWN;
-    field public static final androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus UNSUPPORTED;
-  }
-
-  @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrServiceAvailabilityApi public static final class XrServiceAvailability.XrServiceAvailabilityStatus.Companion {
-    property public androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus AVAILABLE;
-    property public androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus OUTDATED;
-    property public androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus UNKNOWN;
-    property public androidx.xr.runtime.XrServiceAvailability.XrServiceAvailabilityStatus UNSUPPORTED;
-  }
-
 }
 
 package androidx.xr.runtime.math {
