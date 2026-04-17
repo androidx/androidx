@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
+// TODO (b/502381626) - Use SceneCoreTestRule instead
 @file:Suppress("DEPRECATION")
 
-package androidx.xr.scenecore
+package androidx.xr.scenecore.runtime.extensions
 
+import android.extensions.xr.XrExtensions
 import androidx.xr.runtime.TypeHolder
 import androidx.xr.runtime.XrExtensionsHolder
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor
 import androidx.xr.scenecore.testing.FakeXrExtensionsHolderProvider
+import com.android.extensions.xr.XrExtensions as XrExtensionsLegacy
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-@RunWith(JUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 class XrExtensionsHolderAccessorTest {
     @After
     fun tearDown() {
@@ -53,38 +57,44 @@ class XrExtensionsHolderAccessorTest {
 
     @Test
     fun getHolder_whenHasValueButLegacyNot_returnNull() {
-        FakeXrExtensionsHolderProvider.fakeHolder = XrExtensionsHolder("str", String::class.java)
+        val extensionsLegacy = XrExtensionsLegacy()
+        FakeXrExtensionsHolderProvider.fakeHolder =
+            XrExtensionsHolder(extensionsLegacy, XrExtensionsLegacy::class.java)
 
         assertThat(XrExtensionsHolderAccessor.holder).isNull()
     }
 
     @Test
     fun getHolder_whenHasValue_returnsHolder() {
+        val extensionsLegacy = XrExtensionsLegacy()
+        val extensions = extensionsLegacy.underlyingObject
         FakeXrExtensionsHolderProvider.fakeHolderLegacy =
-            XrExtensionsHolder("str", String::class.java)
-        FakeXrExtensionsHolderProvider.fakeHolder = XrExtensionsHolder("str", String::class.java)
+            XrExtensionsHolder(extensionsLegacy, XrExtensionsLegacy::class.java)
+        FakeXrExtensionsHolderProvider.fakeHolder =
+            XrExtensionsHolder(extensions, XrExtensions::class.java)
 
         assertThat(XrExtensionsHolderAccessor.holderLegacy).isNotNull()
         assertThat(XrExtensionsHolderAccessor.holder).isNotNull()
 
         val holder = XrExtensionsHolderAccessor.holder!!
-        val instance = TypeHolder.assertGetValue(holder, String::class.java)
+        val instance = TypeHolder.assertGetValue(holder, XrExtensions::class.java)
 
         assertThat(instance).isNotNull()
-        assertThat(instance).isEqualTo("str")
+        assertThat(instance).isEqualTo(extensions)
     }
 
     @Test
     fun getHolderLegacy_whenHasValue_returnsHolderLegacy() {
+        val extensionsLegacy = XrExtensionsLegacy()
         FakeXrExtensionsHolderProvider.fakeHolderLegacy =
-            XrExtensionsHolder("str", String::class.java)
+            XrExtensionsHolder(extensionsLegacy, XrExtensionsLegacy::class.java)
 
         assertThat(XrExtensionsHolderAccessor.holderLegacy).isNotNull()
 
         val holderLegacy = XrExtensionsHolderAccessor.holderLegacy!!
-        val instance = TypeHolder.assertGetValue(holderLegacy, String::class.java)
+        val instance = TypeHolder.assertGetValue(holderLegacy, XrExtensionsLegacy::class.java)
 
         assertThat(instance).isNotNull()
-        assertThat(instance).isEqualTo("str")
+        assertThat(instance).isEqualTo(extensionsLegacy)
     }
 }
