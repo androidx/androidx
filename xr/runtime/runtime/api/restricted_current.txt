@@ -44,6 +44,7 @@ package androidx.xr.runtime {
 
   public final class Config {
     ctor public Config();
+    ctor @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public Config(androidx.xr.runtime.Config config, java.util.Set<androidx.xr.runtime.SceneSignalType> sceneSignalTypes);
     ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking);
     ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking);
     ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking);
@@ -61,9 +62,12 @@ package androidx.xr.runtime {
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking);
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation);
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence);
+    method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.FaceTrackingMode faceTracking);
+    method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.FaceTrackingMode faceTracking, optional androidx.xr.runtime.GeospatialMode geospatial);
+    method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.FaceTrackingMode faceTracking, optional androidx.xr.runtime.GeospatialMode geospatial, optional java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.FaceTrackingMode faceTracking, optional androidx.xr.runtime.GeospatialMode geospatial, optional java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories, optional androidx.xr.runtime.EyeTrackingMode eyeTracking, optional androidx.xr.runtime.CameraFacingDirection cameraFacingDirection);
     method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.Config! copy$default(androidx.xr.runtime.Config!, androidx.xr.runtime.PlaneTrackingMode!, androidx.xr.runtime.HandTrackingMode!, androidx.xr.runtime.DeviceTrackingMode!, androidx.xr.runtime.DepthEstimationMode!, androidx.xr.runtime.AnchorPersistenceMode!, androidx.xr.runtime.FaceTrackingMode!, androidx.xr.runtime.GeospatialMode!, java.util.Set!, androidx.xr.runtime.EyeTrackingMode!, androidx.xr.runtime.CameraFacingDirection!, int, Object!);
-    method @BytecodeOnly public static androidx.xr.runtime.Config! copy$default(androidx.xr.runtime.Config!, androidx.xr.runtime.PlaneTrackingMode!, androidx.xr.runtime.HandTrackingMode!, androidx.xr.runtime.DeviceTrackingMode!, androidx.xr.runtime.DepthEstimationMode!, androidx.xr.runtime.AnchorPersistenceMode!, int, Object!);
+    method @BytecodeOnly public static androidx.xr.runtime.Config! copy$default(androidx.xr.runtime.Config!, androidx.xr.runtime.PlaneTrackingMode!, androidx.xr.runtime.HandTrackingMode!, androidx.xr.runtime.DeviceTrackingMode!, androidx.xr.runtime.DepthEstimationMode!, androidx.xr.runtime.AnchorPersistenceMode!, androidx.xr.runtime.FaceTrackingMode!, androidx.xr.runtime.GeospatialMode!, java.util.Set!, int, Object!);
     method @InaccessibleFromKotlin public androidx.xr.runtime.AnchorPersistenceMode getAnchorPersistence();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> getAugmentedObjectCategories();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.CameraFacingDirection getCameraFacingDirection();
@@ -74,6 +78,7 @@ package androidx.xr.runtime {
     method @InaccessibleFromKotlin public androidx.xr.runtime.GeospatialMode getGeospatial();
     method @InaccessibleFromKotlin public androidx.xr.runtime.HandTrackingMode getHandTracking();
     method @InaccessibleFromKotlin public androidx.xr.runtime.PlaneTrackingMode getPlaneTracking();
+    method @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public java.util.Set<androidx.xr.runtime.SceneSignalType> getSceneSignalTypes();
     property public androidx.xr.runtime.AnchorPersistenceMode anchorPersistence;
     property public java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.xr.runtime.CameraFacingDirection cameraFacingDirection;
@@ -141,6 +146,9 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.DisplayBlendMode ADDITIVE;
     property public androidx.xr.runtime.DisplayBlendMode ALPHA_BLEND;
     property public androidx.xr.runtime.DisplayBlendMode NO_DISPLAY;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API for Scene Signals and is subject to change.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface ExperimentalSceneSignalApi {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalXrDeviceLifecycleApi {
@@ -332,6 +340,17 @@ package androidx.xr.runtime {
     ctor @KotlinOnly public RequiresSpatialApi(int value);
     method @InaccessibleFromKotlin public abstract int value();
     property public abstract int value;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public final class SceneSignalType extends androidx.xr.runtime.Config.ConfigMode {
+    method @InaccessibleFromKotlin public int getId();
+    property public int id;
+    field public static final androidx.xr.runtime.SceneSignalType CONVERSATION;
+    field public static final androidx.xr.runtime.SceneSignalType.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public static final class SceneSignalType.Companion {
+    property public androidx.xr.runtime.SceneSignalType CONVERSATION;
   }
 
   public final class ServiceLoaderExtKt {

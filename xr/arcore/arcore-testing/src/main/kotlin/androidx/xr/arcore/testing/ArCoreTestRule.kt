@@ -21,12 +21,15 @@ import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.internal.FakeRuntimeAnchor
+import androidx.xr.arcore.testing.internal.FakeRuntimeConversationState
 import androidx.xr.arcore.testing.internal.FakeRuntimeDepthMap
 import androidx.xr.arcore.testing.internal.FakeRuntimeEye
 import androidx.xr.arcore.testing.internal.FakeRuntimeHand
 import androidx.xr.arcore.testing.internal.FakeRuntimeRenderViewpoint
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.ExperimentalSceneSignalApi
+import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.math.Pose
 import java.util.UUID
 import org.junit.rules.ExternalResource
@@ -179,6 +182,16 @@ public class ArCoreTestRule : ExternalResource() {
     /** A test representation of the device's mono [androidx.xr.arcore.DepthMap] data. */
     public val monoDepth: TestDepth by lazy {
         TestDepth(this, runtime.perceptionManager.monoDepthMap as FakeRuntimeDepthMap)
+    }
+
+    /** A test representation of the device's Conversation Scene Signal. */
+    @ExperimentalSceneSignalApi
+    @PreviewSpatialApi
+    public val conversationSceneSignal: TestConversationSceneSignal by lazy {
+        TestConversationSceneSignal(
+            this,
+            runtime.perceptionManager.conversationSceneSignal as FakeRuntimeConversationState,
+        )
     }
 
     /**
