@@ -32,7 +32,6 @@ import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -196,11 +195,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 waitForViewfinderIdle()
 
                 // Switch camera.
-                onView(withId(R.id.direction_toggle)).perform(ViewActions.click())
-
-                // Check front camera is now idle
-                withActivity { resetViewIdlingLatch() }
-                waitForViewfinderIdle()
+                switchCameraAndWaitForViewfinderIdle()
 
                 // Go through pause/resume then check again for view to get frames then idle.
                 moveToState(CREATED)
@@ -227,7 +222,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 waitForViewfinderIdle()
 
                 // Act. Switch camera.
-                onView(withId(R.id.direction_toggle)).perform(ViewActions.click())
+                switchCameraAndWaitForViewfinderIdle()
 
                 // Assert.
                 takePictureAndWaitForImageSavedIdle()
