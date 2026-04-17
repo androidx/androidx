@@ -33,7 +33,7 @@ plugins {
 }
 
 android {
-    compileSdk { version = release(35) }
+    compileSdk { version = release(37) }
     defaultConfig {
         testInstrumentationRunner "androidx.hilt.navigation.compose.TestRunner"
     }

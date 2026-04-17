@@ -52,6 +52,7 @@ internal object TextClassificationHelperApi28 {
 @RequiresApi(34)
 private object TextClassificationHelper34 {
     fun sendIntentAllowBackgroundActivityStart(pendingIntent: PendingIntent) {
+        @Suppress("DEPRECATION")
         try {
             pendingIntent.send(
                 ActivityOptions.makeBasic()

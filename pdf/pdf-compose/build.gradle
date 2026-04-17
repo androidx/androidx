@@ -53,7 +53,7 @@ dependencies {
 
 android {
     namespace = "androidx.pdf.compose"
-    compileSdk { version = release(36) { sdkExtension = 19 }}
+    compileSdk { version = release(37) }
     defaultConfig {
         minSdk { version = release(28) }
     }

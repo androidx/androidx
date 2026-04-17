@@ -100,7 +100,7 @@ class OpenOnPhoneDialogScreenshotTest {
         setContentWithTheme {
             ScreenConfiguration(screenSize.size) {
                 val configuration = LocalConfiguration.current
-                language?.let { configuration.setLocale(Locale(language)) }
+                language?.let { configuration.setLocale(Locale.forLanguageTag(language)) }
                 val localizedContext =
                     LocalContext.current.createConfigurationContext(configuration)
                 CompositionLocalProvider(
