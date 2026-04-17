@@ -4089,7 +4089,6 @@ package androidx.compose.ui.platform {
   public final class ComposeView_androidKt {
     method public static void disableWindowInsetsRulers(androidx.compose.ui.platform.ComposeView.Companion);
     method public static androidx.compose.ui.platform.ComposeViewContext? findViewTreeComposeViewContext(android.view.View);
-    method public static void setAutofillDebugEnabled(androidx.compose.ui.platform.ComposeView.Companion, boolean enabled);
   }
 
   public final class CompositionLocalsKt {
