@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalCoroutinesApi::class)
+@file:OptIn(
+    ExperimentalCoroutinesApi::class,
+    androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class,
+)
 
 package androidx.compose.remote.creation.compose.capture
 
@@ -22,6 +25,7 @@ import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteComposeApplier
@@ -136,6 +140,8 @@ public suspend fun captureSingleRemoteDocument(
                 remoteDensity = remoteDensity,
             )
 
+        val initialSize = creationState.document.buffer.buffer.size()
+
         composition.setContent {
             CompositionLocalProvider(
                 LocalRemoteComposeCreationState provides creationState,
@@ -180,15 +186,24 @@ public suspend fun captureSingleRemoteDocument(
                     }
 
                 val remoteCanvas = RemoteCanvas(recordingCanvas)
+
+                if (RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
+                    check(creationState.document.buffer.buffer.size() == initialSize) {
+                        "Document was written to during composition. Expected size $initialSize, got ${creationState.document.buffer.buffer.size()}"
+                    }
+                }
+
                 trace("CaptureRemoteDocument:captureSingleRemoteDocument:rootNodeRender") {
                     rootNode.render(creationState, remoteCanvas)
                 }
+
                 creationState.document.encodeToByteArray()
             }
 
         return CapturedDocument(document, writerEvents.pendingIntents)
     } finally {
         composition.dispose()
+        recomposer.cancel()
     }
 }
 
@@ -208,6 +223,9 @@ public fun captureRemoteDocument(
     coroutineContext: CoroutineContext = Dispatchers.Default,
     content: @Composable () -> Unit,
 ): Flow<ByteArray> = flow {
+    require(RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
+        "captureRemoteDocument requires isEnforceCleanRecompositionEnabled to be true"
+    }
     val rootNode = RemoteRootNode()
     val applier = RemoteComposeApplier(rootNode)
 
@@ -233,6 +251,8 @@ public fun captureRemoteDocument(
                 layoutDirection = layoutDirection,
                 remoteDensity = remoteDensity,
             )
+
+        val initialSize = creationState.document.buffer.buffer.size()
 
         composition.setContent {
             CompositionLocalProvider(
@@ -268,6 +288,10 @@ public fun captureRemoteDocument(
                                 }
 
                             val remoteCanvas = RemoteCanvas(recordingCanvas)
+
+                            check(creationState.document.buffer.buffer.size() == initialSize) {
+                                "Document was written to during composition. Expected size $initialSize, got ${creationState.document.buffer.buffer.size()}"
+                            }
 
                             rootNode.render(creationState, remoteCanvas)
 

@@ -16,8 +16,12 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -25,7 +29,18 @@ import org.robolectric.annotation.Config
 
 @RunWith(JUnit4::class)
 @Config(sdk = [Config.TARGET_SDK])
+@OptIn(ExperimentalRemoteCreationComposeApi::class)
 class RemoteStateTest {
+    @Before
+    fun setup() {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+    }
+
+    @After
+    fun cleanup() {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
+    }
+
     @Test
     fun domainToString() {
         assertEquals("USER", RemoteState.Domain.User.toString())
