@@ -8,7 +8,7 @@ package androidx.leanback.widget {
     method public void animateOut();
     method public int getChildDrawingOrder(int, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getExtraLayoutSpace();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getFocusScrollStrategy();
+    method public int getFocusScrollStrategy();
     method @Deprecated public int getHorizontalMargin();
     method public int getHorizontalSpacing();
     method public int getInitialPrefetchItemCount();
@@ -44,7 +44,7 @@ package androidx.leanback.widget {
     method public void setChildrenVisibility(int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setExtraLayoutSpace(int);
     method public void setFocusDrawingOrderEnabled(boolean);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setFocusScrollStrategy(int);
+    method public void setFocusScrollStrategy(int);
     method public final void setFocusSearchDisabled(boolean);
     method public void setGravity(int);
     method public void setHasOverlappingRendering(boolean);
@@ -87,8 +87,8 @@ package androidx.leanback.widget {
     method public void setWindowAlignmentOffsetPercent(float);
     method public void setWindowAlignmentPreferKeyLineOverHighEdge(boolean);
     method public void setWindowAlignmentPreferKeyLineOverLowEdge(boolean);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_ALIGNED = 0; // 0x0
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_ALIGNED_AND_SNAP = 4; // 0x4
+    field public static final int FOCUS_SCROLL_ALIGNED = 0; // 0x0
+    field public static final int FOCUS_SCROLL_ALIGNED_AND_SNAP = 4; // 0x4
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_ITEM = 1; // 0x1
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int FOCUS_SCROLL_PAGE = 2; // 0x2
     field public static final float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1.0f;
