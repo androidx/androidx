@@ -747,8 +747,6 @@ public class CameraXActivity extends AppCompatActivity {
                                 this, generateVideoFileOutputOptions(fileName, extension));
                     }
 
-                    resetVideoSavedIdlingLatch();
-
                     if (isPersistentRecordingEnabled()) {
                         pendingRecording.asPersistentRecording();
                     }

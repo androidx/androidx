@@ -92,6 +92,7 @@ class ToggleButtonUITest(private val implName: String) {
         ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
             // Arrange.
             WaitForViewToShow(R.id.constraintLayout).wait()
+            scenario.waitForViewfinderIdle()
             assumeTrue(isButtonEnabled(R.id.flash_toggle))
             val useCase = scenario.withActivity { imageCapture }
             // There are 3 different states of flash mode: ON, OFF and AUTO.
@@ -116,6 +117,7 @@ class ToggleButtonUITest(private val implName: String) {
     fun testTorchToggleButton() {
         ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
             WaitForViewToShow(R.id.constraintLayout).wait()
+            scenario.waitForViewfinderIdle()
             assumeTrue(isButtonEnabled(R.id.torch_toggle))
             val cameraInfo = scenario.withActivity { cameraInfo!! }
             val isTorchOn = cameraInfo.isTorchOn()
@@ -138,9 +140,8 @@ class ToggleButtonUITest(private val implName: String) {
             WaitForViewToShow(R.id.direction_toggle).wait()
             assertThat(scenario.withActivity { preview }).isNotNull()
             for (i in 0..4) {
-                scenario.waitForViewfinderIdle()
                 // Click switch camera button.
-                onView(withId(R.id.direction_toggle)).perform(click())
+                scenario.switchCameraAndWaitForViewfinderIdle()
             }
         }
     }
