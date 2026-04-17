@@ -34,6 +34,6 @@ dependencies {
 }
 
 android {
-    compileSdk { version = release(35) }
+    compileSdk { version = release(37) }
     namespace = "androidx.compose.animation.demos"
 }

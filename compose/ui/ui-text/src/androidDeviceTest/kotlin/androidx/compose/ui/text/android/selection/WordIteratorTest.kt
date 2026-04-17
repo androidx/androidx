@@ -131,7 +131,7 @@ class WordIteratorTest {
     @Test
     fun testNextBoundary_iterate_through_RTL() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
-        val wordIterator = WordIterator(text, 0, text.length, Locale("he", "IL"))
+        val wordIterator = WordIterator(text, 0, text.length, Locale.forLanguageTag("he-IL"))
         // Start from the beginning.
         var currentOffset = 0
         // The word is "\u05d0\u05d1\u05d2"("אבג")
@@ -226,7 +226,7 @@ class WordIteratorTest {
     @Test
     fun testPrevBoundary_iterate_through_RTL() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
-        val wordIterator = WordIterator(text, 0, text.length, Locale("he", "IL"))
+        val wordIterator = WordIterator(text, 0, text.length, Locale.forLanguageTag("he-IL"))
         // Start from the end.
         var currentOffset = text.length
         // The word is "\u05d7\u05d8"("חט")

@@ -42,7 +42,7 @@ class ParagraphIntegrationTextDirectionTest {
     private val resourceLoader = UncachedFontFamilyResolver(context)
     private val ltrLocaleList = LocaleList("en")
     private val rtlLocaleList = LocaleList("ar")
-    private val rtlLocale = Locale("ar")
+    private val rtlLocale = Locale.forLanguageTag("ar")
     private val ltrLocale = Locale.ENGLISH
 
     @Before

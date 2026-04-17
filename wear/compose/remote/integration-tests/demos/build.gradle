@@ -20,7 +20,7 @@ plugins {
 }
 
 android {
-    compileSdk { version = release(36) }
+    compileSdk { version = release(37) }
     namespace = "androidx.wear.compose.remote.integration.demos"
     defaultConfig {
         minSdk { version = release(29) }

@@ -68,7 +68,7 @@ class WordBoundaryTest {
     @Test
     fun testGetWordStart_RTL() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
-        val wordIterator = WordIterator(text, 0, text.length, Locale("he", "IL"))
+        val wordIterator = WordIterator(text, 0, text.length, Locale.forLanguageTag("he-IL"))
         assertThat(wordIterator.getWordStart(text.indexOf('\u05d0')))
             .isEqualTo(text.indexOf('\u05d0'))
         assertThat(wordIterator.getWordStart(text.indexOf('\u05d2')))
@@ -163,7 +163,7 @@ class WordBoundaryTest {
     @Test
     fun testGetWordEnd_RTL() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
-        val wordIterator = WordIterator(text, 0, text.length, Locale("he", "IL"))
+        val wordIterator = WordIterator(text, 0, text.length, Locale.forLanguageTag("he-IL"))
         assertThat(wordIterator.getWordEnd(text.indexOf('\u05d0'))).isEqualTo(text.indexOf(' '))
         assertThat(wordIterator.getWordEnd(text.indexOf('\u05d2'))).isEqualTo(text.indexOf(' '))
         assertThat(wordIterator.getWordEnd(text.indexOf(' '))).isEqualTo(text.indexOf(' '))
