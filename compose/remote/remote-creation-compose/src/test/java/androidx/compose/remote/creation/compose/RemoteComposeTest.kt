@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
+
 package androidx.compose.remote.creation.compose
 
 import android.content.Context
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.FitBox
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -30,15 +35,18 @@ import androidx.compose.remote.creation.compose.layout.RemoteSpacer
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteEnum
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -166,5 +174,46 @@ class RemoteComposeTest {
     private enum class ToggleState {
         Off,
         On,
+    }
+
+    @Test
+    fun captureDocumentFailsIfWritesDuringComposition() = runTest {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
+        try {
+            captureSingleRemoteDocument(context) {
+                val state = LocalRemoteComposeCreationState.current
+                state.document.performHaptic(0) // This should fail!
+                RemoteBox(modifier = RemoteModifier.fillMaxSize())
+            }
+            fail("Expected IllegalStateException to be thrown")
+        } catch (e: IllegalStateException) {
+            assertTrue(e.message != null)
+        } finally {
+            RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+        }
+    }
+
+    @Test
+    fun flowFormFailsIfFlagIsFalse() = runTest {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+        try {
+            val flow =
+                captureRemoteDocument(
+                    creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160),
+                    writerEvents = WriterEvents(),
+                    context = context,
+                    content = { RemoteBox(modifier = RemoteModifier.fillMaxSize()) },
+                )
+            flow.first()
+            fail("Expected IllegalStateException to be thrown")
+        } catch (e: IllegalArgumentException) {
+            assertTrue(
+                e.message!!.contains(
+                    "captureRemoteDocument requires isEnforceCleanRecompositionEnabled to be true"
+                )
+            )
+        } finally {
+            RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+        }
     }
 }

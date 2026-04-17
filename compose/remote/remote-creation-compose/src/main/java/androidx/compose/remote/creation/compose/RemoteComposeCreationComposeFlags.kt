@@ -52,4 +52,14 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalRemoteCreationComposeApi
-public object RemoteComposeCreationComposeFlags {}
+public object RemoteComposeCreationComposeFlags {
+    /**
+     * When true, stops anything writing to the document (RemoteComposeWriter) before the
+     * composition has settled. This ensures that documents are not partially written during
+     * recomposition.
+     */
+    // TODO: b/503644761
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isEnforceCleanRecompositionEnabled: Boolean = true
+}

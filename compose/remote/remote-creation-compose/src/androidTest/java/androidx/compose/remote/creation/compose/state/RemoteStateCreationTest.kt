@@ -19,6 +19,8 @@ package androidx.compose.remote.creation.compose.state
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -39,6 +41,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,12 +50,23 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@OptIn(ExperimentalRemoteCreationComposeApi::class)
 class RemoteStateCreationTest {
     @get:Rule
     val remoteComposeTestRule =
         RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
 
     private val context: Context = ApplicationProvider.getApplicationContext()
+
+    @Before
+    fun setup() {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+    }
+
+    @After
+    fun cleanup() {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
+    }
 
     @Test
     fun rememberNamedRemoteInt_isTracked() = runTest {

@@ -25,6 +25,8 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.action.ValueChange
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
@@ -108,6 +110,8 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.After
+import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -115,6 +119,7 @@ import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = 29) // b/437958945
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalRemoteCreationComposeApi::class)
 class BasicLayoutTest {
 
     @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
@@ -126,6 +131,16 @@ class BasicLayoutTest {
             (300 * 2.75).toInt(),
             ((2.75f * 160).toInt()),
         )
+
+    @Before
+    fun setup() {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+    }
+
+    @After
+    fun cleanup() {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
+    }
 
     @Composable
     fun rememberRemoteDocumentFixedDensity(
