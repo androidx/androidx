@@ -20,7 +20,9 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 
 import static java.util.Objects.requireNonNull;
 
+import androidx.annotation.OptIn;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
@@ -41,22 +43,29 @@ import java.util.Objects;
 @RequiresCarApi(5)
 @CarProtocol
 @KeepFields
+@OptIn(markerClass = ExperimentalCarApi.class)
 public final class Header {
     private final @NonNull List<Action> mEndHeaderActions;
     private final @Nullable Action mStartHeaderAction;
     private final @Nullable CarText mTitle;
+    private final @Nullable CarText mSubtitle;
+    private final @Nullable Background mBackground;
 
     Header(Builder builder) {
         mTitle = builder.mTitle;
+        mSubtitle = builder.mSubtitle;
         mStartHeaderAction = builder.mStartHeaderAction;
         mEndHeaderActions = CollectionUtils.unmodifiableCopy(builder.mEndHeaderActions);
+        mBackground = builder.mBackground;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Header() {
         mTitle = null;
+        mSubtitle = null;
         mStartHeaderAction = null;
         mEndHeaderActions = new ArrayList<>();
+        mBackground = null;
     }
 
     /**
@@ -66,6 +75,28 @@ public final class Header {
      */
     public @Nullable CarText getTitle() {
         return mTitle;
+    }
+
+    /**
+     * Returns the subtitle of the component or {@code null} if not set.
+     *
+     * @see Builder#setSubtitle(CharSequence)
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public @Nullable CarText getSubtitle() {
+        return mSubtitle;
+    }
+
+    /**
+     * Returns the {@link Background} of the component or {@code null} if not set.
+     *
+     * @see Builder#setBackground(Background)
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public @Nullable Background getBackground() {
+        return mBackground;
     }
 
     /**
@@ -90,12 +121,12 @@ public final class Header {
 
     @Override
     public @NonNull String toString() {
-        return "Header: " + mTitle;
+        return "Header: " + mTitle + ", Subtitle: " + mSubtitle + ", Background: " + mBackground;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mEndHeaderActions, mStartHeaderAction);
+        return Objects.hash(mTitle, mSubtitle, mEndHeaderActions, mStartHeaderAction, mBackground);
     }
 
     @Override
@@ -109,8 +140,10 @@ public final class Header {
         Header otherComponent = (Header) other;
 
         return Objects.equals(mTitle, otherComponent.mTitle)
+                && Objects.equals(mSubtitle, otherComponent.mSubtitle)
                 && Objects.equals(mEndHeaderActions, otherComponent.mEndHeaderActions)
-                && Objects.equals(mStartHeaderAction, otherComponent.mStartHeaderAction);
+                && Objects.equals(mStartHeaderAction, otherComponent.mStartHeaderAction)
+                && Objects.equals(mBackground, otherComponent.mBackground);
     }
 
     /** A builder of {@link Header}. */
@@ -118,6 +151,8 @@ public final class Header {
         final List<Action> mEndHeaderActions = new ArrayList<>();
         @Nullable Action mStartHeaderAction;
         @Nullable CarText mTitle;
+        @Nullable CarText mSubtitle;
+        @Nullable Background mBackground;
 
         /**
          * Adds an {@link Action} that will be displayed at the end of a header.
@@ -186,6 +221,50 @@ public final class Header {
         public @NonNull Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
+            return this;
+        }
+
+        /**
+         * Sets the subtitle of the component.
+         *
+         * <p>Support colors and icons.
+         *
+         * @throws NullPointerException     if {@code subtitle} is null
+         * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
+         * @see CarText
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(9)
+        public @NonNull Builder setSubtitle(@NonNull CharSequence subtitle) {
+            return setSubtitle(CarText.create(subtitle));
+        }
+
+        /**
+         * Sets the subtitle of the component.
+         *
+         * <p>Support colors and icons.
+         *
+         * @throws NullPointerException     if {@code subtitle} is null
+         * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
+         * @see CarText
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(9)
+        public @NonNull Builder setSubtitle(@NonNull CarText subtitle) {
+            mSubtitle = requireNonNull(subtitle);
+            CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(mSubtitle);
+            return this;
+        }
+
+        /**
+         * Sets the {@link Background} of the component.
+         *
+         * @throws NullPointerException if {@code background} is null
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(9)
+        public @NonNull Builder setBackground(@NonNull Background background) {
+            mBackground = requireNonNull(background);
             return this;
         }
 

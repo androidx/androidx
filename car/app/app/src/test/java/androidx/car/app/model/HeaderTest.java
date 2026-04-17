@@ -20,7 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.net.Uri;
+
 import androidx.car.app.TestUtils;
+import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -171,6 +174,72 @@ public class HeaderTest {
 
         assertThat(component).isNotEqualTo(new Header.Builder()
                 .setTitle("other")
+                .build());
+    }
+
+    @Test
+    public void createInstance_subtitle() {
+        String subtitle = "subtitle";
+        Header component = new Header.Builder()
+                .setTitle("Title")
+                .setSubtitle(subtitle)
+                .build();
+        assertThat(component.getSubtitle().toString()).isEqualTo(subtitle);
+    }
+
+    @Test
+    public void createInstance_subtitle_allowsColorsAndIcons() {
+        CharSequence subtitle = TestUtils.getCharSequenceWithColorSpan("Subtitle");
+        new Header.Builder()
+                .setTitle("Title")
+                .setSubtitle(subtitle)
+                .build();
+    }
+
+    @Test
+    public void notEquals_differentSubtitle() {
+        Header component = new Header.Builder()
+                .setTitle("title")
+                .setSubtitle("subtitle")
+                .build();
+
+        assertThat(component).isNotEqualTo(new Header.Builder()
+                .setTitle("title")
+                .setSubtitle("other")
+                .build());
+    }
+
+    @Test
+    public void createInstance_background() {
+        Background background = new Background.Builder()
+                .setImage(new CarIcon.Builder(
+                        IconCompat.createWithContentUri(Uri.parse("content://test"))).build())
+                .build();
+        Header component = new Header.Builder()
+                .setTitle("Title")
+                .setBackground(background)
+                .build();
+        assertThat(component.getBackground()).isEqualTo(background);
+    }
+
+    @Test
+    public void notEquals_differentBackground() {
+        Background background1 = new Background.Builder()
+                .setImage(new CarIcon.Builder(
+                        IconCompat.createWithContentUri(Uri.parse("content://test1"))).build())
+                .build();
+        Background background2 = new Background.Builder()
+                .setImage(new CarIcon.Builder(
+                        IconCompat.createWithContentUri(Uri.parse("content://test2"))).build())
+                .build();
+        Header component = new Header.Builder()
+                .setTitle("title")
+                .setBackground(background1)
+                .build();
+
+        assertThat(component).isNotEqualTo(new Header.Builder()
+                .setTitle("title")
+                .setBackground(background2)
                 .build());
     }
 }
