@@ -43,9 +43,14 @@ import kotlinx.coroutines.launch
  * [RememberObserver] event callbacks. [SideEffect]s are always run after [RememberObserver] event
  * callbacks.
  *
- * A [SideEffect] runs after **every** recomposition. To launch an ongoing task spanning potentially
- * many recompositions, see [LaunchedEffect]. To manage an event subscription or other object
- * lifecycle, see [DisposableEffect].
+ * A [SideEffect] runs after **every** recomposition when invoked without any keys. To only perform
+ * the effect once, use an overload of [SideEffect] that accepts a key. To launch an ongoing task
+ * spanning potentially many recompositions, see [LaunchedEffect]. To manage an event subscription
+ * or other object lifecycle, see [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
  */
 @Composable
 @NonRestartableComposable
@@ -53,6 +58,133 @@ import kotlinx.coroutines.launch
 @OptIn(InternalComposeApi::class)
 public fun SideEffect(effect: () -> Unit) {
     currentComposer.recordSideEffect(effect)
+}
+
+/**
+ * Schedule [effect] to run as a side effect for any new unique value of [key1].
+ *
+ * A [SideEffect]'s _key_ is a value that defines the identity of the [SideEffect]. When a
+ * [SideEffect] recomposes, its [effect] will only execute if its [key][key1] differs from the
+ * previously provided value.
+ *
+ * When using the overload of this function that doesn't accept keys, the [effect] will execute on
+ * every recomposition. This overload is preferred when you have one-shot work that doesn't require
+ * the coroutine afforded by [LaunchedEffect], or the disposal afforded by [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
+ *
+ * @param key1 A key input; if recomposed with a new value from the previous key, [effect] will be
+ *   scheduled.
+ * @param effect The effect that will execute when this composition completes successfully and is
+ *   applying changes.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+public fun SideEffect(key1: Any?, effect: () -> Unit) {
+    if (currentComposer.changed(key1)) {
+        currentComposer.recordSideEffect(effect)
+    }
+}
+
+/**
+ * Schedule [effect] to run as a side effect for any new unique value of [key1] or [key2].
+ *
+ * A [SideEffect]'s _keys_ are values that defines the identity of the [SideEffect]. When a
+ * [SideEffect] recomposes, its [effect] will only execute if any of its keys differ from their
+ * previously provided value.
+ *
+ * When using the overload of this function that doesn't accept keys, the [effect] will execute on
+ * every recomposition. This overload is preferred when you have one-shot work that doesn't require
+ * the coroutine afforded by [LaunchedEffect], or the disposal afforded by [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
+ *
+ * @param key1 A key input; if recomposed with a new value from the previous key, [effect] will be
+ *   scheduled.
+ * @param key2 A second key input; if recomposed with a new value from the previous key, [effect]
+ *   will be scheduled.
+ * @param effect The effect that will execute when this composition completes successfully and is
+ *   applying changes.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+public fun SideEffect(key1: Any?, key2: Any?, effect: () -> Unit) {
+    if (currentComposer.changed(key1) or currentComposer.changed(key2)) {
+        currentComposer.recordSideEffect(effect)
+    }
+}
+
+/**
+ * Schedule [effect] to run as a side effect for any new unique value of [key1], [key2], or [key3].
+ *
+ * A [SideEffect]'s _keys_ are values that defines the identity of the [SideEffect]. When a
+ * [SideEffect] recomposes, its [effect] will only execute if any of its keys differ from their
+ * previously provided value.
+ *
+ * When using the overload of this function that doesn't accept keys, the [effect] will execute on
+ * every recomposition. This overload is preferred when you have one-shot work that doesn't require
+ * the coroutine afforded by [LaunchedEffect], or the disposal afforded by [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
+ *
+ * @param key1 A key input; if recomposed with a new value from the previous key, [effect] will be
+ *   scheduled.
+ * @param key2 A second key input; if recomposed with a new value from the previous key, [effect]
+ *   will be scheduled.
+ * @param key3 A third key input; if recomposed with a new value from the previous key, [effect]
+ *   will be scheduled.
+ * @param effect The effect that will execute when this composition completes successfully and is
+ *   applying changes.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+public fun SideEffect(key1: Any?, key2: Any?, key3: Any?, effect: () -> Unit) {
+    if (
+        currentComposer.changed(key1) or
+            currentComposer.changed(key2) or
+            currentComposer.changed(key3)
+    ) {
+        currentComposer.recordSideEffect(effect)
+    }
+}
+
+/**
+ * Schedule [effect] to run as a side effect for any new unique [keys].
+ *
+ * A [SideEffect]'s [keys] are values that defines the identity of the [SideEffect]. When a
+ * [SideEffect] recomposes, its [effect] will only execute if any of its keys differ from their
+ * previously provided value.
+ *
+ * When using the overload of this function that doesn't accept keys, the [effect] will execute on
+ * every recomposition. This overload is preferred when you have one-shot work that doesn't require
+ * the coroutine afforded by [LaunchedEffect], or the disposal afforded by [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
+ *
+ * @param keys Key inputs; if recomposed with a different list of keys, [effect] will be scheduled.
+ * @param effect The effect that will execute when this composition completes successfully and is
+ *   applying changes.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+public fun SideEffect(vararg keys: Any?, effect: () -> Unit) {
+    var invalid = currentComposer.changed(keys.size)
+    for (key in keys) invalid = invalid or currentComposer.changed(key)
+    if (invalid) {
+        currentComposer.recordSideEffect(effect)
+    }
 }
 
 /**
