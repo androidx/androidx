@@ -23,6 +23,9 @@ import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.util.fastFirstOrNull
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Represents a **bitmap font** within a Compose Remote hierarchy.
@@ -43,9 +46,21 @@ import androidx.compose.ui.graphics.asAndroidBitmap
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteBitmapFont(
-    public val glyphs: List<Glyph>,
+    glyphs: List<Glyph>,
     @Suppress("PrimitiveInCollection") public val kerningTable: Map<String, Short> = emptyMap(),
 ) : BaseRemoteState<Any>() {
+    public val glyphs: List<Glyph> =
+        if (glyphs.size <= 1) {
+            glyphs
+        } else {
+            val mutableGlyphs = ArrayList<Glyph>(glyphs.size)
+            for (i in glyphs.indices) {
+                mutableGlyphs.add(glyphs[i])
+            }
+            mutableGlyphs.sortWith { a, b -> b.chars.length.compareTo(a.chars.length) }
+            mutableGlyphs
+        }
+
     internal enum class OperationKey {
         MeasureWidth,
         MeasureHeight,
@@ -104,6 +119,59 @@ public class RemoteBitmapFont(
         )
     }
 
+    private fun lookupGlyph(string: String, offset: Int): Glyph? {
+        // Since glyphs is sorted on decreasing size, it will match the longest items first.
+        // It is expected that the glyphs array will be fairly small.
+        return glyphs.fastFirstOrNull { string.startsWith(it.chars, offset) }
+    }
+
+    private class Bounds(val left: Float, val top: Float, val right: Float, val bottom: Float) {
+        fun width() = right - left
+
+        fun height() = bottom - top
+    }
+
+    private fun measure(text: String, glyphSpacing: Float): Bounds {
+        val xMin = 0f
+        var yMin = 1000f
+        var xMax = 0f
+        var yMax = -Float.MAX_VALUE
+        var xPos = 0f
+        var pos = 0
+        val len = text.length
+        var prevGlyph: String? = ""
+        while (pos < len) {
+            val glyph = lookupGlyph(text, pos)
+
+            if (glyph == null) {
+                pos++
+                prevGlyph = ""
+                continue
+            }
+
+            pos += glyph.chars.length
+            xPos += (glyph.marginLeft + glyph.marginRight).toFloat()
+            if (glyph.bitmap != null) {
+                // Space is represented by a null bitmap.
+                xPos += glyph.width.toFloat()
+            }
+
+            val kerningAdjustment = kerningTable.get(prevGlyph + glyph.chars)
+            if (kerningAdjustment != null) {
+                xPos += kerningAdjustment.toFloat()
+            }
+
+            xMax = xPos
+            yMax = max(yMax, (glyph.height + glyph.marginTop + glyph.marginBottom).toFloat())
+            yMin = min(yMin, glyph.marginTop.toFloat())
+            prevGlyph = glyph.chars
+
+            xPos += glyphSpacing
+        }
+
+        return Bounds(xMin, yMin, xMax, yMax)
+    }
+
     /**
      * Evaluates the width of the bounding box of the pixels that would be rendered if [text] was
      * drawn at position 0, 0.
@@ -114,6 +182,9 @@ public class RemoteBitmapFont(
      * @return A [RemoteFloat] representing the calculated width in pixels.
      */
     public fun measureWidth(text: RemoteString, glyphSpacing: RemoteFloat): RemoteFloat {
+        if (text.hasConstantValue && glyphSpacing.hasConstantValue) {
+            return RemoteFloat(measure(text.constantValue, glyphSpacing.constantValue).width())
+        }
         return RemoteFloatExpression(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.MeasureWidth, this, text),
@@ -137,6 +208,9 @@ public class RemoteBitmapFont(
      * @return A [RemoteFloat] representing the calculated height in pixels.
      */
     public fun measureHeight(text: RemoteString): RemoteFloat {
+        if (text.hasConstantValue) {
+            return RemoteFloat(measure(text = text.constantValue, glyphSpacing = 0f).height())
+        }
         return RemoteFloatExpression(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.MeasureHeight, this, text),

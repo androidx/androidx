@@ -116,6 +116,79 @@ class RemoteBitmapFontTest {
         assertThat(context.getInteger(resultId)).isEqualTo(80)
     }
 
+    @Test
+    fun measureWithKerning() {
+        val kerningFont =
+            RemoteBitmapFont(
+                listOf(
+                    RemoteBitmapFont.Glyph("a", bitmap(10, 20).asImageBitmap(), 1, 0, 1, 0),
+                    RemoteBitmapFont.Glyph("b", bitmap(10, 20).asImageBitmap(), 1, 0, 1, 0),
+                ),
+                mapOf("ab" to (-2).toShort()),
+            )
+        val result = kerningFont.measureWidth(RemoteString("ab"), RemoteFloat(0f))
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        // a: 1 + 10 + 1 = 12
+        // kerning: -2
+        // b: 1 + 10 + 1 = 12
+        // Total: 12 - 2 + 12 = 22
+        assertThat(context.getInteger(resultId)).isEqualTo(22)
+    }
+
+    @Test
+    fun measureEmptyString() {
+        val result = bitmapFont.measureWidth(RemoteString(""), RemoteFloat(0f))
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(resultId)).isEqualTo(0)
+    }
+
+    @Test
+    fun measureUnmatchedGlyphs() {
+        val result = bitmapFont.measureWidth(RemoteString("z"), RemoteFloat(0f))
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        // "z" is not in the font, so it's ignored.
+        assertThat(context.getInteger(resultId)).isEqualTo(0)
+    }
+
+    @Test
+    fun measureNonConstantWidth() {
+        // We use a RemoteString that doesn't have a constant value.
+        val nonConstantString = RemoteString.createNamedRemoteString("testWidth", "abc")
+
+        val result = bitmapFont.measureWidth(nonConstantString, RemoteFloat(0f))
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        // "abc" width: 14 + 60 + 38 = 112
+        assertThat(context.getInteger(resultId)).isEqualTo(112)
+    }
+
+    @Test
+    fun measureGreedyMatching() {
+        val greedyFont =
+            RemoteBitmapFont(
+                listOf(
+                    RemoteBitmapFont.Glyph("a", bitmap(10, 20).asImageBitmap(), 0, 0, 0, 0),
+                    RemoteBitmapFont.Glyph("ab", bitmap(20, 20).asImageBitmap(), 0, 0, 0, 0),
+                    RemoteBitmapFont.Glyph("abc", bitmap(30, 20).asImageBitmap(), 0, 0, 0, 0),
+                )
+            )
+
+        val result = greedyFont.measureWidth(RemoteString("abc"), RemoteFloat(0f))
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        // If it's truly greedy, it should match "abc" (width 30)
+        // even if "a" comes first in the list.
+        assertThat(context.getInteger(resultId)).isEqualTo(30)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
