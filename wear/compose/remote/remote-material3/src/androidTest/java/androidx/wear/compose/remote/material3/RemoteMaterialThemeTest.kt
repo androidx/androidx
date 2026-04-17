@@ -16,12 +16,17 @@
 
 package androidx.wear.compose.remote.material3
 
+import androidx.collection.buildObjectIntMap
+import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.ColorScheme
+import kotlin.test.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +50,36 @@ class RemoteMaterialThemeTest {
             RemoteMaterialTheme {
                 val iconTint = RemoteMaterialTheme.colorScheme.onSurface
                 RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null, tint = iconTint)
+            }
+        }
+
+        remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+    }
+
+    @Test
+    fun named_color_can_be_overridden() {
+        val expectedTint = Color.Yellow
+
+        val colorOverrides = buildObjectIntMap { put("WearM3.onSurface", Color.Yellow.toArgb()) }
+        remoteComposeTestRule.runTest(colorOverrides = colorOverrides) {
+            RemoteMaterialTheme {
+                val iconTint = RemoteMaterialTheme.colorScheme.onSurface
+                RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null, tint = iconTint)
+            }
+        }
+
+        remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+    }
+
+    @Test
+    @Ignore("Fails because of b/502878815")
+    fun button_named_color_can_be_overridden() {
+        val expectedTint = Color.Yellow
+
+        val colorOverrides = buildObjectIntMap { put("WearM3.primary", Color.Yellow.toArgb()) }
+        remoteComposeTestRule.runTest(colorOverrides = colorOverrides) {
+            RemoteMaterialTheme {
+                RemoteButton(onClick = Action.Empty) { RemoteText("button_enabled".rs) }
             }
         }
 
