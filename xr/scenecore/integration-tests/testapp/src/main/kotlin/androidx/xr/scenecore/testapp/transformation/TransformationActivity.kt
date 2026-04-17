@@ -185,7 +185,7 @@ class TransformationActivity : AppCompatActivity() {
                     "onAnchorSpaceUpdatedCount",
                     (++onAnchorSpaceUpdatedCount).toString(),
                 )
-                anchor!!.addOnOriginChangedListener({
+                anchor!!.addOriginChangedListener({
                     panel.view.setLine(
                         "onAnchorSpaceUpdatedCount",
                         (++onAnchorSpaceUpdatedCount).toString(),
@@ -207,7 +207,7 @@ class TransformationActivity : AppCompatActivity() {
                         "onActivitySpaceUpdatedCount",
                         (++onActivitySpaceUpdatedCount).toString(),
                     )
-                    session!!.scene.activitySpace.addOnOriginChangedListener {
+                    session!!.scene.activitySpace.addOriginChangedListener {
                         panel.view.setLine(
                             "onActivitySpaceUpdatedCount",
                             (++onActivitySpaceUpdatedCount).toString(),

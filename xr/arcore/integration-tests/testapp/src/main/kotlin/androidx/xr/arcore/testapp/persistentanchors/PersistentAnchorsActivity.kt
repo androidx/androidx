@@ -139,7 +139,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
                         arDevice.state.collect { arDeviceState -> updatePanelEntity(arDeviceState) }
                     }
 
-                    session.scene.activitySpace.addOnOriginChangedListener {
+                    session.scene.activitySpace.addOriginChangedListener {
                         updatePanelEntity(arDevice.state.value)
                         updatePanelInViewStatusUpdates(renderViewpoints.map { it.state.value })
                     }

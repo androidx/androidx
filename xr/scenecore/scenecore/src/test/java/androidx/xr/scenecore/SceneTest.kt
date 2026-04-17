@@ -609,37 +609,37 @@ class SceneTest {
     }
 
     @Test
-    fun addOnBoundaryConsentChangedListener_withExecutor_callsThroughToRuntime() {
+    fun addBoundaryConsentChangedListener_withExecutor_callsThroughToRuntime() {
         val listener = Consumer<Boolean> {}
         val executor = directExecutor()
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
-        session.scene.addOnBoundaryConsentChangedListener(executor, listener)
+        session.scene.addBoundaryConsentChangedListener(executor, listener)
 
         assertThat(fakeSceneRuntime.boundaryConsentChangedMap).containsEntry(listener, executor)
     }
 
     @Test
-    fun addOnBoundaryConsentChangedListener_withNoExecutor_callsThroughToRuntimeWithMainExecutor() {
+    fun addBoundaryConsentChangedListener_withNoExecutor_callsThroughToRuntimeWithMainExecutor() {
         val listener = Consumer<Boolean> {}
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
-        session.scene.addOnBoundaryConsentChangedListener(listener)
+        session.scene.addBoundaryConsentChangedListener(listener)
 
         assertThat(fakeSceneRuntime.boundaryConsentChangedMap)
             .containsEntry(listener, HandlerExecutor.mainThreadExecutor)
     }
 
     @Test
-    fun removeOnBoundaryConsentChangedListener_callsThroughToRuntime() {
+    fun removeBoundaryConsentChangedListener_callsThroughToRuntime() {
         val listener = Consumer<Boolean> {}
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
-        session.scene.addOnBoundaryConsentChangedListener(listener)
+        session.scene.addBoundaryConsentChangedListener(listener)
 
         assertThat(fakeSceneRuntime.boundaryConsentChangedMap).hasSize(1)
 
-        session.scene.removeOnBoundaryConsentChangedListener(listener)
+        session.scene.removeBoundaryConsentChangedListener(listener)
 
         assertThat(fakeSceneRuntime.boundaryConsentChangedMap).hasSize(0)
     }

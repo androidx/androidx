@@ -19,6 +19,7 @@
 package androidx.xr.scenecore
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
@@ -82,8 +83,8 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
      * @param listener The Consumer to be invoked when this ActivitySpace's current boundary
      *   changes.
      */
-    public fun addOnBoundsChangedListener(listener: Consumer<FloatSize3d>): Unit =
-        addOnBoundsChangedListener(HandlerExecutor.mainThreadExecutor, listener)
+    public fun addBoundsChangedListener(listener: Consumer<FloatSize3d>): Unit =
+        addBoundsChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
      * Adds the given [Consumer] as a listener to be invoked when this ActivitySpace's current
@@ -95,7 +96,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
      * @param listener The Consumer to be invoked when this ActivitySpace's current boundary
      *   changes.
      */
-    public fun addOnBoundsChangedListener(
+    public fun addBoundsChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<FloatSize3d>,
     ) {
@@ -119,7 +120,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
      *
      * @param listener The Consumer to be removed from receiving updates.
      */
-    public fun removeOnBoundsChangedListener(listener: Consumer<FloatSize3d>) {
+    public fun removeBoundsChangedListener(listener: Consumer<FloatSize3d>) {
         checkNotDisposed()
         boundsListeners.computeIfPresent(listener) { _, rtListener ->
             rtEntity!!.removeOnBoundsChangedListener(rtListener)
@@ -132,15 +133,15 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
      * due to an internal system event.
      *
      * When this event occurs, any [ScenePose] that is not a child of ActivitySpace, such as
-     * [AnchorEntity] and [CameraView], will have a different position relative to the
-     * [ActivitySpace]. Therefore, this listener can be used to indicate when to invalidate any
-     * cached information about the relative difference in Pose between ActivitySpace's children and
-     * children of non-ActivitySpace ScenePoses.
+     * [AnchorEntity], will have a different position relative to the [ActivitySpace]. Therefore,
+     * this listener can be used to indicate when to invalidate any cached information about the
+     * relative difference in Pose between ActivitySpace's children and children of
+     * non-ActivitySpace ScenePoses.
      *
      * @param listener The listener to register.
      * @param executor The [Executor] on which to run the listener.
      */
-    public fun addOnOriginChangedListener(executor: Executor, listener: Runnable) {
+    public fun addOriginChangedListener(executor: Executor, listener: Runnable) {
         checkNotDisposed()
         val addRtListener = originChangedListeners.isEmpty()
         originChangedListeners[listener] = executor
@@ -154,33 +155,40 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
      * due to an internal system event.
      *
      * When this event occurs, any [ScenePose] that is not a child of ActivitySpace, such as
-     * [AnchorEntity] and [CameraView], will have a different position relative to the
-     * [ActivitySpace]. Therefore, this listener can be used to indicate when to invalidate any
-     * cached information about the relative difference in Pose between ActivitySpace's children and
-     * children of non-ActivitySpace ScenePoses.
+     * [AnchorEntity], will have a different position relative to the [ActivitySpace]. Therefore,
+     * this listener can be used to indicate when to invalidate any cached information about the
+     * relative difference in Pose between ActivitySpace's children and children of
+     * non-ActivitySpace ScenePoses.
      *
      * The callback will be made on the SceneCore executor.
      *
      * @param listener The listener to register.
      */
+    public fun addOriginChangedListener(listener: Runnable): Unit =
+        addOriginChangedListener(DirectExecutor, listener)
+
+    /**
+     * Adds a listener to be called when the ActivitySpace's origin has moved or changed, typically
+     * due to an internal system event.
+     *
+     * When this event occurs, any [ScenePose] that is not a child of ActivitySpace, such as
+     * [AnchorEntity], will have a different position relative to the [ActivitySpace]. Therefore,
+     * this listener can be used to indicate when to invalidate any cached information about the
+     * relative difference in Pose between ActivitySpace's children and children of
+     * non-ActivitySpace ScenePoses.
+     *
+     * The callback will be made on the SceneCore executor.
+     *
+     * @param listener The listener to register.
+     */
+    // TODO - b/502272748: Cleanup deprecated listener methods
+    @Deprecated(
+        "Use addOriginChangedListener",
+        replaceWith = ReplaceWith("addOriginChangedListener()"),
+    )
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public fun addOnOriginChangedListener(listener: Runnable): Unit =
-        addOnOriginChangedListener(DirectExecutor, listener)
-
-    @Deprecated(
-        "Use addOnOriginChangedListener",
-        replaceWith = ReplaceWith("addOnOriginChangedListener()"),
-    )
-    public fun addOnSpaceUpdatedListener(executor: Executor, listener: Runnable) {
-        addOnOriginChangedListener(executor, listener)
-    }
-
-    @Deprecated(
-        "Use addOnOriginChangedListener",
-        replaceWith = ReplaceWith("addOnOriginChangedListener()"),
-    )
-    public fun addOnSpaceUpdatedListener(listener: Runnable) {
-        addOnOriginChangedListener(listener)
-    }
+        addOriginChangedListener(listener)
 
     /**
      * Removes the previously-added listener.
@@ -188,20 +196,12 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
      * All listeners are automatically removed when the ActivitySpace is disposed even if this
      * method is not explicitly called.
      */
-    public fun removeOnOriginChangedListener(listener: Runnable) {
+    public fun removeOriginChangedListener(listener: Runnable) {
         checkNotDisposed()
         originChangedListeners.remove(listener)
         if (originChangedListeners.isEmpty()) {
             rtEntity!!.setOnOriginChangedListener(null, null)
         }
-    }
-
-    @Deprecated(
-        "Use removeOnOriginChangedListener",
-        replaceWith = ReplaceWith("removeOnOriginChangedListener()"),
-    )
-    public fun removeOnSpaceUpdatedListener(listener: Runnable) {
-        removeOnOriginChangedListener(listener)
     }
 
     /**
@@ -336,8 +336,8 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
     }
 
     override fun dispose() {
-        boundsListeners.keys.forEach { removeOnBoundsChangedListener(it) }
-        originChangedListeners.keys.forEach { removeOnOriginChangedListener(it) }
+        boundsListeners.keys.forEach { removeBoundsChangedListener(it) }
+        originChangedListeners.keys.forEach { removeOriginChangedListener(it) }
         super.dispose()
     }
 }
