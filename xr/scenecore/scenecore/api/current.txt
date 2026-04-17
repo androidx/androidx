@@ -893,8 +893,9 @@ package androidx.xr.scenecore {
   public final class Scene {
     method public void addSpatialCapabilitiesChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void addSpatialCapabilitiesChangedListener(java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
+    method public void addSpatialVisibilityChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
+    method public void addSpatialVisibilityChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
     method public void clearSpatialModeChangedListener();
-    method public void clearSpatialVisibilityChangedListener();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.ActivitySpace getActivitySpace();
     method public <T extends androidx.xr.scenecore.Entity> java.util.List<T> getEntitiesOfType(Class<? extends T> type);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.Entity? getKeyEntity();
@@ -904,14 +905,13 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.scenecore.SpatialCapability> getSpatialCapabilities();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatialEnvironment getSpatialEnvironment();
     method public void removeSpatialCapabilitiesChangedListener(java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
+    method public void removeSpatialVisibilityChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
     method public void requestFullSpaceMode();
     method public void requestHomeSpaceMode();
     method @InaccessibleFromKotlin public void setKeyEntity(androidx.xr.scenecore.Entity?);
     method @InaccessibleFromKotlin public void setPanelClippingConfig(androidx.xr.scenecore.PanelClippingConfig);
     method public void setSpatialModeChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.SpatialModeChangeEvent> listener);
     method public void setSpatialModeChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialModeChangeEvent> listener);
-    method public void setSpatialVisibilityChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
-    method public void setSpatialVisibilityChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
     property public androidx.xr.scenecore.ActivitySpace activitySpace;
     property public androidx.xr.scenecore.Entity? keyEntity;
     property public androidx.xr.scenecore.MainPanelEntity mainPanelEntity;
