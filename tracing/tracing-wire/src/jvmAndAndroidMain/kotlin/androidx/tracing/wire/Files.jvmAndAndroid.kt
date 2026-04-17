@@ -31,8 +31,23 @@ import java.util.TimeZone
 @VisibleForTesting internal const val PREFIX = "perfetto"
 
 /**
+ * Creates a [File] that can be used to store in-process trace events.
+ *
+ * @param prefix The file name prefix for the trace file. The default value is `perfetto`.
  * @return the trace [File], for a given parent directory, that can be used by the
  *   [androidx.tracing.AbstractTraceSink].
+ * @receiver The parent directory used to store the trace file.
+ *
+ * ```
+ * // On the JVM
+ * File parent = File("/tmp/traces")
+ * File trace = parent.createPerfettoFile()
+ * ```
+ * ```
+ * // On Android
+ * File parent = context.cacheDir
+ * File trace = parent.createPerfettoFile()
+ * ```
  */
 // We don't support descriptors here, given the underlying primitive is an okio.BufferedSink anyway.
 // Developers can always reach for that low level primitive.
