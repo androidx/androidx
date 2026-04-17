@@ -163,7 +163,7 @@ class CardTest {
         lateinit var expectedContentTextStyle: TextStyle
         rule.setGlimmerThemeContent {
             expectedTitleTextStyle = GlimmerTheme.typography.bodyMedium
-            expectedSubtitleTextStyle = GlimmerTheme.typography.bodySmall
+            expectedSubtitleTextStyle = GlimmerTheme.typography.caption
             expectedContentTextStyle = GlimmerTheme.typography.bodySmall
             Card(
                 title = { actualTitleTextStyle = LocalTextStyle.current },
