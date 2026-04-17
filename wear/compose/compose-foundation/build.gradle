@@ -31,13 +31,13 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.foundation:foundation:1.9.0")
-    api("androidx.compose.ui:ui:1.9.0")
-    api("androidx.compose.runtime:runtime:1.9.0")
+    api("androidx.compose.foundation:foundation:1.10.0")
+    api("androidx.compose.ui:ui:1.10.0")
+    api("androidx.compose.runtime:runtime:1.10.0")
 
     implementation("androidx.activity:activity-compose:1.10.0")
-    implementation("androidx.compose.foundation:foundation-layout:1.9.0")
-    implementation("androidx.compose.ui:ui-util:1.9.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.10.0")
+    implementation("androidx.compose.ui:ui-util:1.10.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.profileinstaller:profileinstaller:1.4.0")
@@ -55,7 +55,7 @@ dependencies {
     testImplementation(project(":compose:ui:ui-test-junit4"))
     testImplementation(project(":compose:test-utils"))
 
-    androidTestImplementation("androidx.compose.foundation:foundation:1.9.0")
+    androidTestImplementation("androidx.compose.foundation:foundation:1.10.0")
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
