@@ -26,13 +26,8 @@ import androidx.compose.animation.core.spring
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ParentDataModifierNode
-import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -76,13 +71,19 @@ internal class LazyLayoutItemAnimation(
      * not because of the scroll event in order to start the animation. When there is an active
      * animation it represents the final/target offset.
      */
-    var rawOffset: IntOffset = NotInitialized
+    var targetOffset: IntOffset = NotInitialized
 
     /**
      * The final offset the placeable associated with this animations was placed at. Unlike
-     * [rawOffset] it takes into account things like reverse layout and content padding.
+     * [targetOffset] it takes into account things like reverse layout and content padding.
      */
-    var finalOffset: IntOffset = IntOffset.Zero
+    var placementOffset: IntOffset = IntOffset.Zero
+
+    /**
+     * Tracks the offset of the item in the lookahead pass. When set, this is the animation target
+     * that placementDelta should be applied to.
+     */
+    var lookaheadOffset: IntOffset = NotInitialized
 
     /** Current [GraphicsLayer]. It will be set to null in [release]. */
     var layer: GraphicsLayer? = graphicsContext?.createGraphicsLayer()
@@ -99,6 +100,10 @@ internal class LazyLayoutItemAnimation(
     var placementDelta by mutableStateOf(IntOffset.Zero)
         private set
 
+    fun applyScrollOffset(offset: IntOffset) {
+        targetOffset += offset
+    }
+
     /** Cancels the ongoing placement animation if there is one. */
     fun cancelPlacementAnimation() {
         if (isPlacementAnimationInProgress) {
@@ -109,12 +114,6 @@ internal class LazyLayoutItemAnimation(
             }
         }
     }
-
-    /**
-     * Tracks the offset of the item in the lookahead pass. When set, this is the animation target
-     * that placementDelta should be applied to.
-     */
-    var lookaheadOffset: IntOffset = NotInitialized
 
     /** Animate the placement by the given [delta] offset. */
     fun animatePlacementDelta(delta: IntOffset, isMovingAway: Boolean) {
@@ -227,7 +226,7 @@ internal class LazyLayoutItemAnimation(
         }
         isRunningMovingAwayAnimation = false
         placementDelta = IntOffset.Zero
-        rawOffset = NotInitialized
+        targetOffset = NotInitialized
         layer?.let { graphicsContext?.releaseGraphicsLayer(it) }
         layer = null
         fadeInSpec = null
@@ -238,38 +237,6 @@ internal class LazyLayoutItemAnimation(
     companion object {
         val NotInitialized = IntOffset(Int.MAX_VALUE, Int.MAX_VALUE)
     }
-}
-
-internal data class LazyLayoutAnimateItemElement(
-    private val fadeInSpec: FiniteAnimationSpec<Float>?,
-    private val placementSpec: FiniteAnimationSpec<IntOffset>?,
-    private val fadeOutSpec: FiniteAnimationSpec<Float>?,
-) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
-
-    override fun create(): LazyLayoutAnimationSpecsNode =
-        LazyLayoutAnimationSpecsNode(fadeInSpec, placementSpec, fadeOutSpec)
-
-    override fun update(node: LazyLayoutAnimationSpecsNode) {
-        node.fadeInSpec = fadeInSpec
-        node.placementSpec = placementSpec
-        node.fadeOutSpec = fadeOutSpec
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "animateItem"
-        properties["fadeInSpec"] = fadeInSpec
-        properties["placementSpec"] = placementSpec
-        properties["fadeOutSpec"] = fadeOutSpec
-    }
-}
-
-internal class LazyLayoutAnimationSpecsNode(
-    var fadeInSpec: FiniteAnimationSpec<Float>?,
-    var placementSpec: FiniteAnimationSpec<IntOffset>?,
-    var fadeOutSpec: FiniteAnimationSpec<Float>?,
-) : Modifier.Node(), ParentDataModifierNode {
-
-    override fun Density.modifyParentData(parentData: Any?): Any = this@LazyLayoutAnimationSpecsNode
 }
 
 /** We switch to this spec when a duration based animation is being interrupted. */

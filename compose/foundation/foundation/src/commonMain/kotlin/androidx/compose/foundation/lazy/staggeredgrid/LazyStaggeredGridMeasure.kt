@@ -1429,7 +1429,7 @@ internal class LazyStaggeredGridMeasuredItem(
                 }
                 offset += contentOffset
                 if (!isLookingAhead) {
-                    animation?.finalOffset = offset
+                    animation?.placementOffset = offset
                 }
                 if (layer != null) {
                     placeable.placeRelativeWithLayer(offset, layer)
@@ -1458,7 +1458,8 @@ internal class LazyStaggeredGridMeasuredItem(
             repeat(placeablesCount) { index ->
                 val animation = animator.getAnimation(key, index)
                 if (animation != null) {
-                    animation.rawOffset = animation.rawOffset.copy { mainAxis -> mainAxis + delta }
+                    animation.targetOffset =
+                        animation.targetOffset.copy { mainAxis -> mainAxis + delta }
                 }
             }
         }
