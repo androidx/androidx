@@ -63,7 +63,6 @@ androidXMultiplatform {
   sourceSets {
     commonMain.dependencies {
       implementation(libs.kotlinCoroutinesCore)
-      implementation(libs.kotlinCoroutinesTest)
       implementation("androidx.annotation:annotation:1.8.0")
     }
 
