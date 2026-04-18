@@ -968,14 +968,14 @@ package androidx.xr.scenecore {
   }
 
   public final class SoundEffectPool implements java.lang.AutoCloseable {
-    method public void clearOnLoadCompleteListener();
+    method public void addLoadCompleteListener(androidx.xr.scenecore.SoundEffectPool.LoadCompleteListener listener);
+    method public void addLoadCompleteListener(java.util.concurrent.Executor executor, androidx.xr.scenecore.SoundEffectPool.LoadCompleteListener listener);
     method public void close();
     method public static androidx.xr.scenecore.SoundEffectPool create(androidx.xr.runtime.Session session, int maxStreams);
     method public androidx.xr.scenecore.SoundEffect load(android.content.Context context, int resId);
     method public androidx.xr.scenecore.SoundEffect load(android.content.res.AssetFileDescriptor assetFileDescriptor);
     method public void release();
-    method public void setOnLoadCompleteListener(androidx.xr.scenecore.SoundEffectPool.LoadCompleteListener listener);
-    method public void setOnLoadCompleteListener(java.util.concurrent.Executor executor, androidx.xr.scenecore.SoundEffectPool.LoadCompleteListener listener);
+    method public void removeLoadCompleteListener(androidx.xr.scenecore.SoundEffectPool.LoadCompleteListener listener);
     method public boolean unload(androidx.xr.scenecore.SoundEffect soundEffect);
     field public static final androidx.xr.scenecore.SoundEffectPool.Companion Companion;
   }

@@ -153,7 +153,7 @@ class SpatialAudioComponentsActivity : AppCompatActivity() {
                 tigerFile.length(),
             )
 
-        soundEffectPool.setOnLoadCompleteListener { effect, bool ->
+        soundEffectPool.addLoadCompleteListener { effect, bool ->
             Log.i(TAG, "Loaded $effect and $bool")
         }
         val soundEffect = soundEffectPool.load(afd)
