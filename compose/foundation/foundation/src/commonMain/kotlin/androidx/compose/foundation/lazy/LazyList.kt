@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
 import androidx.compose.foundation.lazy.layout.StickyItemsPlacement
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
+import androidx.compose.foundation.lazy.layout.lazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.scrollableArea
 import androidx.compose.runtime.Composable
@@ -139,7 +140,7 @@ internal fun LazyList(
                     reverseScrolling = reverseLayout,
                 )
                 .then(beyondBoundsModifier)
-                .then(state.itemAnimator.modifier)
+                .lazyLayoutItemAnimator(state.itemAnimator)
                 .scrollableArea(
                     state = state,
                     orientation = orientation,

@@ -24,6 +24,7 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
+import androidx.compose.foundation.lazy.layout.lazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.scrollableArea
 import androidx.compose.runtime.Composable
@@ -104,7 +105,7 @@ internal fun LazyStaggeredGrid(
                     reverseScrolling = reverseLayout,
                 )
                 .then(beyondBoundsModifier)
-                .then(state.itemAnimator.modifier)
+                .lazyLayoutItemAnimator(state.itemAnimator)
                 .scrollableArea(
                     state = state,
                     orientation = orientation,
