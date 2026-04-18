@@ -19,6 +19,7 @@
 package androidx.xr.scenecore
 
 import android.content.res.AssetFileDescriptor
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
@@ -32,6 +33,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -104,8 +106,9 @@ class SoundEffectPoolTest {
         assertThat(fakePool.released).isTrue()
     }
 
+    // TODO - b/502272748: Remove when we delete the deprecated setListener method
     @Test
-    fun setOnLoadCompleteListener_callsRuntime() {
+    fun setOnLoadCompleteListener_receivesCallback() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
         var callbackCalled = false
         var loadedSoundEffect: SoundEffect? = null
@@ -121,11 +124,11 @@ class SoundEffectPoolTest {
         soundEffectPool.setOnLoadCompleteListener(listener)
 
         val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-        assertThat(fakePool.loadCompleteListener).isNotNull()
 
         // Trigger the listener via the fake
         val rtSoundEffect = RtSoundEffect(123)
         fakePool.notifyLoadComplete(rtSoundEffect, true)
+        shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(callbackCalled).isTrue()
         assertThat(loadedSoundEffect?.id).isEqualTo(123)
@@ -133,16 +136,30 @@ class SoundEffectPoolTest {
     }
 
     @Test
-    fun clearOnLoadCompleteListener_callsRuntime() {
+    fun addLoadCompleteListener_receivesCallback() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
-        val listener = SoundEffectPool.LoadCompleteListener { _, _ -> }
-        soundEffectPool.setOnLoadCompleteListener(listener)
+        var callbackCalled = false
+        var loadedSoundEffect: SoundEffect? = null
+        var loadedSuccess = false
+
+        val listener =
+            SoundEffectPool.LoadCompleteListener { soundEffect, success ->
+                callbackCalled = true
+                loadedSoundEffect = soundEffect
+                loadedSuccess = success
+            }
+
+        soundEffectPool.addLoadCompleteListener(listener)
 
         val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-        assertThat(fakePool.loadCompleteListener).isNotNull()
 
-        soundEffectPool.clearOnLoadCompleteListener()
+        // Trigger the listener via the fake
+        val rtSoundEffect = RtSoundEffect(123)
+        fakePool.notifyLoadComplete(rtSoundEffect, true)
+        shadowOf(Looper.getMainLooper()).idle()
 
-        assertThat(fakePool.loadCompleteListener).isNull()
+        assertThat(callbackCalled).isTrue()
+        assertThat(loadedSoundEffect?.id).isEqualTo(123)
+        assertThat(loadedSuccess).isTrue()
     }
 }
