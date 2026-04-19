@@ -16,7 +16,16 @@
 
 package androidx.text.vertical
 
-public sealed class EmphasisStyle protected constructor(@JvmField public val value: Int) {
+/**
+ * Defines the visual style of emphasis marks used with [EmphasisSpan].
+ *
+ * Each style corresponds to a specific Unicode character pair (filled and open variants).
+ */
+public sealed class EmphasisStyle
+protected constructor(
+    /** The integer representation of this style, used for serialization. */
+    @JvmField public val value: Int
+) {
 
     public companion object {
         /** Emphasis mark is a small circle. The filled dot is U+2022, open dot is U+25E6. */

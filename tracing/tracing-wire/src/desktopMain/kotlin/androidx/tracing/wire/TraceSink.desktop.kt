@@ -35,6 +35,6 @@ public fun TraceSink(
 ): TraceSink =
     TraceSink(
         sequenceId = sequenceId,
-        bufferedSink = directory.perfettoTraceFile().appendingSink().buffer(),
+        bufferedSink = directory.createPerfettoFile().appendingSink().buffer(),
         coroutineContext = coroutineContext,
     )

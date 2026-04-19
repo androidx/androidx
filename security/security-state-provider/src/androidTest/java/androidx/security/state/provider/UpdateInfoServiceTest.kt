@@ -22,6 +22,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.os.Process.myUid
 import androidx.security.state.IUpdateInfoService
+import androidx.security.state.SecurityPatchState
 import androidx.security.state.UpdateInfo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -175,7 +176,9 @@ class UpdateInfoServiceTest {
         val updateInfo =
             UpdateInfo.Builder()
                 .setComponent("SYSTEM")
-                .setSecurityPatchLevel("2025-01-01")
+                .setSecurityPatchLevel(
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-01-01")
+                )
                 .setPublishedDateMillis(1L)
                 .setLastCheckTimeMillis(1000L)
                 .build()
@@ -198,7 +201,7 @@ class UpdateInfoServiceTest {
         // 3. Verify
         assertEquals("Should return 1 update", 1, result.updates.size)
         assertEquals("SYSTEM", result.updates[0].component)
-        assertEquals("2025-01-01", result.updates[0].securityPatchLevel)
+        assertEquals("2025-01-01", result.updates[0].securityPatchLevel.toString())
         assertEquals(1L, result.updates[0].publishedDateMillis)
         assertEquals(1000L, result.updates[0].lastCheckTimeMillis)
 
@@ -320,14 +323,18 @@ class UpdateInfoServiceTest {
         val u1 =
             UpdateInfo.Builder()
                 .setComponent("SYSTEM")
-                .setSecurityPatchLevel(futureDate)
+                .setSecurityPatchLevel(
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString(futureDate)
+                )
                 .setPublishedDateMillis(1L)
                 .build()
 
         val u2 =
             UpdateInfo.Builder()
                 .setComponent("SYSTEM_MODULES")
-                .setSecurityPatchLevel(futureDate)
+                .setSecurityPatchLevel(
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString(futureDate)
+                )
                 .setPublishedDateMillis(1L)
                 .build()
 

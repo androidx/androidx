@@ -18,7 +18,10 @@ package androidx.appfunctions
 
 import android.content.Context
 import android.os.UserManager
+import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.metadata.AppFunctionSchemaMetadata
 import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata
@@ -80,8 +83,12 @@ class AppFunctionManagerUnitTest {
         val packageName = "com.pkg"
         fakeAppFunctionReader.addAppFunctionMetadata(
             AppFunctionMetadata(
-                id = functionId,
-                packageName = packageName,
+                name = AppFunctionName(packageName = packageName, functionIdentifier = functionId),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = packageName,
+                        components = AppFunctionComponentsMetadata(),
+                    ),
                 isEnabled = true,
                 schema =
                     AppFunctionSchemaMetadata(category = "notes", name = "createNote", version = 1),
@@ -111,8 +118,12 @@ class AppFunctionManagerUnitTest {
         val packageName = "com.pkg"
         fakeAppFunctionReader.addAppFunctionMetadata(
             AppFunctionMetadata(
-                id = functionId,
-                packageName = packageName,
+                name = AppFunctionName(packageName = packageName, functionIdentifier = functionId),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = packageName,
+                        components = AppFunctionComponentsMetadata(),
+                    ),
                 isEnabled = true,
                 schema =
                     AppFunctionSchemaMetadata(category = "notes", name = "createNote", version = 2),

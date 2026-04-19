@@ -417,6 +417,7 @@ class EntityTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
     fun allEntitySetPose_allEntityGetPose_poseSetCorrectly() {
         val pose = Pose.Identity
 
@@ -516,6 +517,7 @@ class EntityTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
     fun allEntitySetScale_float_allEntityGetScale_scaleSetCorrectly() {
         val scale = 0.1f
 
@@ -539,6 +541,7 @@ class EntityTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
     fun allEntitySetScale_vector_allEntityGetScale_scaleSetCorrectly() {
         val scale = Vector3(0.1f, 0.1f, 0.1f)
         val sdkScale = 0.1f
@@ -563,6 +566,7 @@ class EntityTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
     fun allEntitySetScale_float_allEntityGetNonUniformScale_scaleSetCorrectly() {
         val scale = Vector3(0.1f, 0.1f, 0.1f)
 
@@ -587,6 +591,7 @@ class EntityTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
     fun allEntitySetScale_vector_allEntityGetNonUniformScale_scaleSetCorrectly() {
         val scale = Vector3(0.1f, 0.1f, 0.1f)
 

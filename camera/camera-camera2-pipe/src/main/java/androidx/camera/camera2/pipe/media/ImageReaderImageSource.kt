@@ -50,7 +50,8 @@ constructor(
     // the HAL reserves 8 images, you have a maximum of 56 (64 - 8).
     private val maxImageReaderCapacity by lazy {
         ImageReaderImageSource.BUFFER_QUEUE_MAX_CAPACITY -
-            checkNotNull(cameraMetadata[CameraCharacteristics.REQUEST_PIPELINE_MAX_DEPTH])
+            (cameraMetadata[CameraCharacteristics.REQUEST_PIPELINE_MAX_DEPTH]
+                ?: ImageReaderImageSource.DEFAULT_PIPELINE_MAX_DEPTH)
     }
 
     override fun createImageSource(
@@ -175,6 +176,7 @@ public class ImageReaderImageSource(
 ) : ImageSource {
     public companion object {
         public const val BUFFER_QUEUE_MAX_CAPACITY: Int = 64
+        public const val DEFAULT_PIPELINE_MAX_DEPTH: Byte = 10
         public const val IMAGE_SOURCE_CAPACITY_MARGIN: Int = 2
 
         public fun create(imageReader: ImageReaderWrapper): ImageSource {
@@ -219,10 +221,18 @@ public class ImageReaderImageSource(
     override fun toString(): String = "ImageSource($imageReader)"
 
     override fun discardFreeBuffers() {
+        if (state.value == State.CLOSED) {
+            Log.debug { "Calling discardFreeBuffers on $this on closed image source." }
+            return
+        }
         imageReader.discardFreeBuffers()
     }
 
     override fun flush() {
+        if (state.value == State.CLOSED) {
+            Log.debug { "Calling flush on $this on closed image source." }
+            return
+        }
         imageReader.flush()
     }
 

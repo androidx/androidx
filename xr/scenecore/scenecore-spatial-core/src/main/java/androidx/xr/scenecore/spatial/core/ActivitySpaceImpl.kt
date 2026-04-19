@@ -122,18 +122,28 @@ public class ActivitySpaceImpl(
                 currentBox
                     ?: run {
                         val recommendedBox = extensions.recommendedContentBoxInFullSpace
-                        BoundingBox.fromMinMax(
-                            Vector3(
-                                recommendedBox.min.x,
-                                recommendedBox.min.y,
-                                recommendedBox.min.z,
-                            ),
-                            Vector3(
-                                recommendedBox.max.x,
-                                recommendedBox.max.y,
-                                recommendedBox.max.z,
-                            ),
-                        )
+                        val boundingBox =
+                            BoundingBox.fromMinMax(
+                                Vector3(
+                                    recommendedBox.min.x,
+                                    recommendedBox.min.y,
+                                    recommendedBox.min.z,
+                                ),
+                                Vector3(
+                                    recommendedBox.max.x,
+                                    recommendedBox.max.y,
+                                    recommendedBox.max.z,
+                                ),
+                            )
+                        if (
+                            (boundingBox.halfExtents.width <= 0f) or
+                                (boundingBox.halfExtents.height <= 0f) or
+                                (boundingBox.halfExtents.depth <= 0f)
+                        ) {
+                            RECOMMENDED_CONTENT_BOX
+                        } else {
+                            boundingBox
+                        }
                     }
             }
 
@@ -351,5 +361,14 @@ public class ActivitySpaceImpl(
             result.surfaceType,
             result.distance,
         )
+    }
+
+    public companion object {
+        public val BOX_DIMENSIONS: Vector3 = Vector3(1.73f, 1.61f, 0.5f)
+        public val RECOMMENDED_CONTENT_BOX: BoundingBox =
+            BoundingBox.fromMinMax(
+                min = BOX_DIMENSIONS.times(-0.5f),
+                max = BOX_DIMENSIONS.times(0.5f),
+            )
     }
 }

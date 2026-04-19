@@ -17,6 +17,7 @@
 package androidx.health.services.client.data
 
 import androidx.health.services.client.data.ComparisonType.Companion.GREATER_THAN
+import androidx.health.services.client.data.DataType.Companion.DISTANCE
 import androidx.health.services.client.data.DataType.Companion.DISTANCE_TOTAL
 import androidx.health.services.client.data.DataType.Companion.HEART_RATE_BPM
 import androidx.health.services.client.data.DataType.Companion.HEART_RATE_BPM_STATS
@@ -177,5 +178,51 @@ class ExerciseConfigTest {
                 isGpsEnabled = false,
             )
         }
+    }
+
+    @Test
+    fun throwsWhenPoolLengthNotSpecifiedButDistanceTotalIsRequested() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ExerciseConfig(
+                ExerciseType.SWIMMING_POOL,
+                setOf(DISTANCE_TOTAL),
+                isAutoPauseAndResumeEnabled = false,
+                isGpsEnabled = false,
+            )
+        }
+    }
+
+    @Test
+    fun throwsWhenPoolLengthNotSpecifiedButDistanceIsRequested() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ExerciseConfig(
+                ExerciseType.SWIMMING_POOL,
+                setOf(DISTANCE),
+                isAutoPauseAndResumeEnabled = false,
+                isGpsEnabled = false,
+            )
+        }
+    }
+
+    @Test
+    fun throwsWhenPoolLengthNotSpecifiedButAllDataIsRequested() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ExerciseConfig(
+                ExerciseType.SWIMMING_POOL,
+                setOf(),
+                isAutoPauseAndResumeEnabled = false,
+                isGpsEnabled = false,
+            )
+        }
+    }
+
+    @Test
+    fun doesNotThrowWhenDistanceNotRequested() {
+        ExerciseConfig(
+            ExerciseType.SWIMMING_POOL,
+            setOf(HEART_RATE_BPM),
+            isAutoPauseAndResumeEnabled = false,
+            isGpsEnabled = false,
+        )
     }
 }

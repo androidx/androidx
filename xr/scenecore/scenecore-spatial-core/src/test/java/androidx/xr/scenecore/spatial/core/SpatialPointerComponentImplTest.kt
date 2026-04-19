@@ -23,7 +23,6 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SpatialPointerIcon
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -37,7 +36,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class SpatialPointerComponentImplTest {
-    private val xrExtensions = requireNotNull(getXrExtensions())
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
     private val fakeExecutor = FakeScheduledExecutorService()
     private val sceneNodeRegistry = SceneNodeRegistry()

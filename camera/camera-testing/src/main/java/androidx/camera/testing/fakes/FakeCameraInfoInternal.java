@@ -43,6 +43,7 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraConfig;
+import androidx.camera.core.impl.CameraExtensionCapabilities;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.EncoderProfilesProvider;
@@ -101,6 +102,9 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private final Set<DynamicRange> mSupportedDynamicRanges = new HashSet<>(DEFAULT_DYNAMIC_RANGES);
     private final Set<Integer> mAvailableCapabilities = new HashSet<>();
+    private final Set<Integer> mSupportedExtensions = new HashSet<>();
+    private final Map<Integer, CameraExtensionCapabilities> mExtensionCapabilitiesMap =
+            new HashMap<>();
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
 
     // Leave uninitialized to support camera-core:1.0.0 dependencies.
@@ -611,6 +615,33 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     public void setAvailableCapabilities(@NonNull Set<@NonNull Integer> availableCapabilities) {
         mAvailableCapabilities.clear();
         mAvailableCapabilities.addAll(availableCapabilities);
+    }
+
+    /** Sets the supported extensions for testing. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setSupportedExtensions(@NonNull Set<Integer> supportedExtensions) {
+        mSupportedExtensions.clear();
+        mSupportedExtensions.addAll(supportedExtensions);
+    }
+
+    /** Sets the camera extension capabilities for testing. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setCameraExtensionCapabilities(int extensionMode,
+            @Nullable CameraExtensionCapabilities capabilities) {
+        mExtensionCapabilitiesMap.put(extensionMode, capabilities);
+    }
+
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull Set<Integer> getSupportedExtensions() {
+        return new HashSet<>(mSupportedExtensions);
+    }
+
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Nullable CameraExtensionCapabilities getCameraExtensionCapabilities(
+            int extensionMode) {
+        return mExtensionCapabilitiesMap.get(extensionMode);
     }
 
     static final class FakeExposureState implements ExposureState {

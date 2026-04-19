@@ -241,7 +241,7 @@ message DebugAnnotation {
 
 message ThreadDescriptor {
   int32 pid = 1;
-  int32 tid = 2;
+  int64 tid = 2;
   string thread_name = 5;
 }
 

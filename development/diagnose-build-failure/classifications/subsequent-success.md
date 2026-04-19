@@ -8,7 +8,7 @@ If attempting to reproduce a build failure results in a successful build, here a
 
     A) ab-damage-estimator can search for examples of this error on build servers https://dashboards.corp.google.com/_d7c29bbb_d22c_4d60_833b_98f096f089e7?f=branch:in:aosp-androidx-main&f=day:pd:90
 
-    B) Develocity can search for examples of this error on developer computers https://ge.androidx.dev/scans/failures
+    B) Develocity can search for examples of this error on developer computers https://androidx.develocity.cloud/scans/failures
 
        To upload your own build scan data, see https://g3doc.corp.google.com/company/teams/androidx/onboarding.md?cl=head#gradle-build-scans
 

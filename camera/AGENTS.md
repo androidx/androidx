@@ -52,6 +52,10 @@ CameraX involves complex hardware interactions, making robust testing essential.
   with minimal verbosity (e.g., using `-q` or redirecting output to a file). Only re-run specific
   failing tests with verbose logging when necessary for debugging. Always remove any temporary
   files (e.g., `.log` files) created during the process before finalizing your work.
+- **Robolectric Configuration**: When writing Robolectric tests, avoid hardcoding `minSdk` values
+  (e.g., `@Config(minSdk = 21)`). Instead, use `@Config(sdk = [Config.TARGET_SDK])` for standard
+  tests or `@Config(sdk = [Config.ALL_SDKS])` when logic needs verification across all supported
+  SDK levels.
 
 ## Git Commit Messages
 

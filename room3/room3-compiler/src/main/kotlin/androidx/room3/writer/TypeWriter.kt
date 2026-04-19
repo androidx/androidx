@@ -211,6 +211,7 @@ abstract class TypeWriter(val context: WriterContext) {
         val codeLanguage: CodeLanguage,
         val targetPlatforms: Set<XProcessingEnv.Platform>,
         val javaLambdaSyntaxAvailable: Boolean,
+        val validateChunkSize: Int,
     ) {
         companion object {
             fun fromProcessingContext(context: Context) =
@@ -218,6 +219,7 @@ abstract class TypeWriter(val context: WriterContext) {
                     codeLanguage = context.codeLanguage,
                     targetPlatforms = context.processingEnv.targetPlatforms,
                     javaLambdaSyntaxAvailable = context.javaLambdaSyntaxAvailable,
+                    validateChunkSize = context.validateChunkSize,
                 )
         }
     }

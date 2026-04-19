@@ -17,7 +17,7 @@
 package androidx.room3.compiler.processing.javac
 
 import androidx.room3.compiler.processing.XNullability
-import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeArgument
 import androidx.room3.compiler.processing.javac.kotlin.KmTypeContainer
 import com.google.auto.common.MoreTypes
 import javax.lang.model.type.TypeKind
@@ -33,7 +33,7 @@ internal class DefaultJavacType(
 
     override val equalityItems by lazy { arrayOf(typeMirror) }
 
-    override val typeArguments: List<XType>
+    override val typeArguments: List<XTypeArgument>
         /**
          * This is always empty because if the type mirror is declared, we wrap it in a
          * JavacDeclaredType.

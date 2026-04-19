@@ -29,6 +29,7 @@ import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import androidx.pdf.util.PAGE_INFO_REQUEST_NAME
+import androidx.pdf.util.compatContentEquals
 import androidx.pdf.view.PdfFormFillingState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -350,7 +351,7 @@ internal class PageLayoutManager(
             pageLocations.put(i, calculatePageLocation(i, viewport))
         }
         this.pageLocations = pageLocations
-        return !prevLocations.contentEquals(this@PageLayoutManager.pageLocations)
+        return !prevLocations.compatContentEquals(this@PageLayoutManager.pageLocations)
     }
 
     /**
@@ -375,7 +376,7 @@ internal class PageLayoutManager(
             visibleAreas.put(i, area)
         }
         visiblePageAreas = visibleAreas
-        return !prevAreas.contentEquals(visiblePageAreas)
+        return !prevAreas.compatContentEquals(visiblePageAreas)
     }
 
     /** Waits for any outstanding dimensions to be loaded, then loads dimensions for [pageNum] */

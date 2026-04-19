@@ -37,10 +37,13 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(project(":camera:camera-common-testing"))
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
 }
 
 android {

@@ -45,6 +45,7 @@ internal object BrushSerializationNative {
         offset: Int,
         length: Int,
         callback: TextureDecodeCallback = TextureDecodeCallback { id, _ -> id },
+        maxVersion: Int,
     ): Long =
         newBrushFamilyFromProtoInternal(
             brushFamilyDirectByteBuffer,
@@ -52,6 +53,24 @@ internal object BrushSerializationNative {
             offset,
             length,
             callback,
+            maxVersion,
+        )
+
+    fun newMultipleBrushFamiliesFromProto(
+        brushFamilyDirectByteBuffer: ByteBuffer?,
+        brushFamilyByteArray: ByteArray?,
+        offset: Int,
+        length: Int,
+        callback: TextureDecodeCallback = TextureDecodeCallback { id, _ -> id },
+        maxVersion: Int,
+    ): LongArray =
+        newMultipleBrushFamiliesFromProtoInternal(
+            brushFamilyDirectByteBuffer,
+            brushFamilyByteArray,
+            offset,
+            length,
+            callback,
+            maxVersion,
         )
 
     /**
@@ -64,6 +83,20 @@ internal object BrushSerializationNative {
     ): ByteArray =
         serializeBrushFamily(
             nativeBrushFamilyPointer,
+            map.keys.toTypedArray(),
+            map.values.toTypedArray(),
+        )
+
+    /**
+     * Serializes a list of [androidx.ink.brush.BrushFamily] to a [ByteArray] using the provided
+     * texture map of keys (client texture IDs) to values (PNG bytes).
+     */
+    fun serializeMultipleBrushFamilies(
+        nativeBrushFamilyPointers: LongArray,
+        map: Map<String, ByteArray>,
+    ): ByteArray =
+        serializeMultipleBrushFamilies(
+            nativeBrushFamilyPointers,
             map.keys.toTypedArray(),
             map.values.toTypedArray(),
         )
@@ -81,6 +114,13 @@ internal object BrushSerializationNative {
         textureMapValues: Array<ByteArray>,
     ): ByteArray
 
+    @UsedByNative
+    private external fun serializeMultipleBrushFamilies(
+        nativeBrushFamilyPointers: LongArray,
+        textureMapKeys: Array<String>,
+        textureMapValues: Array<ByteArray>,
+    ): ByteArray
+
     @UsedByNative external fun serializeBrushCoat(nativeBrushCoatPointer: Long): ByteArray
 
     @UsedByNative external fun serializeBrushBehavior(nativeBrushBehaviorPointer: Long): ByteArray
@@ -91,7 +131,9 @@ internal object BrushSerializationNative {
 
     /**
      * Constructs an unowned heap-allocated native `Brush` from a serialized proto, which can be
-     * passed in as either a direct [ByteBuffer] or a [ByteArray].
+     * passed in as either a direct [ByteBuffer] or a [ByteArray]. `maxVersion` is used to determine
+     * the maximum version supported by the deserializer. Proto objects with a `min_version` of
+     * greater than `maxVersion` will be rejected.
      */
     @UsedByNative
     external fun newBrushFromProto(
@@ -99,12 +141,15 @@ internal object BrushSerializationNative {
         brushByteArray: ByteArray?,
         offset: Int,
         length: Int,
+        maxVersion: Int,
     ): Long
 
     /**
      * Constructs an unowned heap-allocated native `BrushFamily` from a serialized proto, which can
      * be passed in as either a direct [ByteBuffer] or a [ByteArray]. The callback is called for
-     * each client texture ID in the BrushFamily proto.
+     * each client texture ID in the BrushFamily proto. `maxVersion` is used to determine the
+     * maximum version supported by the deserializer. Proto objects with a `min_version` of greater
+     * than `maxVersion` will be rejected.
      */
     @UsedByNative
     private external fun newBrushFamilyFromProtoInternal(
@@ -113,7 +158,25 @@ internal object BrushSerializationNative {
         offset: Int,
         length: Int,
         callback: TextureDecodeCallback,
+        maxVersion: Int,
     ): Long
+
+    /**
+     * Constructs a list of unowned heap-allocated native `BrushFamily` objects from a serialized
+     * proto, which can be passed in as either a direct [ByteBuffer] or a [ByteArray]. The callback
+     * is called for each client texture ID in the BrushFamily proto. `maxVersion` is used to
+     * determine the maximum version supported by the deserializer. If any of the encoded
+     * BrushFamilies have a `min_version` greater than `maxVersion`, deserialization will fail.
+     */
+    @UsedByNative
+    private external fun newMultipleBrushFamiliesFromProtoInternal(
+        brushFamilyDirectByteBuffer: ByteBuffer?,
+        brushFamilyByteArray: ByteArray?,
+        offset: Int,
+        length: Int,
+        callback: TextureDecodeCallback,
+        maxVersion: Int,
+    ): LongArray
 
     /**
      * Constructs an unowned heap-allocated native `BrushCoat` from a serialized proto, which can be

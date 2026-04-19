@@ -296,10 +296,7 @@ fun RowScope.NavigationBarItem(
                 Box(
                     Modifier.layoutId(IndicatorRippleLayoutIdTag)
                         .clip(NavigationBarTokens.ItemActiveIndicatorShape.value)
-                        .indication(
-                            offsetInteractionSource,
-                            @OptIn(ExperimentalMaterial3Api::class) ripple(focusRingShape = shape),
-                        )
+                        .indication(offsetInteractionSource, ripple(focusRingShape = shape))
                 )
             }
         val indicator =

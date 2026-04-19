@@ -16,7 +16,6 @@
 package androidx.camera.extensions
 
 import android.content.Context
-import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
@@ -34,11 +33,11 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureCapabilities
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.utils.ContextUtil
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.extensions.ExtensionsManager.Companion.getInstanceAsync
-import androidx.camera.extensions.internal.Camera2ExtensionsInfo
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.await
 import androidx.lifecycle.LifecycleOwner
@@ -96,7 +95,6 @@ public final class ExtensionsManager
 internal constructor(
     internal val extensionsAvailability: ExtensionsAvailability,
     cameraProvider: CameraProvider,
-    applicationContext: Context,
 ) {
     internal enum class ExtensionsAvailability {
         /** The device extensions library exists and has been correctly loaded. */
@@ -113,7 +111,7 @@ internal constructor(
         NONE,
     }
 
-    private val extensionsInfo: ExtensionsInfo = ExtensionsInfo(cameraProvider, applicationContext)
+    private val extensionsInfo: ExtensionsInfo = ExtensionsInfo(cameraProvider)
 
     /**
      * Shutdown the extensions.
@@ -283,7 +281,7 @@ internal constructor(
             return null
         }
 
-        return extensionsInfo.getEstimatedCaptureLatencyRange(cameraSelector, mode, null)
+        return extensionsInfo.getEstimatedCaptureLatencyRangeMillis(cameraSelector, mode, null)
     }
 
     /**
@@ -342,11 +340,6 @@ internal constructor(
     public fun getCameraExtensionsInfo(cameraInfo: CameraInfo): CameraExtensionsInfo =
         CameraExtensionsInfos.from(cameraInfo)
 
-    @VisibleForTesting
-    internal fun setVendorExtenderFactory(vendorExtenderFactory: VendorExtenderFactory) {
-        extensionsInfo.setVendorExtenderFactory(vendorExtenderFactory)
-    }
-
     public companion object {
         private const val TAG = "ExtensionsManager"
         private const val MINIMUM_SUPPORTED_API_LEVEL = Build.VERSION_CODES.TIRAMISU
@@ -391,11 +384,7 @@ internal constructor(
                 // return an empty implementation which will report all extensions as unavailable
                 if (Build.VERSION.SDK_INT < MINIMUM_SUPPORTED_API_LEVEL) {
                     return Futures.immediateFuture<ExtensionsManager>(
-                        getOrCreateExtensionsManager(
-                            ExtensionsAvailability.NONE,
-                            cameraProvider,
-                            applicationContext,
-                        )
+                        getOrCreateExtensionsManager(ExtensionsAvailability.NONE, cameraProvider)
                     )
                 }
 
@@ -403,18 +392,12 @@ internal constructor(
                     sInitializeFuture =
                         CallbackToFutureAdapter.getFuture {
                             completer: CallbackToFutureAdapter.Completer<ExtensionsManager> ->
-                            val cameraManager =
-                                applicationContext.getSystemService(CameraManager::class.java)
-
-                            val camera2ExtensionsInfo = Camera2ExtensionsInfo(cameraManager)
-
                             val isCamera2ExtensionsSupported =
-                                cameraManager.cameraIdList.find { cameraId ->
-                                    camera2ExtensionsInfo
-                                        .getExtensionCharacteristics(cameraId)
+                                cameraProvider.availableCameraInfos.any { cameraInfo ->
+                                    (cameraInfo as CameraInfoInternal)
                                         .supportedExtensions
                                         .isNotEmpty()
-                                } != null
+                                }
 
                             completer.set(
                                 getOrCreateExtensionsManager(
@@ -424,7 +407,6 @@ internal constructor(
                                         ExtensionsAvailability.LIBRARY_AVAILABLE
                                     },
                                     cameraProvider,
-                                    applicationContext,
                                 )
                             )
                             "Initialize extensions"
@@ -437,12 +419,12 @@ internal constructor(
         private fun getOrCreateExtensionsManager(
             extensionsAvailability: ExtensionsAvailability,
             cameraProvider: CameraProvider,
-            applicationContext: Context,
         ): ExtensionsManager =
             synchronized(EXTENSIONS_LOCK) {
                 sExtensionsManager
-                    ?: ExtensionsManager(extensionsAvailability, cameraProvider, applicationContext)
-                        .also { sExtensionsManager = it }
+                    ?: ExtensionsManager(extensionsAvailability, cameraProvider).also {
+                        sExtensionsManager = it
+                    }
             }
 
         /**

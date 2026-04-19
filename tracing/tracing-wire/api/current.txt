@@ -4,6 +4,12 @@ package androidx.tracing.wire {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="Marks APIs that are experimental for ring buffer tracing.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRingBufferApi {
   }
 
+  public final class Files {
+    method public static java.io.File createPerfettoFile(java.io.File);
+    method public static java.io.File createPerfettoFile(java.io.File, optional String prefix);
+    method @BytecodeOnly public static java.io.File! createPerfettoFile$default(java.io.File!, String!, int, Object!);
+  }
+
   @SuppressCompatibility @androidx.tracing.wire.ExperimentalRingBufferApi public final class InMemoryRingBufferTraceSink extends androidx.tracing.AbstractTraceSink {
     ctor public InMemoryRingBufferTraceSink(@IntRange(from=1L) int sequenceId, long capacityInBytes);
     method public void close();

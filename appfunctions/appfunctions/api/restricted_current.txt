@@ -394,11 +394,10 @@ package androidx.appfunctions.metadata {
   }
 
   public final class AppFunctionMetadata {
-    ctor @BytecodeOnly public AppFunctionMetadata(String!, String!, boolean, androidx.appfunctions.metadata.AppFunctionSchemaMetadata!, java.util.List!, androidx.appfunctions.metadata.AppFunctionResponseMetadata!, androidx.appfunctions.metadata.AppFunctionComponentsMetadata!, String!, androidx.appfunctions.metadata.AppFunctionDeprecationMetadata!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public AppFunctionMetadata(String id, String packageName, boolean isEnabled, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response);
-    ctor public AppFunctionMetadata(String id, String packageName, boolean isEnabled, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, optional androidx.appfunctions.metadata.AppFunctionComponentsMetadata components);
-    ctor public AppFunctionMetadata(String id, String packageName, boolean isEnabled, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, optional androidx.appfunctions.metadata.AppFunctionComponentsMetadata components, optional String description);
-    ctor public AppFunctionMetadata(String id, String packageName, boolean isEnabled, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, optional androidx.appfunctions.metadata.AppFunctionComponentsMetadata components, optional String description, optional androidx.appfunctions.metadata.AppFunctionDeprecationMetadata? deprecation);
+    ctor @BytecodeOnly public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName!, androidx.appfunctions.metadata.AppFunctionSchemaMetadata!, java.util.List!, androidx.appfunctions.metadata.AppFunctionResponseMetadata!, androidx.appfunctions.metadata.AppFunctionPackageMetadata!, boolean, String!, androidx.appfunctions.metadata.AppFunctionDeprecationMetadata!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName name, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, androidx.appfunctions.metadata.AppFunctionPackageMetadata packageMetadata, boolean isEnabled);
+    ctor public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName name, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, androidx.appfunctions.metadata.AppFunctionPackageMetadata packageMetadata, boolean isEnabled, optional String description);
+    ctor public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName name, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, androidx.appfunctions.metadata.AppFunctionPackageMetadata packageMetadata, boolean isEnabled, optional String description, optional androidx.appfunctions.metadata.AppFunctionDeprecationMetadata? deprecation);
     method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionComponentsMetadata getComponents();
     method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionDeprecationMetadata? getDeprecation();
     method @InaccessibleFromKotlin public String getDescription();
@@ -417,6 +416,14 @@ package androidx.appfunctions.metadata {
     property public java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters;
     property public androidx.appfunctions.metadata.AppFunctionResponseMetadata response;
     property public androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema;
+  }
+
+  public final class AppFunctionName {
+    ctor public AppFunctionName(String packageName, String functionIdentifier);
+    method @InaccessibleFromKotlin public String getFunctionIdentifier();
+    method @InaccessibleFromKotlin public String getPackageName();
+    property public String functionIdentifier;
+    property public String packageName;
   }
 
   public final class AppFunctionObjectTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
@@ -450,7 +457,7 @@ package androidx.appfunctions.metadata {
   }
 
   public final class AppFunctionPackageMetadata {
-    ctor public AppFunctionPackageMetadata(String packageName, java.util.List<androidx.appfunctions.metadata.AppFunctionMetadata> appFunctions);
+    ctor public AppFunctionPackageMetadata(String packageName, androidx.appfunctions.metadata.AppFunctionComponentsMetadata components);
     method @InaccessibleFromKotlin public java.util.List<androidx.appfunctions.metadata.AppFunctionMetadata> getAppFunctions();
     method @InaccessibleFromKotlin public String getPackageName();
     method @RequiresApi(android.os.Build.VERSION_CODES.S) @WorkerThread public androidx.appfunctions.metadata.AppFunctionAppMetadata? resolveAppFunctionAppMetadata(android.content.Context context);

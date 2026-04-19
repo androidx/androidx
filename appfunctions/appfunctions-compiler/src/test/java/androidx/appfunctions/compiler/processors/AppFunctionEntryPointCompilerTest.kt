@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.compiler.processors
 
+import androidx.appfunctions.compiler.AppFunctionCompiler
 import androidx.appfunctions.compiler.testings.CompilationTestHelper
 import java.io.File
 import org.junit.Before
@@ -31,7 +32,7 @@ class AppFunctionEntryPointCompilerTest {
                 testFileSrcDir = File("src/test/test-data/input"),
                 goldenFileSrcDir = File("src/test/test-data/output"),
                 stubSourceFileNames = listOf(),
-                symbolProcessorProviders = listOf(AppFunctionEntryPointProcessor.Provider()),
+                symbolProcessorProviders = listOf(AppFunctionCompiler.Provider()),
             )
     }
 
@@ -47,6 +48,12 @@ class AppFunctionEntryPointCompilerTest {
             report = report,
             expectGeneratedSourceFileName = "MySimpleService.kt",
             goldenFileName = "entrypoints/MySimpleService.KT",
+        )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "my_simple_service.xml",
+            goldenFileName = "entrypoints/my_simple_service.xml",
         )
     }
 

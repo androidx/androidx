@@ -25,6 +25,7 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import android.os.RemoteException
 import android.util.Size
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.models.ImagePdfObject
@@ -36,10 +37,13 @@ import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.service.connect.FakePdfServiceConnection
 import androidx.pdf.service.connect.PdfServiceConnection
-import androidx.pdf.utils.AnnotationUtilsTest.Companion.isRequiredSdkExtensionAvailable
 import androidx.pdf.utils.TestUtils
+import androidx.pdf.utils.areCorePdfApisAvailableInSdk
 import androidx.pdf.utils.createStampAnnotationWithPath
 import androidx.pdf.utils.getSampleStampAnnotation
+import androidx.pdf.utils.isAnnotationsFeatureAvailable
+import androidx.pdf.utils.isFormFillingAvailable
+import androidx.pdf.utils.isGetTopObjectAvailable
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -60,6 +64,10 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName = "VanillaIceCream")
@@ -363,7 +371,7 @@ class SandboxedPdfDocumentTest {
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     @Test
     fun getPageTopObject_validImageObject_fetchLargeImage() = runTest {
-        if (!isRequiredSdkExtensionAvailable(19)) return@runTest
+        if (!isGetTopObjectAvailable()) return@runTest
 
         withDocument(PDF_DOCUMENT_WITH_TEXT_AND_IMAGE) { document ->
             val pageNumber = 0
@@ -386,7 +394,7 @@ class SandboxedPdfDocumentTest {
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     @Test
     fun getPageTopObject_validImageObject_fetchMediumImage() = runTest {
-        if (!isRequiredSdkExtensionAvailable(19)) return@runTest
+        if (!isGetTopObjectAvailable()) return@runTest
 
         withDocument(PDF_DOCUMENT_WITH_IMAGE) { document ->
             val pageNumber = 0
@@ -408,7 +416,7 @@ class SandboxedPdfDocumentTest {
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     @Test
     fun getPageTopObject_validImageObject_fetchSmallImage() = runTest {
-        if (!isRequiredSdkExtensionAvailable(19)) return@runTest
+        if (!isGetTopObjectAvailable()) return@runTest
 
         withDocument(PDF_DOCUMENT_WITH_LINKS) { document ->
             val pageNumber = 0
@@ -430,7 +438,7 @@ class SandboxedPdfDocumentTest {
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     @Test
     fun getPageTopObject_validImageObject_notPresent() = runTest {
-        if (!isRequiredSdkExtensionAvailable(19)) return@runTest
+        if (!isGetTopObjectAvailable()) return@runTest
 
         withDocument(PDF_DOCUMENT_WITH_LINKS) { document ->
             val pageNumber = 0
@@ -507,6 +515,7 @@ class SandboxedPdfDocumentTest {
 
     @Test
     fun write_modifiedFormFields_returnsModifiedDocument() = runTest {
+        if (!isFormFillingAvailable()) return@runTest
         val document = openDocument("click_form.pdf")
         val pageNum = 0
         val editableFormWidget =
@@ -566,7 +575,7 @@ class SandboxedPdfDocumentTest {
 
     @Test
     fun applyEdits_emptyAnnotations_returnsEmptyResult() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
         withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
             val emptyDraft = MutableEditsDraft().toEditsDraft()
@@ -579,7 +588,7 @@ class SandboxedPdfDocumentTest {
 
     @Test
     fun applyEdits_addAnnotations_singleBatch_returnsSuccess() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
         withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
             val pageNum = 1
@@ -601,7 +610,7 @@ class SandboxedPdfDocumentTest {
     // the annotations over IPC.
     @Test
     fun applyEdits_addAnnotations_multipleBatches_returnsSuccess() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
         withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
             val numAnnots = 20
@@ -619,7 +628,7 @@ class SandboxedPdfDocumentTest {
 
     @Test
     fun applyEdits_addAnnotations_singleInvalidAnnotation_throwsException() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
         withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
             val pageNum = 1
@@ -649,7 +658,7 @@ class SandboxedPdfDocumentTest {
     @Test
     fun applyEdits_addAnnotations_multipleBatches__singleInvalidAnnotation_throwsException() =
         runTest {
-            if (!isRequiredSdkExtensionAvailable()) return@runTest
+            if (!isAnnotationsFeatureAvailable()) return@runTest
 
             withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
                 val numAnnots = 19
@@ -674,7 +683,7 @@ class SandboxedPdfDocumentTest {
 
     @Test
     fun addOnEditsAppliedListener_singleListener_isNotified() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
         val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
         val listener =
@@ -705,7 +714,7 @@ class SandboxedPdfDocumentTest {
 
     @Test
     fun addOnEditsAppliedListener_multipleListeners_sameNotification() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
         val appliedEdits1 = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
         val appliedEdits2 = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
@@ -746,7 +755,7 @@ class SandboxedPdfDocumentTest {
 
     @Test
     fun removeOnEditsAppliedListener_singleListener_isEmpty() = runTest {
-        if (!isRequiredSdkExtensionAvailable()) return@runTest
+        if (!isAnnotationsFeatureAvailable()) return@runTest
 
         val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
         val listener =
@@ -773,6 +782,7 @@ class SandboxedPdfDocumentTest {
 
     @Test
     fun documentClosesConnection_whenAllHandlesAreClosed() = runTest {
+        if (!areCorePdfApisAvailableInSdk()) return@runTest
         val context = ApplicationProvider.getApplicationContext<Context>()
         var isServiceConnected = false
 
@@ -801,6 +811,44 @@ class SandboxedPdfDocumentTest {
         // Close the final handle, now the connection should be disconnected.
         handle2.close()
         assertThat(isServiceConnected).isFalse()
+    }
+
+    @Test
+    fun pageBitmapSourceClose_handlesRemoteException() = runTest {
+        if (!areCorePdfApisAvailableInSdk()) return@runTest
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val mockRemote = mock<PdfDocumentRemote>()
+
+        // Mock methods needed for opening the document
+        whenever(mockRemote.openPdfDocument(any(), any()))
+            .thenReturn(PdfLoadingStatus.SUCCESS.ordinal)
+        whenever(mockRemote.numPages()).thenReturn(1)
+        whenever(mockRemote.linearizationStatus).thenReturn(0)
+        whenever(mockRemote.getFormType()).thenReturn(0)
+
+        // Mock releasePage to throw a RemoteException
+        whenever(mockRemote.releasePage(any())).thenThrow(RemoteException())
+
+        val fakeConnection =
+            FakePdfServiceConnection(context, isConnected = true, documentBinder = mockRemote)
+
+        val document =
+            openDocument(PDF_DOCUMENT, fakeServiceConnection = fakeConnection)
+                as SandboxedPdfDocument
+        val bitmapSource = document.getPageBitmapSource(0)
+
+        // This call initiates an async releasePage which is mocked to throw a RemoteException.
+        // It should be caught and handled internally by the try-catch block in
+        // PageBitmapSource.close().
+        bitmapSource.close()
+
+        // Wait for all coroutines to complete in the fakeConnection's pendingJobs.
+        while (fakeConnection.pendingJobs.isNotEmpty()) {
+            yield()
+        }
+
+        // Verify that releasePage was actually called and the exception was handled
+        verify(mockRemote).releasePage(0)
     }
 
     data class AppliedEdit(public val pageNum: Int, public val editId: String)

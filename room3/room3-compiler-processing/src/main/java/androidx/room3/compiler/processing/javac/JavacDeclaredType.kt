@@ -34,9 +34,9 @@ internal class JavacDeclaredType(
 
     override val equalityItems: Array<out Any?> by lazy { arrayOf(typeMirror) }
 
-    override val typeArguments: List<JavacType> by lazy {
+    override val typeArguments: List<JavacTypeArgument> by lazy {
         typeMirror.typeArguments.mapIndexed { index, typeMirror ->
-            env.wrap<JavacType>(
+            env.wrapTypeArgument(
                 typeMirror = typeMirror,
                 kotlinType = kotlinType?.typeArguments?.getOrNull(index),
                 elementNullability = XNullability.UNKNOWN,

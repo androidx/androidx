@@ -60,8 +60,8 @@ private constructor(@JvmField internal val value: Int, private val name: String)
          * Self overlap will be drawn in a way that discards the overlapping content. This can be
          * used to make the stroke appear as if it's drawn as a PDF page object or annotation, where
          * a stroke can be filled only with a solid color or textures using
-         * [BrushPaint.TextureMapping.Companion.TILING]. This is the default behavior for Android T
-         * and below when [ANY] is used, and can also be used on Android U and above if desired.
+         * [BrushPaint.TextureLayer.Mapping.TILING]. This is the default behavior for Android T and
+         * below when [ANY] is used, and can also be used on Android U and above if desired.
          */
         @JvmField public val DISCARD: SelfOverlap = SelfOverlap(2, "DISCARD")
     }

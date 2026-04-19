@@ -85,18 +85,6 @@ object ComposeUiFlags {
     // TODO: b/485962036
     @field:Suppress("MutableBareField") @JvmField var isFocusRestorationEnabled: Boolean = false
 
-    /** Flag for enabling indirect pointer event navigation gestures in Compose. */
-    // TODO: b/455601135
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isIndirectPointerNavigationGestureDetectorEnabled: Boolean = true
-
-    /** Flag enables optimized focus change dispatching logic. */
-    // TODO: b/455603009
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isOptimizedFocusEventDispatchEnabled: Boolean = true
-
     /**
      * Enables a change where off-screen children of the partially visible merging nodes (e.g. a
      * Text node of a Button) inside scrollable container are now also reported in the semantics

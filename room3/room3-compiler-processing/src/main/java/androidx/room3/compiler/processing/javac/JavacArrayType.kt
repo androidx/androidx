@@ -21,6 +21,7 @@ import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XArrayType
 import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeArgument
 import androidx.room3.compiler.processing.javac.kotlin.KmTypeContainer
 import javax.lang.model.type.ArrayType
 
@@ -46,7 +47,7 @@ internal class JavacArrayType(
 
     override fun asTypeName() = xTypeName
 
-    override val typeArguments: List<XType>
+    override val typeArguments: List<XTypeArgument>
         get() = emptyList()
 
     override val componentType: XType by lazy {

@@ -27,8 +27,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.focus.FocusDirection
@@ -187,19 +185,9 @@ class DelegatedIndirectPointerAndFocusEventTests {
 
             // Because a ui element with indirect pointer was focused, indirect pointer callbacks
             // WILL receive cancel events.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
 
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -376,16 +364,9 @@ class DelegatedIndirectPointerAndFocusEventTests {
             assertThat(receivedEvent).isEqualTo(null)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-                assertThat(onIndirectPointerCancelForParent2).isTrue()
-                assertThat(onIndirectPointerCancelForParent2Child1).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-                assertThat(onIndirectPointerCancelForParent2).isFalse()
-                assertThat(onIndirectPointerCancelForParent2Child1).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
+            assertThat(onIndirectPointerCancelForParent2).isTrue()
+            assertThat(onIndirectPointerCancelForParent2Child1).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -475,12 +456,7 @@ class DelegatedIndirectPointerAndFocusEventTests {
             assertThat(receivedEvent).isEqualTo(null)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -574,12 +550,7 @@ class DelegatedIndirectPointerAndFocusEventTests {
             assertThat(receivedEvent).isEqualTo(null)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -671,14 +642,8 @@ class DelegatedIndirectPointerAndFocusEventTests {
             // For situations where the focus wraps around (start of the list going to end of the
             // list or vice versa), an indirect cancel will be sent to existing focused indirect
             // nodes.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-                assertThat(indirectPointerCancelForBox1).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-                assertThat(indirectPointerCancelForBox1).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
+            assertThat(indirectPointerCancelForBox1).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -846,12 +811,7 @@ class DelegatedIndirectPointerAndFocusEventTests {
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
             assertThat(onIndirectPointerCancelForParent2).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(onIndirectPointerCancelForParent2Child1).isTrue()
-            } else {
-                assertThat(onIndirectPointerCancelForParent2Child1).isFalse()
-            }
+            assertThat(onIndirectPointerCancelForParent2Child1).isTrue()
             assertThat(onIndirectPointerCancelForParent2Child2).isFalse()
             assertThat(onIndirectPointerCancelForParent3).isFalse()
             assertThat(onIndirectPointerCancelForParent3Child1).isFalse()
@@ -870,14 +830,8 @@ class DelegatedIndirectPointerAndFocusEventTests {
             assertThat(receivedEvent).isEqualTo(null)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(onIndirectPointerCancelForParent2).isTrue()
-                assertThat(onIndirectPointerCancelForParent2Child2).isTrue()
-            } else {
-                assertThat(onIndirectPointerCancelForParent2).isFalse()
-                assertThat(onIndirectPointerCancelForParent2Child2).isFalse()
-            }
+            assertThat(onIndirectPointerCancelForParent2).isTrue()
+            assertThat(onIndirectPointerCancelForParent2Child2).isTrue()
             assertThat(onIndirectPointerCancelForParent2Child1).isFalse()
             assertThat(onIndirectPointerCancelForParent3).isFalse()
             assertThat(onIndirectPointerCancelForParent3Child1).isFalse()
@@ -899,14 +853,8 @@ class DelegatedIndirectPointerAndFocusEventTests {
             assertThat(onIndirectPointerCancelForParent2).isFalse()
             assertThat(onIndirectPointerCancelForParent2Child1).isFalse()
             assertThat(onIndirectPointerCancelForParent2Child2).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(onIndirectPointerCancelForParent3).isTrue()
-                assertThat(onIndirectPointerCancelForParent3Child1).isTrue()
-            } else {
-                assertThat(onIndirectPointerCancelForParent3).isFalse()
-                assertThat(onIndirectPointerCancelForParent3Child1).isFalse()
-            }
+            assertThat(onIndirectPointerCancelForParent3).isTrue()
+            assertThat(onIndirectPointerCancelForParent3Child1).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -1075,16 +1023,9 @@ class DelegatedIndirectPointerAndFocusEventTests {
             // For situations where the focus wraps around (start of the list going to end of the
             // list or vice versa), an indirect cancel will be sent to existing focused indirect
             // nodes.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-                assertThat(onIndirectPointerCancelForParent1).isTrue()
-                assertThat(onIndirectPointerCancelForParent1Child1).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-                assertThat(onIndirectPointerCancelForParent1).isFalse()
-                assertThat(onIndirectPointerCancelForParent1Child1).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
+            assertThat(onIndirectPointerCancelForParent1).isTrue()
+            assertThat(onIndirectPointerCancelForParent1Child1).isTrue()
             assertThat(onIndirectPointerCancelForParent3).isFalse()
             assertThat(onIndirectPointerCancelForParent3Child2).isFalse()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -1102,16 +1043,9 @@ class DelegatedIndirectPointerAndFocusEventTests {
             assertThat(receivedEvent).isEqualTo(null)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForTopContainer).isTrue()
-                assertThat(onIndirectPointerCancelForParent3).isTrue()
-                assertThat(onIndirectPointerCancelForParent3Child2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForTopContainer).isFalse()
-                assertThat(onIndirectPointerCancelForParent3).isFalse()
-                assertThat(onIndirectPointerCancelForParent3Child2).isFalse()
-            }
+            assertThat(indirectPointerCancelForTopContainer).isTrue()
+            assertThat(onIndirectPointerCancelForParent3).isTrue()
+            assertThat(onIndirectPointerCancelForParent3Child2).isTrue()
             assertThat(onIndirectPointerCancelForParent1).isFalse()
             assertThat(onIndirectPointerCancelForParent1Child1).isFalse()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -1228,12 +1162,7 @@ class DelegatedIndirectPointerAndFocusEventTests {
 
         rule.runOnIdle {
             assertThat(receivedEvent).isEqualTo(null)
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -1390,12 +1319,7 @@ class DelegatedIndirectPointerAndFocusEventTests {
 
         rule.runOnIdle {
             assertThat(receivedEvent).isEqualTo(null)
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
@@ -1563,12 +1487,7 @@ class DelegatedIndirectPointerAndFocusEventTests {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox2).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox2).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox2).isTrue()
             assertThat(indirectPointerCancelForBox3).isFalse()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
@@ -1585,12 +1504,7 @@ class DelegatedIndirectPointerAndFocusEventTests {
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
             // event for any losing focus.
             assertThat(indirectPointerCancelForBox2).isFalse()
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isOptimizedFocusEventDispatchEnabled) {
-                assertThat(indirectPointerCancelForBox3).isTrue()
-            } else {
-                assertThat(indirectPointerCancelForBox3).isFalse()
-            }
+            assertThat(indirectPointerCancelForBox3).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }

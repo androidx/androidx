@@ -24,13 +24,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assume.assumeTrue;
 
 import android.media.MediaRoute2Info;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.core.flagging.Flags;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -157,8 +155,6 @@ public class MediaRouter2UtilsTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
     @Test
     public void toMediaRouteDescriptor_withoutRequiredPermissions_noErrors() {
-        assumeTrue(Flags.getBooleanFlagValue(MediaRouterFlags.NAMESPACE,
-                MediaRouterFlags.ENABLE_ROUTE_VISIBILITY_CONTROL_API));
         MediaRoute2Info routeInfo =
                 new MediaRoute2Info.Builder(
                         FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
@@ -174,8 +170,6 @@ public class MediaRouter2UtilsTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
     @Test
     public void toMediaRouteDescriptor_withRequiredPermissions_setsCorrectPermissions() {
-        assumeTrue(Flags.getBooleanFlagValue(MediaRouterFlags.NAMESPACE,
-                MediaRouterFlags.ENABLE_ROUTE_VISIBILITY_CONTROL_API));
         MediaRoute2Info routeInfo =
                 new MediaRoute2Info.Builder(
                         FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
@@ -194,8 +188,6 @@ public class MediaRouter2UtilsTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
     @Test
     public void toFwkMediaRoute2Info_withoutRequiredPermissions_noErrors() {
-        assumeTrue(Flags.getBooleanFlagValue(MediaRouterFlags.NAMESPACE,
-                MediaRouterFlags.ENABLE_ROUTE_VISIBILITY_CONTROL_API));
         MediaRouteDescriptor descriptor =
                 new MediaRouteDescriptor.Builder(
                         FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
@@ -211,8 +203,6 @@ public class MediaRouter2UtilsTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
     @Test
     public void toFwkMediaRoute2Info_withRequiredPermissions_setsCorrectPermissions() {
-        assumeTrue(Flags.getBooleanFlagValue(MediaRouterFlags.NAMESPACE,
-                MediaRouterFlags.ENABLE_ROUTE_VISIBILITY_CONTROL_API));
         MediaRouteDescriptor descriptor =
                 new MediaRouteDescriptor.Builder(
                         FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)

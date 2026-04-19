@@ -30,6 +30,7 @@ import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
+import androidx.pdf.PdfFeature
 import androidx.pdf.RenderParams
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.PdfObject
@@ -90,6 +91,7 @@ internal open class FakePdfDocument(
     private val pageLinks: Map<Int, PdfDocument.PdfPageLinks> = mapOf(),
     private val textContents: List<PdfPageTextContent> = emptyList(),
     private val pageSelector: PageSelector = SIMPLE_SELECTOR,
+    private val supportedFeatures: Set<PdfFeature> = setOf(),
 ) : PdfDocument {
     override val pageCount: Int = pages.size
 
@@ -210,6 +212,10 @@ internal open class FakePdfDocument(
         listener: PdfDocument.OnPdfContentInvalidatedListener
     ) {
         return
+    }
+
+    override fun isFeatureSupported(feature: PdfFeature): Boolean {
+        return supportedFeatures.contains(feature)
     }
 
     override fun close() {

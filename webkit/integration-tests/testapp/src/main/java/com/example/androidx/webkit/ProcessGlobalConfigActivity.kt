@@ -16,14 +16,14 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * An {@link Activity} which lists features that make use of {@link
- * androidx.webkit.ProcessGlobalConfig} to set up process global configuration prior to loading
- * WebView.
+ * An [Activity] which lists features that make use of [androidx.webkit.ProcessGlobalConfig] to set
+ * up process global configuration prior to loading WebView.
  */
 class ProcessGlobalConfigActivity : AppCompatActivity() {
 

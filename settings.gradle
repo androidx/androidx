@@ -38,7 +38,7 @@ buildscript {
         if (agpOverride != null) {
             classpath("com.android.settings:com.android.settings.gradle.plugin:$agpOverride")
         } else {
-            classpath("com.android.settings:com.android.settings.gradle.plugin:9.2.0-alpha07")
+            classpath("com.android.settings:com.android.settings.gradle.plugin:9.3.0-alpha01")
         }
         // set guava version to be compatible with Depdendency analysis gradle plugin
         classpath("com.google.guava:guava:33.3.1-jre")
@@ -104,7 +104,7 @@ apply(from: "buildSrc/ndk.gradle")
 
 def buildNumberProvider = providers.environmentVariable("BUILD_NUMBER").orElse("unset")
 develocity {
-    server = "https://ge.androidx.dev"
+    server = "https://androidx.develocity.cloud"
 
     buildScan {
         capture {
@@ -400,6 +400,8 @@ def includeProject(String name, filePath, List<BuildType> filter = []) {
 //
 /////////////////////////////
 
+includeProject(":a2ui:a2ui", [BuildType.COMPOSE])
+includeProject(":a2ui:a2ui-compose", [BuildType.COMPOSE])
 includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:activity-compose", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose:activity-compose-benchmark", "activity/activity-compose/benchmark", [BuildType.COMPOSE])
@@ -884,9 +886,9 @@ includeProject(":ink:ink-authoring", [BuildType.MAIN])
 includeProject(":ink:ink-authoring-compose", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":ink:ink-brush", [BuildType.MAIN])
 includeProject(":ink:ink-brush-compose", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":ink:ink-geometry", [BuildType.MAIN, BuildType.KMP])
+includeProject(":ink:ink-geometry", [BuildType.MAIN])
 includeProject(":ink:ink-geometry-compose", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":ink:ink-nativeloader", [BuildType.MAIN, BuildType.KMP])
+includeProject(":ink:ink-nativeloader", [BuildType.MAIN])
 includeProject(":ink:ink-storage", [BuildType.MAIN])
 includeProject(":ink:ink-strokes", [BuildType.MAIN])
 includeProject(":ink:ink-rendering", [BuildType.MAIN])
@@ -1097,6 +1099,7 @@ includeProject(":test:uiautomator:uiautomator-lint", [BuildType.MAIN])
 includeProject(":test:uiautomator:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":test:uiautomator:uiautomator-shell", [BuildType.MAIN])
 includeProject(":text:text-vertical", [BuildType.MAIN])
+includeProject(":text:text-vertical-compose", [BuildType.COMPOSE])
 includeProject(":text:text-vertical-testapp", "text/text-vertical/testapp", [BuildType.MAIN])
 includeProject(":tracing:tracing")
 includeProject(":tracing:tracing-benchmark", "tracing/benchmark", [BuildType.MAIN, BuildType.COMPOSE])

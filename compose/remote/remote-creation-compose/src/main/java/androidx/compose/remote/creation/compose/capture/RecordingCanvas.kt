@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
@@ -1272,15 +1273,21 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      * @param drawCommands The commands the player will execute if [condition] evaluate to true.
      */
     public fun drawConditionally(condition: RemoteBoolean, drawCommands: () -> Unit) {
-        document.conditionalOperations(
-            ConditionalOperations.TYPE_NEQ,
-            condition.toRemoteInt().toRemoteFloat().getFloatIdForCreationState(creationState),
-            0f,
-        )
-        forceSendingPaint(true)
-        drawCommands()
-        forceSendingPaint(true)
-        document.endConditionalOperations()
+        if (condition.hasConstantValue) {
+            if (condition.constantValue) {
+                drawCommands()
+            }
+        } else {
+            document.conditionalOperations(
+                ConditionalOperations.TYPE_NEQ,
+                condition.toRemoteInt().toRemoteFloat().getFloatIdForCreationState(creationState),
+                0f,
+            )
+            forceSendingPaint(true)
+            drawCommands()
+            forceSendingPaint(true)
+            document.endConditionalOperations()
+        }
     }
 
     /**

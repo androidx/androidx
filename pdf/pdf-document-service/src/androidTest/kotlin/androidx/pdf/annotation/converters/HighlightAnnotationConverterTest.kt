@@ -22,7 +22,7 @@ import android.graphics.pdf.component.HighlightAnnotation as AospHighlightAnnota
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.models.HighlightAnnotation
-import androidx.pdf.utils.AnnotationUtilsTest.Companion.isRequiredSdkExtensionAvailable
+import androidx.pdf.utils.isAnnotationsFeatureAvailable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -45,7 +45,7 @@ class HighlightAnnotationConverterTest {
 
     @Test
     fun test_convertJetpackHighlightToAospHighlight() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         val bounds = listOf(RectF(10f, 10f, 20f, 20f), RectF(30f, 30f, 40f, 40f))
         val color = Color.GREEN
@@ -57,7 +57,7 @@ class HighlightAnnotationConverterTest {
 
     @Test
     fun test_convertAospHighlightToJetpackHighlight() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         val bounds = listOf(RectF(10f, 10f, 20f, 20f), RectF(30f, 30f, 40f, 40f))
         val highlightColor = Color.GREEN
@@ -71,7 +71,7 @@ class HighlightAnnotationConverterTest {
 
     @Test
     fun test_convertAospHighlight_throwsExceptionOnInvalidType() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         val bounds = listOf(RectF(10f, 10f, 20f, 20f))
         val aospHighlightAnnotation = AospHighlightAnnotation(bounds)

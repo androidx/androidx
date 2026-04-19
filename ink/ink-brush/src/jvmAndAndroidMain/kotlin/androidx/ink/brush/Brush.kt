@@ -46,6 +46,7 @@ private constructor(
 ) {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Suppress("HiddenTypeParameter", "ValueClassUsageWithoutJvmName") // Internal API.
     public val internalColor: ComposeColor =
         // Caching this because the native call is slow. Still doing the round-trip on construction
         // to
@@ -261,27 +262,15 @@ private constructor(
     /**
      * Builder for [Brush].
      *
-     * Use Brush.Builder to construct a [Brush] with default values, overriding only as needed.
+     * For Java developers, use `Brush.Builder` to construct a [Brush] with default values,
+     * overriding only as needed. For example: `Brush brush =
+     * Brush.builder().setFamily(family).setSize(size).setEpsilon(epsilon).build();`
      */
     public class Builder {
         private var family: BrushFamily? = null
         private var composeColor: ComposeColor = DEFAULT_COMPOSE_COLOR
-
-        @FloatRange(
-            from = 0.0,
-            fromInclusive = false,
-            to = Double.POSITIVE_INFINITY,
-            toInclusive = false,
-        )
-        private var size: Float? = null
-
-        @FloatRange(
-            from = 0.0,
-            fromInclusive = false,
-            to = Double.POSITIVE_INFINITY,
-            toInclusive = false,
-        )
-        private var epsilon: Float? = null
+        private var size: Float = -1f
+        private var epsilon: Float = -1f
 
         /**
          * Sets the [BrushFamily] for this brush. See [StockBrushes] for available [BrushFamily]
@@ -292,6 +281,11 @@ private constructor(
             return this
         }
 
+        /**
+         * Sets the color using a [ComposeColor], which can encode several different color spaces.
+         * sRGB and Display P3 are supported; a color in any other color space will be converted to
+         * Display P3.
+         */
         internal fun setComposeColor(color: ComposeColor): Builder {
             this.composeColor = color
             return this
@@ -305,10 +299,8 @@ private constructor(
          * Some libraries (notably Jetpack UI Graphics) use [ULong] for [ColorLong]s, so the caller
          * must call [ULong.toLong] on such a value before passing it to this method.
          */
-        public fun setColorLong(@ColorLong colorLong: Long): Builder {
-            this.composeColor = ComposeColor(colorLong.toULong())
-            return this
-        }
+        public fun setColorLong(@ColorLong colorLong: Long): Builder =
+            setComposeColor(ComposeColor(colorLong.toULong()))
 
         /**
          * Sets the color using a [ColorInt], which is in the sRGB color space by definition. Note
@@ -318,11 +310,10 @@ private constructor(
          * callers that want to specify a literal [ColorInt] with alpha >= 0x80 must call
          * [Long.toInt] on the literal.
          */
-        public fun setColorIntArgb(@ColorInt colorIntArgb: Int): Builder {
-            this.composeColor = ComposeColor(colorIntArgb)
-            return this
-        }
+        public fun setColorIntArgb(@ColorInt colorIntArgb: Int): Builder =
+            setComposeColor(ComposeColor(colorIntArgb))
 
+        /** Sets the size of the brush, in stroke units. */
         public fun setSize(
             @FloatRange(
                 from = 0.0,
@@ -336,6 +327,7 @@ private constructor(
             return this
         }
 
+        /** Sets the epsilon of the brush, in stroke units. */
         public fun setEpsilon(
             @FloatRange(
                 from = 0.0,
@@ -349,19 +341,22 @@ private constructor(
             return this
         }
 
-        public fun build(): Brush =
-            Brush(
-                family =
-                    checkNotNull(family) {
-                        "brush family must be specified before calling build()"
-                    },
+        /**
+         * Constructs a [Brush] from this [Builder].
+         *
+         * @throws IllegalStateException if `family`, `size`, and/or `epsilon` were never set
+         */
+        public fun build(): Brush {
+            val family = checkNotNull(this.family) { "must set family before calling build()" }
+            check(size > 0f) { "must set size before calling build()" }
+            check(epsilon > 0f) { "must set epsilon before calling build()" }
+            return Brush(
+                family = family,
                 composeColor = composeColor,
-                size = checkNotNull(size) { "brush size must be specified before calling build()" },
-                epsilon =
-                    checkNotNull(epsilon) {
-                        "brush epsilon must be specified before calling build()"
-                    },
+                size = size,
+                epsilon = epsilon,
             )
+        }
     }
 
     override fun equals(other: Any?): Boolean {

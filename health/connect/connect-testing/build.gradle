@@ -44,7 +44,7 @@ android {
     }
     namespace = "androidx.health.connect.testing"
     testOptions.unitTests.includeAndroidResources = true
-    compileSdk { version = release(36) { sdkExtension = 19 }}
+    compileSdk { version = release(37)}
 }
 
 androidx {

@@ -147,6 +147,7 @@ internal fun Space.toRtSpace(): Int {
     return when (this) {
         Space.PARENT -> RtSpace.PARENT
         Space.ACTIVITY -> RtSpace.ACTIVITY
+        @Suppress("DEPRECATION") // TODO - b/415320653
         Space.REAL_WORLD -> RtSpace.REAL_WORLD
         else -> error("Unknown Space Value: $this")
     }

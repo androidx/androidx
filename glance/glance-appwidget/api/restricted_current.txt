@@ -439,11 +439,11 @@ package androidx.glance.appwidget.lazy {
     field public static final androidx.glance.appwidget.lazy.VerticalScrollMode.Normal INSTANCE;
   }
 
-  @RequiresApi(36) public static final class VerticalScrollMode.SnapScroll implements androidx.glance.appwidget.lazy.VerticalScrollMode {
+  @RequiresApi(api=android.os.Build.VERSION_CODES_FULL.BAKLAVA_1) public static final class VerticalScrollMode.SnapScroll implements androidx.glance.appwidget.lazy.VerticalScrollMode {
     field public static final androidx.glance.appwidget.lazy.VerticalScrollMode.SnapScroll INSTANCE;
   }
 
-  @RequiresApi(36) public static final class VerticalScrollMode.SnapScrollMatchHeight implements androidx.glance.appwidget.lazy.VerticalScrollMode {
+  @RequiresApi(api=android.os.Build.VERSION_CODES_FULL.BAKLAVA_1) public static final class VerticalScrollMode.SnapScrollMatchHeight implements androidx.glance.appwidget.lazy.VerticalScrollMode {
     ctor @KotlinOnly public VerticalScrollMode.SnapScrollMatchHeight(androidx.compose.ui.unit.Dp initialChildHeight);
     ctor @BytecodeOnly public VerticalScrollMode.SnapScrollMatchHeight(float, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public float getInitialChildHeight-D9Ej5fM();

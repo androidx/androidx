@@ -16,14 +16,14 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * An {@link android.app.Activity} to demonstrate tiny interstitials.
+ * An [Activity] to demonstrate tiny interstitials.
  *
- * <p>
  * For Restricted Content blocking, WebView just shows a grey page with no signs, text or links when
  * its size is tiny.
  */

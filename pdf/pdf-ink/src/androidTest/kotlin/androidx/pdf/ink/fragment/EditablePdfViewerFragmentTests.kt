@@ -95,6 +95,11 @@ class EditablePdfViewerFragmentTests {
     fun cleanup() {
         if (!::scenario.isInitialized) return
 
+        // Advance the lifecycle state to CREATED (or RESUMED) before teardown.
+        // This ensures onCreate() has run and the ViewModelStore is available,
+        // preventing the onSaveInstanceState crash on API 23-26 when close() is called.
+        scenario.moveToState(Lifecycle.State.CREATED)
+
         scenario.onFragment { fragment ->
             IdlingRegistry.getInstance()
                 .unregister(fragment.pdfLoadingIdlingResource.countingIdlingResource)
@@ -128,7 +133,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun test_annotationToolbar_dockedAtBottom_andCanDragToStart() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         loadDocumentAndSetupFragment()
         enterEditMode()
@@ -159,7 +164,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun test_annotationToolbar_persistsDockStateThroughRotation() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         loadDocumentAndSetupFragment()
         enterEditMode()
@@ -184,7 +189,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun test_toolbarMovement_updatesWetStrokesMaskPath() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         loadDocumentAndSetupFragment()
         enterEditMode()
@@ -211,7 +216,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun test_annotationToolbar_reExpands_onLongPressWithoutMove() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         loadDocumentAndSetupFragment()
         enterEditMode()
@@ -230,7 +235,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun test_editablePdfFragment_restoresViewportChanged_onForceReload() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         loadDocumentAndSetupFragment()
         enterEditMode()
@@ -257,7 +262,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun test_editablePdfFragment_clearsSelection_onEnterEditMode() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         loadDocumentAndSetupFragment()
 
@@ -280,7 +285,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun testEditTextDoesNotDisappearWhenTyping() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         var pdfView: PdfView? = null
 
@@ -317,7 +322,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun test_annotationToolbarHidden_onSearchActive() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         loadDocumentAndSetupFragment()
         enterEditMode()
@@ -348,7 +353,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun test_annotationInteractionDisabled_onSearchActive() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         loadDocumentAndSetupFragment()
         enterEditMode()
@@ -375,7 +380,7 @@ class EditablePdfViewerFragmentTests {
 
     @Test
     fun test_annotationToolbar_isHidden_forFormFilling() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         loadDocumentAndSetupFragment(file = FORM_WITH_CHECKBOX_PDF)
 
@@ -411,12 +416,9 @@ class EditablePdfViewerFragmentTests {
         private const val TEST_DOCUMENT_FILE = "sample.pdf"
         private const val FORM_PDF = "text_form.pdf"
         private const val FORM_WITH_CHECKBOX_PDF = "sample_form.pdf"
-        private const val REQUIRED_EXTENSION_VERSION = 18
 
-        fun isRequiredSdkExtensionAvailable(): Boolean {
-            // Get the device's version for the specified SDK extension
-            val deviceExtensionVersion = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R)
-            return deviceExtensionVersion >= REQUIRED_EXTENSION_VERSION
-        }
+        fun isAnnotationsFeatureAvailable(): Boolean =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 18
     }
 }

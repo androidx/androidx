@@ -41,6 +41,9 @@ internal interface WindowCompat {
     /** Returns the current history state as a JavaScript object. */
     val state: JsAny?
 
+    /** The title of the current document. */
+    var title: String
+
     /**
      * A flow of [PopStateEvent]s dispatched by the window whenever the active history entry
      * changes.
@@ -80,6 +83,12 @@ internal fun WindowCompat(window: Window): WindowCompat {
 private class WindowCompatImpl(private val window: Window) : WindowCompat {
     override val state: JsAny?
         get() = window.history.state
+
+    override var title: String
+        get() = window.document.title
+        set(value) {
+            window.document.title = title
+        }
 
     override val popStateEvents: Flow<PopStateEvent> = callbackFlow {
         val callback: (Event) -> Unit = { event: Event -> trySend(event as PopStateEvent) }

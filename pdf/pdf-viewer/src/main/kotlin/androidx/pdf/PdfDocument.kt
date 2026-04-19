@@ -365,6 +365,18 @@ public interface PdfDocument : Closeable {
         public override val cause: Throwable? = null,
     ) : CancellationException()
 
+    /**
+     * Returns true if the given feature is supported by this document implementation.
+     *
+     * This API allows clients (like PdfView) to dynamically check feature availability without
+     * relying on hardcoded SDK versions or backend implementation assumptions.
+     *
+     * @param feature the [PdfFeature] being queried
+     * @return true if supported, false otherwise
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun isFeatureSupported(feature: PdfFeature): Boolean
+
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         PDF_FORM_TYPE_NONE,

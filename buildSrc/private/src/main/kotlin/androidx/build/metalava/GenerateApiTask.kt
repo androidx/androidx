@@ -26,6 +26,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -50,6 +51,11 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
     fun getTaskOutputs(): List<File> {
         val prop = apiLocation.get()
         return listOf(prop.publicApiFile, prop.restrictedApiFile, prop.apiLevelsFile)
+    }
+
+    @OutputDirectory
+    fun getTaskOutputDirectory(): File {
+        return apiLocation.get().multiplatformApiDirectory
     }
 
     @get:Internal abstract val currentVersion: Property<Version>

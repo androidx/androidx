@@ -1378,7 +1378,9 @@ public class AppSearchImplTest {
 
         // Do getNextPage. A full page of 5 results should be returned again.
         searchResultPage = mAppSearchImpl.getNextPage("package1",
-                searchResultPage.getNextPageToken(), /*logger=*/ null,
+                searchResultPage.getNextPageToken(),
+                /*maxResults=*/ Integer.MAX_VALUE,
+                /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(5);
         assertThat(searchResultPage.getNextPageToken()).isNotEqualTo(
@@ -1387,7 +1389,9 @@ public class AppSearchImplTest {
         // Do getNextPage one last time. Only 2 results should remain, and getNextPageToken should
         // be invalid after this call.
         searchResultPage = mAppSearchImpl.getNextPage("package1",
-                searchResultPage.getNextPageToken(), /*logger=*/ null,
+                searchResultPage.getNextPageToken(),
+                /*maxResults=*/ Integer.MAX_VALUE,
+                /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(2);
         assertThat(searchResultPage.getNextPageToken()).isEqualTo(
@@ -2541,6 +2545,7 @@ public class AppSearchImplTest {
 
         long nextPageToken = searchResultPage.getNextPageToken();
         searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*maxResults=*/ Integer.MAX_VALUE,
                 /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null);
         assertThat(searchResultPage.getResults()).hasSize(1);
@@ -2603,7 +2608,9 @@ public class AppSearchImplTest {
         // Try getting next page with the wrong package, package2
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.getNextPage("package2",
-                        nextPageToken, /*statsBuilder=*/ null,
+                        nextPageToken,
+                        /*maxResults=*/ Integer.MAX_VALUE,
+                        /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null));
         assertThat(e).hasMessageThat().contains(
                 "Package \"package2\" cannot use nextPageToken: " + nextPageToken);
@@ -2611,6 +2618,7 @@ public class AppSearchImplTest {
 
         // Can continue getting next page for package1
         searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*maxResults=*/ Integer.MAX_VALUE,
                 /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null);
         assertThat(searchResultPage.getResults()).hasSize(1);
@@ -2673,6 +2681,7 @@ public class AppSearchImplTest {
 
         long nextPageToken = searchResultPage.getNextPageToken();
         searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*maxResults=*/ Integer.MAX_VALUE,
                 /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null);
         assertThat(searchResultPage.getResults()).hasSize(1);
@@ -2738,14 +2747,16 @@ public class AppSearchImplTest {
         // Try getting next page with the wrong package, package2
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.getNextPage("package2", nextPageToken,
+                        /*maxResults=*/ Integer.MAX_VALUE,
                         /*statsBuilder=*/ null,
-                /*callStatsBuilder=*/null));
+                        /*callStatsBuilder=*/null));
         assertThat(e).hasMessageThat().contains(
                 "Package \"package2\" cannot use nextPageToken: " + nextPageToken);
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
 
         // Can continue getting next page for package1
         searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*maxResults=*/ Integer.MAX_VALUE,
                 /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null);
         assertThat(searchResultPage.getResults()).hasSize(1);
@@ -2812,6 +2823,7 @@ public class AppSearchImplTest {
         // Can't get next page because we invalidated the token.
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.getNextPage("package1", nextPageToken,
+                        /*maxResults=*/ Integer.MAX_VALUE,
                         /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null));
         assertThat(e).hasMessageThat().contains(
@@ -2932,6 +2944,7 @@ public class AppSearchImplTest {
 
         // Can continue getting next page for package1
         searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*maxResults=*/ Integer.MAX_VALUE,
                 /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null);
         assertThat(searchResultPage.getResults()).hasSize(1);
@@ -3001,6 +3014,7 @@ public class AppSearchImplTest {
         // Can't get next page because we invalidated the token.
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.getNextPage("package1", nextPageToken,
+                        /*maxResults=*/ Integer.MAX_VALUE,
                         /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null));
         assertThat(e).hasMessageThat().contains(
@@ -3075,6 +3089,7 @@ public class AppSearchImplTest {
 
         // Can continue getting next page for package1
         searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*maxResults=*/ Integer.MAX_VALUE,
                 /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null);
         assertThat(searchResultPage.getResults()).hasSize(1);
@@ -3148,7 +3163,9 @@ public class AppSearchImplTest {
         // RESULT_ABORTED will be thrown.
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.getNextPage("package1",
-                        nextPageToken, /*statsBuilder=*/ null,
+                        nextPageToken,
+                        /*maxResults=*/ Integer.MAX_VALUE,
+                        /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_ABORTED);
         assertThat(e).hasMessageThat().contains(
@@ -3219,8 +3236,10 @@ public class AppSearchImplTest {
         // All page tokens are evicted after optimize. getNextPage should return an empty page if
         // the flag is disabled.
         SearchResultPage searchResultPage2 =
-                mAppSearchImpl.getNextPage("package1", nextPageToken, /*statsBuilder=*/ null,
-                /*callStatsBuilder=*/null);
+                mAppSearchImpl.getNextPage("package1", nextPageToken,
+                        /*maxResults=*/ Integer.MAX_VALUE,
+                        /*statsBuilder=*/ null,
+                        /*callStatsBuilder=*/null);
         assertThat(searchResultPage2.getResults()).isEmpty();
         assertThat(searchResultPage2.getNextPageToken()).isEqualTo(0);
     }
@@ -5605,7 +5624,9 @@ public class AppSearchImplTest {
                 /*callStatsBuilder=*/ null));
 
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.getNextPage("package",
-                /*nextPageToken=*/ 1L, /*statsBuilder=*/ null,
+                /*nextPageToken=*/ 1L,
+                /*maxResults=*/ Integer.MAX_VALUE,
+                /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null));
 
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.invalidateNextPageToken(

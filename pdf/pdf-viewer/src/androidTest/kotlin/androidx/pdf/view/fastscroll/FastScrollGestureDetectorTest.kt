@@ -24,6 +24,7 @@ import androidx.pdf.R
 import androidx.pdf.view.FakePdfDocument
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -36,6 +37,7 @@ import org.mockito.kotlin.verify
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 26)
 class FastScrollGestureDetectorTest {
     private lateinit var gestureDetector: FastScrollGestureDetector
 

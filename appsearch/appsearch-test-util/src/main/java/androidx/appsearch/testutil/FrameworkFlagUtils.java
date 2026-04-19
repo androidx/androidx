@@ -68,8 +68,7 @@ public final class FrameworkFlagUtils {
      */
     public static boolean isFlagEnabled(@NonNull String flagName) {
         try {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R
-                    || Build.VERSION.SDK_INT > Build.VERSION_CODES.CUR_DEVELOPMENT) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.CUR_DEVELOPMENT) {
                 return false;
             }
             int lastDot = flagName.lastIndexOf('.');

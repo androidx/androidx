@@ -16,14 +16,14 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebViewAssetLoader
 
 /**
- * An {@link Activity} to showcase a very simple use case of using {@link
- * androidx.webkit.WebViewAssetLoader}.
+ * An [Activity] to showcase a very simple use case of using [androidx.webkit.WebViewAssetLoader].
  */
 class AssetLoaderSimpleActivity : AppCompatActivity() {
 

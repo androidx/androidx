@@ -59,6 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.xr.arcore.testapp.capabilities.CapabilitiesActivity
 import androidx.xr.arcore.testapp.common.TestCaseButton
 import androidx.xr.arcore.testapp.depthmaps.DepthMapActivity
 import androidx.xr.arcore.testapp.eyetracking.EyeTrackingActivity
@@ -197,6 +198,7 @@ class MainActivity : ComponentActivity() {
                 TestCaseColumnRowItem(R.string.eye_tracking) { startTest<EyeTrackingActivity>(it) }
                 TestCaseColumnRowItem(R.string.blend_mode) { startTest<HelloArPlaneActivity>(it) }
                 TestCaseColumnRowItem(R.string.geospatial) { startTest<GeospatialActivity>(it) }
+                TestCaseColumnRowItem(R.string.capabilities) { startTest<CapabilitiesActivity>(it) }
             }
         }
     }

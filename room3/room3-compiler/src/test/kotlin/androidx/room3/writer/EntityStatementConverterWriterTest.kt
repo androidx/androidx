@@ -118,7 +118,8 @@ class EntityStatementConverterWriterTest : BaseEntityParserTest() {
         singleEntity(input) { entity, invocation ->
             val className = XClassName.get("foo.bar", "MyContainerClass")
             val writer =
-                object : TypeWriter(WriterContext(CodeLanguage.KOTLIN, setOf(Platform.JVM), true)) {
+                object :
+                    TypeWriter(WriterContext(CodeLanguage.KOTLIN, setOf(Platform.JVM), true, 500)) {
                     override val packageName = className.packageName
 
                     override fun createTypeSpecBuilder(): XTypeSpec.Builder {

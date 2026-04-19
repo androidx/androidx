@@ -25,7 +25,6 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.Space
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.node.NodeRepository
@@ -44,7 +43,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class ActivityPanelEntityImplTest {
-    private val xrExtensions = getXrExtensions()
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val activityController: ActivityController<Activity> =
         Robolectric.buildActivity(Activity::class.java)
     private val hostActivity: Activity = activityController.create().start().get()
@@ -59,7 +58,7 @@ class ActivityPanelEntityImplTest {
             SpatialSceneRuntime.create(
                 hostActivity,
                 fakeExecutor,
-                xrExtensions!!,
+                xrExtensions,
                 SceneNodeRegistry(),
             )
     }

@@ -29,17 +29,18 @@ import androidx.ink.brush.BrushBehavior
 import androidx.ink.brush.BrushCoat
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
-import androidx.ink.brush.BrushPaint.BlendMode
-import androidx.ink.brush.BrushPaint.TextureMapping
-import androidx.ink.brush.BrushPaint.TextureOrigin
-import androidx.ink.brush.BrushPaint.TextureSizeUnit
-import androidx.ink.brush.BrushPaint.TextureWrap
+import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.BrushTip
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.SelfOverlap
 import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.TextureBitmapStore
+import androidx.ink.brush.behavior.OutOfRange
+import androidx.ink.brush.behavior.SourceNode
+import androidx.ink.brush.behavior.SourceNode.Source
+import androidx.ink.brush.behavior.TargetNode
+import androidx.ink.brush.behavior.TargetNode.Target
 import androidx.ink.geometry.Angle
 import androidx.ink.geometry.Box
 import androidx.ink.geometry.BoxAccumulator
@@ -91,7 +92,7 @@ class CanvasStrokeRendererTest {
         SIMPLE_STROKES_TILED(
             finishedInProgressStroke(
                 texturedBrush(
-                    textureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
+                    textureSizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
                     textureSize = 10f,
                 ),
                 ::inputsZigzag,
@@ -105,7 +106,7 @@ class CanvasStrokeRendererTest {
                             BrushCoat(
                                 paint =
                                     texturedBrushPaint(
-                                        textureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
+                                        textureSizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
                                         textureSize = 10f,
                                     )
                             ),
@@ -125,36 +126,34 @@ class CanvasStrokeRendererTest {
                             behaviors =
                                 listOf(
                                     BrushBehavior(
-                                        BrushBehavior.TargetNode(
-                                            target = BrushBehavior.Target.OPACITY_MULTIPLIER,
+                                        TargetNode(
+                                            target = Target.OPACITY_MULTIPLIER,
                                             targetModifierRangeStart = 1f,
                                             targetModifierRangeEnd = 0.25f,
                                             input =
-                                                BrushBehavior.SourceNode(
+                                                SourceNode(
                                                     source =
-                                                        BrushBehavior.Source
+                                                        Source
                                                             .DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
                                                     sourceValueRangeStart = 0f,
                                                     sourceValueRangeEnd = 2f,
-                                                    sourceOutOfRangeBehavior =
-                                                        BrushBehavior.OutOfRange.MIRROR,
+                                                    sourceOutOfRangeBehavior = OutOfRange.MIRROR,
                                                 ),
                                         )
                                     ),
                                     BrushBehavior(
-                                        BrushBehavior.TargetNode(
-                                            target = BrushBehavior.Target.HUE_OFFSET_IN_RADIANS,
+                                        TargetNode(
+                                            target = Target.HUE_OFFSET_IN_RADIANS,
                                             targetModifierRangeStart = 0f,
                                             targetModifierRangeEnd = Angle.FULL_TURN_RADIANS,
                                             input =
-                                                BrushBehavior.SourceNode(
+                                                SourceNode(
                                                     source =
-                                                        BrushBehavior.Source
+                                                        Source
                                                             .DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
                                                     sourceValueRangeStart = 0f,
                                                     sourceValueRangeEnd = 3f,
-                                                    sourceOutOfRangeBehavior =
-                                                        BrushBehavior.OutOfRange.REPEAT,
+                                                    sourceOutOfRangeBehavior = OutOfRange.REPEAT,
                                                 ),
                                         )
                                     ),
@@ -190,9 +189,9 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     particleGapDistanceScale = 2f,
-                    textureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
+                    textureSizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
                     textureSize = 10f,
-                    textureMapping = TextureMapping.TILING,
+                    textureMapping = TextureLayer.Mapping.TILING,
                 ),
                 ::inputsZigzag,
             )
@@ -201,9 +200,9 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     particleGapDistanceScale = 2f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
                     textureSize = 1f,
-                    textureMapping = TextureMapping.STAMPING,
+                    textureMapping = TextureLayer.Mapping.STAMPING,
                 ),
                 ::inputsZigzag,
             )
@@ -218,8 +217,8 @@ class CanvasStrokeRendererTest {
                 texturedBrush(
                     textureId = TEXTURE_ID_CIRCLE,
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.STROKE_SPACE_ORIGIN,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.STROKE_SPACE_ORIGIN,
                     textureOffsetX = 0.5f,
                     textureOffsetY = 0.5f,
                     brushSize = 25f,
@@ -232,8 +231,8 @@ class CanvasStrokeRendererTest {
                 texturedBrush(
                     textureId = TEXTURE_ID_CIRCLE,
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
                     textureOffsetX = 0.5f,
                     textureOffsetY = 0.5f,
                     brushSize = 25f,
@@ -246,8 +245,8 @@ class CanvasStrokeRendererTest {
                 texturedBrush(
                     textureId = TEXTURE_ID_CIRCLE,
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.LAST_STROKE_INPUT,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.LAST_STROKE_INPUT,
                     textureOffsetX = 0.5f,
                     textureOffsetY = 0.5f,
                     brushSize = 25f,
@@ -264,7 +263,7 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
                     brushSize = 15f,
                 ),
                 ::inputsZigzag,
@@ -274,7 +273,7 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
                     brushSize = 30f,
                 ),
                 ::inputsZigzag,
@@ -284,7 +283,7 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 0.5f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
                     brushSize = 30f,
                 ),
                 ::inputsZigzag,
@@ -294,7 +293,7 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 5f,
-                    textureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
+                    textureSizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
                 ),
                 ::inputsZigzag,
             )
@@ -303,7 +302,7 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 10f,
-                    textureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
+                    textureSizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
                 ),
                 ::inputsZigzag,
             )
@@ -317,10 +316,10 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
-                    textureWrapX = TextureWrap.REPEAT,
-                    textureWrapY = TextureWrap.REPEAT,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
+                    textureWrapX = TextureLayer.Wrap.REPEAT,
+                    textureWrapY = TextureLayer.Wrap.REPEAT,
                     brushSize = 25f,
                 ),
                 ::inputsZigzag,
@@ -330,10 +329,10 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
-                    textureWrapX = TextureWrap.MIRROR,
-                    textureWrapY = TextureWrap.MIRROR,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
+                    textureWrapX = TextureLayer.Wrap.MIRROR,
+                    textureWrapY = TextureLayer.Wrap.MIRROR,
                     brushSize = 25f,
                 ),
                 ::inputsZigzag,
@@ -343,10 +342,10 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
-                    textureWrapX = TextureWrap.CLAMP,
-                    textureWrapY = TextureWrap.CLAMP,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
+                    textureWrapX = TextureLayer.Wrap.CLAMP,
+                    textureWrapY = TextureLayer.Wrap.CLAMP,
                     brushSize = 25f,
                 ),
                 ::inputsZigzag,
@@ -356,10 +355,10 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
-                    textureWrapX = TextureWrap.REPEAT,
-                    textureWrapY = TextureWrap.MIRROR,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
+                    textureWrapX = TextureLayer.Wrap.REPEAT,
+                    textureWrapY = TextureLayer.Wrap.MIRROR,
                     brushSize = 25f,
                 ),
                 ::inputsZigzag,
@@ -369,10 +368,10 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
-                    textureWrapX = TextureWrap.MIRROR,
-                    textureWrapY = TextureWrap.REPEAT,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
+                    textureWrapX = TextureLayer.Wrap.MIRROR,
+                    textureWrapY = TextureLayer.Wrap.REPEAT,
                     brushSize = 25f,
                 ),
                 ::inputsZigzag,
@@ -382,10 +381,10 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
-                    textureWrapX = TextureWrap.REPEAT,
-                    textureWrapY = TextureWrap.CLAMP,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
+                    textureWrapX = TextureLayer.Wrap.REPEAT,
+                    textureWrapY = TextureLayer.Wrap.CLAMP,
                     brushSize = 25f,
                 ),
                 ::inputsZigzag,
@@ -395,10 +394,10 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
-                    textureWrapX = TextureWrap.CLAMP,
-                    textureWrapY = TextureWrap.REPEAT,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
+                    textureWrapX = TextureLayer.Wrap.CLAMP,
+                    textureWrapY = TextureLayer.Wrap.REPEAT,
                     brushSize = 25f,
                 ),
                 ::inputsZigzag,
@@ -408,10 +407,10 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
-                    textureWrapX = TextureWrap.MIRROR,
-                    textureWrapY = TextureWrap.CLAMP,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
+                    textureWrapX = TextureLayer.Wrap.MIRROR,
+                    textureWrapY = TextureLayer.Wrap.CLAMP,
                     brushSize = 25f,
                 ),
                 ::inputsZigzag,
@@ -421,10 +420,10 @@ class CanvasStrokeRendererTest {
             finishedInProgressStroke(
                 texturedBrush(
                     textureSize = 1f,
-                    textureSizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                    textureOrigin = TextureOrigin.FIRST_STROKE_INPUT,
-                    textureWrapX = TextureWrap.CLAMP,
-                    textureWrapY = TextureWrap.MIRROR,
+                    textureSizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    textureOrigin = TextureLayer.Origin.FIRST_STROKE_INPUT,
+                    textureWrapX = TextureLayer.Wrap.CLAMP,
+                    textureWrapY = TextureLayer.Wrap.MIRROR,
                     brushSize = 25f,
                 ),
                 ::inputsZigzag,
@@ -436,38 +435,44 @@ class CanvasStrokeRendererTest {
          ******************************************************************
          */
         BLEND_MODES_WITH_BRUSH_COLOR_MODULATE_WHITE(
-            colorBlendedStroke(BlendMode.MODULATE, TestColors.WHITE)
+            colorBlendedStroke(TextureLayer.BlendMode.MODULATE, TestColors.WHITE)
         ),
         BLEND_MODES_WITH_BRUSH_COLOR_MODULATE_RED_WITH_ALPHA_POINT_5(
-            colorBlendedStroke(BlendMode.MODULATE, TestColors.RED.withAlpha(0.5))
+            colorBlendedStroke(TextureLayer.BlendMode.MODULATE, TestColors.RED.withAlpha(0.5))
         ),
         BLEND_MODES_WITH_BRUSH_COLOR_DST_IN_RED_WITH_ALPHA_POINT_5(
-            colorBlendedStroke(BlendMode.DST_IN, TestColors.RED.withAlpha(0.5))
+            colorBlendedStroke(TextureLayer.BlendMode.DST_IN, TestColors.RED.withAlpha(0.5))
         ),
         BLEND_MODES_WITH_BRUSH_COLOR_DST_OUT_RED_WITH_ALPHA_POINT_5(
-            colorBlendedStroke(BlendMode.DST_OUT, TestColors.RED.withAlpha(0.5))
+            colorBlendedStroke(TextureLayer.BlendMode.DST_OUT, TestColors.RED.withAlpha(0.5))
         ),
         BLEND_MODES_WITH_BRUSH_COLOR_SRC_ATOP_RED_WITH_ALPHA_POINT_5(
-            colorBlendedStroke(BlendMode.SRC_ATOP, TestColors.RED.withAlpha(0.5))
+            colorBlendedStroke(TextureLayer.BlendMode.SRC_ATOP, TestColors.RED.withAlpha(0.5))
         ),
         BLEND_MODES_WITH_BRUSH_COLOR_SRC_IN_RED_WITH_ALPHA_POINT_5(
-            colorBlendedStroke(BlendMode.SRC_IN, TestColors.RED.withAlpha(0.5))
+            colorBlendedStroke(TextureLayer.BlendMode.SRC_IN, TestColors.RED.withAlpha(0.5))
         ),
         BLEND_MODES_WITH_BRUSH_COLOR_SRC_RED_WITH_ALPHA_POINT_5(
-            colorBlendedStroke(BlendMode.SRC, TestColors.RED.withAlpha(0.5))
+            colorBlendedStroke(TextureLayer.BlendMode.SRC, TestColors.RED.withAlpha(0.5))
         ),
         /*
          ******************************************************************
          * Blend Modes with Two Textures
          ******************************************************************
          */
-        BLEND_MODES_WITH_TWO_TEXTURES_SRC(textureBlendedStroke(BlendMode.SRC)),
-        BLEND_MODES_WITH_TWO_TEXTURES_DST(textureBlendedStroke(BlendMode.DST)),
-        BLEND_MODES_WITH_TWO_TEXTURES_SRC_OVER(textureBlendedStroke(BlendMode.SRC_OVER)),
-        BLEND_MODES_WITH_TWO_TEXTURES_DST_OVER(textureBlendedStroke(BlendMode.DST_OVER)),
-        BLEND_MODES_WITH_TWO_TEXTURES_SRC_OUT(textureBlendedStroke(BlendMode.SRC_OUT)),
-        BLEND_MODES_WITH_TWO_TEXTURES_DST_ATOP(textureBlendedStroke(BlendMode.DST_ATOP)),
-        BLEND_MODES_WITH_TWO_TEXTURES_XOR(textureBlendedStroke(BlendMode.XOR)),
+        BLEND_MODES_WITH_TWO_TEXTURES_SRC(textureBlendedStroke(TextureLayer.BlendMode.SRC)),
+        BLEND_MODES_WITH_TWO_TEXTURES_DST(textureBlendedStroke(TextureLayer.BlendMode.DST)),
+        BLEND_MODES_WITH_TWO_TEXTURES_SRC_OVER(
+            textureBlendedStroke(TextureLayer.BlendMode.SRC_OVER)
+        ),
+        BLEND_MODES_WITH_TWO_TEXTURES_DST_OVER(
+            textureBlendedStroke(TextureLayer.BlendMode.DST_OVER)
+        ),
+        BLEND_MODES_WITH_TWO_TEXTURES_SRC_OUT(textureBlendedStroke(TextureLayer.BlendMode.SRC_OUT)),
+        BLEND_MODES_WITH_TWO_TEXTURES_DST_ATOP(
+            textureBlendedStroke(TextureLayer.BlendMode.DST_ATOP)
+        ),
+        BLEND_MODES_WITH_TWO_TEXTURES_XOR(textureBlendedStroke(TextureLayer.BlendMode.XOR)),
         /*
          ******************************************************************
          * Texture Offset
@@ -517,37 +522,37 @@ class CanvasStrokeRendererTest {
         ),
         PAINT_PREFERENCES_TILING_ANY(
             textureMappingAndSelfOverlapStroke(
-                textureMapping = TextureMapping.TILING,
+                textureMapping = TextureLayer.Mapping.TILING,
                 selfOverlap = SelfOverlap.ANY,
             )
         ),
         PAINT_PREFERENCES_TILING_ACCUMULATE(
             textureMappingAndSelfOverlapStroke(
-                textureMapping = TextureMapping.TILING,
+                textureMapping = TextureLayer.Mapping.TILING,
                 selfOverlap = SelfOverlap.ACCUMULATE,
             )
         ),
         PAINT_PREFERENCES_TILING_DISCARD(
             textureMappingAndSelfOverlapStroke(
-                textureMapping = TextureMapping.TILING,
+                textureMapping = TextureLayer.Mapping.TILING,
                 selfOverlap = SelfOverlap.DISCARD,
             )
         ),
         PAINT_PREFERENCES_STAMPING_ANY(
             textureMappingAndSelfOverlapStroke(
-                textureMapping = TextureMapping.STAMPING,
+                textureMapping = TextureLayer.Mapping.STAMPING,
                 selfOverlap = SelfOverlap.ANY,
             )
         ),
         PAINT_PREFERENCES_STAMPING_ACCUMULATE(
             textureMappingAndSelfOverlapStroke(
-                textureMapping = TextureMapping.STAMPING,
+                textureMapping = TextureLayer.Mapping.STAMPING,
                 selfOverlap = SelfOverlap.ACCUMULATE,
             )
         ),
         PAINT_PREFERENCES_STAMPING_DISCARD(
             textureMappingAndSelfOverlapStroke(
-                textureMapping = TextureMapping.STAMPING,
+                textureMapping = TextureLayer.Mapping.STAMPING,
                 selfOverlap = SelfOverlap.DISCARD,
             )
         ),
@@ -892,15 +897,15 @@ class CanvasStrokeRendererTest {
         fun texturedBrush(
             particleGapDistanceScale: Float = 0f,
             textureId: String = TEXTURE_ID_CHECKERBOARD,
-            textureSizeUnit: TextureSizeUnit,
+            textureSizeUnit: TextureLayer.SizeUnit,
             textureSize: Float,
-            textureOrigin: TextureOrigin = TextureOrigin.STROKE_SPACE_ORIGIN,
+            textureOrigin: TextureLayer.Origin = TextureLayer.Origin.STROKE_SPACE_ORIGIN,
             textureOffsetX: Float = 0f,
             textureOffsetY: Float = 0f,
             textureRotationDegrees: Float = 0f,
-            textureMapping: TextureMapping = TextureMapping.TILING,
-            textureWrapX: TextureWrap = TextureWrap.REPEAT,
-            textureWrapY: TextureWrap = TextureWrap.REPEAT,
+            textureMapping: TextureLayer.Mapping = TextureLayer.Mapping.TILING,
+            textureWrapX: TextureLayer.Wrap = TextureLayer.Wrap.REPEAT,
+            textureWrapY: TextureLayer.Wrap = TextureLayer.Wrap.REPEAT,
             @ColorInt brushColor: Int = TestColors.BLACK,
             brushSize: Float = 15f,
         ): Brush {
@@ -923,18 +928,18 @@ class CanvasStrokeRendererTest {
 
         fun texturedBrushPaint(
             textureId: String = TEXTURE_ID_CHECKERBOARD,
-            textureSizeUnit: TextureSizeUnit,
+            textureSizeUnit: TextureLayer.SizeUnit,
             textureSize: Float,
-            textureOrigin: TextureOrigin = TextureOrigin.STROKE_SPACE_ORIGIN,
+            textureOrigin: TextureLayer.Origin = TextureLayer.Origin.STROKE_SPACE_ORIGIN,
             textureOffsetX: Float = 0f,
             textureOffsetY: Float = 0f,
             textureRotationDegrees: Float = 0f,
-            textureMapping: TextureMapping = TextureMapping.TILING,
-            textureWrapX: TextureWrap = TextureWrap.REPEAT,
-            textureWrapY: TextureWrap = TextureWrap.REPEAT,
+            textureMapping: TextureLayer.Mapping = TextureLayer.Mapping.TILING,
+            textureWrapX: TextureLayer.Wrap = TextureLayer.Wrap.REPEAT,
+            textureWrapY: TextureLayer.Wrap = TextureLayer.Wrap.REPEAT,
         ): BrushPaint {
             val textureLayer =
-                BrushPaint.TextureLayer(
+                TextureLayer(
                     clientTextureId = textureId,
                     sizeX = textureSize,
                     sizeY = textureSize,
@@ -956,7 +961,7 @@ class CanvasStrokeRendererTest {
                     textureSize = 30f,
                     textureOffsetX = offsetX,
                     textureOffsetY = offsetY,
-                    textureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
+                    textureSizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
                     brushSize = 30f,
                 ),
                 inputsZigzag(30f),
@@ -971,7 +976,7 @@ class CanvasStrokeRendererTest {
                 texturedBrush(
                     textureId = TEXTURE_ID_AIRPLANE_EMOJI,
                     textureSize = 30f,
-                    textureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
+                    textureSizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
                     textureOffsetX = offsetX,
                     textureOffsetY = offsetY,
                     textureRotationDegrees = rotation,
@@ -991,13 +996,16 @@ class CanvasStrokeRendererTest {
                 updateShape(inputs.getDurationMillis())
             }
 
-        fun colorBlendedStroke(blendMode: BlendMode, @ColorInt color: Int): InProgressStroke {
+        fun colorBlendedStroke(
+            blendMode: TextureLayer.BlendMode,
+            @ColorInt color: Int,
+        ): InProgressStroke {
             val textureLayer =
-                BrushPaint.TextureLayer(
+                TextureLayer(
                     TEXTURE_ID_POOP_EMOJI,
                     sizeX = 1f,
                     sizeY = 1f,
-                    sizeUnit = TextureSizeUnit.BRUSH_SIZE,
+                    sizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
                     blendMode = blendMode,
                 )
             val paint = BrushPaint(listOf(textureLayer))
@@ -1005,21 +1013,21 @@ class CanvasStrokeRendererTest {
             return finishedInProgressStroke(brush, inputsTwist(brush.size))
         }
 
-        fun textureBlendedStroke(blendMode: BlendMode): InProgressStroke {
+        fun textureBlendedStroke(blendMode: TextureLayer.BlendMode): InProgressStroke {
             val textureLayer1 =
-                BrushPaint.TextureLayer(
+                TextureLayer(
                     TEXTURE_ID_AIRPLANE_EMOJI,
                     sizeX = 1f,
                     sizeY = 1f,
-                    sizeUnit = TextureSizeUnit.BRUSH_SIZE,
+                    sizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
                     blendMode = blendMode,
                 )
             val textureLayer2 =
-                BrushPaint.TextureLayer(
+                TextureLayer(
                     TEXTURE_ID_POOP_EMOJI,
                     sizeX = 1f,
                     sizeY = 1f,
-                    sizeUnit = TextureSizeUnit.BRUSH_SIZE,
+                    sizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
                 )
             val paint = BrushPaint(listOf(textureLayer1, textureLayer2))
             val brush = brush(brushFamily(paint = paint), color = TestColors.WHITE, size = 40f)
@@ -1027,18 +1035,18 @@ class CanvasStrokeRendererTest {
         }
 
         fun textureMappingAndSelfOverlapStroke(
-            textureMapping: TextureMapping?,
+            textureMapping: TextureLayer.Mapping?,
             selfOverlap: SelfOverlap,
         ): InProgressStroke {
             val textureLayers = buildList {
                 if (textureMapping != null) {
                     add(
-                        BrushPaint.TextureLayer(
+                        TextureLayer(
                             TEXTURE_ID_POOP_EMOJI,
                             mapping = textureMapping,
                             sizeX = 1f,
                             sizeY = 1f,
-                            sizeUnit = TextureSizeUnit.BRUSH_SIZE,
+                            sizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
                         )
                     )
                 }
@@ -1053,20 +1061,16 @@ class CanvasStrokeRendererTest {
                             BrushBehavior(
                                 terminalNodes =
                                     listOf(
-                                        BrushBehavior.TargetNode(
-                                            target =
-                                                BrushBehavior.Target.ROTATION_OFFSET_IN_RADIANS,
+                                        TargetNode(
+                                            target = Target.ROTATION_OFFSET_IN_RADIANS,
                                             targetModifierRangeStart = -PI.toFloat(),
                                             targetModifierRangeEnd = PI.toFloat(),
                                             input =
-                                                BrushBehavior.SourceNode(
-                                                    source =
-                                                        BrushBehavior.Source
-                                                            .DIRECTION_ABOUT_ZERO_IN_RADIANS,
+                                                SourceNode(
+                                                    source = Source.DIRECTION_ABOUT_ZERO_IN_RADIANS,
                                                     sourceValueRangeStart = -PI.toFloat(),
                                                     sourceValueRangeEnd = PI.toFloat(),
-                                                    sourceOutOfRangeBehavior =
-                                                        BrushBehavior.OutOfRange.REPEAT,
+                                                    sourceOutOfRangeBehavior = OutOfRange.REPEAT,
                                                 ),
                                         )
                                     )

@@ -88,9 +88,9 @@ private fun SnapScrollingBobaDemo(cardTexts: List<Pair<String, String>>) {
     // as of 2025-6-1, heights must be identical for everything in a snap scrolling view.
 
     val scrollMode =
-        if (Build.VERSION.SDK_INT >= 36)
+        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
             VerticalScrollMode.SnapScrollMatchHeight(LocalSize.current.height)
-        else VerticalScrollMode.Normal
+        } else VerticalScrollMode.Normal
 
     Box(GlanceModifier.fillMaxSize()) {
         LazyColumn(

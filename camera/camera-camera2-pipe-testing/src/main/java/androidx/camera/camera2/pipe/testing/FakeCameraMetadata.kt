@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.testing
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
@@ -103,6 +104,7 @@ public class FakeCameraExtensionMetadata(
     private val captureOutputSizes: Map<Int, Set<Size>> = emptyMap(),
     private val previewOutputSizes: Map<Class<*>, Set<Size>> = emptyMap(),
     private val postviewSizes: Map<Int, Map<Size, Set<Size>>> = emptyMap(),
+    private val estimatedCaptureLatencyRangeMillis: Map<Int, Map<Size, Range<Long>>> = emptyMap(),
     override val isRedacted: Boolean = false,
     override val isPostviewSupported: Boolean = false,
     override val isCaptureProgressSupported: Boolean = false,
@@ -117,6 +119,13 @@ public class FakeCameraExtensionMetadata(
 
     override fun getPostviewSizes(captureSize: Size, format: Int): Set<Size> {
         return postviewSizes[format]?.get(captureSize) ?: emptySet()
+    }
+
+    override fun getEstimatedCaptureLatencyRangeMillis(
+        captureSize: Size,
+        imageFormat: Int,
+    ): Range<Long>? {
+        return estimatedCaptureLatencyRangeMillis[imageFormat]?.get(captureSize)
     }
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? = characteristics[key] as T?

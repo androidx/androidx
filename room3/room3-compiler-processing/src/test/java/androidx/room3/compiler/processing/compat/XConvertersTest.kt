@@ -122,10 +122,14 @@ class XConvertersTest {
                 assertThat(t.rawType.asTypeName()).isEqualTo(tFromXConverters.rawType.asTypeName())
                 assertThat(t.typeArguments.size).isEqualTo(tFromXConverters.typeArguments.size)
                 for (i in 0..t.typeArguments.size) {
-                    assertEqualTypes(t.typeArguments[i], tFromXConverters.typeArguments[i])
+                    assertThat(t.typeArguments[i].variance)
+                        .isEqualTo(tFromXConverters.typeArguments[i].variance)
+                    assertEqualTypes(
+                        t.typeArguments[i].type,
+                        tFromXConverters.typeArguments[i].type,
+                    )
                 }
                 assertEqualTypes(t.boxed(), tFromXConverters.boxed())
-                assertEqualTypes(t.extendsBoundOrSelf(), tFromXConverters.extendsBoundOrSelf())
 
                 // Test calling nullability is okay for "normal" xprocessing types
                 assertThat(t.nullability).isNotNull()

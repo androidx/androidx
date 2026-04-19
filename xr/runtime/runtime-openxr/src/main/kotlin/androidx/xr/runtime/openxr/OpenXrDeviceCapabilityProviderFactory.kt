@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
+import androidx.xr.runtime.interfaces.XrNativeInstanceProvider
 import kotlin.coroutines.CoroutineContext
 
 internal class OpenXrDeviceCapabilityProviderFactory() : XrDeviceCapabilityProviderFactory {
@@ -29,7 +30,11 @@ internal class OpenXrDeviceCapabilityProviderFactory() : XrDeviceCapabilityProvi
     override fun create(
         context: Context,
         coroutineContext: CoroutineContext,
+        nativeInstanceProvider: XrNativeInstanceProvider?,
     ): XrDeviceCapabilityProvider {
-        return OpenXrDeviceCapabilityProvider(context)
+        require(nativeInstanceProvider is OpenXrInstanceManager) {
+            "nativeInstanceProvider must be an instance of OpenXrInstanceManager"
+        }
+        return OpenXrDeviceCapabilityProvider(context, nativeInstanceProvider.nativeManager)
     }
 }

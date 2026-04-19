@@ -54,7 +54,6 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
          * V3 output string, supports linking to files with query parameters of the format
          * `[link](uri://<relative-path-to-trace>?<queryParam>=<queryParamValue>`).
          *
-         * @see TraceDeepLink
          * @see LinkFormat.V3
          */
         summaryV3: String,

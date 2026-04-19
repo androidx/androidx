@@ -17,9 +17,12 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -85,6 +88,23 @@ class RemoteAppCardTest {
             creationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteAppCardWithAppNameTitleSubtitle()
+        }
+    }
+
+    @Test
+    fun app_card_dynamic_color() {
+        val colorOverrides = buildObjectIntMap {
+            put("WearM3.primary", Color(0xFFB8D0A0).toArgb())
+            put("WearM3.onPrimary", Color(0xFF24361A).toArgb())
+            put("WearM3.surfaceContainer", Color(0xFF1C1D1A).toArgb())
+            put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
+        }
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            creationDisplayInfo = creationDisplayInfo,
+            colorOverrides = colorOverrides,
+        ) {
+            RemoteAppCardDefault()
         }
     }
 }

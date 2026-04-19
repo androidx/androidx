@@ -82,7 +82,7 @@ class FirstContentLoadTest {
         assertEquals(0, callbackCount)
 
         // force invalidation to trigger onDraw
-        pdfView.invalidate()
+        scenario.onActivity { pdfView.invalidate() }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         // check event fired once and shouldNotify set to false
@@ -91,7 +91,7 @@ class FirstContentLoadTest {
         assertTrue(pdfView.isAnyBitmapAvailable)
 
         // recheck event should not fire as shouldNotifyContentLoad is false
-        pdfView.invalidate()
+        scenario.onActivity { pdfView.invalidate() }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         assertEquals(1, callbackCount)
         assertFalse(pdfView.notifyFirstContentLoad)
@@ -99,7 +99,7 @@ class FirstContentLoadTest {
 
         // check event should fire on reset
         pdfView.notifyFirstContentLoad = true
-        pdfView.invalidate()
+        scenario.onActivity { pdfView.invalidate() }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         assertEquals(2, callbackCount)
         assertFalse(pdfView.notifyFirstContentLoad)
@@ -118,7 +118,7 @@ class FirstContentLoadTest {
         assertEquals(0, callbackCount)
 
         // force invalidation to trigger onDraw
-        pdfView.invalidate()
+        scenario.onActivity { pdfView.invalidate() }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         // check event should not fire if bitmap is not available
@@ -127,7 +127,7 @@ class FirstContentLoadTest {
 
         // check event should not fire if we change shouldNotifyContentLoad
         pdfView.notifyFirstContentLoad = false
-        pdfView.invalidate()
+        scenario.onActivity { pdfView.invalidate() }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         assertFalse(pdfView.notifyFirstContentLoad)
@@ -148,7 +148,7 @@ class FirstContentLoadTest {
         pdfView.notifyFirstContentLoad = true
 
         // verify the listener is working
-        pdfView.invalidate()
+        scenario.onActivity { pdfView.invalidate() }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         assertEquals(1, callbackCount)
@@ -161,7 +161,7 @@ class FirstContentLoadTest {
         pdfView.notifyFirstContentLoad = true
 
         // verify the listener was actually removed and won't be called
-        pdfView.invalidate()
+        scenario.onActivity { pdfView.invalidate() }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         assertEquals(1, callbackCount)
     }
@@ -183,7 +183,7 @@ class FirstContentLoadTest {
         pdfView.notifyFirstContentLoad = true
 
         // force invalidation to trigger onDraw
-        pdfView.invalidate()
+        scenario.onActivity { pdfView.invalidate() }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         // check if both listeners are called
@@ -200,7 +200,7 @@ class FirstContentLoadTest {
         pdfView.removeOnFirstContentLoadListener(secondListener)
 
         // force invalidation to trigger onDraw
-        pdfView.invalidate()
+        scenario.onActivity { pdfView.invalidate() }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         // check only one listener should be called

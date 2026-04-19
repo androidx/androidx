@@ -22,35 +22,47 @@ import androidx.datastore.core.readData
 import androidx.datastore.core.use
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlinx.atomicfu.atomic
 import kotlinx.browser.localStorage
 import kotlinx.browser.sessionStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.builtins.serializer
-import okio.BufferedSink
-import okio.BufferedSource
 
-// TODO(b/441511612): Add testing once OPFS is supported.
+private val testFileCounter = atomic(0)
+
 class WebStorageTest {
-    private val testSessionStorageName = "test_session_storage"
-    private val testLocalStorageName = "test_local_storage"
+    private val suiteRunId = Random.nextInt(100000)
+    private lateinit var testSessionStorageName: String
+    private lateinit var testLocalStorageName: String
+    private lateinit var dataStoreScope: CoroutineScope
     private val default: Byte = 0
     private val testingSerializer: WebSerializer<Byte> = WebSerializer(Byte.serializer(), default)
     private lateinit var testSessionStorage: Storage<Byte>
     private lateinit var testLocalStorage: Storage<Byte>
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val testScope: TestScope = TestScope(UnconfinedTestDispatcher())
+    private lateinit var testScope: TestScope
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @BeforeTest
     fun setUp() {
+        testScope = TestScope(UnconfinedTestDispatcher())
+        dataStoreScope = CoroutineScope(Dispatchers.Unconfined + Job())
+        val runId = "${suiteRunId}_${testFileCounter.incrementAndGet()}"
+        testSessionStorageName = "test_session_storage_$runId"
+        testLocalStorageName = "test_local_storage_$runId"
+
         testSessionStorage =
             WebSessionStorage(name = testSessionStorageName, serializer = testingSerializer)
 
@@ -59,7 +71,8 @@ class WebStorageTest {
     }
 
     @AfterTest
-    fun tearDown() {
+    fun tearDown() = runTest {
+        dataStoreScope.cancel()
         sessionStorage.removeItem(testSessionStorageName)
         localStorage.removeItem(testLocalStorageName)
     }
@@ -150,7 +163,7 @@ class WebStorageTest {
 
     @Test
     fun testSessionStorage_writeThenRead() = runTest {
-        val dataStore = DataStoreFactory.create(testSessionStorage)
+        val dataStore = DataStoreFactory.create(testSessionStorage, scope = dataStoreScope)
         val dataToWrite: Byte = 123
         dataStore.updateData { dataToWrite }
 
@@ -160,7 +173,7 @@ class WebStorageTest {
 
     @Test
     fun testLocalStorage_writeThenRead() = runTest {
-        val dataStore = DataStoreFactory.create(testLocalStorage)
+        val dataStore = DataStoreFactory.create(testLocalStorage, scope = dataStoreScope)
         val dataToWrite: Byte = 123
         dataStore.updateData { dataToWrite }
 
@@ -169,49 +182,9 @@ class WebStorageTest {
     }
 
     @Test
-    fun binaryData_isStoredAndRetrievedCorrectly() = runTest {
-        val storeName = "test-binary-store"
-
-        // Serializer that mimics Wire/Protobuf behavior
-        @Suppress("MISSING_DEPENDENCY_SUPERCLASS_IN_TYPE_ARGUMENT")
-        val rawByteSerializer =
-            object : OkioSerializer<ByteArray> {
-                override val defaultValue: ByteArray = byteArrayOf()
-
-                override suspend fun readFrom(source: BufferedSource): ByteArray {
-                    return source.readByteArray()
-                }
-
-                override suspend fun writeTo(t: ByteArray, sink: BufferedSink) {
-                    sink.write(t)
-                }
-            }
-
-        val storage: Storage<ByteArray> =
-            WebSessionStorage(serializer = rawByteSerializer, name = storeName)
-
-        // Binary data with invalid UTF-8 sequences
-        val originalData =
-            byteArrayOf(
-                0x89.toByte(),
-                0x50.toByte(),
-                0x4e.toByte(),
-                0x47.toByte(),
-                0xff.toByte(),
-                0xd8.toByte(),
-                0xff.toByte(),
-                0xe0.toByte(),
-            )
-
-        val connection = storage.createConnection()
-        try {
-            connection.writeScope { writeData(originalData) }
-
-            val readData = connection.readScope { readData() }
-            // Content should be equal, if not we have corrupted data
-            assertContentEquals(originalData, readData)
-        } finally {
-            connection.close()
+    fun binaryData_isStoredAndRetrievedCorrectlySessionStorage() = runTest {
+        val storeName = "test-binary-store-session"
+        runBinaryDataTest(WebSessionStorage(serializer = rawByteSerializer, name = storeName)) {
             sessionStorage.removeItem(storeName)
         }
     }

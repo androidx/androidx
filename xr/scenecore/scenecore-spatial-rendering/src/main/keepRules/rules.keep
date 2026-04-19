@@ -1,0 +1,8 @@
+-if class androidx.xr.runtime.Session
+-keep class androidx.xr.scenecore.spatial.rendering.SpatialRenderingRuntimeFactory { *; }
+
+-if class androidx.xr.scenecore.impl.impress.ImpressApi
+-keep class androidx.xr.scenecore.impl.impress.AssetLoader { *; }
+
+-if class androidx.xr.scenecore.impl.impress.ImpressApi
+-keep class androidx.xr.scenecore.impl.impress.AssetAnimator{ *; }

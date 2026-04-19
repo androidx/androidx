@@ -19,7 +19,6 @@ package androidx.pdf.testapp
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.ext.SdkExtensions
 import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
@@ -36,6 +35,7 @@ import androidx.pdf.testapp.ui.XmlStyledPdfFragment
 import androidx.pdf.testapp.ui.scenarios.PageObjectPdfFragment
 import androidx.pdf.testapp.ui.v2.TabbedPdfViewerFragment
 import androidx.pdf.testapp.ui.v2.compose.PdfComposeFragment
+import androidx.pdf.testapp.util.isAnnotationsFeatureAvailable
 import com.google.android.material.button.MaterialButton
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -50,9 +50,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var composePdfButton: MaterialButton
     private lateinit var fragmentContainer: FrameLayout
 
-    private val isAnnotationsSupported: Boolean by lazy {
-        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 18
-    }
+    private val isAnnotationsSupported: Boolean by lazy { isAnnotationsFeatureAvailable() }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override fun onCreate(savedInstanceState: Bundle?) {

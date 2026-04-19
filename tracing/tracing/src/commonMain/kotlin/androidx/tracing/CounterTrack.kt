@@ -40,7 +40,7 @@ public open class CounterTrack(
                         parentUuid = parent.uuid,
                         type = TRACK_DESCRIPTOR_TYPE_COUNTER,
                         pid = DEFAULT_INT,
-                        tid = DEFAULT_INT,
+                        tid = DEFAULT_LONG,
                     )
                 )
                 dispatchTraceEvent(event, immediateDispatch = true)

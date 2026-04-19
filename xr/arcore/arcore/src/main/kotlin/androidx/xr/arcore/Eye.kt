@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Eye as RuntimeEye
 import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.Session
@@ -31,8 +30,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * An [Eye] instance provides the state of the eye (shut or gazing), as well as a [Pose] indicating
  * where the user is currently looking.
  */
+@SuppressWarnings("HiddenSuperclass")
 public class Eye internal constructor(internal val runtimeEye: RuntimeEye) :
-    Trackable<Eye.State>, Updatable {
+    Trackable<Eye.State>, Updatable() {
 
     public companion object {
         /**
@@ -128,7 +128,6 @@ public class Eye internal constructor(internal val runtimeEye: RuntimeEye) :
      * This function is used by the runtime to propagate internal state changes. It is not intended
      * to be called directly by a developer.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
         _state.emit(
             State(

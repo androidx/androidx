@@ -36,7 +36,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalMetricApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-open class RemoteComposeDocumentTracingMacrobenchmark(val compilationMode: CompilationMode) {
+class RemoteComposeDocumentTracingMacrobenchmark(val compilationMode: CompilationMode) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
@@ -118,7 +118,7 @@ open class RemoteComposeDocumentTracingMacrobenchmark(val compilationMode: Compi
             measureBlock = {
                 val intent = Intent()
                 intent.action = DOCUMENT_TRACING_ACTIVITY
-                intent.putExtra(BENCHMARK_MODE_ARG, MODE_LOCAL)
+                intent.putExtra(BENCHMARK_MODE_ARG, MODE_COMPOSE)
                 startActivityAndWait(intent)
                 device.waitForIdle()
             },

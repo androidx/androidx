@@ -39,12 +39,13 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemotePreviewWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 
 const val androidShapeString =
     "M17.6,9.48" +
@@ -358,4 +359,9 @@ fun RcSimpleClock1(
     }
 }
 
-@Preview @Composable private fun RcSimpleClock1Preview() = RemotePreview { RcSimpleClock1() }
+@Preview
+@PreviewWrapper(wrapper = RemotePreviewWrapper::class)
+@Composable
+private fun RcSimpleClock1Preview() {
+    RcSimpleClock1()
+}

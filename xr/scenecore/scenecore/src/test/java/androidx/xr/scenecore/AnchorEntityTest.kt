@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @file:Suppress("DEPRECATION")
 
 package androidx.xr.scenecore
 
 import android.os.Build
-import android.os.Looper
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
@@ -59,7 +57,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
@@ -261,7 +258,7 @@ class AnchorEntityTest {
             mFakeLifecycleManager.allowOneMoreCallToUpdate()
             advanceUntilIdle()
 
-            assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.TIMEDOUT)
+            assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.TIMED_OUT)
         }
     }
 
@@ -294,28 +291,24 @@ class AnchorEntityTest {
     }
 
     @Test
-    fun setOnStateChangedListener_receivesStateChangedCallback() {
+    fun addStateChangedListener_receivesStateChangedCallback() {
         val anchorEntity = AnchorEntity.create(session, anchor)
+        var callbackInvoked = false
         val stateChangedListener =
             Consumer<AnchorEntity.State> { newState ->
+                callbackInvoked = true
                 assertThat(newState).isEqualTo(AnchorEntity.State.ANCHORED)
             }
 
-        anchorEntity.setOnStateChangedListener(directExecutor(), stateChangedListener)
+        anchorEntity.addStateChangedListener(directExecutor(), stateChangedListener)
+        assertThat(callbackInvoked).isTrue()
     }
 
     @Test
-    fun setOnOriginChangedListener_withNullParams_callsRuntimeSetOnOriginChangedListener() {
-        val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityRegistry)
-        anchorEntity.setOnOriginChangedListener(null)
-        assertThat(fakeAnchorEntity.onOriginChangedListener).isNull()
-    }
-
-    @Test
-    fun setOnOriginChangedListener_receivesRuntimeSetOnOriginChangedListenerCallbacks() {
+    fun addOriginChangedListener_receivesOnOriginChangedListenerCallbacks() {
         var listenerCalled = false
         val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityRegistry)
-        anchorEntity.setOnOriginChangedListener(directExecutor()) { listenerCalled = true }
+        anchorEntity.addOriginChangedListener(directExecutor()) { listenerCalled = true }
 
         assertThat(fakeAnchorEntity.onOriginChangedListener).isNotNull()
         assertThat(listenerCalled).isFalse()
@@ -343,6 +336,7 @@ class AnchorEntityTest {
     @Test
     fun getRealWorldSpacePose_returnsPerceptionSpacePose() {
         val anchorEntity = AnchorEntity.create(session, anchor)
+        @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val pose = anchorEntity.getPose(Space.REAL_WORLD)
         assertThat(pose.translation).isEqualTo(anchor.runtimeAnchor.pose.translation)
         assertThat(pose.rotation).isEqualTo(anchor.runtimeAnchor.pose.rotation)
@@ -387,6 +381,7 @@ class AnchorEntityTest {
     @Test
     fun getRealWorldSpaceScale_returnsIdentity() {
         val anchorEntity = AnchorEntity.create(session, anchor)
+        @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val scale = anchorEntity.getScale(Space.REAL_WORLD)
         assertThat(scale).isEqualTo(1f)
     }
@@ -394,6 +389,7 @@ class AnchorEntityTest {
     @Test
     fun getRealWorldSpaceNonUniformScale_returnsIdentity() {
         val anchorEntity = AnchorEntity.create(session, anchor)
+        @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val scale = anchorEntity.getNonUniformScale(Space.REAL_WORLD)
         assertThat(scale).isEqualTo(Vector3.One)
     }
@@ -412,23 +408,6 @@ class AnchorEntityTest {
         assertThrows(UnsupportedOperationException::class.java) {
             anchorEntity.setScale(Vector3.One, Space.PARENT)
         }
-    }
-
-    @Test
-    fun dispose_clearsListeners() {
-        val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityRegistry)
-
-        anchorEntity.setOnStateChangedListener(directExecutor(), {})
-        anchorEntity.setOnOriginChangedListener(directExecutor(), {})
-
-        assertThat(fakeAnchorEntity.onOriginChangedListener).isNotNull()
-        assertThat(anchorEntity.onStateChangedListener).isNotNull()
-
-        anchorEntity.dispose()
-        shadowOf(Looper.getMainLooper()).idle()
-
-        assertThat(fakeAnchorEntity.onOriginChangedListener).isNull()
-        assertThat(anchorEntity.onStateChangedListener).isNull()
     }
 
     @Test

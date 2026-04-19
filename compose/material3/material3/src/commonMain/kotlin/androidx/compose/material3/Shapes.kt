@@ -79,7 +79,7 @@ import androidx.compose.ui.graphics.Shape
 // TODO(b/368578382): Update 'increased' variant kdocs to reference design documentation.
 @Immutable
 class Shapes
-@ExperimentalMaterial3ExpressiveApi
+@Material3ExpressiveApi
 constructor(
     // Shapes None and Full are omitted as None is a RectangleShape and Full is a CircleShape.
     val extraSmall: CornerBasedShape = ShapeDefaults.ExtraSmall,
@@ -91,26 +91,23 @@ constructor(
     extraLargeIncreased: CornerBasedShape = ShapeDefaults.ExtraLargeIncreased,
     extraExtraLarge: CornerBasedShape = ShapeDefaults.ExtraExtraLarge,
 ) {
-    @ExperimentalMaterial3ExpressiveApi
     /**
      * A shape style with 4 same-sized corners whose size are bigger than [Shapes.medium] and
      * smaller than [Shapes.extraLarge]. Slightly larger variant to [Shapes.large].
      */
-    val largeIncreased = largeIncreased
+    @Material3ExpressiveApi val largeIncreased = largeIncreased
 
-    @ExperimentalMaterial3ExpressiveApi
     /**
      * A shape style with 4 same-sized corners whose size are bigger than [Shapes.large] and smaller
      * than [Shapes.extraExtraLarge]. Slightly larger variant to [Shapes.extraLarge].
      */
-    val extraLargeIncreased = extraLargeIncreased
+    @Material3ExpressiveApi val extraLargeIncreased = extraLargeIncreased
 
-    @ExperimentalMaterial3ExpressiveApi
     /**
      * A shape style with 4 same-sized corners whose size are bigger than [Shapes.extraLarge] and
      * smaller than [CircleShape].
      */
-    val extraExtraLarge = extraExtraLarge
+    @Material3ExpressiveApi val extraExtraLarge = extraExtraLarge
 
     /**
      * Material surfaces can be displayed in different shapes. Shapes direct attention, identify
@@ -152,7 +149,6 @@ constructor(
      * @param extraLarge A shape style with 4 same-sized corners whose size are bigger than
      *   [Shapes.large] and smaller than [CircleShape]. By default large FABs use this shape.
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     constructor(
         extraSmall: CornerBasedShape = ShapeDefaults.ExtraSmall,
         small: CornerBasedShape = ShapeDefaults.Small,
@@ -171,7 +167,6 @@ constructor(
     )
 
     /** Returns a copy of this Shapes, optionally overriding some of the values. */
-    @ExperimentalMaterial3ExpressiveApi
     fun copy(
         extraSmall: CornerBasedShape = this.extraSmall,
         small: CornerBasedShape = this.small,
@@ -209,7 +204,6 @@ constructor(
             extraLarge = extraLarge,
         )
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Shapes) return false
@@ -224,7 +218,6 @@ constructor(
         return true
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     override fun hashCode(): Int {
         var result = extraSmall.hashCode()
         result = 31 * result + small.hashCode()
@@ -237,7 +230,6 @@ constructor(
         return result
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     override fun toString(): String {
         return "Shapes(" +
             "extraSmall=$extraSmall, " +
@@ -295,19 +287,19 @@ object ShapeDefaults {
     /** Large sized corner shape */
     val Large: CornerBasedShape = ShapeTokens.CornerLarge
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Large sized corner shape, slightly larger than [Large] */
+    @get:Material3ExpressiveApi
     val LargeIncreased: CornerBasedShape = ShapeTokens.CornerLargeIncreased
 
     /** Extra large sized corner shape */
     val ExtraLarge: CornerBasedShape = ShapeTokens.CornerExtraLarge
 
-    @ExperimentalMaterial3ExpressiveApi
     /** Extra large sized corner shape, slightly larger than [ExtraLarge] */
+    @get:Material3ExpressiveApi
     val ExtraLargeIncreased: CornerBasedShape = ShapeTokens.CornerExtraLargeIncreased
 
-    @ExperimentalMaterial3ExpressiveApi
     /** An extra extra large (XXL) sized corner shape */
+    @get:Material3ExpressiveApi
     val ExtraExtraLarge: CornerBasedShape = ShapeTokens.CornerExtraExtraLarge
 
     // TODO(b/368578382): Update 'increased' variant kdocs to reference design documentation.

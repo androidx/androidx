@@ -151,6 +151,7 @@ package androidx.compose.foundation {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class ComposeFoundationFlags {
     property public boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
+    property public boolean isBasicTextFieldHeightInLinesOptimizationEnabled;
     property public boolean isBasicTextFieldMinSizeOptimizationEnabled;
     property public boolean isCacheWindowForPagerEnabled;
     property public boolean isConcurrentTextFieldSelectionFixEnabled;
@@ -162,6 +163,7 @@ package androidx.compose.foundation {
     property public boolean isSmartSelectionEnabled;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
     field public static boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
+    field public static boolean isBasicTextFieldHeightInLinesOptimizationEnabled;
     field public static boolean isBasicTextFieldMinSizeOptimizationEnabled;
     field public static boolean isCacheWindowForPagerEnabled;
     field public static boolean isConcurrentTextFieldSelectionFixEnabled;

@@ -17,23 +17,21 @@
 package androidx.pdf.testapp.ui.v2
 
 import android.app.AlertDialog
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresExtension
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.OperationCanceledException
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.testapp.R
 import androidx.pdf.testapp.ui.OpCancellationHandler
+import androidx.pdf.testapp.util.arePdfContentFeaturesAvailable
 import androidx.pdf.viewer.fragment.PdfStylingOptions
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 class StyledPdfViewerFragment : PdfViewerFragment {
 
     constructor() : super()
@@ -59,7 +57,12 @@ class StyledPdfViewerFragment : PdfViewerFragment {
         hostView?.addView(pdfContainer)
 
         // Show/hide the search button based on initial toolbox visibility
-        if (isToolboxVisible) searchButton?.show() else searchButton?.hide()
+
+        if (arePdfContentFeaturesAvailable()) {
+            if (isToolboxVisible) searchButton?.show() else searchButton?.hide()
+        } else {
+            searchButton?.visibility = View.GONE
+        }
 
         // Setup click listener to activate text search
         searchButton?.setOnClickListener { isTextSearchActive = true }
@@ -68,6 +71,7 @@ class StyledPdfViewerFragment : PdfViewerFragment {
 
     override fun onRequestImmersiveMode(enterImmersive: Boolean) {
         super.onRequestImmersiveMode(enterImmersive)
+        if (!arePdfContentFeaturesAvailable()) return
         if (!enterImmersive) searchButton?.show() else searchButton?.hide()
     }
 

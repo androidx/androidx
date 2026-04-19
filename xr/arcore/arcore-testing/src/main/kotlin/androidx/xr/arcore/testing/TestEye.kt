@@ -17,7 +17,7 @@
 package androidx.xr.arcore.testing
 
 import androidx.xr.arcore.runtime.TrackingState
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeEye
 import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.math.Pose
@@ -49,7 +49,7 @@ internal constructor(
                         TrackingState.PAUSED
                     }
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     /** Pose of the eye within the testing environment. */
@@ -61,6 +61,6 @@ internal constructor(
                     fakeRuntimeEye.pose = value
                 }
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 }

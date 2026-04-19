@@ -19,7 +19,6 @@ package androidx.pdf.testapp.ui.v2
 import android.app.AlertDialog
 import android.graphics.Bitmap
 import android.graphics.RectF
-import android.os.Build
 import android.os.Bundle
 import android.util.Size
 import android.util.SparseArray
@@ -28,7 +27,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
-import androidx.annotation.RequiresExtension
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +38,7 @@ import androidx.pdf.testapp.ui.FeatureFlagListener
 import androidx.pdf.testapp.ui.FeatureFlagNames.FORM_FILLING
 import androidx.pdf.testapp.ui.FeatureFlagNames.THUMBNAIL_PREVIEW
 import androidx.pdf.testapp.ui.OpCancellationHandler
+import androidx.pdf.testapp.util.arePdfContentFeaturesAvailable
 import androidx.pdf.view.PdfView
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -55,7 +54,6 @@ import kotlinx.coroutines.withContext
  * adds a FloatingActionButton for search functionality and manages its visibility based on the
  * immersive mode state. It also includes a toggleable vertical thumbnail preview.
  */
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
 
     private lateinit var hostView: ConstraintLayout
@@ -91,7 +89,6 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
             savedInstanceState?.getInt(KEY_THUMBNAIL_VISIBILITY, View.GONE) ?: View.GONE
         setupThumbnailView(initialVisibility)
 
-        searchFAB?.setOnClickListener { isTextSearchActive = true }
         twoPageLayoutFAB?.setOnClickListener {
             pdfView.pagesPerRow =
                 when (pdfView.pagesPerRow) {
@@ -99,7 +96,10 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
                     else -> PdfView.SINGLE_PAGE
                 }
         }
-
+        searchFAB?.setOnClickListener { isTextSearchActive = true }
+        if (!arePdfContentFeaturesAvailable()) {
+            searchFAB?.visibility = View.GONE
+        }
         return hostView
     }
 
@@ -233,6 +233,7 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
 
     override fun onRequestImmersiveMode(enterImmersive: Boolean) {
         super.onRequestImmersiveMode(enterImmersive)
+        if (!arePdfContentFeaturesAvailable()) return
         searchFAB?.visibility = if (enterImmersive) View.GONE else View.VISIBLE
         twoPageLayoutFAB?.visibility = if (enterImmersive) View.GONE else View.VISIBLE
         // Toggle thumbnail button visibility only if the feature is enabled

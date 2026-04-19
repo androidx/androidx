@@ -25,16 +25,18 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.IBinder
 import android.os.Looper
+import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.xr.runtime.XrLog
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-internal open class ProjectedSceneCoreServiceClient {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public open class ProjectedSceneCoreServiceClient {
     /** The connected service interface, or null if not connected. */
     public var service: IProjectedSceneCoreService? = null
-        private set
+        protected set
 
     private var mActiveConnection: ServiceConnection? = null
     private var mBoundContext: Context? = null

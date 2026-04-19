@@ -54,13 +54,14 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.mockitoKotlin4)
 }
 
 android {
     namespace = "androidx.pdf.document.service"
     compileSdk { version = release(36) { sdkExtension = 19 }}
     defaultConfig {
-        minSdk { version = release(31) }
+        minSdk { version = release(28) }
     }
 
     buildFeatures.aidl = true

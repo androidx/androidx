@@ -54,6 +54,7 @@ enum class ImageFormat(val text: String) {
 
 enum class RecordingQuality(val text: String) {
     UHD("UHD"),
+    QHD("QHD"),
     FHD("FHD"),
     HD("HD"),
     SD("SD"),

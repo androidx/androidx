@@ -18,16 +18,18 @@ package androidx.xr.arcore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.TrackingState
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.internal.FakeRuntimeAnchor
+import androidx.xr.arcore.testing.internal.FakeRuntimeConversationState
 import androidx.xr.arcore.testing.internal.FakeRuntimeDepthMap
 import androidx.xr.arcore.testing.internal.FakeRuntimeEye
 import androidx.xr.arcore.testing.internal.FakeRuntimeHand
 import androidx.xr.arcore.testing.internal.FakeRuntimeRenderViewpoint
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.ExperimentalSceneSignalApi
+import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.math.Pose
 import java.util.UUID
 import org.junit.rules.ExternalResource
@@ -54,7 +56,7 @@ public class ArCoreTestRule : ExternalResource() {
         set(value) {
             field = value
             FakeRuntimeAnchor.anchorResourceLimit = value
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     /**
@@ -182,6 +184,16 @@ public class ArCoreTestRule : ExternalResource() {
         TestDepth(this, runtime.perceptionManager.monoDepthMap as FakeRuntimeDepthMap)
     }
 
+    /** A test representation of the device's Conversation Scene Signal. */
+    @ExperimentalSceneSignalApi
+    @PreviewSpatialApi
+    public val conversationSceneSignal: TestConversationSceneSignal by lazy {
+        TestConversationSceneSignal(
+            this,
+            runtime.perceptionManager.conversationSceneSignal as FakeRuntimeConversationState,
+        )
+    }
+
     /**
      * Adds the given [TestTrackable] objects and registers them with this ArCoreTestRule.
      *
@@ -218,7 +230,7 @@ public class ArCoreTestRule : ExternalResource() {
             // retroactively added to the PerceptionManager
             updateFakeRuntimeTrackable(it)
         }
-        FakeLifecycleManager.allowOneMoreCallToUpdate()
+        FakePerceptionRuntime.allowOneMoreCallToUpdate()
     }
 
     /**
@@ -234,7 +246,7 @@ public class ArCoreTestRule : ExternalResource() {
         if (runtime.config.anchorPersistence == AnchorPersistenceMode.LOCAL) {
             runtime.perceptionManager.persistedAnchorUUIDs[uuid] = pose
         }
-        FakeLifecycleManager.allowOneMoreCallToUpdate()
+        FakePerceptionRuntime.allowOneMoreCallToUpdate()
         return uuid
     }
 
@@ -242,7 +254,7 @@ public class ArCoreTestRule : ExternalResource() {
     public fun clearPersistedAnchors() {
         _persistedAnchorPoses.clear()
         runtime.perceptionManager.persistedAnchorUUIDs.clear()
-        FakeLifecycleManager.allowOneMoreCallToUpdate()
+        FakePerceptionRuntime.allowOneMoreCallToUpdate()
     }
 
     @Suppress("DEPRECATION")

@@ -175,7 +175,8 @@ internal class LazyGridMeasuredItem(
             repeat(placeablesCount) { index ->
                 val animation = animator.getAnimation(key, index)
                 if (animation != null) {
-                    animation.rawOffset = animation.rawOffset.copy { mainAxis -> mainAxis + delta }
+                    animation.targetOffset =
+                        animation.targetOffset.copy { mainAxis -> mainAxis + delta }
                 }
             }
         }
@@ -227,7 +228,7 @@ internal class LazyGridMeasuredItem(
                 }
                 offset += visualOffset
                 if (!isLookingAhead) {
-                    animation?.finalOffset = offset
+                    animation?.placementOffset = offset
                 }
                 if (isVertical) {
                     if (layer != null) {

@@ -29,11 +29,16 @@ plugins {
 }
 
 androidXMultiplatform {
+  // Only supported on non-Android JVM for Linux on x86_64
   jvm()
+
   androidLibrary {
     namespace = "androidx.ink.brush"
     androidResources.enable = true
   }
+
+  // TODO: b/462064872 - Turn on ios() support and enable BuildType.KMP
+  // ios()
 
   defaultPlatform(PlatformIdentifier.JVM)
 
@@ -42,15 +47,16 @@ androidXMultiplatform {
       api(libs.androidx.annotation)
       implementation("androidx.collection:collection:1.4.3")
       implementation(project(":ink:ink-nativeloader"))
+      implementation(project(":ink:ink-geometry"))
     }
 
-    jvmAndAndroidMain.dependencies {
-      implementation(project(":ink:ink-geometry"))
+    commonTest.dependencies {
+      implementation(libs.kotlinTest)
+      implementation(project(":kruth:kruth"))
     }
 
     jvmAndAndroidTest.dependencies {
       implementation(libs.junit)
-      implementation(libs.kotlinTest)
       implementation(libs.truth)
     }
 
@@ -68,6 +74,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Define brushes for freehand input."
+    usePlatformSpecificCacheForJvmTests = true
 }
 
 // TODO: b/374774638 - Run tests on host as well as device.

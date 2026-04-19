@@ -16,9 +16,11 @@
 
 package androidx.pdf.viewer.fragment.insets
 
+import android.os.Build
 import android.view.View
 import android.view.WindowManager
 import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 
@@ -40,14 +42,14 @@ internal class TranslateInsetsAnimationCallback(
 ) : WindowInsetsAnimationCompat.Callback(dispatchMode) {
 
     init {
-        view.setOnApplyWindowInsetsListener { _, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insetsCompat ->
             val keyboardInsets =
-                insets.getInsets(WindowInsetsCompat.Type.ime()).run {
+                insetsCompat.getInsets(WindowInsetsCompat.Type.ime()).run {
                     Insets.of(left, top, right, bottom)
                 }
             translateViewWithKeyboard(keyboardInsets)
 
-            insets
+            insetsCompat
         }
     }
 
@@ -92,7 +94,15 @@ internal class TranslateInsetsAnimationCallback(
 
         // Calculate keyboard top wrt screen height
         windowManager?.let {
-            val screenHeight = windowManager.currentWindowMetrics.bounds.height()
+            val screenHeight =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    windowManager.currentWindowMetrics.bounds.height()
+                } else {
+                    // Best-effort fallback for devices below Android 12 (API 31).
+                    // Note: This feature currently requires Android S+ and SDK Extension 13+.
+                    view.rootView.height
+                }
+
             keyboardTop = screenHeight - keyboardInsets.bottom
         }
 

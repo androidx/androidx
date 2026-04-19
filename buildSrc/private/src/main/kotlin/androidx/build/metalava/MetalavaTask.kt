@@ -187,8 +187,10 @@ internal abstract class CompatibilityMetalavaTask(workerExecutor: WorkerExecutor
         return listOf(
             apiLocation.publicApiFile,
             apiLocation.restrictedApiFile,
+            apiLocation.multiplatformApiDirectory,
             referenceApiLocation.publicApiFile,
             referenceApiLocation.restrictedApiFile,
+            referenceApiLocation.multiplatformApiDirectory,
             baselineApiLocation.publicApiFile,
             baselineApiLocation.restrictedApiFile,
         )
@@ -222,14 +224,36 @@ internal abstract class CompatibilityMetalavaTask(workerExecutor: WorkerExecutor
             } else {
                 api.get().publicApiFile to referenceApi.get().publicApiFile
             }
+        // Restricted API files aren't generated for multiplatform.
+        val (currentMultiplatform, previousMultiplatform) =
+            if (restricted) {
+                null to null
+            } else {
+                api.get().multiplatformApiDirectory to referenceApi.get().multiplatformApiDirectory
+            }
 
         return buildList {
-            add("--classpath")
-            add((bootClasspath + dependencyClasspath.files).joinToString(File.pathSeparator))
-            add("--source-files")
-            add(currentSignature.toString())
-            add("--check-compatibility:api:released")
-            add(previousSignature.toString())
+            val classpath = bootClasspath + dependencyClasspath.files
+            if (classpath.isNotEmpty()) {
+                add("--classpath")
+                add(classpath.joinToString(File.pathSeparator))
+            }
+            // Compatibility check for regular signature files, if they exist.
+            if (currentSignature.exists()) {
+                add("--source-files")
+                add(currentSignature.toString())
+                add("--check-compatibility:api:released")
+                add(previousSignature.toString())
+            }
+            // Compatibility check for multiplatform signature files, if they exist.
+            if (previousMultiplatform?.exists() == true) {
+                add("--multiplatform-enabled")
+                add("--multiplatform-api-sources")
+                add(currentMultiplatform.toString())
+                add("--multiplatform-compatibility-api")
+                add(previousMultiplatform.toString())
+            }
+
             add("--warnings-as-errors")
 
             if (freezeApis) {

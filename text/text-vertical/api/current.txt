@@ -149,8 +149,10 @@ package androidx.text.vertical {
     ctor public VerticalTextLayout(optional CharSequence text, optional int start, optional int end, optional android.text.TextPaint paint, optional @Px float height, optional androidx.text.vertical.TextOrientation orientation);
     ctor @BytecodeOnly public VerticalTextLayout(CharSequence!, int, int, android.text.TextPaint!, float, androidx.text.vertical.TextOrientation!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void draw(android.graphics.Canvas canvas, @Px float x, @Px float y);
+    method @InaccessibleFromKotlin public int getLineCount();
     method @InaccessibleFromKotlin @Px public float getWidth();
     method public boolean isVerticalTextSupported();
+    property public int lineCount;
     property @Px public float width;
   }
 

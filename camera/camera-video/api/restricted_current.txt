@@ -59,12 +59,14 @@ package androidx.camera.video {
   public final class GroupableFeatures {
     property public androidx.camera.core.featuregroup.GroupableFeature FHD_RECORDING;
     property public androidx.camera.core.featuregroup.GroupableFeature HD_RECORDING;
+    property public androidx.camera.core.featuregroup.GroupableFeature QHD_RECORDING;
     property public androidx.camera.core.featuregroup.GroupableFeature SD_RECORDING;
     property public androidx.camera.core.featuregroup.GroupableFeature UHD_RECORDING;
     property public androidx.camera.core.featuregroup.GroupableFeature VIDEO_STABILIZATION;
     field public static final androidx.camera.core.featuregroup.GroupableFeature FHD_RECORDING;
     field public static final androidx.camera.core.featuregroup.GroupableFeature HD_RECORDING;
     field public static final androidx.camera.video.GroupableFeatures INSTANCE;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature QHD_RECORDING;
     field public static final androidx.camera.core.featuregroup.GroupableFeature SD_RECORDING;
     field public static final androidx.camera.core.featuregroup.GroupableFeature UHD_RECORDING;
     field public static final androidx.camera.core.featuregroup.GroupableFeature VIDEO_STABILIZATION;
@@ -134,6 +136,7 @@ package androidx.camera.video {
     field public static final androidx.camera.video.Quality HD;
     field public static final androidx.camera.video.Quality HIGHEST;
     field public static final androidx.camera.video.Quality LOWEST;
+    field public static final androidx.camera.video.Quality QHD;
     field public static final androidx.camera.video.Quality SD;
     field public static final androidx.camera.video.Quality UHD;
   }

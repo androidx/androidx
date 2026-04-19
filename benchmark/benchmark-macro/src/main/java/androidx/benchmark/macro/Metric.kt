@@ -1058,11 +1058,18 @@ class PowerMetric(private val type: Type) : Metric() {
  *   value during an iteration, and `Max`, which represents the largest sample observed per
  *   measurement.
  * @param subMetrics By default, reports:
- * * `memoryRssAnonKb` - Anonymous resident/allocated memory owned by the process, not including
- *   memory mapped files or shared memory.
- * * `memoryRssAnonFileKb` - Memory allocated by the process to map files.
- * * `memoryHeapSizeKb` - Heap memory allocations from the Android Runtime, sampled after each GC.
- * * `memoryGpuKb` - GPU Memory allocated for the process.
+ * * `memoryRssAnonKb` - Measures anonymous resident set size memory. This represents memory
+ *   allocated directly by the process—such as via malloc or `mmap`—that is not backed by any file
+ *   on disk. It is often the primary indicator of the app's dynamic memory consumption.
+ * * `memoryRssAnonFileKb` - Measures memory used to map files from disk into the process's address
+ *   space. This includes shared libraries, dex files, and other resource assets loaded by the
+ *   application.
+ * * `memoryHeapSizeKb` - Tracks the total size of the Android Runtime (ART) heap. These samples are
+ *   typically captured immediately after a Garbage Collection (GC) event, providing a look at the
+ *   "live" set of objects in the application's managed memory.
+ * * `memoryGpuKb` - Measures the amount of GPU-specific memory allocated for the process. This is
+ *   particularly useful for identifying high memory usage related to textures, shaders, or other
+ *   graphics-heavy components.
  *
  * By passing a custom `subMetrics` list, you can enable other [SubMetric]s.
  *
@@ -1107,10 +1114,38 @@ constructor(
          */
         internal val alreadyInKb: Boolean,
     ) {
+        /**
+         * Tracks the total size of the Android Runtime (ART) heap. These samples are typically
+         * captured immediately after a Garbage Collection (GC) event, providing a look at the
+         * "live" set of objects in the application's managed memory.
+         */
         HeapSize("Heap size (KB)", alreadyInKb = true),
+
+        /**
+         * Measures anonymous resident set size memory. This represents memory allocated directly by
+         * the process—such as via malloc or mmap—that is not backed by any file on disk. It is
+         * often the primary indicator of the app's dynamic memory consumption.
+         */
         RssAnon("mem.rss.anon", alreadyInKb = false),
+
+        /**
+         * Measures memory used to map files from disk into the process's address space. This
+         * includes shared libraries, dex files, and other resource assets loaded by the
+         * application.
+         */
         RssFile("mem.rss.file", alreadyInKb = false),
+
+        /**
+         * Tracks shared memory resident in the process. This includes memory shared between
+         * processes, such as shared buffers or specialized memory regions.
+         */
         RssShmem("mem.rss.shmem", alreadyInKb = false),
+
+        /**
+         * Measures the amount of GPU-specific memory allocated for the process. This is
+         * particularly useful for identifying high memory usage related to textures, shaders, or
+         * other graphics-heavy components.
+         */
         Gpu("GPU Memory", alreadyInKb = false),
     }
 

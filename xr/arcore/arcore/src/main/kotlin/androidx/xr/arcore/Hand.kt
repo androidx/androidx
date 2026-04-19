@@ -18,7 +18,6 @@ package androidx.xr.arcore
 
 import android.content.ContentResolver
 import android.provider.Settings.System
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Hand as RuntimeHand
 import androidx.xr.arcore.runtime.HandJointType as RuntimeHandJoint
 import androidx.xr.runtime.HandTrackingMode
@@ -37,8 +36,9 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * @property state the current [State] of this hand
  */
+@SuppressWarnings("HiddenSuperclass")
 public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
-    Trackable<Hand.State>, Updatable {
+    Trackable<Hand.State>, Updatable() {
     /** * Companion object holding info to the left and right hands. */
     public companion object {
 
@@ -236,7 +236,6 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
     /** The current [State] of this hand. */
     public override val state: StateFlow<State> = _state.asStateFlow()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
         _state.emit(
             State(

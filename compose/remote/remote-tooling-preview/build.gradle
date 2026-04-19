@@ -31,7 +31,7 @@ androidx {
 
 android {
     namespace = "androidx.compose.remote.tooling.preview"
-    compileSdk { version = release(35) }
+    compileSdk { version = release(37) }
     defaultConfig {
         minSdk { version = release(26) }
     }
@@ -41,6 +41,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.8.3")
     implementation("androidx.compose.foundation:foundation:1.8.3")
     implementation("androidx.compose.ui:ui:1.8.3")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.11.0-beta02")
     implementation(project(":compose:remote:remote-core"))
     implementation(project(":compose:remote:remote-creation"))
     implementation(project(":compose:remote:remote-creation-core"))

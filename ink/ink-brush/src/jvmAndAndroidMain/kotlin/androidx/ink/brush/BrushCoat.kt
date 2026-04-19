@@ -130,27 +130,34 @@ private constructor(
     /**
      * Builder for [BrushCoat].
      *
-     * For Java developers, use BrushCoat.Builder to construct [BrushCoat] with default values,
-     * overriding only as needed. For example: `BrushCoat family = new
-     * BrushCoat.Builder().tip(presetBrushTip).build();`
+     * For Java developers, use `BrushCoat.Builder` to construct a [BrushCoat] with default values,
+     * overriding only as needed. For example: `BrushCoat coat =
+     * BrushCoat.builder().setTip(presetBrushTip).build();`
      */
     @Suppress("ScopeReceiverThis")
     public class Builder {
         private var tip: BrushTip = BrushTip()
         private var paintPreferences = mutableListOf<BrushPaint>()
 
+        /** Sets the brush tip for this brush coat. */
         public fun setTip(tip: BrushTip): Builder = apply { this.tip = tip }
 
+        /** Adds a brush paint preference to this brush coat. */
         public fun addPaintPreference(paint: BrushPaint): Builder = apply {
             this.paintPreferences.add(paint)
         }
 
+        /**
+         * Sets the list of paint preferences for this brush coat (replacing any previously-added
+         * paint preferences).
+         */
         public fun setPaintPreferences(@Size(min = 1) paintPreferences: List<BrushPaint>): Builder =
             apply {
                 this.paintPreferences.clear()
                 this.paintPreferences.addAll(paintPreferences)
             }
 
+        /** Constructs a [BrushCoat] from this [Builder]. */
         public fun build(): BrushCoat = BrushCoat(tip, paintPreferences)
     }
 

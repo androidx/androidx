@@ -37,7 +37,7 @@ public class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
      */
     internal var anchor: Anchor? = null
 
-    private var onStateChangedListener: OnStateChangedListener =
+    private var onStateChangedListener: OnStateChangedListener? =
         OnStateChangedListener { newState ->
             _state = newState
         }
@@ -50,16 +50,16 @@ public class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
 
     /** Registers a listener to be called when the state of the anchor changes. */
     @Suppress("ExecutorRegistration")
-    override fun setOnStateChangedListener(onStateChangedListener: OnStateChangedListener) {
+    override fun setOnStateChangedListener(onStateChangedListener: OnStateChangedListener?) {
         this.onStateChangedListener = onStateChangedListener
-        onStateChangedListener.onStateChanged(_state)
+        onStateChangedListener?.onStateChanged(_state)
     }
 
     override fun setAnchor(anchor: Anchor): Boolean {
         // detach current
         anchor.detach()
         this.anchor = anchor
-        onStateChangedListener.onStateChanged(AnchorEntity.State.ANCHORED)
+        onStateChangedListener?.onStateChanged(AnchorEntity.State.ANCHORED)
         return true
     }
 
@@ -80,6 +80,6 @@ public class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
      * responds correctly to state updates.
      */
     public fun onStateChanged(newState: @AnchorEntity.State Int) {
-        onStateChangedListener.onStateChanged(newState)
+        onStateChangedListener?.onStateChanged(newState)
     }
 }

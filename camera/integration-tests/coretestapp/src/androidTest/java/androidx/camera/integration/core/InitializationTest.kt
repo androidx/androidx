@@ -26,8 +26,6 @@ import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.IdlingRegistry
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.LocaleTestUtils
@@ -117,16 +115,11 @@ class InitializationTest(private val config: TestConfig) {
             Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java)
         with(ActivityScenario.launch<CameraXActivity>(intent)) {
             use {
-                val initIdlingResource = withActivity { initializationIdlingResource }
+                val initIdlingResource = withActivity { initializationIdlingLatch }
 
-                IdlingRegistry.getInstance().register(initIdlingResource)
-                try {
-                    Espresso.onIdle()
-                    providerResult = withActivity { cameraProviderResult!! }
-                } finally {
-                    IdlingRegistry.getInstance().unregister(initIdlingResource)
-                }
+                initIdlingResource.await(60, TimeUnit.SECONDS)
 
+                providerResult = withActivity { cameraProviderResult!! }
                 assertThat(providerResult?.error).isNull()
             }
         }

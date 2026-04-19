@@ -59,7 +59,7 @@ private constructor(
      * [brush].
      */
     public val shape: PartitionedMesh =
-        PartitionedMesh.wrapNative(StrokeNative.newShallowCopyOfShape(nativePointer)),
+        PartitionedMesh.wrapNative { StrokeNative.newShallowCopyOfShape(nativePointer) },
 ) {
 
     /**
@@ -165,7 +165,9 @@ private constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun wrapNative(unownedNativePointer: Long, brush: Brush): Stroke {
             val shape =
-                PartitionedMesh.wrapNative(StrokeNative.newShallowCopyOfShape(unownedNativePointer))
+                PartitionedMesh.wrapNative {
+                    StrokeNative.newShallowCopyOfShape(unownedNativePointer)
+                }
             require(shape.getRenderGroupCount() == brush.family.coats.size) {
                 "The shape must have one render group per brush coat, but found ${shape.getRenderGroupCount()} render groups in shape and ${brush.family.coats.size} brush coats in brush."
             }

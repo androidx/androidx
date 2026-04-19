@@ -153,20 +153,16 @@ package androidx.compose.ui {
     property public boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     property public boolean isBypassUnfocusableComposeViewEnabled;
     property public boolean isFocusRestorationEnabled;
-    property public boolean isIndirectPointerNavigationGestureDetectorEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isMediaQueryIntegrationEnabled;
-    property public boolean isOptimizedFocusEventDispatchEnabled;
     property public boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     property public boolean isViewFocusFixEnabled;
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     field public static boolean isBypassUnfocusableComposeViewEnabled;
     field public static boolean isFocusRestorationEnabled;
-    field public static boolean isIndirectPointerNavigationGestureDetectorEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isMediaQueryIntegrationEnabled;
-    field public static boolean isOptimizedFocusEventDispatchEnabled;
     field public static boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     field public static boolean isViewFocusFixEnabled;
   }
@@ -218,13 +214,13 @@ package androidx.compose.ui {
   }
 
   @SuppressCompatibility public final class MediaQueryKt {
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalMediaQueryApi public static androidx.compose.runtime.State<java.lang.Boolean!> derivedMediaQuery(kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope!,java.lang.Boolean!>, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalMediaQueryApi public static androidx.compose.runtime.State<java.lang.Boolean> derivedMediaQuery(kotlin.jvm.functions.Function1<androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalMediaQueryApi public static <T> androidx.compose.runtime.State<T> derivedMediaQuery(kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope!,? extends T>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalMediaQueryApi public static <T> androidx.compose.runtime.State<T> derivedMediaQuery(kotlin.jvm.functions.Function1<androidx.compose.ui.UiMediaScope,T> query);
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.UiMediaScope> getLocalUiMediaScope();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static inline boolean mediaQuery(androidx.compose.runtime.CompositionLocalAccessorScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static inline boolean mediaQuery(androidx.compose.ui.node.CompositionLocalConsumerModifierNode, kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static boolean mediaQuery(kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope!,java.lang.Boolean!>, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static inline boolean mediaQuery(kotlin.jvm.functions.Function1<androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static inline <T> T mediaQuery(androidx.compose.runtime.CompositionLocalAccessorScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope,? extends T> query);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static inline <T> T mediaQuery(androidx.compose.ui.node.CompositionLocalConsumerModifierNode, kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope,? extends T> query);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static <T> T mediaQuery(kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope!,? extends T>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static inline <T> T mediaQuery(kotlin.jvm.functions.Function1<androidx.compose.ui.UiMediaScope,T> query);
     property @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.UiMediaScope> LocalUiMediaScope;
   }
 
@@ -2803,9 +2799,6 @@ package androidx.compose.ui.input.pointer.util {
     method public static void addPointerInputChange(androidx.compose.ui.input.pointer.util.VelocityTracker, androidx.compose.ui.input.pointer.PointerInputChange event);
     method @KotlinOnly public static void addPointerInputChange(androidx.compose.ui.input.pointer.util.VelocityTracker, androidx.compose.ui.input.pointer.PointerInputChange event, androidx.compose.ui.geometry.Offset offset);
     method @BytecodeOnly public static void addPointerInputChange-0AR0LA0(androidx.compose.ui.input.pointer.util.VelocityTracker, androidx.compose.ui.input.pointer.PointerInputChange, long);
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getVelocityTrackerAddPointsFix();
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setVelocityTrackerAddPointsFix(boolean);
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean VelocityTrackerAddPointsFix;
   }
 
 }
@@ -4156,7 +4149,6 @@ package androidx.compose.ui.platform {
   public final class ComposeView_androidKt {
     method public static void disableWindowInsetsRulers(androidx.compose.ui.platform.ComposeView.Companion);
     method public static androidx.compose.ui.platform.ComposeViewContext? findViewTreeComposeViewContext(android.view.View);
-    method public static void setAutofillDebugEnabled(androidx.compose.ui.platform.ComposeView.Companion, boolean enabled);
   }
 
   public final class CompositionLocalsKt {

@@ -406,8 +406,9 @@ class NullabilityAwareTypeConverterStoreTest {
                     writerContext =
                         TypeWriter.WriterContext(
                             codeLanguage = CodeLanguage.KOTLIN,
-                            javaLambdaSyntaxAvailable = false,
                             targetPlatforms = setOf(XProcessingEnv.Platform.JVM),
+                            javaLambdaSyntaxAvailable = false,
+                            validateChunkSize = 300,
                         ),
                 )
                 .write(invocation.processingEnv)

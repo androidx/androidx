@@ -56,6 +56,9 @@ constructor(
     public val cameraFacingDirection: CameraFacingDirection = CameraFacingDirection.WORLD,
 ) {
 
+    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
+    private var _sceneSignalTypes: Set<SceneSignalType> = emptySet()
+
     /**
      * Defines a configuration state of all available features to be set at runtime.
      *
@@ -101,6 +104,35 @@ constructor(
         eyeTracking = EyeTrackingMode.DISABLED,
     )
 
+    /**
+     * Creates a new [Config] from an existing [Config], updating the [sceneSignalTypes].
+     *
+     * @param config The existing configuration to copy.
+     * @param sceneSignalTypes The set of scene signal types to enable for this session. See
+     *   [SceneSignalType]. Setting this to an empty set (default) will disable all scene signal
+     *   types.
+     */
+    @ExperimentalSceneSignalApi
+    @PreviewSpatialApi
+    public constructor(
+        config: Config,
+        sceneSignalTypes: Set<SceneSignalType>,
+    ) : this(
+        planeTracking = config.planeTracking,
+        handTracking = config.handTracking,
+        deviceTracking = config.deviceTracking,
+        depthEstimation = config.depthEstimation,
+        anchorPersistence = config.anchorPersistence,
+        faceTracking = config.faceTracking,
+        geospatial = config.geospatial,
+        augmentedObjectCategories = config.augmentedObjectCategories,
+        eyeTracking = config.eyeTracking,
+        cameraFacingDirection = config.cameraFacingDirection,
+    ) {
+        this._sceneSignalTypes = sceneSignalTypes
+    }
+
+    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Config) return false
@@ -115,10 +147,12 @@ constructor(
         if (augmentedObjectCategories != other.augmentedObjectCategories) return false
         if (eyeTracking != other.eyeTracking) return false
         if (cameraFacingDirection != other.cameraFacingDirection) return false
+        if (_sceneSignalTypes != other.getSceneSignalTypes()) return false
 
         return true
     }
 
+    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
     override fun hashCode(): Int {
         var result = planeTracking.hashCode()
         result = 31 * result + handTracking.hashCode()
@@ -130,33 +164,46 @@ constructor(
         result = 31 * result + augmentedObjectCategories.hashCode()
         result = 31 * result + eyeTracking.hashCode()
         result = 31 * result + cameraFacingDirection.hashCode()
+        result = 31 * result + _sceneSignalTypes.hashCode()
         return result
     }
 
+    @ExperimentalSceneSignalApi
+    @PreviewSpatialApi
+    public fun getSceneSignalTypes(): Set<SceneSignalType> = _sceneSignalTypes
+
     @JvmOverloads
+    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
     public fun copy(
         planeTracking: PlaneTrackingMode = this.planeTracking,
         handTracking: HandTrackingMode = this.handTracking,
         deviceTracking: DeviceTrackingMode = this.deviceTracking,
         depthEstimation: DepthEstimationMode = this.depthEstimation,
         anchorPersistence: AnchorPersistenceMode = this.anchorPersistence,
+        faceTracking: FaceTrackingMode = this.faceTracking,
+        geospatial: GeospatialMode = this.geospatial,
+        augmentedObjectCategories: Set<AugmentedObjectCategory> = this.augmentedObjectCategories,
     ): Config {
-        return Config(
-            planeTracking = planeTracking,
-            augmentedObjectCategories = this.augmentedObjectCategories,
-            handTracking = handTracking,
-            deviceTracking = deviceTracking,
-            depthEstimation = depthEstimation,
-            anchorPersistence = anchorPersistence,
-            faceTracking = this.faceTracking,
-            geospatial = this.geospatial,
-            eyeTracking = this.eyeTracking,
-            cameraFacingDirection = this.cameraFacingDirection,
-        )
+        val newConfig =
+            Config(
+                planeTracking = planeTracking,
+                handTracking = handTracking,
+                deviceTracking = deviceTracking,
+                depthEstimation = depthEstimation,
+                anchorPersistence = anchorPersistence,
+                faceTracking = faceTracking,
+                geospatial = geospatial,
+                augmentedObjectCategories = augmentedObjectCategories,
+                eyeTracking = this.eyeTracking,
+                cameraFacingDirection = this.cameraFacingDirection,
+            )
+        newConfig._sceneSignalTypes = this._sceneSignalTypes
+        return newConfig
     }
 
     @Suppress("MissingJvmstatic")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
     public fun copy(
         planeTracking: PlaneTrackingMode = this.planeTracking,
         handTracking: HandTrackingMode = this.handTracking,
@@ -169,18 +216,21 @@ constructor(
         eyeTracking: EyeTrackingMode = this.eyeTracking,
         cameraFacingDirection: CameraFacingDirection = this.cameraFacingDirection,
     ): Config {
-        return Config(
-            planeTracking = planeTracking,
-            augmentedObjectCategories = augmentedObjectCategories,
-            handTracking = handTracking,
-            deviceTracking = deviceTracking,
-            depthEstimation = depthEstimation,
-            anchorPersistence = anchorPersistence,
-            faceTracking = faceTracking,
-            geospatial = geospatial,
-            eyeTracking = eyeTracking,
-            cameraFacingDirection = cameraFacingDirection,
-        )
+        val newConfig =
+            Config(
+                planeTracking = planeTracking,
+                augmentedObjectCategories = augmentedObjectCategories,
+                handTracking = handTracking,
+                deviceTracking = deviceTracking,
+                depthEstimation = depthEstimation,
+                anchorPersistence = anchorPersistence,
+                faceTracking = faceTracking,
+                geospatial = geospatial,
+                eyeTracking = eyeTracking,
+                cameraFacingDirection = cameraFacingDirection,
+            )
+        newConfig._sceneSignalTypes = this._sceneSignalTypes
+        return newConfig
     }
 
     /** Describes a specific value used to set the configuration via [Session.configure]. */

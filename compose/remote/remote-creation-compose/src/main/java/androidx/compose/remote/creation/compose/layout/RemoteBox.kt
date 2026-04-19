@@ -16,10 +16,34 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.v2.RemoteBoxV2
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @Stable public class RemoteBoxScope
+
+internal class RemoteBoxNode : RemoteComposeNode() {
+    var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
+    var verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top
+    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+
+    override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+        creationState.document.startBox(
+            recordingModifier,
+            horizontalAlignment.toRemote(layoutDirection),
+            verticalAlignment.toRemote(),
+        )
+        renderChildren(creationState, remoteCanvas)
+        creationState.document.endBox()
+    }
+}
 
 /**
  * A layout composable that positions its children relative to its own edges.
@@ -38,7 +62,24 @@ public fun RemoteBox(
     contentAlignment: RemoteAlignment = RemoteAlignment.TopStart,
     content: @Composable () -> Unit,
 ) {
-    RemoteBoxV2(modifier, contentAlignment, LocalLayoutDirection.current) { content() }
+    val scope = remember { RemoteBoxScope() }
+    val layoutDirection = LocalLayoutDirection.current
+    RemoteComposeNode(
+        factory = ::RemoteBoxNode,
+        update = {
+            set(modifier) { nodeModifier -> this.modifier = nodeModifier }
+            set(contentAlignment.horizontal) { nodeHorizontalAlignment ->
+                this.horizontalAlignment = nodeHorizontalAlignment
+            }
+            set(contentAlignment.vertical) { nodeVerticalAlignment ->
+                this.verticalAlignment = nodeVerticalAlignment
+            }
+            set(layoutDirection) { nodeLayoutDirection ->
+                this.layoutDirection = nodeLayoutDirection
+            }
+        },
+        content = content,
+    )
 }
 
 /**
@@ -49,5 +90,8 @@ public fun RemoteBox(
 @RemoteComposable
 @Composable
 public fun RemoteBox(modifier: RemoteModifier = RemoteModifier) {
-    RemoteBoxV2(modifier)
+    RemoteComposeNode(
+        factory = ::RemoteBoxNode,
+        update = { set(modifier) { nodeModifier -> this.modifier = nodeModifier } },
+    )
 }

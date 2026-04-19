@@ -85,7 +85,10 @@ interface HealthConnectFeatures {
          */
         const val FEATURE_EXERCISE_SESSION_IMPROVEMENTS = 9
 
-        @OptIn(ExperimentalPersonalHealthRecordApi::class)
+        /** Feature constant for Matchmaking APIs. */
+        @ExperimentalMatchmakingApi const val FEATURE_MATCHMAKING = 10
+
+        @OptIn(ExperimentalPersonalHealthRecordApi::class, ExperimentalMatchmakingApi::class)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
             value =
@@ -99,6 +102,7 @@ interface HealthConnectFeatures {
                     FEATURE_ACTIVITY_INTENSITY,
                     FEATURE_EXTENDED_DEVICE_TYPES,
                     FEATURE_EXERCISE_SESSION_IMPROVEMENTS,
+                    FEATURE_MATCHMAKING,
                 ]
         )
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -130,8 +134,10 @@ interface HealthConnectFeatures {
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 19)
         private val SDK_EXT_21_PLATFORM_VERSION: HealthConnectPlatformVersion =
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 21)
+        private val SDK_EXT_22_PLATFORM_VERSION: HealthConnectPlatformVersion =
+            HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 22)
 
-        @OptIn(ExperimentalPersonalHealthRecordApi::class)
+        @OptIn(ExperimentalPersonalHealthRecordApi::class, ExperimentalMatchmakingApi::class)
         internal val FEATURE_TO_VERSION_INFO_MAP: Map<Int, HealthConnectVersionInfo> =
             mapOf(
                 FEATURE_READ_HEALTH_DATA_IN_BACKGROUND to
@@ -167,6 +173,8 @@ interface HealthConnectFeatures {
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_19_PLATFORM_VERSION),
                 FEATURE_EXERCISE_SESSION_IMPROVEMENTS to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_21_PLATFORM_VERSION),
+                FEATURE_MATCHMAKING to
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_22_PLATFORM_VERSION),
             )
     }
 }

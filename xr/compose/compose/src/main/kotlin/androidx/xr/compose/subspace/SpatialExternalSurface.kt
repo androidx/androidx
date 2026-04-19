@@ -464,11 +464,11 @@ private fun SpatialExternalSurfaceBaseSphere(
         val passthroughListener = { passthrough: Float ->
             coreSurfaceEntity.isBoundaryAvailable = passthrough != 1.0f
         }
-        session.scene.spatialEnvironment.addOnPassthroughOpacityChangedListener(passthroughListener)
+        session.scene.spatialEnvironment.addPassthroughOpacityChangedListener(passthroughListener)
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
         onDispose {
-            session.scene.spatialEnvironment.removeOnPassthroughOpacityChangedListener(
+            session.scene.spatialEnvironment.removePassthroughOpacityChangedListener(
                 passthroughListener
             )
             if (temporaryEnvironmentSet) {

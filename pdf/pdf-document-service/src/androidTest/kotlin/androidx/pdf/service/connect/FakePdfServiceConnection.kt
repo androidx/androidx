@@ -34,12 +34,13 @@ class FakePdfServiceConnection(
     override var needsToReopenDocument: Boolean = false,
     private val onServiceConnected: () -> Unit = {},
     private val onServiceDisconnected: () -> Unit = {},
+    private val documentRemote: PdfDocumentRemote? = null,
 ) : PdfServiceConnection {
 
     override val pendingJobs: Queue<Job> = ConcurrentLinkedQueue()
 
     override suspend fun connect(uri: Uri) {
-        documentBinder = PdfDocumentRemoteImpl(PdfDocumentRendererFactoryImpl())
+        documentBinder = documentRemote ?: PdfDocumentRemoteImpl(PdfDocumentRendererFactoryImpl())
         onServiceConnected(null, null)
     }
 

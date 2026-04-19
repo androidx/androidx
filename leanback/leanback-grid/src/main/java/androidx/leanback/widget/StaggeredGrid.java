@@ -433,4 +433,17 @@ abstract class StaggeredGrid extends Grid {
             mFirstIndex = -1;
         }
     }
+
+    @Override
+    public int getNextPositionOfSameSpan(int focusPosition, int count, int spanGroupIndexDelta) {
+        // spanGroupIndexDelta is positive or negative
+        int delta = spanGroupIndexDelta * mNumRows;
+        int position = mReversedFlow ? focusPosition - delta : focusPosition + delta;
+        if (position < 0) {
+            position = 0;
+        } else if (position > count - 1) {
+            position = count - 1;
+        }
+        return position;
+    }
 }

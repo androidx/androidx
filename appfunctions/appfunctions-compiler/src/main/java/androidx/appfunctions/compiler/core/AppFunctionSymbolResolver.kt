@@ -109,6 +109,12 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
                 }
                 declaration
             }
+            .filter { declaration ->
+                val parentClass = declaration.parentDeclaration as? KSClassDeclaration
+                parentClass
+                    ?.annotations
+                    ?.findAnnotation(AppFunctionEntryPointAnnotation.CLASS_NAME) == null
+            }
             .sortedBy { checkNotNull(it.qualifiedName).asString() }
             .groupBy { declaration ->
                 declaration.parentDeclaration as? KSClassDeclaration

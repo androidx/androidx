@@ -444,31 +444,6 @@ class BitmapFetcherTest {
         assertThat(error is RequestFailedException)
     }
 
-    @Test
-    fun test_bitmapSourceClose_catchRemoteException() = runTest {
-        val pdfDocument = createDocumentWithError(DeadObjectException())
-        // add a replay of 1 to ensure we can collect it later, if it was ever emitted
-        val errorFlow = MutableSharedFlow<Throwable>(replay = 1)
-
-        bitmapFetcher =
-            BitmapFetcher(
-                pageNum = 0,
-                pageSize,
-                pdfDocument,
-                testScope,
-                maxBitmapSizePx,
-                invalidationTracker,
-                errorFlow,
-            )
-
-        bitmapFetcher.close()
-        testDispatcher.scheduler.runCurrent()
-
-        val error = errorFlow.first() as RequestFailedException
-        // assert we don't show error if a bitmap close operation is failed
-        assertThat(error.showError).isFalse()
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test(expected = RemoteException::class)
     fun test_bitmapFetcher_throwsGenericRemoteException() = runTest {

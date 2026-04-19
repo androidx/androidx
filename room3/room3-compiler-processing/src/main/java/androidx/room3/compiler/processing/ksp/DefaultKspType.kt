@@ -19,7 +19,6 @@ package androidx.room3.compiler.processing.ksp
 import androidx.room3.compiler.processing.tryBox
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.javapoet.JTypeName
-import com.squareup.kotlinpoet.javapoet.KTypeName
 
 internal class DefaultKspType(
     env: KspProcessingEnv,
@@ -31,17 +30,13 @@ internal class DefaultKspType(
         // the primitive type but if we wanted it to be a primitive, we would've resolved it to
         // [KspPrimitiveType]. Inline value classes with primitive values won't be resolved to
         // [KspPrimitiveType] because we need boxed name for Kotlin and unboxed name for Java.
-        return if (ksType.declaration.isValueClass()) {
+        return if (typeElement?.isValueClass() == true) {
             // Don't box inline value classes, e.g. the type name for `UInt` should be `int`,
             // not `Integer`, if used directly.
-            ksType.asJTypeName(env.resolver)
+            super.resolveJTypeName()
         } else {
-            ksType.asJTypeName(env.resolver).tryBox()
+            super.resolveJTypeName().tryBox()
         }
-    }
-
-    override fun resolveKTypeName(): KTypeName {
-        return ksType.asKTypeName(env.resolver)
     }
 
     override fun boxed(): DefaultKspType {

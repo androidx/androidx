@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,8 +24,8 @@ import androidx.xr.scenecore.runtime.ExrImageResource
 import androidx.xr.scenecore.runtime.GltfModelResource
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.SpatialEnvironment.SpatialEnvironmentPreference
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
 import com.android.extensions.xr.ShadowXrExtensions
+import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.environment.EnvironmentVisibilityState
 import com.android.extensions.xr.environment.PassthroughVisibilityState
 import com.android.extensions.xr.environment.ShadowEnvironmentVisibilityState
@@ -60,7 +60,7 @@ class SpatialEnvironmentFeatureImplTest {
 
     private val fakeImpressApi = FakeImpressApiImpl()
     private lateinit var activity: Activity
-    private val xrExtensions = XrExtensionsProvider.getXrExtensions()!!
+    private val xrExtensions = XrExtensions()
     private lateinit var expectedSubspace: SubspaceNode
     private lateinit var environment: SpatialEnvironmentFeatureImpl
     private lateinit var splitEngineSubspaceManager: SplitEngineSubspaceManager

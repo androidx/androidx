@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
 import android.os.Build
@@ -40,6 +41,7 @@ import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
+import androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.testing.FakeCameraProperties
@@ -725,6 +727,69 @@ class CameraInfoAdapterTest {
             )
 
         assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun getSupportedExtensions_returnsCorrectValue() {
+        val extensions =
+            setOf(
+                CameraExtensionCharacteristics.EXTENSION_BOKEH,
+                CameraExtensionCharacteristics.EXTENSION_HDR,
+            )
+        val cameraInfo: CameraInfoInternal =
+            createCameraInfoAdapter(
+                cameraProperties =
+                    FakeCameraProperties(
+                        FakeCameraMetadata(
+                            characteristics = mapOf(),
+                            extensions =
+                                extensions.associateWith {
+                                    FakeCameraExtensionMetadata(
+                                        camera = CameraId("0"),
+                                        cameraExtension = it,
+                                    )
+                                },
+                        )
+                    )
+            )
+
+        assertThat(cameraInfo.supportedExtensions).isEqualTo(extensions)
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun getCameraExtensionCapabilities_returnsCorrectValue() {
+        val extensions = setOf(CameraExtensionCharacteristics.EXTENSION_BOKEH)
+        val cameraInfo: CameraInfoInternal =
+            createCameraInfoAdapter(
+                cameraProperties =
+                    FakeCameraProperties(
+                        FakeCameraMetadata(
+                            characteristics = mapOf(),
+                            extensions =
+                                extensions.associateWith {
+                                    FakeCameraExtensionMetadata(
+                                        camera = CameraId("0"),
+                                        cameraExtension = it,
+                                    )
+                                },
+                        )
+                    )
+            )
+
+        assertThat(
+                cameraInfo.getCameraExtensionCapabilities(
+                    CameraExtensionCharacteristics.EXTENSION_BOKEH
+                )
+            )
+            .isNotNull()
+        assertThat(
+                cameraInfo.getCameraExtensionCapabilities(
+                    CameraExtensionCharacteristics.EXTENSION_HDR
+                )
+            )
+            .isNull()
     }
 
     @Test

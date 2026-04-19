@@ -16,9 +16,10 @@
 
 package androidx.xr.scenecore.testapp.meshentity
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,12 +35,16 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
@@ -50,6 +55,7 @@ import androidx.xr.scenecore.ByteBufferRegion
 import androidx.xr.scenecore.CustomMesh
 import androidx.xr.scenecore.ExperimentalCustomMeshApi
 import androidx.xr.scenecore.KhronosPbrMaterial
+import androidx.xr.scenecore.KhronosUnlitMaterial
 import androidx.xr.scenecore.MeshBuffer
 import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.MeshSubset
@@ -61,17 +67,21 @@ import androidx.xr.scenecore.VertexAttributeDescriptor
 import androidx.xr.scenecore.VertexAttributeType
 import androidx.xr.scenecore.VertexLayout
 import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testapp.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.materialswitch.MaterialSwitch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@SuppressLint("RestrictedApi", "RestrictedApiAndroidX")
 @OptIn(ExperimentalCustomMeshApi::class)
-class MeshEntityActivity : ComponentActivity() {
+class MeshEntityActivity : AppCompatActivity() {
     private var session: Session? = null
     private var material: KhronosPbrMaterial? = null
-    private var material2: KhronosPbrMaterial? = null
+    private var material2: KhronosUnlitMaterial? = null
     private var cubeEntity: MeshEntity? = null
     private var twoSubsetsEntity: MeshEntity? = null
     private var sharedBufferBottomEntity: MeshEntity? = null
@@ -79,6 +89,9 @@ class MeshEntityActivity : ComponentActivity() {
     private var triangleStripEntity: MeshEntity? = null
     private var twoMaterialsEntity: MeshEntity? = null
     private var wigglingStickEntity: MeshEntity? = null
+
+    private val meshEntities = mutableMapOf<MeshEntity, MovableComponent>()
+    private var movableSwitch: MaterialSwitch? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,16 +102,32 @@ class MeshEntityActivity : ComponentActivity() {
             return
         }
         session = sessionResult.session
-        session!!.scene.keyEntity = session!!.scene.mainPanelEntity
-        session!!
-            .scene
-            .mainPanelEntity
-            .addComponent(MovableComponent.createSystemMovable(session!!))
-        session!!.scene.mainPanelEntity.setEnabled(false)
+        session!!.scene.mainPanelEntity.size = FloatSize2d(0.4f, 0.3f)
+        val movableComponent = MovableComponent.createSystemMovable(session!!)
+        movableComponent.size = FloatSize3d(0.4f, 0.3f, 0.1f)
+        session!!.scene.mainPanelEntity.addComponent(movableComponent)
+
+        setContentView(R.layout.activity_mesh_entity)
 
         createMeshEntities()
 
-        setContent { MeshEntityUI() }
+        movableSwitch = findViewById<MaterialSwitch>(R.id.movableSwitch)
+        movableSwitch?.setOnCheckedChangeListener { _, isChecked ->
+            meshEntities.forEach { (entity, component) ->
+                if (isChecked) {
+                    entity.addComponent(component)
+                } else {
+                    entity.removeComponent(component)
+                }
+            }
+        }
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener { this.finish() }
+
+        findViewById<FloatingActionButton>(R.id.bottomEndFab).setOnClickListener {
+            ActivityCompat.recreate(this)
+        }
     }
 
     private val colorSchemes =
@@ -238,7 +267,12 @@ class MeshEntityActivity : ComponentActivity() {
         indexBuffer.position(indexBuffer.position() + 28 * 4)
     }
 
-    private fun createPanel(session: Session, text: String, pose: Pose) {
+    private fun createPanel(
+        session: Session,
+        text: String,
+        pose: Pose,
+        extraContent: @Composable () -> Unit = {},
+    ) {
         val composeView =
             ComposeView(this).apply {
                 setViewTreeLifecycleOwner(this@MeshEntityActivity)
@@ -248,7 +282,8 @@ class MeshEntityActivity : ComponentActivity() {
                     Surface(color = Color.White, modifier = Modifier.fillMaxSize()) {
                         Column(
                             modifier = Modifier.fillMaxSize().padding(16.dp),
-                            verticalArrangement = Arrangement.Center,
+                            verticalArrangement =
+                                Arrangement.spacedBy(32.dp, Alignment.CenterVertically),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
@@ -257,6 +292,7 @@ class MeshEntityActivity : ComponentActivity() {
                                 fontSize = 48.sp,
                                 textAlign = TextAlign.Center,
                             )
+                            extraContent()
                         }
                     }
                 }
@@ -268,12 +304,13 @@ class MeshEntityActivity : ComponentActivity() {
                 pixelDimensions = IntSize2d(1600, 800),
                 name = "Panel_$text",
                 pose = pose,
+                parent = session.scene.activitySpace,
             )
         panel.size = FloatSize2d(0.8f, 0.4f)
     }
 
     private fun createMeshEntities() {
-        CoroutineScope(Dispatchers.Main).launch {
+        lifecycleScope.launch {
             val currentSession = session ?: return@launch
 
             // Define vertex layout
@@ -304,9 +341,7 @@ class MeshEntityActivity : ComponentActivity() {
             material?.setMetallicFactor(0f)
             material?.setRoughnessFactor(1f)
 
-            material2 = KhronosPbrMaterial.create(currentSession, AlphaMode.OPAQUE)
-            material2?.setMetallicFactor(1f)
-            material2?.setRoughnessFactor(1f)
+            material2 = KhronosUnlitMaterial.create(currentSession, AlphaMode.OPAQUE)
 
             createTest1_Cube(currentSession, vertexLayout, stride)
             createTest2_TwoSubsets(currentSession, vertexLayout, stride)
@@ -314,6 +349,15 @@ class MeshEntityActivity : ComponentActivity() {
             createTest4_TriangleStrip(currentSession, vertexLayout, stride)
             createTest5_TwoMaterials(currentSession, vertexLayout, stride)
             createTest6_WigglingStick(currentSession)
+        }
+    }
+
+    private fun addMovableComponent(session: Session, entity: MeshEntity?) {
+        if (entity == null) return
+        val movableComponent = MovableComponent.createSystemMovable(session, scaleInZ = false)
+        meshEntities[entity] = movableComponent
+        if (movableSwitch?.isChecked == true) {
+            entity.addComponent(movableComponent)
         }
     }
 
@@ -329,11 +373,10 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(sharedBuffer, 0)
 
         val cubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setVertexLayout(vertexLayout)
-                .addVertexBufferData(ByteBufferRegion(sharedBuffer, 0, vertexSize))
+            CustomMesh.FromMeshDataBuilder(currentSession, vertexLayout)
+                .addVertexData(ByteBufferRegion(sharedBuffer, 0, vertexSize))
                 .setIndexData(ByteBufferRegion(sharedBuffer, vertexSize, indexSize))
-                .setSingleSubsetTopology(MeshSubsetTopology.TRIANGLES)
+                .setTopology(MeshSubsetTopology.TRIANGLES)
                 .build()
         cubeEntity =
             MeshEntity.create(
@@ -342,6 +385,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!),
                 pose = Pose(Vector3(-2f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, cubeEntity)
         createPanel(
             currentSession,
             "A cube with six different colored faces.\nBox: " +
@@ -367,9 +411,8 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(indexBuffer, 24)
 
         val twoSubsetsMesh =
-            CustomMesh.Builder(currentSession)
-                .setVertexLayout(vertexLayout)
-                .addVertexBufferData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
+            CustomMesh.FromMeshDataBuilder(currentSession, vertexLayout)
+                .addVertexData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
                 .setIndexData(ByteBufferRegion(indexBuffer, 0, 72 * 4))
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
@@ -381,6 +424,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!, material!!),
                 pose = Pose(Vector3(-1f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, twoSubsetsEntity)
         createPanel(
             currentSession,
             "Two Subsets: One mesh with two subsets rendered on top of each other.",
@@ -412,14 +456,24 @@ class MeshEntityActivity : ComponentActivity() {
             )
 
         val bottomCubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setMeshBuffer(meshBuffer)
+            CustomMesh.FromMeshBufferBuilder(currentSession, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
+                .setBounds(
+                    BoundingBox.fromCenterAndHalfExtents(
+                        Vector3(0f, -0.2f, 0f),
+                        FloatSize3d(0.15f, 0.15f, 0.15f),
+                    )
+                )
                 .build()
         val topCubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setMeshBuffer(meshBuffer)
+            CustomMesh.FromMeshBufferBuilder(currentSession, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
+                .setBounds(
+                    BoundingBox.fromCenterAndHalfExtents(
+                        Vector3(0f, 0.2f, 0f),
+                        FloatSize3d(0.15f, 0.15f, 0.15f),
+                    )
+                )
                 .build()
         sharedBufferBottomEntity =
             MeshEntity.create(
@@ -428,6 +482,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!),
                 pose = Pose(Vector3(0f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, sharedBufferBottomEntity)
         sharedBufferTopEntity =
             MeshEntity.create(
                 currentSession,
@@ -435,6 +490,7 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!),
                 pose = Pose(Vector3(0f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, sharedBufferTopEntity)
         createPanel(
             currentSession,
             "Shared Buffer: Two meshes sharing the same buffer rendered on top of each other.",
@@ -458,11 +514,10 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndicesStrip(indexBuffer, 0)
 
         val cubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setVertexLayout(vertexLayout)
-                .addVertexBufferData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
+            CustomMesh.FromMeshDataBuilder(currentSession, vertexLayout)
+                .addVertexData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
                 .setIndexData(ByteBufferRegion(indexBuffer, 0, stripIndexCount * 4))
-                .setSingleSubsetTopology(MeshSubsetTopology.TRIANGLE_STRIP)
+                .setTopology(MeshSubsetTopology.TRIANGLE_STRIP)
                 .build()
         triangleStripEntity =
             MeshEntity.create(
@@ -471,54 +526,12 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!),
                 pose = Pose(Vector3(1f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, triangleStripEntity)
         createPanel(
             currentSession,
             "Triangle Strip: A cube rendered with TRIANGLE_STRIP.",
             Pose(Vector3(1f, 0.7f, -1.5f)),
         )
-    }
-
-    private fun createSwapMaterialsPanel(session: Session, pose: Pose) {
-        val composeView =
-            ComposeView(this).apply {
-                setViewTreeLifecycleOwner(this@MeshEntityActivity)
-                setViewTreeViewModelStoreOwner(this@MeshEntityActivity)
-                setViewTreeSavedStateRegistryOwner(this@MeshEntityActivity)
-                setContent {
-                    Surface(color = Color.White, modifier = Modifier.fillMaxSize()) {
-                        Column(
-                            modifier = Modifier.fillMaxSize().padding(16.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Button(
-                                onClick = {
-                                    twoMaterialsEntity?.let { entity ->
-                                        val materials = entity.materials
-                                        if (materials.size >= 2) {
-                                            val mat0 = materials[0]
-                                            val mat1 = materials[1]
-                                            entity.setMaterial(mat1, 0)
-                                            entity.setMaterial(mat0, 1)
-                                        }
-                                    }
-                                }
-                            ) {
-                                Text("Swap Materials", fontSize = 48.sp)
-                            }
-                        }
-                    }
-                }
-            }
-        val panel =
-            PanelEntity.create(
-                session,
-                view = composeView,
-                pixelDimensions = IntSize2d(1600, 400),
-                name = "Panel_SwapMaterials",
-                pose = pose,
-            )
-        panel.size = FloatSize2d(0.8f, 0.2f)
     }
 
     private fun createTest6_WigglingStick(currentSession: Session) {
@@ -682,9 +695,14 @@ class MeshEntityActivity : ComponentActivity() {
             )
 
         val stickMesh =
-            CustomMesh.Builder(currentSession)
-                .setMeshBuffer(meshBuffer)
+            CustomMesh.FromMeshBufferBuilder(currentSession, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, indexCount * 3))
+                .setBounds(
+                    BoundingBox.fromCenterAndHalfExtents(
+                        Vector3(0f, height / 2f, 0f),
+                        FloatSize3d(halfSize, height / 2f, halfSize),
+                    )
+                )
                 .build()
 
         wigglingStickEntity =
@@ -695,6 +713,7 @@ class MeshEntityActivity : ComponentActivity() {
                 boneCount = 3,
                 pose = Pose(Vector3(3f, -0.5f, -1.5f)),
             )
+        addMovableComponent(currentSession, wigglingStickEntity)
 
         createPanel(
             currentSession,
@@ -755,9 +774,8 @@ class MeshEntityActivity : ComponentActivity() {
         putCubeIndices(indexBuffer, 24)
 
         val cubeMesh =
-            CustomMesh.Builder(currentSession)
-                .setVertexLayout(vertexLayout)
-                .addVertexBufferData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
+            CustomMesh.FromMeshDataBuilder(currentSession, vertexLayout)
+                .addVertexData(ByteBufferRegion(vertexBuffer, 0, vertexCount * stride))
                 .setIndexData(ByteBufferRegion(indexBuffer, 0, 72 * 4))
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 36))
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
@@ -769,18 +787,27 @@ class MeshEntityActivity : ComponentActivity() {
                 listOf(material!!, material2!!),
                 pose = Pose(Vector3(2f, 0f, -1.5f)),
             )
+        addMovableComponent(currentSession, twoMaterialsEntity)
         createPanel(
             currentSession,
             "Two Materials: One mesh with two subsets using different materials.",
             Pose(Vector3(2f, 0.7f, -1.5f)),
-        )
-        createSwapMaterialsPanel(currentSession, Pose(Vector3(2f, -0.7f, -1.5f)))
-    }
-
-    @Composable
-    fun MeshEntityUI() {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Mesh Entity Test", color = Color.White)
+        ) {
+            Button(
+                onClick = {
+                    twoMaterialsEntity?.let { entity ->
+                        val materials = entity.materials
+                        if (materials.size >= 2) {
+                            val mat0 = materials[0]
+                            val mat1 = materials[1]
+                            entity.setMaterial(mat1, 0)
+                            entity.setMaterial(mat0, 1)
+                        }
+                    }
+                }
+            ) {
+                Text("Swap Materials", fontSize = 48.sp)
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import androidx.pdf.FakePdfDocument
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
 import androidx.pdf.PdfRect
 import androidx.pdf.annotation.models.ImagePdfObject
@@ -37,7 +38,7 @@ import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.selection.model.TextSelection
 import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
-import androidx.pdf.utils.isRequiredSdkExtensionAvailable
+import androidx.pdf.util.isImageSelectionAvailableInSdk
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNull
@@ -57,6 +58,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -73,6 +75,7 @@ class SelectionStateManagerTest {
     // TODO(b/385407478) replace with FakePdfDocument when we're able to share it more broadly
     private val pdfDocument =
         mock<PdfDocument> {
+            on { isFeatureSupported(feature = PdfFeature.TEXT_SELECTION) } doReturn true
             onBlocking { getSelectionBounds(any<Int>(), any<PointF>(), any<PointF>()) } doAnswer
                 { invocation ->
                     val startPoint = invocation.getArgument<PointF>(1)
@@ -124,7 +127,7 @@ class SelectionStateManagerTest {
 
     @Test
     fun maybeSelectImageAtPoint_imageSelectionDisabled() = runTest {
-        if (!isRequiredSdkExtensionAvailable(19)) return@runTest
+        if (!isImageSelectionAvailableInSdk()) return@runTest
 
         val pageNumber = 0
         val selectionPoint = PointF(100F, 200F)
@@ -140,7 +143,7 @@ class SelectionStateManagerTest {
 
     @Test
     fun maybeSelectImageAtPoint_imagePresent() = runTest {
-        if (!isRequiredSdkExtensionAvailable(19)) return@runTest
+        if (!isImageSelectionAvailableInSdk()) return@runTest
 
         val pageNumber = 0
         val selectionPoint = PointF(100F, 200F)
@@ -170,7 +173,7 @@ class SelectionStateManagerTest {
 
     @Test
     fun maybeSelectImageAtPoint_imageNotPresent() = runTest {
-        if (!isRequiredSdkExtensionAvailable(19)) return@runTest
+        if (!isImageSelectionAvailableInSdk()) return@runTest
 
         val pageNumber = -1
         val selectionPoint = PointF(100F, 200F)
@@ -188,7 +191,7 @@ class SelectionStateManagerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun maybeSelectImageAtPoint_imageAndTextBothPresent() = runTest {
-        if (!isRequiredSdkExtensionAvailable(19)) return@runTest
+        if (!isImageSelectionAvailableInSdk()) return@runTest
 
         val pageNumber = 10
         val selectionPoint = PointF(150F, 265F)
@@ -454,7 +457,10 @@ class SelectionStateManagerTest {
 
         // Drag the start handle by 5px in both x and y
         val newStartPosition =
-            PointF(insideStartHandle).apply { offset(/* dx= */ 5F, /* dy= */ 5F) }
+            PointF(insideStartHandle.x, insideStartHandle.y).apply {
+                offset(/* dx= */ 5F, /* dy= */ 5F)
+            }
+
         assertThat(
                 selectionStateManager.maybeDragSelection(
                     MotionEvent.ACTION_MOVE,

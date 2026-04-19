@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
@@ -23,10 +24,9 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * An {@link android.app.Activity} to demonstrate functionality to selectively enable/disable Safe
- * Browsing for a subset of the application's {@link WebView}s. This shows three WebViews, to show
- * Safe Browsing enabled, disabled, and inheriting the default setting (see inline comment for how
- * this works).
+ * An [Activity] to demonstrate functionality to selectively enable/disable Safe Browsing for a
+ * subset of the application's [WebView]s. This shows three WebViews, to show Safe Browsing enabled,
+ * disabled, and inheriting the default setting (see inline comment for how this works).
  */
 class PerWebViewEnableActivity : AppCompatActivity() {
 

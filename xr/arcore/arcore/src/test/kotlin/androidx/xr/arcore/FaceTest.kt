@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 
 package androidx.xr.arcore
 
-import android.content.ContentResolver
+import android.Manifest.permission.CAMERA
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.rule.GrantPermissionRule
 import androidx.xr.arcore.runtime.Mesh
-import androidx.xr.arcore.testing.FakeLifecycleManager
-import androidx.xr.arcore.testing.FakePerceptionManager
-import androidx.xr.arcore.testing.FakePerceptionRuntime
-import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
-import androidx.xr.arcore.testing.FakeRuntimeAnchor
-import androidx.xr.arcore.testing.FakeRuntimeFace
+import androidx.xr.arcore.runtime.TrackingState
+import androidx.xr.arcore.testing.ArCoreTestRule
+import androidx.xr.arcore.testing.TestFace
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.manifest.FACE_TRACKING
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -41,15 +37,12 @@ import java.nio.ShortBuffer
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -58,20 +51,20 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class FaceTest {
-    private lateinit var runtime: FakePerceptionRuntime
-    private lateinit var xrResourcesManager: XrResourcesManager
+    companion object {
+        const val BLEND_SHAPE_COUNT = 68
+    }
+
+    @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
+
     private lateinit var testDispatcher: TestDispatcher
     private lateinit var testScope: TestScope
     private lateinit var session: Session
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
-
-    @get:Rule
-    val grantPermissionRule = GrantPermissionRule.grant("android.permission.FACE_TRACKING")
-
-    private lateinit var mockContentResolver: ContentResolver
 
     @Before
     fun setUp() {
@@ -80,83 +73,37 @@ class FaceTest {
 
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
-        xrResourcesManager = XrResourcesManager()
-        mockContentResolver = activity.contentResolver
+        activityController.create().start().resume()
 
-        val shadowApplication = shadowOf(activity.application)
-        shadowApplication.grantPermissions("android.permission.FACE_TRACKING")
-        FakeLifecycleManager.TestPermissions.forEach { permission ->
-            shadowApplication.grantPermissions(permission)
-        }
-
-        FakePerceptionRuntimeFactory.hasCreatePermission = true
-
-        activityController.create()
+        shadowOf(activity.application).grantPermissions(FACE_TRACKING, CAMERA)
 
         session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
-        runtime = session.runtimes.first() as FakePerceptionRuntime
-        xrResourcesManager.lifecycleManager = session.perceptionRuntime.lifecycleManager
-
-        FakeRuntimeAnchor.anchorsCreatedCount = 0
-    }
-
-    @After
-    fun tearDown() {
-        xrResourcesManager.clear()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun getUserFace_returnsFaceWithUpdatedTrackingStateAndBlendShapes() {
+        session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         runTest(testDispatcher) {
-            session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
-            val perceptionManager =
-                session.perceptionRuntime.perceptionManager as FakePerceptionManager
-            val userFace = Face.getUserFace(session)
-            val runtimeFace = perceptionManager.userFace!! as FakeRuntimeFace
-            val expectedBlendShapeValues = floatArrayOf(0.1f, 0.2f, 0.3f)
-            val expectedConfidenceValues = floatArrayOf(0.4f, 0.5f, 0.6f)
-            check(userFace != null)
-            check(userFace.state.value.trackingState != TrackingState.TRACKING)
-            check(!userFace.state.value.blendShapeValues.contentEquals(expectedBlendShapeValues))
-            check(!userFace.state.value.confidenceValues.contentEquals(expectedConfidenceValues))
-            runtimeFace.trackingState = TrackingState.TRACKING.toRuntimeTrackingState()
-            runtimeFace.blendShapeValues = expectedBlendShapeValues
-            runtimeFace.confidenceValues = expectedConfidenceValues
+            val underTest = Face.getUserFace(session)
+            check(underTest != null)
 
-            activityController.resume()
+            assertThat(underTest.state.value.blendShapeValues).isNotNull()
+            assertThat(underTest.state.value.blendShapeValues!!.all { it == 0f }).isTrue()
+            assertThat(underTest.state.value.confidenceValues).isNotNull()
+            assertThat(underTest.state.value.confidenceValues!!.all { it == 1f }).isTrue()
+
+            val expectedBlendShapes = MutableList(BLEND_SHAPE_COUNT) { 0.0f }
+            expectedBlendShapes.forEachIndexed { i, _ ->
+                expectedBlendShapes[i] = i / BLEND_SHAPE_COUNT.toFloat()
+            }
+            arCoreTestRule.face.blendShapeValues = expectedBlendShapes.toList()
             advanceUntilIdle()
-            activityController.pause()
 
-            assertThat(userFace.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
-            assertThat(userFace.state.value.blendShapeValues).isEqualTo(expectedBlendShapeValues)
-            assertThat(userFace.state.value.confidenceValues).isEqualTo(expectedConfidenceValues)
+            assertThat(underTest.state.value.blendShapeValues)
+                .isEqualTo(expectedBlendShapes.toFloatArray())
         }
     }
-
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalFaceApi::class)
-    @Test
-    fun collect_collectReturnsFaceMeshes() =
-        runTest(testDispatcher) {
-            session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-            val perceptionManager = runtime.perceptionManager
-            val runtimeFace = FakeRuntimeFace()
-            perceptionManager.addTrackable(runtimeFace)
-            activityController.resume()
-            advanceUntilIdle()
-            activityController.pause()
-            var underTest = emptyList<Face>()
-
-            val job =
-                backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
-                    underTest = Face.subscribe(session).first().toList()
-                }
-            advanceUntilIdle()
-
-            assertThat(underTest.size).isEqualTo(1)
-            assertThat(underTest.first().runtimeFace).isEqualTo(runtimeFace)
-            job.cancel()
-        }
 
     @Test
     fun getUserFace_faceTrackingDisabled_throwsIllegalStateException() {
@@ -166,121 +113,280 @@ class FaceTest {
     }
 
     @Test
-    fun getUserFace_stateMatchesRuntimeFace() = runBlocking {
-        session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
-        val runtimeFace = FakeRuntimeFace()
-        val underTest = Face(runtimeFace, xrResourcesManager)
-        val expectedBlendShapeValues = floatArrayOf(0.1f, 0.2f, 0.3f)
-        val expectedConfidenceValues = floatArrayOf(0.4f, 0.5f, 0.6f)
-        check(underTest.state.value.trackingState != TrackingState.TRACKING)
-        check(!underTest.state.value.blendShapeValues.contentEquals(expectedBlendShapeValues))
-        check(!underTest.state.value.confidenceValues.contentEquals(expectedConfidenceValues))
-        runtimeFace.trackingState = TrackingState.TRACKING.toRuntimeTrackingState()
-        runtimeFace.blendShapeValues = expectedBlendShapeValues
-        runtimeFace.confidenceValues = expectedConfidenceValues
+    fun getUserFace_faceTrackingConfiguredForMeshes_throwsIllegalStateException() {
+        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
 
-        underTest.update()
-
-        assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
-        assertThat(underTest.state.value.blendShapeValues).isEqualTo(expectedBlendShapeValues)
-        assertThat(underTest.state.value.confidenceValues).isEqualTo(expectedConfidenceValues)
-        assertThat(underTest.state.value.blendShapes.keys.size)
-            .isEqualTo(expectedBlendShapeValues.size)
-        assertThat(underTest.state.value.blendShapes.values.size)
-            .isEqualTo(expectedBlendShapeValues.size)
+        assertFailsWith<IllegalStateException> { Face.getUserFace(session) }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalFaceApi::class)
     @Test
-    fun update_trackingStateMatchesRuntime() = runBlocking {
-        session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
-        val runtimeFace = FakeRuntimeFace()
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap[runtimeFace] as Face
-        check(
-            underTest.state.value.trackingState.toRuntimeTrackingState() ==
-                runtimeFace.trackingState
-        )
+    fun subscribe_collectReturnsFaceMesh() {
+        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+        runTest(testDispatcher) {
+            val testFace = TestFace()
+            arCoreTestRule.addTrackables(testFace)
+            advanceUntilIdle()
 
-        runtimeFace.trackingState = TrackingState.TRACKING.toRuntimeTrackingState()
-        underTest.update()
+            var underTest: List<Face> = listOf()
+            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                Face.subscribe(session).collect { underTest = it.toList() }
+            }
 
-        assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
+            assertThat(underTest).isNotEmpty()
+        }
     }
 
     @OptIn(ExperimentalFaceApi::class)
     @Test
-    fun update_centerPoseMatchesRuntime() = runBlocking {
-        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-        val runtimeFace = FakeRuntimeFace()
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap[runtimeFace] as Face
-        runtimeFace.centerPose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
+    fun subscribe_faceTrackingDisabled_throwsIllegalStateException() {
+        session.configure(Config(faceTracking = FaceTrackingMode.DISABLED))
 
-        underTest.update()
-
-        assertThat(underTest.state.value.centerPose).isEqualTo(runtimeFace.centerPose)
-    }
-
-    @Test
-    fun update_noseTipPoseMatchesRuntime() = runBlocking {
-        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-        val runtimeFace = FakeRuntimeFace()
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap[runtimeFace] as Face
-
-        val newPose = Pose(Vector3(9f, 9f, 9f), Quaternion(9f, 9f, 9f, 1f))
-        runtimeFace.noseTipPose = newPose
-        underTest.update()
-
-        assertThat(underTest.state.value.noseTipPose).isEqualTo(newPose)
-    }
-
-    @Test
-    fun update_foreheadLeftPoseMatchesRuntime() = runBlocking {
-        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-        val runtimeFace = FakeRuntimeFace()
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap[runtimeFace] as Face
-
-        val newPose = Pose(Vector3(9f, 9f, 9f), Quaternion(9f, 9f, 9f, 1f))
-        runtimeFace.foreheadLeftPose = newPose
-        underTest.update()
-
-        assertThat(underTest.state.value.foreheadLeftPose).isEqualTo(newPose)
-    }
-
-    @Test
-    fun update_foreheadRightPoseMatchesRuntime() = runBlocking {
-        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-        val runtimeFace = FakeRuntimeFace()
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap[runtimeFace] as Face
-
-        val newPose = Pose(Vector3(9f, 9f, 9f), Quaternion(9f, 9f, 9f, 1f))
-        runtimeFace.foreheadRightPose = newPose
-        underTest.update()
-
-        assertThat(underTest.state.value.foreheadRightPose).isEqualTo(newPose)
+        assertFailsWith<IllegalStateException> { Face.subscribe(session) }
     }
 
     @OptIn(ExperimentalFaceApi::class)
     @Test
-    fun update_mesh_matchesRuntime() = runBlocking {
+    fun subscribe_faceTrackingConfiguredForBlendShapes_throwsIllegalStateException() {
+        session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
+
+        assertFailsWith<IllegalStateException> { Face.subscribe(session) }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun getUserFace_stateMatchesRuntimeFace() {
+        session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
+        runTest(testDispatcher) {
+            val underTest = Face.getUserFace(session)
+            check(underTest != null)
+            arCoreTestRule.face.isValid = true
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
+                .isEqualTo(TrackingState.TRACKING)
+
+            activityController.pause()
+            advanceUntilIdle()
+            session.configure(Config(faceTracking = FaceTrackingMode.DISABLED))
+            advanceUntilIdle()
+            activityController.resume()
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
+                .isEqualTo(TrackingState.STOPPED)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun blendShapeArray_invalidValues_doesNotUpdateState() {
+        session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
+        runTest(testDispatcher) {
+            val underTest = Face.getUserFace(session)
+            check(underTest != null)
+
+            val expectedBlendShapes = MutableList(BLEND_SHAPE_COUNT) { 0.0f }
+            expectedBlendShapes.forEachIndexed { i, _ ->
+                expectedBlendShapes[i] = i / BLEND_SHAPE_COUNT.toFloat()
+            }
+            arCoreTestRule.face.blendShapeValues = expectedBlendShapes
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.blendShapeValues)
+                .isEqualTo(expectedBlendShapes.toFloatArray())
+
+            var invalidBlendShapeValues = List(BLEND_SHAPE_COUNT) { 5f }
+            arCoreTestRule.face.blendShapeValues = invalidBlendShapeValues
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.blendShapeValues)
+                .isEqualTo(expectedBlendShapes.toFloatArray())
+
+            invalidBlendShapeValues = listOf()
+            arCoreTestRule.face.blendShapeValues = invalidBlendShapeValues
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.blendShapeValues)
+                .isEqualTo(expectedBlendShapes.toFloatArray())
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun confidenceArray_invalidValues_doesNotUpdateState() {
+        session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
+        runTest(testDispatcher) {
+            val underTest = Face.getUserFace(session)
+            check(underTest != null)
+
+            val expectedConfidences = listOf(0f, .3333f, .6666f)
+            arCoreTestRule.face.confidenceValues = expectedConfidences
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.confidenceValues)
+                .isEqualTo(expectedConfidences.toFloatArray())
+
+            var invalidConfidences = listOf(5f, 5f, 5f)
+            arCoreTestRule.face.confidenceValues = invalidConfidences
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.confidenceValues)
+                .isEqualTo(expectedConfidences.toFloatArray())
+
+            invalidConfidences = listOf()
+            arCoreTestRule.face.confidenceValues = invalidConfidences
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.confidenceValues)
+                .isEqualTo(expectedConfidences.toFloatArray())
+        }
+    }
+
+    @OptIn(ExperimentalFaceApi::class)
+    @Test
+    fun update_trackingStateMatchesRuntime() {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-        val runtimeFace = FakeRuntimeFace()
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap[runtimeFace] as Face
-        runtimeFace.mesh =
-            Mesh(
-                ShortBuffer.allocate(1).put(11),
-                FloatBuffer.allocate(1).put(12f),
-                FloatBuffer.allocate(1).put(13f),
-                FloatBuffer.allocate(1).put(14f),
-            )
+        runTest(testDispatcher) {
+            val testFace = TestFace()
+            arCoreTestRule.addTrackables(testFace)
+            advanceUntilIdle()
 
-        underTest.update()
+            var underTest: Face? = null
+            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                Face.subscribe(session).collect { underTest = it.first() }
+            }
+            check(underTest != null)
 
-        assertThat(underTest.state.value.mesh?.triangleIndices)
-            .isEqualTo(runtimeFace.mesh.triangleIndices)
+            assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
+                .isEqualTo(TrackingState.TRACKING)
+
+            testFace.isVisible = false
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
+                .isEqualTo(TrackingState.PAUSED)
+        }
+    }
+
+    @OptIn(ExperimentalFaceApi::class)
+    @Test
+    fun update_centerPoseMatchesRuntime() {
+        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+        runTest(testDispatcher) {
+            val testFace = TestFace()
+            arCoreTestRule.addTrackables(testFace)
+            advanceUntilIdle()
+
+            var underTest: Face? = null
+            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                Face.subscribe(session).collect { underTest = it.first() }
+            }
+
+            val expectedPose = Pose(Vector3(.5f, .6f, .7f), Quaternion(.1f, .2f, .3f, .4f))
+            testFace.centerPose = expectedPose
+            advanceUntilIdle()
+
+            check(underTest != null)
+            assertThat(underTest.state.value.centerPose).isEqualTo(expectedPose)
+        }
+    }
+
+    @OptIn(ExperimentalFaceApi::class)
+    @Test
+    fun update_noseTipPoseMatchesRuntime() {
+        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+        runTest(testDispatcher) {
+            val testFace = TestFace()
+            arCoreTestRule.addTrackables(testFace)
+            advanceUntilIdle()
+
+            var underTest: Face? = null
+            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                Face.subscribe(session).collect { underTest = it.first() }
+            }
+
+            val expectedPose = Pose(Vector3(.5f, .6f, .7f), Quaternion(.1f, .2f, 3f, .4f))
+            testFace.noseTipPose = expectedPose
+            advanceUntilIdle()
+
+            check(underTest != null)
+            assertThat(underTest.state.value.noseTipPose).isEqualTo(expectedPose)
+        }
+    }
+
+    @OptIn(ExperimentalFaceApi::class)
+    @Test
+    fun update_foreheadLeftPoseMatchesRuntime() {
+        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+        runTest(testDispatcher) {
+            val testFace = TestFace()
+            arCoreTestRule.addTrackables(testFace)
+            advanceUntilIdle()
+
+            var underTest: Face? = null
+            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                Face.subscribe(session).collect { underTest = it.first() }
+            }
+
+            val expectedPose = Pose(Vector3(.5f, .6f, .7f), Quaternion(.1f, .2f, 3f, .4f))
+            testFace.foreheadLeftPose = expectedPose
+            advanceUntilIdle()
+
+            check(underTest != null)
+            assertThat(underTest.state.value.foreheadLeftPose).isEqualTo(expectedPose)
+        }
+    }
+
+    @OptIn(ExperimentalFaceApi::class)
+    @Test
+    fun update_foreheadRightPoseMatchesRuntime() {
+        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+        runTest(testDispatcher) {
+            val testFace = TestFace()
+            arCoreTestRule.addTrackables(testFace)
+            advanceUntilIdle()
+
+            var underTest: Face? = null
+            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                Face.subscribe(session).collect { underTest = it.first() }
+            }
+
+            val expectedPose = Pose(Vector3(.5f, .6f, .7f), Quaternion(.1f, .2f, 3f, .4f))
+            testFace.foreheadRightPose = expectedPose
+            advanceUntilIdle()
+
+            check(underTest != null)
+            assertThat(underTest.state.value.foreheadRightPose).isEqualTo(expectedPose)
+        }
+    }
+
+    @OptIn(ExperimentalFaceApi::class)
+    @Test
+    fun update_mesh_matchesRuntime() {
+        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
+        runTest(testDispatcher) {
+            val testFace = TestFace()
+            arCoreTestRule.addTrackables(testFace)
+            advanceUntilIdle()
+
+            var underTest: Face? = null
+            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                Face.subscribe(session).collect { underTest = it.first() }
+            }
+
+            val expectedMesh =
+                Mesh(
+                    ShortBuffer.allocate(1).put(11),
+                    FloatBuffer.allocate(1).put(12f),
+                    FloatBuffer.allocate(1).put(13f),
+                    FloatBuffer.allocate(1).put(14f),
+                )
+            testFace.mesh = expectedMesh
+            advanceUntilIdle()
+
+            check(underTest != null)
+            assertThat(underTest.state.value.mesh).isEqualTo(expectedMesh)
+        }
     }
 }

@@ -550,9 +550,7 @@ private fun ToggleFloatingActionButton(
                     value = checked,
                     onValueChange = onCheckedChange,
                     interactionSource = null,
-                    indication =
-                        @OptIn(ExperimentalMaterial3Api::class)
-                        ripple(radius = fabRippleRadius, focusRingShape = shape),
+                    indication = ripple(radius = fabRippleRadius, focusRingShape = shape),
                 )
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)

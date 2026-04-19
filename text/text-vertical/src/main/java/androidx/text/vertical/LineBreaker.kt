@@ -64,7 +64,7 @@ import kotlin.math.min
 
 internal object LineBreaker {
     /**
-     * Represents lines of text that has been laid out.
+     * Represents lines of text that have been laid out.
      *
      * @property width The total width of the line.
      * @property lineLeftSide The distance from each line left to each line baseline.
@@ -115,7 +115,7 @@ internal object LineBreaker {
     }
 
     /**
-     * Performs a line break and layouts each lines.
+     * Performs line breaking and lays out each line.
      *
      * @param text The text to be processed.
      * @param start The inclusive starting index of the range.
@@ -242,12 +242,12 @@ private data class Context(
         currentLineRuns.add(createLayoutRun(text, start, end, paint, orientation))
 
     /**
-     * Iterate through each words within a specified range of a CharSequence.
+     * Iterates through each word within a specified range of a CharSequence.
      *
      * @param start The inclusive starting index of the range.
      * @param end The exclusive ending index of the range.
-     * @param advances An array advances.
-     * @param consumer A callback function that is called for each words. It receives three
+     * @param advances An array of advances.
+     * @param consumer A callback function that is called for each word. It receives three
      *   parameters:
      *     - The inclusive start index of the word.
      *     - The exclusive end index of the word.

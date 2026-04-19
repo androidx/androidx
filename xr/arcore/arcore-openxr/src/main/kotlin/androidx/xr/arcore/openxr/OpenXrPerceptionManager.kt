@@ -20,6 +20,7 @@ import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.AnchorRuntimeFailureException
+import androidx.xr.arcore.runtime.ConversationState
 import androidx.xr.arcore.runtime.DepthMap
 import androidx.xr.arcore.runtime.Eye
 import androidx.xr.arcore.runtime.Face
@@ -150,6 +151,9 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
 
     // Mono depth map is not supported in OpenXR.
     override val monoDepthMap: DepthMap? = null
+
+    // Conversation scene signal is not supported in OpenXR.
+    override val conversationSceneSignal: ConversationState? = null
 
     internal var depthEstimationMode = DepthEstimationMode.DISABLED
 

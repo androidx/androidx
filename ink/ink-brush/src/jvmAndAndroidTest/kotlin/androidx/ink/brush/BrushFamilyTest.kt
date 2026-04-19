@@ -16,6 +16,21 @@
 
 package androidx.ink.brush
 
+import androidx.ink.brush.BrushPaint.TextureLayer
+import androidx.ink.brush.behavior.BinaryOpNode
+import androidx.ink.brush.behavior.BinaryOpNode.BinaryOp
+import androidx.ink.brush.behavior.ConstantNode
+import androidx.ink.brush.behavior.DampingNode
+import androidx.ink.brush.behavior.EasingFunction
+import androidx.ink.brush.behavior.IntegralNode
+import androidx.ink.brush.behavior.OutOfRange
+import androidx.ink.brush.behavior.ProgressDomain
+import androidx.ink.brush.behavior.ResponseNode
+import androidx.ink.brush.behavior.SourceNode
+import androidx.ink.brush.behavior.SourceNode.Source
+import androidx.ink.brush.behavior.TargetNode
+import androidx.ink.brush.behavior.TargetNode.Target
+import androidx.ink.brush.behavior.ToolTypeFilterNode
 import androidx.ink.nativeloader.UsedByNative
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -115,25 +130,25 @@ class BrushFamilyTest {
     }
 
     @Test
+    fun hasFallbacks_returnsFalseByDefault() {
+        assertThat(BrushFamily().hasFallbacks).isFalse()
+    }
+
+    @Test
     fun calculateMinimumRequiredVersion_withIntegralNode_returnsOne() {
         val behavior =
             BrushBehavior(
-                BrushBehavior.TargetNode(
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                TargetNode(
+                    target = Target.WIDTH_MULTIPLIER,
                     targetModifierRangeStart = 1f,
                     targetModifierRangeEnd = 2f,
                     input =
-                        BrushBehavior.IntegralNode(
-                            integrateOver = BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                        IntegralNode(
+                            integrateOver = ProgressDomain.TIME_IN_SECONDS,
                             integralValueRangeStart = 0f,
                             integralValueRangeEnd = 1f,
-                            integralOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                            input =
-                                BrushBehavior.SourceNode(
-                                    BrushBehavior.Source.NORMALIZED_PRESSURE,
-                                    0f,
-                                    1f,
-                                ),
+                            integralOutOfRangeBehavior = OutOfRange.CLAMP,
+                            input = SourceNode(Source.NORMALIZED_PRESSURE, 0f, 1f),
                         ),
                 )
             )
@@ -146,15 +161,15 @@ class BrushFamilyTest {
     fun calculateMinimumRequiredVersion_withBinaryOpMin_returnsOne() {
         val behavior =
             BrushBehavior(
-                BrushBehavior.TargetNode(
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                TargetNode(
+                    target = Target.WIDTH_MULTIPLIER,
                     targetModifierRangeStart = 1f,
                     targetModifierRangeEnd = 2f,
                     input =
-                        BrushBehavior.BinaryOpNode(
-                            operation = BrushBehavior.BinaryOp.MIN,
-                            firstInput = BrushBehavior.ConstantNode(1f),
-                            secondInput = BrushBehavior.ConstantNode(2f),
+                        BinaryOpNode(
+                            operation = BinaryOp.MIN,
+                            firstInput = ConstantNode(1f),
+                            secondInput = ConstantNode(2f),
                         ),
                 )
             )
@@ -167,15 +182,15 @@ class BrushFamilyTest {
     fun calculateMinimumRequiredVersion_withBinaryOpSum_returnsZero() {
         val behavior =
             BrushBehavior(
-                BrushBehavior.TargetNode(
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                TargetNode(
+                    target = Target.WIDTH_MULTIPLIER,
                     targetModifierRangeStart = 1f,
                     targetModifierRangeEnd = 2f,
                     input =
-                        BrushBehavior.BinaryOpNode(
-                            operation = BrushBehavior.BinaryOp.SUM,
-                            firstInput = BrushBehavior.ConstantNode(1f),
-                            secondInput = BrushBehavior.ConstantNode(2f),
+                        BinaryOpNode(
+                            operation = BinaryOp.SUM,
+                            firstInput = ConstantNode(1f),
+                            secondInput = ConstantNode(2f),
                         ),
                 )
             )
@@ -187,13 +202,13 @@ class BrushFamilyTest {
     fun calculateMinimumRequiredVersion_withTimeSinceStrokeEnd_returnsOne() {
         val behavior =
             BrushBehavior(
-                BrushBehavior.TargetNode(
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                TargetNode(
+                    target = Target.WIDTH_MULTIPLIER,
                     targetModifierRangeStart = 1f,
                     targetModifierRangeEnd = 2f,
                     input =
-                        BrushBehavior.SourceNode(
-                            source = BrushBehavior.Source.TIME_SINCE_STROKE_END_IN_SECONDS,
+                        SourceNode(
+                            source = Source.TIME_SINCE_STROKE_END_IN_SECONDS,
                             sourceValueRangeStart = 0f,
                             sourceValueRangeEnd = 1f,
                         ),
@@ -206,8 +221,7 @@ class BrushFamilyTest {
 
     @Test
     fun inputModelToString_returnsExpectedValues() {
-        assertThat(BrushFamily.EXPERIMENTAL_NAIVE_MODEL.toString())
-            .isEqualTo("ExperimentalNaiveModel")
+        assertThat(BrushFamily.PASSTHROUGH_MODEL.toString()).isEqualTo("PassthroughModel")
         assertThat(
                 BrushFamily.SlidingWindowModel(
                         windowDurationMillis = 47,
@@ -232,8 +246,7 @@ class BrushFamilyTest {
                     upsamplingFrequencyHz = 150,
                 )
             )
-        assertThat(BrushFamily.EXPERIMENTAL_NAIVE_MODEL)
-            .isEqualTo(BrushFamily.EXPERIMENTAL_NAIVE_MODEL)
+        assertThat(BrushFamily.PASSTHROUGH_MODEL).isEqualTo(BrushFamily.PASSTHROUGH_MODEL)
 
         assertThat(
                 BrushFamily.SlidingWindowModel(
@@ -265,8 +278,8 @@ class BrushFamilyTest {
                     upsamplingFrequencyHz = 150,
                 )
             )
-            .isNotEqualTo(BrushFamily.EXPERIMENTAL_NAIVE_MODEL)
-        assertThat(BrushFamily.EXPERIMENTAL_NAIVE_MODEL)
+            .isNotEqualTo(BrushFamily.PASSTHROUGH_MODEL)
+        assertThat(BrushFamily.PASSTHROUGH_MODEL)
             .isNotEqualTo(
                 BrushFamily.SlidingWindowModel(
                     windowDurationMillis = 47,
@@ -331,27 +344,26 @@ class BrushFamilyTest {
     /** Brush behavior with every field different from default values. */
     private val customBehavior =
         BrushBehavior(
-            BrushBehavior.TargetNode(
-                target = BrushBehavior.Target.HEIGHT_MULTIPLIER,
+            TargetNode(
+                target = Target.HEIGHT_MULTIPLIER,
                 targetModifierRangeStart = 1.1f,
                 targetModifierRangeEnd = 1.7f,
                 input =
-                    BrushBehavior.DampingNode(
-                        dampingSource = BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                    DampingNode(
+                        dampingSource = ProgressDomain.TIME_IN_SECONDS,
                         dampingGap = 0.001f,
                         input =
-                            BrushBehavior.ResponseNode(
+                            ResponseNode(
                                 responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
                                 input =
-                                    BrushBehavior.ToolTypeFilterNode(
+                                    ToolTypeFilterNode(
                                         enabledToolTypes = setOf(InputToolType.STYLUS),
                                         input =
-                                            BrushBehavior.SourceNode(
-                                                source = BrushBehavior.Source.TILT_IN_RADIANS,
+                                            SourceNode(
+                                                source = Source.TILT_IN_RADIANS,
                                                 sourceValueRangeStart = 0.2f,
                                                 sourceValueRangeEnd = .8f,
-                                                sourceOutOfRangeBehavior =
-                                                    BrushBehavior.OutOfRange.MIRROR,
+                                                sourceOutOfRangeBehavior = OutOfRange.MIRROR,
                                             ),
                                     ),
                             ),
@@ -380,7 +392,7 @@ class BrushFamilyTest {
     private val customPaint =
         BrushPaint(
             listOf(
-                BrushPaint.TextureLayer(
+                TextureLayer(
                     clientTextureId = "test-one",
                     sizeX = 123.45F,
                     sizeY = 678.90F,
@@ -391,11 +403,11 @@ class BrushFamilyTest {
                     animationRows = 3,
                     animationColumns = 4,
                     animationDurationMillis = 5000,
-                    sizeUnit = BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
-                    origin = BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
-                    mapping = BrushPaint.TextureMapping.TILING,
+                    sizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
+                    origin = TextureLayer.Origin.STROKE_SPACE_ORIGIN,
+                    mapping = TextureLayer.Mapping.TILING,
                 ),
-                BrushPaint.TextureLayer(
+                TextureLayer(
                     clientTextureId = "test-two",
                     sizeX = 256F,
                     sizeY = 256F,
@@ -406,9 +418,9 @@ class BrushFamilyTest {
                     animationRows = 3,
                     animationColumns = 4,
                     animationDurationMillis = 5000,
-                    sizeUnit = BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
-                    origin = BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
-                    mapping = BrushPaint.TextureMapping.TILING,
+                    sizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
+                    origin = TextureLayer.Origin.STROKE_SPACE_ORIGIN,
+                    mapping = TextureLayer.Mapping.TILING,
                 ),
             )
         )

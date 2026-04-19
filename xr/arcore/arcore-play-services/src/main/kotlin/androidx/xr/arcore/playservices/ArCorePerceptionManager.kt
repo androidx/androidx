@@ -20,6 +20,7 @@ import android.view.Surface
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorNotTrackingException
+import androidx.xr.arcore.runtime.ConversationState
 import androidx.xr.arcore.runtime.DepthMap
 import androidx.xr.arcore.runtime.Eye
 import androidx.xr.arcore.runtime.Face
@@ -203,6 +204,8 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
 
     override val monoDepthMap: DepthMap?
         get() = xrResources.depthMap
+
+    override val conversationSceneSignal: ConversationState? = null
 
     /**
      * Updates the perception manager.

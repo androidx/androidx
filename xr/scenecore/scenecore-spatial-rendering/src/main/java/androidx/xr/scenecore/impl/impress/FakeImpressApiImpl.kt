@@ -257,6 +257,14 @@ public class FakeImpressApiImpl : ImpressApi {
         throw IllegalArgumentException("not implemented")
     }
 
+    override fun setCustomMeshReformAffordanceEnabled(
+        node: ImpressNode,
+        enableAffordance: Boolean,
+        systemMovable: Boolean,
+    ) {
+        throw IllegalArgumentException("not implemented")
+    }
+
     override suspend fun animateGltfModel(
         impressNode: ImpressNode,
         animationName: String?,
@@ -1150,6 +1158,7 @@ public class FakeImpressApiImpl : ImpressApi {
         customMeshHandle: Long,
         materialHandles: LongArray,
         boneCount: Int,
+        enableCollider: Boolean,
     ): Int {
         return nextNodeId++
     }

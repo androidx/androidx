@@ -206,10 +206,7 @@ internal abstract class SnapshotFlowManagerImpl internal constructor() {
      * This must be called by a [snapshotFlow] when it is in the process of exiting to dispose of
      * all subscriptions associated with it.
      */
-    internal fun reportSnapshotFlowCancellation(channel: SendChannel<Unit>) {
-        clearWatchSet(channel)
-        commitSubscriptionChanges()
-    }
+    internal abstract fun reportSnapshotFlowCancellation(channel: SendChannel<Unit>)
 
     /**
      * Disposes of this manager. Disposing of a manager disconnects it from the [Snapshot] system,
@@ -335,6 +332,12 @@ private class SingleSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() 
         }
     }
 
+    override fun reportSnapshotFlowCancellation(channel: SendChannel<Unit>) {
+        subscribedChannel = null
+        clearWatchSet(channel)
+        commitSubscriptionChanges()
+    }
+
     override fun dispose() {
         unregisterApplyObserver.dispose()
         clearWatchSetImpl()
@@ -445,6 +448,12 @@ private class MultiSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() {
             }
         }
         pendingChanges.clear()
+    }
+
+    override fun reportSnapshotFlowCancellation(channel: SendChannel<Unit>) {
+        readObserverCache.remove(channel)
+        clearWatchSet(channel)
+        commitSubscriptionChanges()
     }
 
     override fun dispose() {

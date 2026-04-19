@@ -18,6 +18,7 @@ package androidx.xr.arcore.testing.internal
 
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
+import androidx.xr.arcore.runtime.ConversationState
 import androidx.xr.arcore.runtime.HitResult
 import androidx.xr.arcore.runtime.PerceptionManager
 import androidx.xr.arcore.runtime.Trackable
@@ -50,6 +51,7 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     private val fakeLeftDepthMap = FakeRuntimeDepthMap()
     private val fakeRightDepthMap = FakeRuntimeDepthMap()
     private val fakeMonoDepthMap = FakeRuntimeDepthMap()
+    private val fakeConversationSceneSignal = ConversationState(0f, 0)
 
     override val trackables: MutableList<Trackable> = mutableListOf()
 
@@ -79,6 +81,9 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
 
     override val userFace: androidx.xr.arcore.runtime.Face
         get() = fakeUserFace
+
+    override val conversationSceneSignal: androidx.xr.arcore.runtime.ConversationState
+        get() = fakeConversationSceneSignal
 
     override val geospatial: androidx.xr.arcore.runtime.Geospatial
         get() = fakeGeospatial

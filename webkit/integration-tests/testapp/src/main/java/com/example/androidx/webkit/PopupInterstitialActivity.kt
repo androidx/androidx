@@ -16,9 +16,11 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.CheckBox
@@ -28,9 +30,9 @@ import androidx.core.text.HtmlCompat
 import androidx.webkit.WebViewCompat
 
 /**
- * An {@link Activity} to demonstrate one way to implement a custom Safe Browsing interstitial. This
+ * An [Activity] to demonstrate one way to implement a custom Safe Browsing interstitial. This
  * should not be launched by itself (thus, it's not exported), but should be launched in response to
- * a Safe Browsing event in a {@link android.webkit.WebView}.
+ * a Safe Browsing event in a [WebView].
  *
  * @see CustomInterstitialActivity
  */

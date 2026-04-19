@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
+import androidx.xr.arcore.runtime.ConversationState
 import androidx.xr.arcore.runtime.DepthMap
 import androidx.xr.arcore.runtime.Eye
 import androidx.xr.arcore.runtime.Face
@@ -87,6 +88,8 @@ public class FakePerceptionManager : PerceptionManager, AnchorHolder {
     override val rightDepthMap: DepthMap? = FakeRuntimeDepthMap()
 
     override val monoDepthMap: DepthMap? = FakeRuntimeDepthMap()
+
+    override val conversationSceneSignal: ConversationState? = null
 
     private val hitResults = mutableListOf<HitResult>()
     private val anchorUuids = mutableListOf<UUID>()

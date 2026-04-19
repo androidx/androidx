@@ -19,11 +19,21 @@ package androidx.ink.storage
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.util.Base64
+import androidx.ink.brush.BrushBehavior
 import androidx.ink.brush.BrushCoat
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.BrushTip
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
+import androidx.ink.brush.Version
+import androidx.ink.brush.behavior.IntegralNode
+import androidx.ink.brush.behavior.OutOfRange
+import androidx.ink.brush.behavior.ProgressDomain
+import androidx.ink.brush.behavior.SourceNode
+import androidx.ink.brush.behavior.SourceNode.Source
+import androidx.ink.brush.behavior.TargetNode
+import androidx.ink.brush.behavior.TargetNode.Target
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
@@ -101,7 +111,35 @@ class AndroidBrushFamilyExtensionsTest {
                                             sizeY = 4f,
                                         ),
                                     )
-                            )
+                            ),
+                        tip =
+                            BrushTip(
+                                behaviors =
+                                    listOf(
+                                        BrushBehavior(
+                                            TargetNode(
+                                                target = Target.WIDTH_MULTIPLIER,
+                                                targetModifierRangeStart = 1f,
+                                                targetModifierRangeEnd = 2f,
+                                                input =
+                                                    IntegralNode(
+                                                        integrateOver =
+                                                            ProgressDomain.TIME_IN_SECONDS,
+                                                        integralValueRangeStart = 0f,
+                                                        integralValueRangeEnd = 1f,
+                                                        integralOutOfRangeBehavior =
+                                                            OutOfRange.CLAMP,
+                                                        input =
+                                                            SourceNode(
+                                                                Source.NORMALIZED_PRESSURE,
+                                                                0f,
+                                                                1f,
+                                                            ),
+                                                    ),
+                                            )
+                                        )
+                                    )
+                            ),
                     ),
                     BrushCoat(
                         paint =
@@ -238,6 +276,69 @@ class AndroidBrushFamilyExtensionsTest {
     }
 
     @Test
+    fun encode_decode_roundTrip_maxVersion_staticApi() {
+        // Just testing that we can pass the optional maxVersion parameter.
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            if (bitmap != null) {
+                decodedTextureBitmapStore[id] = bitmap
+            }
+            id
+        }
+        // Kotlin callers should prefer the extension methods, but the static wrappers do work.
+        val original = testFamily
+        val encoded =
+            ByteArrayOutputStream().use {
+                original.encode(it, textureBitmapStore)
+                it.toByteArray()
+            }
+        ByteArrayInputStream(encoded).use {
+            assertThat(
+                    AndroidBrushFamilySerialization.decode(
+                        it,
+                        Version.V1_JETPACK1_1_0_ALPHA01,
+                        decodeCallback,
+                    )
+                )
+                .isEqualTo(original)
+        }
+        assertEquals(decodedTextureBitmapStore.size, 2)
+        val actualBitmap1 = decodedTextureBitmapStore[textureId1]
+        val expectedBitmap1 = textureBitmapStore[textureId1]
+        assertTrue(actualBitmap1!!.sameAs(expectedBitmap1))
+
+        val actualBitmap2 = decodedTextureBitmapStore[textureId2]
+        val expectedBitmap2 = textureBitmapStore[textureId2]
+        assertTrue(actualBitmap2!!.sameAs(expectedBitmap2))
+    }
+
+    @Test
+    fun encode_decode_roundTrip_maxVersion_rejectsHigherVersion_staticApi() {
+        // Create a BrushFamily with a min_version of V1_JETPACK1_0_0_ALPHA01 and try to decode it
+        // with
+        // a maxVersion of V0_JETPACK1_0_0.
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            if (bitmap != null) {
+                decodedTextureBitmapStore[id] = bitmap
+            }
+            id
+        }
+        // Kotlin callers should prefer the extension methods, but the static wrappers do work.
+        val original = testFamily
+        val encoded =
+            ByteArrayOutputStream().use {
+                original.encode(it, textureBitmapStore)
+                it.toByteArray()
+            }
+        ByteArrayInputStream(encoded).use {
+            assertFailsWith<IllegalArgumentException> {
+                AndroidBrushFamilySerialization.decode(it, Version.V0_JETPACK1_0_0, decodeCallback)
+            }
+        }
+    }
+
+    @Test
     fun decode_notGzippedBytes_throws_staticApi() {
         assertFailsWith<IOException> {
             @Suppress("CheckReturnValue")
@@ -275,5 +376,204 @@ class AndroidBrushFamilyExtensionsTest {
         val actualBitmap2 = decodedTextureBitmapStore[textureId2]
         val expectedBitmap2 = textureBitmapStore[textureId2]
         assertTrue(actualBitmap2!!.sameAs(expectedBitmap2))
+    }
+
+    @Test
+    fun encode_decode_roundTrip_maxVersion() {
+        // Just testing that we can pass the optional maxVersion parameter.
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            if (bitmap != null) {
+                decodedTextureBitmapStore[id] = bitmap
+            }
+            id
+        }
+        val original = testFamily
+        val encoded =
+            ByteArrayOutputStream().use {
+                original.encode(it, textureBitmapStore)
+                it.toByteArray()
+            }
+        ByteArrayInputStream(encoded).use {
+            assertThat(BrushFamily.decode(it, Version.V1_JETPACK1_1_0_ALPHA01, decodeCallback))
+                .isEqualTo(original)
+        }
+        assertEquals(decodedTextureBitmapStore.size, 2)
+        val actualBitmap1 = decodedTextureBitmapStore[textureId1]
+        val expectedBitmap1 = textureBitmapStore[textureId1]
+        assertTrue(actualBitmap1!!.sameAs(expectedBitmap1))
+
+        val actualBitmap2 = decodedTextureBitmapStore[textureId2]
+        val expectedBitmap2 = textureBitmapStore[textureId2]
+        assertTrue(actualBitmap2!!.sameAs(expectedBitmap2))
+    }
+
+    @Test
+    fun encode_decode_roundTrip_maxVersion_rejectsHigherVersion() {
+        // Just testing that we can pass the optional maxVersion parameter.
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            if (bitmap != null) {
+                decodedTextureBitmapStore[id] = bitmap
+            }
+            id
+        }
+        val original = testFamily
+        val encoded =
+            ByteArrayOutputStream().use {
+                original.encode(it, textureBitmapStore)
+                it.toByteArray()
+            }
+        ByteArrayInputStream(encoded).use {
+            assertFailsWith<IllegalArgumentException> {
+                BrushFamily.decode(it, Version.V0_JETPACK1_0_0, decodeCallback)
+            }
+        }
+    }
+
+    @Test
+    fun encodeMultiple_decodeMultiple_roundTrip() {
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            if (bitmap != null) {
+                decodedTextureBitmapStore[id] = bitmap
+            }
+            id
+        }
+        val family1 = BrushFamily()
+        val family2 = testFamily
+        val families = listOf(family1, family2)
+
+        val encoded =
+            ByteArrayOutputStream().use {
+                families.encodeMultiple(it, textureBitmapStore)
+                it.toByteArray()
+            }
+
+        ByteArrayInputStream(encoded).use {
+            val decoded = BrushFamily.decodeMultiple(it, decodeCallback)
+            assertThat(decoded).hasSize(2)
+            assertThat(decoded[0]).isEqualTo(family1)
+            assertThat(decoded[1]).isEqualTo(family2)
+        }
+
+        assertEquals(decodedTextureBitmapStore.size, 2)
+        assertTrue(decodedTextureBitmapStore[textureId1]!!.sameAs(textureBitmapStore[textureId1]))
+        assertTrue(decodedTextureBitmapStore[textureId2]!!.sameAs(textureBitmapStore[textureId2]))
+    }
+
+    @Test
+    fun encodeMultiple_decodeSingle_roundTrip() {
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            if (bitmap != null) {
+                decodedTextureBitmapStore[id] = bitmap
+            }
+            id
+        }
+        val family1 = BrushFamily()
+        val family2 = testFamily
+        val families = listOf(family1, family2)
+
+        val encoded =
+            ByteArrayOutputStream().use {
+                families.encodeMultiple(it, textureBitmapStore)
+                it.toByteArray()
+            }
+
+        ByteArrayInputStream(encoded).use {
+            val decoded =
+                BrushFamily.decode(it, maxVersion = Version.V0_JETPACK1_0_0, decodeCallback)
+            assertThat(decoded).isEqualTo(family1)
+        }
+
+        // Shouldn't have decoded any texture bitmaps, only family2 has texture bitmaps.
+        assertEquals(decodedTextureBitmapStore.size, 0)
+
+        ByteArrayInputStream(encoded).use {
+            val decoded =
+                BrushFamily.decode(it, maxVersion = Version.V1_JETPACK1_1_0_ALPHA01, decodeCallback)
+            assertThat(decoded).isEqualTo(family2)
+        }
+        assertEquals(decodedTextureBitmapStore.size, 2)
+        assertTrue(decodedTextureBitmapStore[textureId1]!!.sameAs(textureBitmapStore[textureId1]))
+        assertTrue(decodedTextureBitmapStore[textureId2]!!.sameAs(textureBitmapStore[textureId2]))
+    }
+
+    @Test
+    fun encodeMultiple_decodeMultiple_roundTrip_staticApi() {
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            if (bitmap != null) {
+                decodedTextureBitmapStore[id] = bitmap
+            }
+            id
+        }
+        val family1 = BrushFamily()
+        val family2 = testFamily
+        val families = listOf(family1, family2)
+
+        val encoded =
+            ByteArrayOutputStream().use {
+                AndroidBrushFamilySerialization.encodeMultiple(families, it, textureBitmapStore)
+                it.toByteArray()
+            }
+
+        ByteArrayInputStream(encoded).use {
+            val decoded = AndroidBrushFamilySerialization.decodeMultiple(it, decodeCallback)
+            assertThat(decoded).hasSize(2)
+            assertThat(decoded[0]).isEqualTo(family1)
+            assertThat(decoded[1]).isEqualTo(family2)
+        }
+
+        assertEquals(decodedTextureBitmapStore.size, 2)
+        assertTrue(decodedTextureBitmapStore[textureId1]!!.sameAs(textureBitmapStore[textureId1]))
+        assertTrue(decodedTextureBitmapStore[textureId2]!!.sameAs(textureBitmapStore[textureId2]))
+    }
+
+    @Test
+    fun encodeMultiple_decodeSingle_roundTrip_staticApi() {
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            if (bitmap != null) {
+                decodedTextureBitmapStore[id] = bitmap
+            }
+            id
+        }
+        val family1 = BrushFamily()
+        val family2 = testFamily
+        val families = listOf(family1, family2)
+
+        val encoded =
+            ByteArrayOutputStream().use {
+                AndroidBrushFamilySerialization.encodeMultiple(families, it, textureBitmapStore)
+                it.toByteArray()
+            }
+
+        ByteArrayInputStream(encoded).use {
+            val decoded =
+                AndroidBrushFamilySerialization.decode(
+                    it,
+                    maxVersion = Version.V0_JETPACK1_0_0,
+                    decodeCallback,
+                )
+            assertThat(decoded).isEqualTo(family1)
+        }
+
+        // Shouldn't have decoded any texture bitmaps, only family2 has texture bitmaps.
+        assertEquals(decodedTextureBitmapStore.size, 0)
+
+        ByteArrayInputStream(encoded).use {
+            val decoded =
+                AndroidBrushFamilySerialization.decode(
+                    it,
+                    maxVersion = Version.V1_JETPACK1_1_0_ALPHA01,
+                    decodeCallback,
+                )
+            assertThat(decoded).isEqualTo(family2)
+        }
+        assertEquals(decodedTextureBitmapStore.size, 2)
+        assertTrue(decodedTextureBitmapStore[textureId1]!!.sameAs(textureBitmapStore[textureId1]))
+        assertTrue(decodedTextureBitmapStore[textureId2]!!.sameAs(textureBitmapStore[textureId2]))
     }
 }

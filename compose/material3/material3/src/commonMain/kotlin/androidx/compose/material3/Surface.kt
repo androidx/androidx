@@ -223,7 +223,6 @@ fun Surface(
                 modifier
                     .minimumInteractiveComponentSize()
                     .then(
-                        @OptIn(ExperimentalMaterial3Api::class)
                         if (
                             LocalRippleThemeConfiguration.current.focus
                                 is RippleThemeConfiguration.Focus.InsetRing
@@ -253,7 +252,6 @@ fun Surface(
                     .clickable(
                         interactionSource = interactionSource,
                         indication =
-                            @OptIn(ExperimentalMaterial3Api::class)
                             ripple(
                                 focusRingShape = shape,
                                 enableFocusIndication =
@@ -359,7 +357,6 @@ fun Surface(
                 modifier
                     .minimumInteractiveComponentSize()
                     .then(
-                        @OptIn(ExperimentalMaterial3Api::class)
                         if (
                             LocalRippleThemeConfiguration.current.focus
                                 is RippleThemeConfiguration.Focus.InsetRing
@@ -390,7 +387,6 @@ fun Surface(
                         selected = selected,
                         interactionSource = interactionSource,
                         indication =
-                            @OptIn(ExperimentalMaterial3Api::class)
                             ripple(
                                 focusRingShape = shape,
                                 enableFocusIndication =
@@ -497,7 +493,6 @@ fun Surface(
                     .minimumInteractiveComponentSize()
                     // Draw the focus ring here if focus rings are enabled
                     .then(
-                        @OptIn(ExperimentalMaterial3Api::class)
                         if (
                             LocalRippleThemeConfiguration.current.focus
                                 is RippleThemeConfiguration.Focus.InsetRing
@@ -528,7 +523,6 @@ fun Surface(
                         value = checked,
                         interactionSource = interactionSource,
                         indication =
-                            @OptIn(ExperimentalMaterial3Api::class)
                             ripple(
                                 focusRingShape = shape,
                                 enableFocusIndication =

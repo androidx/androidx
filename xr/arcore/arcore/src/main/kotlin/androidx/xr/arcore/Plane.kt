@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.Plane as RuntimePlane
@@ -38,11 +37,12 @@ import kotlinx.coroutines.flow.transform
  * @property state the current [State] of the plane
  * @property type the [Type] of the plane
  */
+@SuppressWarnings("HiddenSuperclass")
 public class Plane
 internal constructor(
     internal val runtimePlane: RuntimePlane,
     private val xrResourceManager: XrResourcesManager,
-) : Anchorable<Plane.State>, Updatable {
+) : Anchorable<Plane.State>, Updatable() {
 
     public companion object {
         /**
@@ -244,7 +244,6 @@ internal constructor(
         return AnchorCreateSuccess(anchor)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
         _state.emit(
             State(

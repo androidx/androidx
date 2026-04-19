@@ -18,7 +18,6 @@ package androidx.xr.scenecore.spatial.core
 import android.app.Activity
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.XrExtensions
 import com.google.common.truth.Truth
@@ -36,7 +35,7 @@ class SubspaceNodeEntityImplTest {
 
     @Before
     fun setUp() {
-        val xrExtensions: XrExtensions = requireNotNull(getXrExtensions())
+        val xrExtensions: XrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
         val activity = Robolectric.buildActivity(Activity::class.java).create().get()
         val sceneNodeRegistry = SceneNodeRegistry()
         val executor = FakeScheduledExecutorService()

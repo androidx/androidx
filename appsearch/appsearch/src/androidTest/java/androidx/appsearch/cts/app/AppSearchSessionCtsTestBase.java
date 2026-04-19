@@ -730,8 +730,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addSchemas(schemaBuilder.build()).setForceOverride(true).build()).get());
         Throwable cause = exception.getCause();
         assertThat(cause).isInstanceOf(AppSearchException.class);
-        assertThat(cause).hasMessageThat().isEqualTo("Too many properties to be indexed, max "
-                + "number of properties allowed: " + maxProperties);
+        assertThat(cause).hasMessageThat().contains("Too many properties to be indexed");
     }
 
     @Test
@@ -1918,7 +1917,7 @@ public abstract class AppSearchSessionCtsTestBase {
         inDocuments.add(inDocument);
         getByDocumentIdRequestBuilder.addIds(id);
 
-        for (int i = 101; i < 200; ++i) {
+        for (int i = 101; i < 400; ++i) {
             chars = new char[1024];
             Arrays.fill(chars, ' ');
             body = String.valueOf(chars) + "the end.";

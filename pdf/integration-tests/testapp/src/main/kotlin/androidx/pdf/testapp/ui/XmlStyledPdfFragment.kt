@@ -20,7 +20,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.ext.SdkExtensions
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +29,7 @@ import androidx.annotation.RequiresExtension
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.pdf.testapp.databinding.FragmentXmlStyledPdfBinding
+import androidx.pdf.testapp.util.arePdfContentFeaturesAvailable
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import com.google.android.material.button.MaterialButton
 
@@ -55,13 +55,13 @@ class XmlStyledPdfFragment : Fragment() {
         val getContentButton: MaterialButton = binding.openPdf
 
         getContentButton.setOnClickListener { filePicker.launch(MIME_TYPE_PDF) }
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+        if (arePdfContentFeaturesAvailable()) {
             binding.searchButton.setOnClickListener { setFindInFileViewVisible() }
         }
     }
 
     private fun setDocumentUri(uri: Uri) {
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+        if (arePdfContentFeaturesAvailable()) {
             binding.pdfStyledFragment.getFragment<PdfViewerFragment>().documentUri = uri
         } else {
             /**

@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
 import androidx.xr.scenecore.runtime.PointSourceParams;
 import androidx.xr.scenecore.runtime.SoundFieldAttributes;
 import androidx.xr.scenecore.runtime.SpatializerConstants;
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider;
 
+import com.android.extensions.xr.XrExtensions;
 import com.android.extensions.xr.media.SpatializerExtensions;
 import com.android.extensions.xr.node.Node;
 
@@ -41,7 +41,9 @@ public final class MediaUtilsTest {
 
     @Test
     public void convertPointSourceParams_returnsExtensionsParams() {
-        Node expected = XrExtensionsProvider.getXrExtensions().createNode();
+        XrExtensions xrExtensions =
+                SpatialCoreXrExtensionsHolderProvider.Companion.getExtensionsLegacy();
+        Node expected = xrExtensions.createNode();
 
         AndroidXrEntity entity = mock(AndroidXrEntity.class);
         when(entity.getNode()).thenReturn(expected);

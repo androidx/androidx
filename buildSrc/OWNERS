@@ -6,7 +6,7 @@ fsladkey@google.com
 omarismail@google.com
 radhanakade@google.com
 
-per-file *AndroidXPlaygroundRootPlugin.kt = dustinlam@google.com, rahulrav@google.com
+per-file *AndroidXPlaygroundRootPlugin.kt = rahulrav@google.com
 per-file *LintConfiguration.kt = juliamcclellan@google.com
 per-file lint/lint.xml = juliamcclellan@google.com
 per-file *AndroidXComposeLintIssues.kt = anbailey@google.com

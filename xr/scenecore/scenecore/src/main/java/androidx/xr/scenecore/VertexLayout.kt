@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package androidx.xr.scenecore
+
+import androidx.annotation.IntRange
+
 /**
  * Defines the attribute of a vertex.
  *
@@ -107,7 +110,7 @@ public class VertexAttributeType private constructor(private val name: String) {
 public class VertexAttributeDescriptor(
     public val attribute: VertexAttribute,
     public val type: VertexAttributeType,
-    public val bufferIndex: Int = 0,
+    @IntRange(from = 0) public val bufferIndex: Int = 0,
 ) {
     init {
         require(bufferIndex >= 0) { "bufferIndex must be non-negative." }

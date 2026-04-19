@@ -16,14 +16,11 @@
 
 package androidx.room3.compiler.processing.ksp
 
-import androidx.room3.compiler.codegen.JArrayTypeName
 import androidx.room3.compiler.processing.XArrayType
 import androidx.room3.compiler.processing.XNullability
-import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeArgument
+import androidx.room3.compiler.processing.XVariance
 import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.Variance
-import com.squareup.kotlinpoet.javapoet.JTypeName
-import com.squareup.kotlinpoet.javapoet.KTypeName
 
 internal sealed class KspArrayType(
     env: KspProcessingEnv,
@@ -33,17 +30,9 @@ internal sealed class KspArrayType(
 
     abstract override val componentType: KspType
 
-    override fun resolveJTypeName(): JTypeName {
-        return this.asTypeName().java
-    }
-
-    override fun resolveKTypeName(): KTypeName {
-        return this.asTypeName().kotlin
-    }
-
     override fun boxed() = this
 
-    override val typeArguments: List<XType>
+    override val typeArguments: List<XTypeArgument>
         get() = emptyList() // hide them to behave like java does
 
     /** Kotlin arrays in the form of Array<X>. */
@@ -52,17 +41,6 @@ internal sealed class KspArrayType(
         ksType: KSType,
         scope: KSTypeVarianceResolverScope? = null,
     ) : KspArrayType(env, ksType, scope) {
-        override fun resolveJTypeName(): JTypeName {
-            return if (ksType.arguments.single().variance == Variance.CONTRAVARIANT) {
-                JArrayTypeName.of(JTypeName.OBJECT)
-            } else {
-                JArrayTypeName.of(componentType.asTypeName().java.box())
-            }
-        }
-
-        override fun resolveKTypeName(): KTypeName {
-            return ksType.asKTypeName(env.resolver)
-        }
 
         override val componentType: KspType by lazy {
             val arg = ksType.arguments.single()
@@ -85,13 +63,6 @@ internal sealed class KspArrayType(
         scope: KSTypeVarianceResolverScope? = null,
         override val componentType: KspType,
     ) : KspArrayType(env, ksType, scope) {
-        override fun resolveJTypeName(): JTypeName {
-            return JArrayTypeName.of(componentType.asTypeName().java.unbox())
-        }
-
-        override fun resolveKTypeName(): KTypeName {
-            return ksType.asKTypeName(env.resolver)
-        }
 
         override fun copy(
             env: KspProcessingEnv,
@@ -120,9 +91,15 @@ internal sealed class KspArrayType(
             builtInArrays.entries.associateBy { it.value.ksType }
 
         fun createWithComponentType(componentType: KspType): KspArrayType {
-            if (componentType.nullability == XNullability.NONNULL) {
+            return createWithComponentType(
+                env.createTypeArgument(componentType, XVariance.INVARIANT)
+            )
+        }
+
+        fun createWithComponentType(componentType: KspTypeArgument): KspArrayType {
+            if (componentType.type.nullability == XNullability.NONNULL) {
                 val primitiveArrayEntry: Map.Entry<String, KspPrimitiveType>? =
-                    reverseBuiltInArrayLookup[componentType.ksType]
+                    reverseBuiltInArrayLookup[componentType.type.ksType]
                 if (primitiveArrayEntry != null) {
                     return PrimitiveArray(
                         env = env,
@@ -135,18 +112,7 @@ internal sealed class KspArrayType(
             return BoxedArray(
                 env = env,
                 ksType =
-                    env.resolver.builtIns.arrayType.replace(
-                        listOf(
-                            env.resolver.getTypeArgument(
-                                componentType.ksType.createTypeReference(),
-                                if (componentType is KspTypeArgumentType) {
-                                    componentType.typeArg.variance
-                                } else {
-                                    Variance.INVARIANT
-                                },
-                            )
-                        )
-                    ),
+                    env.resolver.builtIns.arrayType.replace(listOf(componentType.ksTypeArgument)),
             )
         }
 

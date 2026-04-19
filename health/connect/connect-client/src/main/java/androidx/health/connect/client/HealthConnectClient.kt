@@ -38,11 +38,14 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi
+import androidx.health.connect.client.feature.FEATURE_CONSTANT_NAME_MATCHMAKING
 import androidx.health.connect.client.feature.FEATURE_CONSTANT_NAME_PHR
 import androidx.health.connect.client.feature.HealthConnectFeaturesUnavailableImpl
 import androidx.health.connect.client.feature.createExceptionDueToFeatureUnavailable
 import androidx.health.connect.client.impl.HealthConnectClientImpl
 import androidx.health.connect.client.impl.HealthConnectClientUpsideDownImpl
+import androidx.health.connect.client.matchmaking.MatchmakingRequest
+import androidx.health.connect.client.matchmaking.MatchmakingResponse
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_MEDICAL_DATA_VACCINES
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_WRITE_MEDICAL_DATA
@@ -740,6 +743,96 @@ interface HealthConnectClient {
         )
     }
 
+    /**
+     * Checks if launching the intent returned by [createMatchmakingIntent] with the same arguments
+     * will result in showing at least one matching application or device.
+     * - Returns `true` if the flow launched by [createMatchmakingIntent] would display at least one
+     *   matching data source, allowing the user to take action.
+     * - Returns `false` if the launched flow would immediately return
+     *   [android.app.Activity.RESULT_CANCELED] because there are no relevant data sources to show.
+     *
+     * @param request [MatchmakingRequest].
+     * @return [MatchmakingResponse].
+     * @throws UnsupportedOperationException if the feature is not available.
+     * @see createMatchmakingIntent
+     *
+     * This feature is dependent on the version of HealthConnect installed on the device. To check
+     * if it's available call [HealthConnectFeatures.getFeatureStatus] and pass
+     * [HealthConnectFeatures.FEATURE_MATCHMAKING] as an argument. An
+     * [UnsupportedOperationException] would be thrown if the feature is not available.
+     */
+    @ExperimentalMatchmakingApi
+    suspend fun checkIfMatchmakingIsPossible(request: MatchmakingRequest): MatchmakingResponse {
+        throw createExceptionDueToFeatureUnavailable(
+            FEATURE_CONSTANT_NAME_MATCHMAKING,
+            "HealthConnectClient#checkIfMatchmakingIsPossible()",
+        )
+    }
+
+    /**
+     * Creates an [Intent] to launch a Health Connect flow where users can:
+     * - **Discover compatible data sources:** See other installed data sources that have not yet
+     *   granted permissions to write some of the [androidx.health.connect.client.records.Record]
+     *   classes the calling app can read.
+     * - **Grant missing permissions:** Easily grant these discovered data sources the necessary
+     *   write permissions for health data record types that haven't been granted yet. Only record
+     *   types the calling package is permitted to read are being considered.
+     *
+     * This flow helps users connect new data sources to Health Connect, by matching record types
+     * readable by the calling package to appropriate writing data sources.
+     *
+     * This intent must be launched using [androidx.activity.result.ActivityResultLauncher] rather
+     * than [android.app.Activity.startActivity]. The launched activity may return a result code
+     * indicating the user's interaction with the flow:
+     * - [android.app.Activity.RESULT_OK]: The user has successfully granted permissions to at least
+     *   one application or device.
+     * - [android.app.Activity.RESULT_CANCELED]: The user has canceled the flow, either by closing
+     *   the activity or by not granting any permissions. [android.app.Activity.RESULT_CANCELED] can
+     *   also occur if the intent was launched when no matching apps are available. This can be
+     *   avoided by ensuring [checkIfMatchmakingIsPossible] returns `true` before launching the
+     *   intent.
+     *
+     * The launched flow will only show packages that have declared, but not yet been granted write
+     * permissions (that have not been denied by the user twice) for at least one of the relevant
+     * record types, and for the relevant included/excluded data sources:
+     * - **If [MatchmakingRequest.recordTypes] is not empty:** The launched screen will focus on
+     *   data sources capable of writing data for at least one of the specified health record types.
+     *   The user can then grant write permissions to these discovered data sources specifically for
+     *   these types. Record types the calling app does not have permission to read are ignored.
+     * - **If [MatchmakingRequest.recordTypes] is empty:** The system first determines all health
+     *   data record types for which the calling package has already been granted read permission.
+     *   The launched flow will then display data sources capable of writing any of these record
+     *   types, where the user can grant write permissions for these types.
+     * - **If [MatchmakingRequest.includedDataSources] is not empty:** Only data sources whose
+     *   package names are present in this set are considered for matchmaking.
+     * - **If [MatchmakingRequest.excludedDataSources] is not empty:** Data sources whose package
+     *   names are present in this set are excluded from matchmaking.
+     * - **If both are empty:** All compatible data sources are considered.
+     *
+     * Note: If a data source is an app, the calling app must have visibility of the package name
+     * (e.g. declared in the manifest inside `<queries>`). If a data source is a device, the calling
+     * app does not need to declare it in the manifest.
+     *
+     * [MatchmakingRequest.includedDataSources] and [MatchmakingRequest.excludedDataSources] cannot
+     * both be set at the same time.
+     *
+     * @param request [MatchmakingRequest].
+     * @return [Intent] configured to show the matchmaking flow.
+     * @throws UnsupportedOperationException if the feature is not available.
+     * @see checkIfMatchmakingIsPossible
+     *
+     * This feature is dependent on the version of HealthConnect installed on the device. To check
+     * if it's available call [HealthConnectFeatures.getFeatureStatus] and pass
+     * [HealthConnectFeatures.FEATURE_MATCHMAKING] as an argument.
+     */
+    @ExperimentalMatchmakingApi
+    fun createMatchmakingIntent(request: MatchmakingRequest): Intent {
+        throw createExceptionDueToFeatureUnavailable(
+            FEATURE_CONSTANT_NAME_MATCHMAKING,
+            "HealthConnectClient#createMatchmakingIntent()",
+        )
+    }
+
     companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
@@ -762,6 +855,12 @@ interface HealthConnectClient {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
                 "android.health.connect.action.MANAGE_HEALTH_DATA"
             else "androidx.health.ACTION_MANAGE_HEALTH_DATA"
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal val ACTION_HEALTH_CONNECT_MATCHMAKING =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                "android.health.connect.action.MATCHMAKING"
+            else ""
 
         /**
          * The Health Connect SDK is unavailable on this device at the time. This can be due to the

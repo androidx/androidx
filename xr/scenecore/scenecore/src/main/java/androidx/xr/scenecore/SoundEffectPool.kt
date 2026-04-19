@@ -18,6 +18,7 @@ package androidx.xr.scenecore
 
 import android.content.Context
 import android.content.res.AssetFileDescriptor
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SoundEffect as RtSoundEffect
@@ -50,6 +51,25 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
     AutoCloseable {
 
     internal val rtSoundEffectPool = sceneRuntime.createSoundEffectPool(maxStreams)
+
+    private val loadCompleteListeners =
+        ListenerMap<LoadCompleteListener, Pair<SoundEffect, Boolean>> { listener, event ->
+            listener.onLoadComplete(event.first, event.second)
+        }
+
+    // TODO - b/502272748: This can be removed when we delete the deprecated setListener method
+    // The deprecated version only ever uses the mainThreadExecutor, so it doesn't need a property.
+    private var loadCompleteListener: LoadCompleteListener? = null
+
+    init {
+        rtSoundEffectPool.setOnLoadCompleteListener(HandlerExecutor.mainThreadExecutor) {
+            rtSoundEffect: RtSoundEffect,
+            success ->
+            var soundEffect = rtSoundEffect.toSoundEffect()
+            loadCompleteListeners.fire(Pair(soundEffect, success))
+            loadCompleteListener?.onLoadComplete(soundEffect, success)
+        }
+    }
 
     /** Callback interface for receiving notification when a sound effect has finished loading. */
     public fun interface LoadCompleteListener {
@@ -100,27 +120,41 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
     }
 
     /**
-     * Sets the [listener] to be notified when sounds finish loading. The listener will be called on
-     * the main thread.
+     * Adds a listener to be invoked when sounds finish loading. The listener will be called on the
+     * main thread.
      */
-    public fun setOnLoadCompleteListener(listener: LoadCompleteListener) {
-        setOnLoadCompleteListener(HandlerExecutor.mainThreadExecutor, listener)
+    public fun addLoadCompleteListener(listener: LoadCompleteListener): Unit =
+        addLoadCompleteListener(HandlerExecutor.mainThreadExecutor, listener)
+
+    /**
+     * Adds a listener to be invoked when sounds finish loading. The listener will be called on the
+     * given [Executor].
+     *
+     * @param executor The [Executor] to run the listener on.
+     * @param listener The [LoadCompleteListener] to be invoked asynchronously on the given
+     *   executor.
+     */
+    public fun addLoadCompleteListener(executor: Executor, listener: LoadCompleteListener) {
+        loadCompleteListeners.add(executor, listener)
+    }
+
+    /** Removes a listener previously added via [addLoadCompleteListener] */
+    public fun removeLoadCompleteListener(listener: LoadCompleteListener) {
+        loadCompleteListeners.remove(listener)
     }
 
     /**
      * Sets the [listener] to be notified when sounds finish loading. The listener will be called on
-     * the provided [executor].
+     * the main thread.
      */
-    public fun setOnLoadCompleteListener(executor: Executor, listener: LoadCompleteListener) {
-        rtSoundEffectPool.setOnLoadCompleteListener(executor) { soundEffect: RtSoundEffect, success
-            ->
-            listener.onLoadComplete(soundEffect.toSoundEffect(), success)
-        }
-    }
-
-    /** Clears any listener previously set with [setOnLoadCompleteListener]. */
-    public fun clearOnLoadCompleteListener() {
-        rtSoundEffectPool.clearOnLoadCompleteListener()
+    // TODO - b/502272748: Cleanup deprecated listener methods
+    @Deprecated(
+        "Use addLoadCompleteListener",
+        replaceWith = ReplaceWith("addLoadCompleteListener()"),
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun setOnLoadCompleteListener(listener: LoadCompleteListener) {
+        loadCompleteListener = listener
     }
 
     /** Releases all native resources associated with this pool. */
@@ -129,6 +163,9 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
     }
 
     override fun close() {
+        rtSoundEffectPool.clearOnLoadCompleteListener()
+        loadCompleteListeners.clear()
+        loadCompleteListener = null
         release()
     }
 

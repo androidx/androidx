@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 
 package androidx.xr.arcore
 
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.arcore.testing.FakeLifecycleManager
-import androidx.xr.arcore.testing.FakePerceptionManager
-import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
-import androidx.xr.arcore.testing.FakeRuntimeArDevice
+import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.manifest.HEAD_TRACKING
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -49,13 +46,13 @@ import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
 class ArDeviceTest {
+    @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
 
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
     private lateinit var testDispatcher: TestDispatcher
     private lateinit var testScope: TestScope
     private lateinit var session: Session
-    private lateinit var xrResourcesManager: XrResourcesManager
 
     @Before
     fun setUp() {
@@ -63,62 +60,58 @@ class ArDeviceTest {
         testScope = TestScope(testDispatcher)
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
-        xrResourcesManager = XrResourcesManager()
 
-        val shadowApplication = shadowOf(activity.application)
-        FakeLifecycleManager.TestPermissions.forEach { permission ->
-            shadowApplication.grantPermissions(permission)
-        }
+        shadowOf(activity.application).grantPermissions(HEAD_TRACKING)
 
-        FakePerceptionRuntimeFactory.hasCreatePermission = true
-        activityController.create()
+        activityController.create().start().resume()
 
         session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
-        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
-        xrResourcesManager.lifecycleManager = session.perceptionRuntime.lifecycleManager
+
+        arCoreTestRule.device.pose = Pose()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun getInstance_returnsHeadPose() =
+    fun pose_SpatialLastKnown_tracksTranslationAndRotation() {
+        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
         runTest(testDispatcher) {
-            val expectedDevicePose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
-            val underTest = ArDevice.getInstance(session)
-            check(underTest.state.value.devicePose == Pose())
-            val perceptionManager = getFakePerceptionManager()
-            val runtimeArDevice = perceptionManager.arDevice
-
-            runtimeArDevice.devicePose = expectedDevicePose
-            activityController.resume()
+            val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
+            arCoreTestRule.device.pose = expectedPose
             advanceUntilIdle()
-            activityController.pause()
 
-            assertThat(underTest.state.value.devicePose).isEqualTo(expectedDevicePose)
+            val underTest = ArDevice.getInstance(session)
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.devicePose.translation)
+                .isEqualTo(expectedPose.translation)
+            assertThat(underTest.state.value.devicePose.rotation).isEqualTo(expectedPose.rotation)
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class, PreviewSpatialApi::class)
+    @Test
+    fun pose_InertialLastKnown_onlyTracksRotation() {
+        session.configure(Config(deviceTracking = DeviceTrackingMode.INERTIAL_LAST_KNOWN))
+        runTest(testDispatcher) {
+            val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
+            arCoreTestRule.device.pose = expectedPose
+            advanceUntilIdle()
+
+            val underTest = ArDevice.getInstance(session)
+            advanceUntilIdle()
+
+            assertThat(underTest.state.value.devicePose.translation)
+                .isNotEqualTo(expectedPose.translation)
+            assertThat(underTest.state.value.devicePose.translation).isEqualTo(Vector3.Zero)
+            assertThat(underTest.state.value.devicePose.rotation).isEqualTo(expectedPose.rotation)
+        }
+    }
 
     @Test
     fun getInstance_deviceTrackingDisabled_throwsIllegalStateException() {
-        val configureResult =
-            session.configure(Config(deviceTracking = DeviceTrackingMode.DISABLED))
-        check(configureResult is SessionConfigureSuccess)
-
-        assertFailsWith<IllegalStateException> { ArDevice.getInstance(session) }
-    }
-
-    @Test
-    fun update_stateMatchesRuntimeArDevice() = runBlocking {
-        val expectedDevicePose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
-        val runtimeArDevice = FakeRuntimeArDevice()
-        val underTest = ArDevice(runtimeArDevice)
-        check(underTest.state.value.devicePose == Pose())
-        runtimeArDevice.devicePose = expectedDevicePose
-
-        underTest.update()
-
-        assertThat(underTest.state.value.devicePose).isEqualTo(expectedDevicePose)
-    }
-
-    private fun getFakePerceptionManager(): FakePerceptionManager {
-        return session.perceptionRuntime.perceptionManager as FakePerceptionManager
+        session.configure(Config(deviceTracking = DeviceTrackingMode.DISABLED))
+        runTest(testDispatcher) {
+            assertFailsWith<IllegalStateException> { ArDevice.getInstance(session) }
+        }
     }
 }

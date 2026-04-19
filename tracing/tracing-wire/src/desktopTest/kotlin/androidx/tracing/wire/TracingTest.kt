@@ -33,6 +33,7 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -140,6 +141,22 @@ class TracingTest {
             // There should be only one category
             assertEquals(1, start.track_event!!.categories.size)
         }
+    }
+
+    @Test
+    internal fun testForInstantExceptions() {
+        driver.use {
+            runCatching {
+                tracer.trace(category = "category", name = "section") {
+                    throw IllegalStateException("Not allowed")
+                }
+            }
+        }
+        // 2 packets for track descriptors (process + thread)
+        // 2 packets for begin and end section.
+        // 1 for instant exception.
+        assertEquals(5, sink.packets.size)
+        assertNotNull(sink.firstStartStopWithName("section.exception"))
     }
 
     @Test
@@ -487,7 +504,26 @@ class TracingTest {
     @Test
     internal fun manyTracksShouldNotCauseOutOfMemory() {
         driver.use {
-            repeat(1000) { driver.context.process.getOrCreateThreadTrack(it, "Thread $it") }
+            repeat(1000) {
+                driver.context.process.getOrCreateThreadTrack(it.toLong(), "Thread $it")
+            }
         }
+    }
+
+    @Test
+    internal fun imperativeBeginEndShouldNotEmitPackets() {
+        TraceDriver(sink = sink, isEnabled = false).use { driver ->
+            driver.tracer.beginSection(
+                category = "category",
+                name = "name",
+                token = null,
+                metadataBlock = {},
+            )
+            driver.context.process.currentThreadTrack().endSection()
+        }
+        // The only packet we should see is one that we eagerly emit for the process track.
+        assertEquals(1, sink.packets.size)
+        // We should not find any track event packets.
+        assertFails { sink.firstStartStopWithName("name") }
     }
 }

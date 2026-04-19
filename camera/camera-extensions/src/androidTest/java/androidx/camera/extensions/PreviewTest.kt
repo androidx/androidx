@@ -137,6 +137,8 @@ class PreviewTest(
         if (::extensionsManager.isInitialized) {
             extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
+
+        handlerThread.quitSafely()
     }
 
     companion object {

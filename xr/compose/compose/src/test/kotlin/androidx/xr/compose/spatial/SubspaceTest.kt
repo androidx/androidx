@@ -226,7 +226,7 @@ class SubspaceTest {
 
     private fun assertExistenceAndGetNodeWorldPose(testTag: String): Pose {
         val node = composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode()
-        return assertNotNull(node.semanticsEntity).getPose(relativeTo = Space.REAL_WORLD)
+        return assertNotNull(node.semanticsEntity).getPose(relativeTo = Space.ACTIVITY)
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -1123,18 +1123,18 @@ class SubspaceTest {
             var spaceNode =
                 composeTestRule.onSubspaceNodeWithTag("FollowingSubspace").fetchSemanticsNode()
             val initialSpaceRoot = spaceNode.semanticsEntity?.parent?.parent
-            var expectedScale = spaceNode.semanticsEntity?.getScale(Space.REAL_WORLD)
+            var expectedScale = spaceNode.semanticsEntity?.getScale(Space.ACTIVITY)
             assertNotNull(expectedScale)
-            assertThat(initialSpaceRoot?.getScale(Space.REAL_WORLD)).isEqualTo(expectedScale)
+            assertThat(initialSpaceRoot?.getScale(Space.ACTIVITY)).isEqualTo(expectedScale)
 
             expectedScale += .1f
-            session.scene.keyEntity?.setScale(expectedScale, Space.REAL_WORLD)
+            session.scene.keyEntity?.setScale(expectedScale, Space.ACTIVITY)
             forceRecompose = !forceRecompose
 
             spaceNode =
                 composeTestRule.onSubspaceNodeWithTag("FollowingSubspace").fetchSemanticsNode()
             val updatedSpaceRoot = spaceNode.semanticsEntity?.parent?.parent
-            val spaceScale = updatedSpaceRoot?.getScale(Space.REAL_WORLD)
+            val spaceScale = updatedSpaceRoot?.getScale(Space.ACTIVITY)
             assertThat(spaceScale).isEqualTo(expectedScale)
         }
 
@@ -1958,7 +1958,7 @@ class SubspaceTest {
             }
         }
 
-        val anchorWorldPose = anchorEntity.getPose(Space.REAL_WORLD)
+        val anchorWorldPose = anchorEntity.getPose(Space.ACTIVITY)
         val panelWorldPose = assertExistenceAndGetNodeWorldPose("Panel")
         assertThat(anchorWorldPose).isEqualTo(Pose(Vector3(20.0f, 30.0f, 40.0f)))
         assertThat(panelWorldPose).isEqualTo(Pose(Vector3(20.0f, 30.0f, 40.0f)))
@@ -2049,9 +2049,7 @@ class SubspaceTest {
 
             val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
             runtimeAnchor.pose = updatedPose
-            anchorUnderTest.update()
 
-            assertThat(anchorUnderTest.state.value.pose).isEqualTo(updatedPose)
             assertThat(assertExistenceAndGetNodeWorldPose("Panel")).isEqualTo(updatedPose)
             composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
         }
@@ -2090,10 +2088,8 @@ class SubspaceTest {
             // Update anchor's pose and verify the Panel is at the new location.
             val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
             runtimeAnchor.pose = updatedPose
-            anchorUnderTest.update()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertThat(anchorUnderTest.state.value.pose).isEqualTo(updatedPose)
             val currentTranslation = assertExistenceAndGetNodeWorldPose("Panel").translation
             val currentRotation = assertExistenceAndGetNodeWorldPose("Panel").rotation
 
@@ -2148,9 +2144,6 @@ class SubspaceTest {
             // Verify the panel doesn't move if pose changes again.
             val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
             runtimeAnchor.pose = updatedPose
-            anchorUnderTest.update()
-
-            assertThat(anchorUnderTest.state.value.pose).isEqualTo(updatedPose)
 
             composeTestRule.waitForIdle()
 

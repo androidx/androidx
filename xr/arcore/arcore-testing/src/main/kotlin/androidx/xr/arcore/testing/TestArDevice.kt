@@ -16,7 +16,7 @@
 
 package androidx.xr.arcore.testing
 
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeArDevice
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.PreviewSpatialApi
@@ -54,13 +54,13 @@ public class TestArDevice internal constructor(private val arCoreTestRule: ArCor
                 } else {
                     fakeRuntimeArDevice.devicePose
                 }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var isCameraTracking: Boolean = true
         set(value) {
             field = value
             arCoreTestRule.runtime.perceptionManager.isCameraTracking = value
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 }

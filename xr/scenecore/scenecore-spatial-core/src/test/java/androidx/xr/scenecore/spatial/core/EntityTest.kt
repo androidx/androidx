@@ -29,7 +29,6 @@ import androidx.xr.scenecore.runtime.InteractableComponent
 import androidx.xr.scenecore.runtime.ResizableComponent
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.Space
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.XrExtensions
@@ -37,7 +36,6 @@ import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.Vec3
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.ScheduledExecutorService
-import kotlin.test.expect
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -53,7 +51,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class EntityTest {
-    private var xrExtensions: XrExtensions? = XrExtensionsProvider.getXrExtensions()
+    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val sceneNodeRegistry = SceneNodeRegistry()
     private val fakeScheduledExecutorService = FakeScheduledExecutorService()
     private val testPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
@@ -72,22 +70,20 @@ class EntityTest {
 
     @Before
     fun setUp() {
-        expect(true, "XrExtensions should not be null") { xrExtensions != null }
-
         activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
 
         spatialSceneRuntime =
             SpatialSceneRuntime.create(
                 activity,
                 fakeScheduledExecutorService,
-                xrExtensions!!,
+                xrExtensions,
                 sceneNodeRegistry,
             )
         entity =
             TestEntity(
                 activity,
-                xrExtensions!!.createNode(),
-                xrExtensions!!,
+                xrExtensions.createNode(),
+                xrExtensions,
                 sceneNodeRegistry,
                 fakeScheduledExecutorService,
             )
@@ -97,7 +93,6 @@ class EntityTest {
     @After
     fun tearDown() {
         spatialSceneRuntime.destroy()
-        xrExtensions = null
     }
 
     @Test
@@ -142,8 +137,8 @@ class EntityTest {
         val child =
             TestEntity(
                 activity,
-                xrExtensions!!.createNode(),
-                xrExtensions!!,
+                xrExtensions.createNode(),
+                xrExtensions,
                 sceneNodeRegistry,
                 fakeScheduledExecutorService,
             )
@@ -211,8 +206,8 @@ class EntityTest {
         val child =
             TestEntity(
                 activity,
-                xrExtensions!!.createNode(),
-                xrExtensions!!,
+                xrExtensions.createNode(),
+                xrExtensions,
                 sceneNodeRegistry,
                 fakeScheduledExecutorService,
             )
@@ -229,8 +224,8 @@ class EntityTest {
         val child =
             TestEntity(
                 activity,
-                xrExtensions!!.createNode(),
-                xrExtensions!!,
+                xrExtensions.createNode(),
+                xrExtensions,
                 sceneNodeRegistry,
                 fakeScheduledExecutorService,
             )
@@ -248,8 +243,8 @@ class EntityTest {
         val child =
             TestEntity(
                 activity,
-                xrExtensions!!.createNode(),
-                xrExtensions!!,
+                xrExtensions.createNode(),
+                xrExtensions,
                 sceneNodeRegistry,
                 fakeScheduledExecutorService,
             )
@@ -259,8 +254,8 @@ class EntityTest {
         val grandchild =
             TestEntity(
                 activity,
-                xrExtensions!!.createNode(),
-                xrExtensions!!,
+                xrExtensions.createNode(),
+                xrExtensions,
                 sceneNodeRegistry,
                 fakeScheduledExecutorService,
             )
@@ -323,8 +318,8 @@ class EntityTest {
         val child =
             TestEntity(
                 activity,
-                xrExtensions!!.createNode(),
-                xrExtensions!!,
+                xrExtensions.createNode(),
+                xrExtensions,
                 sceneNodeRegistry,
                 fakeScheduledExecutorService,
             )
@@ -341,8 +336,8 @@ class EntityTest {
         val child =
             TestEntity(
                 activity,
-                xrExtensions!!.createNode(),
-                xrExtensions!!,
+                xrExtensions.createNode(),
+                xrExtensions,
                 sceneNodeRegistry,
                 fakeScheduledExecutorService,
             )
@@ -371,8 +366,7 @@ class EntityTest {
             Pose(Vector3(1f, 1f, 1f), Quaternion.fromEulerAngles(Vector3(90f, 0f, 0f))),
             Space.ACTIVITY,
         )
-        ShadowXrExtensions.extract(xrExtensions!!)
-            .setHitTestResult(activity, extensionsHitTestResult)
+        ShadowXrExtensions.extract(xrExtensions).setHitTestResult(activity, extensionsHitTestResult)
 
         val deferredHitTestResult =
             async(start = CoroutineStart.UNDISPATCHED) {
@@ -426,7 +420,7 @@ class EntityTest {
         val resizableComponent =
             ResizableComponentImpl(
                 fakeScheduledExecutorService,
-                xrExtensions!!,
+                xrExtensions,
                 Dimensions(0f, 0f, 0f),
                 Dimensions(1f, 1f, 1f),
             )
@@ -440,7 +434,7 @@ class EntityTest {
         val resizableComponent =
             ResizableComponentImpl(
                 fakeScheduledExecutorService,
-                xrExtensions!!,
+                xrExtensions,
                 Dimensions(0f, 0f, 0f),
                 Dimensions(1f, 1f, 1f),
             )
@@ -459,7 +453,7 @@ class EntityTest {
         val resizableComponent =
             ResizableComponentImpl(
                 fakeScheduledExecutorService,
-                xrExtensions!!,
+                xrExtensions,
                 Dimensions(0f, 0f, 0f),
                 Dimensions(1f, 1f, 1f),
             )

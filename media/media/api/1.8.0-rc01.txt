@@ -1,0 +1,769 @@
+// Signature format: 4.0
+package android.support.v4.media {
+
+  @Deprecated public final class MediaBrowserCompat {
+    ctor @Deprecated public MediaBrowserCompat(android.content.Context!, android.content.ComponentName!, android.support.v4.media.MediaBrowserCompat.ConnectionCallback!, android.os.Bundle!);
+    method @Deprecated public void connect();
+    method @Deprecated public void disconnect();
+    method @Deprecated public android.os.Bundle? getExtras();
+    method @Deprecated public void getItem(String, android.support.v4.media.MediaBrowserCompat.ItemCallback);
+    method @Deprecated public String getRoot();
+    method @Deprecated public android.content.ComponentName getServiceComponent();
+    method @Deprecated public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
+    method @Deprecated public boolean isConnected();
+    method @Deprecated public void search(String, android.os.Bundle!, android.support.v4.media.MediaBrowserCompat.SearchCallback);
+    method @Deprecated public void sendCustomAction(String, android.os.Bundle!, android.support.v4.media.MediaBrowserCompat.CustomActionCallback?);
+    method @Deprecated public void subscribe(String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
+    method @Deprecated public void subscribe(String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
+    method @Deprecated public void unsubscribe(String);
+    method @Deprecated public void unsubscribe(String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
+    field @Deprecated public static final String CUSTOM_ACTION_DOWNLOAD = "android.support.v4.media.action.DOWNLOAD";
+    field @Deprecated public static final String CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE = "android.support.v4.media.action.REMOVE_DOWNLOADED_FILE";
+    field @Deprecated public static final String EXTRA_DOWNLOAD_PROGRESS = "android.media.browse.extra.DOWNLOAD_PROGRESS";
+    field @Deprecated public static final String EXTRA_MEDIA_ID = "android.media.browse.extra.MEDIA_ID";
+    field @Deprecated public static final String EXTRA_PAGE = "android.media.browse.extra.PAGE";
+    field @Deprecated public static final String EXTRA_PAGE_SIZE = "android.media.browse.extra.PAGE_SIZE";
+  }
+
+  @Deprecated public static class MediaBrowserCompat.ConnectionCallback {
+    ctor @Deprecated public MediaBrowserCompat.ConnectionCallback();
+    method @Deprecated public void onConnected();
+    method @Deprecated public void onConnectionFailed();
+    method @Deprecated public void onConnectionSuspended();
+  }
+
+  @Deprecated public abstract static class MediaBrowserCompat.CustomActionCallback {
+    ctor @Deprecated public MediaBrowserCompat.CustomActionCallback();
+    method @Deprecated public void onError(String!, android.os.Bundle!, android.os.Bundle!);
+    method @Deprecated public void onProgressUpdate(String!, android.os.Bundle!, android.os.Bundle!);
+    method @Deprecated public void onResult(String!, android.os.Bundle!, android.os.Bundle!);
+  }
+
+  @Deprecated public abstract static class MediaBrowserCompat.ItemCallback {
+    ctor @Deprecated public MediaBrowserCompat.ItemCallback();
+    method @Deprecated public void onError(String);
+    method @Deprecated public void onItemLoaded(android.support.v4.media.MediaBrowserCompat.MediaItem!);
+  }
+
+  @Deprecated public static class MediaBrowserCompat.MediaItem implements android.os.Parcelable {
+    ctor @Deprecated public MediaBrowserCompat.MediaItem(android.support.v4.media.MediaDescriptionCompat, int);
+    method @Deprecated public int describeContents();
+    method @Deprecated public static android.support.v4.media.MediaBrowserCompat.MediaItem! fromMediaItem(Object!);
+    method @Deprecated public static java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>! fromMediaItemList(java.util.List<? extends java.lang.Object!>!);
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat getDescription();
+    method @Deprecated public int getFlags();
+    method @Deprecated public String? getMediaId();
+    method @Deprecated public boolean isBrowsable();
+    method @Deprecated public boolean isPlayable();
+    method @Deprecated public void writeToParcel(android.os.Parcel!, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.support.v4.media.MediaBrowserCompat.MediaItem!>! CREATOR;
+    field @Deprecated public static final int FLAG_BROWSABLE = 1; // 0x1
+    field @Deprecated public static final int FLAG_PLAYABLE = 2; // 0x2
+  }
+
+  @Deprecated public abstract static class MediaBrowserCompat.SearchCallback {
+    ctor @Deprecated public MediaBrowserCompat.SearchCallback();
+    method @Deprecated public void onError(String, android.os.Bundle!);
+    method @Deprecated public void onSearchResult(String, android.os.Bundle!, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>);
+  }
+
+  @Deprecated public abstract static class MediaBrowserCompat.SubscriptionCallback {
+    ctor @Deprecated public MediaBrowserCompat.SubscriptionCallback();
+    method @Deprecated public void onChildrenLoaded(String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>);
+    method @Deprecated public void onChildrenLoaded(String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>, android.os.Bundle);
+    method @Deprecated public void onError(String);
+    method @Deprecated public void onError(String, android.os.Bundle);
+  }
+
+  @Deprecated public final class MediaDescriptionCompat implements android.os.Parcelable {
+    method @Deprecated public int describeContents();
+    method @Deprecated public static android.support.v4.media.MediaDescriptionCompat! fromMediaDescription(Object!);
+    method @Deprecated public CharSequence? getDescription();
+    method @Deprecated public android.os.Bundle? getExtras();
+    method @Deprecated public android.graphics.Bitmap? getIconBitmap();
+    method @Deprecated public android.net.Uri? getIconUri();
+    method @Deprecated public Object! getMediaDescription();
+    method @Deprecated public String? getMediaId();
+    method @Deprecated public android.net.Uri? getMediaUri();
+    method @Deprecated public CharSequence? getSubtitle();
+    method @Deprecated public CharSequence? getTitle();
+    method @Deprecated public void writeToParcel(android.os.Parcel!, int);
+    field @Deprecated public static final long BT_FOLDER_TYPE_ALBUMS = 2L; // 0x2L
+    field @Deprecated public static final long BT_FOLDER_TYPE_ARTISTS = 3L; // 0x3L
+    field @Deprecated public static final long BT_FOLDER_TYPE_GENRES = 4L; // 0x4L
+    field @Deprecated public static final long BT_FOLDER_TYPE_MIXED = 0L; // 0x0L
+    field @Deprecated public static final long BT_FOLDER_TYPE_PLAYLISTS = 5L; // 0x5L
+    field @Deprecated public static final long BT_FOLDER_TYPE_TITLES = 1L; // 0x1L
+    field @Deprecated public static final long BT_FOLDER_TYPE_YEARS = 6L; // 0x6L
+    field @Deprecated public static final android.os.Parcelable.Creator<android.support.v4.media.MediaDescriptionCompat!>! CREATOR;
+    field @Deprecated public static final String EXTRA_BT_FOLDER_TYPE = "android.media.extra.BT_FOLDER_TYPE";
+    field @Deprecated public static final String EXTRA_DOWNLOAD_STATUS = "android.media.extra.DOWNLOAD_STATUS";
+    field @Deprecated public static final long STATUS_DOWNLOADED = 2L; // 0x2L
+    field @Deprecated public static final long STATUS_DOWNLOADING = 1L; // 0x1L
+    field @Deprecated public static final long STATUS_NOT_DOWNLOADED = 0L; // 0x0L
+  }
+
+  @Deprecated public static final class MediaDescriptionCompat.Builder {
+    ctor @Deprecated public MediaDescriptionCompat.Builder();
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat! build();
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat.Builder! setDescription(CharSequence?);
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat.Builder! setExtras(android.os.Bundle?);
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat.Builder! setIconBitmap(android.graphics.Bitmap?);
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat.Builder! setIconUri(android.net.Uri?);
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat.Builder! setMediaId(String?);
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat.Builder! setMediaUri(android.net.Uri?);
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat.Builder! setSubtitle(CharSequence?);
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat.Builder! setTitle(CharSequence?);
+  }
+
+  @Deprecated public final class MediaMetadataCompat implements android.os.Parcelable {
+    method @Deprecated public boolean containsKey(String!);
+    method @Deprecated public int describeContents();
+    method @Deprecated public static android.support.v4.media.MediaMetadataCompat! fromMediaMetadata(Object!);
+    method @Deprecated public android.graphics.Bitmap! getBitmap(String!);
+    method @Deprecated public android.os.Bundle! getBundle();
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat! getDescription();
+    method @Deprecated public long getLong(String!);
+    method @Deprecated public Object! getMediaMetadata();
+    method @Deprecated public android.support.v4.media.RatingCompat! getRating(String!);
+    method @Deprecated public String! getString(String!);
+    method @Deprecated public CharSequence! getText(String!);
+    method @Deprecated public java.util.Set<java.lang.String!>! keySet();
+    method @Deprecated public int size();
+    method @Deprecated public void writeToParcel(android.os.Parcel!, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.support.v4.media.MediaMetadataCompat!>! CREATOR;
+    field @Deprecated public static final String METADATA_KEY_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
+    field @Deprecated public static final String METADATA_KEY_ALBUM = "android.media.metadata.ALBUM";
+    field @Deprecated public static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
+    field @Deprecated public static final String METADATA_KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
+    field @Deprecated public static final String METADATA_KEY_ALBUM_ART_URI = "android.media.metadata.ALBUM_ART_URI";
+    field @Deprecated public static final String METADATA_KEY_ART = "android.media.metadata.ART";
+    field @Deprecated public static final String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
+    field @Deprecated public static final String METADATA_KEY_ART_URI = "android.media.metadata.ART_URI";
+    field @Deprecated public static final String METADATA_KEY_AUTHOR = "android.media.metadata.AUTHOR";
+    field @Deprecated public static final String METADATA_KEY_BT_FOLDER_TYPE = "android.media.metadata.BT_FOLDER_TYPE";
+    field @Deprecated public static final String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
+    field @Deprecated public static final String METADATA_KEY_COMPOSER = "android.media.metadata.COMPOSER";
+    field @Deprecated public static final String METADATA_KEY_DATE = "android.media.metadata.DATE";
+    field @Deprecated public static final String METADATA_KEY_DISC_NUMBER = "android.media.metadata.DISC_NUMBER";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_DESCRIPTION = "android.media.metadata.DISPLAY_DESCRIPTION";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_ICON = "android.media.metadata.DISPLAY_ICON";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_ICON_URI = "android.media.metadata.DISPLAY_ICON_URI";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_SUBTITLE = "android.media.metadata.DISPLAY_SUBTITLE";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_TITLE = "android.media.metadata.DISPLAY_TITLE";
+    field @Deprecated public static final String METADATA_KEY_DOWNLOAD_STATUS = "android.media.metadata.DOWNLOAD_STATUS";
+    field @Deprecated public static final String METADATA_KEY_DURATION = "android.media.metadata.DURATION";
+    field @Deprecated public static final String METADATA_KEY_GENRE = "android.media.metadata.GENRE";
+    field @Deprecated public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
+    field @Deprecated public static final String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
+    field @Deprecated public static final String METADATA_KEY_NUM_TRACKS = "android.media.metadata.NUM_TRACKS";
+    field @Deprecated public static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
+    field @Deprecated public static final String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
+    field @Deprecated public static final String METADATA_KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
+    field @Deprecated public static final String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
+    field @Deprecated public static final String METADATA_KEY_WRITER = "android.media.metadata.WRITER";
+    field @Deprecated public static final String METADATA_KEY_YEAR = "android.media.metadata.YEAR";
+  }
+
+  @Deprecated public static final class MediaMetadataCompat.Builder {
+    ctor @Deprecated public MediaMetadataCompat.Builder();
+    ctor @Deprecated public MediaMetadataCompat.Builder(android.support.v4.media.MediaMetadataCompat!);
+    method @Deprecated public android.support.v4.media.MediaMetadataCompat! build();
+    method @Deprecated public android.support.v4.media.MediaMetadataCompat.Builder! putBitmap(String!, android.graphics.Bitmap!);
+    method @Deprecated public android.support.v4.media.MediaMetadataCompat.Builder! putLong(String!, long);
+    method @Deprecated public android.support.v4.media.MediaMetadataCompat.Builder! putRating(String!, android.support.v4.media.RatingCompat!);
+    method @Deprecated public android.support.v4.media.MediaMetadataCompat.Builder! putString(String!, String!);
+    method @Deprecated public android.support.v4.media.MediaMetadataCompat.Builder! putText(String!, CharSequence!);
+  }
+
+  @Deprecated public final class RatingCompat implements android.os.Parcelable {
+    method @Deprecated public int describeContents();
+    method @Deprecated public static android.support.v4.media.RatingCompat! fromRating(Object!);
+    method @Deprecated public float getPercentRating();
+    method @Deprecated public Object! getRating();
+    method @Deprecated public int getRatingStyle();
+    method @Deprecated public float getStarRating();
+    method @Deprecated public boolean hasHeart();
+    method @Deprecated public boolean isRated();
+    method @Deprecated public boolean isThumbUp();
+    method @Deprecated public static android.support.v4.media.RatingCompat! newHeartRating(boolean);
+    method @Deprecated public static android.support.v4.media.RatingCompat! newPercentageRating(float);
+    method @Deprecated public static android.support.v4.media.RatingCompat! newStarRating(int, float);
+    method @Deprecated public static android.support.v4.media.RatingCompat! newThumbRating(boolean);
+    method @Deprecated public static android.support.v4.media.RatingCompat! newUnratedRating(int);
+    method @Deprecated public void writeToParcel(android.os.Parcel!, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.support.v4.media.RatingCompat!>! CREATOR;
+    field @Deprecated public static final int RATING_3_STARS = 3; // 0x3
+    field @Deprecated public static final int RATING_4_STARS = 4; // 0x4
+    field @Deprecated public static final int RATING_5_STARS = 5; // 0x5
+    field @Deprecated public static final int RATING_HEART = 1; // 0x1
+    field @Deprecated public static final int RATING_NONE = 0; // 0x0
+    field @Deprecated public static final int RATING_PERCENTAGE = 6; // 0x6
+    field @Deprecated public static final int RATING_THUMB_UP_DOWN = 2; // 0x2
+  }
+
+}
+
+package android.support.v4.media.session {
+
+  @Deprecated public final class MediaControllerCompat {
+    ctor @Deprecated public MediaControllerCompat(android.content.Context!, android.support.v4.media.session.MediaSessionCompat);
+    ctor @Deprecated public MediaControllerCompat(android.content.Context!, android.support.v4.media.session.MediaSessionCompat.Token);
+    method @Deprecated public void addQueueItem(android.support.v4.media.MediaDescriptionCompat!);
+    method @Deprecated public void addQueueItem(android.support.v4.media.MediaDescriptionCompat!, int);
+    method @Deprecated public void adjustVolume(int, int);
+    method @Deprecated public boolean dispatchMediaButtonEvent(android.view.KeyEvent!);
+    method @Deprecated public android.os.Bundle! getExtras();
+    method @Deprecated public long getFlags();
+    method @Deprecated public Object! getMediaController();
+    method @Deprecated public static android.support.v4.media.session.MediaControllerCompat! getMediaController(android.app.Activity);
+    method @Deprecated public android.support.v4.media.MediaMetadataCompat! getMetadata();
+    method @Deprecated public String! getPackageName();
+    method @Deprecated public android.support.v4.media.session.MediaControllerCompat.PlaybackInfo! getPlaybackInfo();
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat! getPlaybackState();
+    method @Deprecated public java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>! getQueue();
+    method @Deprecated public CharSequence! getQueueTitle();
+    method @Deprecated public int getRatingType();
+    method @Deprecated public int getRepeatMode();
+    method @Deprecated public android.app.PendingIntent! getSessionActivity();
+    method @Deprecated public android.os.Bundle getSessionInfo();
+    method @Deprecated public android.support.v4.media.session.MediaSessionCompat.Token! getSessionToken();
+    method @Deprecated public int getShuffleMode();
+    method @Deprecated public android.support.v4.media.session.MediaControllerCompat.TransportControls! getTransportControls();
+    method @Deprecated public boolean isCaptioningEnabled();
+    method @Deprecated public boolean isSessionReady();
+    method @Deprecated public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
+    method @Deprecated public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler!);
+    method @Deprecated public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat!);
+    method @Deprecated public void removeQueueItemAt(int);
+    method @Deprecated public void sendCommand(String, android.os.Bundle?, android.os.ResultReceiver?);
+    method @Deprecated public static void setMediaController(android.app.Activity, android.support.v4.media.session.MediaControllerCompat!);
+    method @Deprecated public void setVolumeTo(int, int);
+    method @Deprecated public void unregisterCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
+  }
+
+  @Deprecated public abstract static class MediaControllerCompat.Callback implements android.os.IBinder.DeathRecipient {
+    ctor @Deprecated public MediaControllerCompat.Callback();
+    method @Deprecated public void binderDied();
+    method @Deprecated public void onAudioInfoChanged(android.support.v4.media.session.MediaControllerCompat.PlaybackInfo!);
+    method @Deprecated public void onCaptioningEnabledChanged(boolean);
+    method @Deprecated public void onExtrasChanged(android.os.Bundle!);
+    method @Deprecated public void onMetadataChanged(android.support.v4.media.MediaMetadataCompat!);
+    method @Deprecated public void onPlaybackStateChanged(android.support.v4.media.session.PlaybackStateCompat!);
+    method @Deprecated public void onQueueChanged(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>!);
+    method @Deprecated public void onQueueTitleChanged(CharSequence!);
+    method @Deprecated public void onRepeatModeChanged(int);
+    method @Deprecated public void onSessionDestroyed();
+    method @Deprecated public void onSessionEvent(String!, android.os.Bundle!);
+    method @Deprecated public void onSessionReady();
+    method @Deprecated public void onShuffleModeChanged(int);
+  }
+
+  @Deprecated public static final class MediaControllerCompat.PlaybackInfo {
+    method @Deprecated public androidx.media.AudioAttributesCompat getAudioAttributes();
+    method @Deprecated public int getAudioStream();
+    method @Deprecated public int getCurrentVolume();
+    method @Deprecated public int getMaxVolume();
+    method @Deprecated public int getPlaybackType();
+    method @Deprecated public int getVolumeControl();
+    field @Deprecated public static final int PLAYBACK_TYPE_LOCAL = 1; // 0x1
+    field @Deprecated public static final int PLAYBACK_TYPE_REMOTE = 2; // 0x2
+  }
+
+  @Deprecated public abstract static class MediaControllerCompat.TransportControls {
+    method @Deprecated public abstract void fastForward();
+    method @Deprecated public abstract void pause();
+    method @Deprecated public abstract void play();
+    method @Deprecated public abstract void playFromMediaId(String!, android.os.Bundle!);
+    method @Deprecated public abstract void playFromSearch(String!, android.os.Bundle!);
+    method @Deprecated public abstract void playFromUri(android.net.Uri!, android.os.Bundle!);
+    method @Deprecated public abstract void prepare();
+    method @Deprecated public abstract void prepareFromMediaId(String!, android.os.Bundle!);
+    method @Deprecated public abstract void prepareFromSearch(String!, android.os.Bundle!);
+    method @Deprecated public abstract void prepareFromUri(android.net.Uri!, android.os.Bundle!);
+    method @Deprecated public abstract void rewind();
+    method @Deprecated public abstract void seekTo(long);
+    method @Deprecated public abstract void sendCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction!, android.os.Bundle!);
+    method @Deprecated public abstract void sendCustomAction(String!, android.os.Bundle!);
+    method @Deprecated public abstract void setCaptioningEnabled(boolean);
+    method @Deprecated public void setPlaybackSpeed(float);
+    method @Deprecated public abstract void setRating(android.support.v4.media.RatingCompat!);
+    method @Deprecated public abstract void setRating(android.support.v4.media.RatingCompat!, android.os.Bundle!);
+    method @Deprecated public abstract void setRepeatMode(int);
+    method @Deprecated public abstract void setShuffleMode(int);
+    method @Deprecated public abstract void skipToNext();
+    method @Deprecated public abstract void skipToPrevious();
+    method @Deprecated public abstract void skipToQueueItem(long);
+    method @Deprecated public abstract void stop();
+    field @Deprecated public static final String EXTRA_LEGACY_STREAM_TYPE = "android.media.session.extra.LEGACY_STREAM_TYPE";
+  }
+
+  @Deprecated public class MediaSessionCompat {
+    ctor @Deprecated public MediaSessionCompat(android.content.Context, String);
+    ctor @Deprecated public MediaSessionCompat(android.content.Context, String, android.content.ComponentName?, android.app.PendingIntent?);
+    ctor @Deprecated public MediaSessionCompat(android.content.Context, String, android.content.ComponentName?, android.app.PendingIntent?, android.os.Bundle?);
+    method @Deprecated public void addOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener!);
+    method @Deprecated public static android.support.v4.media.session.MediaSessionCompat! fromMediaSession(android.content.Context!, Object!);
+    method @Deprecated public static int getBitmapDimensionLimit();
+    method @Deprecated public android.support.v4.media.session.MediaControllerCompat! getController();
+    method @Deprecated public final androidx.media.MediaSessionManager.RemoteUserInfo getCurrentControllerInfo();
+    method @Deprecated public Object! getMediaSession();
+    method @Deprecated public Object! getRemoteControlClient();
+    method @Deprecated public static android.graphics.Bitmap! getScaledBitmap(android.graphics.Bitmap!);
+    method @Deprecated public static android.graphics.Bitmap! getScaledBitmap(android.graphics.Bitmap!, int);
+    method @Deprecated public android.support.v4.media.session.MediaSessionCompat.Token! getSessionToken();
+    method @Deprecated public boolean isActive();
+    method @Deprecated public void release();
+    method @Deprecated public void removeOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener!);
+    method @Deprecated public void sendSessionEvent(String!, android.os.Bundle!);
+    method @Deprecated public void setActive(boolean);
+    method @Deprecated public void setCallback(android.support.v4.media.session.MediaSessionCompat.Callback!);
+    method @Deprecated public void setCallback(android.support.v4.media.session.MediaSessionCompat.Callback!, android.os.Handler!);
+    method @Deprecated public void setCaptioningEnabled(boolean);
+    method @Deprecated public void setExtras(android.os.Bundle!);
+    method @Deprecated public void setFlags(int);
+    method @Deprecated public void setMediaButtonReceiver(android.app.PendingIntent!);
+    method @Deprecated public void setMetadata(android.support.v4.media.MediaMetadataCompat!);
+    method @Deprecated public void setPlaybackState(android.support.v4.media.session.PlaybackStateCompat!);
+    method @Deprecated public void setPlaybackToLocal(int);
+    method @Deprecated public void setPlaybackToRemote(androidx.media.VolumeProviderCompat!);
+    method @Deprecated public void setQueue(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>!);
+    method @Deprecated public void setQueueTitle(CharSequence!);
+    method @Deprecated public void setRatingType(int);
+    method @Deprecated public void setRepeatMode(int);
+    method @Deprecated public void setSessionActivity(android.app.PendingIntent!);
+    method @Deprecated public void setShuffleMode(int);
+    field @Deprecated public static final String ACTION_FLAG_AS_INAPPROPRIATE = "android.support.v4.media.session.action.FLAG_AS_INAPPROPRIATE";
+    field @Deprecated public static final String ACTION_FOLLOW = "android.support.v4.media.session.action.FOLLOW";
+    field @Deprecated public static final String ACTION_SKIP_AD = "android.support.v4.media.session.action.SKIP_AD";
+    field @Deprecated public static final String ACTION_UNFOLLOW = "android.support.v4.media.session.action.UNFOLLOW";
+    field @Deprecated public static final String ARGUMENT_MEDIA_ATTRIBUTE = "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE";
+    field @Deprecated public static final String ARGUMENT_MEDIA_ATTRIBUTE_VALUE = "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE_VALUE";
+    field @Deprecated public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1; // 0x1
+    field @Deprecated public static final int FLAG_HANDLES_QUEUE_COMMANDS = 4; // 0x4
+    field @Deprecated public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 2; // 0x2
+    field @Deprecated public static final int MEDIA_ATTRIBUTE_ALBUM = 1; // 0x1
+    field @Deprecated public static final int MEDIA_ATTRIBUTE_ARTIST = 0; // 0x0
+    field @Deprecated public static final int MEDIA_ATTRIBUTE_PLAYLIST = 2; // 0x2
+  }
+
+  @Deprecated public abstract static class MediaSessionCompat.Callback {
+    ctor @Deprecated public MediaSessionCompat.Callback();
+    method @Deprecated public void onAddQueueItem(android.support.v4.media.MediaDescriptionCompat!);
+    method @Deprecated public void onAddQueueItem(android.support.v4.media.MediaDescriptionCompat!, int);
+    method @Deprecated public void onCommand(String!, android.os.Bundle!, android.os.ResultReceiver!);
+    method @Deprecated public void onCustomAction(String!, android.os.Bundle!);
+    method @Deprecated public void onFastForward();
+    method @Deprecated public boolean onMediaButtonEvent(android.content.Intent!);
+    method @Deprecated public void onPause();
+    method @Deprecated public void onPlay();
+    method @Deprecated public void onPlayFromMediaId(String!, android.os.Bundle!);
+    method @Deprecated public void onPlayFromSearch(String!, android.os.Bundle!);
+    method @Deprecated public void onPlayFromUri(android.net.Uri!, android.os.Bundle!);
+    method @Deprecated public void onPrepare();
+    method @Deprecated public void onPrepareFromMediaId(String!, android.os.Bundle!);
+    method @Deprecated public void onPrepareFromSearch(String!, android.os.Bundle!);
+    method @Deprecated public void onPrepareFromUri(android.net.Uri!, android.os.Bundle!);
+    method @Deprecated public void onRemoveQueueItem(android.support.v4.media.MediaDescriptionCompat!);
+    method @Deprecated public void onRemoveQueueItemAt(int);
+    method @Deprecated public void onRewind();
+    method @Deprecated public void onSeekTo(long);
+    method @Deprecated public void onSetCaptioningEnabled(boolean);
+    method @Deprecated public void onSetPlaybackSpeed(float);
+    method @Deprecated public void onSetRating(android.support.v4.media.RatingCompat!);
+    method @Deprecated public void onSetRating(android.support.v4.media.RatingCompat!, android.os.Bundle!);
+    method @Deprecated public void onSetRepeatMode(int);
+    method @Deprecated public void onSetShuffleMode(int);
+    method @Deprecated public void onSkipToNext();
+    method @Deprecated public void onSkipToPrevious();
+    method @Deprecated public void onSkipToQueueItem(long);
+    method @Deprecated public void onStop();
+  }
+
+  @Deprecated public static interface MediaSessionCompat.OnActiveChangeListener {
+    method @Deprecated public void onActiveChanged();
+  }
+
+  @Deprecated public static final class MediaSessionCompat.QueueItem implements android.os.Parcelable {
+    ctor @Deprecated public MediaSessionCompat.QueueItem(android.support.v4.media.MediaDescriptionCompat!, long);
+    method @Deprecated public int describeContents();
+    method @Deprecated public static android.support.v4.media.session.MediaSessionCompat.QueueItem! fromQueueItem(Object!);
+    method @Deprecated public static java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>! fromQueueItemList(java.util.List<? extends java.lang.Object!>!);
+    method @Deprecated public android.support.v4.media.MediaDescriptionCompat! getDescription();
+    method @Deprecated public long getQueueId();
+    method @Deprecated public Object! getQueueItem();
+    method @Deprecated public void writeToParcel(android.os.Parcel!, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.support.v4.media.session.MediaSessionCompat.QueueItem!>! CREATOR;
+    field @Deprecated public static final int UNKNOWN_ID = -1; // 0xffffffff
+  }
+
+  @Deprecated public static final class MediaSessionCompat.Token implements android.os.Parcelable {
+    method @Deprecated public int describeContents();
+    method @Deprecated public static android.support.v4.media.session.MediaSessionCompat.Token! fromToken(Object!);
+    method @Deprecated public Object! getToken();
+    method @Deprecated public void writeToParcel(android.os.Parcel!, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.support.v4.media.session.MediaSessionCompat.Token!>! CREATOR;
+  }
+
+  @Deprecated public class ParcelableVolumeInfo implements android.os.Parcelable {
+    ctor @Deprecated public ParcelableVolumeInfo(android.os.Parcel!);
+    ctor @Deprecated public ParcelableVolumeInfo(int, int, int, int, int);
+    method @Deprecated public int describeContents();
+    method @Deprecated public void writeToParcel(android.os.Parcel!, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.support.v4.media.session.ParcelableVolumeInfo!>! CREATOR;
+    field @Deprecated public int audioStream;
+    field @Deprecated public int controlType;
+    field @Deprecated public int currentVolume;
+    field @Deprecated public int maxVolume;
+    field @Deprecated public int volumeType;
+  }
+
+  @Deprecated public final class PlaybackStateCompat implements android.os.Parcelable {
+    method @Deprecated public int describeContents();
+    method @Deprecated public static android.support.v4.media.session.PlaybackStateCompat! fromPlaybackState(Object!);
+    method @Deprecated public long getActions();
+    method @Deprecated public long getActiveQueueItemId();
+    method @Deprecated public long getBufferedPosition();
+    method @Deprecated public java.util.List<android.support.v4.media.session.PlaybackStateCompat.CustomAction!>! getCustomActions();
+    method @Deprecated public int getErrorCode();
+    method @Deprecated public CharSequence! getErrorMessage();
+    method @Deprecated public android.os.Bundle? getExtras();
+    method @Deprecated public long getLastPositionUpdateTime();
+    method @Deprecated public float getPlaybackSpeed();
+    method @Deprecated public Object! getPlaybackState();
+    method @Deprecated public long getPosition();
+    method @Deprecated public int getState();
+    method @Deprecated public static int toKeyCode(long);
+    method @Deprecated public void writeToParcel(android.os.Parcel!, int);
+    field @Deprecated public static final long ACTION_FAST_FORWARD = 64L; // 0x40L
+    field @Deprecated public static final long ACTION_PAUSE = 2L; // 0x2L
+    field @Deprecated public static final long ACTION_PLAY = 4L; // 0x4L
+    field @Deprecated public static final long ACTION_PLAY_FROM_MEDIA_ID = 1024L; // 0x400L
+    field @Deprecated public static final long ACTION_PLAY_FROM_SEARCH = 2048L; // 0x800L
+    field @Deprecated public static final long ACTION_PLAY_FROM_URI = 8192L; // 0x2000L
+    field @Deprecated public static final long ACTION_PLAY_PAUSE = 512L; // 0x200L
+    field @Deprecated public static final long ACTION_PREPARE = 16384L; // 0x4000L
+    field @Deprecated public static final long ACTION_PREPARE_FROM_MEDIA_ID = 32768L; // 0x8000L
+    field @Deprecated public static final long ACTION_PREPARE_FROM_SEARCH = 65536L; // 0x10000L
+    field @Deprecated public static final long ACTION_PREPARE_FROM_URI = 131072L; // 0x20000L
+    field @Deprecated public static final long ACTION_REWIND = 8L; // 0x8L
+    field @Deprecated public static final long ACTION_SEEK_TO = 256L; // 0x100L
+    field @Deprecated public static final long ACTION_SET_CAPTIONING_ENABLED = 1048576L; // 0x100000L
+    field @Deprecated public static final long ACTION_SET_PLAYBACK_SPEED = 4194304L; // 0x400000L
+    field @Deprecated public static final long ACTION_SET_RATING = 128L; // 0x80L
+    field @Deprecated public static final long ACTION_SET_REPEAT_MODE = 262144L; // 0x40000L
+    field @Deprecated public static final long ACTION_SET_SHUFFLE_MODE = 2097152L; // 0x200000L
+    field @Deprecated public static final long ACTION_SET_SHUFFLE_MODE_ENABLED = 524288L; // 0x80000L
+    field @Deprecated public static final long ACTION_SKIP_TO_NEXT = 32L; // 0x20L
+    field @Deprecated public static final long ACTION_SKIP_TO_PREVIOUS = 16L; // 0x10L
+    field @Deprecated public static final long ACTION_SKIP_TO_QUEUE_ITEM = 4096L; // 0x1000L
+    field @Deprecated public static final long ACTION_STOP = 1L; // 0x1L
+    field @Deprecated public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat!>! CREATOR;
+    field @Deprecated public static final int ERROR_CODE_ACTION_ABORTED = 10; // 0xa
+    field @Deprecated public static final int ERROR_CODE_APP_ERROR = 1; // 0x1
+    field @Deprecated public static final int ERROR_CODE_AUTHENTICATION_EXPIRED = 3; // 0x3
+    field @Deprecated public static final int ERROR_CODE_CONCURRENT_STREAM_LIMIT = 5; // 0x5
+    field @Deprecated public static final int ERROR_CODE_CONTENT_ALREADY_PLAYING = 8; // 0x8
+    field @Deprecated public static final int ERROR_CODE_END_OF_QUEUE = 11; // 0xb
+    field @Deprecated public static final int ERROR_CODE_NOT_AVAILABLE_IN_REGION = 7; // 0x7
+    field @Deprecated public static final int ERROR_CODE_NOT_SUPPORTED = 2; // 0x2
+    field @Deprecated public static final int ERROR_CODE_PARENTAL_CONTROL_RESTRICTED = 6; // 0x6
+    field @Deprecated public static final int ERROR_CODE_PREMIUM_ACCOUNT_REQUIRED = 4; // 0x4
+    field @Deprecated public static final int ERROR_CODE_SKIP_LIMIT_REACHED = 9; // 0x9
+    field @Deprecated public static final int ERROR_CODE_UNKNOWN_ERROR = 0; // 0x0
+    field @Deprecated public static final long PLAYBACK_POSITION_UNKNOWN = -1L; // 0xffffffffffffffffL
+    field @Deprecated public static final int REPEAT_MODE_ALL = 2; // 0x2
+    field @Deprecated public static final int REPEAT_MODE_GROUP = 3; // 0x3
+    field @Deprecated public static final int REPEAT_MODE_INVALID = -1; // 0xffffffff
+    field @Deprecated public static final int REPEAT_MODE_NONE = 0; // 0x0
+    field @Deprecated public static final int REPEAT_MODE_ONE = 1; // 0x1
+    field @Deprecated public static final int SHUFFLE_MODE_ALL = 1; // 0x1
+    field @Deprecated public static final int SHUFFLE_MODE_GROUP = 2; // 0x2
+    field @Deprecated public static final int SHUFFLE_MODE_INVALID = -1; // 0xffffffff
+    field @Deprecated public static final int SHUFFLE_MODE_NONE = 0; // 0x0
+    field @Deprecated public static final int STATE_BUFFERING = 6; // 0x6
+    field @Deprecated public static final int STATE_CONNECTING = 8; // 0x8
+    field @Deprecated public static final int STATE_ERROR = 7; // 0x7
+    field @Deprecated public static final int STATE_FAST_FORWARDING = 4; // 0x4
+    field @Deprecated public static final int STATE_NONE = 0; // 0x0
+    field @Deprecated public static final int STATE_PAUSED = 2; // 0x2
+    field @Deprecated public static final int STATE_PLAYING = 3; // 0x3
+    field @Deprecated public static final int STATE_REWINDING = 5; // 0x5
+    field @Deprecated public static final int STATE_SKIPPING_TO_NEXT = 10; // 0xa
+    field @Deprecated public static final int STATE_SKIPPING_TO_PREVIOUS = 9; // 0x9
+    field @Deprecated public static final int STATE_SKIPPING_TO_QUEUE_ITEM = 11; // 0xb
+    field @Deprecated public static final int STATE_STOPPED = 1; // 0x1
+  }
+
+  @Deprecated public static final class PlaybackStateCompat.Builder {
+    ctor @Deprecated public PlaybackStateCompat.Builder();
+    ctor @Deprecated public PlaybackStateCompat.Builder(android.support.v4.media.session.PlaybackStateCompat!);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! addCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction!);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! addCustomAction(String!, String!, int);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat! build();
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setActions(long);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setActiveQueueItemId(long);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setBufferedPosition(long);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setErrorMessage(int, CharSequence!);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setErrorMessage(CharSequence!);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setExtras(android.os.Bundle!);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setState(int, long, float);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setState(int, long, float, long);
+  }
+
+  @Deprecated public static final class PlaybackStateCompat.CustomAction implements android.os.Parcelable {
+    method @Deprecated public int describeContents();
+    method @Deprecated public static android.support.v4.media.session.PlaybackStateCompat.CustomAction! fromCustomAction(Object!);
+    method @Deprecated public String! getAction();
+    method @Deprecated public Object! getCustomAction();
+    method @Deprecated public android.os.Bundle! getExtras();
+    method @Deprecated public int getIcon();
+    method @Deprecated public CharSequence! getName();
+    method @Deprecated public void writeToParcel(android.os.Parcel!, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat.CustomAction!>! CREATOR;
+  }
+
+  @Deprecated public static final class PlaybackStateCompat.CustomAction.Builder {
+    ctor @Deprecated public PlaybackStateCompat.CustomAction.Builder(String!, CharSequence!, int);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.CustomAction! build();
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.CustomAction.Builder! setExtras(android.os.Bundle!);
+  }
+
+}
+
+package androidx.media {
+
+  @Deprecated public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
+    method @Deprecated public int getContentType();
+    method @Deprecated public int getFlags();
+    method @Deprecated public int getLegacyStreamType();
+    method @Deprecated public int getUsage();
+    method @Deprecated public int getVolumeControlStream();
+    method @Deprecated public Object? unwrap();
+    method @Deprecated public static androidx.media.AudioAttributesCompat? wrap(Object);
+    field @Deprecated public static final int CONTENT_TYPE_MOVIE = 3; // 0x3
+    field @Deprecated public static final int CONTENT_TYPE_MUSIC = 2; // 0x2
+    field @Deprecated public static final int CONTENT_TYPE_SONIFICATION = 4; // 0x4
+    field @Deprecated public static final int CONTENT_TYPE_SPEECH = 1; // 0x1
+    field @Deprecated public static final int CONTENT_TYPE_UNKNOWN = 0; // 0x0
+    field @Deprecated public static final int FLAG_AUDIBILITY_ENFORCED = 1; // 0x1
+    field @Deprecated public static final int FLAG_HW_AV_SYNC = 16; // 0x10
+    field @Deprecated public static final int USAGE_ALARM = 4; // 0x4
+    field @Deprecated public static final int USAGE_ASSISTANCE_ACCESSIBILITY = 11; // 0xb
+    field @Deprecated public static final int USAGE_ASSISTANCE_NAVIGATION_GUIDANCE = 12; // 0xc
+    field @Deprecated public static final int USAGE_ASSISTANCE_SONIFICATION = 13; // 0xd
+    field @Deprecated public static final int USAGE_ASSISTANT = 16; // 0x10
+    field @Deprecated public static final int USAGE_GAME = 14; // 0xe
+    field @Deprecated public static final int USAGE_MEDIA = 1; // 0x1
+    field @Deprecated public static final int USAGE_NOTIFICATION = 5; // 0x5
+    field @Deprecated public static final int USAGE_NOTIFICATION_COMMUNICATION_DELAYED = 9; // 0x9
+    field @Deprecated public static final int USAGE_NOTIFICATION_COMMUNICATION_INSTANT = 8; // 0x8
+    field @Deprecated public static final int USAGE_NOTIFICATION_COMMUNICATION_REQUEST = 7; // 0x7
+    field @Deprecated public static final int USAGE_NOTIFICATION_EVENT = 10; // 0xa
+    field @Deprecated public static final int USAGE_NOTIFICATION_RINGTONE = 6; // 0x6
+    field @Deprecated public static final int USAGE_UNKNOWN = 0; // 0x0
+    field @Deprecated public static final int USAGE_VOICE_COMMUNICATION = 2; // 0x2
+    field @Deprecated public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING = 3; // 0x3
+  }
+
+  @Deprecated public static class AudioAttributesCompat.Builder {
+    ctor @Deprecated public AudioAttributesCompat.Builder();
+    ctor @Deprecated public AudioAttributesCompat.Builder(androidx.media.AudioAttributesCompat!);
+    method @Deprecated public androidx.media.AudioAttributesCompat! build();
+    method @Deprecated public androidx.media.AudioAttributesCompat.Builder! setContentType(int);
+    method @Deprecated public androidx.media.AudioAttributesCompat.Builder! setFlags(int);
+    method @Deprecated public androidx.media.AudioAttributesCompat.Builder! setLegacyStreamType(int);
+    method @Deprecated public androidx.media.AudioAttributesCompat.Builder! setUsage(int);
+  }
+
+  @Deprecated public class AudioFocusRequestCompat {
+    method @Deprecated public androidx.media.AudioAttributesCompat getAudioAttributesCompat();
+    method @Deprecated public android.os.Handler getFocusChangeHandler();
+    method @Deprecated public int getFocusGain();
+    method @Deprecated public android.media.AudioManager.OnAudioFocusChangeListener getOnAudioFocusChangeListener();
+    method @Deprecated public boolean willPauseWhenDucked();
+  }
+
+  @Deprecated public static final class AudioFocusRequestCompat.Builder {
+    ctor @Deprecated public AudioFocusRequestCompat.Builder(androidx.media.AudioFocusRequestCompat);
+    ctor @Deprecated public AudioFocusRequestCompat.Builder(int);
+    method @Deprecated public androidx.media.AudioFocusRequestCompat! build();
+    method @Deprecated public androidx.media.AudioFocusRequestCompat.Builder setAudioAttributes(androidx.media.AudioAttributesCompat);
+    method @Deprecated public androidx.media.AudioFocusRequestCompat.Builder setFocusGain(int);
+    method @Deprecated public androidx.media.AudioFocusRequestCompat.Builder setOnAudioFocusChangeListener(android.media.AudioManager.OnAudioFocusChangeListener);
+    method @Deprecated public androidx.media.AudioFocusRequestCompat.Builder setOnAudioFocusChangeListener(android.media.AudioManager.OnAudioFocusChangeListener, android.os.Handler);
+    method @Deprecated public androidx.media.AudioFocusRequestCompat.Builder setWillPauseWhenDucked(boolean);
+  }
+
+  @Deprecated public final class AudioManagerCompat {
+    method @Deprecated public static int abandonAudioFocusRequest(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
+    method @Deprecated @IntRange(from=0) public static int getStreamMaxVolume(android.media.AudioManager, int);
+    method @Deprecated @IntRange(from=0) public static int getStreamMinVolume(android.media.AudioManager, int);
+    method @Deprecated public static boolean isVolumeFixed(android.media.AudioManager);
+    method @Deprecated public static int requestAudioFocus(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
+    field @Deprecated public static final int AUDIOFOCUS_GAIN = 1; // 0x1
+    field @Deprecated public static final int AUDIOFOCUS_GAIN_TRANSIENT = 2; // 0x2
+    field @Deprecated public static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE = 4; // 0x4
+    field @Deprecated public static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK = 3; // 0x3
+  }
+
+  @Deprecated public abstract class MediaBrowserServiceCompat extends android.app.Service {
+    ctor @Deprecated public MediaBrowserServiceCompat();
+    method @Deprecated public void dump(java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
+    method @Deprecated public final android.os.Bundle! getBrowserRootHints();
+    method @Deprecated public final androidx.media.MediaSessionManager.RemoteUserInfo getCurrentBrowserInfo();
+    method @Deprecated public android.support.v4.media.session.MediaSessionCompat.Token? getSessionToken();
+    method @Deprecated public void notifyChildrenChanged(String);
+    method @Deprecated public void notifyChildrenChanged(String, android.os.Bundle);
+    method @Deprecated public android.os.IBinder! onBind(android.content.Intent!);
+    method @Deprecated public void onCustomAction(String, android.os.Bundle!, androidx.media.MediaBrowserServiceCompat.Result<android.os.Bundle!>);
+    method @Deprecated public abstract androidx.media.MediaBrowserServiceCompat.BrowserRoot? onGetRoot(String, int, android.os.Bundle?);
+    method @Deprecated public abstract void onLoadChildren(String, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>!>);
+    method @Deprecated public void onLoadChildren(String, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>!>, android.os.Bundle);
+    method @Deprecated public void onLoadItem(String!, androidx.media.MediaBrowserServiceCompat.Result<android.support.v4.media.MediaBrowserCompat.MediaItem!>);
+    method @Deprecated public void onSearch(String, android.os.Bundle!, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>!>);
+    method @Deprecated public void setSessionToken(android.support.v4.media.session.MediaSessionCompat.Token!);
+    field @Deprecated public static final String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
+  }
+
+  @Deprecated public static final class MediaBrowserServiceCompat.BrowserRoot {
+    ctor @Deprecated public MediaBrowserServiceCompat.BrowserRoot(String, android.os.Bundle?);
+    method @Deprecated public android.os.Bundle! getExtras();
+    method @Deprecated public String! getRootId();
+    field @Deprecated public static final String EXTRA_OFFLINE = "android.service.media.extra.OFFLINE";
+    field @Deprecated public static final String EXTRA_RECENT = "android.service.media.extra.RECENT";
+    field @Deprecated public static final String EXTRA_SUGGESTED = "android.service.media.extra.SUGGESTED";
+    field @Deprecated public static final String EXTRA_SUGGESTION_KEYWORDS = "android.service.media.extra.SUGGESTION_KEYWORDS";
+  }
+
+  @Deprecated public static class MediaBrowserServiceCompat.Result<T> {
+    method @Deprecated public void detach();
+    method @Deprecated public void sendError(android.os.Bundle?);
+    method @Deprecated public void sendProgressUpdate(android.os.Bundle?);
+    method @Deprecated public void sendResult(T?);
+  }
+
+  @Deprecated public final class MediaSessionManager {
+    method @Deprecated public static androidx.media.MediaSessionManager getSessionManager(android.content.Context);
+    method @Deprecated public boolean isTrustedForMediaControl(androidx.media.MediaSessionManager.RemoteUserInfo);
+  }
+
+  @Deprecated public static final class MediaSessionManager.RemoteUserInfo {
+    ctor @Deprecated public MediaSessionManager.RemoteUserInfo(String, int, int);
+    method @Deprecated public String getPackageName();
+    method @Deprecated public int getPid();
+    method @Deprecated public int getUid();
+    field @Deprecated public static final String LEGACY_CONTROLLER = "android.media.session.MediaController";
+  }
+
+  @Deprecated public abstract class VolumeProviderCompat {
+    ctor @Deprecated public VolumeProviderCompat(int, int, int);
+    method @Deprecated public final int getCurrentVolume();
+    method @Deprecated public final int getMaxVolume();
+    method @Deprecated public final int getVolumeControl();
+    method @Deprecated public Object! getVolumeProvider();
+    method @Deprecated public void onAdjustVolume(int);
+    method @Deprecated public void onSetVolumeTo(int);
+    method @Deprecated public void setCallback(androidx.media.VolumeProviderCompat.Callback!);
+    method @Deprecated public final void setCurrentVolume(int);
+    field @Deprecated public static final int VOLUME_CONTROL_ABSOLUTE = 2; // 0x2
+    field @Deprecated public static final int VOLUME_CONTROL_FIXED = 0; // 0x0
+    field @Deprecated public static final int VOLUME_CONTROL_RELATIVE = 1; // 0x1
+  }
+
+  @Deprecated public abstract static class VolumeProviderCompat.Callback {
+    ctor @Deprecated public VolumeProviderCompat.Callback();
+    method @Deprecated public abstract void onVolumeChanged(androidx.media.VolumeProviderCompat!);
+  }
+
+}
+
+package androidx.media.app {
+
+  @Deprecated public class NotificationCompat {
+  }
+
+  @Deprecated public static class NotificationCompat.DecoratedMediaCustomViewStyle extends androidx.media.app.NotificationCompat.MediaStyle {
+    ctor @Deprecated public NotificationCompat.DecoratedMediaCustomViewStyle();
+  }
+
+  @Deprecated public static class NotificationCompat.MediaStyle extends androidx.core.app.NotificationCompat.Style {
+    ctor @Deprecated public NotificationCompat.MediaStyle();
+    ctor @Deprecated public NotificationCompat.MediaStyle(androidx.core.app.NotificationCompat.Builder!);
+    method @Deprecated public static android.support.v4.media.session.MediaSessionCompat.Token! getMediaSession(android.app.Notification!);
+    method @Deprecated public androidx.media.app.NotificationCompat.MediaStyle! setCancelButtonIntent(android.app.PendingIntent!);
+    method @Deprecated public androidx.media.app.NotificationCompat.MediaStyle! setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token!);
+    method @Deprecated @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public androidx.media.app.NotificationCompat.MediaStyle setRemotePlaybackInfo(CharSequence, @DrawableRes int, android.app.PendingIntent?);
+    method @Deprecated public androidx.media.app.NotificationCompat.MediaStyle! setShowActionsInCompactView(int...!);
+    method @Deprecated public androidx.media.app.NotificationCompat.MediaStyle! setShowCancelButton(boolean);
+  }
+
+}
+
+package androidx.media.session {
+
+  @Deprecated public class MediaButtonReceiver extends android.content.BroadcastReceiver {
+    ctor @Deprecated public MediaButtonReceiver();
+    method @Deprecated public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, android.content.ComponentName!, long);
+    method @Deprecated public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, long);
+    method @Deprecated public static android.view.KeyEvent! handleIntent(android.support.v4.media.session.MediaSessionCompat!, android.content.Intent!);
+    method @Deprecated @RequiresApi(31) protected void onForegroundServiceStartNotAllowedException(android.content.Intent, android.app.ForegroundServiceStartNotAllowedException);
+    method @Deprecated public void onReceive(android.content.Context!, android.content.Intent!);
+  }
+
+}
+
+package androidx.media.utils {
+
+  @Deprecated public final class MediaConstants {
+    field @Deprecated public static final String BROWSER_ROOT_HINTS_KEY_CUSTOM_BROWSER_ACTION_LIMIT = "androidx.media.utils.MediaBrowserCompat.extras.CUSTOM_BROWSER_ACTION_LIMIT";
+    field @Deprecated public static final String BROWSER_ROOT_HINTS_KEY_MEDIA_ART_SIZE_PIXELS = "android.media.extras.MEDIA_ART_SIZE_HINT_PIXELS";
+    field @Deprecated public static final String BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_LIMIT = "androidx.media.MediaBrowserCompat.Extras.KEY_ROOT_CHILDREN_LIMIT";
+    field @Deprecated public static final String BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS = "androidx.media.MediaBrowserCompat.Extras.KEY_ROOT_CHILDREN_SUPPORTED_FLAGS";
+    field @Deprecated public static final String BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT = "androidx.media.BrowserRoot.Extras.APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT";
+    field @Deprecated public static final String BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST = "androidx.media.utils.extras.CUSTOM_BROWSER_ACTION_ROOT_LIST";
+    field @Deprecated public static final String BROWSER_SERVICE_EXTRAS_KEY_FAVORITES_MEDIA_ITEM = "androidx.media.BrowserRoot.Extras.FAVORITES_MEDIA_ITEM";
+    field @Deprecated public static final String BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED = "android.media.browse.SEARCH_SUPPORTED";
+    field @Deprecated public static final String DESCRIPTION_EXTRAS_KEY_COMPLETION_PERCENTAGE = "androidx.media.MediaItem.Extras.COMPLETION_PERCENTAGE";
+    field @Deprecated public static final String DESCRIPTION_EXTRAS_KEY_COMPLETION_STATUS = "android.media.extra.PLAYBACK_STATUS";
+    field @Deprecated public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_BROWSABLE = "android.media.browse.CONTENT_STYLE_BROWSABLE_HINT";
+    field @Deprecated public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_GROUP_TITLE = "android.media.browse.CONTENT_STYLE_GROUP_TITLE_HINT";
+    field @Deprecated public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_PLAYABLE = "android.media.browse.CONTENT_STYLE_PLAYABLE_HINT";
+    field @Deprecated public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_SINGLE_ITEM = "android.media.browse.CONTENT_STYLE_SINGLE_ITEM_HINT";
+    field @Deprecated public static final String DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST = "androidx.media.utils.extras.CUSTOM_BROWSER_ACTION_ID_LIST";
+    field @Deprecated public static final int DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_FULLY_PLAYED = 2; // 0x2
+    field @Deprecated public static final int DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_NOT_PLAYED = 0; // 0x0
+    field @Deprecated public static final int DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED = 1; // 0x1
+    field @Deprecated public static final int DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM = 4; // 0x4
+    field @Deprecated public static final int DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_LIST_ITEM = 3; // 0x3
+    field @Deprecated public static final int DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM = 2; // 0x2
+    field @Deprecated public static final int DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM = 1; // 0x1
+    field @Deprecated public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_EXTRAS = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_EXTRAS";
+    field @Deprecated public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ICON_URI = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_ICON_URI";
+    field @Deprecated public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_ID";
+    field @Deprecated public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_LABEL = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_LABEL";
+    field @Deprecated public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID";
+    field @Deprecated public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE";
+    field @Deprecated public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE";
+    field @Deprecated public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM";
+    field @Deprecated public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM";
+    field @Deprecated public static final String METADATA_KEY_CONTENT_ID = "androidx.media.MediaMetadatCompat.METADATA_KEY_CONTENT_ID";
+    field @Deprecated public static final String METADATA_KEY_IS_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
+    field @Deprecated public static final String METADATA_KEY_IS_EXPLICIT = "android.media.IS_EXPLICIT";
+    field @Deprecated public static final String METADATA_KEY_NEXT_EPISODE_CONTENT_ID = "androidx.media.MediaMetadatCompat.METADATA_KEY_NEXT_EPISODE_CONTENT_ID";
+    field @Deprecated public static final String METADATA_KEY_SERIES_CONTENT_ID = "androidx.media.MediaMetadatCompat.METADATA_KEY_SERIES_CONTENT_ID";
+    field @Deprecated public static final long METADATA_VALUE_ATTRIBUTE_PRESENT = 1L; // 0x1L
+    field @Deprecated public static final String PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT = "android.media.extras.ERROR_RESOLUTION_ACTION_INTENT";
+    field @Deprecated public static final String PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL = "android.media.extras.ERROR_RESOLUTION_ACTION_LABEL";
+    field @Deprecated public static final String PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_USING_CAR_APP_LIBRARY_INTENT = "androidx.media.PlaybackStateCompat.Extras.ERROR_RESOLUTION_USING_CAR_APP_LIBRARY_INTENT";
+    field @Deprecated public static final String PLAYBACK_STATE_EXTRAS_KEY_MEDIA_ID = "androidx.media.PlaybackStateCompat.Extras.KEY_MEDIA_ID";
+    field @Deprecated public static final String SESSION_EXTRAS_KEY_ACCOUNT_NAME = "androidx.media.MediaSessionCompat.Extras.KEY_ACCOUNT_NAME";
+    field @Deprecated public static final String SESSION_EXTRAS_KEY_ACCOUNT_TYPE = "androidx.media.MediaSessionCompat.Extras.KEY_ACCOUNT_TYPE";
+    field @Deprecated public static final String SESSION_EXTRAS_KEY_SLOT_RESERVATION_SKIP_TO_NEXT = "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_NEXT";
+    field @Deprecated public static final String SESSION_EXTRAS_KEY_SLOT_RESERVATION_SKIP_TO_PREV = "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_PREVIOUS";
+    field @Deprecated public static final String TRANSPORT_CONTROLS_EXTRAS_KEY_LEGACY_STREAM_TYPE = "android.media.session.extra.LEGACY_STREAM_TYPE";
+    field @Deprecated public static final String TRANSPORT_CONTROLS_EXTRAS_KEY_SHUFFLE = "androidx.media.MediaControllerCompat.TransportControls.extras.KEY_SHUFFLE";
+  }
+
+}
+

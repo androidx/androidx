@@ -1433,6 +1433,7 @@ final class androidx.compose.material3/RichTooltipColors { // androidx.compose.m
 }
 
 final class androidx.compose.material3/RippleConfiguration { // androidx.compose.material3/RippleConfiguration|null[0]
+    constructor <init>(androidx.compose.material3/RippleConfiguration.Focus?, androidx.compose.ui.graphics/Color = ...) // androidx.compose.material3/RippleConfiguration.<init>|<init>(androidx.compose.material3.RippleConfiguration.Focus?;androidx.compose.ui.graphics.Color){}[0]
     constructor <init>(androidx.compose.ui.graphics/Color = ...) // androidx.compose.material3/RippleConfiguration.<init>|<init>(androidx.compose.ui.graphics.Color){}[0]
     constructor <init>(androidx.compose.ui.graphics/Color = ..., androidx.compose.material.ripple/RippleAlpha? = ...) // androidx.compose.material3/RippleConfiguration.<init>|<init>(androidx.compose.ui.graphics.Color;androidx.compose.material.ripple.RippleAlpha?){}[0]
 
@@ -1446,6 +1447,59 @@ final class androidx.compose.material3/RippleConfiguration { // androidx.compose
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/RippleConfiguration.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleConfiguration.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.compose.material3/RippleConfiguration.toString|toString(){}[0]
+
+    abstract class Focus { // androidx.compose.material3/RippleConfiguration.Focus|null[0]
+        final class InsetRing : androidx.compose.material3/RippleConfiguration.Focus { // androidx.compose.material3/RippleConfiguration.Focus.InsetRing|null[0]
+            constructor <init>(androidx.compose.ui.graphics/Color, androidx.compose.ui.graphics/Color) // androidx.compose.material3/RippleConfiguration.Focus.InsetRing.<init>|<init>(androidx.compose.ui.graphics.Color;androidx.compose.ui.graphics.Color){}[0]
+
+            final val innerStrokeColor // androidx.compose.material3/RippleConfiguration.Focus.InsetRing.innerStrokeColor|{}innerStrokeColor[0]
+                final fun <get-innerStrokeColor>(): androidx.compose.ui.graphics/Color // androidx.compose.material3/RippleConfiguration.Focus.InsetRing.innerStrokeColor.<get-innerStrokeColor>|<get-innerStrokeColor>(){}[0]
+            final val outerStrokeColor // androidx.compose.material3/RippleConfiguration.Focus.InsetRing.outerStrokeColor|{}outerStrokeColor[0]
+                final fun <get-outerStrokeColor>(): androidx.compose.ui.graphics/Color // androidx.compose.material3/RippleConfiguration.Focus.InsetRing.outerStrokeColor.<get-outerStrokeColor>|<get-outerStrokeColor>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/RippleConfiguration.Focus.InsetRing.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleConfiguration.Focus.InsetRing.hashCode|hashCode(){}[0]
+        }
+
+        final class Opacity : androidx.compose.material3/RippleConfiguration.Focus { // androidx.compose.material3/RippleConfiguration.Focus.Opacity|null[0]
+            constructor <init>() // androidx.compose.material3/RippleConfiguration.Focus.Opacity.<init>|<init>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/RippleConfiguration.Focus.Opacity.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleConfiguration.Focus.Opacity.hashCode|hashCode(){}[0]
+        }
+    }
+}
+
+final class androidx.compose.material3/RippleThemeConfiguration { // androidx.compose.material3/RippleThemeConfiguration|null[0]
+    constructor <init>(androidx.compose.material3/RippleThemeConfiguration.Focus) // androidx.compose.material3/RippleThemeConfiguration.<init>|<init>(androidx.compose.material3.RippleThemeConfiguration.Focus){}[0]
+
+    final val focus // androidx.compose.material3/RippleThemeConfiguration.focus|{}focus[0]
+        final fun <get-focus>(): androidx.compose.material3/RippleThemeConfiguration.Focus // androidx.compose.material3/RippleThemeConfiguration.focus.<get-focus>|<get-focus>(){}[0]
+
+    abstract class Focus { // androidx.compose.material3/RippleThemeConfiguration.Focus|null[0]
+        final class InsetRing : androidx.compose.material3/RippleThemeConfiguration.Focus { // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing|null[0]
+            constructor <init>(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+
+            final val innerStrokeInset // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.innerStrokeInset|{}innerStrokeInset[0]
+                final fun <get-innerStrokeInset>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.innerStrokeInset.<get-innerStrokeInset>|<get-innerStrokeInset>(){}[0]
+            final val innerStrokeWidth // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.innerStrokeWidth|{}innerStrokeWidth[0]
+                final fun <get-innerStrokeWidth>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.innerStrokeWidth.<get-innerStrokeWidth>|<get-innerStrokeWidth>(){}[0]
+            final val outerStrokeInset // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.outerStrokeInset|{}outerStrokeInset[0]
+                final fun <get-outerStrokeInset>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.outerStrokeInset.<get-outerStrokeInset>|<get-outerStrokeInset>(){}[0]
+            final val outerStrokeWidth // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.outerStrokeWidth|{}outerStrokeWidth[0]
+                final fun <get-outerStrokeWidth>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.outerStrokeWidth.<get-outerStrokeWidth>|<get-outerStrokeWidth>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.hashCode|hashCode(){}[0]
+        }
+
+        final class Opacity : androidx.compose.material3/RippleThemeConfiguration.Focus { // androidx.compose.material3/RippleThemeConfiguration.Focus.Opacity|null[0]
+            constructor <init>() // androidx.compose.material3/RippleThemeConfiguration.Focus.Opacity.<init>|<init>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/RippleThemeConfiguration.Focus.Opacity.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleThemeConfiguration.Focus.Opacity.hashCode|hashCode(){}[0]
+        }
+    }
 }
 
 final class androidx.compose.material3/ScrollFieldColors { // androidx.compose.material3/ScrollFieldColors|null[0]
@@ -3281,8 +3335,14 @@ final object androidx.compose.material3/RadioButtonDefaults { // androidx.compos
 }
 
 final object androidx.compose.material3/RippleDefaults { // androidx.compose.material3/RippleDefaults|null[0]
+    final val InsetFocusRingRippleThemeConfiguration // androidx.compose.material3/RippleDefaults.InsetFocusRingRippleThemeConfiguration|{}InsetFocusRingRippleThemeConfiguration[0]
+        final fun <get-InsetFocusRingRippleThemeConfiguration>(): androidx.compose.material3/RippleThemeConfiguration // androidx.compose.material3/RippleDefaults.InsetFocusRingRippleThemeConfiguration.<get-InsetFocusRingRippleThemeConfiguration>|<get-InsetFocusRingRippleThemeConfiguration>(){}[0]
+    final val OpacityFocusRippleThemeConfiguration // androidx.compose.material3/RippleDefaults.OpacityFocusRippleThemeConfiguration|{}OpacityFocusRippleThemeConfiguration[0]
+        final fun <get-OpacityFocusRippleThemeConfiguration>(): androidx.compose.material3/RippleThemeConfiguration // androidx.compose.material3/RippleDefaults.OpacityFocusRippleThemeConfiguration.<get-OpacityFocusRippleThemeConfiguration>|<get-OpacityFocusRippleThemeConfiguration>(){}[0]
     final val RippleAlpha // androidx.compose.material3/RippleDefaults.RippleAlpha|{}RippleAlpha[0]
         final fun <get-RippleAlpha>(): androidx.compose.material.ripple/RippleAlpha // androidx.compose.material3/RippleDefaults.RippleAlpha.<get-RippleAlpha>|<get-RippleAlpha>(){}[0]
+    final val ThemeConfiguration // androidx.compose.material3/RippleDefaults.ThemeConfiguration|{}ThemeConfiguration[0]
+        final fun <get-ThemeConfiguration>(): androidx.compose.material3/RippleThemeConfiguration // androidx.compose.material3/RippleDefaults.ThemeConfiguration.<get-ThemeConfiguration>|<get-ThemeConfiguration>(){}[0]
 }
 
 final object androidx.compose.material3/ScaffoldDefaults { // androidx.compose.material3/ScaffoldDefaults|null[0]
@@ -3856,6 +3916,8 @@ final val androidx.compose.material3/LocalNavigationRailOverride // androidx.com
     final fun <get-LocalNavigationRailOverride>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.material3/NavigationRailOverride> // androidx.compose.material3/LocalNavigationRailOverride.<get-LocalNavigationRailOverride>|<get-LocalNavigationRailOverride>(){}[0]
 final val androidx.compose.material3/LocalRippleConfiguration // androidx.compose.material3/LocalRippleConfiguration|{}LocalRippleConfiguration[0]
     final fun <get-LocalRippleConfiguration>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.material3/RippleConfiguration?> // androidx.compose.material3/LocalRippleConfiguration.<get-LocalRippleConfiguration>|<get-LocalRippleConfiguration>(){}[0]
+final val androidx.compose.material3/LocalRippleThemeConfiguration // androidx.compose.material3/LocalRippleThemeConfiguration|{}LocalRippleThemeConfiguration[0]
+    final fun <get-LocalRippleThemeConfiguration>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.material3/RippleThemeConfiguration> // androidx.compose.material3/LocalRippleThemeConfiguration.<get-LocalRippleThemeConfiguration>|<get-LocalRippleThemeConfiguration>(){}[0]
 final val androidx.compose.material3/LocalShortNavigationBarOverride // androidx.compose.material3/LocalShortNavigationBarOverride|{}LocalShortNavigationBarOverride[0]
     final fun <get-LocalShortNavigationBarOverride>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.material3/ShortNavigationBarOverride> // androidx.compose.material3/LocalShortNavigationBarOverride.<get-LocalShortNavigationBarOverride>|<get-LocalShortNavigationBarOverride>(){}[0]
 final val androidx.compose.material3/LocalSingleRowTopAppBarOverride // androidx.compose.material3/LocalSingleRowTopAppBarOverride|{}LocalSingleRowTopAppBarOverride[0]
@@ -4558,5 +4620,7 @@ final fun androidx.compose.material3/rememberTooltipState(kotlin/Boolean, kotlin
 final fun androidx.compose.material3/rememberTopAppBarState(kotlin/Float, kotlin/Float, kotlin/Float, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.material3/TopAppBarState // androidx.compose.material3/rememberTopAppBarState|rememberTopAppBarState(kotlin.Float;kotlin.Float;kotlin.Float;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final fun androidx.compose.material3/rememberWideNavigationRailState(androidx.compose.material3/WideNavigationRailValue?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.material3/WideNavigationRailState // androidx.compose.material3/rememberWideNavigationRailState|rememberWideNavigationRailState(androidx.compose.material3.WideNavigationRailValue?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final fun androidx.compose.material3/ripple(androidx.compose.ui.graphics/ColorProducer, kotlin/Boolean = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.foundation/IndicationNodeFactory // androidx.compose.material3/ripple|ripple(androidx.compose.ui.graphics.ColorProducer;kotlin.Boolean;androidx.compose.ui.unit.Dp){}[0]
+final fun androidx.compose.material3/ripple(androidx.compose.ui.graphics/ColorProducer, kotlin/Boolean = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.graphics/Shape? = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ...): androidx.compose.foundation/IndicationNodeFactory // androidx.compose.material3/ripple|ripple(androidx.compose.ui.graphics.ColorProducer;kotlin.Boolean;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Shape?;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
 final fun androidx.compose.material3/ripple(kotlin/Boolean = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.graphics/Color = ...): androidx.compose.foundation/IndicationNodeFactory // androidx.compose.material3/ripple|ripple(kotlin.Boolean;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Color){}[0]
+final fun androidx.compose.material3/ripple(kotlin/Boolean = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.graphics/Color = ..., androidx.compose.ui.graphics/Shape? = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ...): androidx.compose.foundation/IndicationNodeFactory // androidx.compose.material3/ripple|ripple(kotlin.Boolean;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Color;androidx.compose.ui.graphics.Shape?;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
 final fun androidx.compose.material3/shouldUsePrecisionPointerComponentSizing(): kotlin/Boolean // androidx.compose.material3/shouldUsePrecisionPointerComponentSizing|shouldUsePrecisionPointerComponentSizing(){}[0]

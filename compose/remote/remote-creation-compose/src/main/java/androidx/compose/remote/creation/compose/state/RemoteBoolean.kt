@@ -128,11 +128,16 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
 
                 override fun computeRequiredCodePointSet(
                     creationState: RemoteComposeCreationState
-                ) =
-                    mergeSets(
+                ): Set<String>? {
+                    if (hasConstantValue) {
+                        val selected = if (constantValue) ifTrue else ifFalse
+                        return selected.computeRequiredCodePointSet(creationState)
+                    }
+                    return mergeSets(
                         ifTrue.computeRequiredCodePointSet(creationState),
                         ifFalse.computeRequiredCodePointSet(creationState),
                     )
+                }
             },
         )
     }

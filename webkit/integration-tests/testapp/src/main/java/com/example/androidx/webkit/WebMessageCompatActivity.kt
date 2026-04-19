@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
@@ -39,7 +40,7 @@ import com.google.common.base.Charsets
 import com.google.common.io.ByteStreams
 import java.nio.ByteBuffer
 
-/** An {@link Activity} to exercise WebMessageCompat related functionality. */
+/** An [Activity] to exercise WebMessageCompat related functionality. */
 class WebMessageCompatActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView

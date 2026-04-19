@@ -37,11 +37,18 @@ internal class MeshEntityImpl(
         parent = parentEntity
     }
 
+    override val meshBoundingBox: androidx.xr.runtime.math.BoundingBox
+        get() = meshFeature.meshBoundingBox
+
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
         meshFeature.setMaterial(material, subsetIndex)
     }
 
     override fun setBoneTransforms(transforms: List<Matrix4>) {
         meshFeature.setBoneTransforms(transforms)
+    }
+
+    override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
+        meshFeature.setReformAffordanceEnabled(this, enabled, scheduledExecutor, systemMovable)
     }
 }

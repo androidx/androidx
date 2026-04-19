@@ -67,13 +67,13 @@ internal interface GestureManager {
      *
      * @param view The [View] containing the gesturable content.
      * @param gesture The gesture to register
-     * @param isVisible Whether the UI component that triggers the gesture is currently visible.
+     * @param isActive Whether UI component that triggers the gesture, is active
      * @param size The size of the UI component that triggers the gesture.
      */
     fun registerGesture(
         view: View,
         gesture: GestureConfig,
-        isVisible: () -> Boolean,
+        isActive: () -> Boolean,
         size: () -> IntSize,
     )
 
@@ -121,7 +121,7 @@ internal class GestureManagerImpl(
     override fun registerGesture(
         view: View,
         gesture: GestureConfig,
-        isVisible: () -> Boolean,
+        isActive: () -> Boolean,
         size: () -> IntSize,
     ) {
         val gestureRegistry =
@@ -129,7 +129,7 @@ internal class GestureManagerImpl(
                 key = view,
                 defaultValue = { GestureRegistry(view, haptic, scope, gestureInputManager) },
             )
-        gestureRegistry.register(gesture, isVisible, size)
+        gestureRegistry.register(gesture, isActive, size)
     }
 
     override fun unregisterGesture(view: View, gesture: GestureConfig) {
@@ -161,8 +161,8 @@ internal class GestureRegistry(
     val numberOfRegisteredGestures: Int
         get() = registeredGestures.size
 
-    fun register(config: GestureConfig, isVisible: () -> Boolean, size: () -> IntSize) {
-        registeredGestures.add(Triple(config, isVisible, size))
+    fun register(config: GestureConfig, isActive: () -> Boolean, size: () -> IntSize) {
+        registeredGestures.add(Triple(config, isActive, size))
         registeredGestures.sortWith { (gesture1), (gesture2) ->
             gesture2.priority - gesture1.priority
         }
@@ -178,11 +178,11 @@ internal class GestureRegistry(
 
     fun update(oldGesture: GestureConfig, newGesture: GestureConfig) {
         val index = registeredGestures.indexOfFirst { (g, _) -> g == oldGesture }
-        val isVisible = registeredGestures[index].second
+        val isActive = registeredGestures[index].second
         val size = registeredGestures[index].third
 
         registeredGestures.removeAt(index)
-        register(newGesture, isVisible, size)
+        register(newGesture, isActive, size)
     }
 
     fun invalidate() {
@@ -207,17 +207,17 @@ internal class GestureRegistry(
                 // to the highest priority.
                 val priority =
                     registeredGestures
-                        .fastFirstOrNull { (gesture, isVisible) ->
-                            isVisible() && gesture.action == GestureAction.Primary
+                        .fastFirstOrNull { (gesture, isActive) ->
+                            isActive() && gesture.action == GestureAction.Primary
                         }
                         ?.first
                         ?.priority
 
-                registeredGestures.fastForEach { (gesture, isVisible) ->
+                registeredGestures.fastForEach { (gesture, isActive) ->
                     if (
                         gesture.priority == priority &&
                             gesture.action == GestureAction.Primary &&
-                            isVisible() &&
+                            isActive() &&
                             gestureInputManager.shouldShowIndicator(gesture.key, sdkPrimaryAction)
                     ) {
                         gesture.onShowIndicator()
@@ -254,12 +254,12 @@ internal class GestureRegistry(
     private fun isEnabledInAmbient(action: GestureAction): Boolean {
         val priority =
             registeredGestures
-                .fastFirstOrNull { (gesture, isVisible) -> gesture.action == action && isVisible() }
+                .fastFirstOrNull { (gesture, isActive) -> gesture.action == action && isActive() }
                 ?.first
                 ?.priority
         return priority?.let { prio ->
-            registeredGestures.fastAny { (gesture, isVisible) ->
-                gesture.priority == prio && isVisible() && gesture.enabledInAmbient
+            registeredGestures.fastAny { (gesture, isActive) ->
+                gesture.priority == prio && isActive() && gesture.enabledInAmbient
             }
         } ?: false
     }
@@ -294,18 +294,16 @@ internal class GestureRegistry(
             // both visible and matches the requested action will have the highest priority
             val priority =
                 registeredGestures
-                    .fastFirstOrNull { (gesture, isVisible) ->
-                        isVisible() && gesture.action == gestureAction
+                    .fastFirstOrNull { (gesture, isActive) ->
+                        isActive() && gesture.action == gestureAction
                     }
                     ?.first
                     ?.priority
 
             // Trigger all the visible gestures for the highest priority
             var hapticDone = false
-            registeredGestures.fastForEach { (gesture, isVisible, size) ->
-                if (
-                    gesture.priority == priority && gesture.action == gestureAction && isVisible()
-                ) {
+            registeredGestures.fastForEach { (gesture, isActive, size) ->
+                if (gesture.priority == priority && gesture.action == gestureAction && isActive()) {
                     if (!hapticDone) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         hapticDone = true
@@ -343,8 +341,8 @@ internal class GestureRegistry(
 
     /** Returns true if there are visible [action] gestures */
     private fun shouldListenToGesture(action: GestureAction): Boolean {
-        return registeredGestures.fastFirstOrNull { (gesture, isVisible) ->
-            gesture.action == action && isVisible()
+        return registeredGestures.fastFirstOrNull { (gesture, isActive) ->
+            gesture.action == action && isActive()
         } != null
     }
 
@@ -459,13 +457,14 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
     private fun createSdkWearManagerIfNeeded(context: Context) {
         if (gestureInputManagerAttemptedToBeCreated) return
 
-        if (Sdk.hasApiFeature(Sdk.FEATURE_WEAR_GESTURE_DETECTION)) {
-            try {
+        // Do not crash if either Wear SDK or GestureInputManager are missing
+        try {
+            if (Sdk.hasApiFeature(Sdk.FEATURE_WEAR_GESTURE_DETECTION)) {
                 gestureInputManager =
                     Sdk.getWearManager(context.applicationContext, GestureInputManager::class.java)
                         as GestureInputManager
-            } catch (t: Throwable) {}
-        }
+            }
+        } catch (t: Throwable) {}
         gestureInputManagerAttemptedToBeCreated = true
     }
 }

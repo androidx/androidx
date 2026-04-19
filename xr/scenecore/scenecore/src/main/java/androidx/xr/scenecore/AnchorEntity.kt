@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.os.SystemClock
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
-import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.Plane
@@ -37,9 +36,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
- * An AnchorEntity tracks a [androidx.xr.runtime.math.Pose] relative to some position or surface in
- * the "Real World." Children of this [Entity] will remain positioned relative to that location in
- * the real world, for the purposes of creating Augmented Reality experiences.
+ * An AnchorEntity tracks a [Pose] relative to some position or surface in the "Real World."
+ * Children of this [Entity] will remain positioned relative to that location in the real world, for
+ * the purposes of creating Augmented Reality experiences.
  *
  * Note that Anchors are only relative to the "real world", and not virtual environments. Also,
  * setting the [Entity.parent] property on an AnchorEntity has no effect, as the parenting of an
@@ -50,8 +49,9 @@ public class AnchorEntity
 private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
     BaseEntity<RtAnchorEntity>(rtEntity, entityRegistry) {
 
-    @VisibleForTesting internal var onStateChangedListener: Consumer<State>? = null
-    private var onStateChangedExecutor: Executor = HandlerExecutor.mainThreadExecutor
+    private val onStateChangedListeners = ConsumerListenerMap<State>()
+    private val onOriginChangedListeners = RunnableListenerMap()
+
     /** Asynchronous job responsible for finding a suitable plane to anchor this entity to. */
     private var planeFindingJob: Job? = null
     /**
@@ -78,33 +78,42 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         private set(value) {
             // TODO: b/440191514 - On dispose, verify any pending anchor entity ops are cancelled.
             field = value
-            onStateChangedExecutor.execute { onStateChangedListener?.accept(value) }
+            onStateChangedListeners.fire(value)
         }
+
+    init {
+        rtEntity.setOnOriginChangedListener(
+            { onOriginChangedListeners.fire(Unit) },
+            // Use the default executor for the rtEntity runtime callback. We fan out to the client
+            // executors when the event fires.
+            null,
+        )
+    }
 
     public class State private constructor(private val value: Int) {
 
         public companion object {
-            /**
-             * An AnchorEntity in the ANCHORED stated is being actively tracked and updated by the
-             * perception stack. Children of the AnchorEntity will maintain their relative
-             * positioning to the system's best understanding of a pose in the real world.
-             */
-            @JvmField public val ANCHORED: State = State(1)
-
             /**
              * An AnchorEntity in the UNANCHORED state does not currently have a real-world pose
              * that is being actively updated. This is the default state while searching for an
              * anchorable position, and can also occur if the perception system has lost tracking of
              * the real-world location.
              */
-            @JvmField public val UNANCHORED: State = State(2)
+            @JvmField public val UNANCHORED: State = State(0)
 
             /**
-             * An AnchorEntity in the TIMEOUT state indicates that the perception system timed out
+             * An AnchorEntity in the ANCHORED state is being actively tracked and updated by the
+             * perception stack. Children of the AnchorEntity will maintain their relative
+             * positioning to the system's best understanding of a pose in the real world.
+             */
+            @JvmField public val ANCHORED: State = State(1)
+
+            /**
+             * An AnchorEntity in the TIMED_OUT state indicates that the perception system timed out
              * while searching for an underlying anchorable position in the real world. The
              * AnchorEntity cannot recover from this state.
              */
-            @JvmField public val TIMEDOUT: State = State(3)
+            @JvmField public val TIMED_OUT: State = State(2)
 
             /**
              * An AnchorEntity in the ERROR state indicates that an unexpected error has occurred
@@ -127,7 +136,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
             this.state = state
             when (state) {
                 State.ANCHORED,
-                State.TIMEDOUT -> {
+                State.TIMED_OUT -> {
                     planeFindingJob?.cancel()
                     planeFindingJob = null
                 }
@@ -158,7 +167,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                     Plane.subscribe(session).collect {
                         val timeNow = SystemClock.uptimeMillis()
                         if (info.searchDeadline != null && timeNow > info.searchDeadline) {
-                            entity.updateState(State.TIMEDOUT)
+                            entity.updateState(State.TIMED_OUT)
                             return@collect
                         }
 
@@ -259,10 +268,10 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
          *   should attach.
          * @param timeout The amount of time as a [Duration] to search for the a suitable plane to
          *   attach to. If a plane is not found within the timeout, the returned AnchorEntity state
-         *   will be set to AnchorEntity.State.TIMEDOUT. It may take longer than the timeout period
+         *   will be set to AnchorEntity.State.TIMED_OUT. It may take longer than the timeout period
          *   before the anchor state is updated. If the timeout duration is zero it will search for
          *   the anchor indefinitely.
-         * @throws [IllegalStateException] if [androidx.xr.runtime.Session.config] is set to
+         * @throws [IllegalStateException] if [Session.config] is set to
          *   [PlaneTrackingMode.DISABLED].
          */
         @JvmStatic
@@ -271,7 +280,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
             "Use the factory which accepts Set<PlaneOrientation> and Set<PlaneSemanticType> instead."
         )
         // TODO: b/500464864 - Remove this factory method.
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         public fun create(
             session: Session,
             minimumPlaneExtents: FloatSize2d,
@@ -302,10 +311,10 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
          *   should attach.
          * @param timeout The amount of time as a [Duration] to search for the a suitable plane to
          *   attach to. If a plane is not found within the timeout, the returned AnchorEntity state
-         *   will be set to AnchorEntity.State.TIMEDOUT. It may take longer than the timeout period
+         *   will be set to AnchorEntity.State.TIMED_OUT. It may take longer than the timeout period
          *   before the anchor state is updated. If the timeout duration is zero it will search for
          *   the anchor indefinitely.
-         * @throws [IllegalStateException] if [androidx.xr.runtime.Session.config] is set to
+         * @throws [IllegalStateException] if [Session.config] is set to
          *   [PlaneTrackingMode.DISABLED].
          */
         @JvmStatic
@@ -356,25 +365,23 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         when (this) {
             RtAnchorEntity.State.UNANCHORED -> State.UNANCHORED
             RtAnchorEntity.State.ANCHORED -> State.ANCHORED
-            RtAnchorEntity.State.TIMED_OUT -> State.TIMEDOUT
+            RtAnchorEntity.State.TIMED_OUT -> State.TIMED_OUT
             RtAnchorEntity.State.ERROR -> State.ERROR
             else -> throw IllegalArgumentException("Unknown state: $this")
         }
 
     /**
-     * Registers a listener to be invoked on the main thread when the AnchorEntity's state changes,
-     * or unregisters the current listener if set to null.
+     * Adds a listener to be invoked on the main thread when the AnchorEntity's state changes.
      *
-     * The listener will fire with the current [AnchorEntity.State] value immediately upon
-     * registration. It will be automatically unregistered when the entity is disposed.
+     * The listener will fire on the main thread with the current [AnchorEntity.State] value
+     * immediately upon registration. It will be automatically unregistered when the entity is
+     * disposed.
      */
-    public fun setOnStateChangedListener(listener: Consumer<State>?) {
-        setOnStateChangedListener(HandlerExecutor.mainThreadExecutor, listener)
-    }
+    public fun addStateChangedListener(listener: Consumer<State>): Unit =
+        addStateChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
-     * Registers a listener to be invoked on the given [Executor] when the AnchorEntity's state
-     * changes, or unregisters the current listener if set to null.
+     * Adds a listener to be invoked on the given [Executor] when the AnchorEntity's state changes.
      *
      * The listener will fire with the current State value immediately upon registration. It will be
      * automatically unregistered when the entity is disposed.
@@ -383,15 +390,24 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      * @param listener: The listener to fire upon invoking this method, and all subsequent state
      *   changes.
      */
-    public fun setOnStateChangedListener(executor: Executor, listener: Consumer<State>?) {
+    public fun addStateChangedListener(executor: Executor, listener: Consumer<State>) {
         checkNotDisposed()
-        onStateChangedListener = listener
-        onStateChangedExecutor = executor
-        executor.execute { listener?.accept(state) }
+        onStateChangedListeners.add(executor, listener)
+        executor.execute { listener.accept(state) }
     }
 
     /**
-     * Registers a listener to be called when the [Anchor]'s origin moves relative to its underlying
+     * Removes the given state changed listener.
+     *
+     * @param listener: The listener to be removed.
+     */
+    public fun removeStateChangedListener(listener: Consumer<State>) {
+        checkNotDisposed()
+        onStateChangedListeners.remove(listener)
+    }
+
+    /**
+     * Adds a listener to be called when the [Anchor]'s origin moves relative to its underlying
      * space.
      *
      * The callback is triggered on the supplied [Executor] by any anchor movements, for example
@@ -401,28 +417,62 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      * unregistered when the entity is disposed.
      *
      * @param executor The executor to run the listener on.
-     * @param listener The listener to register if non-null, else stops listening if null.
+     * @param listener The listener to register.
      */
-    public fun setOnOriginChangedListener(executor: Executor, listener: Runnable?) {
+    public fun addOriginChangedListener(executor: Executor, listener: Runnable) {
         checkNotDisposed()
-        rtEntity!!.setOnOriginChangedListener(listener, executor)
+        onOriginChangedListeners.add(executor, listener)
     }
 
     /**
-     * Registers a listener to be called when the [Anchor]'s origin moves relative to its underlying
+     * Adds a listener to be called when the [Anchor]'s origin moves relative to its underlying
      * space.
      *
-     * The callback is triggered on the default SceneCore [Executor] by any anchor movements, for
-     * example when the perception system moves the anchor's origin to maintain the anchor's
-     * position relative to the real world. Any cached data relative to the activity space or any
-     * other "space" should be updated when this callback is triggered. It will be automatically
-     * unregistered when the entity is disposed.
+     * The callback is triggered on the main thread by any anchor movements, for example when the
+     * perception system moves the anchor's origin to maintain the anchor's position relative to the
+     * real world. Any cached data relative to the activity space or any other "space" should be
+     * updated when this callback is triggered. It will be automatically unregistered when the
+     * entity is disposed.
      *
-     * @param listener The listener to register if non-null, else stops listening if null.
+     * @param listener The listener to register. Events will fire on the main thread.
      */
-    public fun setOnOriginChangedListener(listener: Runnable?) {
+    public fun addOriginChangedListener(listener: Runnable) {
         checkNotDisposed()
-        rtEntity!!.setOnOriginChangedListener(listener, null)
+        onOriginChangedListeners.add(HandlerExecutor.mainThreadExecutor, listener)
+    }
+
+    /**
+     * Adds a listener to be called when the [Anchor]'s origin moves relative to its underlying
+     * space.
+     *
+     * The callback is triggered on the main thread by any anchor movements, for example when the
+     * perception system moves the anchor's origin to maintain the anchor's position relative to the
+     * real world. Any cached data relative to the activity space or any other "space" should be
+     * updated when this callback is triggered. It will be automatically unregistered when the
+     * entity is disposed.
+     *
+     * @param listener The listener to register. Events will fire on the main thread.
+     */
+    // TODO - b/502272748: Cleanup deprecated listener methods
+    @Deprecated(
+        "Use addOriginChangedListener",
+        replaceWith = ReplaceWith("addOriginChangedListener()"),
+    )
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public fun addOnOriginChangedListener(listener: Runnable) {
+        checkNotDisposed()
+        onOriginChangedListeners.add(HandlerExecutor.mainThreadExecutor, listener)
+    }
+
+    /**
+     * Removes the listener to be called when the [Anchor]'s origin moves relative to its underlying
+     * space.
+     *
+     * @param listener The listener to remove.
+     */
+    public fun removeOriginChangedListener(listener: Runnable) {
+        checkNotDisposed()
+        onOriginChangedListeners.remove(listener)
     }
 
     /**
@@ -435,7 +485,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      * @param relativeTo The space in which the pose is defined.
      * @throws UnsupportedOperationException if called.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     override fun setPose(pose: Pose, relativeTo: Space) {
         checkNotDisposed()
         throw UnsupportedOperationException("Cannot set 'pose' on an AnchorEntity.")
@@ -458,6 +508,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                     "AnchorEntity is a root space and it does not have a parent."
                 )
             Space.ACTIVITY,
+            @Suppress("DEPRECATION") // TODO - b/415320653
             Space.REAL_WORLD -> super.getPose(relativeTo)
             else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
         }
@@ -473,7 +524,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      * @param relativeTo The space in which the scale is defined.
      * @throws UnsupportedOperationException if called.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     override fun setScale(scale: Float, relativeTo: Space) {
         checkNotDisposed()
         throw UnsupportedOperationException("Cannot set 'scale' on an AnchorEntity.")
@@ -489,7 +540,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      * @param relativeTo The space in which the scale is defined.
      * @throws UnsupportedOperationException if called.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     override fun setScale(scale: Vector3, relativeTo: Space) {
         throw UnsupportedOperationException("Cannot set 'scale' on an AnchorEntity.")
     }
@@ -504,7 +555,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
      * @throws IllegalArgumentException if called with Space.PARENT since AnchorEntity has no
      *   parents.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     override fun getNonUniformScale(relativeTo: Space): Vector3 {
         checkNotDisposed()
         return when (relativeTo) {
@@ -513,6 +564,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                     "AnchorEntity is a root space and it does not have a parent."
                 )
             Space.ACTIVITY,
+            @Suppress("DEPRECATION") // TODO - b/415320653
             Space.REAL_WORLD -> super.getNonUniformScale(relativeTo)
             else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
         }
@@ -535,16 +587,17 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                     "AnchorEntity is a root space and it does not have a parent."
                 )
             Space.ACTIVITY,
+            @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
             Space.REAL_WORLD -> super.getScale(relativeTo)
             else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
         }
     }
 
     override fun dispose() {
-        if (rtEntity != null) {
-            setOnOriginChangedListener(null)
-            setOnStateChangedListener(null)
-        }
+        onOriginChangedListeners.clear()
+        onStateChangedListeners.clear()
+        rtEntity?.setOnOriginChangedListener(null, null)
+        rtEntity?.setOnStateChangedListener(null)
         super.dispose()
     }
 }

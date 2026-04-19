@@ -21,6 +21,7 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.os.RemoteException
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfFeature
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import androidx.pdf.content.PdfPageTextContent
@@ -78,6 +79,8 @@ internal suspend fun PdfDocument.calculateHighlightRects(
     startPdfPoint: PointF,
     currentPdfPoint: PointF,
 ): List<RectF> {
+    // selection boundary api is not available below sdk-ext 13
+    if (!this.isFeatureSupported(PdfFeature.TEXT_SELECTION)) return listOf()
     try {
         val selection =
             getSelectionBounds(pageNum, startPdfPoint, currentPdfPoint) ?: return emptyList()

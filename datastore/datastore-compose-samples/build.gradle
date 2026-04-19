@@ -51,7 +51,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
 }
 android {
-    compileSdk { version = release(35) }
+    compileSdk { version = release(37) }
     namespace = "com.example.datastorecomposesamples"
     defaultConfig {
         minSdk { version = release(28) }

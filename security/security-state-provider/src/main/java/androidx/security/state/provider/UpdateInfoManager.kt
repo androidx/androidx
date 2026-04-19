@@ -18,7 +18,6 @@ package androidx.security.state.provider
 
 import android.content.Context
 import androidx.security.state.SecurityPatchState
-import androidx.security.state.SecurityPatchState.Companion.getComponentSecurityPatchLevel
 import androidx.security.state.SerializableUpdateInfo
 import androidx.security.state.UpdateInfo
 import kotlinx.serialization.json.Json
@@ -133,9 +132,15 @@ public class UpdateInfoManager(
                 // Ignore unknown components.
                 return@forEach
             }
-            val updateSpl = getComponentSecurityPatchLevel(component, updateInfo.securityPatchLevel)
 
-            if (updateSpl <= currentSpl) {
+            try {
+                if (updateInfo.securityPatchLevel <= currentSpl) {
+                    editor.remove(updateInfo.component)
+                }
+            } catch (e: IllegalArgumentException) {
+                // Comparing incompatible types of SecurityPatchLevel (e.g., DateBased vs.
+                // VersionBased, or either against a GenericStringSecurityPatchLevel from a
+                // malformed update) throws an IllegalArgumentException. Remove the invalid entry.
                 editor.remove(updateInfo.component)
             }
         }

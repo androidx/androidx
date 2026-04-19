@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("Files")
+
 package androidx.tracing.wire
 
 import androidx.annotation.RestrictTo
@@ -29,27 +31,49 @@ import java.util.TimeZone
 @VisibleForTesting internal const val PREFIX = "perfetto"
 
 /**
+ * Creates a [File] that can be used to store in-process trace events.
+ *
+ * @param prefix The file name prefix for the trace file. The default value is `perfetto`.
  * @return the trace [File], for a given parent directory, that can be used by the
  *   [androidx.tracing.AbstractTraceSink].
+ * @receiver The parent directory used to store the trace file.
+ *
+ * ```
+ * // On the JVM
+ * File parent = File("/tmp/traces")
+ * File trace = parent.createPerfettoFile()
+ * ```
+ * ```
+ * // On Android
+ * File parent = context.cacheDir
+ * File trace = parent.createPerfettoFile()
+ * ```
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
-public fun File.perfettoTraceFile(): File {
-    return perfettoTraceFile(sequenceId = 0)
+// We don't support descriptors here, given the underlying primitive is an okio.BufferedSink anyway.
+// Developers can always reach for that low level primitive.
+@Suppress("StreamFiles")
+@JvmOverloads
+public fun File.createPerfettoFile(prefix: String = PREFIX): File {
+    val formatter = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
+    formatter.timeZone = TimeZone.getDefault()
+    val fileName = "$prefix-${formatter.format(Date())}"
+    return createPerfettoFile(fileName = fileName, sequenceId = 0)
 }
 
 /**
+ * @param fileName The name of the [File], typically derived by using a timestamp.
  * @param sequenceId The [File] name suffix to be used to disambiguate between trace sessions
  *   already running, or multiple processes emitting traces simultaneously in one directory.
  * @return the trace [File], for a given parent directory, that can be used by the
  *   [androidx.tracing.AbstractTraceSink].
  */
-internal tailrec fun File.perfettoTraceFile(sequenceId: Int): File {
-    val formatter = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-$sequenceId", Locale.getDefault())
-    formatter.timeZone = TimeZone.getDefault()
-    val traceFile = File(this, "$PREFIX-${formatter.format(Date())}.perfetto-trace")
+@VisibleForTesting
+@RestrictTo(Scope.LIBRARY_GROUP)
+public tailrec fun File.createPerfettoFile(fileName: String, sequenceId: Int = 0): File {
+    val traceFile = File(this, "$fileName-$sequenceId.perfetto-trace")
     return if (traceFile.createNewFile()) {
         traceFile
     } else {
-        perfettoTraceFile(sequenceId = sequenceId + 1)
+        createPerfettoFile(fileName = fileName, sequenceId = sequenceId + 1)
     }
 }

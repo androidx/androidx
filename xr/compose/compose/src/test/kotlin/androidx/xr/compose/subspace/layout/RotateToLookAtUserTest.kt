@@ -97,7 +97,7 @@ class RotateToLookAtUserTest {
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
 
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
+            val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
             val targetVector = (userLocation - watcherWorldPose.translation).toNormalized()
             val expectedRotation = Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
 
@@ -145,7 +145,7 @@ class RotateToLookAtUserTest {
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
 
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
+            val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
             val expectedRotation =
                 getBillboardRotationNeeded(watcherWorldPose.translation, userLocation)
 
@@ -186,7 +186,7 @@ class RotateToLookAtUserTest {
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
 
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
+            val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
             val targetVector = (userLocation - watcherWorldPose.translation).toNormalized()
             val lookAtUserRotationTowardsUser =
                 Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
@@ -232,7 +232,7 @@ class RotateToLookAtUserTest {
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
 
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
+            val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
             val billboardRotationTowardsUser =
                 getBillboardRotationNeeded(watcherWorldPose.translation, userLocation)
             val expectedRotation = billboardRotationTowardsUser * fixedRotateOffset
@@ -274,7 +274,7 @@ class RotateToLookAtUserTest {
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
 
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
+            val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
             val targetVector = (userLocation - watcherWorldPose.translation).toNormalized()
             val expectedRotation = Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
 
@@ -313,7 +313,7 @@ class RotateToLookAtUserTest {
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
 
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
+            val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
             val targetVector = (userLocation - watcherWorldPose.translation).toNormalized()
             val expectedWorldRotation =
                 Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))

@@ -86,8 +86,6 @@ import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ComposeUiFlags.isIndirectPointerNavigationGestureDetectorEnabled
-import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.InternalComposeUiApi
@@ -97,7 +95,6 @@ import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.autofill.AndroidAutofill
 import androidx.compose.ui.autofill.AndroidAutofillManager
 import androidx.compose.ui.autofill.Autofill
-import androidx.compose.ui.autofill.AutofillLoggingCallback
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.PlatformAutofillManagerImpl
@@ -1406,19 +1403,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         previous: FocusTargetModifierNode?,
         current: FocusTargetModifierNode?,
     ) {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (isOptimizedFocusEventDispatchEnabled) {
-            val previousIndirectPointerEventModifiers =
-                previous?.ancestors(type = Nodes.IndirectPointerInput, includeSelf = true) ?: return
+        val previousIndirectPointerEventModifiers =
+            previous?.ancestors(type = Nodes.IndirectPointerInput, includeSelf = true) ?: return
 
-            val currentIndirectPointerEventModifiers =
-                current?.setOfAncestors(type = Nodes.IndirectPointerInput, includeSelf = true)
+        val currentIndirectPointerEventModifiers =
+            current?.setOfAncestors(type = Nodes.IndirectPointerInput, includeSelf = true)
 
-            previousIndirectPointerEventModifiers.fastForEach {
-                val stillHasFocus = currentIndirectPointerEventModifiers?.contains(it) ?: false
-                if (!stillHasFocus) {
-                    it.onCancelIndirectPointerInput()
-                }
+        previousIndirectPointerEventModifiers.fastForEach {
+            val stillHasFocus = currentIndirectPointerEventModifiers?.contains(it) ?: false
+            if (!stillHasFocus) {
+                it.onCancelIndirectPointerInput()
             }
         }
     }
@@ -2311,13 +2305,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         invalidateLayoutNodeMeasurement(root)
         invalidateLayers(root)
         snapshotObserver.startObserving()
-        ifAutofillDebug {
-            if (autofillSupported()) {
-                // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
-                // system.
-                _autofill?.let { AutofillLoggingCallback.register(it) }
-            }
-        }
         // Moving this work outside of frame, as this callback is not trivial. The initial value
         // will be requested and read synchronously anyway.
         val outOfFrameExecutor =
@@ -2394,13 +2381,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         val lifecycle = composeViewContext.lifecycleOwner.lifecycle
         lifecycle.removeObserver(contentCaptureManager)
         lifecycle.removeObserver(this)
-        ifAutofillDebug {
-            if (autofillSupported()) {
-                // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
-                // system.
-                _autofill?.let { AutofillLoggingCallback.unregister(it) }
-            }
-        }
         viewTreeObserver.removeOnGlobalLayoutListener(this)
         viewTreeObserver.removeOnScrollChangedListener(this)
         viewTreeObserver.removeOnTouchModeChangeListener(this)
@@ -2507,17 +2487,14 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     private fun handleIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean {
         val isConsumed = focusOwner.dispatchIndirectPointerEvent(indirectPointerEvent)
 
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (isIndirectPointerNavigationGestureDetectorEnabled) {
-            indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
-                indirectPointerEvent = indirectPointerEvent,
-                isConsumed = isConsumed,
-            )
+        indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
+            indirectPointerEvent = indirectPointerEvent,
+            isConsumed = isConsumed,
+        )
 
-            return true
-        }
-
-        return isConsumed
+        // Either an owner will handle the indirect event or the default gesture handler will in
+        // this class.
+        return true
     }
 
     // TODO(shepshapard): Test this method.
@@ -4034,10 +4011,8 @@ private const val maskForNonWindowMetricsChanges =
         ActivityInfo.CONFIG_COLOR_MODE or
         ActivityInfo.CONFIG_FONT_SCALE or
         ActivityInfo.CONFIG_GRAMMATICAL_GENDER or
-        ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT // or
-
-// TODO(b/450557132): Add when compileSdk is bumped to 36
-//   ActivityInfo.CONFIG_ASSETS_PATHS
+        ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT or
+        ActivityInfo.CONFIG_ASSETS_PATHS
 
 /**
  * Diffs this [Configuration] with the [other] to determine if there were any configuration changes

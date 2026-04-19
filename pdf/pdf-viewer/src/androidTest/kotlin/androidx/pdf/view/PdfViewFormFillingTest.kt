@@ -409,7 +409,7 @@ class PdfViewFormFillingTest {
                 pdfView = view as PdfView
             }
             fakePdfDocument.clearFormWidgetRequests()
-            pdfView?.isFormFillingEnabled = true
+            onActivity { pdfView?.isFormFillingEnabled = true }
             fakePdfDocument.waitForFormDataFetch(1)
             close()
         }

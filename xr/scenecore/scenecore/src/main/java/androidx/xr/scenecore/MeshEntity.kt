@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.IntRange
 import androidx.annotation.MainThread
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Matrix4
@@ -29,8 +30,9 @@ import androidx.xr.scenecore.runtime.MeshEntity as RtMeshEntity
  * materials must match the number of subsets in the `CustomMesh`.
  *
  * @property mesh The [CustomMesh] resource rendered by this entity.
- * @property boneCount The number of bones used to animate the mesh. If 0, skinning is disabled. If
- *   non-zero, bone transforms can be set with [setBoneTransforms].
+ * @property boneCount The number of bones used to animate the mesh. Must be between 0 and 255,
+ *   inclusive. If 0, skinning is disabled. If non-zero, bone transforms can be set with
+ *   [setBoneTransforms].
  */
 @ExperimentalCustomMeshApi
 public class MeshEntity
@@ -39,7 +41,7 @@ private constructor(
     entityRegistry: EntityRegistry,
     public val mesh: CustomMesh,
     private val _materials: MutableList<Material>,
-    public val boneCount: Int,
+    @IntRange(from = 0, to = 255) public val boneCount: Int,
 ) : BaseEntity<RtMeshEntity>(rtEntity, entityRegistry) {
 
     /** The list of materials used to render this entity's custom mesh. */
@@ -96,16 +98,18 @@ private constructor(
          * @param materials The list of [Materials][Material] to use for each subset of the mesh.
          *   The list must contain one material per mesh subset. Materials in the list must not be
          *   null.
-         * @param boneCount The number of bones used to animate the mesh. If 0, skinning is
-         *   disabled. If non-zero, bone transforms can be set with [setBoneTransforms].
+         * @param boneCount The number of bones used to animate the mesh. Must be between 0 and 255,
+         *   inclusive. If 0, skinning is disabled. If non-zero, bone transforms can be set with
+         *   [setBoneTransforms].
          * @param pose The initial pose of the entity relative to its parent. Defaults to
          *   `Pose.Identity`.
          * @param parent Parent entity. If `null`, the entity is created but not attached to the
          *   scene graph and will not be visible until a parent is set. The default value is
          *   [Scene]'s [ActivitySpace].
          * @return A new [MeshEntity].
-         * @throws IllegalArgumentException if the number of materials does not match the number of
-         *   mesh subsets, or if any material in the list is null.
+         * @throws IllegalArgumentException if `boneCount` is not between 0 and 255, if the number
+         *   of materials does not match the number of mesh subsets, or if any material in the list
+         *   is null.
          */
         @MainThread
         @JvmOverloads
@@ -114,10 +118,11 @@ private constructor(
             session: Session,
             mesh: CustomMesh,
             materials: List<Material>,
-            boneCount: Int = 0,
+            @IntRange(from = 0, to = 255) boneCount: Int = 0,
             pose: Pose = Pose.Identity,
             parent: Entity? = session.scene.activitySpace,
         ): MeshEntity {
+            require(boneCount in 0..255) { "boneCount must be between 0 and 255, inclusive." }
             require(materials.size == mesh.subsets.size) {
                 "The number of materials (${materials.size}) must match the number of mesh subsets (${mesh.subsets.size})."
             }

@@ -41,7 +41,7 @@ class CoroutineFlowResultBinderProvider(val context: Context) : QueryResultBinde
         query: ParsedQuery,
         extras: TypeAdapterExtras,
     ): QueryResultBinder {
-        val typeArg = declared.typeArguments.first()
+        val typeArg = declared.typeArguments.first().type
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
         val tableNames =
             ((adapter?.accessedTableNames() ?: emptyList()) + query.tables.map { it.name }).toSet()

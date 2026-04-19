@@ -33,7 +33,6 @@ import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.XrExtensions
@@ -89,8 +88,7 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
 
     @Before
     fun setUp() {
-        xrExtensions = XrExtensionsProvider.getXrExtensions()!!
-
+        xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
         testRuntime = createTestSceneRuntime()
 
         activitySpace = testRuntime.activitySpace as ActivitySpaceImpl

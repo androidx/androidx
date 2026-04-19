@@ -136,6 +136,54 @@ class RemoteStateCacheKeyTest {
     }
 
     @Test
+    fun remoteStateIdKey_Equality() {
+        val key1 = RemoteStateIdKey(10)
+        val key1Dup = RemoteStateIdKey(10)
+        val key2 = RemoteStateIdKey(20)
+
+        assertThat(key1).isEqualTo(key1Dup)
+        assertThat(key1.hashCode()).isEqualTo(key1Dup.hashCode())
+
+        assertThat(key1).isNotEqualTo(key2)
+    }
+
+    @Test
+    fun floatArrayCacheKey_Equality() {
+        val array1 = floatArrayOf(1f, 2f)
+        val array2 = floatArrayOf(1f, 2f)
+        val array3 = floatArrayOf(1f, 3f)
+
+        val key1 = FloatArrayCacheKey(array1)
+        val key1Dup = FloatArrayCacheKey(array2)
+        val key2 = FloatArrayCacheKey(array3)
+
+        assertThat(key1).isEqualTo(key1Dup)
+        assertThat(key1.hashCode()).isEqualTo(key1Dup.hashCode())
+
+        assertThat(key1).isNotEqualTo(key2)
+    }
+
+    @Test
+    fun hashCode_IsStableAfterMemoization() {
+        val keys =
+            listOf(
+                RemoteConstantCacheKey(10f),
+                RemoteNamedCacheKey(RemoteState.Domain.User, "test"),
+                RemoteStateIdKey(123),
+                RemoteComponentCacheKey(1, "width"),
+                RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Plus, 1f.rf, 2f.rf),
+                FloatArrayCacheKey(floatArrayOf(1f)),
+            )
+
+        for (key in keys) {
+            val hash1 = key.hashCode()
+            val hash2 = key.hashCode()
+            assertThat(hash1).isEqualTo(hash2)
+            assertThat(hash1).isNotEqualTo(0)
+        }
+    }
+
+    @Test
     fun remoteConstantCacheKey_FloatNaN_NotSupported() {
         val t = assertFails { RemoteConstantCacheKey(Utils.asNan(101)) }
         assertThat(t.message).isEqualTo("Float constant value cannot be NaN")

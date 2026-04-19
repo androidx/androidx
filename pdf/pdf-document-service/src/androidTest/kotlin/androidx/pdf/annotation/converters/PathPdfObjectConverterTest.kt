@@ -21,7 +21,7 @@ import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.randomizePathPdfObject
-import androidx.pdf.utils.AnnotationUtilsTest.Companion.isRequiredSdkExtensionAvailable
+import androidx.pdf.utils.isAnnotationsFeatureAvailable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -42,7 +42,7 @@ class PathPdfObjectConverterTest {
 
     @Test
     fun convert_emptyPathPdfObject_returnsEmptyPath() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         val pathPdfObject = PathPdfObject(brushColor = 0, brushWidth = 0f, inputs = emptyList())
 
@@ -53,7 +53,7 @@ class PathPdfObjectConverterTest {
 
     @Test
     fun convert_nonEmptyPathPdfObject_returnsNonEmptyPdfPathObject() {
-        if (!isRequiredSdkExtensionAvailable()) return
+        if (!isAnnotationsFeatureAvailable()) return
 
         val pathPdfObject = randomizePathPdfObject(pathLength = 1)
         val expectedStrokeColor = 0

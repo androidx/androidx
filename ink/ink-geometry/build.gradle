@@ -22,11 +22,15 @@ plugins {
 }
 
 androidXMultiplatform {
+  // Only supported on non-Android JVM for Linux on x86_64
   jvm()
-  ios()
+
   androidLibrary {
     namespace = "androidx.ink.geometry"
   }
+
+  // TODO: b/462064872 - Turn on ios() support and enable BuildType.KMP
+  // ios()
 
   defaultPlatform(PlatformIdentifier.JVM)
 
@@ -37,23 +41,20 @@ androidXMultiplatform {
     }
 
     commonTest.dependencies {
-      implementation(project(":kruth:kruth"))
-    }
-
-    jvmAndAndroidTest.dependencies {
-      implementation(libs.junit)
       implementation(libs.kotlinTest)
-      implementation(libs.truth)
-      implementation(project(":ink:ink-brush"))
-      implementation(project(":ink:ink-strokes"))
+      implementation(project(":kruth:kruth"))
     }
 
     androidDeviceTest.dependencies {
       implementation(libs.espressoCore)
+      implementation(libs.junit)
       implementation(libs.testExtJunit)
       implementation(libs.testRules)
       implementation(libs.testRunner)
+      implementation(libs.truth)
       implementation("androidx.graphics:graphics-path:1.0.1")
+      implementation(project(":ink:ink-brush"))
+      implementation(project(":ink:ink-strokes"))
     }
   }
 }
@@ -63,6 +64,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Create beautiful strokes"
+    usePlatformSpecificCacheForJvmTests = true
 }
 
 // TODO: b/374774638 - Run tests on host as well as device.

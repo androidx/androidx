@@ -18,9 +18,19 @@ package androidx.xr.arcore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory as InternalFactory
+import androidx.xr.runtime.AnchorPersistenceMode
+import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.DisplayBlendMode
+import androidx.xr.runtime.FaceTrackingMode
+import androidx.xr.runtime.HandTrackingMode
+import androidx.xr.runtime.PlaneTrackingMode
 import kotlin.time.ComparableTimeMark
+import kotlin.time.TestTimeSource
+import kotlinx.coroutines.sync.Semaphore
 
 /**
  * Fake implementation of [PerceptionRuntime] for testing purposes.
@@ -36,19 +46,89 @@ import kotlin.time.ComparableTimeMark
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )
 public data class FakePerceptionRuntime(
-    @Suppress("DEPRECATION") override val lifecycleManager: FakeLifecycleManager,
     @Suppress("DEPRECATION") override val perceptionManager: FakePerceptionManager,
+    /** If false, [initialize] will throw an exception during testing. */
+    @get:JvmName("hasCreatePermission") public var hasCreatePermission: Boolean = true,
 ) : PerceptionRuntime {
-    override var config: Config = Config()
-
+    @Suppress("DEPRECATION")
+    override val lifecycleManager: FakeLifecycleManager = FakeLifecycleManager(this)
     public var xrDevicePreferredDisplayBlendMode: DisplayBlendMode = DisplayBlendMode.NO_DISPLAY
 
+    public companion object {
+        @JvmField
+        public val TestPermissions: List<String> =
+            listOf("android.permission.SCENE_UNDERSTANDING_COARSE")
+    }
+
+    /** Set of possible states of the runtime. */
+    public enum class State {
+        NOT_INITIALIZED,
+        INITIALIZED,
+        RESUMED,
+        PAUSED,
+        DESTROYED,
+    }
+
+    /** The current state of the runtime. */
+    public var state: State = State.NOT_INITIALIZED
+        private set
+
+    /** The time source used for this runtime. */
+    public val timeSource: TestTimeSource = TestTimeSource()
+
+    private val semaphore = Semaphore(1)
+
+    /** If true, [configure] will emulate the failure case for missing permissions. */
+    @get:JvmName("hasMissingPermission") public var hasMissingPermission: Boolean = false
+
+    /** If false, [configure] will throw an Exception if the config enables PlaneTracking. */
+    @get:JvmName("shouldSupportPlaneTracking") public var shouldSupportPlaneTracking: Boolean = true
+
+    /** If false, [configure] will throw an exception if the config enables FaceTracking */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:JvmName("shouldSupportFaceTracking")
+    public var shouldSupportFaceTracking: Boolean = true
+
+    public override var config: Config =
+        Config(
+            PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+            HandTrackingMode.BOTH,
+            DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+            DepthEstimationMode.SMOOTH_AND_RAW,
+            AnchorPersistenceMode.LOCAL,
+            augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
+        )
+
     override fun initialize() {
-        lifecycleManager.create()
+        check(state == State.NOT_INITIALIZED)
+        if (!hasCreatePermission) throw SecurityException()
+        if (InternalFactory.runtimeInitializeException != null) {
+            // FakeRuntimeFactory will continue to throw exception on subsequent tests unless
+            // cleared.
+            val exceptionToThrow = InternalFactory.runtimeInitializeException!!
+            InternalFactory.runtimeInitializeException = null
+            throw exceptionToThrow
+        }
+        state = State.INITIALIZED
     }
 
     override fun configure(config: Config) {
-        lifecycleManager.configure(config)
+        check(
+            state == State.NOT_INITIALIZED ||
+                state == State.INITIALIZED ||
+                state == State.RESUMED ||
+                state == State.PAUSED
+        )
+        if (!shouldSupportPlaneTracking && config.planeTracking != PlaneTrackingMode.DISABLED) {
+            throw UnsupportedOperationException()
+        }
+
+        if (!shouldSupportFaceTracking && config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
+            throw UnsupportedOperationException()
+        }
+
+        if (hasMissingPermission) throw SecurityException()
+        this.config = config
     }
 
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
@@ -56,18 +136,36 @@ public data class FakePerceptionRuntime(
     }
 
     override fun resume() {
-        lifecycleManager.resume()
+        check(state == State.INITIALIZED || state == State.PAUSED)
+        state = State.RESUMED
     }
 
-    override suspend fun update(): ComparableTimeMark? {
-        return lifecycleManager.update()
+    /**
+     * Retrieves the latest time mark. The first call to this method will execute immediately.
+     * Subsequent calls will be blocked until [allowOneMoreCallToUpdate] is called.
+     */
+    override suspend fun update(): ComparableTimeMark {
+        check(state == State.RESUMED)
+        semaphore.acquire()
+        return timeSource.markNow()
+    }
+
+    /**
+     * Allows an additional call to [update] to not be blocked. Requires that [update] has been
+     * called exactly once before each call to this method. Failure to do so will result in an
+     * [IllegalStateException].
+     */
+    public fun allowOneMoreCallToUpdate() {
+        semaphore.release()
     }
 
     override fun pause() {
-        lifecycleManager.pause()
+        check(state == State.RESUMED)
+        state = State.PAUSED
     }
 
     override fun destroy() {
-        lifecycleManager.stop()
+        check(state == State.PAUSED || state == State.INITIALIZED)
+        state = State.DESTROYED
     }
 }

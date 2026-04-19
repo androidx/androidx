@@ -35,10 +35,18 @@ import kotlin.jvm.JvmSynthetic
  * 2. An array of [BrushBehavior]s that allow dynamic properties of each input to augment the tip
  *    shape and color.
  *
- * Depending on the combination of values, the tip can be shaped as a rounded parallelogram, circle,
- * or stadium. Through [BrushBehavior]s, the tip can produce a per-vertex HSLA color shift that can
- * be used to augment the [Brush] color when drawing. The default values below produce a static
- * circular tip shape with diameter equal to the [Brush] size and no color shift.
+ * The base tip shape is controlled by various parameters: `scaleX` and `scaleY` control the size
+ * and aspect ratio; `cornerRounding` controls the roundness (going from square to rounded-rect to
+ * circle); `slantDegrees` controls the slantedness (going from rectangle to parallelogram); `pinch`
+ * controls the triangularity (going from rectangle to trapezoid to triangle). By combining these
+ * parameters, the tip shape can be circular, or pill-shaped, or a rounded triangle, or a rounded
+ * convex quadrilateral.
+ *
+ * Through [BrushBehavior]s, the tip can also produce a per-vertex HSLA color shift that can be used
+ * to augment the [Brush] color when drawing.
+ *
+ * The default parameters produce a static circular tip shape, with diameter equal to the [Brush]
+ * size and no color shift.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkCustomBrushApi
@@ -55,6 +63,7 @@ private constructor(
      */
     public val behaviors: List<BrushBehavior> = unmodifiableList(behaviors.toList())
 
+    /** Constructs a new [BrushTip] with the given attributes. */
     public constructor(
         @FloatRange(from = 0.0, toInclusive = false) scaleX: Float = 1f,
         @FloatRange(from = 0.0, toInclusive = false) scaleY: Float = 1f,
@@ -233,8 +242,9 @@ private constructor(
     /**
      * Builder for [BrushTip].
      *
-     * Use BrushTip.Builder to construct a [BrushTip] with default values, overriding only as
-     * needed.
+     * For Java developers, use `BrushTip.Builder` to construct a [BrushTip] with default values,
+     * overriding only as needed. For example: `BrushTip tip =
+     * BrushTip.builder().setCornerRounding(0.5).build();`
      */
     @Suppress("ScopeReceiverThis")
     public class Builder {
@@ -246,46 +256,64 @@ private constructor(
         @AngleDegreesFloat private var rotationDegrees: Float = 0f
         private var particleGapDistanceScale: Float = 0F
         private var particleGapDurationMillis: Long = 0L
-        private var behaviors: List<BrushBehavior> = emptyList()
+        private var behaviors = mutableListOf<BrushBehavior>()
 
+        /** Sets the horizontal scale for this brush tip. */
         public fun setScaleX(@FloatRange(from = 0.0, toInclusive = false) scaleX: Float): Builder =
             apply {
                 this.scaleX = scaleX
             }
 
+        /** Sets the vertical scale for this brush tip. */
         public fun setScaleY(@FloatRange(from = 0.0, toInclusive = false) scaleY: Float): Builder =
             apply {
                 this.scaleY = scaleY
             }
 
+        /** Sets the corner rounding for this brush tip. */
         public fun setCornerRounding(
             @FloatRange(from = 0.0, to = 1.0) cornerRounding: Float
         ): Builder = apply { this.cornerRounding = cornerRounding }
 
+        /** Sets the slant angle for this brush tip. */
         public fun setSlantDegrees(
             @FloatRange(from = -90.0, to = 90.0) @AngleDegreesFloat degrees: Float
         ): Builder = apply { slantDegrees = degrees }
 
+        /** Sets the pinch for this brush tip. */
         public fun setPinch(@FloatRange(from = 0.0, to = 1.0) pinch: Float): Builder = apply {
             this.pinch = pinch
         }
 
+        /** Sets the rotation angle for this brush tip. */
         public fun setRotationDegrees(@AngleDegreesFloat degrees: Float): Builder = apply {
             rotationDegrees = degrees
         }
 
+        /** Sets the distance-based particle gap for this brush tip. */
         public fun setParticleGapDistanceScale(
             @FloatRange(from = 0.0, toInclusive = false) particleGapDistanceScale: Float
         ): Builder = apply { this.particleGapDistanceScale = particleGapDistanceScale }
 
+        /** Sets the time-based particle gap for this brush tip. */
         public fun setParticleGapDurationMillis(
             @IntRange(from = 0L) particleGapDurationMillis: Long
         ): Builder = apply { this.particleGapDurationMillis = particleGapDurationMillis }
 
-        public fun setBehaviors(behaviors: List<BrushBehavior>): Builder = apply {
-            this.behaviors = behaviors.toList()
+        /** Adds a behavior to this brush tip. */
+        public fun addBehavior(behavior: BrushBehavior): Builder = apply {
+            this.behaviors.add(behavior)
         }
 
+        /**
+         * Sets the list of behaviors for this brush tip (replacing any previously-added behaviors).
+         */
+        public fun setBehaviors(behaviors: List<BrushBehavior>): Builder = apply {
+            this.behaviors.clear()
+            this.behaviors.addAll(behaviors)
+        }
+
+        /** Constructs a [BrushTip] from this [Builder]. */
         public fun build(): BrushTip =
             BrushTip(
                 scaleX,

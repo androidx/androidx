@@ -31,7 +31,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Looper
 import android.os.Parcelable
-import android.os.ext.SdkExtensions
 import android.util.AttributeSet
 import android.util.Range
 import android.util.SparseArray
@@ -52,6 +51,7 @@ import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.animation.addListener
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.toRectF
 import androidx.core.os.HandlerCompat
 import androidx.core.util.Pools
@@ -59,6 +59,7 @@ import androidx.core.util.keyIterator
 import androidx.core.util.valueIterator
 import androidx.core.view.ViewCompat
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
 import androidx.pdf.R
 import androidx.pdf.content.ExternalLink
@@ -79,6 +80,8 @@ import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.util.Accessibility
 import androidx.pdf.util.MathUtils
 import androidx.pdf.util.ZoomUtils
+import androidx.pdf.util.getDisplaySize
+import androidx.pdf.util.isImageSelectionAvailableInSdk
 import androidx.pdf.view.PdfView.Companion.GESTURE_STATE_IDLE
 import androidx.pdf.view.PdfView.Companion.GESTURE_STATE_INTERACTING
 import androidx.pdf.view.PdfView.Companion.GESTURE_STATE_SETTLING
@@ -253,22 +256,24 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             invalidate()
         }
 
-    /** Enables / Disables the form- filling feature surface. */
+    /** Enables / Disables the form-filling feature surface. */
     public var isFormFillingEnabled: Boolean = false
         set(value) {
             if (field == value) return
             field = value
-
-            if (value) {
-                formWidgetMetadataLoader?.let { loader ->
-                    pageManager?.maybeLoadFormWidgetMetadata(loader)
-                }
+            if (pdfDocument?.isFeatureSupported(PdfFeature.FORM_FILLING) == true) {
+                setupFormFilling()
             } else {
                 // remove any existing edit text
                 formFillingEditText = null
+                invalidate()
             }
-            invalidate()
         }
+
+    private fun setupFormFilling() {
+        formWidgetMetadataLoader?.let { loader -> pageManager?.maybeLoadFormWidgetMetadata(loader) }
+        invalidate()
+    }
 
     /**
      * Enable or disable the image-selection feature surface.
@@ -282,7 +287,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     public var isImageSelectionEnabled: Boolean = false
         set(value) {
             if (field == value) return
-            val isApiReqSatisfied = isSdkExtensionGreaterEqualTo(19)
+            val isApiReqSatisfied = isImageSelectionAvailableInSdk()
             if (!isApiReqSatisfied) return
 
             field = value
@@ -382,7 +387,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         if (
             typedArray.hasValue(R.styleable.PdfView_isImageSelectionEnabled) &&
-                isSdkExtensionGreaterEqualTo(19)
+                isImageSelectionAvailableInSdk()
         ) {
             isImageSelectionEnabled =
                 typedArray.getBoolean(R.styleable.PdfView_isImageSelectionEnabled, false)
@@ -902,7 +907,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     /** Selects all text on the current selected page range asynchronously. */
     internal fun selectAllText() {
-        selectionStateManager?.selectAllText()
+        if (pdfDocument?.isFeatureSupported(PdfFeature.TEXT_SELECTION) == true) {
+            selectionStateManager?.selectAllText()
+        }
     }
 
     /**
@@ -1551,7 +1558,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
         state.isFormFillingEnabled = isFormFillingEnabled
         state.isFormFillingTooltipEnabled = isFormFillingTooltipEnabled
-        if (isSdkExtensionGreaterEqualTo(19)) {
+        if (isImageSelectionAvailableInSdk()) {
             state.isImageSelectionEnabled = isImageSelectionEnabled
         }
         state.pagesPerRow = pagesPerRow
@@ -1729,7 +1736,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         isFormFillingEnabled = localStateToRestore.isFormFillingEnabled
         isFormFillingTooltipEnabled = localStateToRestore.isFormFillingTooltipEnabled
-        if (isSdkExtensionGreaterEqualTo(19)) {
+        if (isImageSelectionAvailableInSdk()) {
             isImageSelectionEnabled = localStateToRestore.isImageSelectionEnabled
         }
         setAccessibility()
@@ -1960,16 +1967,17 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     /** Start using the [PdfDocument] to present PDF content */
     // Display.width and height are deprecated in favor of WindowMetrics, but in this case we
     // actually want to use the size of the display and not the size of the window.
-    @Suppress("deprecation")
     private fun onDocumentSet() {
         val localPdfDocument = pdfDocument ?: return
+
         // No pages to render, return without processing document further.
         if (localPdfDocument.pageCount <= 0) return
         /* We use the maximum pixel dimension of the display as the maximum pixel dimension for any
         single Bitmap we render, i.e. the threshold for tiled rendering. This is an arbitrary,
         but reasonable threshold to use that does not depend on volatile state like the current
         screen orientation or the current size of our application's Window. */
-        val maxBitmapDimensionPx = max(context.display.width, context.display.height)
+        val displaySize = getDisplaySize(context)
+        val maxBitmapDimensionPx = max(displaySize.x, displaySize.y)
 
         pageManager =
             PageManager(
@@ -1985,11 +1993,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 this.formFillingEditText = formFillingEditText
             }
 
+        val mainExecutor = ContextCompat.getMainExecutor(context)
         localPdfDocument.addOnPdfContentInvalidatedListener(
-            context.mainExecutor,
+            mainExecutor,
             onPdfContentInvalidatedListener,
         )
 
+        if (localPdfDocument.isFeatureSupported(PdfFeature.FORM_FILLING) && isFormFillingEnabled) {
+            setupFormFilling()
+        }
         setupFastScroller()
         // set initial visibility of fast scroller
         maybeHideFastScroller()
@@ -2011,7 +2023,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     .apply { onViewportChanged() }
 
             val isImageSelectionAvailable =
-                isSdkExtensionGreaterEqualTo(19) && isImageSelectionEnabled
+                isImageSelectionAvailableInSdk() && isImageSelectionEnabled
             selectionStateManager =
                 SelectionStateManager(
                     pdfDocument = localPdfDocument,
@@ -2873,8 +2885,4 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             return (contentCoord * zoom) - scroll
         }
     }
-}
-
-private fun isSdkExtensionGreaterEqualTo(sdkExtension: Int): Boolean {
-    return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= sdkExtension
 }

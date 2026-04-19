@@ -32,8 +32,7 @@ import androidx.appcompat.app.AppCompatActivity
 class FullscreenActivity : AppCompatActivity() {
 
     /**
-     * An example {@link WebChromeClient} implementation which supports showing web content in
-     * fullscreen.
+     * An example [WebChromeClient] implementation which supports showing web content in fullscreen.
      */
     private class FullScreenWebChromeClient(val window: Window) : WebChromeClient() {
 

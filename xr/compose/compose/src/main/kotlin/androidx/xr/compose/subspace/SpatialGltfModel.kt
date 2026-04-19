@@ -35,7 +35,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.subspace.SpatialGltfModelSource.Companion.fromData
 import androidx.xr.compose.subspace.SpatialGltfModelSource.Companion.fromPath
 import androidx.xr.compose.subspace.SpatialGltfModelSource.Companion.fromUri
 import androidx.xr.compose.subspace.layout.CoreModelEntity
@@ -92,7 +91,7 @@ import kotlinx.coroutines.supervisorScope
  * @param state A [SpatialGltfModelState] object to observe and control the SpatialGltfModel. This
  *   can be created using [rememberSpatialGltfModelState]. The state should be created with a
  *   [SpatialGltfModelSource] that defines where to load the 3D model from. Use the helper functions
- *   [fromPath], [fromUri], or [fromData] to create a [SpatialGltfModelSource].
+ *   [fromPath] or [fromUri] to create a [SpatialGltfModelSource].
  * @param modifier The [SubspaceModifier] to be applied to this SpatialGltfModel.
  * @param content The content within the space of the [SpatialGltfModel]
  * @sample androidx.xr.compose.samples.SpatialGltfModelSample
@@ -282,7 +281,7 @@ public abstract class SpatialGltfModelStatus private constructor() {
 /**
  * Defines the source for a 3D model to be rendered by the [SpatialGltfModel] composable.
  *
- * Instances of [SpatialGltfModelSource] are created using [fromPath], [fromUri], or [fromData].
+ * Instances of [SpatialGltfModelSource] are created using [fromPath] or [fromUri].
  */
 public interface SpatialGltfModelSource {
 
@@ -332,51 +331,6 @@ public interface SpatialGltfModelSource {
         private data class UriGltfModelSource(private val uri: Uri) : SpatialGltfModelSource {
             override suspend fun createModel(session: Session): GltfModel =
                 GltfModel.create(session, uri)
-        }
-
-        /**
-         * Creates a [SpatialGltfModelSource] that loads a `glTF` model from a [ByteArray].
-         *
-         * This is useful for loading models that are embedded directly in the application or
-         * generated at runtime.
-         *
-         * Currently, only binary `glTF` (`.glb`) files are supported.
-         *
-         * @param assetData The byte array data of a binary `glTF` (`.glb`) model.
-         * @param assetKey A unique key to identify the model in the internal cache. If not
-         *   provided, the [hashCode] of the [assetData] will be used. Providing a stable key can
-         *   improve performance by avoiding redundant parsing of the same model data.
-         * @return A [SpatialGltfModelSource] that can be used with the [SpatialGltfModel]
-         *   composable.
-         */
-        @JvmStatic
-        public fun fromData(
-            assetData: ByteArray,
-            assetKey: String = assetData.hashCode().toString(),
-        ): SpatialGltfModelSource = DataGltfModelSource(assetData, assetKey)
-
-        private class DataGltfModelSource(
-            private val assetData: ByteArray,
-            private val assetKey: String,
-        ) : SpatialGltfModelSource {
-            override suspend fun createModel(session: Session): GltfModel =
-                GltfModel.create(session, assetData, assetKey)
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) return true
-                if (other !is DataGltfModelSource) return false
-
-                if (!assetData.contentEquals(other.assetData)) return false
-                if (assetKey != other.assetKey) return false
-
-                return true
-            }
-
-            override fun hashCode(): Int {
-                var result = assetData.contentHashCode()
-                result = 31 * result + assetKey.hashCode()
-                return result
-            }
         }
     }
 }

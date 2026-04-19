@@ -123,13 +123,26 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
      *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
      *   of the box is twice the half-extent. All values are in meters.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val gltfModelBoundingBox: BoundingBox
+    internal val gltfModelBoundingBox: BoundingBox
         @MainThread
         get() {
             checkNotDisposed()
             return rtEntity!!.gltfModelBoundingBox
         }
+
+    /**
+     * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
+     * model's local coordinate space.
+     *
+     * @return A [BoundingBox] object representing the model's bounding box. The
+     *   [BoundingBox.center] defines the geometric center of the box, and the
+     *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
+     *   of the box is twice the half-extent. All values are in meters.
+     */
+    // TODO - b/501059605: Make the property public and remove this getter.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @ExperimentalGltfComposeMethod
+    public fun getGltfModelBoundingBox(): BoundingBox = gltfModelBoundingBox
 
     public companion object {
         /**
@@ -199,3 +212,12 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
             )
     }
 }
+
+// Annotation for Gltf-specific restricted LIBRARY_GROUP_PREFIX APIs that have not been finalized.
+// The annotation itself is also restricted, to match the methods being annotated.
+@RequiresOptIn(
+    "This API is experimental and used exclusively by XR Compose. It is not supported for general use. (b/501059605)"
+)
+@Retention(AnnotationRetention.BINARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public annotation class ExperimentalGltfComposeMethod

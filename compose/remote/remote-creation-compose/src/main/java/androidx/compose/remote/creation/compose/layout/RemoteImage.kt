@@ -18,17 +18,39 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.v2.RemoteImageV2
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+
+internal class RemoteImageNode : RemoteComposeNode() {
+    var image: Any? = null
+    var remoteBitmap: RemoteBitmap? = null
+    var contentScale: ContentScale = ContentScale.Fit
+    var alpha: RemoteFloat = RemoteFloat(1f)
+    var contentDescription: RemoteString? = null
+
+    override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
+        val bitmapId =
+            remoteBitmap?.getIdForCreationState(creationState)
+                ?: image?.let { creationState.document.addBitmap(it) }
+                ?: 0
+        creationState.document.image(
+            creationState.toRecordingModifier(modifier),
+            bitmapId,
+            contentScale.toImageScalingInt(),
+            alpha.getFloatIdForCreationState(creationState),
+        )
+    }
+}
 
 /**
  * A composable that lays out and draws a given [ImageBitmap]. This is the remote equivalent of
@@ -76,11 +98,14 @@ public fun RemoteImage(
     contentScale: ContentScale = ContentScale.Fit,
     alpha: RemoteFloat = DefaultAlpha.rf,
 ) {
-    RemoteImageV2(
-        remoteBitmap = remoteBitmap,
-        modifier = modifier,
-        contentScale = contentScale,
-        alpha = alpha,
-        contentDescription = contentDescription,
+    RemoteComposeNode(
+        factory = ::RemoteImageNode,
+        update = {
+            set(modifier) { nodeModifier -> this.modifier = nodeModifier }
+            set(remoteBitmap) { this.remoteBitmap = it }
+            set(contentScale) { this.contentScale = it }
+            set(alpha) { this.alpha = it }
+            set(contentDescription) { this.contentDescription = it }
+        },
     )
 }

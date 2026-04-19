@@ -10,4 +10,4 @@ rgl@google.com
 tigerhuang@google.com
 
 # Per-file for Playground infra
-per-file settings.gradle = dustinlam@google.com, rahulrav@google.com
+per-file settings.gradle = rahulrav@google.com

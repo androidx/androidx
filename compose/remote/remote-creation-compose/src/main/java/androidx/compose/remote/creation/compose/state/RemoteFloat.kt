@@ -1611,6 +1611,36 @@ internal constructor(
 }
 
 /**
+ * Similar to [RemoteFloatExpression] but without caching of the array.
+ *
+ * @property hasConstantValue Indicates if this expression will always yield the same value.
+ * @property arrayProvider A lambda that provides the [FloatArray] representing the expression.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+internal class UncachedRemoteFloatExpression(
+    public override val constantValueOrNull: Float?,
+    internal override val cacheKey: RemoteStateCacheKey,
+    internal override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,
+) : RemoteFloat() {
+
+    init {
+        if (constantValueOrNull?.isNaN() == true) {
+            throw IllegalArgumentException("constantValueOrNull cannot be NaN")
+        }
+    }
+
+    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        val array = arrayForCreationState(creationState)
+        // In case we have a single element array, check if the element is an id or not;
+        // if it is an existing id, just return this one, no need to create a new one...
+        if (array.size == 1 && array[0].isNaN()) {
+            return Utils.idFromNan(array[0])
+        }
+        return Utils.idFromNan(creationState.document.floatExpression(*array))
+    }
+}
+
+/**
  * Represents an animated remote float. It combines an input [RemoteFloat] with an animation
  * definition ([FloatArray]).
  *

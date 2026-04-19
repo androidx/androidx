@@ -2254,7 +2254,7 @@ class MovableComponentTest {
 
             assertThat(exception.message)
                 .isEqualTo(
-                    "Movable component can be applied to either a PanelEntity or GltfModelEntity"
+                    "Movable component can be applied to either a PanelEntity, GltfModelEntity, or MeshEntity"
                 )
         }
     }

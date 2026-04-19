@@ -475,7 +475,5 @@ private const val MaskForNonWindowMetricsChanges =
         ActivityInfo.CONFIG_FONT_SCALE or
         ActivityInfo.CONFIG_COLOR_MODE or
         ActivityInfo.CONFIG_GRAMMATICAL_GENDER or
-        ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT
-
-// TODO(b/450557132): Add when compileSdk is bumped to 36
-//   ActivityInfo.CONFIG_ASSETS_PATHS
+        ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT or
+        ActivityInfo.CONFIG_ASSETS_PATHS

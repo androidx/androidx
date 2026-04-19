@@ -52,9 +52,9 @@ import androidx.ink.nativeloader.UsedByNative
  * @receiver The [StrokeInputBatch] to create a closed shape from.
  */
 public fun StrokeInputBatch.createClosedShape(): PartitionedMesh {
-    return PartitionedMesh.wrapNative(
+    return PartitionedMesh.wrapNative {
         MeshCreationNative.createClosedShapeFromStrokeInputBatch(this.nativePointer)
-    )
+    }
 }
 
 @UsedByNative

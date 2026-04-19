@@ -352,7 +352,7 @@ class GravityAlignedTest {
         val tiltedRootNode = Entity.create(checkNotNull(composeTestRule.session), "tiltedRootNode")
         val tiltedRootRotation = Quaternion.fromEulerAngles(pitch = 20f, yaw = 60f, roll = -25f)
         tiltedRootNode.setPose(
-            relativeTo = Space.REAL_WORLD,
+            relativeTo = Space.ACTIVITY,
             pose = Pose(rotation = tiltedRootRotation),
         )
 
@@ -378,7 +378,7 @@ class GravityAlignedTest {
 
         assertNotNull(panelEntity)
 
-        val actualFinalWorldRotation = panelEntity.getPose(relativeTo = Space.REAL_WORLD).rotation
+        val actualFinalWorldRotation = panelEntity.getPose(relativeTo = Space.ACTIVITY).rotation
         val angleDifference = Quaternion.angle(actualFinalWorldRotation, yawOnlyRotation)
 
         assertThat(angleDifference).isLessThan(0.01f)

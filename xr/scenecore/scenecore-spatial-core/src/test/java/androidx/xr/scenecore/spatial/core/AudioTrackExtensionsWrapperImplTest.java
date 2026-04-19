@@ -27,7 +27,6 @@ import androidx.xr.scenecore.runtime.AudioTrackExtensionsWrapper;
 import androidx.xr.scenecore.runtime.PointSourceParams;
 import androidx.xr.scenecore.runtime.SoundFieldAttributes;
 import androidx.xr.scenecore.runtime.SpatializerConstants;
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider;
 
 import com.android.extensions.xr.XrExtensions;
 import com.android.extensions.xr.media.AudioTrackExtensions;
@@ -56,7 +55,7 @@ public class AudioTrackExtensionsWrapperImplTest {
 
     @Before
     public void setUp() {
-        mXrExtensions = XrExtensionsProvider.getXrExtensions();
+        mXrExtensions = SpatialCoreXrExtensionsHolderProvider.Companion.getExtensionsLegacy();
         mSpatialAudioExtensions = mXrExtensions.getXrSpatialAudioExtensions();
         mAudioTrackExtensions = mSpatialAudioExtensions.getAudioTrackExtensions();
 

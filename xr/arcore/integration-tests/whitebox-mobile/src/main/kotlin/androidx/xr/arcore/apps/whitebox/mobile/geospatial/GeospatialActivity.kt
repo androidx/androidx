@@ -182,6 +182,7 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
 
             is CreateGeospatialPoseFromPoseInternalError ->
                 XrLog.error { geospatialPoseResult.error }
+            else -> XrLog.error { "Failed to create anchor: Unknown error." }
         }
     }
 
@@ -299,6 +300,7 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
 
                     is CreateGeospatialPoseFromPoseInternalError ->
                         "Localization Status: ${result.error}"
+                    else -> "Localization Status: Unknown"
                 }
             else -> "Localization Status: Unknown"
         }

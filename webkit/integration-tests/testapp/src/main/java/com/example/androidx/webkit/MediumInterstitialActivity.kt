@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -26,15 +27,13 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * An {@link android.app.Activity} to demonstrate medium ("Quiet") interstitials. WebView displays a
- * grey error page with a small bit of description when it's "medium" sized (large enough to show
- * text, but small enough that it's likely not the predominant part of the UI), when loading
- * malicious resources.
+ * An [Activity] to demonstrate medium ("Quiet") interstitials. WebView displays a grey error page
+ * with a small bit of description when it's "medium" sized (large enough to show text, but small
+ * enough that it's likely not the predominant part of the UI), when loading malicious resources.
  *
- * <p>
  * Medium interstitials are triggered when the WebView is either taller or wider than an otherwise
- * "small" WebView. This {@link android.app.Activity} can show either case ("tall" and "wide",
- * respectively), based on the boolean extra {@link #LAYOUT_HORIZONTAL}.
+ * "small" WebView. This [Activity] can show either case ("tall" and "wide", respectively), based on
+ * the boolean extra [#LAYOUT_HORIZONTAL].
  */
 class MediumInterstitialActivity : AppCompatActivity() {
 

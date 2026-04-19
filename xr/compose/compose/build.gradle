@@ -50,8 +50,8 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.7.5")
     implementation("androidx.compose.ui:ui-unit:1.7.5")
     implementation("androidx.compose.ui:ui-util:1.6.0")
-    implementation(project(":window:window"))
-    implementation(project(":navigationevent:navigationevent"))
+    implementation("androidx.window:window:1.5.1")
+    implementation("androidx.navigationevent:navigationevent-compose:1.0.2")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)

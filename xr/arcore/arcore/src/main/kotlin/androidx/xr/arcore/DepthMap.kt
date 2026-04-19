@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.DepthMap as RuntimeDepthMap
 import androidx.xr.runtime.Session
 import java.nio.ByteBuffer
@@ -30,8 +29,9 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * @property state the current [State] of the depth map
  */
+@SuppressWarnings("HiddenSuperclass")
 public class DepthMap internal constructor(internal val runtimeDepthMap: RuntimeDepthMap) :
-    Updatable {
+    Updatable() {
     public companion object {
         /**
          * Returns the DepthMap associated with the left display.
@@ -145,7 +145,6 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
 
     public val state: StateFlow<DepthMap.State> = _state.asStateFlow()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
         _state.emit(
             State(

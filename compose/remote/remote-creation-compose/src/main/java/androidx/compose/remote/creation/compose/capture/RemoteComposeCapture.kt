@@ -19,8 +19,8 @@ package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
@@ -44,6 +44,7 @@ public fun rememberRemoteDocument(
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     writerEvents: WriterEvents = WriterEvents(),
     onCreate: ((CoreDocument) -> Unit)? = null,
+    clock: RemoteClock = RemoteClock.SYSTEM,
     content: @Composable () -> Unit,
 ): MutableState<CoreDocument?> {
     val layoutDirection = LocalLayoutDirection.current
@@ -51,15 +52,16 @@ public fun rememberRemoteDocument(
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         val document =
-            captureSingleRemoteDocumentV2(
+            captureSingleRemoteDocument(
                 creationDisplayInfo = createCreationDisplayInfo(context),
                 layoutDirection = layoutDirection,
                 context = context,
                 content = content,
                 profile = profile,
+                clock = clock,
             )
         val coreDocument =
-            CoreDocument().apply {
+            CoreDocument(clock).apply {
                 trace("CreateRemoteDocument:parsing") {
                     initFromBuffer(
                         RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(document.bytes))

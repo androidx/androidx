@@ -20,6 +20,7 @@ import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushCoat
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.BrushTip
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.color.Color
@@ -162,27 +163,27 @@ class StrokeTest {
                                         listOf(
                                             BrushPaint(
                                                 ImmutableList.of(
-                                                    BrushPaint.TextureLayer(
+                                                    TextureLayer(
                                                         clientTextureId = "test-one",
                                                         sizeX = 123.45F,
                                                         sizeY = 678.90F,
                                                         offsetX = 0.1F,
                                                         offsetY = 0.2F,
                                                         sizeUnit =
-                                                            BrushPaint.TextureSizeUnit
+                                                            TextureLayer.SizeUnit
                                                                 .STROKE_COORDINATES,
-                                                        mapping = BrushPaint.TextureMapping.TILING,
+                                                        mapping = TextureLayer.Mapping.TILING,
                                                     ),
-                                                    BrushPaint.TextureLayer(
+                                                    TextureLayer(
                                                         clientTextureId = "test-two",
                                                         sizeX = 256F,
                                                         sizeY = 256F,
                                                         offsetX = 0.1F,
                                                         offsetY = 0.2F,
                                                         sizeUnit =
-                                                            BrushPaint.TextureSizeUnit
+                                                            TextureLayer.SizeUnit
                                                                 .STROKE_COORDINATES,
-                                                        mapping = BrushPaint.TextureMapping.TILING,
+                                                        mapping = TextureLayer.Mapping.TILING,
                                                     ),
                                                 )
                                             )
@@ -216,14 +217,14 @@ class StrokeTest {
                     listOf(
                         BrushPaint(
                             listOf(
-                                BrushPaint.TextureLayer(
+                                TextureLayer(
                                     clientTextureId = "test-one",
                                     sizeX = 123.45F,
                                     sizeY = 678.90F,
                                     offsetX = 0.1F,
                                     offsetY = 0.2F,
-                                    sizeUnit = BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
-                                    mapping = BrushPaint.TextureMapping.STAMPING,
+                                    sizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
+                                    mapping = TextureLayer.Mapping.STAMPING,
                                 )
                             )
                         )
@@ -257,14 +258,14 @@ class StrokeTest {
                     listOf(
                         BrushPaint(
                             listOf(
-                                BrushPaint.TextureLayer(
+                                TextureLayer(
                                     clientTextureId = "test-one",
                                     sizeX = 123.45F,
                                     sizeY = 678.90F,
                                     offsetX = 0.1F,
                                     offsetY = 0.2F,
-                                    sizeUnit = BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
-                                    mapping = BrushPaint.TextureMapping.STAMPING,
+                                    sizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
+                                    mapping = TextureLayer.Mapping.STAMPING,
                                 )
                             )
                         )
@@ -333,8 +334,7 @@ class StrokeTest {
         assertThat(originalBrush.family.inputModel).isEqualTo(BrushFamily.DEFAULT_INPUT_MODEL)
         val inputModelChangedBrush =
             originalBrush.copy(
-                family =
-                    originalBrush.family.copy(inputModel = BrushFamily.EXPERIMENTAL_NAIVE_MODEL)
+                family = originalBrush.family.copy(inputModel = BrushFamily.PASSTHROUGH_MODEL)
             )
         val inputs = makeTestInputs()
         val originalStroke = Stroke(originalBrush, inputs)

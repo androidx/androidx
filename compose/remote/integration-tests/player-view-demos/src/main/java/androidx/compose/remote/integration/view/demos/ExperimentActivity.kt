@@ -72,8 +72,8 @@ import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
-import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.integration.view.demos.dsl.RcDslClock
@@ -277,7 +277,7 @@ fun getComposeDoc(
             content: @Composable () -> Unit,
         ) {
             val result =
-                captureSingleRemoteDocumentV2(
+                captureSingleRemoteDocument(
                     profile = profile,
                     creationDisplayInfo = creationDisplayInfo,
                     writerEvents = WriterEvents(),

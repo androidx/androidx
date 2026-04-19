@@ -16,7 +16,7 @@
 
 package androidx.xr.arcore.testing
 
-import androidx.xr.arcore.testing.internal.FakeLifecycleManager
+import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeDepthMap
 import androidx.xr.runtime.DepthEstimationMode
 import java.nio.ByteBuffer
@@ -43,7 +43,7 @@ internal constructor(
             if (arCoreTestRule.runtime.config.depthEstimation != DepthEstimationMode.DISABLED) {
                 fakeRuntimeDepthMap.width = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var height: Int = 0
@@ -52,7 +52,7 @@ internal constructor(
             if (arCoreTestRule.runtime.config?.depthEstimation != DepthEstimationMode.DISABLED) {
                 fakeRuntimeDepthMap.height = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var rawDepthMap: FloatBuffer? = null
@@ -61,7 +61,7 @@ internal constructor(
             if (isRawDepthConfigured()) {
                 fakeRuntimeDepthMap.rawDepthMap = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var rawConfidenceMap: ByteBuffer? = null
@@ -70,7 +70,7 @@ internal constructor(
             if (isRawDepthConfigured()) {
                 fakeRuntimeDepthMap.rawConfidenceMap = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var smoothDepthMap: FloatBuffer? = null
@@ -79,7 +79,7 @@ internal constructor(
             if (isSmoothDepthConfigured()) {
                 fakeRuntimeDepthMap.smoothDepthMap = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     public var smoothConfidenceMap: ByteBuffer? = null
@@ -88,7 +88,7 @@ internal constructor(
             if (isSmoothDepthConfigured()) {
                 fakeRuntimeDepthMap.smoothConfidenceMap = value
             }
-            FakeLifecycleManager.allowOneMoreCallToUpdate()
+            FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     private fun isRawDepthConfigured(): Boolean =

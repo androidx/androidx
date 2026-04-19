@@ -216,7 +216,7 @@ public class PdfViewerState {
 
             // Clear no longer visible pages
             visiblePageOffsets.forEachKey { page ->
-                if (!pageLocations.contains(page)) {
+                if (pageLocations.indexOfKey(page) < 0) {
                     visiblePageOffsets.remove(page)
                 }
             }

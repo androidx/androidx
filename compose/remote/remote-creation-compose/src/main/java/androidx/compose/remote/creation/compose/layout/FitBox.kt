@@ -18,10 +18,29 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.v2.FitBoxV2
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+
+internal class RemoteFitBoxNode : RemoteComposeNode() {
+    var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
+    var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
+    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+
+    override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+        creationState.document.startFitBox(
+            recordingModifier,
+            horizontalAlignment.toRemote(layoutDirection),
+            verticalArrangement.toRemote(),
+        )
+        renderChildren(creationState, remoteCanvas)
+        creationState.document.endFitBox()
+    }
+}
 
 /**
  * FitBox implements a Box layout, delegating to the foundation Box layout as needed. This allows
@@ -35,13 +54,23 @@ public fun FitBox(
     modifier: RemoteModifier = RemoteModifier,
     horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.CenterHorizontally,
     verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Center,
-    content: @RemoteComposable @Composable () -> Unit,
+    content: @RemoteComposable @Composable () -> Unit = {},
 ) {
-    FitBoxV2(
-        modifier,
-        horizontalAlignment,
-        verticalArrangement,
-        LocalLayoutDirection.current,
-        content,
+    val layoutDirection = LocalLayoutDirection.current
+    RemoteComposeNode(
+        factory = ::RemoteFitBoxNode,
+        update = {
+            set(modifier) { nodeModifier -> this.modifier = nodeModifier }
+            set(horizontalAlignment) { nodeHorizontalAlignment ->
+                this.horizontalAlignment = nodeHorizontalAlignment
+            }
+            set(verticalArrangement) { nodeVerticalArrangement ->
+                this.verticalArrangement = nodeVerticalArrangement
+            }
+            set(layoutDirection) { nodeLayoutDirection ->
+                this.layoutDirection = nodeLayoutDirection
+            }
+        },
+        content = content,
     )
 }

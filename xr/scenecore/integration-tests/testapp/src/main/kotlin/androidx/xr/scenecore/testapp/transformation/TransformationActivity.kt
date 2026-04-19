@@ -185,7 +185,7 @@ class TransformationActivity : AppCompatActivity() {
                     "onAnchorSpaceUpdatedCount",
                     (++onAnchorSpaceUpdatedCount).toString(),
                 )
-                anchor!!.setOnOriginChangedListener({
+                anchor!!.addOriginChangedListener({
                     panel.view.setLine(
                         "onAnchorSpaceUpdatedCount",
                         (++onAnchorSpaceUpdatedCount).toString(),
@@ -207,7 +207,7 @@ class TransformationActivity : AppCompatActivity() {
                         "onActivitySpaceUpdatedCount",
                         (++onActivitySpaceUpdatedCount).toString(),
                     )
-                    session!!.scene.activitySpace.addOnOriginChangedListener {
+                    session!!.scene.activitySpace.addOriginChangedListener {
                         panel.view.setLine(
                             "onActivitySpaceUpdatedCount",
                             (++onActivitySpaceUpdatedCount).toString(),
@@ -221,6 +221,8 @@ class TransformationActivity : AppCompatActivity() {
         entity: Entity,
         labelDimensions: FloatSize3d,
     ) {
+        // TODO - b/415320653: Remove use of deprecated Space.REAL_WORLD
+        @Suppress("DEPRECATION", "RestrictedApiAndroidX")
         val entityScale = entity.getScale(Space.REAL_WORLD)
         if (entityScale > 0) {
             val newPixelWidth = (labelDimensions.width * entityScale).toInt().coerceAtLeast(10)
@@ -234,6 +236,8 @@ class TransformationActivity : AppCompatActivity() {
         }
     }
 
+    // TODO - b/415320653: Remove use of deprecated Space.REAL_WORLD
+    @Suppress("DEPRECATION", "RestrictedApiAndroidX")
     private fun updateDebugTextPanel(
         view: DebugTextLinearView,
         trackedEntity: Entity,

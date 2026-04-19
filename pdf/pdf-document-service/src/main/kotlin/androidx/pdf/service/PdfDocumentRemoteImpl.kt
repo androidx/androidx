@@ -31,6 +31,7 @@ import android.graphics.pdf.models.selection.PageSelection
 import android.graphics.pdf.models.selection.SelectionBoundary
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.pdf.DraftEditOperation
@@ -47,6 +48,7 @@ import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.annotation.processor.PageAnnotationsPaginator
 import androidx.pdf.annotation.processor.PdfRendererAnnotationsProcessor
 import androidx.pdf.models.Dimensions
+import androidx.pdf.utils.isAnnotationsFeatureAvailable
 import androidx.pdf.utils.toPdfObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -58,11 +60,12 @@ internal class PdfDocumentRemoteImpl(
     private lateinit var rendererAnnotationsProcessor: PdfRendererAnnotationsProcessor
     private var pageAnnotationsPaginator: PageAnnotationsPaginator? = null
 
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     override fun openPdfDocument(pfd: ParcelFileDescriptor, password: String?): Int {
         try {
             rendererAdapter = adapterFactory.create(pfd, password)
-            rendererAnnotationsProcessor = PdfRendererAnnotationsProcessor(rendererAdapter)
+            if (isAnnotationsFeatureAvailable()) {
+                rendererAnnotationsProcessor = PdfRendererAnnotationsProcessor(rendererAdapter)
+            }
             return PdfLoadingStatus.SUCCESS.ordinal
         } catch (exception: SecurityException) {
             return PdfLoadingStatus.WRONG_PASSWORD.ordinal
@@ -78,7 +81,14 @@ internal class PdfDocumentRemoteImpl(
     }
 
     override fun getPageDimensions(pageNum: Int): Dimensions? {
-        return rendererAdapter.withPage(pageNum) { page -> Dimensions(page.width, page.height) }
+        return try {
+            rendererAdapter.withPage(pageNum) { page -> Dimensions(page.width, page.height) }
+        } catch (_: IllegalStateException) {
+            // Pre-S devices throw IllegalStateException for corrupted pages via
+            // PdfRenderer.openPage().
+            // Catching it here prevents crashes and lets getPageInfo() fall back to DEFAULT_PAGE.
+            null
+        }
     }
 
     override fun getPageBitmap(
@@ -92,7 +102,16 @@ internal class PdfDocumentRemoteImpl(
         // guarantee a specific background color by default.
         output.eraseColor(Color.WHITE)
         // TODO (b/464133165): Update renderPage to use renderParams
-        rendererAdapter.openPage(pageNum, useCache = true).renderPage(output, renderParams)
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13
+        ) {
+            rendererAdapter.openPage(pageNum, useCache = true).renderPage(output, renderParams)
+        } else {
+            // Pre-S or devices with ext-13 or lower throw IllegalStateException "Current page not
+            // closed" when keeping page open in cache using rendererAdapter.openPage
+            rendererAdapter.withPage(pageNum) { page -> page.renderPage(output, renderParams) }
+        }
         return output
     }
 
@@ -114,9 +133,20 @@ internal class PdfDocumentRemoteImpl(
         // Latency optimization: Keep pages open to avoid re-initializing native objects
         // for subsequent rendering calls within the same user-visible portion.
         // TODO (b/464133165): Update renderTile to use renderParams
-        rendererAdapter
-            .openPage(pageNum, useCache = true)
-            .renderTile(output, offsetX, offsetY, pageWidth, pageHeight, renderParams)
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13
+        ) {
+            rendererAdapter
+                .openPage(pageNum, useCache = true)
+                .renderTile(output, offsetX, offsetY, pageWidth, pageHeight, renderParams)
+        } else {
+            // Pre-S or devices with ext-13 or lower throw IllegalStateException "Current page not
+            // closed" when keeping page open in cache using rendererAdapter.openPage
+            rendererAdapter.withPage(pageNum) { page ->
+                page.renderTile(output, offsetX, offsetY, pageWidth, pageHeight, renderParams)
+            }
+        }
         return output
     }
 

@@ -31,7 +31,6 @@ import androidx.pdf.annotation.models.PathPdfObject
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import kotlin.collections.forEach
 import kotlin.math.abs
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -108,8 +107,12 @@ class StrokeExtensionsTest {
         pathObject?.let {
             assertThat(it.brushColor).isEqualTo(brush.colorIntArgb)
             assertThat(it.brushWidth).isEqualTo(brush.size)
-            assertThat(it.inputs).isNotEmpty()
-            assertPointsCloseToExpected(it.inputs, expectedPdfPoints, brush.size)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                assertThat(it.inputs).isEmpty()
+            } else {
+                assertThat(it.inputs).isNotEmpty()
+                assertPointsCloseToExpected(it.inputs, expectedPdfPoints, brush.size)
+            }
         }
     }
 

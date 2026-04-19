@@ -8,6 +8,7 @@ package androidx.xr.arcore.testing {
     method public void clearPersistedAnchors();
     method @InaccessibleFromKotlin public int getAnchorResourceLimit();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> getAugmentableObjects();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.TestConversationSceneSignal getConversationSceneSignal();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestArDevice getDevice();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestFace getFace();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestGeospatial getGeospatial();
@@ -27,6 +28,7 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public void setAnchorResourceLimit(int);
     property public int anchorResourceLimit;
     property public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> augmentableObjects;
+    property @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.TestConversationSceneSignal conversationSceneSignal;
     property public androidx.xr.arcore.testing.TestArDevice device;
     property public androidx.xr.arcore.testing.TestFace face;
     property public androidx.xr.arcore.testing.TestGeospatial geospatial;
@@ -67,6 +69,15 @@ package androidx.xr.arcore.testing {
     property public androidx.xr.runtime.math.Pose centerPose;
     property public androidx.xr.runtime.math.FloatSize3d extents;
     property public boolean isVisible;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public final class TestConversationSceneSignal {
+    method @InaccessibleFromKotlin public float getConfidence();
+    method @InaccessibleFromKotlin public int getType();
+    method @InaccessibleFromKotlin public void setConfidence(float);
+    method @InaccessibleFromKotlin public void setType(int);
+    property public float confidence;
+    property public int type;
   }
 
   public final class TestDepth {

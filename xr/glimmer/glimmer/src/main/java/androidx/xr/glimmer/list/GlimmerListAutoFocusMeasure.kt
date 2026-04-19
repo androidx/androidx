@@ -66,7 +66,7 @@ internal fun ListLayoutProperties.applyMeasureResult(
 
     // Keep the autofocus state updated, even if it is disabled. If the user switches back to
     // non-direct input, they will have the correct numbers for calculating the focus position.
-    state.autoFocusState.applyAutoFocusProperties(autoFocusProperties)
+    state.autoFocusState.applyAutoFocusProperties(autoFocusProperties, beforeContentPadding)
 
     return measureResult
 }
@@ -286,12 +286,12 @@ private fun calculateAutoFocusProperties(
     val focusScroll = userScroll - contentScroll
 
     return GlimmerListAutoFocusProperties(
-        userScroll = userScroll,
+        orientation = layoutProperties.orientation,
         focusScroll = focusScroll,
         contentScroll = contentScroll,
         contentLength = contentLength,
         scrollThreshold = scrollThreshold,
-        layoutProperties = layoutProperties,
+        viewportSize = layoutProperties.mainAxisAvailableSize,
     )
 }
 

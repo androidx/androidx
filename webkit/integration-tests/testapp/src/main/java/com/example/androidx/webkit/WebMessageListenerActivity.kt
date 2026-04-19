@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
@@ -33,7 +34,7 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 
-/** An {@link Activity} to exercise WebMessageListener related functionality. */
+/** An [Activity] to exercise WebMessageListener related functionality. */
 class WebMessageListenerActivity : AppCompatActivity() {
 
     private lateinit var textView: TextView

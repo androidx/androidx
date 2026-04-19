@@ -30,6 +30,12 @@ import org.junit.Before
 @OptIn(ExperimentalXrDeviceLifecycleApi::class)
 class OpenXrDeviceCapabilityProviderFactoryTest {
 
+    companion object {
+        init {
+            System.loadLibrary("androidx.xr.runtime.openxr.test")
+        }
+    }
+
     private lateinit var underTest: OpenXrDeviceCapabilityProviderFactory
 
     @Before
@@ -39,8 +45,13 @@ class OpenXrDeviceCapabilityProviderFactoryTest {
 
     @Test
     fun create_returnsOpenXrDeviceCapabilityProvider() = runTest {
+        val nativeProvider = OpenXrInstanceManager()
         val provider =
-            underTest.create(ApplicationProvider.getApplicationContext(), this.coroutineContext)
+            underTest.create(
+                ApplicationProvider.getApplicationContext(),
+                this.coroutineContext,
+                nativeProvider,
+            )
 
         assertThat(provider).isInstanceOf(OpenXrDeviceCapabilityProvider::class.java)
     }

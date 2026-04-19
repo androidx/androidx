@@ -1,0 +1,29 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.paging:paging-compose>
+final class <#A: kotlin/Any> androidx.paging.compose/LazyPagingItems { // androidx.paging.compose/LazyPagingItems|null[0]
+    final val itemCount // androidx.paging.compose/LazyPagingItems.itemCount|{}itemCount[0]
+        final fun <get-itemCount>(): kotlin/Int // androidx.paging.compose/LazyPagingItems.itemCount.<get-itemCount>|<get-itemCount>(){}[0]
+
+    final var itemSnapshotList // androidx.paging.compose/LazyPagingItems.itemSnapshotList|{}itemSnapshotList[0]
+        final fun <get-itemSnapshotList>(): androidx.paging/ItemSnapshotList<#A> // androidx.paging.compose/LazyPagingItems.itemSnapshotList.<get-itemSnapshotList>|<get-itemSnapshotList>(){}[0]
+    final var loadState // androidx.paging.compose/LazyPagingItems.loadState|{}loadState[0]
+        final fun <get-loadState>(): androidx.paging/CombinedLoadStates // androidx.paging.compose/LazyPagingItems.loadState.<get-loadState>|<get-loadState>(){}[0]
+
+    final fun get(kotlin/Int): #A? // androidx.paging.compose/LazyPagingItems.get|get(kotlin.Int){}[0]
+    final fun peek(kotlin/Int): #A? // androidx.paging.compose/LazyPagingItems.peek|peek(kotlin.Int){}[0]
+    final fun refresh() // androidx.paging.compose/LazyPagingItems.refresh|refresh(){}[0]
+    final fun retry() // androidx.paging.compose/LazyPagingItems.retry|retry(){}[0]
+}
+
+final val androidx.paging.compose/androidx_paging_compose_LazyPagingItems$stableprop // androidx.paging.compose/androidx_paging_compose_LazyPagingItems$stableprop|#static{}androidx_paging_compose_LazyPagingItems$stableprop[0]
+
+final fun <#A: kotlin/Any> (androidx.paging.compose/LazyPagingItems<#A>).androidx.paging.compose/itemContentType(kotlin/Function1<#A, kotlin/Any?>? = ...): kotlin/Function1<kotlin/Int, kotlin/Any?> // androidx.paging.compose/itemContentType|itemContentType@androidx.paging.compose.LazyPagingItems<0:0>(kotlin.Function1<0:0,kotlin.Any?>?){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (androidx.paging.compose/LazyPagingItems<#A>).androidx.paging.compose/itemKey(kotlin/Function1<#A, kotlin/Any>? = ...): kotlin/Function1<kotlin/Int, kotlin/Any> // androidx.paging.compose/itemKey|itemKey@androidx.paging.compose.LazyPagingItems<0:0>(kotlin.Function1<0:0,kotlin.Any>?){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (kotlinx.coroutines.flow/Flow<androidx.paging/PagingData<#A>>).androidx.paging.compose/collectAsLazyPagingItems(kotlin.coroutines/CoroutineContext?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.paging.compose/LazyPagingItems<#A> // androidx.paging.compose/collectAsLazyPagingItems|collectAsLazyPagingItems@kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<0:0>>(kotlin.coroutines.CoroutineContext?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any>}[0]
+final fun androidx.paging.compose/androidx_paging_compose_LazyPagingItems$stableprop_getter(): kotlin/Int // androidx.paging.compose/androidx_paging_compose_LazyPagingItems$stableprop_getter|androidx_paging_compose_LazyPagingItems$stableprop_getter(){}[0]

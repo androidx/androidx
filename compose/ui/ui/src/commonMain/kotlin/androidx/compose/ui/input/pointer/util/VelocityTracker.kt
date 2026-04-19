@@ -600,18 +600,6 @@ private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
     this[row][col] = value
 }
 
-/**
- * A flag to indicate that we'll use the fix of how we add points to the velocity tracker.
- *
- * This is an experiment flag and will be removed once the experiments with the fix a finished. The
- * final goal is that we will use the true path once the flag is removed. If you find any issues
- * with the new fix, flip this flag to false to confirm they are newly introduced then file a bug.
- * Tracking bug: (b/318621681)
- */
-@Suppress("GetterSetterNames")
-@ExperimentalComposeUiApi
-var VelocityTrackerAddPointsFix: Boolean = true
-
 @RequiresOptIn(
     "This an opt-in flag to test the Velocity Tracker strategy algorithm used " +
         "for calculating gesture velocities in Compose."

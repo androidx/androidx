@@ -68,7 +68,7 @@ internal data class PxCornerSize(val size: RemoteFloat) : RemoteCornerSize {
  * Creates [RemoteCornerSize] with provided size.
  *
  * @param percent the corner size defined in percents of the shape's smaller side. Can't be negative
- *   or larger then 100 percents.
+ *   or larger than 100 percent.
  */
 public fun RemoteCornerSize(@IntRange(from = 0, to = 100) percent: Int): RemoteCornerSize =
     RemotePercentCornerSize(percent)

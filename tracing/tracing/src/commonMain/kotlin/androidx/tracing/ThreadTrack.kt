@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo.Scope
 @RestrictTo(Scope.LIBRARY_GROUP)
 public open class ThreadTrack(
     /** The thread id. */
-    public val id: Int,
+    public val id: Long,
     /** The name of the thread. */
     public val name: String,
     /** The process track that the thread belongs to. */
@@ -36,7 +36,7 @@ public open class ThreadTrack(
             TrackDescriptor(
                 name = name,
                 uuid = uuid,
-                parentUuid = DEFAULT_LONG,
+                parentUuid = process.uuid,
                 pid = process.id,
                 tid = id,
                 type = TRACK_DESCRIPTOR_TYPE_THREAD,
@@ -48,7 +48,7 @@ public open class ThreadTrack(
 
 // An empty thread track when tracing is disabled
 
-private const val EMPTY_THREAD_ID = -1
+private const val EMPTY_THREAD_ID = -1L
 private const val EMPTY_THREAD_NAME = "Empty Thread"
 
 internal class EmptyThreadTrack(process: EmptyProcessTrack) :

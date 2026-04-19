@@ -1220,7 +1220,6 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1,
                     )
                     .width
 
@@ -1257,7 +1256,6 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1,
                     )
                     .width
 

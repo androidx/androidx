@@ -27,6 +27,7 @@ import android.util.Range;
 import android.util.Rational;
 import android.util.Size;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.internal.utils.SizeUtil;
@@ -65,9 +66,11 @@ class QualityRatioToResolutionsTable {
 
     // Key: Quality
     // Value: the height range of Quality
-    private static final Map<Quality, Range<Integer>> sQualityRangeMap = new HashMap<>();
+    @VisibleForTesting
+    static final Map<Quality, Range<Integer>> sQualityRangeMap = new HashMap<>();
     static {
         sQualityRangeMap.put(Quality.UHD, Range.create(2160, 4319));
+        sQualityRangeMap.put(Quality.QHD, Range.create(1440, 2159));
         sQualityRangeMap.put(Quality.FHD, Range.create(1080, 1439));
         sQualityRangeMap.put(Quality.HD, Range.create(720, 1079));
         sQualityRangeMap.put(Quality.SD, Range.create(241, 719));

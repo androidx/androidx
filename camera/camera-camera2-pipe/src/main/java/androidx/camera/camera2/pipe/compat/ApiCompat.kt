@@ -38,6 +38,7 @@ import android.media.Image
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Handler
+import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -365,6 +366,19 @@ internal object Api31Compat {
         extension: Int,
         klass: Class<*>,
     ): List<Size> = extensionCharacteristics.getExtensionSupportedSizes(extension, klass)
+
+    @JvmStatic
+    fun getEstimatedCaptureLatencyRangeMillis(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+        captureSize: Size,
+        imageFormat: Int,
+    ): Range<Long>? =
+        extensionCharacteristics.getEstimatedCaptureLatencyRangeMillis(
+            extension,
+            captureSize,
+            imageFormat,
+        )
 }
 
 @RequiresApi(33)

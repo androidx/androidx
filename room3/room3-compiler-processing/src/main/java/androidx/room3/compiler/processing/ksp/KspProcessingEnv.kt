@@ -27,7 +27,9 @@ import androidx.room3.compiler.processing.XMethodType
 import androidx.room3.compiler.processing.XProcessingEnv
 import androidx.room3.compiler.processing.XProcessingEnvConfig
 import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.XTypeArgument
 import androidx.room3.compiler.processing.XTypeElement
+import androidx.room3.compiler.processing.XVariance
 import androidx.room3.compiler.processing.javac.XTypeElementStore
 import androidx.room3.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import com.google.devtools.ksp.KspExperimental
@@ -123,13 +125,18 @@ internal class KspProcessingEnv(
 
     override fun findGeneratedAnnotation() = kspResolver.findGeneratedAnnotation()
 
-    override fun getDeclaredType(type: XTypeElement, vararg types: XType) =
-        kspResolver.getDeclaredType(type, *types)
+    override fun createTypeArgument(type: XType, variance: XVariance): KspTypeArgument {
+        check(type is KspType)
+        return KspTypeArgument.create(this, type, variance)
+    }
+
+    override fun getDeclaredType(type: XTypeElement, vararg typeArguments: XTypeArgument) =
+        kspResolver.getDeclaredType(type, *typeArguments)
 
     override fun getWildcardType(consumerSuper: XType?, producerExtends: XType?) =
         kspResolver.getWildcardType(consumerSuper, producerExtends)
 
-    override fun getArrayType(type: XType) = kspResolver.getArrayType(type)
+    override fun getArrayType(typeArgument: XTypeArgument) = kspResolver.getArrayType(typeArgument)
 
     override fun getTypeElementsFromPackage(packageName: String) =
         kspResolver.getTypeElementsFromPackage(packageName)
@@ -150,7 +157,7 @@ internal class KspProcessingEnv(
     fun wrap(typeReference: KSTypeReference): KspType = kspResolver.wrap(typeReference)
 
     /** Wraps the given [ksTypeArgument] in to a [KspType]. */
-    fun wrap(ksTypeArgument: KSTypeArgument): KspType = kspResolver.wrap(ksTypeArgument)
+    fun wrap(ksTypeArgument: KSTypeArgument): KspTypeArgument = kspResolver.wrap(ksTypeArgument)
 
     /**
      * Wraps the given KSType into a KspType.
@@ -292,25 +299,21 @@ private class KspResolver(val env: KspProcessingEnv, val resolver: Resolver) {
         }
     }
 
-    fun getDeclaredType(type: XTypeElement, vararg types: XType): KspType {
+    fun getDeclaredType(type: XTypeElement, vararg typeArguments: XTypeArgument): KspType {
         check(type is KspTypeElement) { "Unexpected type element type: $type" }
-        val typeArguments =
-            types.map { argType ->
-                check(argType is KspType) { "$argType is not an instance of KspType" }
-                resolver.getTypeArgument(
-                    argType.ksType.createTypeReference(),
-                    variance =
-                        if (argType is KspTypeArgumentType) {
-                            argType.typeArg.variance
-                        } else {
-                            Variance.INVARIANT
-                        },
-                )
-            }
-        return wrap(ksType = type.declaration.asType(typeArguments), allowPrimitives = false)
+        return wrap(
+            ksType =
+                type.declaration.asType(
+                    typeArguments.map {
+                        check(it is KspTypeArgument) { "$it is not an instance of KspTypeArgument" }
+                        it.ksTypeArgument
+                    }
+                ),
+            allowPrimitives = false,
+        )
     }
 
-    fun getWildcardType(consumerSuper: XType?, producerExtends: XType?): XType {
+    fun getWildcardType(consumerSuper: XType?, producerExtends: XType?): XTypeArgument {
         check(consumerSuper == null || producerExtends == null) {
             "Cannot supply both super and extends bounds."
         }
@@ -336,9 +339,9 @@ private class KspResolver(val env: KspProcessingEnv, val resolver: Resolver) {
         )
     }
 
-    fun getArrayType(type: XType): KspArrayType {
-        check(type is KspType)
-        return arrayTypeFactory.createWithComponentType(type)
+    fun getArrayType(typeArgument: XTypeArgument): KspArrayType {
+        check(typeArgument is KspTypeArgument)
+        return arrayTypeFactory.createWithComponentType(typeArgument)
     }
 
     @OptIn(KspExperimental::class)
@@ -373,20 +376,7 @@ private class KspResolver(val env: KspProcessingEnv, val resolver: Resolver) {
     fun wrap(typeReference: KSTypeReference) =
         wrap(originatingReference = typeReference, ksType = typeReference.resolve())
 
-    fun wrap(ksTypeArgument: KSTypeArgument): KspType {
-        val typeRef = ksTypeArgument.type
-        if (typeRef != null && ksTypeArgument.variance == Variance.INVARIANT) {
-            val declaration = typeRef.resolve().declaration
-            // inline classes can't be non-invariant.
-            if (declaration.isValueClass()) {
-                return KspValueClassArgumentType(env = env, typeArg = ksTypeArgument)
-            }
-
-            // fully resolved type argument, return regular type.
-            return wrap(ksType = typeRef.resolve(), allowPrimitives = false)
-        }
-        return KspTypeArgumentType.create(env, ksTypeArgument)
-    }
+    fun wrap(ksTypeArgument: KSTypeArgument) = KspTypeArgument.create(env, ksTypeArgument)
 
     /**
      * Wraps the given KSType into a KspType.

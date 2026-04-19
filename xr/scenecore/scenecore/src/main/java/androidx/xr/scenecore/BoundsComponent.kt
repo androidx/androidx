@@ -38,9 +38,9 @@ import java.util.function.Consumer
  * other entity types will fail.
  *
  * To receive updates, register a `BiConsumer<Entity, BoundingBox>` listener using the
- * [addOnBoundsUpdateListener] method. The listener will be invoked on the provided [Executor],
- * which defaults to the main thread. Listeners should be unregistered using
- * [removeOnBoundsUpdateListener] when no longer needed to prevent resource leaks.
+ * [addBoundsUpdateListener] method. The listener will be invoked on the provided [Executor], which
+ * defaults to the main thread. Listeners should be unregistered using [removeBoundsUpdateListener]
+ * when no longer needed to prevent resource leaks.
  *
  * Create instances of this component using the [BoundsComponent.create] factory method.
  *
@@ -68,9 +68,9 @@ private constructor(
         val attached = (entity as BaseEntity<*>).rtEntity!!.addComponent(rtBoundsComponent)
         if (attached && initialListener != null) {
             if (initialListenerExecutor != null) {
-                addOnBoundsUpdateListener(initialListenerExecutor, initialListener)
+                addBoundsUpdateListener(initialListenerExecutor, initialListener)
             } else {
-                addOnBoundsUpdateListener(initialListener)
+                addBoundsUpdateListener(initialListener)
             }
         }
 
@@ -94,9 +94,9 @@ private constructor(
      *
      * @param listener The `BiConsumer` to be invoked with the entity and its updated bounds.
      * @param executor The executor on which the listener callbacks will be invoked.
-     * @see removeOnBoundsUpdateListener
+     * @see removeBoundsUpdateListener
      */
-    public fun addOnBoundsUpdateListener(
+    public fun addBoundsUpdateListener(
         executor: Executor,
         listener: BiConsumer<Entity, BoundingBox>,
     ) {
@@ -115,14 +115,13 @@ private constructor(
     /**
      * Registers a listener that will be invoked on the main application thread for bounds updates.
      *
-     * This is a convenience overload of [addOnBoundsUpdateListener] that defaults to using the main
+     * This is a convenience overload of [addBoundsUpdateListener] that defaults to using the main
      * thread executor, which is useful for performing UI updates in response to bounds changes.
      *
      * @param listener The `BiConsumer` to be invoked with bounds updates on the main thread.
      */
-    public fun addOnBoundsUpdateListener(listener: BiConsumer<Entity, BoundingBox>) {
-        addOnBoundsUpdateListener(HandlerExecutor.mainThreadExecutor, listener)
-    }
+    public fun addBoundsUpdateListener(listener: BiConsumer<Entity, BoundingBox>): Unit =
+        addBoundsUpdateListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
      * Unregisters a previously registered bounds update listener.
@@ -133,9 +132,9 @@ private constructor(
      * If the listener was not previously registered, this method has no effect.
      *
      * @param listener The `BiConsumer` instance to unregister. This must be the same object
-     *   instance that was passed to [addOnBoundsUpdateListener].
+     *   instance that was passed to [addBoundsUpdateListener].
      */
-    public fun removeOnBoundsUpdateListener(listener: BiConsumer<Entity, BoundingBox>) {
+    public fun removeBoundsUpdateListener(listener: BiConsumer<Entity, BoundingBox>) {
         val rtListener = boundsUpdateListenerMap.remove(listener)
         if (rtListener != null) {
             rtBoundsComponent.removeOnBoundsUpdateListener(rtListener)

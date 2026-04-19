@@ -194,8 +194,9 @@ class DefaultsInDaoTest(private val jvmDefaultMode: String) {
                             writerContext =
                                 TypeWriter.WriterContext(
                                     codeLanguage = CodeLanguage.KOTLIN,
-                                    javaLambdaSyntaxAvailable = true,
                                     targetPlatforms = setOf(XProcessingEnv.Platform.JVM),
+                                    javaLambdaSyntaxAvailable = true,
+                                    validateChunkSize = 300,
                                 ),
                         )
                         .write(invocation.processingEnv)

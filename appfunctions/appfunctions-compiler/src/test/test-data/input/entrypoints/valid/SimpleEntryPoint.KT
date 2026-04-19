@@ -4,7 +4,7 @@ import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.service.AppFunctionEntryPoint
 import androidx.appfunctions.service.AppFunction
 
-@AppFunctionEntryPoint("MySimpleService", "app_functions_v2.xml")
+@AppFunctionEntryPoint("MySimpleService", "my_simple_service.xml")
 abstract class SimpleEntryPoint: AppFunctionService() {
     @AppFunction
     internal fun simpleFunction(int: Int, string: String): String {

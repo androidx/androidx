@@ -43,7 +43,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -1421,7 +1420,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
     private var _nullableLookaheadRoot: LayoutCoordinates? = null
 
     // TODO: Use MutableObjectList and impl sort
-    private val renderers = mutableStateListOf<LayerRenderer>()
+    private var renderers: List<LayerRenderer> by mutableStateOf(mutableListOf())
 
     // sharedElements are being observed for the edge events of 1) any transition has started,
     // and 2) all transitions are finished. As such, the map containing the key-sharedElement pairs
@@ -1443,18 +1442,17 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         get() = sharedElements.toMap().values
 
     private fun sharedElementsFor(key: Any): SharedElement {
-        return sharedElements[key] ?: SharedElement(key, this).also { sharedElements[key] = it }
+        return sharedElements.getOrPut(key) { SharedElement(key, this) }
     }
 
     internal fun drawInOverlay(scope: ContentDrawScope) {
-        // TODO: Sort while preserving the parent child order
-        renderers.sortBy {
-            if (it.zIndex == 0f && it is SharedElementEntry && it.parentState == null) {
-                -1f
-            } else it.zIndex
-        }
-
-        renderers.fastForEach { it.drawInOverlay(drawScope = scope) }
+        renderers =
+            renderers.run {
+                @Suppress("ListIterator") // stdlib sort is /only/ available with an iterator
+                val sorted = sortedWith(LayerRenderer.LayerRendererComparator)
+                sorted.fastForEach { it.drawInOverlay(drawScope = scope) }
+                sorted
+            }
     }
 
     internal fun onEntryRemoved(sharedElementState: SharedElementEntry) {
@@ -1465,7 +1463,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         with(sharedElementState.sharedElement) {
             removeEntry(sharedElementState)
             updateTransitionActiveness()
-            renderers.remove(sharedElementState)
+            renderers -= sharedElementState
             if (allEntries.isEmpty()) {
                 scope.coroutineScope.launch {
                     if (allEntries.isEmpty()) {
@@ -1485,24 +1483,29 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         with(sharedElementState.sharedElement) {
             addEntry(sharedElementState)
             updateTransitionActiveness()
+            val renderersList = renderers
             val id =
-                renderers.indexOfFirst {
+                renderersList.indexOfFirst {
                     (it as? SharedElementEntry)?.sharedElement == sharedElementState.sharedElement
                 }
-            if (id == renderers.size - 1 || id == -1) {
-                renderers.add(sharedElementState)
+            if (id == -1 || id >= renderersList.size - 1) {
+                renderers += sharedElementState
             } else {
-                renderers.add(id + 1, sharedElementState)
+                renderers = buildList {
+                    addAll(renderersList.subList(0, id + 1))
+                    add(sharedElementState)
+                    addAll(renderersList.subList(id + 1, renderersList.size))
+                }
             }
         }
     }
 
     internal fun onLayerRendererCreated(renderer: LayerRenderer) {
-        renderers.add(renderer)
+        renderers += renderer
     }
 
     internal fun onLayerRendererRemoved(renderer: LayerRenderer) {
-        renderers.remove(renderer)
+        renderers -= renderer
     }
 
     private class ShapeBasedClip(val clipShape: Shape) : OverlayClip {
@@ -1528,6 +1531,17 @@ internal interface LayerRenderer {
     fun drawInOverlay(drawScope: DrawScope)
 
     val zIndex: Float
+
+    companion object LayerRendererComparator : Comparator<LayerRenderer> {
+        override fun compare(a: LayerRenderer, b: LayerRenderer): Int =
+            comparator(a).compareTo(comparator(b))
+
+        // TODO: Sort while preserving the parent child order
+        private fun comparator(it: LayerRenderer): Float =
+            if (it.zIndex == 0f && it is SharedElementEntry && it.parentState == null) {
+                -1f
+            } else it.zIndex
+    }
 }
 
 private val DefaultSpring =

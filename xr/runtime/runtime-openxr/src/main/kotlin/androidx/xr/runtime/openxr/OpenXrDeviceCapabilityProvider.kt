@@ -20,24 +20,77 @@ import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.xr.runtime.interfaces.DepthEstimationMode
 import androidx.xr.runtime.interfaces.DisplayBlendMode
+import androidx.xr.runtime.interfaces.EyeTrackingMode
+import androidx.xr.runtime.interfaces.GeospatialMode
+import androidx.xr.runtime.interfaces.HandTrackingMode
+import androidx.xr.runtime.interfaces.RenderingMode
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-internal class OpenXrDeviceCapabilityProvider(override val context: Context) :
-    XrDeviceCapabilityProvider {
+internal class OpenXrDeviceCapabilityProvider(
+    override val context: Context,
+    private val nativeManager: Long,
+) : XrDeviceCapabilityProvider {
 
     // See b/496257589: Use a stub class to avoid dependency on lifecycle-process.
     override val lifecycle: Lifecycle = StubProcessLifecycleOwner.lifecycle
 
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
-        return nativeGetPreferredBlendMode(OpenXrInstanceManager.nativePointer)
+        return nativeGetPreferredBlendMode(nativeManager)
             ?: throw IllegalStateException("Failed to get preferred blend mode.")
     }
 
-    private external fun nativeGetPreferredBlendMode(nativePointer: Long): DisplayBlendMode?
+    override fun isHandTrackingModeSupported(mode: HandTrackingMode): Boolean {
+        return if (mode == HandTrackingMode.DISABLED) {
+            true
+        } else {
+            nativeIsHandTrackingSupported(nativeManager)
+        }
+    }
+
+    override fun isEyeTrackingModeSupported(mode: EyeTrackingMode): Boolean {
+        return if (mode == EyeTrackingMode.DISABLED) {
+            true
+        } else {
+            nativeIsEyeTrackingSupported(nativeManager)
+        }
+    }
+
+    override fun isGeospatialModeSupported(mode: GeospatialMode): Boolean {
+        return if (mode == GeospatialMode.DISABLED) {
+            true
+        } else {
+            nativeIsGeospatialSupported(nativeManager)
+        }
+    }
+
+    override fun isDepthEstimationModeSupported(mode: DepthEstimationMode): Boolean {
+        return if (mode == DepthEstimationMode.DISABLED) {
+            true
+        } else {
+            nativeIsDepthTrackingSupported(nativeManager)
+        }
+    }
+
+    override fun isRenderingModeSupported(mode: RenderingMode): Boolean {
+        return nativeIsRenderingModeSupported(nativeManager, mode.value)
+    }
+
+    private external fun nativeGetPreferredBlendMode(nativeManager: Long): DisplayBlendMode?
+
+    private external fun nativeIsHandTrackingSupported(nativeManager: Long): Boolean
+
+    private external fun nativeIsEyeTrackingSupported(nativeManager: Long): Boolean
+
+    private external fun nativeIsGeospatialSupported(nativeManager: Long): Boolean
+
+    private external fun nativeIsDepthTrackingSupported(nativeManager: Long): Boolean
+
+    private external fun nativeIsRenderingModeSupported(nativeManager: Long, mode: Int): Boolean
 }
 
 /**

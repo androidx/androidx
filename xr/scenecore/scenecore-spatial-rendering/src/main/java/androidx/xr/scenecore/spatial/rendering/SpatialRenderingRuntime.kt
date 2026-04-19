@@ -788,10 +788,13 @@ private constructor(
                 (customMesh as CustomMesh).nativeHandle,
                 materialHandles,
                 boneCount,
+                /* enableCollider= */ true,
             )
         val impressNode = ImpressNode(impressNodeId)
+        val meshBoundingBox = getCustomMeshBoundingBox(customMesh)
 
-        val feature = MeshFeatureImpl(impressApi, subspaceManager, extensions, impressNode)
+        val feature =
+            MeshFeatureImpl(impressApi, subspaceManager, extensions, impressNode, meshBoundingBox)
         return renderingEntityFactory.createMeshEntity(feature, pose, parent)
     }
 

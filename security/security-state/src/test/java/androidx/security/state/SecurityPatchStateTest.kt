@@ -970,7 +970,9 @@ class SecurityPatchStateTest {
             val update =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-05-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-05-01")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(update)
@@ -1041,7 +1043,9 @@ class SecurityPatchStateTest {
             val oldUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-01-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-01-01")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(oldUpdate)
@@ -1065,7 +1069,9 @@ class SecurityPatchStateTest {
             val sameUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-01-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-01-01")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(sameUpdate)
@@ -1100,7 +1106,9 @@ class SecurityPatchStateTest {
             val update1 =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-03-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-03-01")
+                    )
                     .build()
             val result1 =
                 UpdateCheckResult(
@@ -1113,7 +1121,9 @@ class SecurityPatchStateTest {
             val update2 =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-06-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-06-01")
+                    )
                     .build()
             val result2 =
                 UpdateCheckResult(
@@ -1144,19 +1154,25 @@ class SecurityPatchStateTest {
             val olderUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-02-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-02-01")
+                    )
                     .build()
 
             val newestUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-06-01") // The winner
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-06-01")
+                    ) // The winner
                     .build()
 
             val middleUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-04-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-04-01")
+                    )
                     .build()
 
             // Setup the service to return this list
@@ -1201,7 +1217,11 @@ class SecurityPatchStateTest {
                         val update =
                             UpdateInfo.Builder()
                                 .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                                .setSecurityPatchLevel("2025-06-01")
+                                .setSecurityPatchLevel(
+                                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString(
+                                        "2025-06-01"
+                                    )
+                                )
                                 .build()
                         val result =
                             UpdateCheckResult(
@@ -1282,7 +1302,9 @@ class SecurityPatchStateTest {
             val systemUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-06-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-06-01")
+                    )
                     .build()
             val systemResult =
                 UpdateCheckResult(
@@ -1294,7 +1316,9 @@ class SecurityPatchStateTest {
             val kernelUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_KERNEL)
-                    .setSecurityPatchLevel("5.15.1")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.VersionedSecurityPatchLevel.fromString("5.15.1")
+                    )
                     .build()
             val kernelResult =
                 UpdateCheckResult(
@@ -1328,13 +1352,17 @@ class SecurityPatchStateTest {
             val goodUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-05-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-05-01")
+                    )
                     .build()
 
             val badUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("INVALID_SPL_STRING")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.GenericStringSecurityPatchLevel("INVALID_SPL_STRING")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(goodUpdate, badUpdate)
@@ -1358,7 +1386,9 @@ class SecurityPatchStateTest {
             val kernelUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_KERNEL)
-                    .setSecurityPatchLevel("5.15.1")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.VersionedSecurityPatchLevel.fromString("5.15.1")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(kernelUpdate)
@@ -1380,14 +1410,26 @@ class SecurityPatchStateTest {
 
             // AND a provider reports multiple kernel updates
             val vSame =
-                UpdateInfo.Builder().setComponent("KERNEL").setSecurityPatchLevel("5.10.99").build()
+                UpdateInfo.Builder()
+                    .setComponent("KERNEL")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.VersionedSecurityPatchLevel.fromString("5.10.99")
+                    )
+                    .build()
             val vNewerPatch =
                 UpdateInfo.Builder()
                     .setComponent("KERNEL")
-                    .setSecurityPatchLevel("5.10.105")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.VersionedSecurityPatchLevel.fromString("5.10.105")
+                    )
                     .build()
             val vNewestMajor =
-                UpdateInfo.Builder().setComponent("KERNEL").setSecurityPatchLevel("5.15.1").build()
+                UpdateInfo.Builder()
+                    .setComponent("KERNEL")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.VersionedSecurityPatchLevel.fromString("5.15.1")
+                    )
+                    .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(vSame, vNewerPatch, vNewestMajor)
 
@@ -1445,7 +1487,9 @@ class SecurityPatchStateTest {
             val update =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM_MODULES)
-                    .setSecurityPatchLevel("2025-06-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-06-01")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(update)
@@ -1472,7 +1516,9 @@ class SecurityPatchStateTest {
             val modulesUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM_MODULES)
-                    .setSecurityPatchLevel("2025-05-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-05-01")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(modulesUpdate)
@@ -1520,7 +1566,9 @@ class SecurityPatchStateTest {
             val packageUpdate =
                 UpdateInfo.Builder()
                     .setComponent("com.google.android.modulemetadata")
-                    .setSecurityPatchLevel("2025-06-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-06-01")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(packageUpdate)
@@ -1546,7 +1594,9 @@ class SecurityPatchStateTest {
             val weirdUpdate =
                 UpdateInfo.Builder()
                     .setComponent("UNKNOWN_COMPONENT_XYZ")
-                    .setSecurityPatchLevel("2025-05-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-05-01")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(weirdUpdate)
@@ -1571,7 +1621,9 @@ class SecurityPatchStateTest {
             val update =
                 UpdateInfo.Builder()
                     .setComponent("system") // Lowercase
-                    .setSecurityPatchLevel("2025-06-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-06-01")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(update)
@@ -1588,15 +1640,18 @@ class SecurityPatchStateTest {
     @Test
     fun testFetchAvailableSecurityPatchLevel_ignoresUpdatesWithWrongFormatForComponent() {
         runBlocking {
-            // GIVEN the Device SPL for SYSTEM is 2025-01-01
+            // GIVEN the Device SPL for SYSTEM is a DateBasedSecurityPatchLevel
             mockDeviceSpl(SecurityPatchState.COMPONENT_SYSTEM, "2025-01-01")
 
-            // AND a provider reports a "SYSTEM" update but uses a Kernel Version format
-            // (This simulates a provider sending valid-looking but wrong-type data)
+            // AND a provider reports a "SYSTEM" update but explicitly uses a Versioned object
+            // (This simulates a provider sending valid but incorrectly-typed data for this
+            // component)
             val badTypeUpdate =
                 UpdateInfo.Builder()
-                    .setComponent(SecurityPatchState.COMPONENT_SYSTEM) // Says SYSTEM
-                    .setSecurityPatchLevel("5.10.199") // But provides Version data (Not a Date)
+                    .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.VersionedSecurityPatchLevel.fromString("5.10.199")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(badTypeUpdate)
@@ -1605,8 +1660,8 @@ class SecurityPatchStateTest {
             val result =
                 securityState.fetchAvailableSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
 
-            // THEN the update is ignored (parsing failed for Date type), returning Device SPL
-            // (It does not crash or try to compare "5.10.199" with a Date)
+            // THEN the update is safely ignored because the class types do not match, returning
+            // Device SPL
             assertEquals("2025-01-01", result.toString())
         }
     }
@@ -1614,14 +1669,18 @@ class SecurityPatchStateTest {
     @Test
     fun testFetchAvailableSecurityPatchLevel_ignoresUpdatesWithMalformedSpl() {
         runBlocking {
-            // GIVEN the Device SPL for SYSTEM is 2025-01-01
+            // GIVEN the Device SPL for SYSTEM is a DateBasedSecurityPatchLevel
             mockDeviceSpl(SecurityPatchState.COMPONENT_SYSTEM, "2025-01-01")
 
-            // AND a provider reports an update with a completely malformed string
+            // AND a provider reports an update with a completely malformed string,
+            // resulting in a generic fallback object
             val badUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("NOT_A_DATE")
+                    // Simulating what createFromParcel does when it can't parse the string
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.GenericStringSecurityPatchLevel("NOT_A_DATE")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(badUpdate)
@@ -1630,8 +1689,7 @@ class SecurityPatchStateTest {
             val result =
                 securityState.fetchAvailableSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
 
-            // THEN the update is ignored (parsing fails), returning Device SPL
-            // (Verifies that IllegalArgumentException is caught and logged)
+            // THEN the generic object fails the type check and is ignored, returning Device SPL
             assertEquals("2025-01-01", result.toString())
         }
     }
@@ -1647,14 +1705,18 @@ class SecurityPatchStateTest {
             val invalidDateUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-02-30")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-02-30")
+                    )
                     .build()
 
             // AND a valid newer update exists
             val validUpdate =
                 UpdateInfo.Builder()
                     .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                    .setSecurityPatchLevel("2025-03-01")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-03-01")
+                    )
                     .build()
 
             setupTrustedUpdateInfoServiceWithUpdates(invalidDateUpdate, validUpdate)
@@ -2761,7 +2823,9 @@ class SecurityPatchStateTest {
                 listOf(
                     UpdateInfo.Builder()
                         .setComponent("SYSTEM")
-                        .setSecurityPatchLevel("2025-01-01")
+                        .setSecurityPatchLevel(
+                            SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-01-01")
+                        )
                         .build()
                 )
             val expectedTime = 123456789L
@@ -3233,7 +3297,11 @@ class SecurityPatchStateTest {
                     val update =
                         UpdateInfo.Builder()
                             .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
-                            .setSecurityPatchLevel("2025-01-01")
+                            .setSecurityPatchLevel(
+                                SecurityPatchState.DateBasedSecurityPatchLevel.fromString(
+                                    "2025-01-01"
+                                )
+                            )
                             .build()
                     UpdateCheckResult("com.google.android.gms", listOf(update), 1000L)
                 }
@@ -3261,7 +3329,10 @@ class SecurityPatchStateTest {
                 // THEN the second request succeeds and returns data
                 assertEquals(1, secondResults.size)
                 assertEquals(1, secondResults[0].updates.size)
-                assertEquals("2025-01-01", secondResults[0].updates[0].securityPatchLevel)
+                assertEquals(
+                    "2025-01-01",
+                    secondResults[0].updates[0].securityPatchLevel.toString(),
+                )
 
                 // Clean up the first request manually since we extended its timeout
                 deferredFirst.cancel()

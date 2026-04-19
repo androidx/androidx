@@ -38,14 +38,6 @@ class NativeDataExtTest {
             assertThrows<IllegalStateException> { session.getNativeSessionData() }
         }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
-    @Test
-    fun getNativeInstanceData_unsupportedDeviceContext_throwsIllegalStateException() =
-        createTestSessionAndRunTest { activity ->
-            val xrDevice = XrDevice.getCurrentDevice(activity)
-            assertThrows<IllegalStateException> { xrDevice.getNativeInstanceData(activity) }
-        }
-
     private fun createTestSessionAndRunTest(testBody: (ComponentActivity) -> Unit) {
         ActivityScenario.launch(ComponentActivity::class.java).use {
             it.onActivity { activity ->
