@@ -29,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,7 +78,7 @@ class ClickTestRuleTest(private val config: TestConfig) {
     val composeTestRule =
         when (config.activityClass) {
             null -> createComposeRule()
-            else -> createAndroidComposeRule(config.activityClass, StandardTestDispatcher())
+            else -> createAndroidComposeRule(config.activityClass)
         }
 
     @Test

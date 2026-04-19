@@ -32,7 +32,6 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +39,7 @@ import org.junit.Test
 @SmallTest
 class DragAndDropRequestPermissionTest {
 
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     private var testNode: TestNode? = null
 

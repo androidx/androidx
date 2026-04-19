@@ -31,13 +31,9 @@ import androidx.compose.ui.test.tryPerformAccessibilityChecks
 import androidx.test.espresso.accessibility.AccessibilityChecks
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResult.AccessibilityCheckResultType
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
-import kotlinx.coroutines.test.StandardTestDispatcher
 
 private val composeTestRule = createComposeRule()
-private val androidComposeTestRule =
-    createAndroidComposeRule<ComponentActivity>(
-        effectContext = kotlinx.coroutines.test.StandardTestDispatcher()
-    )
+private val androidComposeTestRule = createAndroidComposeRule<ComponentActivity>()
 
 /** Sample that shows how to enable accessibility checks when using a ComposeTestRule. */
 @Sampled

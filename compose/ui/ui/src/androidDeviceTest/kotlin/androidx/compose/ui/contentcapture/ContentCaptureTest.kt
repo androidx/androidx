@@ -70,7 +70,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,7 +94,7 @@ import org.mockito.kotlin.whenever
 @SdkSuppress(minSdkVersion = 31)
 @RunWith(AndroidJUnit4::class)
 class ContentCaptureTest {
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     private val tag = "tag"
     private lateinit var androidComposeView: AndroidComposeView

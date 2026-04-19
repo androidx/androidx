@@ -23,7 +23,6 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -32,7 +31,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class SavedStateRegistryOwnerInAppCompatActivityTest {
-    @get:Rule val rule = createAndroidComposeRule<AppCompatActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<AppCompatActivity>()
 
     @Test
     fun ownerIsAvailable() {

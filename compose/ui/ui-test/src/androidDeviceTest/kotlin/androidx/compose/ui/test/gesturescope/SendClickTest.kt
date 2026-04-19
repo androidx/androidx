@@ -34,7 +34,6 @@ import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.RecordingFilter
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,7 +79,7 @@ class SendClickTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule val rule = createAndroidComposeRule(config.activityClass, StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule(config.activityClass)
 
     private val recordedClicks = mutableListOf<ClickData>()
     private val expectedClickPosition = config.position ?: Offset(squareSize / 2, squareSize / 2)

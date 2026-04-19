@@ -32,8 +32,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.RepeatRule
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -46,10 +44,7 @@ class ComposeCameraAppTest {
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(*ComposeCameraActivity.REQUIRED_PERMISSIONS)
 
-    @OptIn(ExperimentalCoroutinesApi::class) // b/457970052
-    @get:Rule
-    val androidComposeTestRule =
-        createAndroidComposeRule<ComposeCameraActivity>(StandardTestDispatcher())
+    @get:Rule val androidComposeTestRule = createAndroidComposeRule<ComposeCameraActivity>()
 
     @get:Rule val labTest: LabTestRule = LabTestRule()
 

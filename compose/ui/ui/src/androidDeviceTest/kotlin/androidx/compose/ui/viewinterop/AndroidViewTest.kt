@@ -159,7 +159,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import kotlin.test.assertIs
 import kotlin.test.assertNull
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
@@ -175,7 +174,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AndroidViewTest {
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     private val setDurationScale =
         ValueAnimator::class.java.getDeclaredMethod("setDurationScale", Float::class.java).apply {

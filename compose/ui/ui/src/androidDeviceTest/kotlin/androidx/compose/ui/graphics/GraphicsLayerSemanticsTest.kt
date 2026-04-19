@@ -69,7 +69,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,7 +89,7 @@ class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
         fun parameters() = ModifierVariant.entries.toTypedArray()
     }
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
     private val testTag = "semantics-test-tag"
     private lateinit var androidComposeView: AndroidComposeView
     private lateinit var rootView: View

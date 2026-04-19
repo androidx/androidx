@@ -46,7 +46,6 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,7 +55,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RippleContainerTest {
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun cachesViews() {

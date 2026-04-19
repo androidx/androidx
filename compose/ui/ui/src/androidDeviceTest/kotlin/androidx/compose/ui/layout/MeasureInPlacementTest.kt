@@ -37,7 +37,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,7 +46,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MeasureInPlacementTest {
 
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     @Before
     fun setup() {

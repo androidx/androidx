@@ -56,7 +56,6 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Rule
@@ -67,7 +66,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class VelocityTrackingListParityTest {
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     private var layoutManager: LinearLayoutManager? = null
     private var latestComposeVelocity = 0f

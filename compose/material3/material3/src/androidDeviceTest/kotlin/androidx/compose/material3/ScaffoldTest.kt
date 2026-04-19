@@ -76,7 +76,6 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -86,7 +85,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ScaffoldTest {
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     private val scaffoldTag = "Scaffold"
     private val roundingError = 0.5.dp

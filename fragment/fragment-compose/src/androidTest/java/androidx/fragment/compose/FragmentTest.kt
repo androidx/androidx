@@ -28,7 +28,6 @@ import androidx.fragment.app.commitNow
 import androidx.fragment.compose.test.TestActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,7 +35,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class FragmentTest {
-    @get:Rule val testRule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
+    @get:Rule val testRule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun showContent() {
