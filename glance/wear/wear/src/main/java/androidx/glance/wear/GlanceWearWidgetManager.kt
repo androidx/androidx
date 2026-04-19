@@ -247,7 +247,6 @@ private fun GlanceWearWidgetService.serviceName() = this.javaClass.name
 private fun GlanceWearWidget.canonicalName() = this.javaClass.canonicalName ?: this.javaClass.name
 
 @ContainerInfo.ContainerType
-@Suppress("WrongConstant") // TODO: b/492460827 - Remove as alpha02 is fixed
 private fun TileProvider.getContainerTypeCompat(): Int {
     if (
         isRobolectricBuild() ||
