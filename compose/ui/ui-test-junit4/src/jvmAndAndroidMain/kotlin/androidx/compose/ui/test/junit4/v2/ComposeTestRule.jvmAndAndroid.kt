@@ -49,6 +49,18 @@ import kotlinx.coroutines.test.TestDispatcher
  *   Otherwise, a [kotlinx.coroutines.test.StandardTestDispatcher] is created and used. This new
  *   dispatcher will share the [TestCoroutineScheduler] from [effectContext] if one is present.
  */
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message =
+        "Use createComposeRule(config: ComposeUiTestConfig) instead. " +
+            "The `effectContext` parameter has been moved into " +
+            "[ComposeUiTestConfig] to allow for more flexible test environment configuration.\n" +
+            "Before:\n" +
+            "createComposeRule(effectContext)\n" +
+            "After:\n" +
+            "createComposeRule(ComposeUiTestConfig(effectContext))",
+    replaceWith = ReplaceWith("createComposeRule(ComposeUiTestConfig(effectContext))"),
+)
 expect fun createComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): ComposeContentTestRule

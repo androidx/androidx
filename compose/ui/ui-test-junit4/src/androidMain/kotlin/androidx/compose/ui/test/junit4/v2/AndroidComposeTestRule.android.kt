@@ -58,6 +58,19 @@ import org.junit.rules.TestRule
  *   Otherwise, a [kotlinx.coroutines.test.StandardTestDispatcher] is created and used. This new
  *   dispatcher will share the [TestCoroutineScheduler] from [effectContext] if one is present.
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message =
+        "Use createComposeRule(config: ComposeUiTestConfig) instead. " +
+            "The `effectContext` parameter has been moved into " +
+            "[ComposeUiTestConfig] to allow for more flexible test environment configuration.\n" +
+            "Before:\n" +
+            "createComposeRule(effectContext)\n" +
+            "After:\n" +
+            "createComposeRule(ComposeUiTestConfig(effectContext))",
+    replaceWith = ReplaceWith("createComposeRule(ComposeUiTestConfig(effectContext))"),
+)
 actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>(effectContext)
 
@@ -145,6 +158,19 @@ actual fun createComposeRule(): ComposeContentTestRule {
  *   Otherwise, a [kotlinx.coroutines.test.StandardTestDispatcher] is created and used. This new
  *   dispatcher will share the [TestCoroutineScheduler] from [effectContext] if one is present.
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message =
+        "Use createAndroidComposeRule<A>(config: ComposeUiTestConfig) instead. " +
+            "The `effectContext` parameter has been moved into " +
+            "[ComposeUiTestConfig] to allow for more flexible test environment configuration.\n" +
+            "Before:\n" +
+            "createAndroidComposeRule<Activity>(effectContext)\n" +
+            "After:\n" +
+            "createAndroidComposeRule<Activity>(ComposeUiTestConfig(effectContext))",
+    replaceWith = ReplaceWith("createAndroidComposeRule<A>(ComposeUiTestConfig(effectContext))"),
+)
 inline fun <reified A : ComponentActivity> createAndroidComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
@@ -233,6 +259,19 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule():
  *   Otherwise, a [kotlinx.coroutines.test.StandardTestDispatcher] is created and used. This new
  *   dispatcher will share the [TestCoroutineScheduler] from [effectContext] if one is present.
  */
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message =
+        "Use createAndroidComposeRule(activityClass: Class<A>, config: ComposeUiTestConfig) instead. " +
+            "The `effectContext` parameter has been moved into " +
+            "[ComposeUiTestConfig] to allow for more flexible test environment configuration.\n" +
+            "Before:\n" +
+            "createAndroidComposeRule(activityClass, effectContext)\n" +
+            "After:\n" +
+            "createAndroidComposeRule(activityClass, ComposeUiTestConfig(effectContext))",
+    replaceWith =
+        ReplaceWith("createAndroidComposeRule(activityClass, ComposeUiTestConfig(effectContext))"),
+)
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>,
     effectContext: CoroutineContext = EmptyCoroutineContext,
@@ -339,6 +378,18 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  *   Otherwise, a [kotlinx.coroutines.test.StandardTestDispatcher] is created and used. This new
  *   dispatcher will share the [TestCoroutineScheduler] from [effectContext] if one is present.
  */
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message =
+        "Use createEmptyComposeRule(config: ComposeUiTestConfig) instead. " +
+            "The `effectContext` parameter has been moved into " +
+            "[ComposeUiTestConfig] to allow for more flexible test environment configuration.\n" +
+            "Before:\n" +
+            "createEmptyComposeRule(effectContext)\n" +
+            "After:\n" +
+            "createEmptyComposeRule(ComposeUiTestConfig(effectContext))",
+    replaceWith = ReplaceWith("createEmptyComposeRule(ComposeUiTestConfig(effectContext))"),
+)
 fun createEmptyComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): ComposeTestRule =
@@ -442,6 +493,21 @@ fun createEmptyComposeRule(): ComposeTestRule =
  *   used for composition and the [MainTestClock].
  * @param activityProvider Function to retrieve the Activity from the given [activityRule].
  */
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message =
+        "Use AndroidComposeTestRule(activityRule: R, config: ComposeUiTestConfig, activityProvider: (R) -> A) instead. " +
+            "The `effectContext` parameter has been moved into " +
+            "[ComposeUiTestConfig] to allow for more flexible test environment configuration.\n" +
+            "Before:\n" +
+            "AndroidComposeTestRule(activityRule, effectContext, activityProvider)\n" +
+            "After:\n" +
+            "AndroidComposeTestRule(activityRule, ComposeUiTestConfig(effectContext), activityProvider)",
+    replaceWith =
+        ReplaceWith(
+            "AndroidComposeTestRule(activityRule, ComposeUiTestConfig(effectContext), activityProvider)"
+        ),
+)
 fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
     activityRule: R,
     effectContext: CoroutineContext = EmptyCoroutineContext,
