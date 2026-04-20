@@ -23,5 +23,20 @@
             android:authorities="androidx.appfunctions.integration.testapp.provider"
             android:exported="false"
             android:grantUriPermissions="true" />
+        <service
+            android:name=".SimpleAppFunctionService"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
+            android:enabled="@bool/is_at_least_sdk_37"
+            android:exported="true">
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="app_functions_schema.xsd" />
+            <property
+                android:name="android.app.appfunctions.v2"
+                android:value="simple_app_function_service.xml" />
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
