@@ -279,7 +279,7 @@ class NativeInputEventsProcessorTest {
     }
 
     @Test
-    fun when_Backspace_Pressed_deleteContentBackward_is_ignored() {
+    fun when_NonCollapsedSelection_And_Backspace_Pressed_then_deleteContentBackward_is_ignored() {
         val communicator = MockComposeCommandCommunicator()
         val processor = TestNativeInputEventsProcessor(communicator)
 
@@ -296,15 +296,16 @@ class NativeInputEventsProcessorTest {
                 textRangeEnd = 4
             }
         )
-        processor.manuallyRunCheckpoint(TextFieldValue("test"))
+        processor.manuallyRunCheckpoint(TextFieldValue("test", selection = TextRange(3, 4)))
 
-        assertEquals(1, communicator.keyboardEvents.size)
-        assertEquals(0, communicator.editCommands.size)
+        assertEquals(1, communicator.keyboardEvents.size, "exactly one key event should be sent")
+        assertEquals(0, communicator.editCommands.size, "editCommands should not be sent")
 
         val sentKeyEvent = communicator.keyboardEvents[0]
         assertEquals(
             "Backspace",
-            ((sentKeyEvent.nativeKeyEvent as InternalKeyEvent).nativeEvent as KeyboardEvent).key
+            ((sentKeyEvent.nativeKeyEvent as InternalKeyEvent).nativeEvent as KeyboardEvent).key,
+            "keyboardEvent for Backspace should be sent"
         )
     }
 
@@ -673,6 +674,43 @@ class NativeInputEventsProcessorTest {
         // The deleteContentBackward event should be ignored since Backspace key was pressed
         assertEquals(1, communicator.keyboardEvents.size)
         assertEquals(0, communicator.editCommands.size)
+    }
+
+    @Test
+    fun testDeleteContentBackward_with_collapsed_selection_and_Backspace_key_pressed_same_frame() {
+        val textFieldValue = TextFieldValue(
+            text = "example text",
+            selection = TextRange(12) // collapsed selection at the very end
+        )
+
+        val communicator = MockComposeCommandCommunicator(textFieldValue)
+        val processor = TestNativeInputEventsProcessor(communicator)
+
+        val backspaceEvent = keyEvent(
+            key = "Backspace",
+            code = "Backspace",
+            type = "keydown"
+        )
+        processor.registerEvent(backspaceEvent)
+
+        processor.registerEvent(
+            beforeInput("deleteContentBackward", "").asInputEventExt().apply {
+                textRangeStart = 8
+                textRangeEnd = 12
+            },
+        )
+
+        processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
+
+        assertEquals(1, communicator.keyboardEvents.size)
+        assertEquals(2, communicator.editCommands.size)
+
+        val selectionCommand = communicator.editCommands[0]
+        assertTrue(selectionCommand is SetSelectionCommand)
+        assertEquals(8, selectionCommand.start)
+        assertEquals(12, selectionCommand.end)
+
+        assertEquals("example ", communicator.currentTextFieldValue().text)
     }
 
     @Test

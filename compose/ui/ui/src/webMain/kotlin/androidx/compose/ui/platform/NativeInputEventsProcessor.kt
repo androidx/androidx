@@ -161,26 +161,29 @@ internal abstract class NativeInputEventsProcessor(
     private fun InputEventExt.process(currentTextFieldValue: TextFieldValue) {
         val editCommands = when (inputType) {
             "deleteContentBackward" -> buildList {
-                // this means "deleteContentBackward" happened because of an earlier "keydown" event, so skipping it here
-                if (lastProcessedKeydown?.isBackspace() == true) return@buildList
-
                 if (!currentTextFieldValue.selection.collapsed) {
-                    // Likely it's on mobile, where the Backspace has Unidentified key value.
-                    // When Compose TextField shows text selection,
-                    // a good UX for deleteContentBackward would be to emulate Backspace
-                    add(BackspaceCommand())
-                } else {
+                    // If the lastProcessedKeydown was Backspace, then Compose must have already processed this.
+                    if (lastProcessedKeydown?.isBackspace() != true) {
+                        // If we got here, then it's likely one of the mobile browsers, where the Backspace has Unidentified key value.
+                        // Compose doesn't handle Unidentified keys - it does not have any context about them.
+                        // And here in `deleteContentBackward` we have this context.
+                        // When Compose TextField has text selection, a good UX for deleteContentBackward would be to emulate Backspace.
+                        add(BackspaceCommand())
+                    }
+                } else { // Empty selection case.
                     // This happens when an autocorrection is applied on mobile:
                     // The system first tells us to delete the old text,
                     // and then it would send the "insertText" event.
                     if (textRangeSize > 0) {
-                        // deleteContentBackward can happen under very non-trivial circumstances,
-                        // for instance; when an input suggestion on Android Chrome is accepted,
-                        // the browser then deletes space after the word just to add space again
+                        // deleteContentBackward can happen under very non-trivial circumstances:
+                        // - for instance, when an input suggestion on Android Chrome is accepted,
+                        // the browser then deletes space after the word just to add space again;
+                        // - or when a browser performs Fast Delete;
                         add(SetSelectionCommand(textRangeStart, textRangeEnd))
                         add(BackspaceCommand())
-                    } else if (textRangeSize == 0) {
-                        // under specific circumstance previous symbol can be deleted while inputing new one
+                    } else if (textRangeSize == 0 && lastProcessedKeydown?.isBackspace() != true) {
+                        // We skip this branch if the lastProcessedKeydown is Backspace, because Compose must have already processed this.
+                        // Otherwise, under specific circumstance previous symbol can be deleted while inputting the new one
                         // see https://youtrack.jetbrains.com/issue/CMP-8773
                         add(BackspaceCommand())
                     }
