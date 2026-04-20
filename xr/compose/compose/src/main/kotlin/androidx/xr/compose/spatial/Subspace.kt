@@ -173,7 +173,6 @@ private fun Subspace(
             )
         ) {
             it.dispose()
-            subspaceRoot.dispose()
             try {
                 if (SceneManager.getSceneCount(context) == 0) {
                     session.scene.mainPanelEntity.setEnabled(true)
@@ -450,7 +449,7 @@ public fun FollowingSubspace(
         )
     } else {
         val subspaceRoot by remember {
-            disposableValueOf(Entity.create(session, "subspaceRoot")) { it.dispose() }
+            disposableValueOf(Entity.create(session, "subspaceRoot")) { it.parent = null }
         }
         // TODO(b/491504073): Use observers to update the scale instead of SideEffect.
         SideEffect {

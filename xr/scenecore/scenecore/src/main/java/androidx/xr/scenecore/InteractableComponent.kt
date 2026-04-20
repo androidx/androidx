@@ -17,7 +17,6 @@
 package androidx.xr.scenecore
 
 import android.app.Activity
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.InputEventListener as RtInputEventListener
@@ -39,6 +38,7 @@ private constructor(
     private val rtInputEventListener = RtInputEventListener { rtEvent ->
         inputEventListener.accept(rtEvent.toInputEvent(entityRegistry))
     }
+
     private val rtInteractableComponent by lazy {
         sceneRuntime.createInteractableComponent(executor, rtInputEventListener)
     }
@@ -52,11 +52,10 @@ private constructor(
      */
     override fun onAttach(entity: Entity): Boolean {
         if (this.entity != null) {
-            Log.e("InteractableComponent", "Already attached to entity ${this.entity}")
             return false
         }
         this.entity = entity
-        return (entity as BaseEntity<*>).rtEntity!!.addComponent(rtInteractableComponent)
+        return (entity as BaseEntity<*>).rtEntity.addComponent(rtInteractableComponent)
     }
 
     /**
@@ -65,11 +64,12 @@ private constructor(
      * @param entity The [Entity] to detach this component from.
      */
     override fun onDetach(entity: Entity) {
-        (entity as BaseEntity<*>).rtEntity!!.removeComponent(rtInteractableComponent)
+        (entity as BaseEntity<*>).rtEntity.removeComponent(rtInteractableComponent)
         this.entity = null
     }
 
     public companion object {
+
         /** Factory for Interactable component. */
         internal fun create(
             sceneRuntime: SceneRuntime,

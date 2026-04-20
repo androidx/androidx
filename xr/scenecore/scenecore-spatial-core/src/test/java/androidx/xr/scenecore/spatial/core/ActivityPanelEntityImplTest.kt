@@ -27,6 +27,7 @@ import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
+import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.android.extensions.xr.space.ShadowActivityPanel
 import com.google.common.truth.Truth
@@ -42,25 +43,49 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-class ActivityPanelEntityImplTest {
-    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
+class ActivityPanelEntityImplTest : AndroidXrEntityImplTest() {
+    override val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val activityController: ActivityController<Activity> =
         Robolectric.buildActivity(Activity::class.java)
-    private val hostActivity: Activity = activityController.create().start().get()
+    override val activity: Activity = activityController.create().start().get()
+    private val hostActivity: Activity
+        get() = activity
+
     private val windowBoundsPx = PixelDimensions(640, 480)
-    private val fakeExecutor = FakeScheduledExecutorService()
+    override val fakeExecutor = FakeScheduledExecutorService()
+    override val sceneNodeRegistry = SceneNodeRegistry()
     private val nodeRepository: NodeRepository = NodeRepository.getInstance()
     private lateinit var fakeRuntime: SceneRuntime
+
+    override fun createEntity(node: Node): AndroidXrEntity {
+        val windowBoundsRect = Rect(0, 0, 100, 100)
+        // Note: we can't easily use the provided node here because createActivityPanel creates its
+        // own node.
+        // However, for GC testing, we can just create a new entity with the provided node if the
+        // constructor allows it.
+        // ActivityPanelEntityImpl constructor takes a node.
+        val activityPanel =
+            xrExtensions.createActivityPanel(
+                hostActivity,
+                com.android.extensions.xr.space.ActivityPanelLaunchParameters(windowBoundsRect),
+            )
+
+        return ActivityPanelEntityImpl(
+            hostActivity,
+            node,
+            "test",
+            xrExtensions,
+            sceneNodeRegistry,
+            activityPanel,
+            PixelDimensions(100, 100),
+            fakeExecutor,
+        )
+    }
 
     @Before
     fun setUp() {
         fakeRuntime =
-            SpatialSceneRuntime.create(
-                hostActivity,
-                fakeExecutor,
-                xrExtensions,
-                SceneNodeRegistry(),
-            )
+            SpatialSceneRuntime.create(hostActivity, fakeExecutor, xrExtensions, sceneNodeRegistry)
     }
 
     @After

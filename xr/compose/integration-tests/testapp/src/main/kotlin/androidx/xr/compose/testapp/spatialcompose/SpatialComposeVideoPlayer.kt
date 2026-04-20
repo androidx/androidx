@@ -997,7 +997,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
         exoPlayer?.release()
         exoPlayer = null
         videoPlayingState.value = false
-        surfaceEntity?.dispose()
+        surfaceEntity?.parent = null
         surfaceEntity = null
     }
 

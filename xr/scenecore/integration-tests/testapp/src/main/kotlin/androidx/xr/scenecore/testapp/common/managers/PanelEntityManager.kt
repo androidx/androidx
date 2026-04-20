@@ -126,7 +126,8 @@ class PanelEntityManager(
         for (i in 1..entitiesPerClick) {
             if (panelEntities.isNotEmpty()) {
                 val lastPanel = panelEntities.removeAt(panelEntities.lastIndex)
-                lastPanel.dispose()
+                lastPanel.removeAllComponents()
+                lastPanel.parent = null
             }
         }
     }

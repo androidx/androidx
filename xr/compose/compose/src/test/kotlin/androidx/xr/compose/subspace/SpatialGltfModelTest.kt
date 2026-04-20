@@ -66,6 +66,7 @@ import java.nio.file.Paths
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Rule
@@ -208,10 +209,14 @@ class SpatialGltfModelTest {
                     ): GltfEntity {
                         val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
                         return object : GltfEntity by entity {
-                            override fun dispose() {
-                                disposedAssets.add(loadedGltf)
-                                entity.dispose()
-                            }
+                            override var parent: Entity?
+                                get() = entity.parent
+                                set(value) {
+                                    if (value == null && entity.parent != null) {
+                                        disposedAssets.add(loadedGltf)
+                                    }
+                                    entity.parent = value
+                                }
                         }
                     }
                 }
@@ -274,10 +279,14 @@ class SpatialGltfModelTest {
                     ): GltfEntity {
                         val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
                         return object : GltfEntity by entity {
-                            override fun dispose() {
-                                disposedAssets.add(loadedGltf)
-                                entity.dispose()
-                            }
+                            override var parent: Entity?
+                                get() = entity.parent
+                                set(value) {
+                                    if (value == null && entity.parent != null) {
+                                        disposedAssets.add(loadedGltf)
+                                    }
+                                    entity.parent = value
+                                }
                         }
                     }
                 }
@@ -340,10 +349,14 @@ class SpatialGltfModelTest {
                     ): GltfEntity {
                         val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
                         return object : GltfEntity by entity {
-                            override fun dispose() {
-                                disposedAssets.add(loadedGltf)
-                                entity.dispose()
-                            }
+                            override var parent: Entity?
+                                get() = entity.parent
+                                set(value) {
+                                    if (value == null && entity.parent != null) {
+                                        disposedAssets.add(loadedGltf)
+                                    }
+                                    entity.parent = value
+                                }
                         }
                     }
                 }
@@ -1445,8 +1458,13 @@ class SpatialGltfModelTest {
         isInComposition = false
 
         composeTestRule.onSubspaceNodeWithTag("model").assertDoesNotExist()
-        assertThat(composeTestRule.session?.scene?.getEntitiesOfType(GltfModelEntity::class.java))
-            .isEmpty()
+        assertNull(
+            composeTestRule.session
+                ?.scene
+                ?.getEntitiesOfType(GltfModelEntity::class.java)
+                ?.firstOrNull()
+                ?.parent
+        )
     }
 
     @Test

@@ -30,6 +30,7 @@ import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
+import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
 import kotlin.math.atan
@@ -49,18 +50,35 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-class PanelEntityImplTest {
-    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
+class PanelEntityImplTest : AndroidXrEntityImplTest() {
+    override val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val activityController: ActivityController<Activity> =
         Robolectric.buildActivity(Activity::class.java)
-    private val activity: Activity = activityController.create().start().get()
-    private val fakeExecutor = FakeScheduledExecutorService()
-    private val sceneNodeRegistry = SceneNodeRegistry()
+    override val activity: Activity = activityController.create().start().get()
+    override val fakeExecutor = FakeScheduledExecutorService()
+    override val sceneNodeRegistry = SceneNodeRegistry()
     private val nodeRepository: NodeRepository = NodeRepository.getInstance()
     private val pixelDimensions = PixelDimensions(2000, 1000)
     private lateinit var sceneRuntime: SpatialSceneRuntime
     private val renderViewScenePose: ScenePose = mock(ScenePose::class.java)
     private lateinit var renderViewFov: FieldOfView
+
+    override fun createEntity(node: Node): AndroidXrEntity {
+        val display = activity.getSystemService(DisplayManager::class.java).displays[0]
+        val displayContext = activity.createDisplayContext(display!!)
+        val view = View(displayContext).apply { layoutParams = ViewGroup.LayoutParams(640, 480) }
+
+        return PanelEntityImpl(
+            displayContext,
+            node,
+            view,
+            xrExtensions,
+            sceneNodeRegistry,
+            PixelDimensions(640, 480),
+            "panel",
+            fakeExecutor,
+        )
+    }
 
     @Before
     fun setUp() {
@@ -366,11 +384,6 @@ class PanelEntityImplTest {
         }
     }
 
-    companion object {
-        private val K_VGA_RESOLUTION_PX = Dimensions(640f, 480f, 0f)
-        private val K_HD_RESOLUTION_PX = Dimensions(1280f, 720f, 0f)
-    }
-
     @Test
     fun setContentDescription_updatesRootView() {
         val display = activity.getSystemService(DisplayManager::class.java).displays[0]
@@ -402,5 +415,10 @@ class PanelEntityImplTest {
         }
 
         Truth.assertThat(panelEntity.contentDescription.toString()).isEqualTo(label)
+    }
+
+    companion object {
+        private val K_VGA_RESOLUTION_PX = Dimensions(640f, 480f, 0f)
+        private val K_HD_RESOLUTION_PX = Dimensions(1280f, 720f, 0f)
     }
 }

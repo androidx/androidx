@@ -22,6 +22,7 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
+import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
 import org.junit.After
@@ -35,24 +36,26 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-class MainPanelEntityImplTest {
-    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
+class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
+    override val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val activityController: ActivityController<Activity> =
         Robolectric.buildActivity(Activity::class.java)
-    private val hostActivity: Activity = activityController.create().start().get()
-    private val fakeExecutor = FakeScheduledExecutorService()
+    override val activity: Activity = activityController.create().start().get()
+    override val fakeExecutor = FakeScheduledExecutorService()
+    override val sceneNodeRegistry = SceneNodeRegistry()
     private lateinit var sceneRuntime: SpatialSceneRuntime
     private lateinit var mainPanelEntity: MainPanelEntityImpl
+
+    override fun createEntity(node: Node): AndroidXrEntity {
+        // MainPanelEntityImpl is usually created via SpatialSceneRuntime.
+        // But for testing GC we can create it directly if constructor is accessible.
+        return MainPanelEntityImpl(activity, node, xrExtensions, sceneNodeRegistry, fakeExecutor)
+    }
 
     @Before
     fun setUp() {
         sceneRuntime =
-            SpatialSceneRuntime.create(
-                hostActivity,
-                fakeExecutor,
-                xrExtensions,
-                SceneNodeRegistry(),
-            )
+            SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions, sceneNodeRegistry)
 
         mainPanelEntity = sceneRuntime.mainPanelEntity as MainPanelEntityImpl
     }
@@ -74,9 +77,9 @@ class MainPanelEntityImplTest {
         mainPanelEntity.sizeInPixels = kTestPixelDimensions
 
         val shadowXrExtensions = ShadowXrExtensions.extract(xrExtensions)
-        Truth.assertThat(shadowXrExtensions.getMainWindowWidth(hostActivity))
+        Truth.assertThat(shadowXrExtensions.getMainWindowWidth(activity))
             .isEqualTo(kTestPixelDimensions.width)
-        Truth.assertThat(shadowXrExtensions.getMainWindowHeight(hostActivity))
+        Truth.assertThat(shadowXrExtensions.getMainWindowHeight(activity))
             .isEqualTo(kTestPixelDimensions.height)
     }
 
@@ -86,9 +89,9 @@ class MainPanelEntityImplTest {
         mainPanelEntity.size = kTestDimensions
 
         val shadowXrExtensions = ShadowXrExtensions.extract(xrExtensions)
-        Truth.assertThat(shadowXrExtensions.getMainWindowWidth(hostActivity))
+        Truth.assertThat(shadowXrExtensions.getMainWindowWidth(activity))
             .isEqualTo(kTestDimensions.width.toInt())
-        Truth.assertThat(shadowXrExtensions.getMainWindowHeight(hostActivity))
+        Truth.assertThat(shadowXrExtensions.getMainWindowHeight(activity))
             .isEqualTo(kTestDimensions.height.toInt())
     }
 

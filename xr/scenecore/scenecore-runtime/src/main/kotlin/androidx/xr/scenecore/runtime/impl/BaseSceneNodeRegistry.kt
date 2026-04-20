@@ -21,6 +21,7 @@ package androidx.xr.scenecore.runtime.impl
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.ScenePose
+import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -33,7 +34,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class BaseSceneNodeRegistry<K : Any> {
-    private val nodeEntityMap = ConcurrentHashMap<K, Entity>()
+    private val nodeEntityMap = ConcurrentHashMap<K, WeakReference<Entity>>()
     private val systemSpaces = CopyOnWriteArrayList<ScenePose>()
 
     /**
@@ -43,7 +44,7 @@ public open class BaseSceneNodeRegistry<K : Any> {
      * @return the [Entity] associated with the given node, or null if no such node exists.
      */
     public fun getEntityForNode(node: K): Entity? {
-        return nodeEntityMap[node]
+        return nodeEntityMap[node]?.get()
     }
 
     /**
@@ -53,7 +54,7 @@ public open class BaseSceneNodeRegistry<K : Any> {
      * @param entity the [Entity] to associate with the given node.
      */
     public fun setEntityForNode(node: K, entity: Entity) {
-        nodeEntityMap[node] = entity
+        nodeEntityMap[node] = WeakReference(entity)
     }
 
     /**
@@ -63,15 +64,24 @@ public open class BaseSceneNodeRegistry<K : Any> {
      * @return a list of all [Entity]s of type `T` (including subtypes of `T`).
      */
     public fun <T : Entity> getEntitiesOfType(type: Class<out T>): List<T> =
-        nodeEntityMap.values.distinct().filterIsInstance(type)
+        nodeEntityMap.values.mapNotNull { it.get() }.distinct().filterIsInstance(type)
 
     /** Returns a collection of all [Entity]s. */
-    public fun getAllEntities(): Collection<Entity> = nodeEntityMap.values.distinct()
+    public fun getAllEntities(): Collection<Entity> =
+        nodeEntityMap.values.mapNotNull { it.get() }.distinct()
 
     /** Removes the given node of type [K] from the map. */
     public fun removeEntityForNode(node: K) {
         nodeEntityMap.remove(node)
     }
+
+    /**
+     * Returns true if the given node is in the map.
+     *
+     * @param node the node of type [K] to check for.
+     * @return true if the given node is in the map.
+     */
+    public fun containsNode(node: K): Boolean = nodeEntityMap.containsKey(node)
 
     /** Adds a system space [ScenePose] to the SceneNodeRegistry. */
     public fun addSystemSpaceScenePose(systemSpaceScenePose: ScenePose) {

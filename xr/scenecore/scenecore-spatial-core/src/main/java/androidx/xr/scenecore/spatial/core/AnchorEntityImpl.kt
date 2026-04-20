@@ -22,6 +22,7 @@ import androidx.xr.arcore.runtime.ExportableAnchor
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.AnchorEntity
+import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 import androidx.xr.scenecore.runtime.Space
@@ -58,11 +59,22 @@ internal class AnchorEntityImpl(
             }
         }
 
+    private val anchorCleanupAction: AnchorEntityCleanupAction
+
     init {
         extensions.createNodeTransaction().use { transaction ->
             transaction.setName(node, ANCHOR_NODE_NAME).apply()
         }
+        anchorCleanupAction = AnchorEntityCleanupAction(node, extensions)
+        registerCleanup(executor, anchorCleanupAction)
     }
+
+    private class AnchorEntityCleanupAction(node: Node, extensions: XrExtensions) :
+        CleanupAction({
+            extensions.createNodeTransaction().use { transaction ->
+                transaction.setAnchorId(node, null).setParent(node, null).apply()
+            }
+        })
 
     override fun setAnchor(anchor: Anchor): Boolean {
         synchronized(this) {
@@ -166,9 +178,6 @@ internal class AnchorEntityImpl(
             updateState(AnchorEntity.State.ERROR)
         }
 
-        extensions.createNodeTransaction().use { transaction ->
-            transaction.setAnchorId(node, null).setParent(node, null).apply()
-        }
         super.dispose()
     }
 

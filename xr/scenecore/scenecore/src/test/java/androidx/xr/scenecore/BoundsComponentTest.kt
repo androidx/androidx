@@ -182,7 +182,7 @@ class BoundsComponentTest {
         val boundsComponent = BoundsComponent.create(session)
 
         assertThat(gltfModelEntity.addComponent(boundsComponent)).isTrue()
-        assertThat(gltfModelEntity.rtEntity!!.getComponents()[0])
+        assertThat(gltfModelEntity.rtEntity.getComponents()[0])
             .isSameInstanceAs(boundsComponent.rtBoundsComponent)
     }
 
@@ -191,12 +191,12 @@ class BoundsComponentTest {
         val boundsComponent = BoundsComponent.create(session)
 
         assertThat(gltfModelEntity.addComponent(boundsComponent)).isTrue()
-        assertThat(gltfModelEntity.rtEntity!!.getComponents()[0])
+        assertThat(gltfModelEntity.rtEntity.getComponents()[0])
             .isSameInstanceAs(boundsComponent.rtBoundsComponent)
 
         gltfModelEntity.removeComponent(boundsComponent)
 
-        assertThat(gltfModelEntity.rtEntity!!.getComponents())
+        assertThat(gltfModelEntity.rtEntity.getComponents())
             .doesNotContain(boundsComponent.rtBoundsComponent)
     }
 
@@ -229,8 +229,9 @@ class BoundsComponentTest {
         val onBoundsUpdateListener1 = BiConsumer<Entity, BoundingBox> { _, _ -> }
         val boundsComponent = BoundsComponent.create(session)
         boundsComponent.addBoundsUpdateListener(onBoundsUpdateListener1)
+        gltfModelEntity.addComponent(boundsComponent)
         val rtBoundsUpdateEventListener1 =
-            boundsComponent.boundsUpdateListenerMap[onBoundsUpdateListener1]
+            boundsComponent.boundsUpdateListenerMap[onBoundsUpdateListener1]!!.second
         val rtBoundsComponent = boundsComponent.rtBoundsComponent as FakeBoundsComponent
 
         assertThat(rtBoundsComponent.listeners.keys.toList()[0])
@@ -242,7 +243,8 @@ class BoundsComponentTest {
         val boundsComponent = BoundsComponent.create(session)
         val listener = BiConsumer<Entity, BoundingBox> { _, _ -> }
         boundsComponent.addBoundsUpdateListener(listener)
-        val rtBoundsUpdateEventListener = boundsComponent.boundsUpdateListenerMap[listener]
+        gltfModelEntity.addComponent(boundsComponent)
+        val rtBoundsUpdateEventListener = boundsComponent.boundsUpdateListenerMap[listener]!!.second
         val rtBoundsComponent = boundsComponent.rtBoundsComponent as FakeBoundsComponent
 
         assertThat(boundsComponent.boundsUpdateListenerMap).hasSize(1)
@@ -266,30 +268,32 @@ class BoundsComponentTest {
         val rtBoundsComponent = boundsComponent.rtBoundsComponent as FakeBoundsComponent
 
         boundsComponent.addBoundsUpdateListener(onBoundsUpdateListener1)
+        gltfModelEntity.addComponent(boundsComponent)
         val rtBoundsUpdateEventListener1 =
-            boundsComponent.boundsUpdateListenerMap[onBoundsUpdateListener1]
+            boundsComponent.boundsUpdateListenerMap[onBoundsUpdateListener1]!!.second
 
         assertThat(rtBoundsComponent.listeners).containsKey(rtBoundsUpdateEventListener1)
 
         boundsComponent.addBoundsUpdateListener(onBoundsUpdateListener2)
         val rtBoundsUpdateEventListener2 =
-            boundsComponent.boundsUpdateListenerMap[onBoundsUpdateListener2]
+            boundsComponent.boundsUpdateListenerMap[onBoundsUpdateListener2]!!.second
 
         assertThat(rtBoundsComponent.listeners).containsKey(rtBoundsUpdateEventListener2)
     }
 
     @Test
-    fun addBoundsUpdateListener_removeBoundsComponent_notClearRuntimeListener() {
+    fun addOnBoundsUpdateListener_removeBoundsComponent_clearsRuntimeListener() {
         val onBoundsUpdateListener1 = BiConsumer<Entity, BoundingBox> { _, _ -> }
         val boundsComponent = BoundsComponent.create(session)
         boundsComponent.addBoundsUpdateListener(onBoundsUpdateListener1)
+        gltfModelEntity.addComponent(boundsComponent)
         val rtBoundsComponent = boundsComponent.rtBoundsComponent as FakeBoundsComponent
 
         assertThat(rtBoundsComponent.listeners.count()).isEqualTo(1)
 
         gltfModelEntity.removeComponent(boundsComponent)
 
-        assertThat(rtBoundsComponent.listeners.count()).isEqualTo(1)
+        assertThat(rtBoundsComponent.listeners.count()).isEqualTo(0)
     }
 
     @Test
@@ -297,6 +301,7 @@ class BoundsComponentTest {
         val onBoundsUpdateListener1 = BiConsumer<Entity, BoundingBox> { _, _ -> }
         val boundsComponent = BoundsComponent.create(session)
         boundsComponent.addBoundsUpdateListener(onBoundsUpdateListener1)
+        gltfModelEntity.addComponent(boundsComponent)
         val rtBoundsComponent = boundsComponent.rtBoundsComponent as FakeBoundsComponent
 
         assertThat(rtBoundsComponent.listeners.count()).isEqualTo(1)

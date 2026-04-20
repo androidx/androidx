@@ -580,7 +580,12 @@ class SpatialPanelTest {
         // Verify the set of PanelEntities after the SpatialDialog is dismissed:
         // Activity Panel
         // Main PanelEntity
-        assertThat(session?.scene?.getEntitiesOfType(PanelEntity::class.java)?.size).isEqualTo(2)
+        assertThat(
+                session?.scene?.getEntitiesOfType(PanelEntity::class.java)?.count {
+                    it.parent != null || it == session.scene.mainPanelEntity
+                }
+            )
+            .isEqualTo(2)
     }
 
     @Test

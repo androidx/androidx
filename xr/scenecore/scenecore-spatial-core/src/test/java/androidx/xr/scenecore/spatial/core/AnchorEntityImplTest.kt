@@ -57,11 +57,13 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 @SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
-    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
+    override val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val anchorStateListener = mock<AnchorEntity.OnStateChangedListener>()
     private val sharedAnchorToken: IBinder = mock<IBinder>()
-    private val executor = FakeScheduledExecutorService()
-    private val sceneNodeRegistry = SceneNodeRegistry()
+    override val activity: Activity =
+        Robolectric.buildActivity(Activity::class.java).create().start().get()
+    override val fakeExecutor = FakeScheduledExecutorService()
+    override val sceneNodeRegistry = SceneNodeRegistry()
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule =
@@ -69,10 +71,19 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
 
     private lateinit var activitySpace: ActivitySpaceImpl
 
+    override fun createEntity(node: Node): AndroidXrEntity {
+        return AnchorEntityImpl.create(
+            activity,
+            node,
+            activitySpace,
+            xrExtensions,
+            sceneNodeRegistry,
+            fakeExecutor,
+        )
+    }
+
     @Before
     fun doBeforeEachTest() {
-        val activityController = Robolectric.buildActivity(Activity::class.java)
-        val activity = activityController.create().start().get()
         val taskNode = xrExtensions.createNode()
         activitySpace =
             ActivitySpaceImpl(
@@ -81,7 +92,7 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
                 xrExtensions,
                 sceneNodeRegistry,
                 { xrExtensions.getSpatialState(activity) },
-                executor,
+                fakeExecutor,
             )
         val currentTimeMillis = 1000000000L
         SystemClock.setCurrentTimeMillis(currentTimeMillis)
@@ -96,7 +107,7 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
         get() = createAnchorEntityWithRuntimeAnchor()
 
     override val defaultFakeExecutor: FakeScheduledExecutorService
-        get() = executor
+        get() = fakeExecutor
 
     override fun createChildAndroidXrEntity(): AndroidXrEntity {
         return createGltfEntity()
@@ -115,7 +126,7 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
             activitySpace,
             xrExtensions,
             sceneNodeRegistry,
-            executor,
+            fakeExecutor,
         )
     }
 
@@ -133,14 +144,12 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
             activitySpace,
             xrExtensions,
             sceneNodeRegistry,
-            executor,
+            fakeExecutor,
         )
     }
 
     private fun createAnchorEntityWithRuntimeAnchor(): AnchorEntityImpl {
         val node = xrExtensions.createNode()
-        val activityController = Robolectric.buildActivity(Activity::class.java)
-        val activity = activityController.create().start().get()
         val anchorEntity =
             AnchorEntityImpl.create(
                 activity,
@@ -148,7 +157,7 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
                 activitySpace,
                 xrExtensions,
                 sceneNodeRegistry,
-                executor,
+                fakeExecutor,
             )
         val runtimeAnchor =
             FakeExportableAnchor(
@@ -165,15 +174,13 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
 
     private fun createUnanchoredAnchorEntity(): AnchorEntityImpl {
         val node = (xrExtensions).createNode()
-        val activityController = Robolectric.buildActivity(Activity::class.java)
-        val activity = activityController.create().start().get()
         return AnchorEntityImpl.create(
             activity,
             node,
             activitySpace,
             xrExtensions,
             sceneNodeRegistry,
-            executor,
+            fakeExecutor,
         )
     }
 
@@ -372,7 +379,7 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
         anchorEntity.setOnStateChangedListener(anchorStateListener)
         val runtimeAnchor = androidx.xr.arcore.testing.FakeRuntimeAnchor(Pose.Identity, true)
         anchorEntity.setAnchor(Anchor(runtimeAnchor))
-        executor.runAll()
+        fakeExecutor.runAll()
 
         verify(anchorStateListener, never()).onStateChanged(AnchorEntity.State.ERROR)
         Truth.assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.UNANCHORED)

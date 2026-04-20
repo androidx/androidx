@@ -221,7 +221,8 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
         // Dispose GLTF Model Entity
         findViewById<Button>(R.id.gltf_model_button4_2).setOnClickListener {
             dragonModelEntity?.let {
-                it.dispose()
+                it.removeAllComponents()
+                it.parent = null
                 dragonModelEntity = null
             }
             dropdownRow.visibility = View.GONE

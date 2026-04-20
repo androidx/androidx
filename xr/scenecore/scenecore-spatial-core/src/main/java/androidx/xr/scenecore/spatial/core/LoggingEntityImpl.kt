@@ -20,6 +20,8 @@ import android.content.Context
 import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.CleanupAction
+import androidx.xr.scenecore.runtime.DirectExecutor
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.InputEventListener
@@ -34,8 +36,11 @@ import java.util.concurrent.Executor
 @Suppress("RestrictedApiAndroidX")
 internal class LoggingEntityImpl(context: Context) : BaseEntity(context), LoggingEntity {
 
+    private val loggingCleanupAction = CleanupAction { XrLog.info { "dispose" } }
+
     init {
         XrLog.info { "Creating LoggingEntity." }
+        registerCleanup(DirectExecutor, loggingCleanupAction)
     }
 
     override fun getPose(@SpaceValue relativeTo: Int): Pose {
@@ -121,6 +126,6 @@ internal class LoggingEntityImpl(context: Context) : BaseEntity(context), Loggin
     }
 
     override fun dispose() {
-        XrLog.info { "dispose" }
+        super.dispose()
     }
 }

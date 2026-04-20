@@ -41,11 +41,11 @@ private constructor(rtEntity: RtSubspaceNodeEntity, entityRegistry: EntityRegist
     public var size: FloatSize3d
         get() {
             checkNotDisposed()
-            return rtEntity!!.size.toFloatSize3d()
+            return rtEntity.size.toFloatSize3d()
         }
         set(value) {
             checkNotDisposed()
-            rtEntity!!.size = value.toRtDimensions()
+            rtEntity.size = value.toRtDimensions()
         }
 
     public companion object {

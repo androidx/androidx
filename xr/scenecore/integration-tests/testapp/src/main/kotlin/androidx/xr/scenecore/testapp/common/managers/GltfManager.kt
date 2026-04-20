@@ -117,7 +117,8 @@ class GltfManager(
         for (i in 1..entitiesPerClick) {
             if (gltfModelEntities.isNotEmpty()) {
                 val lastEntity = gltfModelEntities.removeAt(gltfModelEntities.lastIndex)
-                lastEntity.dispose()
+                lastEntity.removeAllComponents()
+                lastEntity.parent = null
             }
         }
     }

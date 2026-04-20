@@ -18,6 +18,7 @@
 package androidx.xr.scenecore
 
 import android.os.Build
+import android.os.Looper
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
@@ -35,8 +36,10 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.testing.FakeAnchorEntity
+import androidx.xr.scenecore.testing.MemoryUtils
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
+import java.lang.ref.WeakReference
 import java.util.function.Consumer
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -57,6 +60,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
@@ -411,10 +415,40 @@ class AnchorEntityTest {
     }
 
     @Test
-    fun dispose_callingTwiceDoesNotCrash() {
+    fun disposeInternal_clearsListeners() {
         val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityRegistry)
-        anchorEntity.dispose()
-        anchorEntity.dispose()
+
+        anchorEntity.addOriginChangedListener(directExecutor()) {}
+        anchorEntity.addOriginChangedListener(directExecutor()) {}
+
+        assertThat(fakeAnchorEntity.onOriginChangedListener).isNotNull()
+
+        anchorEntity.disposeInternal()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(fakeAnchorEntity.onOriginChangedListener).isNull()
+    }
+
+    @Test
+    fun disposeInternal_callingTwiceDoesNotCrash() {
+        val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityRegistry)
+        anchorEntity.disposeInternal()
+        anchorEntity.disposeInternal()
+    }
+
+    @Test
+    fun garbageCollection_disposesEntity() {
+        fun createAnchorEntity(): WeakReference<AnchorEntity> {
+            val localFakeAnchorEntity = FakeAnchorEntity()
+            val localEntityRegistry = EntityRegistry()
+            val anchorEntity = AnchorEntity.create(localFakeAnchorEntity, localEntityRegistry)
+            return WeakReference(anchorEntity)
+        }
+
+        val anchorEntityRef = createAnchorEntity()
+        assertThat(anchorEntityRef.get()).isNotNull()
+
+        MemoryUtils.assertGarbageCollected(anchorEntityRef)
     }
 
     private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher) {

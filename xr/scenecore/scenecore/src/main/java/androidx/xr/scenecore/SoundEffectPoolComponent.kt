@@ -47,7 +47,7 @@ private constructor(
         if (attachedEntity != null) {
             return false
         }
-        if ((entity as BaseEntity<*>).rtEntity!!.addComponent(rtComponent)) {
+        if ((entity as BaseEntity<*>).rtEntity.addComponent(rtComponent)) {
             attachedEntity = entity
             return true
         }
@@ -58,7 +58,7 @@ private constructor(
         if (entity != attachedEntity) {
             return
         }
-        (entity as BaseEntity<*>).rtEntity!!.removeComponent(rtComponent)
+        (entity as BaseEntity<*>).rtEntity.removeComponent(rtComponent)
         attachedEntity = null
     }
 

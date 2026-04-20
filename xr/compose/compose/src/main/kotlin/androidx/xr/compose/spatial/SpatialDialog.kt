@@ -324,7 +324,9 @@ private class SpatialDialogRenderer(
     }
 
     override fun onForgotten() {
+        content = {}
         panelEntity?.dispose()
+        panelEntity = null
         view?.disposeComposition()
     }
 

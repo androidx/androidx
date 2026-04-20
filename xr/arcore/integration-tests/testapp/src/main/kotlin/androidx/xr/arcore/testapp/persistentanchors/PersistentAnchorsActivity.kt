@@ -490,7 +490,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
     }
 
     private fun deleteEntity(anchor: Anchor, entity: Entity) {
-        entity.dispose()
+        entity.parent = null
         anchor.detach()
     }
 

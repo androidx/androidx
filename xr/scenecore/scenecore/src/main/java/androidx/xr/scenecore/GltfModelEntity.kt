@@ -42,7 +42,7 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
     private val _nodes: List<GltfModelNode> by lazy {
         // The unique identifier of a node is their index so we first get the
         // count of the nodes in the model from the native side.
-        val features = rtEntity!!.nodes
+        val features = rtEntity.nodes
         val list = ArrayList<GltfModelNode>(features.size)
 
         for (i in features.indices) {
@@ -124,11 +124,7 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
      *   of the box is twice the half-extent. All values are in meters.
      */
     internal val gltfModelBoundingBox: BoundingBox
-        @MainThread
-        get() {
-            checkNotDisposed()
-            return rtEntity!!.gltfModelBoundingBox
-        }
+        @MainThread get() = rtEntity.gltfModelBoundingBox
 
     /**
      * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
@@ -166,21 +162,22 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
             parent: Entity? = entityRegistry.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): GltfModelEntity =
             GltfModelEntity(
-                renderingRuntime.createGltfEntity(
-                    pose,
-                    model.model,
-                    if (parent != null && parent !is BaseEntity<*>) {
-                        XrLog.warn(
-                            "The provided parent is not a BaseEntity. The GltfModelEntity will " +
-                                "be created without a parent."
-                        )
-                        null
-                    } else {
-                        parent?.rtEntity
-                    },
-                ),
-                entityRegistry,
-            )
+                    renderingRuntime.createGltfEntity(
+                        pose,
+                        model.model,
+                        if (parent != null && parent !is BaseEntity<*>) {
+                            XrLog.warn(
+                                "The provided parent is not a BaseEntity. The GltfModelEntity will " +
+                                    "be created without a parent."
+                            )
+                            null
+                        } else {
+                            parent?.rtEntity
+                        },
+                    ),
+                    entityRegistry,
+                )
+                .also { it.parent = parent as? BaseEntity<*> }
 
         /**
          * Public factory function for a [GltfModelEntity].

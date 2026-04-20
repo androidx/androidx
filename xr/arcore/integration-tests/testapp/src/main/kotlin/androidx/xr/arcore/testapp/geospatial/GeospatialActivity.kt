@@ -182,7 +182,7 @@ class GeospatialActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         for (entity in anchorEntities) {
-            entity.dispose()
+            entity.parent = null
         }
     }
 
@@ -503,7 +503,7 @@ class GeospatialActivity : ComponentActivity() {
         }
         anchors.clear()
         for (entity in anchorEntities) {
-            entity.dispose()
+            entity.parent = null
         }
         anchorEntities.clear()
         sharedPreferences.edit().remove(SAVED_ANCHORS_KEY).apply()

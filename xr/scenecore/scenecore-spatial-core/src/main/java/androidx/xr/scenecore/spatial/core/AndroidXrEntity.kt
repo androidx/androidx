@@ -26,6 +26,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.ActivitySpace
+import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.InputEventListener
@@ -74,9 +75,26 @@ public abstract class AndroidXrEntity(
         ConcurrentHashMap()
     private var reformOptions: ReformOptions? = null
 
+    private val androidXrCleanupAction: AndroidXrEntityCleanupAction
+
     init {
         sceneNodeRegistry.setEntityForNode(node, this)
+        androidXrCleanupAction = AndroidXrEntityCleanupAction(node, extensions, sceneNodeRegistry)
+        registerCleanup(scheduledExecutor, androidXrCleanupAction)
     }
+
+    private class AndroidXrEntityCleanupAction(
+        node: Node,
+        extensions: XrExtensions,
+        sceneNodeRegistry: SceneNodeRegistry,
+    ) :
+        CleanupAction({
+            node.stopListeningForInput()
+            extensions.createNodeTransaction().use { transaction ->
+                transaction.disableReform(node).apply()
+            }
+            sceneNodeRegistry.removeEntityForNode(node)
+        })
 
     override var parent: Entity?
         get() = super.parent
@@ -258,7 +276,10 @@ public abstract class AndroidXrEntity(
     private fun maybeSetupInputListeners() {
         // Only set up the listener if it doesn't already exist.
         if (inputEventListenerMap.isEmpty() && pointerCaptureInputEventListener.isEmpty) {
-            node.listenForInput(scheduledExecutor, this::handleInputEvent)
+            val weakThis = WeakReference(this)
+            node.listenForInput(scheduledExecutor) { inputEvent ->
+                weakThis.get()?.handleInputEvent(inputEvent)
+            }
         }
     }
 
@@ -311,18 +332,7 @@ public abstract class AndroidXrEntity(
 
     override fun dispose() {
         inputEventListenerMap.clear()
-        node.stopListeningForInput()
         reformEventConsumerMap.clear()
-        extensions.createNodeTransaction().use { transaction ->
-            @Suppress("UNUSED_VARIABLE") val unused = transaction.disableReform(node)
-            transaction.apply()
-        }
-
-        // SystemSpaceEntityImpls (Anchors, ActivitySpace, etc) should have null parents.
-        if (parent != null) {
-            parent = null
-        }
-        sceneNodeRegistry.removeEntityForNode(node)
         super.dispose()
     }
 
@@ -424,7 +434,7 @@ public abstract class AndroidXrEntity(
     ): HitTestResult {
         // Hit tests need to be issued in the activity space then converted to the entity's space.
         val activitySpace =
-            sceneNodeRegistry.getSystemSpaceScenePoseOfType(ActivitySpace::class.java)[0]
+            sceneNodeRegistry.getSystemSpaceScenePoseOfType(ActivitySpace::class.java).firstOrNull()
                 ?: throw IllegalStateException("ActivitySpace is null")
         return activitySpace.hitTestRelativeToActivityPose(origin, direction, hitTestFilter, this)
     }

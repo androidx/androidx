@@ -22,6 +22,7 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
 import androidx.xr.scenecore.runtime.SceneRuntime
 import java.util.concurrent.ConcurrentHashMap
@@ -154,8 +155,8 @@ internal constructor(
             MainPanelEntity(lifecycleManager, sceneRuntime, perceptionSpace, entityRegistry)
     }
 
-    override fun dispose() {
+    override fun disposeInternal() {
         perceivedResolutionListeners.keys.forEach { removePerceivedResolutionChangedListener(it) }
-        super.dispose()
+        super.disposeInternal()
     }
 }

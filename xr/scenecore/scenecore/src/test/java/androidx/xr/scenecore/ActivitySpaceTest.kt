@@ -29,8 +29,10 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.testing.FakeActivitySpace
 import androidx.xr.scenecore.testing.FakeSceneRuntimeFactory
+import androidx.xr.scenecore.testing.MemoryUtils
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
+import java.lang.ref.WeakReference
 import java.util.function.Consumer
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -227,7 +229,7 @@ class ActivitySpaceTest {
     }
 
     @Test
-    fun dispose_removesBoundsChangedListeners() {
+    fun disposeInternal_removesBoundsChangedListeners() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
         val listener = Consumer<FloatSize3d> {}
@@ -237,13 +239,13 @@ class ActivitySpaceTest {
         // Already one listener by default.
         assertThat(rtActivitySpace.onBoundsChangedListeners).hasSize(2)
 
-        activitySpace.dispose()
+        activitySpace.disposeInternal()
 
         assertThat(rtActivitySpace.onBoundsChangedListeners).hasSize(1)
     }
 
     @Test
-    fun dispose_removesOriginChangedListeners() {
+    fun disposeInternal_removesOriginChangedListeners() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
         var listenCount = 0
@@ -254,7 +256,7 @@ class ActivitySpaceTest {
 
         assertThat(listenCount).isEqualTo(1) // 0 -> 1
 
-        activitySpace.dispose()
+        activitySpace.disposeInternal()
         // Simulates a runtime callback.
         rtActivitySpace.onOriginChanged()
 
@@ -262,9 +264,22 @@ class ActivitySpaceTest {
     }
 
     @Test
-    fun dispose_callingTwiceDoesNotCrash() {
+    fun disposeInternal_callingTwiceDoesNotCrash() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
-        activitySpace.dispose()
-        activitySpace.dispose()
+        activitySpace.disposeInternal()
+        activitySpace.disposeInternal()
+    }
+
+    @Test
+    fun garbageCollection_disposesEntity() {
+        fun createActivitySpace(): WeakReference<ActivitySpace> {
+            val activitySpace = ActivitySpace.create(fakeRuntime, entityRegistry)
+            return WeakReference(activitySpace)
+        }
+
+        val activitySpaceRef = createActivitySpace()
+        assertThat(activitySpaceRef.get()).isNotNull()
+
+        MemoryUtils.assertGarbageCollected(activitySpaceRef)
     }
 }

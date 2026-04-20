@@ -24,6 +24,7 @@ import androidx.xr.runtime.internal.JxrRuntime
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Entity as RtEntity
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener as RtSpatialModeChangeListener
@@ -211,6 +212,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
                 entityRegistry,
             )
         keyEntity = mainPanelEntity
+
         sceneRuntime.spatialModeChangeListener =
             RtSpatialModeChangeListener { recommendedPose, recommendedScale ->
                 lastRecommendedPose = recommendedPose
@@ -241,6 +243,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun close() {
+        entityRegistry.getAllEntities().forEach { (it as BaseEntity<*>).disposeInternal() }
         entityRegistry.clear()
         sceneRuntime.removeSpatialCapabilitiesChangedListener(rtSpatialCapabilitiesListener)
         sceneRuntime.clearSpatialVisibilityChangedListener()

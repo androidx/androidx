@@ -203,9 +203,9 @@ class HeadLockedUiActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        mHeadLockedPanel.removeAllComponents()
         mHeadLockedPanel.parent = null
-        mHeadLockedPanel.dispose()
+        super.onDestroy()
     }
 
     private fun createHeadLockedPanel() {

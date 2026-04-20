@@ -40,18 +40,34 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-class MeshEntityImplTest {
-    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
-    private val sceneNodeRegistry = SceneNodeRegistry()
-    private val fakeScheduledExecutorService = FakeScheduledExecutorService()
+class MeshEntityImplTest : AndroidXrEntityImplTest() {
+    override val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
+    override val sceneNodeRegistry = SceneNodeRegistry()
+    override val fakeExecutor = FakeScheduledExecutorService()
     private lateinit var activitySpace: ActivitySpaceImpl
     private lateinit var meshEntityImpl: MeshEntityImpl
     private lateinit var fakeMeshFeature: FakeMeshFeature
 
+    override lateinit var activity: Activity
+
+    override fun createEntity(node: Node): AndroidXrEntity {
+        val nodeHolder = NodeHolder<Node>(node, Node::class.java)
+        fakeMeshFeature = spy(FakeMeshFeature(nodeHolder))
+
+        return MeshEntityImpl(
+            activity,
+            fakeMeshFeature,
+            null,
+            xrExtensions,
+            sceneNodeRegistry,
+            fakeExecutor,
+        )
+    }
+
     @Before
     fun setUp() {
         val activityController = Robolectric.buildActivity(Activity::class.java)
-        val activity = activityController.create().start().get()
+        activity = activityController.create().start().get()
 
         assertThat(xrExtensions).isNotNull()
 
@@ -66,7 +82,7 @@ class MeshEntityImplTest {
                 xrExtensions,
                 sceneNodeRegistry,
                 { xrExtensions.getSpatialState(activity) },
-                fakeScheduledExecutorService,
+                fakeExecutor,
             )
         sceneNodeRegistry.addSystemSpaceScenePose(PerceptionSpaceScenePoseImpl(activitySpace))
 
@@ -90,7 +106,7 @@ class MeshEntityImplTest {
             activitySpace,
             xrExtensions,
             sceneNodeRegistry,
-            fakeScheduledExecutorService,
+            fakeExecutor,
         )
     }
 

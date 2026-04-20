@@ -46,7 +46,7 @@ internal constructor(
         if (attachedEntity != null) {
             return false
         }
-        if ((entity as BaseEntity<*>).rtEntity!!.addComponent(rtSoundFieldAudioComponent)) {
+        if ((entity as BaseEntity<*>).rtEntity.addComponent(rtSoundFieldAudioComponent)) {
             attachedEntity = entity
             return true
         }
@@ -57,7 +57,7 @@ internal constructor(
         if (entity != attachedEntity) {
             return
         }
-        (entity as BaseEntity<*>).rtEntity!!.removeComponent(rtSoundFieldAudioComponent)
+        (entity as BaseEntity<*>).rtEntity.removeComponent(rtSoundFieldAudioComponent)
         attachedEntity = null
     }
 

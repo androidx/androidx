@@ -140,7 +140,7 @@ class SpatialAudioTrackTest {
         val entity = Entity.create(session, "test")
 
         val temp: BaseEntity<*> = entity as BaseEntity<*>
-        val rtEntity = temp.rtEntity!!
+        val rtEntity = temp.rtEntity
         val rtPointSourceParams = RtPointSourceParams()
 
         sceneRuntime.audioTrackExtensionsWrapper.setPointSourceParams(

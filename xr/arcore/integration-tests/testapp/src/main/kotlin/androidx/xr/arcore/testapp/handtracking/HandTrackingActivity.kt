@@ -194,7 +194,7 @@ class HandTrackingActivity : ComponentActivity() {
                                     }
                                 } finally {
                                     for (entity in leftHandJointEntityMap.values) {
-                                        entity.dispose()
+                                        entity.parent = null
                                     }
                                 }
                             }
@@ -206,7 +206,7 @@ class HandTrackingActivity : ComponentActivity() {
                                     }
                                 } finally {
                                     for (entity in rightHandJointEntityMap.values) {
-                                        entity.dispose()
+                                        entity.parent = null
                                     }
                                 }
                             }

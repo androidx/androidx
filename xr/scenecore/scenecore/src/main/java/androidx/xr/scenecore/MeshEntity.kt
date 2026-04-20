@@ -64,7 +64,7 @@ private constructor(
             "Subset index $subsetIndex is out of bounds for the number of subsets (${_materials.size})."
         }
         _materials[subsetIndex] = material
-        rtEntity!!.setMaterial(material.material, subsetIndex)
+        rtEntity.setMaterial(material.material, subsetIndex)
     }
 
     /**
@@ -86,7 +86,7 @@ private constructor(
         check(boneCount > 0) {
             "MeshEntity must be created with a boneCount greater than 0 to set bone transforms."
         }
-        rtEntity!!.setBoneTransforms(transforms)
+        rtEntity.setBoneTransforms(transforms)
     }
 
     public companion object {
@@ -144,7 +144,7 @@ private constructor(
                     )
                     null
                 } else {
-                    (parent as? BaseEntity<*>)?.rtEntity
+                    parent?.rtEntity
                 }
 
             val rtEntity =
@@ -157,6 +157,7 @@ private constructor(
                 )
 
             return MeshEntity(rtEntity, entityRegistry, mesh, materials.toMutableList(), boneCount)
+                .also { it.parent = parent as? BaseEntity<*> }
         }
     }
 }

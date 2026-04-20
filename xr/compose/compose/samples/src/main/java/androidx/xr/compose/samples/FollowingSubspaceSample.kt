@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -82,7 +81,7 @@ public fun FollowingSubspaceSample() {
             }
         }
 
-        val anchor =
+        var anchor =
             remember(session) {
                 when (val anchorResult = Anchor.create(session, Pose.Identity)) {
                     is AnchorCreateSuccess -> AnchorEntity.create(session, anchorResult.anchor)
@@ -103,7 +102,6 @@ public fun FollowingSubspaceSample() {
                     SpatialMainPanel()
                 }
             }
-            DisposableEffect(anchor) { onDispose { anchor.dispose() } }
         }
     }
 }
