@@ -23,24 +23,105 @@ import androidx.tracing.wire.protos.MutableTrackEvent
 internal fun TestSink.firstStartStopWithName(
     name: String
 ): Pair<MutableTracePacket, MutableTracePacket> {
-    val start = packets.find { packet -> packet.track_event?.name == name }
-    check(start != null) { "Cannot find a trace packet with name $name " }
-    var end: MutableTracePacket? = null
+    val result = findPacket(packets = packets, startIndex = 0, name = name)
+    check(result.start != null) { "Cannot find a trace packet with name $name " }
+    check(result.end != null) { "Cannot find an end marker for a trace packet with $name" }
+    return result.start to result.end
+}
+
+internal data class FindPacketResult(
+    val start: MutableTracePacket?,
+    val end: MutableTracePacket?,
+    val nextIndex: Int,
+)
+
+internal fun findPacket(
+    packets: List<MutableTracePacket>,
+    startIndex: Int,
+    name: String,
+): FindPacketResult {
+    return findPacket(packets = packets, startIndex = startIndex) { start ->
+        name == start.track_event?.name
+    }
+}
+
+internal fun findAllPackets(
+    packets: List<MutableTracePacket>,
+    predicate: (start: MutableTracePacket) -> Boolean,
+): List<MutableTracePacket> {
+    return findAllPackets(
+        packets = packets,
+        predicate = predicate,
+        startIndex = 0,
+        accumulator = mutableListOf(),
+    )
+}
+
+internal tailrec fun findAllPackets(
+    packets: List<MutableTracePacket>,
+    predicate: (start: MutableTracePacket) -> Boolean,
+    startIndex: Int,
+    accumulator: MutableList<MutableTracePacket>,
+): MutableList<MutableTracePacket> {
+    val result = findPacket(packets = packets, startIndex = startIndex, predicate = predicate)
+    if (result.start != null) accumulator += result.start
+    if (result.end != null && result.start != result.end) accumulator += result.end
+    return if (result.nextIndex == packets.size) accumulator
+    else
+        findAllPackets(
+            packets = packets,
+            startIndex = result.nextIndex,
+            predicate = predicate,
+            accumulator = accumulator,
+        )
+}
+
+internal fun findPacket(
+    packets: List<MutableTracePacket>,
+    startIndex: Int,
+    predicate: (start: MutableTracePacket) -> Boolean,
+): FindPacketResult {
+    var index = startIndex
     var starts = 0
-    for (packet in packets) {
-        if (packet.track_event?.track_uuid != start.track_event?.track_uuid) continue
-        if (packet.timestamp <= start.timestamp) continue
-        if (packet.track_event?.type == MutableTrackEvent.Type.TYPE_SLICE_BEGIN) {
-            starts += 1
-        } else if (packet.track_event?.type == MutableTrackEvent.Type.TYPE_SLICE_END) {
-            starts -= 1
-            if (starts <= 0) {
-                end = packet
+    var startPacket: MutableTracePacket? = null
+    var endPacket: MutableTracePacket? = null
+    while (index < packets.size) {
+        val packet = packets[index]
+        val instant = packet.track_event?.type == MutableTrackEvent.Type.TYPE_INSTANT
+        val begin = packet.track_event?.type == MutableTrackEvent.Type.TYPE_SLICE_BEGIN
+        val sameTrack =
+            if (startPacket == null) {
+                // We don't know which track yet.
+                true
+            } else {
+                packet.track_event?.track_uuid == startPacket.track_event?.track_uuid &&
+                    packet.timestamp >= startPacket.timestamp
+            }
+        val end = sameTrack && packet.track_event?.type == MutableTrackEvent.Type.TYPE_SLICE_END
+        // We found our start packet
+        if ((instant || begin) && predicate(packet) && startPacket == null) {
+            startPacket = packet
+            if (instant) {
+                // If it's an instant packet, we have our end as well. No need to look further.
+                endPacket = packet
+                break
             }
         }
+        // We have a start packet already
+        // Make sure the packet being evaluated is on the same track
+        if (startPacket != null && packet != startPacket && sameTrack) {
+            if (begin) starts += 1
+            if (end) starts -= 1
+        }
+
+        if (startPacket != null && end && starts < 0) {
+            endPacket = packet
+            break
+        }
+        index += 1
     }
-    check(end != null) { "Cannot find an end marker for a trace packet with $name" }
-    return start to end
+    val nextIndex = (index + 1).coerceAtMost(packets.size)
+    return FindPacketResult(start = startPacket, end = endPacket, nextIndex = nextIndex)
 }
 
 internal fun TestSink.attributes(): Map<String, Any?> {

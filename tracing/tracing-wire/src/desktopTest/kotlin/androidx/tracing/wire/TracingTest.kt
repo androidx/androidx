@@ -134,7 +134,8 @@ class TracingTest {
         driver.use { tracer.trace(category = "category", name = "section") {} }
         // 2 packets for track descriptors (process + thread)
         // 2 packets for begin and end section.
-        assertEquals(4, sink.packets.size)
+        // 2 packets for flush().
+        assertEquals(6, sink.packets.size)
         assertNotNull(sink.packets.find { it.track_descriptor?.process?.process_name != null })
         assertNotNull(sink.packets.find { it.track_descriptor?.thread?.thread_name != null })
         sink.firstStartStopWithName("section") { start, _ ->
@@ -155,7 +156,8 @@ class TracingTest {
         // 2 packets for track descriptors (process + thread)
         // 2 packets for begin and end section.
         // 1 for instant exception.
-        assertEquals(5, sink.packets.size)
+        // 2 packets for flush().
+        assertEquals(7, sink.packets.size)
         assertNotNull(sink.firstStartStopWithName("section.exception"))
     }
 
@@ -196,7 +198,8 @@ class TracingTest {
         }
         // 2 packets for track descriptors (process + thread)
         // 2 * 2 packets for begin and end section.
-        assertEquals(6, sink.packets.size)
+        // 2 packets for flush().
+        assertEquals(8, sink.packets.size)
         assertNotNull(sink.packets.find { it.track_descriptor?.process?.process_name != null })
         assertNotNull(sink.packets.find { it.track_descriptor?.thread?.thread_name != null })
         sink.firstStartStopWithName("section") { start, _ ->
@@ -219,7 +222,8 @@ class TracingTest {
         }
         // 2 packets for track descriptors (process + thread)
         // 4 packets for begin and end section.
-        assertEquals(6, sink.packets.size)
+        // 2 packets for flush().
+        assertEquals(8, sink.packets.size)
         assertNotNull(sink.packets.find { it.track_descriptor?.process?.process_name != null })
         listOf("section", "section2").forEach { name ->
             sink.firstStartStopWithName(name) { start, _ ->
@@ -327,10 +331,10 @@ class TracingTest {
     internal fun testCounterTrackEvents() {
         driver.use { tracer.counter(category = "counter", "counter").setValue(10L) }
         // We expect 3 packets
-        // 2 Preamble packets (process + counter tracks)
-        // Importantly **no** thread preamble packets
+        // 3 Preamble packets (process + thread (flush) + counter tracks)
         // 1 counter packet.
-        assertEquals(3, sink.packets.size)
+        // 2 packets for flush().
+        assertEquals(6, sink.packets.size)
         val packet =
             sink.packets.firstOrNull { packet ->
                 packet.track_event?.type == MutableTrackEvent.Type.TYPE_COUNTER
@@ -345,7 +349,7 @@ class TracingTest {
                 addMetadataEntry("key", "value")
             }
         }
-        assertEquals(3, sink.packets.size)
+        assertEquals(5, sink.packets.size)
         val packet =
             sink.packets.firstOrNull { packet ->
                 packet.track_event?.type == MutableTrackEvent.Type.TYPE_INSTANT
@@ -470,7 +474,8 @@ class TracingTest {
 
         // 2 packets for track descriptors (process + thread)
         // 2 packets for begin and end section.
-        assertEquals(4, sink.packets.size)
+        // 2 packets for flush().
+        assertEquals(6, sink.packets.size)
         assertNotNull(sink.packets.find { it.track_descriptor?.process?.process_name != null })
         assertNotNull(sink.packets.find { it.track_descriptor?.thread?.thread_name != null })
         sink.firstStartStopWithName("section") { start, _ ->
