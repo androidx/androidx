@@ -128,7 +128,7 @@ object ComposeFoundationFlags {
     // TODO: Remove this flag once it has soaked (b/501503945)
     @field:Suppress("MutableBareField")
     @JvmField
-    var isBasicTextFieldHeightInLinesOptimizationEnabled = true
+    var isBasicTextFieldHeightInLinesOptimizationEnabled = false
 
     /**
      * This flag controls the fix where item placement animation in
