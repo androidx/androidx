@@ -250,11 +250,14 @@ package androidx.appfunctions {
 
   public final class ExecuteAppFunctionRequest {
     ctor public ExecuteAppFunctionRequest(String targetPackageName, String functionIdentifier, androidx.appfunctions.AppFunctionData functionParameters);
+    ctor @RequiresApi(37) public ExecuteAppFunctionRequest(String targetPackageName, String functionIdentifier, androidx.appfunctions.AppFunctionData functionParameters, android.app.AppInteractionAttribution attribution);
+    method @InaccessibleFromKotlin @RequiresApi(37) public android.app.AppInteractionAttribution? getAttribution();
     method @InaccessibleFromKotlin public String getFunctionIdentifier();
     method @InaccessibleFromKotlin public androidx.appfunctions.AppFunctionData getFunctionParameters();
     method @InaccessibleFromKotlin public String getTargetPackageName();
     method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public static androidx.appfunctions.ExecuteAppFunctionRequest toCompatExecuteAppFunctionRequest(android.app.appfunctions.ExecuteAppFunctionRequest, androidx.appfunctions.metadata.AppFunctionMetadata functionMetadata);
     method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public android.app.appfunctions.ExecuteAppFunctionRequest toPlatformExecuteAppFunctionRequest();
+    property @RequiresApi(37) public android.app.AppInteractionAttribution? attribution;
     property public String functionIdentifier;
     property public androidx.appfunctions.AppFunctionData functionParameters;
     property public String targetPackageName;
