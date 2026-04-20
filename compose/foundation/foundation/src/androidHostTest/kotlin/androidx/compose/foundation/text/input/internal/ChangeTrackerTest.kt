@@ -259,12 +259,105 @@ class ChangeTrackerTest {
         assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0))
     }
 
+    @Test
+    fun trackChange_hardwareKeyboard_preserved() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, true)
+        assertThat(tracker.changeCount).isEqualTo(1)
+        assertThat(tracker.isFromHardwareSource(0)).isTrue()
+    }
+
+    @Test
+    fun mergeChanges_softThenHardware_prefersHardware() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, false)
+        tracker.trackChange(0, 1, 1, true)
+        assertThat(tracker.changeCount).isEqualTo(1)
+        assertThat(tracker.isFromHardwareSource(0)).isTrue()
+    }
+
+    @Test
+    fun mergeChanges_hardwareThenSoft_prefersHardware() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, true)
+        tracker.trackChange(0, 1, 1, false)
+        assertThat(tracker.changeCount).isEqualTo(1)
+        assertThat(tracker.isFromHardwareSource(0)).isTrue()
+    }
+
+    @Test
+    fun mergeChanges_multipleOverlapping_prefersHardware() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, false)
+        tracker.trackChange(2, 2, 1, true)
+        tracker.trackChange(0, 3, 1, false)
+        assertThat(tracker.changeCount).isEqualTo(1)
+        assertThat(tracker.isFromHardwareSource(0)).isTrue()
+    }
+
+    @Test
+    fun trackChange_nonOverlapping_retainsIndividualFlags() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, false)
+        tracker.trackChange(2, 2, 1, true)
+        assertThat(tracker.changeCount).isEqualTo(2)
+        assertThat(tracker.isFromHardwareSource(0)).isFalse()
+        assertThat(tracker.isFromHardwareSource(1)).isTrue()
+    }
+
+    @Test
+    fun copyConstructor_retainsFlags() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, true)
+        val copy = ChangeTracker(tracker)
+        assertThat(copy.changeCount).isEqualTo(1)
+        assertThat(copy.isFromHardwareSource(0)).isTrue()
+    }
+
+    @Test
+    fun mergeChanges_softThenSoft_staysSoft() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, false)
+        tracker.trackChange(0, 1, 1, false)
+        assertThat(tracker.changeCount).isEqualTo(1)
+        assertThat(tracker.isFromHardwareSource(0)).isFalse()
+    }
+
+    @Test
+    fun mergeChanges_adjacent_prefersHardware() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, false)
+        tracker.trackChange(1, 1, 1, true)
+        assertThat(tracker.changeCount).isEqualTo(1)
+        assertThat(tracker.isFromHardwareSource(0)).isTrue()
+    }
+
+    @Test
+    fun mergeChanges_hardwareThenHardware_staysHardware() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, true)
+        tracker.trackChange(0, 1, 1, true)
+        assertThat(tracker.changeCount).isEqualTo(1)
+        assertThat(tracker.isFromHardwareSource(0)).isTrue()
+    }
+
+    @Test
+    fun mergeChanges_bridgingGap_prefersHardware() {
+        val tracker = ChangeTracker()
+        tracker.trackChange(0, 0, 1, false)
+        tracker.trackChange(2, 2, 1, true)
+        // Now add a change that bridges the gap.
+        tracker.trackChange(1, 2, 1, false)
+        assertThat(tracker.changeCount).isEqualTo(1)
+        assertThat(tracker.isFromHardwareSource(0)).isTrue()
+    }
+
     private class SimpleBuffer(initialText: String = "") {
         private val builder = StringBuilder(initialText)
         val changes = ChangeTracker()
 
         fun append(text: String) {
-            changes.trackChange(builder.length, builder.length, text.length)
+            changes.trackChange(builder.length, builder.length, text.length, false)
             builder.append(text)
         }
 
@@ -272,13 +365,13 @@ class ChangeTrackerTest {
             val start = builder.indexOf(substring)
             if (start != -1) {
                 val end = start + substring.length
-                changes.trackChange(start, end, text.length)
+                changes.trackChange(start, end, text.length, false)
                 builder.replace(start, end, text)
             }
         }
 
         fun replace(start: Int, end: Int, text: String) {
-            changes.trackChange(start, end, text.length)
+            changes.trackChange(start, end, text.length, false)
             builder.replace(minOf(start, end), maxOf(start, end), text)
         }
 

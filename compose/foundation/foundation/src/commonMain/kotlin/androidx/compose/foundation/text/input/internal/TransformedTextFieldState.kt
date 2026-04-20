@@ -238,13 +238,13 @@ internal class TransformedTextFieldState(
         textFieldState.editAsUser(inputTransformation) { setSelectionCoerced(0, length) }
     }
 
-    fun deleteSelectedText() {
+    fun deleteSelectedText(isFromHardwareSource: Boolean = false) {
         textFieldState.editAsUser(
             inputTransformation,
             undoBehavior = TextFieldEditUndoBehavior.NeverMerge,
         ) {
             // `selection` is read from the buffer, so we don't need to transform it.
-            delete(selection.min, selection.max)
+            replace(selection.min, selection.max, "", isFromHardwareSource = isFromHardwareSource)
             setSelectionCoerced(selection.min)
             updateWedgeAffinity()
         }
@@ -259,6 +259,7 @@ internal class TransformedTextFieldState(
         range: TextRange,
         undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
         restartImeIfContentChanges: Boolean = true,
+        isFromHardwareSource: Boolean = false,
     ) {
         textFieldState.editAsUser(
             inputTransformation = inputTransformation,
@@ -266,7 +267,12 @@ internal class TransformedTextFieldState(
             restartImeIfContentChanges = restartImeIfContentChanges,
         ) {
             val selection = mapFromTransformed(range)
-            replace(selection.min, selection.max, newText)
+            replace(
+                selection.min,
+                selection.max,
+                newText,
+                isFromHardwareSource = isFromHardwareSource,
+            )
             val cursor = selection.min + newText.length
             setSelectionCoerced(cursor)
             updateWedgeAffinity()
@@ -278,6 +284,7 @@ internal class TransformedTextFieldState(
         clearComposition: Boolean = false,
         undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
         restartImeIfContentChanges: Boolean = true,
+        isFromHardwareSource: Boolean = false,
     ) {
         textFieldState.editAsUser(
             inputTransformation = inputTransformation,
@@ -290,7 +297,12 @@ internal class TransformedTextFieldState(
 
             // `selection` is read from the buffer, so we don't need to transform it.
             val selection = selection
-            replace(selection.min, selection.max, newText)
+            replace(
+                selection.min,
+                selection.max,
+                newText,
+                isFromHardwareSource = isFromHardwareSource,
+            )
             val cursor = selection.min + newText.length
             setSelectionCoerced(cursor)
             updateWedgeAffinity()
