@@ -16,6 +16,7 @@
 package androidx.xr.arcore.openxr
 
 import android.content.Context
+import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.interfaces.Feature
@@ -23,9 +24,11 @@ import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
 
 /** Factory for creating instances of [OpenXrRuntime]. */
-internal class OpenXrRuntimeFactory() : PerceptionRuntimeFactory {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+// TODO: b/452158733 - Make this class internal once YTXR has been migrated.
+public class OpenXrRuntimeFactory() : PerceptionRuntimeFactory {
     @Suppress("RestrictedApiAndroidX")
-    companion object {
+    private companion object {
         private const val LIBRARY_NAME: String = "androidx.xr.arcore.openxr"
 
         init {
