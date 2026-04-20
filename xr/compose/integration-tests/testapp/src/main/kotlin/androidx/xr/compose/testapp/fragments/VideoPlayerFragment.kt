@@ -57,8 +57,8 @@ import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
-import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.common.isDrmSupported
 
@@ -106,7 +106,7 @@ class VideoPlayerFragment : Fragment() {
                     .height(
                         if (stereoMode == StereoMode.TopBottom) videoHeight / 2 else videoHeight
                     )
-                    .movable(),
+                    .transformingMovable(),
             resizePolicy = ResizePolicy(),
             interactionPolicy =
                 InteractionPolicy.clickable {

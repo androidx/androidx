@@ -94,8 +94,8 @@ import androidx.xr.compose.subspace.layout.SpatialInputEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
-import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.common.isDrmSupported
 import androidx.xr.compose.testapp.common.isMvHevcSupported
@@ -340,7 +340,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
         } else {
 
             SpatialColumn {
-                SpatialPanel(SubspaceModifier.height(600.dp).width(600.dp).movable()) {
+                SpatialPanel(SubspaceModifier.height(600.dp).width(600.dp).transformingMovable()) {
                     CommonTestScaffold(
                         title = "Video Player Tests",
                         showBottomBar = true,
@@ -715,7 +715,9 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
 
     @Composable
     fun VideoInSpatialPanel() {
-        SpatialPanel(modifier = SubspaceModifier.width(600.dp).height(600.dp).movable()) {
+        SpatialPanel(
+            modifier = SubspaceModifier.width(600.dp).height(600.dp).transformingMovable()
+        ) {
             DisposableEffect(Unit) { onDispose { exoPlayer?.release() } }
 
             AndroidExternalSurface {
@@ -863,7 +865,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     .height(
                         if (stereoMode == StereoMode.TopBottom) videoHeight / 2 else videoHeight
                     )
-                    .movable(),
+                    .transformingMovable(),
             resizePolicy = ResizePolicy(),
             interactionPolicy =
                 InteractionPolicy.clickable {

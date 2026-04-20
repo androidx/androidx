@@ -33,8 +33,8 @@ import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
-import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.padding
+import androidx.xr.compose.subspace.layout.transformingMovable
 
 /**
  * XR-specific Navigation Suite Scaffold that wraps its content in a [SpatialPanel].
@@ -67,7 +67,8 @@ public fun NavigationSuiteScaffold(
     Subspace {
         // TODO(b/454025889): Expose DragPolicy and ResizePolicy params
         SpatialPanel(
-            modifier = modifier.getPaddingForLayoutType(layoutType).fillMaxSize().movable(),
+            modifier =
+                modifier.getPaddingForLayoutType(layoutType).fillMaxSize().transformingMovable(),
             resizePolicy = ResizePolicy(),
         ) {
             // TODO(b/395684702): Support show/hide animation

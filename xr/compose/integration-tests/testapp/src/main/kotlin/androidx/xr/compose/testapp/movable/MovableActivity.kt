@@ -43,6 +43,7 @@ import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialArrangement
+import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxHeight
 import androidx.xr.compose.subspace.layout.fillMaxWidth
@@ -50,6 +51,7 @@ import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.rotate
+import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.common.AnotherActivity
@@ -98,6 +100,20 @@ class MovableActivity : ComponentActivity() {
         var zValueMovable by remember { mutableStateOf(0.dp) }
         val density = LocalDensity.current
         var rotateValueMovable by remember { mutableStateOf(Quaternion.Identity) }
+        val customMovement: (SpatialMoveEvent) -> Unit = { event ->
+            val deltaX = event.pose.translation.x - event.previousPose.translation.x
+            val deltaY = event.pose.translation.y - event.previousPose.translation.y
+            val deltaZ = event.pose.translation.z - event.previousPose.translation.z
+
+            val deltaRot = event.previousPose.rotation.inverse * event.pose.rotation
+
+            with(density) {
+                xValueMovable += deltaX.toDp()
+                yValueMovable += deltaY.toDp()
+                zValueMovable += deltaZ.toDp()
+            }
+            rotateValueMovable *= deltaRot
+        }
         SpatialColumn(SubspaceModifier.testTag("PanelGridSpatialColumn")) {
             SpatialRow(
                 modifier = SubspaceModifier.fillMaxWidth(),
@@ -121,11 +137,15 @@ class MovableActivity : ComponentActivity() {
                     SpatialPanel(modifier = SubspaceModifier.weight(1f).fillMaxWidth()) {
                         PanelContent("[NOT MOVABLE]")
                     }
-                    SpatialPanel(modifier = SubspaceModifier.weight(1f).fillMaxWidth().movable()) {
-                        PanelContent("[MOVABLE]")
+                    SpatialPanel(
+                        modifier = SubspaceModifier.weight(1f).fillMaxWidth().transformingMovable()
+                    ) {
+                        PanelContent("[SYSTEM MOVABLE]")
                     }
-                    SpatialPanel(modifier = SubspaceModifier.weight(1f).fillMaxWidth().movable()) {
-                        PanelContent("[MOVABLE]")
+                    SpatialPanel(
+                        modifier = SubspaceModifier.weight(1f).fillMaxWidth().transformingMovable()
+                    ) {
+                        PanelContent("[SYSTEM MOVABLE]")
                     }
                 }
                 SpatialColumn(
@@ -145,17 +165,7 @@ class MovableActivity : ComponentActivity() {
                                 .offset(xValueMovable, yValueMovable, zValueMovable)
                                 .fillMaxWidth()
                                 .rotate(rotateValueMovable)
-                                .movable { poseChangeEvent ->
-                                    with(density) {
-                                        xValueMovable = poseChangeEvent.pose.translation.x.toDp()
-                                        yValueMovable = poseChangeEvent.pose.translation.y.toDp()
-                                        zValueMovable = poseChangeEvent.pose.translation.z.toDp()
-                                        rotateValueMovable = poseChangeEvent.pose.rotation
-                                        // This true is to indicate that the callback will handle
-                                        // the moving of the panel.
-                                        true
-                                    }
-                                }
+                                .movable(onMove = customMovement)
                     ) {
                         PanelContent("[MOVABLE WITH CUSTOM LISTENER]")
                     }
@@ -188,7 +198,7 @@ class MovableActivity : ComponentActivity() {
                                 .offset(x = 120.dp)
                                 .fillMaxWidth()
                                 .testTag("ActivityPanel")
-                                .movable(),
+                                .transformingMovable(),
                     )
                 }
             }

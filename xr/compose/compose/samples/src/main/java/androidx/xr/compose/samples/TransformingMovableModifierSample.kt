@@ -23,49 +23,51 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.transformingMovable
-import androidx.xr.compose.unit.Meter.Companion.meters
-import androidx.xr.runtime.math.Quaternion
 
 /** A sample demonstrating a simple movable component. */
 @Sampled
 @SubspaceComposable
 @Composable
-public fun BasicMovableSample() {
+public fun BasicTransformingMovableSample() {
     SpatialPanel(modifier = SubspaceModifier.transformingMovable()) {
         Text("The user can move me around!")
     }
 }
 
-/** A sample demonstrating a custom movable component. */
+/**
+ * A sample demonstrating movement of sibling composables using the onMove callback from the
+ * transformingMovable modifier
+ */
 @Sampled
 @SubspaceComposable
 @Composable
-public fun CustomMovableSample() {
-    var offsetX by remember { mutableStateOf(0.dp) }
-    var offsetY by remember { mutableStateOf(0.dp) }
-    var offsetZ by remember { mutableStateOf(0.dp) }
-    var rotation by remember { mutableStateOf(Quaternion.Identity) }
+public fun TransformingMovableSiblingSample() {
+    val density = LocalDensity.current
+    var xOffset by remember { mutableStateOf(0.dp) }
+    var yOffset by remember { mutableStateOf(0.dp) }
+    var zOffset by remember { mutableStateOf(0.dp) }
     val customMovement: (SpatialMoveEvent) -> Unit = { moveEvent ->
-        offsetX = moveEvent.pose.translation.x.meters.toDp()
-        offsetY = moveEvent.pose.translation.y.meters.toDp()
-        offsetZ = moveEvent.pose.translation.z.meters.toDp()
-        rotation = moveEvent.pose.rotation
+        with(density) {
+            xOffset = moveEvent.pose.translation.x.toDp()
+            yOffset = moveEvent.pose.translation.y.toDp()
+            zOffset = moveEvent.pose.translation.z.toDp()
+        }
     }
-    SpatialPanel(
-        modifier =
-            SubspaceModifier.movable(onMove = customMovement)
-                .offset(x = offsetX, y = offsetY, z = offsetZ)
-                .rotate(rotation)
-    ) {
-        Text("The user can move me around!")
+    Subspace {
+        SpatialPanel(modifier = SubspaceModifier.transformingMovable(onMove = customMovement)) {
+            Text("The user can move me around")
+        }
+        SpatialPanel(modifier = SubspaceModifier.offset(x = xOffset, y = yOffset, z = zOffset)) {
+            Text("Sibling Panel")
+        }
     }
 }

@@ -50,8 +50,8 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.size
+import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
@@ -94,7 +94,7 @@ class HelloArPlaneActivity : ComponentActivity() {
                             SpatialPanel(
                                 modifier =
                                     SubspaceModifier.size(DpVolumeSize(640.dp, 480.dp, 0.dp))
-                                        .movable(),
+                                        .transformingMovable(),
                                 resizePolicy = ResizePolicy(),
                             ) {
                                 HelloPlanes(session)
