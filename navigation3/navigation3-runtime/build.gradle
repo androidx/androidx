@@ -91,6 +91,11 @@ androidXMultiplatform {
         desktopMain.dependsOn(nonAndroidMain)
         nativeMain.dependsOn(nonAndroidMain)
         webMain.dependsOn(nonAndroidMain)
+
+        create("nonAndroidTest").dependsOn(commonTest)
+        desktopTest.dependsOn(nonAndroidTest)
+        nativeTest.dependsOn(nonAndroidTest)
+        webTest.dependsOn(nonAndroidTest)
     }
 }
 
