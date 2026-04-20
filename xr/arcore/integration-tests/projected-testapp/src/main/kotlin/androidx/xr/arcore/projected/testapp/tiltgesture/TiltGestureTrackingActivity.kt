@@ -43,6 +43,8 @@ import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
+import androidx.xr.projected.ProjectedContext
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.PreviewSpatialApi
@@ -119,10 +121,12 @@ class TiltGestureTrackingActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(PreviewSpatialApi::class)
+    @OptIn(PreviewSpatialApi::class, ExperimentalProjectedApi::class)
     private fun tryCreateSession() {
         Log.i(TAG, "Session.create($this)")
-        when (val result = Session.create(this)) {
+        val projectedContext =
+            ProjectedContext.createProjectedDeviceContext(this.applicationContext)
+        when (val result = Session.create(projectedContext, this)) {
             is SessionCreateSuccess -> {
                 session = result.session
                 try {
