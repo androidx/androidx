@@ -18,7 +18,7 @@ package androidx.xr.arcore.playservices
 
 import android.media.Image
 import androidx.annotation.RestrictTo
-import androidx.xr.arcore.runtime.DepthMap
+import androidx.xr.arcore.runtime.Depth
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.math.IntSize2d
 import com.google.ar.core.Frame
@@ -30,17 +30,17 @@ import java.util.LinkedList
 import java.util.Queue
 
 /**
- * Provides depth map data from ARCore through the [DepthMap] interface.
+ * Provides depth data from ARCore through the [Depth] interface.
  *
- * @property width the width of the depth map
- * @property height the height of the depth map
+ * @property width the width of the depth maps
+ * @property height the height of the depth maps
  * @property rawDepthMap the raw depth map
  * @property rawConfidenceMap the raw confidence map
  * @property smoothDepthMap the smooth depth map
  * @property smoothConfidenceMap the smooth confidence map
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ArCoreDepthMap internal constructor() : DepthMap {
+public class ArCoreDepth internal constructor() : Depth {
     override val width: Int
         get() = resolution.width
 

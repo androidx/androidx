@@ -43,7 +43,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
-class DepthMapTest {
+class DepthTest {
     @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
 
     private lateinit var activityController: ActivityController<ComponentActivity>
@@ -84,7 +84,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.leftDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.left(session)!!
+            val underTest = Depth.left(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(0)
             assertThat(underTest.state.value.height).isEqualTo(0)
@@ -101,7 +101,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.rightDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.right(session)!!
+            val underTest = Depth.right(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(0)
             assertThat(underTest.state.value.height).isEqualTo(0)
@@ -118,7 +118,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.monoDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.mono(session)!!
+            val underTest = Depth.mono(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(0)
             assertThat(underTest.state.value.height).isEqualTo(0)
@@ -137,7 +137,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.leftDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.left(session)!!
+            val underTest = Depth.left(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
             assertThat(underTest.state.value.height).isEqualTo(expectedHeight)
@@ -158,7 +158,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.leftDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.left(session)!!
+            val underTest = Depth.left(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
             assertThat(underTest.state.value.height).isEqualTo(expectedHeight)
@@ -179,7 +179,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.leftDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.left(session)!!
+            val underTest = Depth.left(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
             assertThat(underTest.state.value.height).isEqualTo(expectedHeight)
@@ -201,7 +201,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.rightDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.right(session)!!
+            val underTest = Depth.right(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
             assertThat(underTest.state.value.height).isEqualTo(expectedHeight)
@@ -222,7 +222,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.rightDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.right(session)!!
+            val underTest = Depth.right(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
             assertThat(underTest.state.value.height).isEqualTo(expectedHeight)
@@ -243,7 +243,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.rightDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.right(session)!!
+            val underTest = Depth.right(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
             assertThat(underTest.state.value.height).isEqualTo(expectedHeight)
@@ -265,7 +265,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.monoDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.mono(session)!!
+            val underTest = Depth.mono(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
             assertThat(underTest.state.value.height).isEqualTo(expectedHeight)
@@ -286,7 +286,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.monoDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.mono(session)!!
+            val underTest = Depth.mono(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
             assertThat(underTest.state.value.height).isEqualTo(expectedHeight)
@@ -307,7 +307,7 @@ class DepthMapTest {
             applyExpectedValues(arCoreTestRule.monoDepth)
             advanceUntilIdle()
 
-            val underTest = DepthMap.mono(session)!!
+            val underTest = Depth.mono(session)!!
 
             assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
             assertThat(underTest.state.value.height).isEqualTo(expectedHeight)

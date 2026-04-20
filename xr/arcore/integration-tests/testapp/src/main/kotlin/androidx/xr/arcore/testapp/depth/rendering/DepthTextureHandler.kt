@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.arcore.testapp.depthmaps.rendering
+package androidx.xr.arcore.testapp.depth.rendering
 
 import android.opengl.GLES20.GL_CLAMP_TO_EDGE
 import android.opengl.GLES20.GL_FLOAT
@@ -30,8 +30,8 @@ import android.opengl.GLES20.glTexImage2D
 import android.opengl.GLES20.glTexParameteri
 import android.opengl.GLES30.GL_R32F
 import android.opengl.GLES30.GL_RED
-import androidx.xr.arcore.DepthMap
-import androidx.xr.arcore.testapp.depthmaps.DepthMode
+import androidx.xr.arcore.Depth
+import androidx.xr.arcore.testapp.depth.DepthMode
 
 class DepthTextureHandler {
 
@@ -53,20 +53,20 @@ class DepthTextureHandler {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
     }
 
-    public fun updateDepthTexture(depthMapState: DepthMap.State, depthMode: DepthMode) {
+    public fun updateDepthTexture(depthState: Depth.State, depthMode: DepthMode) {
         glBindTexture(GL_TEXTURE_2D, depthTextureId)
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
             GL_R32F,
-            depthMapState.width,
-            depthMapState.height,
+            depthState.width,
+            depthState.height,
             0,
             GL_RED,
             GL_FLOAT,
             when (depthMode) {
-                DepthMode.RAW -> depthMapState.rawDepthMap
-                DepthMode.SMOOTH -> depthMapState.smoothDepthMap
+                DepthMode.RAW -> depthState.rawDepthMap
+                DepthMode.SMOOTH -> depthState.smoothDepthMap
             },
         )
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.arcore.apps.whitebox.mobile.depthmaps
+package androidx.xr.arcore.apps.whitebox.mobile.depth
 
 import android.opengl.EGL14
 import android.opengl.GLES11Ext
@@ -51,7 +51,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.opengl.EGLExt
 import androidx.opengl.EGLImageKHR
-import androidx.xr.arcore.DepthMap
+import androidx.xr.arcore.Depth
 import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.apps.whitebox.mobile.common.ArCoreVerificationHelper
 import androidx.xr.arcore.apps.whitebox.mobile.common.SessionLifecycleHelper
@@ -80,7 +80,7 @@ enum class DepthMode {
     SMOOTH,
 }
 
-class DepthMapsActivity :
+class DepthActivity :
     ComponentActivity(), DefaultLifecycleObserver, SampleRender.Companion.Renderer {
     private lateinit var session: Session
     private lateinit var sessionHelper: SessionLifecycleHelper
@@ -164,14 +164,14 @@ class DepthMapsActivity :
         runBlocking {
             configurationMutex.withLock {
                 var floatBuffer: FloatBuffer? = null
-                var currentDepthMap: DepthMap? = null
+                var currentDepthData: Depth? = null
                 try {
-                    currentDepthMap = DepthMap.mono(session)
-                    if (currentDepthMap != null) {
+                    currentDepthData = Depth.mono(session)
+                    if (currentDepthData != null) {
                         floatBuffer =
                             if (selectedDepthMode == DepthMode.RAW)
-                                currentDepthMap!!.state.value.rawDepthMap
-                            else currentDepthMap!!.state.value.smoothDepthMap
+                                currentDepthData!!.state.value.rawDepthMap
+                            else currentDepthData!!.state.value.smoothDepthMap
                     }
                     backgroundRenderer.apply {
                         val useDepthVisualization = floatBuffer != null
@@ -180,8 +180,8 @@ class DepthMapsActivity :
 
                         if (useDepthVisualization) {
                             updateCameraDepthTexture(
-                                currentDepthMap!!.state.value.width,
-                                currentDepthMap!!.state.value.height,
+                                currentDepthData!!.state.value.width,
+                                currentDepthData!!.state.value.height,
                                 floatBuffer,
                             )
                         }
@@ -314,6 +314,6 @@ class DepthMapsActivity :
     }
 
     companion object {
-        const val ACTIVITY_NAME = "DepthMapsActivity"
+        const val ACTIVITY_NAME = "DepthActivity"
     }
 }

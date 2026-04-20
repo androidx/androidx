@@ -52,8 +52,8 @@ internal class XrResources(timeSource: OpenXrTimeSource) {
     /** The data of Geospatial */
     val geospatial: OpenXrGeospatial = OpenXrGeospatial(this, timeSource)
 
-    val leftDepthMap: OpenXrDepthMap
-    val rightDepthMap: OpenXrDepthMap
+    val leftDepth: OpenXrDepth
+    val rightDepth: OpenXrDepth
 
     init {
         this.leftEye = OpenXrEye()
@@ -63,8 +63,8 @@ internal class XrResources(timeSource: OpenXrTimeSource) {
         this.arDevice = OpenXrDevice()
         this.leftRenderViewpoint = OpenXrRenderViewpoint()
         this.rightRenderViewpoint = OpenXrRenderViewpoint()
-        this.leftDepthMap = OpenXrDepthMap(/* viewIndex= */ 0)
-        this.rightDepthMap = OpenXrDepthMap(/* viewIndex= */ 1)
+        this.leftDepth = OpenXrDepth(/* viewIndex= */ 0)
+        this.rightDepth = OpenXrDepth(/* viewIndex= */ 1)
         this.userFace = OpenXrFace()
     }
 

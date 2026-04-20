@@ -16,7 +16,7 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.xr.arcore.runtime.DepthMap
+import androidx.xr.arcore.runtime.Depth
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.math.IntSize2d
 import java.nio.ByteBuffer
@@ -24,16 +24,16 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
 /**
- * Wraps a native `XrDepthSwapchainImageANDROID` with the [DepthMap] interface.
+ * Wraps a native `XrDepthSwapchainImageANDROID` with the [Depth] interface.
  *
- * @property width the width of the depth map
- * @property height the height of the depth map
+ * @property width the width of the depth maps
+ * @property height the height of the depth maps
  * @property rawDepthMap the raw depth map
  * @property rawConfidenceMap the raw confidence map
  * @property smoothDepthMap the smooth depth map
  * @property smoothConfidenceMap the smooth confidence map
  */
-internal class OpenXrDepthMap internal constructor(private val viewIndex: Int) : DepthMap {
+internal class OpenXrDepth internal constructor(private val viewIndex: Int) : Depth {
 
     override val width: Int
         get() = resolution.width

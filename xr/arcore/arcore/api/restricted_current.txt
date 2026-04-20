@@ -168,31 +168,31 @@ package androidx.xr.arcore {
     property public androidx.xr.runtime.math.Pose pose;
   }
 
-  public final class DepthMap {
-    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.DepthMap.State> getState();
-    method public static androidx.xr.arcore.DepthMap? left(androidx.xr.runtime.Session session);
-    method public static androidx.xr.arcore.DepthMap? mono(androidx.xr.runtime.Session session);
-    method public static androidx.xr.arcore.DepthMap? right(androidx.xr.runtime.Session session);
-    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.DepthMap.State> state;
-    field public static final androidx.xr.arcore.DepthMap.Companion Companion;
+  public final class Depth {
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Depth.State> getState();
+    method public static androidx.xr.arcore.Depth? left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Depth? mono(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Depth? right(androidx.xr.runtime.Session session);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Depth.State> state;
+    field public static final androidx.xr.arcore.Depth.Companion Companion;
   }
 
-  public static final class DepthMap.Companion {
-    method public androidx.xr.arcore.DepthMap? left(androidx.xr.runtime.Session session);
-    method public androidx.xr.arcore.DepthMap? mono(androidx.xr.runtime.Session session);
-    method public androidx.xr.arcore.DepthMap? right(androidx.xr.runtime.Session session);
+  public static final class Depth.Companion {
+    method public androidx.xr.arcore.Depth? left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Depth? mono(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Depth? right(androidx.xr.runtime.Session session);
   }
 
-  public static final class DepthMap.State {
+  public static final class Depth.State {
     method @InaccessibleFromKotlin public int getHeight();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.DepthMap getOwner();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Depth getOwner();
     method @InaccessibleFromKotlin public java.nio.ByteBuffer? getRawConfidenceMap();
     method @InaccessibleFromKotlin public java.nio.FloatBuffer? getRawDepthMap();
     method @InaccessibleFromKotlin public java.nio.ByteBuffer? getSmoothConfidenceMap();
     method @InaccessibleFromKotlin public java.nio.FloatBuffer? getSmoothDepthMap();
     method @InaccessibleFromKotlin public int getWidth();
     property public int height;
-    property public androidx.xr.arcore.DepthMap owner;
+    property public androidx.xr.arcore.Depth owner;
     property public java.nio.ByteBuffer? rawConfidenceMap;
     property public java.nio.FloatBuffer? rawDepthMap;
     property public java.nio.ByteBuffer? smoothConfidenceMap;
@@ -557,13 +557,13 @@ package androidx.xr.arcore {
 
   public final class PerceptionState {
     method @InaccessibleFromKotlin public androidx.xr.arcore.ArDevice.State getArDeviceState();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.DepthMap.State? getLeftDepthMapState();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Depth.State? getLeftDepthState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Eye.State? getLeftEyeState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Hand.State? getLeftHandState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.RenderViewpoint.State? getLeftRenderViewpointState();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.DepthMap.State? getMonoDepthMapState();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Depth.State? getMonoDepthState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.RenderViewpoint.State? getMonoRenderViewpointState();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.DepthMap.State? getRightDepthMapState();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Depth.State? getRightDepthState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Eye.State? getRightEyeState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Hand.State? getRightHandState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.RenderViewpoint.State? getRightRenderViewpointState();
@@ -571,13 +571,13 @@ package androidx.xr.arcore {
     method @InaccessibleFromKotlin public java.util.Collection<androidx.xr.arcore.Trackable.State> getTrackableStates();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Face.State? getUserFaceState();
     property public androidx.xr.arcore.ArDevice.State arDeviceState;
-    property public androidx.xr.arcore.DepthMap.State? leftDepthMapState;
+    property public androidx.xr.arcore.Depth.State? leftDepthState;
     property public androidx.xr.arcore.Eye.State? leftEyeState;
     property public androidx.xr.arcore.Hand.State? leftHandState;
     property public androidx.xr.arcore.RenderViewpoint.State? leftRenderViewpointState;
-    property public androidx.xr.arcore.DepthMap.State? monoDepthMapState;
+    property public androidx.xr.arcore.Depth.State? monoDepthState;
     property public androidx.xr.arcore.RenderViewpoint.State? monoRenderViewpointState;
-    property public androidx.xr.arcore.DepthMap.State? rightDepthMapState;
+    property public androidx.xr.arcore.Depth.State? rightDepthState;
     property public androidx.xr.arcore.Eye.State? rightEyeState;
     property public androidx.xr.arcore.Hand.State? rightHandState;
     property public androidx.xr.arcore.RenderViewpoint.State? rightRenderViewpointState;

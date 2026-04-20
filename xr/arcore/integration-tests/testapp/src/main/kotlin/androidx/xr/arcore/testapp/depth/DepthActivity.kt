@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.arcore.testapp.depthmaps
+package androidx.xr.arcore.testapp.depth
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
@@ -43,8 +43,8 @@ import androidx.xr.arcore.PerceptionState
 import androidx.xr.arcore.perceptionState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
-import androidx.xr.arcore.testapp.depthmaps.rendering.DepthMapRenderer
-import androidx.xr.arcore.testapp.depthmaps.rendering.DepthTextureHandler
+import androidx.xr.arcore.testapp.depth.rendering.DepthRenderer
+import androidx.xr.arcore.testapp.depth.rendering.DepthTextureHandler
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterOffsetType
@@ -73,15 +73,15 @@ enum class ViewSelection {
     RIGHT,
 }
 
-/** Sample that demonstrates usage of depth map data provided by JXR ARCore API. */
-class DepthMapActivity : ComponentActivity(), GLSurfaceView.Renderer {
+/** Sample that demonstrates usage of depth data provided by JXR ARCore API. */
+class DepthActivity : ComponentActivity(), GLSurfaceView.Renderer {
 
     private lateinit var session: Session
     private lateinit var sessionHelper: SessionLifecycleHelper
 
     private lateinit var surfaceView: GLSurfaceView
     private val depthTexture: DepthTextureHandler = DepthTextureHandler()
-    private val depthMapRenderer: DepthMapRenderer = DepthMapRenderer()
+    private val depthRenderer: DepthRenderer = DepthRenderer()
     private var selectedDepthMode by mutableStateOf(DepthMode.RAW)
     private var selectedView by mutableStateOf(ViewSelection.LEFT)
     private val rawConfig =
@@ -148,8 +148,8 @@ class DepthMapActivity : ComponentActivity(), GLSurfaceView.Renderer {
         // Prepare the rendering objects. This involves reading shaders, so may throw an exception.
         try {
             depthTexture.createOnGlThread()
-            depthMapRenderer.createDepthGradientTexture(/* context= */ this)
-            depthMapRenderer.createDepthShaders(/* context= */ this, depthTexture.depthTextureId)
+            depthRenderer.createDepthGradientTexture(/* context= */ this)
+            depthRenderer.createDepthShaders(/* context= */ this, depthTexture.depthTextureId)
         } catch (e: Exception) {
             Log.e("JetpackXR", "Failed to read an asset file", e)
         }
@@ -165,16 +165,16 @@ class DepthMapActivity : ComponentActivity(), GLSurfaceView.Renderer {
             configurationMutex.withLock {
                 val perceptionState: PerceptionState? = session.state.value.perceptionState
                 if (perceptionState != null) {
-                    val depthMap =
+                    val currentDepthState =
                         when (selectedView) {
                             ViewSelection.LEFT ->
-                                session.state.value.perceptionState!!.leftDepthMapState
+                                session.state.value.perceptionState!!.leftDepthState
                             ViewSelection.RIGHT ->
-                                session.state.value.perceptionState!!.rightDepthMapState
+                                session.state.value.perceptionState!!.rightDepthState
                         }
-                    if (depthMap != null) {
-                        depthTexture.updateDepthTexture(depthMap, selectedDepthMode)
-                        depthMapRenderer.drawDepth()
+                    if (currentDepthState != null) {
+                        depthTexture.updateDepthTexture(currentDepthState, selectedDepthMode)
+                        depthRenderer.drawDepth()
                     }
                 }
             }
@@ -259,6 +259,6 @@ class DepthMapActivity : ComponentActivity(), GLSurfaceView.Renderer {
     }
 
     companion object {
-        private const val TAG: String = "DepthMapActivity"
+        private const val TAG: String = "DepthActivity"
     }
 }

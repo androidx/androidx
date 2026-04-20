@@ -70,9 +70,9 @@
         android:label="Persistent Anchors"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
     <activity
-        android:name=".depthmaps.DepthMapActivity"
+        android:name=".depth.DepthActivity"
         android:exported="true"
-        android:label="Depth Maps"
+        android:label="Depth"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
     <activity
         android:name=".eyetracking.EyeTrackingActivity"

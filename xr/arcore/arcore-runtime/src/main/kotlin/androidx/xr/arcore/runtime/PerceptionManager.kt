@@ -38,9 +38,9 @@ import java.util.UUID
  * @property rightRenderViewpoint the right [RenderViewpoint], or null if not available
  * @property monoRenderViewpoint the mono [RenderViewpoint], or null if not available
  * @property geospatial the [Geospatial] instance
- * @property leftDepthMap the left [DepthMap], or null if not available
- * @property rightDepthMap the right [DepthMap], or null if not available
- * @property monoDepthMap the mono [DepthMap], or null if not available
+ * @property leftDepth the left [Depth], or null if not available
+ * @property rightDepth the right [Depth], or null if not available
+ * @property monoDepth the mono [Depth], or null if not available
  * @property userFace the user's [Face], or null if not available
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -109,9 +109,9 @@ public interface PerceptionManager {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val monoRenderViewpoint: RenderViewpoint?
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val geospatial: Geospatial
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val leftDepthMap: DepthMap?
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val rightDepthMap: DepthMap?
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val monoDepthMap: DepthMap?
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val leftDepth: Depth?
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val rightDepth: Depth?
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val monoDepth: Depth?
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val userFace: Face?
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val conversationSceneSignal: ConversationState?

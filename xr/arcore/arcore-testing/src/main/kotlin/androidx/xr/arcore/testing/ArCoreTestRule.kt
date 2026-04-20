@@ -22,7 +22,7 @@ import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.internal.FakeRuntimeAnchor
 import androidx.xr.arcore.testing.internal.FakeRuntimeConversationState
-import androidx.xr.arcore.testing.internal.FakeRuntimeDepthMap
+import androidx.xr.arcore.testing.internal.FakeRuntimeDepth
 import androidx.xr.arcore.testing.internal.FakeRuntimeEye
 import androidx.xr.arcore.testing.internal.FakeRuntimeHand
 import androidx.xr.arcore.testing.internal.FakeRuntimeRenderViewpoint
@@ -169,19 +169,19 @@ public class ArCoreTestRule : ExternalResource() {
         )
     }
 
-    /** A test representation of the device's left [androidx.xr.arcore.DepthMap] data. */
+    /** A test representation of the device's left [androidx.xr.arcore.Depth] data. */
     public val leftDepth: TestDepth by lazy {
-        TestDepth(this, runtime.perceptionManager.leftDepthMap as FakeRuntimeDepthMap)
+        TestDepth(this, runtime.perceptionManager.leftDepth as FakeRuntimeDepth)
     }
 
-    /** A test representation of the device's right [androidx.xr.arcore.DepthMap] data. */
+    /** A test representation of the device's right [androidx.xr.arcore.Depth] data. */
     public val rightDepth: TestDepth by lazy {
-        TestDepth(this, runtime.perceptionManager.rightDepthMap as FakeRuntimeDepthMap)
+        TestDepth(this, runtime.perceptionManager.rightDepth as FakeRuntimeDepth)
     }
 
-    /** A test representation of the device's mono [androidx.xr.arcore.DepthMap] data. */
+    /** A test representation of the device's mono [androidx.xr.arcore.Depth] data. */
     public val monoDepth: TestDepth by lazy {
-        TestDepth(this, runtime.perceptionManager.monoDepthMap as FakeRuntimeDepthMap)
+        TestDepth(this, runtime.perceptionManager.monoDepth as FakeRuntimeDepth)
     }
 
     /** A test representation of the device's Conversation Scene Signal. */

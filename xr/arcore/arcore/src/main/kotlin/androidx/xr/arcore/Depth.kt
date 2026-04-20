@@ -16,7 +16,8 @@
 
 package androidx.xr.arcore
 
-import androidx.xr.arcore.runtime.DepthMap as RuntimeDepthMap
+import androidx.xr.arcore.runtime.Depth as RuntimeDepth
+import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.Session
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
@@ -25,50 +26,57 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Contains the depth map information corresponding to a specific [RenderViewpoint].
+ * Contains the depth information corresponding to a specific [RenderViewpoint].
  *
- * @property state the current [State] of the depth map
+ * The availability of depth data depends on the [DepthEstimationMode] set in [Session.config],
+ * which also allows it to be turned off by setting it to [DepthEstimationMode.DISABLED].
+ *
+ * Update frequency and the dimensions of the maps provided are system-defined. The buffer
+ * lifecycles are controlled by the runtime so if the data will not be used upon receiving, a copy
+ * should be made.
+ *
+ * @property state the current [State] of the depth data.
  */
 @SuppressWarnings("HiddenSuperclass")
-public class DepthMap internal constructor(internal val runtimeDepthMap: RuntimeDepthMap) :
-    Updatable() {
+public class Depth internal constructor(internal val runtimeDepth: RuntimeDepth) : Updatable() {
     public companion object {
         /**
-         * Returns the DepthMap associated with the left display.
+         * Returns the Depth data associated with the left display depending on the
+         * [DepthEstimationMode] set in [Session.config].
          *
          * @param session the currently active [Session]
          * @note Supported only on devices that use stereo displays for rendering.
          */
         @JvmStatic
-        public fun left(session: Session): DepthMap? {
-            val perceptionStateExtender = DepthMap.Companion.getPerceptionStateExtender(session)
-            return perceptionStateExtender.xrResourcesManager.leftDepthMap
+        public fun left(session: Session): Depth? {
+            val perceptionStateExtender = Depth.Companion.getPerceptionStateExtender(session)
+            return perceptionStateExtender.xrResourcesManager.leftDepth
         }
 
         /**
-         * Returns the DepthMap associated with the right display.
+         * Returns the Depth data associated with the right display depending on the
+         * [DepthEstimationMode] set in [Session.config].
          *
          * @param session the currently active [Session]
          * @note Supported only on devices that use stereo displays for rendering.
          */
         @JvmStatic
-        public fun right(session: Session): DepthMap? {
-            val perceptionStateExtender = DepthMap.Companion.getPerceptionStateExtender(session)
-            return perceptionStateExtender.xrResourcesManager.rightDepthMap
+        public fun right(session: Session): Depth? {
+            val perceptionStateExtender = Depth.Companion.getPerceptionStateExtender(session)
+            return perceptionStateExtender.xrResourcesManager.rightDepth
         }
 
         /**
-         * Returns the DepthMap associated with the single device display.
+         * Returns the Depth associated with the single device display depending on the
+         * [DepthEstimationMode] set in [Session.config].
          *
          * @param session the currently active [Session]
-         * @note When the device uses a single display, this will return the depth map for that
-         *   display. When the device uses stereo displays, this will return the depth map for the
-         *   center of the two displays.
+         * @note Supported only on devices that use a monocular display for rendering.
          */
         @JvmStatic
-        public fun mono(session: Session): DepthMap? {
-            val perceptionStateExtender = DepthMap.Companion.getPerceptionStateExtender(session)
-            return perceptionStateExtender.xrResourcesManager.monoDepthMap
+        public fun mono(session: Session): Depth? {
+            val perceptionStateExtender = Depth.Companion.getPerceptionStateExtender(session)
+            return perceptionStateExtender.xrResourcesManager.monoDepth
         }
 
         // TODO(b/421240554): Combine getPerceptionStateExtender in different classes.
@@ -83,8 +91,8 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
     /**
      * Contains the current state of depth tracking.
      *
-     * @property width the width of the depth map
-     * @property height the height of the depth map
+     * @property width the width of the depth maps
+     * @property height the height of the depth maps
      * @property rawDepthMap a buffer of size [width] x [height] representing raw depth in meters
      *   from the image plane, with both row and pixel stride equal to 0
      * @property rawConfidenceMap a buffer of confidence values for each pixel in [rawDepthMap],
@@ -104,11 +112,11 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
         public val rawConfidenceMap: ByteBuffer?,
         public val smoothDepthMap: FloatBuffer?,
         public val smoothConfidenceMap: ByteBuffer?,
-        public val owner: DepthMap,
+        public val owner: Depth,
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other !is androidx.xr.arcore.DepthMap.State) return false
+            if (other !is androidx.xr.arcore.Depth.State) return false
             return width == other.width &&
                 height == other.height &&
                 rawDepthMap == other.rawDepthMap &&
@@ -143,17 +151,17 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
             )
         )
 
-    public val state: StateFlow<DepthMap.State> = _state.asStateFlow()
+    public val state: StateFlow<Depth.State> = _state.asStateFlow()
 
     override suspend fun update() {
         _state.emit(
             State(
-                width = runtimeDepthMap.width,
-                height = runtimeDepthMap.height,
-                rawDepthMap = runtimeDepthMap.rawDepthMap,
-                rawConfidenceMap = runtimeDepthMap.rawConfidenceMap,
-                smoothDepthMap = runtimeDepthMap.smoothDepthMap,
-                smoothConfidenceMap = runtimeDepthMap.smoothConfidenceMap,
+                width = runtimeDepth.width,
+                height = runtimeDepth.height,
+                rawDepthMap = runtimeDepth.rawDepthMap,
+                rawConfidenceMap = runtimeDepth.rawConfidenceMap,
+                smoothDepthMap = runtimeDepth.smoothDepthMap,
+                smoothConfidenceMap = runtimeDepth.smoothConfidenceMap,
                 owner = this,
             )
         )
