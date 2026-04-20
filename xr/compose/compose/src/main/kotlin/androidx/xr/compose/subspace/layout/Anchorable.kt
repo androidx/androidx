@@ -179,9 +179,6 @@ internal class AnchorableNode(
 
     /** Updates the anchorable state of this CoreEntity. */
     private fun updateAnchorableState() {
-        if (coreEntity !is MovableCoreEntity) {
-            return
-        }
         // Enabled is on the Node. It means "should be enabled" for the Component.
         if (enabled && component == null) {
             enableAnchorableComponent()

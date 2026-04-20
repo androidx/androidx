@@ -192,9 +192,6 @@ internal class ResizableNode(
 
     /** Updates the resizable state of this CoreEntity. */
     private fun updateState() {
-        if (coreEntity !is ResizableCoreEntity) {
-            return
-        }
         // Enabled is on the Node. It means "should be enabled" for the Component.
         if (enabled) {
             enableAndUpdateComponent()
