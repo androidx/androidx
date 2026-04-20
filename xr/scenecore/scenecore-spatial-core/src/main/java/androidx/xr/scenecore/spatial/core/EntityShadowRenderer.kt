@@ -19,8 +19,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.RectF
 import android.view.View
 import androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion
 import androidx.xr.runtime.math.FloatSize2d
@@ -98,7 +99,11 @@ internal class EntityShadowRendererImpl(
 
         panelEntity?.let { panel ->
             panel.size =
-                Dimensions(shadowDim.width + marginInMeters, shadowDim.height + marginInMeters, 0f)
+                Dimensions(
+                    width = (shadowDim.width + marginInMeters) * SHADOW_SIZE_ADDED_MARGIN,
+                    height = (shadowDim.height + marginInMeters) * SHADOW_SIZE_ADDED_MARGIN,
+                    depth = 0f,
+                )
             panel.setPose(panelPoseInActivitySpace)
             panel.setHidden(false)
             isVisible = true
@@ -140,28 +145,44 @@ internal class EntityShadowRendererImpl(
     private class EntityShadowView(context: Context) : View(context) {
         override fun onDrawForeground(canvas: Canvas) {
             super.onDrawForeground(canvas)
-            val border = Path()
-            border.addRoundRect(
-                HALF_STROKE_WIDTH,
-                HALF_STROKE_WIDTH,
-                canvas.width - HALF_STROKE_WIDTH,
-                canvas.height - HALF_STROKE_WIDTH,
-                CORNER_RADIUS,
-                CORNER_RADIUS,
-                Path.Direction.CW,
-            )
-            val paint = Paint()
-            paint.setColor(-0xab9c61)
-            paint.style = Paint.Style.STROKE
-            paint.strokeWidth = STROKE_WIDTH
-            canvas.drawPath(border, paint)
+            val fillPaint =
+                Paint().apply {
+                    color = Color.parseColor(SHADOW_COLOR_HEX)
+                    alpha = FILL_ALPHA
+                    style = Paint.Style.FILL
+                    isAntiAlias = true
+                }
+
+            val rectF =
+                RectF(
+                    HALF_STROKE_WIDTH,
+                    HALF_STROKE_WIDTH,
+                    canvas.width - HALF_STROKE_WIDTH,
+                    canvas.height - HALF_STROKE_WIDTH,
+                )
+            canvas.drawRoundRect(rectF, CORNER_RADIUS, CORNER_RADIUS, fillPaint)
+
+            val borderPaint =
+                Paint().apply {
+                    color = Color.parseColor(SHADOW_COLOR_HEX)
+                    alpha = BORDER_ALPHA
+                    style = Paint.Style.STROKE
+                    strokeWidth = STROKE_WIDTH
+                    isAntiAlias = true
+                }
+            canvas.drawRoundRect(rectF, CORNER_RADIUS, CORNER_RADIUS, borderPaint)
         }
     }
 
-    companion object {
+    private companion object {
         private const val STROKE_WIDTH = 20f
         private const val HALF_STROKE_WIDTH = STROKE_WIDTH / 2
         private const val CORNER_RADIUS = 20f
         private const val PANEL_BORDER_ADDED_MARGIN = 50f
+        private const val SHADOW_SIZE_ADDED_MARGIN = 1.2f
+        private const val SHADOW_COLOR_HEX = "#9ECAFF"
+
+        private const val FILL_ALPHA = 150
+        private const val BORDER_ALPHA = 180
     }
 }
