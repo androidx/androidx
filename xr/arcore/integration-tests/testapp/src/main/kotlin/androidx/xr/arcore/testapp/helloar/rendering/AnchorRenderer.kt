@@ -18,6 +18,7 @@
 package androidx.xr.arcore.testapp.helloar.rendering
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -30,7 +31,6 @@ import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.hitTest
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
@@ -120,9 +120,11 @@ internal class AnchorRenderer(
                                             )
                                         }
                                         is AnchorCreateResourcesExhausted -> {
-                                            XrLog.error {
-                                                "Failed to create anchor: anchor resources exhausted."
-                                            }
+                                            Log.e(
+                                                "JetpackXR",
+                                                "Failed to create anchor: anchor resources exhausted.",
+                                                null,
+                                            )
                                             Toast.makeText(
                                                     activity,
                                                     "Anchor limit has been reached.",
@@ -131,9 +133,11 @@ internal class AnchorRenderer(
                                                 .show()
                                         }
                                         else -> {
-                                            XrLog.error {
-                                                "Failed to create anchor: ${anchorResult::class.simpleName}"
-                                            }
+                                            Log.e(
+                                                "JetpackXR",
+                                                "Failed to create anchor: ${anchorResult::class.simpleName}",
+                                                null,
+                                            )
                                             Toast.makeText(
                                                     activity,
                                                     "Anchor failed to create.",

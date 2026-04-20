@@ -30,7 +30,8 @@ import androidx.xr.scenecore.runtime.impl.BaseEntity
 import java.util.concurrent.Executor
 
 /** Implementation of a RealityCore Entity that logs its function calls. */
-// TODO: b/441103135 - Revaluate existence of LoggingEntity.
+// TODO: b/441103135 - Revaluate existence of LoggingEntity. See b/498318910.
+@Suppress("RestrictedApiAndroidX")
 internal class LoggingEntityImpl(context: Context) : BaseEntity(context), LoggingEntity {
 
     init {

@@ -335,6 +335,7 @@ internal class OpenXrRuntime(
         }
     }
 
+    @Suppress("RestrictedApiAndroidX")
     private fun setAuthentication(context: Context) {
         var apiKey: String? = null
         try {
@@ -362,9 +363,11 @@ internal class OpenXrRuntime(
         }
 
         if (apiKey == null) {
+            // TODO: b/498318910 - Replace logging with bespoke API to communicate this
             XrLog.verbose("No API Key provided, using keyless authentication.")
             nativeSetKeylessAuth()
         } else {
+            // TODO: b/498318910 - Replace logging with bespoke API to communicate this
             XrLog.verbose("Using provided API Key.")
             nativeSetApiKeyAuth(apiKey)
         }

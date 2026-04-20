@@ -24,6 +24,7 @@ import kotlin.coroutines.CoroutineContext
 
 /** Factory for creating instances of [OpenXrRuntime]. */
 internal class OpenXrRuntimeFactory() : PerceptionRuntimeFactory {
+    @Suppress("RestrictedApiAndroidX")
     companion object {
         private const val LIBRARY_NAME: String = "androidx.xr.arcore.openxr"
 
@@ -31,7 +32,9 @@ internal class OpenXrRuntimeFactory() : PerceptionRuntimeFactory {
             try {
                 System.loadLibrary(LIBRARY_NAME)
             } catch (e: UnsatisfiedLinkError) {
-                XrLog.error(e) { "Failed to load library $LIBRARY_NAME" }
+                XrLog.warn(e) {
+                    "Library $LIBRARY_NAME was not loaded. OpenXrRuntime will not be created."
+                }
             }
         }
     }

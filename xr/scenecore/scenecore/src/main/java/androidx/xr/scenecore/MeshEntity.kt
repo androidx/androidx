@@ -114,6 +114,7 @@ private constructor(
         @MainThread
         @JvmOverloads
         @JvmStatic
+        @Suppress("RestrictedApiAndroidX")
         public fun create(
             session: Session,
             mesh: CustomMesh,

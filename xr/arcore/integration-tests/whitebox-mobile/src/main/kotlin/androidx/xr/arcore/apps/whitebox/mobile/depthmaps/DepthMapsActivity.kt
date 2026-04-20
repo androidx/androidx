@@ -21,6 +21,7 @@ import android.opengl.GLES11Ext
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.util.Log
 import android.view.Surface
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -65,7 +66,6 @@ import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Matrix4
 import com.google.ar.core.exceptions.DeadlineExceededException
 import com.google.ar.core.exceptions.NotYetAvailableException
@@ -141,7 +141,7 @@ class DepthMapsActivity :
             backgroundRenderer = BackgroundRenderer(render)
             virtualSceneFramebuffer = Framebuffer(render, width = 1, height = 1)
         } catch (e: IOException) {
-            XrLog.error(e) { "Failed to create background renderer" }
+            Log.e("JetpackXR", "Failed to create background renderer", e)
             return
         }
     }
@@ -188,15 +188,19 @@ class DepthMapsActivity :
                     }
                     depthImageNotAvailable = false
                 } catch (e: IOException) {
-                    XrLog.error(e) { "Failed to read a required asset file" }
+                    Log.e("JetpackXR", "Failed to read a required asset file", e)
                 } catch (e: NotYetAvailableException) {
-                    XrLog.error(e) {
-                        "Depth image is not yet available, unable to retrieve depth map buffers."
-                    }
+                    Log.e(
+                        "JetpackXR",
+                        "Depth image is not yet available, unable to retrieve depth map buffers.",
+                        e,
+                    )
                 } catch (e: DeadlineExceededException) {
-                    XrLog.error(e) {
-                        "Depth image DeadlineExceededException, unable to retrieve depth map buffers."
-                    }
+                    Log.e(
+                        "JetpackXR",
+                        "Depth image DeadlineExceededException, unable to retrieve depth map buffers.",
+                        e,
+                    )
                 }
             }
         }

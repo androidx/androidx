@@ -45,6 +45,7 @@ internal class SpatialCoreXrExtensionsHolderProvider : XrExtensionsHolderProvide
     }
 
     // Lazy create the extensions instance.
+    @Suppress("RestrictedApiAndroidX")
     @SuppressLint("BanUncheckedReflection")
     private object InstanceHolder {
         val INSTANCE_LEGACY = XrExtensionsLegacy()

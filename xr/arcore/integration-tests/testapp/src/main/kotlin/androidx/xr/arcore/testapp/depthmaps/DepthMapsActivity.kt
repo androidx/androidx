@@ -19,6 +19,7 @@ package androidx.xr.arcore.testapp.depthmaps
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -56,7 +57,6 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.XrLog
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlinx.coroutines.runBlocking
@@ -151,7 +151,7 @@ class DepthMapActivity : ComponentActivity(), GLSurfaceView.Renderer {
             depthMapRenderer.createDepthGradientTexture(/* context= */ this)
             depthMapRenderer.createDepthShaders(/* context= */ this, depthTexture.depthTextureId)
         } catch (e: Exception) {
-            XrLog.error(e) { "Failed to read an asset file" }
+            Log.e("JetpackXR", "Failed to read an asset file", e)
         }
     }
 

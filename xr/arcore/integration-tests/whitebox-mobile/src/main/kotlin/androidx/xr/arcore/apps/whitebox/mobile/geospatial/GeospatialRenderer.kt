@@ -20,6 +20,7 @@ import android.opengl.EGL14
 import android.opengl.GLES11Ext
 import android.opengl.GLES30
 import android.opengl.Matrix
+import android.util.Log
 import android.view.Surface
 import androidx.opengl.EGLExt
 import androidx.opengl.EGLImageKHR
@@ -39,7 +40,6 @@ import androidx.xr.arcore.playservices.ExperimentalCameraApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import java.io.IOException
@@ -90,7 +90,7 @@ class GeospatialRenderer(private val session: Session, private val anchors: List
                     )
                     .setTexture("u_Texture", virtualObjectTexture)
         } catch (e: IOException) {
-            XrLog.error(e) { "Failed to create background renderer" }
+            Log.e("JetpackXR", "Failed to create background renderer", e)
             return
         }
     }
@@ -110,7 +110,7 @@ class GeospatialRenderer(private val session: Session, private val anchors: List
             backgroundRenderer.setUseDepthVisualization(render, false)
             backgroundRenderer.setUseOcclusion(render, false)
         } catch (e: IOException) {
-            XrLog.error(e) { "Failed to read a required asset file" }
+            Log.e("JetpackXR", "Failed to read a required asset file", e)
             return
         }
 

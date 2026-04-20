@@ -19,6 +19,7 @@ package androidx.xr.arcore.apps.whitebox.mobile.geospatial
 
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -74,7 +75,6 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
 import java.util.concurrent.CopyOnWriteArrayList
@@ -155,7 +155,7 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
     private fun createAnchorAtPose(pose: Pose) {
         val geospatial = Geospatial.getInstance(session)
         if (geospatial.state.value != GeospatialState.RUNNING) {
-            XrLog.error { "Failed to create anchor: Geospatial is not running." }
+            Log.e("JetpackXR", "Failed to create anchor: Geospatial is not running.")
             return
         }
 
@@ -177,12 +177,12 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
                     }
             }
             is CreateGeospatialPoseFromPoseNotTracking -> {
-                XrLog.error { "Failed to create anchor: Geospatial is not tracking." }
+                Log.e("JetpackXR", "Failed to create anchor: Geospatial is not tracking.")
             }
 
             is CreateGeospatialPoseFromPoseInternalError ->
-                XrLog.error { geospatialPoseResult.error }
-            else -> XrLog.error { "Failed to create anchor: Unknown error." }
+                Log.e("JetpackXR", geospatialPoseResult.error)
+            else -> Log.e("JetpackXR", "Failed to create anchor: Unknown error.")
         }
     }
 

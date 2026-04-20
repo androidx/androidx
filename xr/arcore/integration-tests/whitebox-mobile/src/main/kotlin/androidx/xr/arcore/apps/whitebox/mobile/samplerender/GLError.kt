@@ -19,10 +19,10 @@ package androidx.xr.arcore.apps.whitebox.mobile.samplerender
 import android.opengl.GLES30
 import android.opengl.GLException
 import android.opengl.GLU
+import android.util.Log
 import androidx.collection.IntList
 import androidx.collection.MutableIntList
 import androidx.collection.mutableIntListOf
-import androidx.xr.runtime.XrLog
 import java.util.Locale
 
 /** Methods for handling OpenGL errors. */
@@ -36,15 +36,15 @@ public fun maybeThrowGLException(reason: String, api: String) {
 }
 
 /** Logs a message with the given logcat priority if a GL error occurred. */
-public fun maybeLogGLError(level: XrLog.Level, reason: String, api: String) {
+public fun maybeLogGLError(level: Int, reason: String, api: String) {
     val errorCodes: IntList? = getGlErrors()
     if (errorCodes != null) {
         when (level) {
-            XrLog.Level.VERBOSE -> XrLog.verbose { formatErrorMessage(reason, api, errorCodes) }
-            XrLog.Level.DEBUG -> XrLog.debug { formatErrorMessage(reason, api, errorCodes) }
-            XrLog.Level.INFO -> XrLog.info { formatErrorMessage(reason, api, errorCodes) }
-            XrLog.Level.WARN -> XrLog.warn { formatErrorMessage(reason, api, errorCodes) }
-            XrLog.Level.ERROR -> XrLog.error { formatErrorMessage(reason, api, errorCodes) }
+            Log.VERBOSE -> Log.v("JetpackXR", formatErrorMessage(reason, api, errorCodes), null)
+            Log.DEBUG -> Log.d("JetpackXR", formatErrorMessage(reason, api, errorCodes), null)
+            Log.INFO -> Log.i("JetpackXR", formatErrorMessage(reason, api, errorCodes), null)
+            Log.WARN -> Log.w("JetpackXR", formatErrorMessage(reason, api, errorCodes), null)
+            Log.ERROR -> Log.e("JetpackXR", formatErrorMessage(reason, api, errorCodes))
         }
     }
 }

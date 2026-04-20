@@ -448,34 +448,6 @@ package androidx.xr.runtime {
     property @Deprecated public androidx.xr.runtime.XrDevice.DisplayBlendMode NO_DISPLAY;
   }
 
-  public final class XrLog {
-    method @InaccessibleFromKotlin public androidx.xr.runtime.XrLog.Level getLevel();
-    method @InaccessibleFromKotlin public boolean isEnabled();
-    method @InaccessibleFromKotlin public void setEnabled(boolean);
-    method @InaccessibleFromKotlin public void setLevel(androidx.xr.runtime.XrLog.Level);
-    property public boolean isEnabled;
-    property public androidx.xr.runtime.XrLog.Level level;
-    field public static final androidx.xr.runtime.XrLog INSTANCE;
-  }
-
-  public static final class XrLog.Level implements java.lang.Comparable<androidx.xr.runtime.XrLog.Level> {
-    method public int compareTo(androidx.xr.runtime.XrLog.Level other);
-    field public static final androidx.xr.runtime.XrLog.Level.Companion Companion;
-    field public static final androidx.xr.runtime.XrLog.Level DEBUG;
-    field public static final androidx.xr.runtime.XrLog.Level ERROR;
-    field public static final androidx.xr.runtime.XrLog.Level INFO;
-    field public static final androidx.xr.runtime.XrLog.Level VERBOSE;
-    field public static final androidx.xr.runtime.XrLog.Level WARN;
-  }
-
-  public static final class XrLog.Level.Companion {
-    property public androidx.xr.runtime.XrLog.Level DEBUG;
-    property public androidx.xr.runtime.XrLog.Level ERROR;
-    property public androidx.xr.runtime.XrLog.Level INFO;
-    property public androidx.xr.runtime.XrLog.Level VERBOSE;
-    property public androidx.xr.runtime.XrLog.Level WARN;
-  }
-
 }
 
 package androidx.xr.runtime.math {

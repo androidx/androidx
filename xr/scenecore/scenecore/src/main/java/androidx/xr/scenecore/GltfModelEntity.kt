@@ -156,6 +156,7 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
          *   scene graph and will not be visible until a parent is set. The default value is
          *   [Scene]'s [ActivitySpace].
          */
+        @Suppress("RestrictedApiAndroidX")
         internal fun create(
             sceneRuntime: SceneRuntime,
             renderingRuntime: RenderingRuntime,

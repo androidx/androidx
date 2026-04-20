@@ -587,6 +587,7 @@ private constructor(
          *   [Scene]'s [ActivitySpace].
          * @return a SurfaceEntity instance
          */
+        @Suppress("RestrictedApiAndroidX")
         internal fun create(
             session: Session,
             stereoMode: StereoMode = StereoMode.MONO,
