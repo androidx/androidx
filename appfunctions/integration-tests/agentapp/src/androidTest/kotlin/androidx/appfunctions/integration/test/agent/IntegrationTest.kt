@@ -83,7 +83,6 @@ import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
@@ -1451,7 +1450,6 @@ class IntegrationTest {
         }
 
     @Test
-    @Ignore("b/485613578 - Update Jetpack to use new API starting from Android C")
     fun executeAppFunction_getFilesData_validUriAccess() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val request =
@@ -1479,7 +1477,6 @@ class IntegrationTest {
     }
 
     @Test
-    @Ignore("b/485613578 - Update Jetpack to use new API starting from Android C")
     fun executeAppFunction_getFileData_persistUriGrantingShouldSucceed() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val request =

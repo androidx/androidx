@@ -50,6 +50,18 @@ public sealed interface ExecuteAppFunctionResponse {
         @RequiresApi(Build.VERSION_CODES.BAKLAVA)
         public fun toPlatformExecuteAppFunctionResponse():
             android.app.appfunctions.ExecuteAppFunctionResponse {
+            if (Build.VERSION.SDK_INT >= 37) {
+                val uriGrants = buildList {
+                    returnValue.visitAppFunctionUriGrants { uriGrant ->
+                        add(uriGrant.toPlatformClass())
+                    }
+                }
+                return android.app.appfunctions.ExecuteAppFunctionResponse(
+                    returnValue.genericDocument,
+                    returnValue.extras,
+                    uriGrants,
+                )
+            }
             return android.app.appfunctions.ExecuteAppFunctionResponse(
                 returnValue.genericDocument,
                 returnValue.extras,

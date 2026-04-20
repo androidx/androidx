@@ -109,6 +109,39 @@ class ExecuteAppFunctionResponseTest {
         assertThat(response.returnValue.extras.isEmpty).isTrue()
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun toPlatformExecuteAppFunctionResponseWithUriGrants_success() {
+        val uriGrant =
+            AppFunctionUriGrant(
+                uri = android.net.Uri.parse("content://com.example/1"),
+                modeFlags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+        val appFunctionData =
+            AppFunctionData.Builder(
+                    TEST_APP_FUNCTION_METADATA.parameters,
+                    AppFunctionComponentsMetadata(),
+                )
+                .setAppFunctionData(
+                    "uriGrant",
+                    AppFunctionData.serialize(uriGrant, AppFunctionUriGrant::class.java),
+                )
+                .build()
+
+        val response = ExecuteAppFunctionResponse.Success(appFunctionData)
+        val platformResponse = response.toPlatformExecuteAppFunctionResponse()
+
+        assertThat(platformResponse.resultDocument).isEqualTo(appFunctionData.genericDocument)
+        assertThat(platformResponse.extras.isEmpty()).isTrue()
+
+        val platformUriGrants = platformResponse.uriGrants
+        assertThat(platformUriGrants).hasSize(1)
+        assertThat(platformUriGrants[0].uri)
+            .isEqualTo(android.net.Uri.parse("content://com.example/1"))
+        assertThat(platformUriGrants[0].modeFlags)
+            .isEqualTo(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+
     private fun assumeAppFunctionExtensionLibraryAvailable() {
         try {
             Class.forName("com.android.extensions.appfunctions.ExecuteAppFunctionResponse")
