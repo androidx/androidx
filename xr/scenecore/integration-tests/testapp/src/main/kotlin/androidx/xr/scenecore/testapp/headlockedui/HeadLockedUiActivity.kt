@@ -202,12 +202,6 @@ class HeadLockedUiActivity : AppCompatActivity() {
         this.mHeadLockedPanelView.removeCallbacks(animationRunnable)
     }
 
-    override fun onDestroy() {
-        mHeadLockedPanel.removeAllComponents()
-        mHeadLockedPanel.parent = null
-        super.onDestroy()
-    }
-
     private fun createHeadLockedPanel() {
         this.mHeadLockedPanelView = layoutInflater.inflate(R.layout.headlocked_star, null, false)
         this.mHeadLockedPanel =
