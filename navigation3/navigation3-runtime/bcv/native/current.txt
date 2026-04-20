@@ -18,6 +18,17 @@ abstract interface <#A: kotlin/Any> androidx.navigation3.runtime/NavMetadataKey 
 
 abstract interface androidx.navigation3.runtime/NavKey // androidx.navigation3.runtime/NavKey|null[0]
 
+abstract class androidx.navigation3.runtime/DeepLinkUri { // androidx.navigation3.runtime/DeepLinkUri|null[0]
+    constructor <init>() // androidx.navigation3.runtime/DeepLinkUri.<init>|<init>(){}[0]
+
+    abstract fun getFragment(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getFragment|getFragment(){}[0]
+    abstract fun getPathSegments(): kotlin.collections/List<kotlin/String> // androidx.navigation3.runtime/DeepLinkUri.getPathSegments|getPathSegments(){}[0]
+    abstract fun getQuery(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getQuery|getQuery(){}[0]
+    abstract fun toString(): kotlin/String // androidx.navigation3.runtime/DeepLinkUri.toString|toString(){}[0]
+    open fun getQueryParameterNames(): kotlin.collections/Set<kotlin/String> // androidx.navigation3.runtime/DeepLinkUri.getQueryParameterNames|getQueryParameterNames(){}[0]
+    open fun getQueryParameters(kotlin/String): kotlin.collections/List<kotlin/String> // androidx.navigation3.runtime/DeepLinkUri.getQueryParameters|getQueryParameters(kotlin.String){}[0]
+}
+
 final class <#A: androidx.navigation3.runtime/NavKey> androidx.navigation3.runtime.serialization/NavBackStackSerializer : kotlinx.serialization/KSerializer<androidx.navigation3.runtime/NavBackStack<#A>> { // androidx.navigation3.runtime.serialization/NavBackStackSerializer|null[0]
     constructor <init>(kotlinx.serialization/KSerializer<#A>) // androidx.navigation3.runtime.serialization/NavBackStackSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
 
@@ -132,6 +143,7 @@ final val androidx.navigation3.runtime.result/androidx_navigation3_runtime_resul
 final val androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop|#static{}androidx_navigation3_runtime_result_ResultEventBus$stableprop[0]
 final val androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop|#static{}androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop[0]
 final val androidx.navigation3.runtime.serialization/androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop // androidx.navigation3.runtime.serialization/androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop|#static{}androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop[0]
+final val androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkUri$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkUri$stableprop|#static{}androidx_navigation3_runtime_DeepLinkUri$stableprop[0]
 final val androidx.navigation3.runtime/androidx_navigation3_runtime_EntryProviderScope$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_EntryProviderScope$stableprop|#static{}androidx_navigation3_runtime_EntryProviderScope$stableprop[0]
 final val androidx.navigation3.runtime/androidx_navigation3_runtime_MetadataScope$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_MetadataScope$stableprop|#static{}androidx_navigation3_runtime_MetadataScope$stableprop[0]
 final val androidx.navigation3.runtime/androidx_navigation3_runtime_NavBackStack$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_NavBackStack$stableprop|#static{}androidx_navigation3_runtime_NavBackStack$stableprop[0]
@@ -150,6 +162,8 @@ final fun androidx.navigation3.runtime.result/androidx_navigation3_runtime_resul
 final fun androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop_getter|androidx_navigation3_runtime_result_ResultEventBus$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop_getter|androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.serialization/androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.serialization/androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop_getter|androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop_getter(){}[0]
+final fun androidx.navigation3.runtime/DeepLinkUri(kotlin/String): androidx.navigation3.runtime/DeepLinkUri // androidx.navigation3.runtime/DeepLinkUri|DeepLinkUri(kotlin.String){}[0]
+final fun androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkUri$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkUri$stableprop_getter|androidx_navigation3_runtime_DeepLinkUri$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/androidx_navigation3_runtime_EntryProviderScope$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_EntryProviderScope$stableprop_getter|androidx_navigation3_runtime_EntryProviderScope$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/androidx_navigation3_runtime_MetadataScope$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_MetadataScope$stableprop_getter|androidx_navigation3_runtime_MetadataScope$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/androidx_navigation3_runtime_NavBackStack$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_NavBackStack$stableprop_getter|androidx_navigation3_runtime_NavBackStack$stableprop_getter(){}[0]
