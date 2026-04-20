@@ -156,14 +156,16 @@ class TracingBenchmark {
         // clear how many begin/ends it is measuring. test needs to be renamed if const changes.
         assertEquals(TRACE_PACKET_BUFFER_SIZE, 32)
         benchmarkRule.measureRepeated {
-            repeat(32) { tracer.trace(category = CATEGORY, name = BASIC_STRING) {} }
-            // The benchmark measurement loop creates packets extremely quickly. To avoid
-            // running OOM (when the consumer can't keep up) we wait for the packets to flush.
-            // Note that we attempt to wait a consistent amount of time to ensure consistent
-            // measurements.
-            if (!measureSerialization) {
-                runWithMeasurementDisabled { dispatcher.scheduler.advanceUntilIdle() }
-            } else {
+            repeat(4) {
+                repeat(8) { tracer.trace(category = CATEGORY, name = BASIC_STRING) {} }
+                if (!measureSerialization) {
+                    // 32 total events (or 16 begin/end pairs) will dispatch
+                    // instead, we reset after 8 begin/end pairs so we only measure
+                    // producer write cost without sending to sink
+                    runWithMeasurementDisabled { tracer.resetTraceEvents() }
+                }
+            }
+            if (measureSerialization) {
                 dispatcher.scheduler.advanceUntilIdle()
             }
         }
