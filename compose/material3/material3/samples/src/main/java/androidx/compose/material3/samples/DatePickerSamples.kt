@@ -31,6 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -94,6 +95,16 @@ fun DatePickerSample() {
             "Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}",
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
+
+        Button(
+            onClick = {
+                datePickerState.selectedDateMillis = System.currentTimeMillis()
+                datePickerState.displayedMonthMillis = System.currentTimeMillis()
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+        ) {
+            Text("Set date to today")
+        }
     }
 }
 
