@@ -53,7 +53,7 @@ dependencies {
 android {
     namespace = "androidx.xr.runtime"
     buildFeatures {
-        resValues true
+        resValues = true
     }
     defaultConfig {
         def xrProjectedMinApiVersion = libs.versions.xrProjectedMinApiVersion.get()
