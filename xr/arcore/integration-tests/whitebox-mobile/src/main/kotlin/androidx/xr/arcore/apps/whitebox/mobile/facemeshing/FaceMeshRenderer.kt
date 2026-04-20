@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore.apps.whitebox.mobile.facemeshing
 
+import android.util.Log
 import androidx.xr.arcore.ExperimentalFaceApi
 import androidx.xr.arcore.Face
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Framebuffer
@@ -25,7 +26,6 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.SampleRender
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Shader
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Texture
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.VertexBuffer
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Matrix4
 import java.io.IOException
 
@@ -59,7 +59,7 @@ class FaceMeshRenderer(val render: SampleRender, textureAssetPath: String) {
                     .setCullFace(false)
                     .setDepthWrite(false)
         } catch (e: IOException) {
-            XrLog.error(e) { "Failed to initialize FaceMesh assets" }
+            Log.e("JetpackXR", "Failed to initialize FaceMesh assets", e)
         }
     }
 

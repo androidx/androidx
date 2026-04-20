@@ -18,6 +18,7 @@ package androidx.xr.arcore.testapp.common
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -42,7 +43,6 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.SessionCreateTimedOut
 import androidx.xr.runtime.SessionCreateUnknownError
 import androidx.xr.runtime.SessionCreateUnsupportedDevice
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.manifest.EYE_TRACKING_COARSE
 import androidx.xr.runtime.manifest.EYE_TRACKING_FINE
 import androidx.xr.runtime.manifest.FACE_TRACKING
@@ -185,7 +185,7 @@ class SessionLifecycleHelper(
 
     internal fun tryUpdateConfig(config: Config) {
         if (!::session.isInitialized) {
-            XrLog.error { "Can't update config, session has not been initialized" }
+            Log.e("JetpackXR", "Can't update config, session has not been initialized")
             return
         }
         try {
@@ -219,7 +219,7 @@ class SessionLifecycleHelper(
     }
 
     private fun <F> showErrorMessage(error: F) {
-        XrLog.error { error.toString() }
+        Log.e("JetpackXR", error.toString())
         Toast.makeText(activity, error.toString(), Toast.LENGTH_LONG).show()
     }
 }

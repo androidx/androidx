@@ -30,6 +30,7 @@ public class GroupEntity private constructor(rtEntity: RtEntity, entityRegistry:
     BaseEntity<RtEntity>(rtEntity, entityRegistry) {
     public companion object {
         /** Factory method to create GroupEntity entities. */
+        @Suppress("RestrictedApiAndroidX")
         internal fun create(
             sceneRuntime: SceneRuntime,
             entityRegistry: EntityRegistry,

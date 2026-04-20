@@ -184,6 +184,7 @@ internal constructor(
     }
 
     public companion object {
+        @Suppress("RestrictedApiAndroidX")
         internal fun create(
             context: Context,
             sceneRuntime: SceneRuntime,
@@ -216,6 +217,7 @@ internal constructor(
                 entityRegistry,
             )
 
+        @Suppress("RestrictedApiAndroidX")
         internal fun create(
             context: Context,
             sceneRuntime: SceneRuntime,

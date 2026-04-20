@@ -20,6 +20,7 @@ package androidx.xr.arcore.projected.testapp
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.widget.TextView
 import androidx.activity.ComponentActivity
@@ -51,7 +52,6 @@ import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.SessionCreateUnsupportedDevice
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.GeospatialPose
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -117,9 +117,9 @@ class ProjectedTestAppActivity : ComponentActivity() {
             var permissionDeniedText = ""
             for (permission in permissionsRequired) {
                 if (results[permission] == true) {
-                    XrLog.info("$permission is granted")
+                    Log.i("JetpackXR", "$permission is granted")
                 } else {
-                    XrLog.warn("$permission is not granted")
+                    Log.w("JetpackXR", "$permission is not granted")
                     permissionDeniedText += "Please grant $permission permission.\n"
                 }
             }
@@ -132,7 +132,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        XrLog.info { "onCreate" }
+        Log.i("JetpackXR", "onCreate")
         textView = TextView(this)
         textView.text = "\n\n\n\nWaiting for Geospatial Pose..."
         setContentView(textView)
@@ -148,9 +148,9 @@ class ProjectedTestAppActivity : ComponentActivity() {
             delay(4000) // TODO: b/436981970 - the onResume 2x is happening again with this change.
             tryCreateSession()
             lifecycleScope.launch {
-                XrLog.info { "before sessionInitialized.await()" }
+                Log.i("JetpackXR", "before sessionInitialized.await()")
                 sessionInitialized.await()
-                XrLog.info { "sessionInitialized.await()" }
+                Log.i("JetpackXR", "sessionInitialized.await()")
                 geospatial = Geospatial.getInstance(session)
                 // Check VPS availability
                 checkVpsAvailability(37.422, -122.084) // Googleplex coordinates
@@ -186,22 +186,22 @@ class ProjectedTestAppActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        XrLog.info { "onPause" }
+        Log.i("JetpackXR", "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        XrLog.info { "onStop" }
+        Log.i("JetpackXR", "onStop")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        XrLog.info { "onDestroy" }
+        Log.i("JetpackXR", "onDestroy")
     }
 
     override fun onRestart() {
         super.onRestart()
-        XrLog.info { "onRestart" }
+        Log.i("JetpackXR", "onRestart")
     }
 
     private fun update() {
@@ -249,7 +249,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
                     currentGeospatialPose.latitude != 0.0 && currentGeospatialPose.longitude != 0.0
 
                 if (!isCurrentPoseValid) {
-                    XrLog.warn { "Skipping frame due to invalid currentGeospatialPose." }
+                    Log.w("JetpackXR", "Skipping frame due to invalid currentGeospatialPose.")
                     return "\nWaiting for a valid Geospatial Pose..."
                 }
 
@@ -257,7 +257,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
                     initialGeospatialPose = currentGeospatialPose
                 }
 
-                XrLog.info { "GeospatialPose from device pose: ${currentGeospatialPose}" }
+                Log.i("JetpackXR", "GeospatialPose from device pose: ${currentGeospatialPose}")
 
                 checkVpsAvailability(
                     currentGeospatialPose.latitude,
@@ -273,20 +273,21 @@ class ProjectedTestAppActivity : ComponentActivity() {
                 return text
             }
             else -> {
-                XrLog.error {
-                    "Failed to get GeospatialPose from device pose: $geospatialPoseResult"
-                }
+                Log.e(
+                    "JetpackXR",
+                    "Failed to get GeospatialPose from device pose: $geospatialPoseResult",
+                )
                 return "\nError getting GeospatialPose: $geospatialPoseResult"
             }
         }
     }
 
     private fun checkVpsAvailability(latitude: Double, longitude: Double) {
-        XrLog.info { "checkVpsAvailability latitude: $latitude, longitude: $longitude" }
+        Log.i("JetpackXR", "checkVpsAvailability latitude: $latitude, longitude: $longitude")
         lifecycleScope.launch {
             val vpsAvailabilityResult = geospatial.checkVpsAvailability(latitude, longitude)
             vpsStatusMessage = getVpsMessage(vpsAvailabilityResult)
-            XrLog.info { "VPS availability: $vpsStatusMessage ($vpsAvailabilityResult)" }
+            Log.i("JetpackXR", "VPS availability: ${vpsStatusMessage} ($vpsAvailabilityResult)")
         }
     }
 
@@ -366,54 +367,62 @@ class ProjectedTestAppActivity : ComponentActivity() {
                 Z diff: $zDiff
             """
                         .trimIndent()
-                XrLog.info { "Conversion comparison:\n$message" }
+                Log.i("JetpackXR", "Conversion comparison:\n$message")
                 return message
             } else {
                 val error = "Failed to convert Pose to GeospatialPose for comparison"
-                XrLog.error { error }
+                Log.e("JetpackXR", error)
                 return error
             }
         } else {
             val error = "Failed to convert GeospatialPose to Pose for comparison"
-            XrLog.error { error }
+            Log.e("JetpackXR", error)
             return error
         }
     }
 
     public fun tryCreateSession() {
-        XrLog.info { "Session.create(this)" }
+        Log.i("JetpackXR", "Session.create(this)")
         when (val result = Session.create(this)) {
             is SessionCreateSuccess -> {
                 session = result.session
                 try {
-                    XrLog.info { "session.configure(currentConfig)" }
+                    Log.i("JetpackXR", "session.configure(currentConfig)")
                     when (val configResult = session.configure(currentConfig)) {
                         is SessionConfigureLibraryNotLinked -> {
-                            XrLog.error { "Library \"${configResult.libraryName}\" not linked." }
+                            Log.e(
+                                "JetpackXR",
+                                "Library \"${configResult.libraryName}\" not linked.",
+                            )
                         }
+
                         is SessionConfigureSuccess -> {
-                            XrLog.info { "Session created successfully!!" }
+                            Log.i("JetpackXR", "Session created successfully!!")
                         }
+
                         else -> {
-                            XrLog.error { "Session creation error" }
+                            Log.e("JetpackXR", "Session creation error")
                         }
                     }
                 } catch (e: UnsupportedOperationException) {
-                    XrLog.error(e) { "Session configuration not supported." }
+                    Log.e("JetpackXR", "Session configuration not supported.", e)
                     exceptionMessage = e.message
                 } finally {
                     sessionInitialized.complete(Unit)
                 }
             }
+
             is SessionCreateApkRequired -> {
-                XrLog.error { "Can't create session due to apk missing" }
+                Log.e("JetpackXR", "Can't create session due to apk missing")
             }
+
             is SessionCreateUnsupportedDevice -> {
-                XrLog.error { "Can't create session, unsupported device" }
+                Log.e("JetpackXR", "Can't create session, unsupported device")
                 finish()
             }
+
             else -> {
-                XrLog.error { "Unexpected ${result::class.simpleName}" }
+                Log.e("JetpackXR", "Unexpected ${result::class.simpleName}")
             }
         }
     }
@@ -424,27 +433,29 @@ class ProjectedTestAppActivity : ComponentActivity() {
         }
         currentConfigIndex = (currentConfigIndex + 1) % configs.size
         val newConfigName = configs[currentConfigIndex].first
-        XrLog.info { "Switching to config: $newConfigName" }
+        Log.i("JetpackXR", "Switching to config: $newConfigName")
         exceptionMessage = null
         lifecycleScope.launch {
             sessionInitialized.await()
-            XrLog.info { "Reconfiguring session with config: $newConfigName" }
+            Log.i("JetpackXR", "Reconfiguring session with config: $newConfigName")
             try {
                 when (val configResult = session.configure(currentConfig)) {
                     is SessionConfigureSuccess -> {
-                        XrLog.info { "Session reconfigured successfully!" }
+                        Log.i("JetpackXR", "Session reconfigured successfully!")
                         // Reset initial pose when config changes for correct diffs
                         initialGeospatialPose = null
                     }
+
                     is SessionConfigureLibraryNotLinked -> {
-                        XrLog.error { "Library \"${configResult.libraryName}\" not linked." }
+                        Log.e("JetpackXR", "Library \"${configResult.libraryName}\" not linked.")
                     }
+
                     else -> {
-                        XrLog.error { "Session reconfigure error: $configResult" }
+                        Log.e("JetpackXR", "Session reconfigure error: $configResult")
                     }
                 }
             } catch (e: UnsupportedOperationException) {
-                XrLog.error(e) { "Configuration failed: " }
+                Log.e("JetpackXR", "Configuration failed: ", e)
                 exceptionMessage = e.message
             }
         }

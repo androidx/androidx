@@ -203,6 +203,7 @@ internal constructor(
         }
     }
 
+    @Suppress("RestrictedApiAndroidX")
     private fun disconnect() {
         running.set(false)
         try {

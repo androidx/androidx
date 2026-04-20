@@ -64,6 +64,7 @@ private constructor(
     }
 
     public companion object {
+        @Suppress("RestrictedApiAndroidX")
         internal fun create(
             lifecycleManager: LifecycleManager,
             sceneRuntime: SceneRuntime,

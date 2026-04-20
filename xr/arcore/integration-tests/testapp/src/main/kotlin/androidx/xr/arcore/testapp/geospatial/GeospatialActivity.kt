@@ -19,6 +19,7 @@ package androidx.xr.arcore.testapp.geospatial
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log.w
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -79,7 +80,6 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.GeospatialPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -510,7 +510,7 @@ class GeospatialActivity : ComponentActivity() {
     }
 
     private fun logAndShowToast(message: String, throwable: Throwable? = null) {
-        XrLog.warn(throwable) { message }
+        w("JetpackXR", message, throwable)
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 

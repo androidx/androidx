@@ -99,6 +99,7 @@ internal class RotateToLookAtUserNode(var upDirection: Vector3) :
     private inline val density: Density
         get() = currentValueOf(LocalDensity)
 
+    @Suppress("RestrictedApiAndroidX")
     override fun onAttach() {
         super.onAttach()
         // Initialize the Session and ArDevice once when the node is attached
