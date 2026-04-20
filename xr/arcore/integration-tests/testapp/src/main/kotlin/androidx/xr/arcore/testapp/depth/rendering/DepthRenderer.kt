@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.arcore.testapp.depthmaps.rendering
+package androidx.xr.arcore.testapp.depth.rendering
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -38,7 +38,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
-class DepthMapRenderer {
+class DepthRenderer {
 
     private var depthProgram: Int = 0
     private var depthTextureParam: Int = 0

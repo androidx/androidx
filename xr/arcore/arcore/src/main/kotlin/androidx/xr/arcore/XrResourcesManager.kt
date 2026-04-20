@@ -19,7 +19,7 @@ package androidx.xr.arcore
 import android.annotation.SuppressLint
 import androidx.xr.arcore.runtime.ArDevice as RuntimeArDevice
 import androidx.xr.arcore.runtime.AugmentedObject as RuntimeObject
-import androidx.xr.arcore.runtime.DepthMap as RuntimeDepthMap
+import androidx.xr.arcore.runtime.Depth as RuntimeDepth
 import androidx.xr.arcore.runtime.Eye as RuntimeEye
 import androidx.xr.arcore.runtime.Face as RuntimeFace
 import androidx.xr.arcore.runtime.Geospatial as RuntimeGeospatial
@@ -87,13 +87,13 @@ internal class XrResourcesManager {
         get() = checkNotNull(_geospatial)
 
     /** The depth map data */
-    var leftDepthMap: DepthMap? = null
+    var leftDepth: Depth? = null
         private set
 
-    var rightDepthMap: DepthMap? = null
+    var rightDepth: Depth? = null
         private set
 
-    var monoDepthMap: DepthMap? = null
+    var monoDepth: Depth? = null
         private set
 
     internal fun initiateGeospatial(runtimeGeospatial: RuntimeGeospatial) {
@@ -128,14 +128,14 @@ internal class XrResourcesManager {
         }
     }
 
-    internal fun initiateDepthMaps(
-        runtimeLeftDepthMap: RuntimeDepthMap?,
-        runtimeRightDepthMap: RuntimeDepthMap?,
-        runtimeMonoDepthMap: RuntimeDepthMap?,
+    internal fun initiateDepths(
+        runtimeLeftDepth: RuntimeDepth?,
+        runtimeRightDepth: RuntimeDepth?,
+        runtimeMonoDepth: RuntimeDepth?,
     ) {
-        runtimeLeftDepthMap?.let { leftDepthMap = DepthMap(it) }
-        runtimeRightDepthMap?.let { rightDepthMap = DepthMap(it) }
-        runtimeMonoDepthMap?.let { monoDepthMap = DepthMap(it) }
+        runtimeLeftDepth?.let { leftDepth = Depth(it) }
+        runtimeRightDepth?.let { rightDepth = Depth(it) }
+        runtimeMonoDepth?.let { monoDepth = Depth(it) }
     }
 
     internal fun initiateFace(userFace: RuntimeFace?) {

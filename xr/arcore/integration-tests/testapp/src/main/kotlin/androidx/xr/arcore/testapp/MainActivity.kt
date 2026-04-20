@@ -61,7 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.arcore.testapp.capabilities.CapabilitiesActivity
 import androidx.xr.arcore.testapp.common.TestCaseButton
-import androidx.xr.arcore.testapp.depthmaps.DepthMapActivity
+import androidx.xr.arcore.testapp.depth.DepthActivity
 import androidx.xr.arcore.testapp.eyetracking.EyeTrackingActivity
 import androidx.xr.arcore.testapp.facetracking.FaceTrackingActivity
 import androidx.xr.arcore.testapp.geospatial.GeospatialActivity
@@ -187,7 +187,7 @@ class MainActivity : ComponentActivity() {
                 TestCaseColumnRowItem(R.string.face_tracking) {
                     startTest<FaceTrackingActivity>(it)
                 }
-                TestCaseColumnRowItem(R.string.depth_maps) { startTest<DepthMapActivity>(it) }
+                TestCaseColumnRowItem(R.string.depth) { startTest<DepthActivity>(it) }
                 TestCaseColumnRowItem(R.string.object_tracking) {
                     startTest<HelloArObjectActivity>(it)
                 }

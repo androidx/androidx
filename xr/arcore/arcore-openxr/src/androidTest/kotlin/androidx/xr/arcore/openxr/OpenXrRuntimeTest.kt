@@ -243,11 +243,11 @@ class OpenXrRuntimeTest {
             underTest.initialize()
             check(underTest.perceptionManager.depthEstimationMode == DepthEstimationMode.DISABLED)
             check(
-                underTest.perceptionManager.xrResources.leftDepthMap.depthEstimationMode ==
+                underTest.perceptionManager.xrResources.leftDepth.depthEstimationMode ==
                     DepthEstimationMode.DISABLED
             )
             check(
-                underTest.perceptionManager.xrResources.rightDepthMap.depthEstimationMode ==
+                underTest.perceptionManager.xrResources.rightDepth.depthEstimationMode ==
                     DepthEstimationMode.DISABLED
             )
 
@@ -255,13 +255,9 @@ class OpenXrRuntimeTest {
 
             Truth.assertThat(underTest.perceptionManager.depthEstimationMode)
                 .isEqualTo(DepthEstimationMode.RAW_ONLY)
-            Truth.assertThat(
-                    underTest.perceptionManager.xrResources.leftDepthMap.depthEstimationMode
-                )
+            Truth.assertThat(underTest.perceptionManager.xrResources.leftDepth.depthEstimationMode)
                 .isEqualTo(DepthEstimationMode.RAW_ONLY)
-            Truth.assertThat(
-                    underTest.perceptionManager.xrResources.rightDepthMap.depthEstimationMode
-                )
+            Truth.assertThat(underTest.perceptionManager.xrResources.rightDepth.depthEstimationMode)
                 .isEqualTo(DepthEstimationMode.RAW_ONLY)
         }
 

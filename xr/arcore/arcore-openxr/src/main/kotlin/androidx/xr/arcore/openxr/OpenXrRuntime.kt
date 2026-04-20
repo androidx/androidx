@@ -272,10 +272,10 @@ internal class OpenXrRuntime(
         }
 
         if (config.depthEstimation != this.config.depthEstimation) {
-            perceptionManager.xrResources.leftDepthMap.updateDepthEstimationMode(
+            perceptionManager.xrResources.leftDepth.updateDepthEstimationMode(
                 config.depthEstimation
             )
-            perceptionManager.xrResources.rightDepthMap.updateDepthEstimationMode(
+            perceptionManager.xrResources.rightDepth.updateDepthEstimationMode(
                 config.depthEstimation
             )
             perceptionManager.depthEstimationMode = config.depthEstimation

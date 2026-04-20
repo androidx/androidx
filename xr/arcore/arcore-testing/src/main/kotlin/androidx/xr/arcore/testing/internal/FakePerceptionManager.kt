@@ -48,10 +48,10 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     private val fakeMonoRenderViewpoint = FakeRuntimeRenderViewpoint()
     private val fakeUserFace = FakeRuntimeFace()
     private val fakeGeospatial = FakeRuntimeGeospatial()
-    private val fakeLeftDepthMap = FakeRuntimeDepthMap()
-    private val fakeRightDepthMap = FakeRuntimeDepthMap()
-    private val fakeMonoDepthMap = FakeRuntimeDepthMap()
     private val fakeConversationSceneSignal = ConversationState(0f, 0)
+    private val fakeLeftDepth = FakeRuntimeDepth()
+    private val fakeRightDepth = FakeRuntimeDepth()
+    private val fakeMonoDepth = FakeRuntimeDepth()
 
     override val trackables: MutableList<Trackable> = mutableListOf()
 
@@ -88,14 +88,14 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     override val geospatial: androidx.xr.arcore.runtime.Geospatial
         get() = fakeGeospatial
 
-    override val leftDepthMap: androidx.xr.arcore.runtime.DepthMap
-        get() = fakeLeftDepthMap
+    override val leftDepth: androidx.xr.arcore.runtime.Depth
+        get() = fakeLeftDepth
 
-    override val rightDepthMap: androidx.xr.arcore.runtime.DepthMap
-        get() = fakeRightDepthMap
+    override val rightDepth: androidx.xr.arcore.runtime.Depth
+        get() = fakeRightDepth
 
-    override val monoDepthMap: androidx.xr.arcore.runtime.DepthMap
-        get() = fakeMonoDepthMap
+    override val monoDepth: androidx.xr.arcore.runtime.Depth
+        get() = fakeMonoDepth
 
     internal val persistedAnchorUUIDs: MutableMap<UUID, Pose> = mutableMapOf()
     internal val anchors: MutableList<FakeRuntimeAnchor> = mutableListOf()

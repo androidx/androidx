@@ -45,7 +45,7 @@ package androidx.xr.arcore.runtime {
     property public abstract androidx.xr.runtime.math.FloatSize3d extents;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface DepthMap {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Depth {
     method @InaccessibleFromKotlin public int getHeight();
     method @InaccessibleFromKotlin public java.nio.ByteBuffer? getRawConfidenceMap();
     method @InaccessibleFromKotlin public java.nio.FloatBuffer? getRawDepthMap();
@@ -185,14 +185,14 @@ package androidx.xr.arcore.runtime {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface PerceptionManager {
     method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.ArDevice getArDevice();
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.DepthMap? getLeftDepthMap();
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.Depth? getLeftDepth();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Eye? getLeftEye();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Hand? getLeftHand();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.RenderViewpoint? getLeftRenderViewpoint();
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.DepthMap? getMonoDepthMap();
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.Depth? getMonoDepth();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.RenderViewpoint? getMonoRenderViewpoint();
     method public java.util.List<java.util.UUID> getPersistedAnchorUuids();
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.DepthMap? getRightDepthMap();
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.Depth? getRightDepth();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Eye? getRightEye();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Hand? getRightHand();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.RenderViewpoint? getRightRenderViewpoint();
@@ -203,13 +203,13 @@ package androidx.xr.arcore.runtime {
     method public default void setDisplayRotation(int rotation, int width, int height);
     method public void unpersistAnchor(java.util.UUID uuid);
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.ArDevice arDevice;
-    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.DepthMap? leftDepthMap;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.Depth? leftDepth;
     property public abstract androidx.xr.arcore.runtime.Eye? leftEye;
     property public abstract androidx.xr.arcore.runtime.Hand? leftHand;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.RenderViewpoint? leftRenderViewpoint;
-    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.DepthMap? monoDepthMap;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.Depth? monoDepth;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.RenderViewpoint? monoRenderViewpoint;
-    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.DepthMap? rightDepthMap;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.Depth? rightDepth;
     property public abstract androidx.xr.arcore.runtime.Eye? rightEye;
     property public abstract androidx.xr.arcore.runtime.Hand? rightHand;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.RenderViewpoint? rightRenderViewpoint;

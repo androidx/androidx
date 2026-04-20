@@ -16,15 +16,15 @@
 
 package androidx.xr.arcore.testing.internal
 
-import androidx.xr.arcore.runtime.DepthMap as RuntimeDepthMap
+import androidx.xr.arcore.runtime.Depth as RuntimeDepth
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
-internal class FakeRuntimeDepthMap(
+internal class FakeRuntimeDepth(
     override var width: Int = 0,
     override var height: Int = 0,
     override var rawDepthMap: FloatBuffer? = null,
     override var rawConfidenceMap: ByteBuffer? = null,
     override var smoothDepthMap: FloatBuffer? = null,
     override var smoothConfidenceMap: ByteBuffer? = null,
-) : RuntimeDepthMap
+) : RuntimeDepth

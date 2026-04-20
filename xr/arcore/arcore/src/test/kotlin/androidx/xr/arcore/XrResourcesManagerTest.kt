@@ -25,7 +25,7 @@ import androidx.xr.arcore.testing.FakePerceptionManager
 import androidx.xr.arcore.testing.FakeRuntimeAnchor
 import androidx.xr.arcore.testing.FakeRuntimeArDevice
 import androidx.xr.arcore.testing.FakeRuntimeAugmentedObject
-import androidx.xr.arcore.testing.FakeRuntimeDepthMap
+import androidx.xr.arcore.testing.FakeRuntimeDepth
 import androidx.xr.arcore.testing.FakeRuntimeFace
 import androidx.xr.arcore.testing.FakeRuntimeGeospatial
 import androidx.xr.arcore.testing.FakeRuntimeHand
@@ -223,19 +223,19 @@ class XrResourcesManagerTest {
     }
 
     @Test
-    fun update_updatesDepthMaps() = doBlocking {
-        val runtimeDepthMap = FakeRuntimeDepthMap()
-        underTest.initiateDepthMaps(runtimeDepthMap, null, null)
+    fun update_updatesDepths() = doBlocking {
+        val runtimeDepth = FakeRuntimeDepth()
+        underTest.initiateDepths(runtimeDepth, null, null)
         underTest.update()
-        check(underTest.leftDepthMap != null)
-        check(underTest.leftDepthMap!!.state.value.width == 0)
+        check(underTest.leftDepth != null)
+        check(underTest.leftDepth!!.state.value.width == 0)
         val expectedWidth: Int = 100
-        runtimeDepthMap.width = expectedWidth
+        runtimeDepth.width = expectedWidth
 
         underTest.update()
-        underTest.leftDepthMap!!.update()
+        underTest.leftDepth!!.update()
 
-        assertThat(underTest.leftDepthMap!!.state.value.width).isEqualTo(expectedWidth)
+        assertThat(underTest.leftDepth!!.state.value.width).isEqualTo(expectedWidth)
     }
 
     private fun createTestSessionAndRunTest(testBody: () -> Unit) {

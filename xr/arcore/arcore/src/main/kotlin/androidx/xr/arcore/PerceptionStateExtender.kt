@@ -53,10 +53,10 @@ public class PerceptionStateExtender : StateExtender {
             perceptionManager.monoRenderViewpoint,
         )
         xrResourcesManager.initiateGeospatial(perceptionManager.geospatial)
-        xrResourcesManager.initiateDepthMaps(
-            perceptionManager.leftDepthMap,
-            perceptionManager.rightDepthMap,
-            perceptionManager.monoDepthMap,
+        xrResourcesManager.initiateDepths(
+            perceptionManager.leftDepth,
+            perceptionManager.rightDepth,
+            perceptionManager.monoDepth,
         )
         xrResourcesManager.initiateFace(perceptionManager.userFace)
         xrResourcesManager.initiateEyes(perceptionManager.leftEye, perceptionManager.rightEye)
@@ -78,9 +78,9 @@ public class PerceptionStateExtender : StateExtender {
         xrResourcesManager.leftRenderViewpoint?.update()
         xrResourcesManager.rightRenderViewpoint?.update()
         xrResourcesManager.monoRenderViewpoint?.update()
-        xrResourcesManager.leftDepthMap?.update()
-        xrResourcesManager.rightDepthMap?.update()
-        xrResourcesManager.monoDepthMap?.update()
+        xrResourcesManager.leftDepth?.update()
+        xrResourcesManager.rightDepth?.update()
+        xrResourcesManager.monoDepth?.update()
 
         xrResourcesManager.userFace?.update()
 
@@ -104,9 +104,9 @@ public class PerceptionStateExtender : StateExtender {
                 xrResourcesManager.leftRenderViewpoint?.state?.value,
                 xrResourcesManager.rightRenderViewpoint?.state?.value,
                 xrResourcesManager.monoRenderViewpoint?.state?.value,
-                xrResourcesManager.leftDepthMap?.state?.value,
-                xrResourcesManager.rightDepthMap?.state?.value,
-                xrResourcesManager.monoDepthMap?.state?.value,
+                xrResourcesManager.leftDepth?.state?.value,
+                xrResourcesManager.rightDepth?.state?.value,
+                xrResourcesManager.monoDepth?.state?.value,
                 xrResourcesManager.userFace?.state?.value,
                 xrResourcesManager.leftEye?.state?.value,
                 xrResourcesManager.rightEye?.state?.value,

@@ -38,7 +38,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 29)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class OpenXrDepthMapTest {
+class OpenXrDepthTest {
 
     companion object {
         init {
@@ -51,15 +51,15 @@ class OpenXrDepthMapTest {
     lateinit private var timeSource: OpenXrTimeSource
     lateinit private var perceptionManager: OpenXrPerceptionManager
     lateinit private var openXrRuntime: OpenXrRuntime
-    lateinit private var leftUnderTest: OpenXrDepthMap
-    lateinit private var rightUnderTest: OpenXrDepthMap
+    lateinit private var leftUnderTest: OpenXrDepth
+    lateinit private var rightUnderTest: OpenXrDepth
 
     @Before
     fun setUp() {
         timeSource = OpenXrTimeSource()
         perceptionManager = OpenXrPerceptionManager(timeSource)
-        leftUnderTest = perceptionManager.leftDepthMap as OpenXrDepthMap
-        rightUnderTest = perceptionManager.rightDepthMap as OpenXrDepthMap
+        leftUnderTest = perceptionManager.leftDepth as OpenXrDepth
+        rightUnderTest = perceptionManager.rightDepth as OpenXrDepth
     }
 
     @Test

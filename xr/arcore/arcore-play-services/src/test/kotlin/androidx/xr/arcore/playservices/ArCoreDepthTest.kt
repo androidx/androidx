@@ -30,7 +30,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 @RunWith(AndroidJUnit4::class)
-class ArCoreDepthMapTest {
+class ArCoreDepthTest {
     private lateinit var mockDepthMapImage: Image
     private lateinit var mockSmoothDepthMapImage: Image
     private lateinit var mockDepthMapConfidenceImage: Image
@@ -38,7 +38,7 @@ class ArCoreDepthMapTest {
     private lateinit var mockImagePlane: Image.Plane
     private lateinit var mockSmoothImagePlane: Image.Plane
     private lateinit var mockImageConfidencePlane: Image.Plane
-    private lateinit var underTest: ArCoreDepthMap
+    private lateinit var underTest: ArCoreDepth
 
     @Before
     fun setUp() {
@@ -49,7 +49,7 @@ class ArCoreDepthMapTest {
         mockImagePlane = mock<Image.Plane>()
         mockSmoothImagePlane = mock<Image.Plane>()
         mockImageConfidencePlane = mock<Image.Plane>()
-        underTest = ArCoreDepthMap()
+        underTest = ArCoreDepth()
     }
 
     @Test
