@@ -224,8 +224,7 @@ object AlertDialogDefaults {
         @Composable get() = DialogTokens.ContainerShape.value
 
     /** The default icon size for alert dialogs. */
-    val IconSize: Dp =
-        if (shouldUsePrecisionPointerComponentSizing.value) 28.dp else DialogTokens.IconSize
+    val IconSize: Dp = DialogTokens.IconSize
 
     /** The default container color for alert dialogs */
     val containerColor: Color
