@@ -8,6 +8,10 @@ package androidx.navigation3.runtime {
     method @KotlinOnly @androidx.compose.runtime.Composable public static <T> java.util.List<androidx.navigation3.runtime.NavEntry<T>> rememberDecoratedNavEntries(java.util.List<T> backStack, optional java.util.List<androidx.navigation3.runtime.NavEntryDecorator<T>> entryDecorators, kotlin.jvm.functions.Function1<T,androidx.navigation3.runtime.NavEntry<T>> entryProvider);
   }
 
+  public final class DeepLinkUriKt {
+    method public static android.net.Uri DeepLinkUri(String uriString);
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface EntryDsl {
   }
 
@@ -140,6 +144,8 @@ package androidx.navigation3.runtime {
     method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.SaveableStateHolderNavEntryDecorator<T> rememberSaveableStateHolderNavEntryDecorator(optional androidx.compose.runtime.saveable.SaveableStateHolder saveableStateHolder);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.SaveableStateHolderNavEntryDecorator<T> rememberSaveableStateHolderNavEntryDecorator(androidx.compose.runtime.saveable.SaveableStateHolder?, androidx.compose.runtime.Composer?, int, int);
   }
+
+  public typealias DeepLinkUri = android.net.Uri;
 
 }
 
