@@ -86,4 +86,25 @@ public class FontRequestTest {
         FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS, "systemFont", "   ");
         assertEquals(PROVIDER + "-" + PACKAGE + "-" + QUERY + "-systemFont", request.getId());
     }
+
+    @Test
+    public void testCreateIdentifier_withCertificateInRes_default() {
+        FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY,
+                androidx.core.test.R.array.mock_provider_certs);
+        assertEquals(PROVIDER + "-" + PACKAGE + "-" + QUERY + "-null", request.getId());
+    }
+
+    @Test
+    public void testCreateIdentifier_withCertificateInRes_withVariationSettings() {
+        FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY,
+                androidx.core.test.R.array.mock_provider_certs, "wght 400");
+        assertEquals(PROVIDER + "-" + PACKAGE + "-" + QUERY + "-null-VF", request.getId());
+    }
+
+    @Test
+    public void testCreateIdentifier_withCertificateInRes_blankVariationSettings() {
+        FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY,
+                androidx.core.test.R.array.mock_provider_certs, "   ");
+        assertEquals(PROVIDER + "-" + PACKAGE + "-" + QUERY + "-null", request.getId());
+    }
 }
