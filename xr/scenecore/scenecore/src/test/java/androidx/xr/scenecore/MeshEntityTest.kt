@@ -24,7 +24,9 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.testing.MemoryUtils
 import com.google.common.truth.Truth.assertThat
+import java.lang.ref.WeakReference
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlinx.coroutines.runBlocking
@@ -166,5 +168,18 @@ class MeshEntityTest {
         entity.setBoneTransforms(listOf(Matrix4.Identity))
 
         // Execution succeeded without exception
+    }
+
+    @Test
+    fun garbageCollection_disposesEntity() {
+        fun createMeshEntity(): WeakReference<MeshEntity> {
+            val entity = MeshEntity.create(session, customMesh, listOf(material), parent = null)
+            return WeakReference(entity)
+        }
+
+        val entityRef = createMeshEntity()
+        assertThat(entityRef.get()).isNotNull()
+
+        MemoryUtils.assertGarbageCollected(entityRef)
     }
 }

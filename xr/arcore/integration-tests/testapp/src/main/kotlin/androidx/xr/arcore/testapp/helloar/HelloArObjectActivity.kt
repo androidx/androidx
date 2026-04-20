@@ -121,7 +121,7 @@ class HelloArObjectActivity : ComponentActivity() {
         state: AugmentedObject.State,
     ) {
         if (objectCategoryMap[augmentedObject] != state.category) {
-            objectEntitiesMap[augmentedObject]?.dispose()
+            objectEntitiesMap[augmentedObject]?.parent = null
             objectEntitiesMap.remove(augmentedObject)
             gltfModelMap[state.category]?.let { gltfModel ->
                 objectEntitiesMap[augmentedObject] =

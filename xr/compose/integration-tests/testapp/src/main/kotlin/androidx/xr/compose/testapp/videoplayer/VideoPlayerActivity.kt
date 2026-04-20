@@ -226,7 +226,7 @@ class VideoPlayerActivity : ComponentActivity() {
         videoPlaying = false
         exoPlayer?.release()
         exoPlayer = null
-        surfaceEntity!!.dispose()
+        surfaceEntity!!.parent = null
         surfaceEntity = null
     }
 

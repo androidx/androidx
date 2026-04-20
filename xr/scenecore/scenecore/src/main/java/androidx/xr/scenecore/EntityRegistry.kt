@@ -19,6 +19,7 @@
 package androidx.xr.scenecore
 
 import androidx.xr.scenecore.runtime.Entity as RtEntity
+import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap
  * SceneCore [androidx.xr.runtime.Session].
  */
 internal class EntityRegistry {
-    private val rtEntityEntityMap = ConcurrentHashMap<RtEntity, Entity>()
+    private val rtEntityEntityMap = ConcurrentHashMap<RtEntity, WeakReference<Entity>>()
 
     /**
      * Returns the [Entity] associated with the given [androidx.xr.scenecore.runtime.Entity].
@@ -36,7 +37,8 @@ internal class EntityRegistry {
      * @return [java.util.Optional] containing the [Entity] associated with the given
      *   [androidx.xr.scenecore.runtime.Entity], or empty if no such [Entity] exists.
      */
-    internal fun getEntityForRtEntity(rtEntity: RtEntity): Entity? = rtEntityEntityMap[rtEntity]
+    internal fun getEntityForRtEntity(rtEntity: RtEntity): Entity? =
+        rtEntityEntityMap[rtEntity]?.get()
 
     /**
      * Sets the [Entity] associated with the given [androidx.xr.scenecore.runtime.Entity].
@@ -47,7 +49,7 @@ internal class EntityRegistry {
      *   [androidx.xr.scenecore.runtime.Entity].
      */
     internal fun setEntityForRtEntity(rtEntity: RtEntity, entity: Entity) {
-        rtEntityEntityMap[rtEntity] = entity
+        rtEntityEntityMap[rtEntity] = WeakReference(entity)
     }
 
     /**
@@ -57,7 +59,7 @@ internal class EntityRegistry {
      * @return a list of all [Entity]s of type [T] (including subtypes of [T]).
      */
     internal inline fun <reified T : Entity> getEntities(): List<T> {
-        return rtEntityEntityMap.values.filterIsInstance<T>()
+        return rtEntityEntityMap.values.mapNotNull { it.get() }.filterIsInstance<T>()
     }
 
     /**
@@ -67,7 +69,7 @@ internal class EntityRegistry {
      * @return a list of all [Entity]s of the given type or its subtypes.
      */
     internal fun <T : Entity> getEntitiesOfType(type: Class<out T>): List<T> =
-        rtEntityEntityMap.values.filterIsInstance(type)
+        rtEntityEntityMap.values.mapNotNull { it.get() }.filterIsInstance(type)
 
     /**
      * Returns a collection of all [Entity]s.
@@ -75,7 +77,7 @@ internal class EntityRegistry {
      * @return a collection of all [Entity]s.
      */
     internal fun getAllEntities(): Collection<Entity> {
-        return rtEntityEntityMap.values
+        return rtEntityEntityMap.values.mapNotNull { it.get() }
     }
 
     /**
@@ -95,6 +97,15 @@ internal class EntityRegistry {
     internal fun removeEntity(entity: RtEntity) {
         rtEntityEntityMap.remove(entity)
     }
+
+    /**
+     * Returns true if the given [androidx.xr.scenecore.runtime.Entity] is in the map.
+     *
+     * @param rtEntity the [androidx.xr.scenecore.runtime.Entity] to check for.
+     * @return true if the given [androidx.xr.scenecore.runtime.Entity] is in the map.
+     */
+    internal fun containsRtEntity(rtEntity: RtEntity): Boolean =
+        rtEntityEntityMap.containsKey(rtEntity)
 
     /** Clears the EntityRegistry. */
     internal fun clear() {

@@ -19,7 +19,7 @@ import android.app.Activity
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
-import com.android.extensions.xr.XrExtensions
+import com.android.extensions.xr.node.Node
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test
@@ -30,15 +30,19 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-class SubspaceNodeEntityImplTest {
+class SubspaceNodeEntityImplTest : AndroidXrEntityImplTest() {
+    override val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
+    override val activity: Activity = Robolectric.buildActivity(Activity::class.java).create().get()
+    override val sceneNodeRegistry = SceneNodeRegistry()
+    override val fakeExecutor = FakeScheduledExecutorService()
     private lateinit var subspaceNodeEntity: SubspaceNodeEntityImpl
+
+    override fun createEntity(node: Node): AndroidXrEntity {
+        return SubspaceNodeEntityImpl(activity, xrExtensions, node, sceneNodeRegistry, fakeExecutor)
+    }
 
     @Before
     fun setUp() {
-        val xrExtensions: XrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
-        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
-        val sceneNodeRegistry = SceneNodeRegistry()
-        val executor = FakeScheduledExecutorService()
         val activitySpace =
             ActivitySpaceImpl(
                 xrExtensions.createNode(),
@@ -46,7 +50,7 @@ class SubspaceNodeEntityImplTest {
                 xrExtensions,
                 sceneNodeRegistry,
                 { xrExtensions.getSpatialState(activity) },
-                executor,
+                fakeExecutor,
             )
 
         subspaceNodeEntity =
@@ -55,7 +59,7 @@ class SubspaceNodeEntityImplTest {
                 xrExtensions,
                 xrExtensions.createNode(),
                 sceneNodeRegistry,
-                executor,
+                fakeExecutor,
             )
         subspaceNodeEntity.parent = activitySpace
     }

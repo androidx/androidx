@@ -463,7 +463,8 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
 
     private fun setupControlPanel(session: Session, arDevice: ArDevice) {
         // Dispose previous control panel if it exists
-        controlPanelEntity?.dispose()
+        controlPanelEntity?.removeAllComponents()
+        controlPanelEntity?.parent = null
         controlPanelEntity = null
 
         // Technically this leaks, but it's a sample / test app.
@@ -522,10 +523,12 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
         exoPlayer?.release()
         exoPlayer = null
 
-        surfaceEntity?.dispose()
+        surfaceEntity?.removeAllComponents()
+        surfaceEntity?.parent = null
         surfaceEntity = null
 
-        controlPanelEntity?.dispose()
+        controlPanelEntity?.removeAllComponents()
+        controlPanelEntity?.parent = null
         controlPanelEntity = null
 
         currentPoseForVideo = null

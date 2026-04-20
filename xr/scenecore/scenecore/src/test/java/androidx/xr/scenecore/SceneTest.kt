@@ -29,6 +29,7 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialVisibility as RtSpatialVisibility

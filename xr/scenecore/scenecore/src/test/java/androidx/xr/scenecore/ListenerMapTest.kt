@@ -17,6 +17,7 @@
 package androidx.xr.scenecore
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.scenecore.runtime.DirectExecutor
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
 import org.junit.Test

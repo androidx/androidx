@@ -214,7 +214,7 @@ public class ActivitySpaceImpl(
         openXrReferenceSpaceTransform.set(newTransform)
         var activitySpaceRotation = Quaternion.Identity
         if (unscaledGravityAlignedActivitySpace) {
-            // Get the absolute scale of the scene parent)
+            // Get the absolute scale of the scene parent
             sceneParentScaleAbs = Vector3.abs(newTransform.scale)
             val sceneParentScaleInv = sceneParentScaleAbs.inverse()
             // Get the unscaled rotation of the activity space.

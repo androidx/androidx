@@ -20,6 +20,7 @@ package androidx.xr.scenecore
 
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.SceneRuntime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
@@ -50,13 +51,23 @@ import java.util.function.Consumer
 public class BoundsComponent
 private constructor(
     private val sceneRuntime: SceneRuntime,
-    private val initialListenerExecutor: Executor? = null,
-    private val initialListener: BiConsumer<Entity, BoundingBox>? = null,
+    initialListenerExecutor: Executor? = null,
+    initialListener: BiConsumer<Entity, BoundingBox>? = null,
 ) : Component() {
 
     internal val rtBoundsComponent by lazy { sceneRuntime.createBoundsComponent() }
     internal val boundsUpdateListenerMap =
-        ConcurrentHashMap<BiConsumer<Entity, BoundingBox>, Consumer<BoundingBox>>()
+        ConcurrentHashMap<BiConsumer<Entity, BoundingBox>, Pair<Executor, Consumer<BoundingBox>>>()
+
+    init {
+        initialListener?.let {
+            if (initialListenerExecutor != null) {
+                addBoundsUpdateListener(initialListenerExecutor, it)
+            } else {
+                addBoundsUpdateListener(it)
+            }
+        }
+    }
 
     private var entity: Entity? = null
 
@@ -65,20 +76,24 @@ private constructor(
             return false
         }
         this.entity = entity
-        val attached = (entity as BaseEntity<*>).rtEntity!!.addComponent(rtBoundsComponent)
-        if (attached && initialListener != null) {
-            if (initialListenerExecutor != null) {
-                addBoundsUpdateListener(initialListenerExecutor, initialListener)
-            } else {
-                addBoundsUpdateListener(initialListener)
-            }
+        val attached = (entity as BaseEntity<*>).rtEntity.addComponent(rtBoundsComponent)
+        if (!attached) {
+            this.entity = null
+            return false
         }
 
-        return attached
+        for (entry in boundsUpdateListenerMap.values) {
+            rtBoundsComponent.addOnBoundsUpdateListener(entry.first, entry.second)
+        }
+
+        return true
     }
 
     override fun onDetach(entity: Entity) {
-        (entity as BaseEntity<*>).rtEntity!!.removeComponent(rtBoundsComponent)
+        for (entry in boundsUpdateListenerMap.values) {
+            rtBoundsComponent.removeOnBoundsUpdateListener(entry.second)
+        }
+        (entity as BaseEntity<*>).rtEntity.removeComponent(rtBoundsComponent)
         this.entity = null
     }
 
@@ -109,7 +124,7 @@ private constructor(
                 entity?.let { listener.accept(it, boundingBox) }
             }
         rtBoundsComponent.addOnBoundsUpdateListener(executor, rtListener)
-        boundsUpdateListenerMap[listener] = rtListener
+        boundsUpdateListenerMap[listener] = executor to rtListener
     }
 
     /**
@@ -135,9 +150,8 @@ private constructor(
      *   instance that was passed to [addBoundsUpdateListener].
      */
     public fun removeBoundsUpdateListener(listener: BiConsumer<Entity, BoundingBox>) {
-        val rtListener = boundsUpdateListenerMap.remove(listener)
-        if (rtListener != null) {
-            rtBoundsComponent.removeOnBoundsUpdateListener(rtListener)
+        boundsUpdateListenerMap.remove(listener)?.let {
+            rtBoundsComponent.removeOnBoundsUpdateListener(it.second)
         }
     }
 

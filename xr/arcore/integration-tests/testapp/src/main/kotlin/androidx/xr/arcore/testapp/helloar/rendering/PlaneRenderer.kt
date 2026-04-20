@@ -180,7 +180,7 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
 
     private fun removePlaneModel(planeModel: PlaneModel, planesToRender: MutableList<PlaneModel>) {
         planeModel.renderJob?.cancel()
-        planeModel.modelEntity.dispose()
+        planeModel.modelEntity.parent = null
         planesToRender.remove(planeModel)
     }
 

@@ -21,6 +21,7 @@ package androidx.xr.scenecore
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.ResizeEventListener as RtResizeEventListener
 import androidx.xr.scenecore.runtime.SceneRuntime
 import java.util.concurrent.ConcurrentHashMap
@@ -43,11 +44,24 @@ private constructor(
     private val sceneRuntime: SceneRuntime,
     minimumSize: FloatSize3d,
     maximumSize: FloatSize3d,
-    private val initialListenerExecutor: Executor,
-    private val initialListener: Consumer<ResizeEvent>,
+    initialListenerExecutor: Executor,
+    initialListener: Consumer<ResizeEvent>,
 ) : Component() {
+
+    private val rtResizableComponent by lazy {
+        sceneRuntime.createResizableComponent(
+            minimumSize.toRtDimensions(),
+            maximumSize.toRtDimensions(),
+        )
+    }
+
     private val resizeListenerMap =
-        ConcurrentHashMap<Consumer<ResizeEvent>, RtResizeEventListener>()
+        ConcurrentHashMap<Consumer<ResizeEvent>, Pair<Executor, RtResizeEventListener>>()
+
+    init {
+        addResizeEventListener(initialListenerExecutor, initialListener)
+    }
+
     /**
      * The current size of the affordance for the [Entity], in meters. This property is
      * automatically updated after resize events to match the resize affordance to the newly
@@ -142,13 +156,6 @@ private constructor(
             }
         }
 
-    private val rtResizableComponent by lazy {
-        sceneRuntime.createResizableComponent(
-            minimumSize.toRtDimensions(),
-            maximumSize.toRtDimensions(),
-        )
-    }
-
     private var entity: Entity? = null
 
     override fun onAttach(entity: Entity): Boolean {
@@ -159,17 +166,24 @@ private constructor(
             return false
         }
         this.entity = entity
-        val attached = (entity as BaseEntity<*>).rtEntity!!.addComponent(rtResizableComponent)
+        val attached = (entity as BaseEntity<*>).rtEntity.addComponent(rtResizableComponent)
         if (!attached) {
+            this.entity = null
             return false
         }
-        addResizeEventListener(initialListenerExecutor, initialListener)
+
+        for (entry in resizeListenerMap.values) {
+            rtResizableComponent.addResizeEventListener(entry.first, entry.second)
+        }
 
         return true
     }
 
     override fun onDetach(entity: Entity) {
-        (entity as BaseEntity<*>).rtEntity!!.removeComponent(rtResizableComponent)
+        for (entry in resizeListenerMap.values) {
+            rtResizableComponent.removeResizeEventListener(entry.second)
+        }
+        (entity as BaseEntity<*>).rtEntity.removeComponent(rtResizableComponent)
         this.entity = null
     }
 
@@ -179,7 +193,7 @@ private constructor(
      *
      * The listener is invoked on the provided [Executor] if provided.
      *
-     * @param executor The Executor to run the listener on. By default listener is invoked on the
+     * @param executor The Executor to run the listener on. By default, listener is invoked on the
      *   main thread.
      * @param resizeEventListener The listener to be invoked when a resize event occurs.
      */
@@ -188,11 +202,14 @@ private constructor(
         executor: Executor = HandlerExecutor.mainThreadExecutor,
         resizeEventListener: Consumer<ResizeEvent>,
     ) {
+        if (resizeListenerMap.containsKey(resizeEventListener)) {
+            return
+        }
         val rtResizeEventListener = RtResizeEventListener { rtResizeEvent ->
             run { entity?.let { resizeEventListener.accept(rtResizeEvent.toResizeEvent(it)) } }
         }
         rtResizableComponent.addResizeEventListener(executor, rtResizeEventListener)
-        resizeListenerMap[resizeEventListener] = rtResizeEventListener
+        resizeListenerMap[resizeEventListener] = executor to rtResizeEventListener
     }
 
     /**
@@ -201,10 +218,8 @@ private constructor(
      * @param resizeEventListener The listener to be removed.
      */
     public fun removeResizeEventListener(resizeEventListener: Consumer<ResizeEvent>) {
-        if (resizeListenerMap.containsKey(resizeEventListener)) {
-            rtResizableComponent.removeResizeEventListener(resizeListenerMap[resizeEventListener]!!)
-            resizeListenerMap.remove(resizeEventListener)
-        }
+        val entry = resizeListenerMap.remove(resizeEventListener)
+        entry?.let { rtResizableComponent.removeResizeEventListener(it.second) }
     }
 
     public companion object {
@@ -249,7 +264,7 @@ private constructor(
          *   used to set constraints on how large the user can resize the bounding box of the entity
          *   up to. The size of the content inside that bounding box is fully controlled by the
          *   application. The default value is 10 meters.
-         * @param executor The Executor to run the listener on. By default listener is invoked on
+         * @param executor The Executor to run the listener on. By default, listener is invoked on
          *   the main thread.
          * @param resizeEventListener A resize event listener for the event. The application should
          *   set the size of a PanelEntity using [PanelEntity.size].
@@ -264,12 +279,6 @@ private constructor(
             executor: Executor = HandlerExecutor.mainThreadExecutor,
             resizeEventListener: Consumer<ResizeEvent>,
         ): ResizableComponent =
-            ResizableComponent.create(
-                session.sceneRuntime,
-                minimumSize,
-                maximumSize,
-                executor,
-                resizeEventListener,
-            )
+            create(session.sceneRuntime, minimumSize, maximumSize, executor, resizeEventListener)
     }
 }

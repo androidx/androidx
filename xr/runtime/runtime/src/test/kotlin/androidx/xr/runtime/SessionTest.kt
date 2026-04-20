@@ -27,6 +27,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
+import androidx.xr.runtime.internal.JxrRuntime
 import androidx.xr.runtime.internal.UnsupportedDeviceException
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.ContinuationInterceptor
@@ -492,6 +493,51 @@ class SessionTest {
         activityController.destroy()
 
         assertThat(sessionConnector.isClosed).isTrue()
+    }
+
+    @Test
+    fun destroy_callsCleanupsInReverseOrder() {
+        val callOrder = mutableListOf<String>()
+        val runtime1 =
+            object : JxrRuntime {
+                override fun destroy() {
+                    callOrder.add("runtime1")
+                }
+            }
+        val runtime2 =
+            object : JxrRuntime {
+                override fun destroy() {
+                    callOrder.add("runtime2")
+                }
+            }
+        val connector1 =
+            object : SessionConnector {
+                override fun initialize(runtimes: List<JxrRuntime>) {}
+
+                override fun close() {
+                    callOrder.add("connector1")
+                }
+            }
+        val extender1 =
+            object : StateExtender {
+                override fun initialize(runtimes: List<JxrRuntime>) {}
+
+                override suspend fun extend(coreState: CoreState) {}
+            }
+        val session =
+            Session(
+                activity,
+                listOf(extender1),
+                listOf(connector1),
+                listOf(runtime1, runtime2),
+                kotlinx.coroutines.test.TestScope(testDispatcher),
+                activity,
+            )
+        activity.lifecycle.addObserver(session.lifecycleObserver)
+
+        activityController.create().start().resume().pause().stop().destroy()
+
+        assertThat(callOrder).containsExactly("connector1", "runtime2", "runtime1").inOrder()
     }
 
     private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher): Session {

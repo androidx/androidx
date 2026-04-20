@@ -324,7 +324,7 @@ class AccessibilityActivity : ComponentActivity() {
                 Text("Create Surface", fontSize = 20.sp)
             }
             Button({
-                surfaceEntity?.dispose()
+                surfaceEntity?.parent = null
                 surfaceEntity = null
             }) {
                 Text("Remove Surface", fontSize = 20.sp)
@@ -418,9 +418,9 @@ class AccessibilityActivity : ComponentActivity() {
                 Text("Create Anchor", fontSize = 20.sp)
             }
             Button({
-                anchorEntity.value?.dispose()
+                anchorEntity.value?.parent = null
                 anchorEntity.value = null
-                gltfEntity.value?.dispose()
+                gltfEntity.value?.parent = null
                 gltfEntity.value = null
             }) {
                 Text("Remove Anchor", fontSize = 20.sp)

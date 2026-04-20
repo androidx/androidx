@@ -22,11 +22,13 @@ import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.math.Vector3.Companion.abs
+import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.SystemSpaceEntity
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeTransform
 import java.io.Closeable
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicReference
@@ -55,11 +57,28 @@ internal constructor(
     private var originChangedListener: Runnable? = null
     private var originChangedExecutor: Executor = scheduledExecutor
 
+    private val systemSpaceCleanupAction = SystemSpaceCleanupAction()
+
     init {
         // The underlying CPM node is always expected to be updated in response to changes to
         // the coordinate space represented by a SystemSpaceEntityImpl so we subscribe at
         // construction.
         subscribeToNodeTransform(node, executor)
+        registerCleanup(executor, systemSpaceCleanupAction)
+    }
+
+    private class SystemSpaceCleanupAction : CleanupAction({}) {
+        @Volatile var nodeTransformCloseable: Closeable? = null
+        private val cleanupAction = CleanupAction {
+            try {
+                nodeTransformCloseable?.close()
+            } catch (_: Exception) {
+                // Don't throw when in dispose.
+            }
+            nodeTransformCloseable = null
+        }
+
+        override fun run() = cleanupAction.run()
     }
 
     /** Called when the underlying space's origin has changed. */
@@ -116,28 +135,16 @@ internal constructor(
      * @param executor The executor to run the callback on.
      */
     private fun subscribeToNodeTransform(node: Node, executor: ScheduledExecutorService) {
+        val weakThis = WeakReference(this)
         nodeTransformCloseable =
             node.subscribeToTransform(executor) { transform: NodeTransform ->
-                setOpenXrReferenceSpaceTransform(RuntimeUtils.getMatrix(transform.transform))
+                weakThis
+                    .get()
+                    ?.setOpenXrReferenceSpaceTransform(RuntimeUtils.getMatrix(transform.transform))
             }
+        systemSpaceCleanupAction.nodeTransformCloseable = nodeTransformCloseable
     }
 
     override val worldSpaceScale: Vector3
         get() = _worldSpaceScale
-
-    /** Unsubscribes from the node's transform update events. */
-    private fun unsubscribeFromNodeTransform() {
-        try {
-            nodeTransformCloseable.close()
-        } catch (e: Exception) {
-            throw RuntimeException(
-                "Could not close node transform subscription with error: " + e.message
-            )
-        }
-    }
-
-    override fun dispose() {
-        unsubscribeFromNodeTransform()
-        super.dispose()
-    }
 }

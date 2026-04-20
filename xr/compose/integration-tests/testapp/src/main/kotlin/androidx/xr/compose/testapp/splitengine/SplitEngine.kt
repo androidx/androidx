@@ -379,7 +379,7 @@ class SplitEngine : ComponentActivity() {
 
                         ApiButton("Destroy Dragon Entity", modifier) {
                             if (dragonEntity.value != null) {
-                                dragonEntity.value!!.dispose()
+                                dragonEntity.value!!.parent = null
                                 dragonEntity.value = null
                             }
                         }

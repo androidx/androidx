@@ -638,6 +638,7 @@ private constructor(
                     session.scene.entityRegistry,
                     shape,
                 )
+            surfaceEntity.parent = parent as? BaseEntity<*>
             surfaceEntity.contentColorMetadata = contentColorMetadata
             return surfaceEntity
         }
@@ -733,14 +734,10 @@ private constructor(
      * @throws IllegalStateException when setting this value if the Entity has been disposed.
      */
     public var stereoMode: StereoMode
-        get() {
-            checkNotDisposed()
-            return getStereoModeFromRt(rtEntity!!.stereoMode)
-        }
+        get() = getStereoModeFromRt(rtEntity.stereoMode)
         @MainThread
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.stereoMode = getRtStereoMode(value)
+            rtEntity.stereoMode = getRtStereoMode(value)
         }
 
     /**
@@ -750,16 +747,12 @@ private constructor(
      */
     public var mediaBlendingMode: MediaBlendingMode
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get() {
-            checkNotDisposed()
-            return getMediaBlendingModeFromRt(rtEntity!!.mediaBlendingMode)
-        }
+        get() = getMediaBlendingModeFromRt(rtEntity.mediaBlendingMode)
         @MainThread
         @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.mediaBlendingMode = getRtMediaBlendingMode(value)
+            rtEntity.mediaBlendingMode = getRtMediaBlendingMode(value)
         }
 
     /**
@@ -768,10 +761,7 @@ private constructor(
      * This value is entirely determined by the value of [shape].
      */
     public val dimensions: FloatSize3d
-        get() {
-            checkNotDisposed()
-            return rtEntity!!.dimensions.toFloatSize3d()
-        }
+        get() = rtEntity.dimensions.toFloatSize3d()
 
     /**
      * The shape of the canvas that backs the Entity. Updating this value will alter the
@@ -797,7 +787,7 @@ private constructor(
                         )
                     else -> throw IllegalArgumentException("Unsupported canvas shape: $value")
                 }
-            rtEntity!!.shape = rtShape
+            rtEntity.shape = rtShape
             field = value
         }
 
@@ -818,8 +808,7 @@ private constructor(
         @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.setPrimaryAlphaMaskTexture(value?.texture)
+            rtEntity.setPrimaryAlphaMaskTexture(value?.texture)
             field = value
         }
 
@@ -840,8 +829,7 @@ private constructor(
         @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.setAuxiliaryAlphaMaskTexture(value?.texture)
+            rtEntity.setAuxiliaryAlphaMaskTexture(value?.texture)
             field = value
         }
 
@@ -870,7 +858,7 @@ private constructor(
                         )
                     else -> throw IllegalArgumentException("Unsupported edge feather: $value")
                 }
-            rtEntity!!.edgeFeather = rtEdgeFeather
+            rtEntity.edgeFeather = rtEdgeFeather
             field = value
         }
 
@@ -892,16 +880,15 @@ private constructor(
     public var contentColorMetadata: ContentColorMetadata? = null
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() {
-            checkNotDisposed()
-            return if (!rtEntity!!.contentColorMetadataSet) {
+            return if (!rtEntity.contentColorMetadataSet) {
                 null
             } else {
                 ContentColorMetadata(
-                    colorSpace = ContentColorMetadata.getColorSpaceFromRt(rtEntity!!.colorSpace),
+                    colorSpace = ContentColorMetadata.getColorSpaceFromRt(rtEntity.colorSpace),
                     colorTransfer =
-                        ContentColorMetadata.getColorTransferFromRt(rtEntity!!.colorTransfer),
-                    colorRange = ContentColorMetadata.getColorRangeFromRt(rtEntity!!.colorRange),
-                    maxContentLightLevel = rtEntity!!.maxContentLightLevel,
+                        ContentColorMetadata.getColorTransferFromRt(rtEntity.colorTransfer),
+                    colorRange = ContentColorMetadata.getColorRangeFromRt(rtEntity.colorRange),
+                    maxContentLightLevel = rtEntity.maxContentLightLevel,
                 )
             }
         }
@@ -909,11 +896,10 @@ private constructor(
         @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
-            checkNotDisposed()
             if (value == null) {
-                rtEntity!!.resetContentColorMetadata()
+                rtEntity.resetContentColorMetadata()
             } else {
-                rtEntity!!.setContentColorMetadata(
+                rtEntity.setContentColorMetadata(
                     ContentColorMetadata.getRtColorSpace(value.colorSpace),
                     ContentColorMetadata.getRtColorTransfer(value.colorTransfer),
                     ContentColorMetadata.getRtColorRange(value.colorRange),
@@ -931,8 +917,7 @@ private constructor(
      */
     @MainThread
     public fun getSurface(): Surface {
-        checkNotDisposed()
-        return rtEntity!!.surface
+        return rtEntity.surface
     }
 
     /**
@@ -957,8 +942,7 @@ private constructor(
     @MainThread
     @ExperimentalSurfaceEntityPixelDimensionsApi
     public fun setSurfacePixelDimensions(dimensions: IntSize2d) {
-        checkNotDisposed()
-        rtEntity!!.setSurfacePixelDimensions(dimensions.width, dimensions.height)
+        rtEntity.setSurfacePixelDimensions(dimensions.width, dimensions.height)
     }
 
     /**
@@ -987,9 +971,8 @@ private constructor(
     // removed.
     @Suppress("DEPRECATION")
     public fun getPerceivedResolution(renderViewpoint: RenderViewpoint): PerceivedResolutionResult {
-        checkNotDisposed()
         val renderViewpointState = renderViewpoint.state.value
-        return rtEntity!!
+        return rtEntity
             .getPerceivedResolution(
                 (perceptionSpace.getScenePoseFromPerceptionPose(renderViewpointState.pose)
                         as PerceptionScenePose)

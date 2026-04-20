@@ -51,15 +51,15 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-class SurfaceEntityImplTest {
+class SurfaceEntityImplTest : AndroidXrEntityImplTest() {
     private val activityController: ActivityController<Activity> =
         Robolectric.buildActivity(Activity::class.java)
-    private val activity: Activity = activityController.create().start().get()
-    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
-    private val fakeScheduledExecutorService = FakeScheduledExecutorService()
+    override val activity: Activity = activityController.create().start().get()
+    override val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
+    override val fakeExecutor = FakeScheduledExecutorService()
     private val spatialStateProvider = Supplier { ShadowSpatialState.create() }
     private val viewPlaneResolution = PixelDimensions(2000, 1000)
-    private val sceneNodeRegistry = SceneNodeRegistry()
+    override val sceneNodeRegistry = SceneNodeRegistry()
     private val activitySpaceImpl =
         ActivitySpaceImpl(
             xrExtensions.createNode(),
@@ -67,7 +67,7 @@ class SurfaceEntityImplTest {
             xrExtensions,
             sceneNodeRegistry,
             spatialStateProvider,
-            fakeScheduledExecutorService,
+            fakeExecutor,
         )
     private val fakeSurfaceFeature =
         FakeSurfaceFeature(NodeHolder<Node>(xrExtensions.createNode(), Node::class.java))
@@ -79,7 +79,7 @@ class SurfaceEntityImplTest {
             activitySpaceImpl,
             xrExtensions,
             sceneNodeRegistry,
-            fakeScheduledExecutorService,
+            fakeExecutor,
         )
     private val renderViewScenePose = FakeScenePose()
     private val renderViewFov =
@@ -89,6 +89,20 @@ class SurfaceEntityImplTest {
             atan(1.0).toFloat(),
             atan(1.0).toFloat(),
         )
+
+    override fun createEntity(node: Node): AndroidXrEntity {
+        val nodeHolder = NodeHolder<Node>(node, Node::class.java)
+        val fakeSurfaceFeature = FakeSurfaceFeature(nodeHolder)
+
+        return SurfaceEntityImpl(
+            activity,
+            fakeSurfaceFeature,
+            null,
+            xrExtensions,
+            sceneNodeRegistry,
+            fakeExecutor,
+        )
+    }
 
     @Before
     fun setUp() {

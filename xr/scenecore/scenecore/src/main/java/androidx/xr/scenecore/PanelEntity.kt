@@ -50,13 +50,9 @@ internal constructor(
 
     /** The corner radius of the PanelEntity, in meters. */
     public var cornerRadius: Float
-        get() {
-            checkNotDisposed()
-            return rtEntity!!.cornerRadius
-        }
+        get() = rtEntity.cornerRadius
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.cornerRadius = value
+            rtEntity.cornerRadius = value
         }
 
     /**
@@ -64,13 +60,9 @@ internal constructor(
      * Entity's parent.
      */
     public var size: FloatSize2d
-        get() {
-            checkNotDisposed()
-            return rtEntity!!.size.toFloatSize2d()
-        }
+        get() = rtEntity.size.toFloatSize2d()
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.size = value.toRtDimensions()
+            rtEntity.size = value.toRtDimensions()
         }
 
     /**
@@ -80,13 +72,9 @@ internal constructor(
      * This API doesn't do any scale compensation to the pixel dimensions.
      */
     public var sizeInPixels: IntSize2d
-        get() {
-            checkNotDisposed()
-            return rtEntity!!.sizeInPixels.toIntSize2d()
-        }
+        get() = rtEntity.sizeInPixels.toIntSize2d()
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.sizeInPixels = value.toRtPixelDimensions()
+            rtEntity.sizeInPixels = value.toRtPixelDimensions()
         }
 
     /**
@@ -117,9 +105,8 @@ internal constructor(
     // removed.
     @Suppress("DEPRECATION")
     public fun getPerceivedResolution(renderViewpoint: RenderViewpoint): PerceivedResolutionResult {
-        checkNotDisposed()
         val renderViewpointState = renderViewpoint.state.value
-        return rtEntity!!
+        return rtEntity
             .getPerceivedResolution(
                 (perceptionSpace.getScenePoseFromPerceptionPose(renderViewpointState.pose)
                         as PerceptionScenePose)
@@ -154,8 +141,7 @@ internal constructor(
      * @see ScenePose.transformPositionTo to transform the position to a different coordinate space.
      */
     public fun transformPixelCoordinatesToLocalPosition(coordinates: Vector2): Vector3 {
-        checkNotDisposed()
-        return rtEntity!!.transformPixelCoordinatesToLocalPosition(coordinates)
+        return rtEntity.transformPixelCoordinatesToLocalPosition(coordinates)
     }
 
     /**
@@ -179,8 +165,7 @@ internal constructor(
      * @see ScenePose.transformPositionTo to transform the position to a different coordinate space.
      */
     public fun transformNormalizedCoordinatesToLocalPosition(coordinates: Vector2): Vector3 {
-        checkNotDisposed()
-        return rtEntity!!.transformNormalizedCoordinatesToLocalPosition(coordinates)
+        return rtEntity.transformNormalizedCoordinatesToLocalPosition(coordinates)
     }
 
     public companion object {
@@ -197,25 +182,26 @@ internal constructor(
             parent: Entity? = entityRegistry.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): PanelEntity =
             PanelEntity(
-                perceptionSpace,
-                sceneRuntime.createPanelEntity(
-                    context,
-                    pose,
-                    view,
-                    dimensions.toRtDimensions(),
-                    name,
-                    if (parent != null && parent !is BaseEntity<*>) {
-                        XrLog.warn(
-                            "The provided parent is not a BaseEntity. The PanelEntity will be " +
-                                "created without a parent."
-                        )
-                        null
-                    } else {
-                        parent?.rtEntity
-                    },
-                ),
-                entityRegistry,
-            )
+                    perceptionSpace,
+                    sceneRuntime.createPanelEntity(
+                        context,
+                        pose,
+                        view,
+                        dimensions.toRtDimensions(),
+                        name,
+                        if (parent != null && parent !is BaseEntity<*>) {
+                            XrLog.warn(
+                                "The provided parent is not a BaseEntity. The PanelEntity will be " +
+                                    "created without a parent."
+                            )
+                            null
+                        } else {
+                            parent?.rtEntity
+                        },
+                    ),
+                    entityRegistry,
+                )
+                .also { it.parent = parent as? BaseEntity<*> }
 
         @Suppress("RestrictedApiAndroidX")
         internal fun create(
@@ -230,25 +216,26 @@ internal constructor(
             parent: Entity? = entityRegistry.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): PanelEntity =
             PanelEntity(
-                perceptionSpace,
-                sceneRuntime.createPanelEntity(
-                    context,
-                    pose,
-                    view,
-                    pixelDimensions.toRtPixelDimensions(),
-                    name,
-                    if (parent != null && parent !is BaseEntity<*>) {
-                        XrLog.warn(
-                            "The provided parent is not a BaseEntity. The PanelEntity will be " +
-                                "created without a parent."
-                        )
-                        null
-                    } else {
-                        parent?.rtEntity
-                    },
-                ),
-                entityRegistry,
-            )
+                    perceptionSpace,
+                    sceneRuntime.createPanelEntity(
+                        context,
+                        pose,
+                        view,
+                        pixelDimensions.toRtPixelDimensions(),
+                        name,
+                        if (parent != null && parent !is BaseEntity<*>) {
+                            XrLog.warn(
+                                "The provided parent is not a BaseEntity. The PanelEntity will be " +
+                                    "created without a parent."
+                            )
+                            null
+                        } else {
+                            parent?.rtEntity
+                        },
+                    ),
+                    entityRegistry,
+                )
+                .also { it.parent = if (parent is BaseEntity<*>) parent else null }
 
         /**
          * Factory method for a spatialized PanelEntity.

@@ -18,6 +18,7 @@ package androidx.xr.scenecore.spatial.core
 
 import android.content.Context
 import androidx.xr.runtime.TypeHolder.Companion.assertGetValue
+import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.RenderingFeature
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
@@ -54,9 +55,20 @@ internal abstract class BaseRenderingEntity(
             }
         }
 
-    override fun dispose() {
-        subspaceNode?.let { sceneNodeRegistry.removeEntityForNode(it) }
-        renderingFeature.dispose()
-        super.dispose()
+    private val baseRenderingCleanupAction: BaseRenderingEntityCleanupAction =
+        BaseRenderingEntityCleanupAction(subspaceNode, sceneNodeRegistry, renderingFeature)
+
+    init {
+        registerCleanup(executor, baseRenderingCleanupAction)
     }
+
+    private class BaseRenderingEntityCleanupAction(
+        subspaceNode: Node?,
+        sceneNodeRegistry: SceneNodeRegistry,
+        renderingFeature: RenderingFeature,
+    ) :
+        CleanupAction({
+            subspaceNode?.let { sceneNodeRegistry.removeEntityForNode(it) }
+            renderingFeature.dispose()
+        })
 }

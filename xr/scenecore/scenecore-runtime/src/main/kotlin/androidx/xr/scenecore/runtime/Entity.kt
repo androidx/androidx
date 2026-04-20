@@ -46,7 +46,7 @@ public interface Entity : ScenePose {
      *
      * @param hidden The new local hidden state of this Entity.
      */
-    public fun setHidden(hidden: Boolean): Unit
+    public fun setHidden(hidden: Boolean)
 
     /**
      * Add given Entity as child. The child Entity's pose will be relative to the pose of its parent

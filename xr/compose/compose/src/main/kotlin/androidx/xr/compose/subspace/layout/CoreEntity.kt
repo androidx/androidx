@@ -186,7 +186,8 @@ internal sealed class CoreEntity(initialEntity: Entity? = null) : OpaqueEntity {
 
     open fun dispose() {
         entityActionQueue.clear()
-        entityActionQueue.value?.dispose()
+        entityActionQueue.value?.let { it.parent = null }
+        entityActionQueue.value = null
     }
 
     /**
@@ -213,7 +214,7 @@ internal sealed class CoreEntity(initialEntity: Entity? = null) : OpaqueEntity {
     }
 
     fun attachEntity(entity: Entity) {
-        entityActionQueue.value?.dispose()
+        entityActionQueue.value?.parent = null
         entityActionQueue.value = entity
     }
 

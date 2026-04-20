@@ -77,24 +77,25 @@ private constructor(
             parent: Entity? = entityRegistry.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): ActivityPanelEntity =
             ActivityPanelEntity(
-                perceptionSpace,
-                sceneRuntime.createActivityPanelEntity(
-                    pose,
-                    pixelDimensions.toRtPixelDimensions(),
-                    name,
-                    hostActivity,
-                    if (parent != null && parent !is BaseEntity<*>) {
-                        XrLog.warn(
-                            "The provided parent is not a BaseEntity. The ActivityPanelEntity " +
-                                "will be created without a parent."
-                        )
-                        null
-                    } else {
-                        parent?.rtEntity
-                    },
-                ),
-                entityRegistry,
-            )
+                    perceptionSpace,
+                    sceneRuntime.createActivityPanelEntity(
+                        pose,
+                        pixelDimensions.toRtPixelDimensions(),
+                        name,
+                        hostActivity,
+                        if (parent != null && parent !is BaseEntity<*>) {
+                            XrLog.warn(
+                                "The provided parent is not a BaseEntity. The ActivityPanelEntity " +
+                                    "will be created without a parent."
+                            )
+                            null
+                        } else {
+                            parent?.rtEntity
+                        },
+                    ),
+                    entityRegistry,
+                )
+                .also { it.parent = parent as? BaseEntity<*> }
 
         /**
          * Public factory function for a spatial ActivityPanelEntity.
@@ -117,7 +118,7 @@ private constructor(
             pose: Pose = Pose.Identity,
             parent: Entity? = null,
         ): ActivityPanelEntity =
-            ActivityPanelEntity.create(
+            create(
                 session.perceptionRuntime.lifecycleManager,
                 session.sceneRuntime,
                 session.scene.perceptionSpace,

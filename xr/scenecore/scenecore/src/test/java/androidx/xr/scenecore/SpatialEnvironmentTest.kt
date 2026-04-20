@@ -24,6 +24,7 @@ import androidx.activity.ComponentActivity
 import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SpatialEnvironment as RtSpatialEnvironment

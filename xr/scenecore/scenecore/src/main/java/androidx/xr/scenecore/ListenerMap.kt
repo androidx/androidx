@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore
 
+import java.lang.ref.WeakReference
 import java.util.Collections
 import java.util.concurrent.Executor
 import java.util.function.Consumer
@@ -35,6 +36,12 @@ internal open class ListenerMap<ListenerType, EventType>(
     // synchronizedMap automatically handles synchronization for add/remove/clear.
     private val map: MutableMap<ListenerType, Executor> =
         Collections.synchronizedMap(HashMap<ListenerType, Executor>())
+
+    val isEmpty: Boolean
+        get() = map.isEmpty()
+
+    val size: Int
+        get() = map.size
 
     fun add(executor: Executor, listener: ListenerType) {
         map[listener] = executor
@@ -65,3 +72,28 @@ internal class ConsumerListenerMap<EventType> :
 
 /** ListenerMap for listeners that are of type Runnable. */
 internal class RunnableListenerMap : ListenerMap<Runnable, Unit>({ runnable, _ -> runnable.run() })
+
+/**
+ * A [Runnable] implementation that holds a [WeakReference] to a target object and executes a block
+ * only if the target is still alive.
+ */
+internal class WeakRunnable<T>(target: T, private val block: (T) -> Unit) : Runnable {
+    private val weakTarget = WeakReference(target)
+
+    override fun run() {
+        weakTarget.get()?.let { block(it) }
+    }
+}
+
+/**
+ * A generic functional interface implementation that holds a [WeakReference] to a target object and
+ * executes a block only if the target is still alive. This is useful for implementing SAM
+ * interfaces with weak references.
+ */
+internal class WeakListener<T, L>(target: T, private val block: (T, L) -> Unit) {
+    private val weakTarget = WeakReference(target)
+
+    fun invoke(value: L) {
+        weakTarget.get()?.let { block(it, value) }
+    }
+}

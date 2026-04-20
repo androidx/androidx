@@ -22,6 +22,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -406,7 +407,8 @@ public constructor(
     public var config: Config = Config()
         private set
 
-    private val lifecycleObserver = LifecycleEventObserver { _, event ->
+    @get:VisibleForTesting
+    internal val lifecycleObserver = LifecycleEventObserver { _, event ->
         when (event) {
             Lifecycle.Event.ON_RESUME -> resume()
             Lifecycle.Event.ON_PAUSE -> pause()
@@ -506,13 +508,13 @@ public constructor(
      */
     private fun destroy() {
         contextSessionMap.remove(context)
-        for (runtime in runtimes) {
-            runtime.destroy()
-        }
-        for (sessionConnector in sessionConnectors) {
+        coroutineScope.cancel()
+        for (sessionConnector in sessionConnectors.asReversed()) {
             sessionConnector.close()
         }
-        coroutineScope.cancel()
+        for (runtime in runtimes.asReversed()) {
+            runtime.destroy()
+        }
     }
 
     private suspend fun updateLoop() {

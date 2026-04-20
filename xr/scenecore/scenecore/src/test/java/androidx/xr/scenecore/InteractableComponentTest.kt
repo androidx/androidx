@@ -137,7 +137,7 @@ class InteractableComponentTest {
                 Vector3.Zero,
                 Vector3.One,
                 RtInputEvent.Action.DOWN,
-                listOf(RtInputEvent.HitInfo(rtEntity!!, Vector3.One, Matrix4.Identity)),
+                listOf(RtInputEvent.HitInfo(rtEntity, Vector3.One, Matrix4.Identity)),
             )
         // Simulates an input event from runtime.
         (rtEntity.getComponents()[0] as FakeInteractableComponent).onInputEvent(rtInputEvent)

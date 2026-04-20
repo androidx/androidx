@@ -108,7 +108,8 @@ class SurfaceEntityManager(private val session: Session, activity: AppCompatActi
     }
 
     private fun destroySurfaceEntity() {
-        surfaceEntity?.dispose()
+        surfaceEntity?.removeAllComponents()
+        surfaceEntity?.parent = null
         surfaceEntity = null
         updateButtonStates()
     }

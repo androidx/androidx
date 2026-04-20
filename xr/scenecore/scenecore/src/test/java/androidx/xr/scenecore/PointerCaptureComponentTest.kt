@@ -154,7 +154,7 @@ class PointerCaptureComponentTest {
                 Vector3(),
                 Vector3(0f, 0f, 1f),
                 RtInputEvent.Action.DOWN,
-                listOf(RtInputEvent.HitInfo(entity.rtEntity!!, Vector3.One, Matrix4.Identity)),
+                listOf(RtInputEvent.HitInfo(entity.rtEntity, Vector3.One, Matrix4.Identity)),
             )
         val rtPointerCaptureComponent =
             entity.rtEntity?.getComponents()[0] as FakePointerCaptureComponent

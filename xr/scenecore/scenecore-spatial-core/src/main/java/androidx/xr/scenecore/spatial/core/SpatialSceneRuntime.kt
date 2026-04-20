@@ -233,6 +233,11 @@ private constructor(
         if (isDestroyed) {
             return
         }
+
+        // Dispose entities first while extensions and activity are still valid.
+        sceneNodeRegistry.getAllEntities().forEach(Entity::dispose)
+        sceneNodeRegistry.clear()
+
         spatialEnvironmentImpl.dispose()
         clearKeyEntitySubscription(false)
         spatialModeChangeListener = null
@@ -249,9 +254,8 @@ private constructor(
         // TODO: b/376934871 - Check async results.
         xrExtensions.detachSpatialScene(activity, { it.run() }) { _: XrExtensionResult -> }
         activity = null
-        sceneNodeRegistry.getAllEntities().forEach(Entity::dispose)
-        sceneNodeRegistry.clear()
         isDestroyed = true
+        scheduledExecutorService.shutdown()
     }
 
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {

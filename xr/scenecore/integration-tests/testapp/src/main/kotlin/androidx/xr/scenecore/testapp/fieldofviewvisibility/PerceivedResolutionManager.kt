@@ -216,7 +216,8 @@ class PerceivedResolutionManager(
     }
 
     private fun destroyPerceivedResolutionPanel() {
-        mPanelEntity?.dispose()
+        mPanelEntity?.removeAllComponents()
+        mPanelEntity?.parent = null
         mPanelEntity = null
         updateButtonStates()
     }

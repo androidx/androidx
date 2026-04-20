@@ -76,7 +76,7 @@ internal class AnchorRenderer(
 
     private fun clearRenderedAnchors() {
         for (anchor in renderedAnchors) {
-            anchor.entity.dispose()
+            anchor.entity.parent = null
         }
         renderedAnchors.clear()
     }

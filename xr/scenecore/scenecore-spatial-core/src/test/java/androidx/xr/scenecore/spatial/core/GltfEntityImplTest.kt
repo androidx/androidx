@@ -43,18 +43,34 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-class GltfEntityImplTest {
-    private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
-    private val sceneNodeRegistry = SceneNodeRegistry()
-    private val fakeScheduledExecutorService = FakeScheduledExecutorService()
+class GltfEntityImplTest : AndroidXrEntityImplTest() {
+    override val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
+    override val sceneNodeRegistry = SceneNodeRegistry()
+    override val fakeExecutor = FakeScheduledExecutorService()
     private val mockGltfFeature: GltfFeature = mock<GltfFeature>()
     private lateinit var activitySpace: ActivitySpaceImpl
     private lateinit var gltfEntityImpl: GltfEntityImpl
 
+    override lateinit var activity: Activity
+
+    override fun createEntity(node: Node): AndroidXrEntity {
+        val nodeHolder = NodeHolder<Node>(node, Node::class.java)
+        val fakeGltfFeature = createWithMockFeature(mockGltfFeature, nodeHolder)
+
+        return GltfEntityImpl(
+            activity,
+            fakeGltfFeature,
+            null,
+            xrExtensions,
+            sceneNodeRegistry,
+            fakeExecutor,
+        )
+    }
+
     @Before
     fun setUp() {
         val activityController = Robolectric.buildActivity(Activity::class.java)
-        val activity = activityController.create().start().get()
+        activity = activityController.create().start().get()
 
         Truth.assertThat(xrExtensions).isNotNull()
 
@@ -69,7 +85,7 @@ class GltfEntityImplTest {
                 xrExtensions,
                 sceneNodeRegistry,
                 { xrExtensions.getSpatialState(activity) },
-                fakeScheduledExecutorService,
+                fakeExecutor,
             )
         sceneNodeRegistry.addSystemSpaceScenePose(PerceptionSpaceScenePoseImpl(activitySpace))
 
@@ -91,7 +107,7 @@ class GltfEntityImplTest {
             activitySpace,
             xrExtensions,
             sceneNodeRegistry,
-            fakeScheduledExecutorService,
+            fakeExecutor,
         )
     }
 
