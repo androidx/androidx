@@ -37,7 +37,6 @@ internal const val APP_FUNCTION_ID_EMPTY = "unused"
  */
 public class AppFunctionMetadata
 // TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmOverloads
 constructor(
     /**
@@ -78,6 +77,7 @@ constructor(
         ),
 ) {
     @JvmOverloads
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         /** The name of the AppFunction. */
         name: AppFunctionName,

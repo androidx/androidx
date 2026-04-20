@@ -32,7 +32,6 @@ import org.xmlpull.v1.XmlPullParser
 /** Represents metadata about a package providing app functions. */
 public class AppFunctionPackageMetadata
 // TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmOverloads
 constructor(
     /** The name of the package */
@@ -45,6 +44,7 @@ constructor(
     /** Reusable components that could be shared within the function specification. */
     internal val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
 ) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         packageName: String,
         components: AppFunctionComponentsMetadata,
