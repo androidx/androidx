@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -47,10 +48,9 @@ import androidx.compose.ui.unit.dp
  * @sample androidx.xr.glimmer.samples.ButtonWithLeadingIconSample
  *
  * There are multiple button size variants - providing a different [ButtonSize] will affect default
- * values used inside this button, such as the minimum height and the size of icons inside this
- * button. Note that you can still provide a size modifier such as
- * [androidx.compose.foundation.layout.size] to change the layout size of this button, [buttonSize]
- * affects default values and values internal to the button.
+ * values used inside this button, such as the minimum height. Note that you can still provide a
+ * size modifier such as [androidx.compose.foundation.layout.size] to change the layout size of this
+ * button, [buttonSize] affects default values and values internal to the button.
  *
  * @sample androidx.xr.glimmer.samples.LargeButtonSample
  * @param onClick called when this button is clicked
@@ -98,15 +98,9 @@ public fun Button(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val iconSize = GlimmerTheme.iconSizes.small
-    val iconSpacing = GlimmerTheme.componentSpacingValues.extraSmall
-
-    val minHeight =
-        if (buttonSize == ButtonSize.Medium) {
-            MediumMinimumHeight
-        } else {
-            LargeMinimumHeight
-        }
+    val iconSize = ButtonDefaults.iconSize
+    val iconSpacing = ButtonDefaults.iconSpacing
+    val minHeight = ButtonDefaults.minimumHeight(buttonSize)
 
     val depth =
         SurfaceDepthEffect(
@@ -181,10 +175,23 @@ public object ButtonDefaults {
             PaddingValues(componentSpacingValues.large)
         }
     }
+
+    /** Default minimum height for [Button] and [ToggleButton] with the specified [buttonSize]. */
+    internal fun minimumHeight(buttonSize: ButtonSize): Dp {
+        return when (buttonSize) {
+            ButtonSize.Medium -> 48.dp
+            ButtonSize.Large -> 72.dp
+            else -> throw IllegalArgumentException("Unknown size $buttonSize.")
+        }
+    }
+
+    /** Default icon size for buttons with non-icon content: [Button], [ToggleButton]. */
+    @get:Composable
+    internal val iconSize: Dp
+        get() = GlimmerTheme.iconSizes.small
+
+    /** Default spacing between icon and content for [Button] and [ToggleButton]. */
+    @get:Composable
+    internal val iconSpacing: Dp
+        get() = GlimmerTheme.componentSpacingValues.extraSmall
 }
-
-/** Default minimum height for a medium [Button] */
-private val MediumMinimumHeight = 48.dp
-
-/** Default minimum height for a large [Button] */
-private val LargeMinimumHeight = 72.dp

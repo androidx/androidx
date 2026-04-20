@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -67,45 +68,18 @@ public fun IconButton(
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
     border: BorderStroke? = SurfaceDefaults.border(),
-    contentPadding: PaddingValues = PaddingValues(GlimmerTheme.componentSpacingValues.small),
+    contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
 ) {
-    IconButtonImpl(
-        onClick = onClick,
-        modifier = modifier.semantics { role = Role.Button },
-        enabled = enabled,
-        shape = shape,
-        color = color,
-        contentColor = contentColor,
-        border = border,
-        depthEffect =
-            SurfaceDepthEffect(
-                depthEffect = null,
-                focusedDepthEffect = GlimmerTheme.depthEffectLevels.level1,
-            ),
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-@Composable
-internal fun IconButtonImpl(
-    onClick: () -> Unit,
-    modifier: Modifier,
-    enabled: Boolean,
-    shape: Shape,
-    color: Color,
-    contentColor: Color,
-    border: BorderStroke?,
-    depthEffect: SurfaceDepthEffect?,
-    contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource?,
-    content: @Composable () -> Unit,
-) {
+    val depthEffect =
+        SurfaceDepthEffect(
+            depthEffect = null,
+            focusedDepthEffect = GlimmerTheme.depthEffectLevels.level1,
+        )
     Box(
         modifier
+            .semantics { role = Role.Button }
             .surface(
                 enabled = enabled,
                 shape = shape,
@@ -116,16 +90,30 @@ internal fun IconButtonImpl(
                 interactionSource = interactionSource,
                 onClick = onClick,
             )
-            .defaultMinSize(MinimumSize)
+            .defaultMinSize(IconButtonDefaults.minimumSize)
             .padding(contentPadding),
         contentAlignment = Alignment.Center,
     ) {
         CompositionLocalProvider(
-            LocalIconSize provides GlimmerTheme.iconSizes.small,
+            LocalIconSize provides IconButtonDefaults.iconSize,
             content = content,
         )
     }
 }
 
-/** Minimum size for [IconButton] */
-private val MinimumSize = 48.dp
+/** Default values used for [IconButton]. */
+public object IconButtonDefaults {
+    /** Default content padding for an [IconButton]. */
+    @get:Composable
+    public val contentPadding: PaddingValues
+        get() = PaddingValues(GlimmerTheme.componentSpacingValues.small)
+
+    /** Minimum size for icon-only buttons: [IconButton], [IconToggleButton]. */
+    internal val minimumSize: Dp
+        get() = 48.dp
+
+    /** Default icon size for icon-only buttons: [IconButton], [IconToggleButton]. */
+    @get:Composable
+    internal val iconSize: Dp
+        get() = GlimmerTheme.iconSizes.small
+}
