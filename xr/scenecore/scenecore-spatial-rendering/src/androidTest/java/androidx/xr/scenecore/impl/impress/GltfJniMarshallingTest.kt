@@ -104,11 +104,10 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
 
     @Test
     fun instanceGltfModel_marshalsParams_returnsId() {
-        val expectedCollider = true
-        ImpressApiTestHelper.nativeSetExpectedInstanceGltfModel(TEST_NATIVE_TOKEN, expectedCollider)
+        ImpressApiTestHelper.nativeSetExpectedInstanceGltfModel(TEST_NATIVE_TOKEN)
         ImpressApiTestHelper.nativeSetInstanceGltfModelSuccess(TEST_NODE_ID)
 
-        val node = mImpressApi.instanceGltfModel(TEST_NATIVE_TOKEN, expectedCollider)
+        val node = mImpressApi.instanceGltfModel(TEST_NATIVE_TOKEN)
 
         assertThat(node.handle).isEqualTo(TEST_NODE_ID)
     }

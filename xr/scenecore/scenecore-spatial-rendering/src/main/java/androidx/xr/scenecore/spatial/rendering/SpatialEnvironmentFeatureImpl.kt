@@ -114,10 +114,7 @@ internal class SpatialEnvironmentFeatureImpl(
             targetSubspaceNode = geometrySubspaceSplitEngine?.subspaceNode
 
             val geometryImpressNode =
-                impressApi.instanceGltfModel(
-                    (geometryResource as GltfModel).nativeHandle,
-                    /* enableCollider= */ false,
-                )
+                impressApi.instanceGltfModel((geometryResource as GltfModel).nativeHandle)
             impressApi.setImpressNodeParent(geometryImpressNode, subspaceNode)
         }
 

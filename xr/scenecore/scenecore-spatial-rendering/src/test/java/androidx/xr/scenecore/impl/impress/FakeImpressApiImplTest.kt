@@ -131,7 +131,7 @@ class FakeImpressApiImplTest {
     fun instanceGltfModel_withCollider_returnsEntityId() = runBlocking {
         val model = fakeImpressApi.loadGltfAsset("FakeAsset.glb")
         val modelToken = model.nativeHandle
-        val entityNode = fakeImpressApi.instanceGltfModel(modelToken, enableCollider = true)
+        val entityNode = fakeImpressApi.instanceGltfModel(modelToken)
         assertThat(entityNode.handle).isNotEqualTo(0)
     }
 

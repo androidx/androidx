@@ -38,7 +38,7 @@ final class ImpressApiTestHelper {
 
     static native void nativeSetExpectedReleaseGltfAsset(long token);
 
-    static native void nativeSetExpectedInstanceGltfModel(long token, boolean enableCollider);
+    static native void nativeSetExpectedInstanceGltfModel(long token);
 
     static native void nativeSetInstanceGltfModelSuccess(int nodeId);
 
