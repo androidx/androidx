@@ -192,8 +192,13 @@ public constructor(
          * lifespan of the provided [context], else the session will experience undefined behavior.
          *
          * **Note:** Providing a non-[Activity] context is not supported by SceneCore runtimes, and
-         * they will not be loaded. Please use the [create] method with an [Activity] parameter
-         * instead if you wish to use SceneCore APIs.
+         * they will not be loaded. Please use an [Activity] as the [context] if you wish to use
+         * SceneCore APIs.
+         *
+         * **Note:** You must provide a Projected [Context] if you want to create a Session on a
+         * Projected device. This can be an [Activity] that is being displayed on a Projected device
+         * or a context obtained from
+         * [androidx.xr.projected.ProjectedContext.createProjectedDeviceContext].
          *
          * It is strongly recommended to call this method from a background thread (e.g.,
          * [Dispatchers.IO][kotlinx.coroutines.Dispatchers.IO]).
@@ -354,6 +359,7 @@ public constructor(
         private val RUNTIME_FACTORY_PROVIDERS =
             listOf(
                 "androidx.xr.arcore.openxr.OpenXrRuntimeFactory",
+                "androidx.xr.arcore.projected.ProjectedRuntimeFactory",
                 "androidx.xr.arcore.playservices.ArCoreRuntimeFactory",
                 "androidx.xr.arcore.testing.FakePerceptionRuntimeFactory",
                 "androidx.xr.runtime.StubPerceptionRuntimeFactory",
