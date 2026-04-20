@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeScenePointer
+import androidx.compose.ui.scene.unconstrainedSize
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -258,7 +259,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
      */
     @Deprecated("Use calculateContentSize() instead", replaceWith = ReplaceWith("calculateContentSize()"))
     val contentSize: IntSize
-        get() = scene.calculateContentSize()
+        get() = scene.unconstrainedSize()
 
     /**
      * Returns the current content size in infinity constraints.
@@ -268,7 +269,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
      */
     @ExperimentalComposeUiApi
     fun calculateContentSize(): IntSize {
-        return scene.calculateContentSize()
+        return scene.unconstrainedSize()
     }
 
     /**

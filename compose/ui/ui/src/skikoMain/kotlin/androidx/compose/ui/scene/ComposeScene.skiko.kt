@@ -37,11 +37,13 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
+import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformDragAndDropManager
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -133,12 +135,10 @@ sealed interface ComposeScene : AutoCloseable {
     override fun close()
 
     /**
-     * Returns the current content size (in pixels) in infinity constraints.
-     *
-     * @throws IllegalStateException when [ComposeScene] content has lazy layouts without maximum
-     * size bounds (e.g. LazyColumn without maximum height).
+     * An object through which the composable content of the scene can be queried for its size
+     * properties.
      */
-    fun calculateContentSize(): IntSize
+    val measurableContent: MeasurableRootContent
 
     /**
      * Invalidates position of [ComposeScene] in window. It will trigger callbacks like
@@ -308,4 +308,17 @@ sealed interface ComposeScene : AutoCloseable {
      * Set the visual debug option that shows bounds for all nodes in the hierarchy.
      */
     var showLayoutBounds: Boolean
+}
+
+/**
+ * Returns the current content size (in pixels) in infinity constraints.
+ *
+ * @throws IllegalStateException when [ComposeScene] content has lazy layouts without maximum
+ * size bounds (e.g., LazyColumn without maximum height).
+ */
+@InternalComposeUiApi
+fun ComposeScene.unconstrainedSize(): IntSize {
+    return measurableContent.measuringIn(Constraints()) {
+        IntSize(it.measuredWidth, it.measuredHeight)
+    }
 }

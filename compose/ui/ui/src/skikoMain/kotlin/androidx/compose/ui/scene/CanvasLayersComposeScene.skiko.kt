@@ -38,11 +38,11 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
+import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.RootNodeOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.setContent
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -199,10 +199,11 @@ private class CanvasLayersComposeSceneImpl(
         super.close()
     }
 
-    override fun calculateContentSize(): IntSize {
-        check(!isClosed) { "calculateContentSize called after ComposeScene is closed" }
-        return mainOwner.measureInConstraints(Constraints())
-    }
+    override val measurableContent: MeasurableRootContent
+        get() {
+            check(!isClosed) { "measurableContent requested after ComposeScene is closed" }
+            return mainOwner.measurableRootContent
+        }
 
     override fun invalidatePositionInWindow() {
         check(!isClosed) { "invalidatePositionInWindow called after ComposeScene is closed" }

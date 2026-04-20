@@ -344,12 +344,11 @@ internal class ComposeSceneMediator(
         ComposeFeatureFlags.redispatchUnconsumedMouseWheelEvents.value
 
     /**
-     * Provides the size of ComposeScene content inside infinity constraints
+     * Provides the size of the scene content in infinity constraints.
      *
-     * This is needed for the bridge between Compose and Swing since
-     * in some cases, Swing's LayoutManagers need
-     * to calculate the preferred size of the content without max/min constraints
-     * to properly lay it out.
+     * This is needed for the bridge between Compose and Swing since in some cases, Swing's
+     * LayoutManagers need to calculate the preferred size of the content without max/min
+     * constraints to properly lay it out.
      *
      * Example: Compose content inside Popup without a preferred size.
      * Swing will calculate the preferred size of the Compose content and set Popup's side for that.
@@ -358,7 +357,7 @@ internal class ComposeSceneMediator(
      */
     val preferredSize: Dimension
         get() {
-            val contentSize = scene.calculateContentSize()
+            val contentSize = scene.unconstrainedSize()
             val scale = scene.density.density
             return Dimension(
                 (contentSize.width / scale).toInt(),

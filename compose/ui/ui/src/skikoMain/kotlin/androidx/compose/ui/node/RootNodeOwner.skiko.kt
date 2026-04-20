@@ -62,6 +62,8 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
+import androidx.compose.ui.layout.MeasurableRootContent
+import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.layout.RootMeasurePolicy
 import androidx.compose.ui.layout.RulerProviderModifierElement
 import androidx.compose.ui.modifier.ModifierLocalManager
@@ -204,22 +206,58 @@ internal class RootNodeOwner(
         }
     }
 
+    val measurableRootContent: MeasurableRootContent = object : MeasurableRootContent {
+        override val parentData
+            get() = null
+
+        override fun minIntrinsicWidth(height: Int): Int {
+            // RootMeasurePolicy has LayoutNode.NoIntrinsicsMeasurePolicy, so we ask the children
+            return owner.root.children.fastMaxOfOrDefault(0) {
+                it.outerCoordinator.minIntrinsicWidth(height)
+            }
+        }
+
+        override fun minIntrinsicHeight(width: Int): Int {
+            // RootMeasurePolicy has LayoutNode.NoIntrinsicsMeasurePolicy, so we ask the children
+            return owner.root.children.fastMaxOfOrDefault(0) {
+                it.outerCoordinator.minIntrinsicHeight(width)
+            }
+        }
+
+        override fun maxIntrinsicWidth(height: Int): Int {
+            // RootMeasurePolicy has LayoutNode.NoIntrinsicsMeasurePolicy, so we ask the children
+            return owner.root.children.fastMaxOfOrDefault(0) {
+                it.outerCoordinator.maxIntrinsicWidth(height)
+            }
+        }
+
+        override fun maxIntrinsicHeight(width: Int): Int {
+            // RootMeasurePolicy has LayoutNode.NoIntrinsicsMeasurePolicy, so we ask the children
+            return owner.root.children.fastMaxOfOrDefault(0) {
+                it.outerCoordinator.maxIntrinsicHeight(width)
+            }
+        }
+
+        override fun <T> measuringIn(constraints: Constraints, block: (Measured) -> T): T {
+            return measuringRootWithConstraints(constraints) {
+                block(it.outerCoordinator)
+            }
+        }
+    }
+
     /**
      * Provides a way to measure Owner's content in given [constraints]
      * Draw/pointer and other callbacks won't be called here like in [measureAndLayout] functions
      */
-    fun measureInConstraints(constraints: Constraints): IntSize {
-        try {
+    private fun <T> measuringRootWithConstraints(
+        constraints: Constraints,
+        block: (LayoutNode) -> T
+    ): T {
+        return try {
             // TODO: is it possible to measure without reassigning root constraints?
             measureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(constraints)
             measureAndLayoutDelegate.measureOnly()
-
-            // Don't use mainOwner.root.width here, as it strictly coerced by [constraints]
-            val children = owner.root.children
-            return IntSize(
-                width = children.fastMaxOfOrDefault(0) { it.outerCoordinator.measuredWidth },
-                height = children.fastMaxOfOrDefault(0) { it.outerCoordinator.measuredHeight },
-            )
+            block(owner.root)
         } finally {
             measureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(size?.toConstraints())
         }
