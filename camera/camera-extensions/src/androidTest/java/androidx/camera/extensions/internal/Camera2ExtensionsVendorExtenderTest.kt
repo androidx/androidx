@@ -101,18 +101,19 @@ class Camera2ExtensionsVendorExtenderTest(
     }
 
     private fun checkSupportedOutputSizes(format: Int, supportedSizes: List<Size>) {
-        assertThat(supportedSizes)
+        assertThat(supportedSizes.toSet())
             .containsExactlyElementsIn(
                 if (format != ImageFormat.PRIVATE) {
-                    cameraExtensionsCharacteristics.getExtensionSupportedSizes(
-                        camera2ExtensionMode,
-                        format,
-                    )
+                    cameraExtensionsCharacteristics
+                        .getExtensionSupportedSizes(camera2ExtensionMode, format)
+                        .toSet()
                 } else {
-                    cameraExtensionsCharacteristics.getExtensionSupportedSizes(
-                        camera2ExtensionMode,
-                        SurfaceTexture::class.java,
-                    )
+                    cameraExtensionsCharacteristics
+                        .getExtensionSupportedSizes(
+                            camera2ExtensionMode,
+                            SurfaceTexture::class.java,
+                        )
+                        .toSet()
                 }
             )
     }
@@ -123,14 +124,12 @@ class Camera2ExtensionsVendorExtenderTest(
         checkAvailabilityAndInit()
         camera2ExtensionsVendorExtender.getSupportedPostviewResolutions(RESOLUTION_VGA).forEach {
             val format = it.key
-            val supportedSizes = it.value.toList()
+            val supportedSizes = it.value.toSet()
             assertThat(supportedSizes)
                 .containsExactlyElementsIn(
-                    cameraExtensionsCharacteristics.getPostviewSupportedSizes(
-                        camera2ExtensionMode,
-                        RESOLUTION_VGA,
-                        format,
-                    )
+                    cameraExtensionsCharacteristics
+                        .getPostviewSupportedSizes(camera2ExtensionMode, RESOLUTION_VGA, format)
+                        .toSet()
                 )
         }
     }
