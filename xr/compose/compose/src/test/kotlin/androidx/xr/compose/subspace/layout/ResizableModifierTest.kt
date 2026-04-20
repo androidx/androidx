@@ -76,7 +76,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_componentIsNotNullAndOnlyContainsSingleResizable() {
         composeTestRule.setContent {
             Subspace {
@@ -88,7 +87,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierIsDisabledAndComponentDoesNotExist() {
         composeTestRule.setContent {
             Subspace {
@@ -102,7 +100,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierDoesNotChangeAndComponentDoesNotUpdate() {
         composeTestRule.setContent {
             Subspace {
@@ -129,7 +126,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierEnabledToDisabledAndComponentUpdates() {
         composeTestRule.setContent {
             Subspace {
@@ -156,7 +152,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierOnSizeChangeUpdateAndComponentUpdates() {
         composeTestRule.setContent {
             Subspace {
@@ -185,7 +180,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierDisableWithOnSizeChangeUpdateAndComponentRemoved() {
         composeTestRule.setContent {
             Subspace {
@@ -218,7 +212,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierEnabledWithOnSizeChangeUpdateAndComponentUpdates() {
         composeTestRule.setContent {
             Subspace {
@@ -251,7 +244,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierDisabledThenEnabledAndComponentUpdates() {
         composeTestRule.setContent {
             Subspace {
@@ -283,7 +275,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierOnSizeChangeTwiceUpdateAndComponentUpdates() {
         composeTestRule.setContent {
             Subspace {
@@ -317,7 +308,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierDisabledThenEnabledWithOnSizeChangeUpdateAndComponentUpdates() {
         composeTestRule.setContent {
             Subspace {
@@ -355,7 +345,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierEnabledThenDisabledWithOnSizeChangeUpdateAndComponentUpdates() {
         composeTestRule.setContent {
             Subspace {
@@ -393,7 +382,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierMaxSizeIsSet() {
         val maxSize = DpVolumeSize(500.dp, 500.dp, 500.dp)
         composeTestRule.setContent {
@@ -405,7 +393,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierMaxSizeIsNotSet() {
         composeTestRule.setContent {
             Subspace { SpatialPanel(SubspaceModifier.testTag("panel").resizable()) {} }
@@ -414,7 +401,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierMinSizeIsSet() {
         val minSize = DpVolumeSize(100.dp, 100.dp, 100.dp)
         composeTestRule.setContent {
@@ -426,7 +412,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_modifierMinSizeIsNotSet() {
         composeTestRule.setContent {
             Subspace { SpatialPanel(SubspaceModifier.testTag("panel").resizable()) {} }
@@ -435,7 +420,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_columnEntity_noComponentByDefault() {
         composeTestRule.setContent {
             Subspace {
@@ -454,8 +438,7 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun resizable_columnEntity_noComponentWhenResizableIsEnabled() {
+    fun resizable_columnEntity_oneComponentWhenResizableIsEnabled() {
         composeTestRule.setContent {
             Subspace {
                 SpatialColumn(SubspaceModifier.testTag("column").resizable()) {
@@ -463,11 +446,10 @@ class ResizableModifierTest {
                 }
             }
         }
-        assertResizableComponentDoesNotExist("column")
+        assertResizableComponentDoesExist("column")
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_columnEntity_noComponentWhenResizableIsDisabled() {
         composeTestRule.setContent {
             Subspace {
@@ -480,7 +462,6 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_rowEntity_noComponentByDefault() {
         composeTestRule.setContent {
             Subspace {
@@ -497,8 +478,7 @@ class ResizableModifierTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun resizable_rowEntity_noComponentWhenResizableIsEnabled() {
+    fun resizable_rowEntity_oneComponentWhenResizableIsEnabled() {
         composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.testTag("row").resizable()) {
@@ -506,11 +486,10 @@ class ResizableModifierTest {
                 }
             }
         }
-        assertResizableComponentDoesNotExist("row")
+        assertResizableComponentDoesExist("row")
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun resizable_rowEntity_noComponentWhenResizableIsDisabled() {
         composeTestRule.setContent {
             Subspace {
@@ -535,6 +514,13 @@ class ResizableModifierTest {
             composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode().components
         assertNotNull(components)
         assertEquals(0, components.size)
+    }
+
+    private fun assertResizableComponentDoesExist(testTag: String = "panel") {
+        val components =
+            composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode().components
+        assertNotNull(components)
+        assertEquals(1, components.size)
     }
 
     private fun assertResizableComponentMaxSizeIsSet(
