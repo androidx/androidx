@@ -276,7 +276,7 @@ playServicesIdentityCredentials = {module = "com.google.android.gms:play-service
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "17.1.0" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 protobufCompiler = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
-protobufGradlePlugin = { module = "com.google.protobuf:protobuf-gradle-plugin", version = "0.9.4" }
+protobufGradlePlugin = { module = "com.google.protobuf:protobuf-gradle-plugin", version = "0.10.0" }
 protobufLite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobuf" }
 protobufKotlinLite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
 reactiveStreams = { module = "org.reactivestreams:reactive-streams", version = "1.0.0" }
