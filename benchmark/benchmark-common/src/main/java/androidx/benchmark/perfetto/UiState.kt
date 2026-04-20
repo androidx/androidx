@@ -16,8 +16,11 @@
 
 package androidx.benchmark.perfetto
 
+import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.benchmark.BenchmarkState
 import java.io.File
+import okio.IOException
 import perfetto.protos.Trace
 import perfetto.protos.TracePacket
 import perfetto.protos.UiState
@@ -35,5 +38,12 @@ fun UiState(timelineStart: Long? = null, timelineEnd: Long? = null, highlightPac
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun File.appendUiState(state: UiState) {
     val traceToAppend = Trace(packet = listOf(TracePacket(ui_state = state)))
-    appendBytes(traceToAppend.encode())
+    try {
+        appendBytes(traceToAppend.encode())
+    } catch (exception: IOException) {
+        // This can sometimes fail when the file is owned by the Shell after a move
+        // specifically in multi-user environments. When this happens, we should be more graceful
+        // in how handle this case. It's better to give them a usable trace without the high lights.
+        Log.w(BenchmarkState.TAG, "Unable to append UI state", exception)
+    }
 }
