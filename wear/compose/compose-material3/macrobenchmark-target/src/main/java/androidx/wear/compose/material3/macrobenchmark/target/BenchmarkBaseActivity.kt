@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.keepScreenOn
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 
@@ -39,7 +40,9 @@ abstract class BenchmarkBaseActivity(val macrobenchmarkScreen: MacrobenchmarkScr
             MaterialTheme {
                 Box(
                     modifier =
-                        Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.navigationBars),
+                        Modifier.fillMaxSize()
+                            .windowInsetsPadding(WindowInsets.navigationBars)
+                            .keepScreenOn(),
                     contentAlignment = Alignment.Center,
                 ) {
                     macrobenchmarkScreen.content.invoke(this)
