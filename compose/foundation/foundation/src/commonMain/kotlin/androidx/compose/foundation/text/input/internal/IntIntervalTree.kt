@@ -42,10 +42,16 @@ import kotlin.math.min
  * than [MutableIntList] because it reduces the number of array boundary checks (one check per two
  * [Int] fields).
  *
- * [Node]s are stored in [nodeInfo] with a stride of 4 [Long] entries: `[packInts(color, parent),
- * packInts(left, right), packInts(start, end), packInts(min, max)]`. The corresponding data for
- * each node is stored in the [items] list at `node.index / STRIDE`. The [Node] is a value class
- * that wraps an index pointing to the start of its information in the [nodeInfo] list.
+ * [Node]s are stored in [nodeInfo] with a stride of 4 [Long] entries:
+ * 1. Offset 0 (`INFO_PARENT`): Color (1 bit), ID (31 bits), Deleted flag (1 bit), Parent index (31
+ *    bits).
+ * 2. Offset 1 (`LEFT_RIGHT`): Left child index (32 bits), Right child index (32 bits).
+ * 3. Offset 2 (`START_END`): Packed [Interval] of start/end boundaries, and user flags.
+ * 4. Offset 3 (`MIN_MAX`): Packed [Interval] of min/max values for the subtree.
+ *
+ * The corresponding data for each node is stored in the [items] list at `node.index / STRIDE`. The
+ * [Node] is a value class that wraps an index pointing to the start of its information in the
+ * [nodeInfo] list.
  *
  * This approach provides two key benefits:
  * 1) The order in which intervals are added is preserved by the order in which nodes are added to
@@ -69,33 +75,131 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
          */
         private const val NODE_CLEANUP_SIZE_THRESHOLD = 64
 
-        private const val COLOR_PARENT = 0
+        /**
+         * The color, identifier, deleted flag and parent index are stored at offset (0) in the
+         * [Node]'s [STRIDE]-length block in the [nodeInfo] array.
+         *
+         * Bit Layout (64 bits total):
+         * ```
+         * +--------+---------------------------------+--------+---------------------------------+
+         * | Bit 63 | Bits 32-62 (31 bits)            | Bit 31 | Bits 0-30 (31 bits)             |
+         * +--------+---------------------------------+--------+---------------------------------+
+         * | Color  | identifier                      | Deleted| Parent Index                    |
+         * +--------+---------------------------------+--------+---------------------------------+
+         * ```
+         */
+        private const val INFO_PARENT = 0
+
+        /**
+         * The left and right child indices are stored at offset (1) in the [Node]'s [STRIDE]-length
+         * block in the [nodeInfo] array.
+         *
+         * Bit Layout (64 bits total):
+         * ```
+         * +------------------------------------------+------------------------------------------+
+         * | Bits 32-63 (32 bits)                     | Bits 0-31 (32 bits)                      |
+         * +------------------------------------------+------------------------------------------+
+         * | Left Child Index                         | Right Child Index                        |
+         * +------------------------------------------+------------------------------------------+
+         * ```
+         */
         private const val LEFT_RIGHT = 1
+
+        /**
+         * The start and end properties, along with two general-purpose flags, are stored at offset
+         * (2) in the [Node]'s [STRIDE]-length block in the [nodeInfo] array. They are stored as a
+         * [Long] interpreted as an [Interval].
+         *
+         * Bit Layout (64 bits total):
+         * ```
+         * +--------+---------------------------------+--------+---------------------------------+
+         * | Bit 63 | Bits 32-62 (31 bits)            | Bit 31 | Bits 0-30 (31 bits)             |
+         * +--------+---------------------------------+--------+---------------------------------+
+         * | flag1  | start                           | flag2  | end                             |
+         * +--------+---------------------------------+--------+---------------------------------+
+         * ```
+         *
+         * @see Interval
+         */
         private const val START_END = 2
+
+        /**
+         * The min and max properties are stored at offset (3) in the [Node]'s [STRIDE]-length block
+         * in the [nodeInfo] array. They are stored as a [Long] interpreted as an [Interval].
+         *
+         * Note that while this is stored as an [Interval], the flags (`flag1` and `flag2`) in this
+         * layout are meaningless for `MIN_MAX` as they are only applicable to the interval's
+         * `START_END` values.
+         *
+         * Bit Layout (64 bits total):
+         * ```
+         * +--------+---------------------------------+--------+---------------------------------+
+         * | Bit 63 | Bits 32-62 (31 bits)            | Bit 31 | Bits 0-30 (31 bits)             |
+         * +--------+---------------------------------+--------+---------------------------------+
+         * | unused | min                             | unused | max                             |
+         * +--------+---------------------------------+--------+---------------------------------+
+         * ```
+         *
+         * @see Interval
+         */
         private const val MIN_MAX = 3
+
+        /**
+         * The total number of 64-bit Longs allocated for each [Node] sequentially in the flat
+         * [nodeInfo] array. A [Node]'s `index` property points to the start of its block, and the
+         * fields are accessed by adding the offsets (e.g., `index + INFO_PARENT`).
+         */
         private const val STRIDE = 4
     }
 
     /**
-     * The color of this [Node], it can be [TreeColorRed], [TreeColorBlack] or [TreeColorDeleted]
-     * representing that this [Node] has been marked as deleted.
+     * The color of this [Node]. It can be [TreeColorRed] or [TreeColorBlack]. This is stored in bit
+     * 63 (`flag1`) at the [INFO_PARENT] offset.
      */
     var Node.color: TreeColor
-        get() = unpackInt1(nodeInfo[index + COLOR_PARENT])
+        get() =
+            if (unpackFlag1(nodeInfo[index + INFO_PARENT])) {
+                TreeColorRed
+            } else {
+                TreeColorBlack
+            }
         set(value) {
-            nodeInfo[index + COLOR_PARENT] =
-                packInts(value, unpackInt2(nodeInfo[index + COLOR_PARENT]))
+            nodeInfo[index + INFO_PARENT] =
+                packFlag1(nodeInfo[index + INFO_PARENT], value == TreeColorRed)
         }
 
-    /** Parent [Node] of this [Node]. */
+    /**
+     * Whether the [Node] is deleted or not. This is stored in bit 31 (`flag2`) at the [INFO_PARENT]
+     * offset.
+     */
+    var Node.isDeleted: Boolean
+        get() = unpackFlag2(nodeInfo[index + INFO_PARENT])
+        set(value) {
+            nodeInfo[index + INFO_PARENT] = packFlag2(nodeInfo[index + INFO_PARENT], value)
+        }
+
+    /**
+     * Parent [Node] of this [Node]. This is stored as a 31-bit integer in the lower 31 bits (bits
+     * 0-30) at the [INFO_PARENT] offset.
+     */
     var Node.parent: Node
-        get() = Node(unpackInt2(nodeInfo[index + COLOR_PARENT]))
+        get() = Node(unpackValue2(nodeInfo[index + INFO_PARENT]))
         set(value) {
-            nodeInfo[index + COLOR_PARENT] =
-                packInts(unpackInt1(nodeInfo[index + COLOR_PARENT]), value.index)
+            // Node index is always positive, we don't need to mask the value.index.
+            nodeInfo[index + INFO_PARENT] = packValue2(nodeInfo[index + INFO_PARENT], value.index)
         }
 
-    /** Left child [Node] of this [Node]. */
+    /**
+     * The id associated with this [Node], which is a positive integer where 0 means an invalid id.
+     * It is stored as a 31-bit [Int] in bits 32-62 at the [INFO_PARENT] offset.
+     */
+    val Node.id: Int
+        get() = unpackValue1(nodeInfo[index + INFO_PARENT])
+
+    /**
+     * Left child [Node] of this [Node]. This is stored in the upper 32 bits (bits 32-63) at the
+     * [LEFT_RIGHT] offset.
+     */
     var Node.left: Node
         get() = Node(unpackInt1(nodeInfo[index + LEFT_RIGHT]))
         set(value) {
@@ -103,7 +207,10 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
                 packInts(value.index, unpackInt2(nodeInfo[index + LEFT_RIGHT]))
         }
 
-    /** Right child [Node] of this [Node]. */
+    /**
+     * Right child [Node] of this [Node]. This is stored in the lower 32 bits (bits 0-31) at the
+     * [LEFT_RIGHT] offset.
+     */
     var Node.right: Node
         get() = Node(unpackInt2(nodeInfo[index + LEFT_RIGHT]))
         set(value) {
@@ -111,36 +218,44 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
                 packInts(unpackInt1(nodeInfo[index + LEFT_RIGHT]), value.index)
         }
 
-    /** The start index of the interval corresponding to this [Node]. */
-    var Node.start: Int
-        get() = unpackInt1(nodeInfo[index + START_END])
-        set(value) {
-            nodeInfo[index + START_END] = packInts(value, unpackInt2(nodeInfo[index + START_END]))
+    /** The start index of the interval corresponding to this [Node], which is inclusive. */
+    val Node.start: Int
+        get() = startEnd.start
+
+    /** The end index of the interval corresponding to this [Node], which is exclusive. */
+    val Node.end: Int
+        get() = startEnd.end
+
+    /**
+     * The [Interval] that stores the start and end indices of the interval corresponding to this
+     * [Node].
+     */
+    var Node.startEnd: Interval
+        get() = Interval(nodeInfo[index + START_END])
+        set(startEnd) {
+            nodeInfo[index + START_END] = startEnd.packed
         }
 
-    /** The end index of the interval corresponding to this [Node]. */
-    var Node.end: Int
-        get() = unpackInt2(nodeInfo[index + START_END])
-        set(value) {
-            nodeInfo[index + START_END] = packInts(unpackInt1(nodeInfo[index + START_END]), value)
-        }
+    /** The minimum start index of the subtree rooted at [Node]. */
+    val Node.min: Int
+        get() = minMax.start
 
-    /** The minimum of the [start] indices of this [Node]'s subtree. */
-    var Node.min: Int
-        get() = unpackInt1(nodeInfo[index + MIN_MAX])
-        set(value) {
-            nodeInfo[index + MIN_MAX] = packInts(value, unpackInt2(nodeInfo[index + MIN_MAX]))
-        }
+    /** The maximum end index of the subtree rooted at [Node]. */
+    val Node.max: Int
+        get() = minMax.end
 
-    /** The maximum of the [end] indices of this [Node]'s subtree. */
-    var Node.max: Int
-        get() = unpackInt2(nodeInfo[index + MIN_MAX])
-        set(value) {
-            nodeInfo[index + MIN_MAX] = packInts(unpackInt1(nodeInfo[index + MIN_MAX]), value)
+    /**
+     * The [Interval] that stores the minimum start and maximum end indices of the subtree rooted at
+     * [Node].
+     */
+    var Node.minMax: Interval
+        get() = Interval(nodeInfo[index + MIN_MAX])
+        set(minMax) {
+            nodeInfo[index + MIN_MAX] = minMax.packed
         }
 
     /** The data associated with this [Node]. */
-    private val Node.item: T?
+    val Node.item: T?
         get() = items[index / STRIDE]
 
     /**
@@ -176,19 +291,27 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
      * [start] must be less than or equal to [end]. The overlap is inclusive on [start] but
      * exclusive on [end].
      */
-    fun Node.overlaps(start: Int, end: Int) = intersect(start, end, this.start, this.end)
+    fun Node.overlaps(start: Int, end: Int) = startEnd.overlaps(start, end)
 
-    /** Creates a new [Node] with the given [start], [end], [item] and [color]. */
-    private fun Node(start: Int, end: Int, item: T?, color: Int = TreeColorRed): Node {
+    /** Creates a new [Node] with the given [start], [end], [item], [id] and [color]. */
+    private fun Node(item: T?, interval: Interval, id: Int = 0, color: Int = TreeColorRed): Node {
         val index = nodeInfo.size
-        // color, parent(terminator at index 0 by default)
-        nodeInfo.add(packInts(color, 0))
+        nodeInfo.add(
+            packValuesAndFlags(
+                flag1 = color == TreeColorRed,
+                val1 = id,
+                // Not deleted by default
+                flag2 = false,
+                // Parent is terminator(index = 0) by default
+                val2 = 0,
+            )
+        )
         // left, right both pointing to the terminator(index 0) by default.
         nodeInfo.add(0)
         // start, end
-        nodeInfo.add(packInts(start, end))
-        // min, max
-        nodeInfo.add(packInts(start, end))
+        nodeInfo.add(interval.packed)
+        // min, max by default the same as start and end
+        nodeInfo.add(interval.packed)
         items.add(item)
         return Node(index)
     }
@@ -213,8 +336,8 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
      * A sentinel node that represents a null leaf. It helps keep the code clean and avoids branch
      * misses (using null introduces many if/else branches).
      *
-     * More details can be found in [rebalanceAfterInsertion] and [rebalanceAfterDeletion], where we
-     * need to check the colors of uncle and sibling nodes, which may be the [terminator].
+     * More details can be found in [rebalancePostAttach] and [rebalancePostDetach], where we need
+     * to check the colors of uncle and sibling nodes, which may be the [terminator].
      *
      * Note that the [terminator]'s parent, left, and right pointers are not meaningful as it is a
      * shared sentinel node.
@@ -235,7 +358,13 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         } else {
             items = mutableObjectListOf()
             nodeInfo = mutableLongListOf()
-            terminator = Node(Int.MAX_VALUE, Int.MIN_VALUE, null, TreeColorBlack)
+            terminator =
+                Node(
+                    item = null,
+                    interval = Interval(start = Int.MAX_VALUE, end = Int.MIN_VALUE),
+                    id = 0,
+                    color = TreeColorBlack,
+                )
             root = terminator
             deletedNodeCount = 0
         }
@@ -244,12 +373,12 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     /**
      * Calls [block] for each the interval that overlaps with the range defined by [start] and
      * [end], in the order they are added. The overlap is inclusive on [start] and exclusive at
-     * [end].
+     * [end]. The block is passed with an [Long] instead of [Interval] to avoid boxing.
      */
-    fun forEachIntervalInRange(
+    inline fun forEachIntervalInRange(
         start: Int,
         end: Int,
-        block: (item: T, start: Int, end: Int) -> Unit,
+        block: (item: T, packedInterval: Long) -> Unit,
     ) {
         val nodes = tempArray
         forEachNodeInRange(start, end) { nodes.add(it) }
@@ -259,7 +388,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
             val node = Node(it)
             val item = node.item
             if (item != null) {
-                block(item, node.start, node.end)
+                block(item, node.startEnd.packed)
             }
         }
         nodes.clear()
@@ -282,7 +411,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     inline fun <reified R, M> findIntervalsInRange(
         start: Int,
         end: Int,
-        block: (item: R, start: Int, end: Int) -> M,
+        block: (item: R, packedInterval: Long) -> M,
     ): List<M> {
         val nodes = tempArray
         forEachNodeInRange(start, end) {
@@ -297,7 +426,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
                 val node = Node(nodes[it])
                 val item = node.item
                 if (item != null) {
-                    block(item as R, node.start, node.end)
+                    block(item as R, node.startEnd.packed)
                 } else {
                     throw IllegalStateException("IntIntervalTree's item should not be null")
                 }
@@ -309,22 +438,21 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     /**
      * Calls [block] for all intervals stored in this [IntIntervalTree] in the order they were
      * added. This method returns the same result as [forEachIntervalInRange] with full range but is
-     * optimized to be faster, especially when a large number of intervals are stored.
+     * optimized to be faster, especially when a large number of intervals are stored. The block is
+     * passed with an [Long] for [Interval] to avoid boxing.
      */
-    fun forAllIntervals(block: (item: T, start: Int, end: Int) -> Unit) {
+    inline fun forAllIntervals(block: (item: T, packedInterval: Long) -> Unit) {
         if (root == terminator) return
-        // Instead of traverse the entire tree. We directly compare the nodeInfo array, which is
-        // the intervals sorted in the adding order.
+        // Instead of traversing the entire tree, we directly iterate over the nodeInfo array,
+        // which gives us the intervals sorted in their addition order.
         // Ignore the first node, which is the terminator
         var nodeIndex = STRIDE
         while (nodeIndex < nodeInfo.size) {
             val node = Node(nodeIndex)
-            if (node.color != TreeColorDeleted) {
-                val start = node.start
-                val end = node.end
+            if (!node.isDeleted) {
                 val item = node.item
                 if (item != null) {
-                    block(item, start, end)
+                    block(item, node.startEnd.packed)
                 }
             }
             nodeIndex += STRIDE
@@ -340,7 +468,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         deletedNodeCount = 0
     }
 
-    /** Remove the nodes that's marked to be deleted from the [nodeInfo]. */
+    /** Removes the nodes that are marked to be deleted from [nodeInfo]. */
     private fun cleanDeletedNodes() {
         if (deletedNodeCount == 0) return
 
@@ -348,7 +476,9 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         val mapping = tempArray
         mapping.ensureCapacity(totalNodeCount)
         for (node in 0 until totalNodeCount) {
-            if (unpackInt1(nodeInfo[node * STRIDE + COLOR_PARENT]) == TreeColorDeleted) {
+            // Deleted is stored as flag2
+            val deleted = unpackFlag2(nodeInfo[node * STRIDE + INFO_PARENT])
+            if (deleted) {
                 deletedSoFar++
             }
             mapping.add((node - deletedSoFar) * STRIDE)
@@ -362,16 +492,20 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         var nodeIndex = STRIDE
         var targetIndex = STRIDE
         while (nodeIndex < nodeInfo.size) {
-            if (unpackInt1(nodeInfo[nodeIndex + COLOR_PARENT]) == TreeColorDeleted) {
+            // This method is performance-critical. We access the `nodeInfo` array directly instead
+            // of using the `Node` getters/setters. This halves the number of memory reads and
+            // writes.
+            val infoParent = nodeInfo[nodeIndex + INFO_PARENT]
+            // Deleted is stored as flag2.
+            val deleted = unpackFlag2(infoParent)
+            if (deleted) {
                 nodeIndex += STRIDE
                 continue
             }
 
             if (targetIndex != nodeIndex) {
-                val colorParent = nodeInfo[nodeIndex + COLOR_PARENT]
-                val color = unpackInt1(colorParent)
-                val parent = unpackInt2(colorParent)
-                nodeInfo[targetIndex + COLOR_PARENT] = packInts(color, map(parent))
+                val parent = unpackValue2(infoParent)
+                nodeInfo[targetIndex + INFO_PARENT] = packValue2(infoParent, map(parent))
 
                 val leftRight = nodeInfo[nodeIndex + LEFT_RIGHT]
                 val left = unpackInt1(leftRight)
@@ -383,10 +517,8 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
                 items[targetIndex / STRIDE] = items[nodeIndex / STRIDE]
             } else {
                 // Even if targetIndex == index, we still need to remap parent, left, right indices
-                val colorParent = nodeInfo[nodeIndex + COLOR_PARENT]
-                val color = unpackInt1(colorParent)
-                val parent = unpackInt2(colorParent)
-                nodeInfo[targetIndex + COLOR_PARENT] = packInts(color, map(parent))
+                val parent = unpackValue2(infoParent)
+                nodeInfo[targetIndex + INFO_PARENT] = packValue2(infoParent, map(parent))
 
                 val leftRight = nodeInfo[nodeIndex + LEFT_RIGHT]
                 val left = unpackInt1(leftRight)
@@ -408,9 +540,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
      * defined by [start] and [end]. [start] *must* be less than or equal to [end]. The overlap is
      * defined as [start] being inclusive, but [end] being exclusive.
      *
-     * The block is passed with an [Int] instead of [Node] to avoid boxing. Note: The [Node] is
-     * exposed for advanced usages where the caller wants to modify the tree directly, but it's the
-     * caller's responsibility to not break any red-black tree properties.
+     * The block is passed with an [Int] instead of [Node] to avoid boxing.
      */
     private inline fun forEachNodeInRange(start: Int, end: Int = start, block: (Int) -> Unit) {
         forEachNodeMinMaxInRange(start, end) {
@@ -427,9 +557,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
      * The overlap is inclusive on both ends. Each interval is called in the order sorted by the
      * interval's start.
      *
-     * The block is passed with an [Int] instead of [Node] to avoid boxing. Note: The [Node] is
-     * exposed for advance usages where the caller wants to modify the tree directly, but it's
-     * caller's responsibility to not break any red-black tree properties.
+     * The block is passed with an [Int] instead of [Node] to avoid boxing.
      */
     private inline fun forEachNodeMinMaxInRange(
         start: Int,
@@ -482,66 +610,145 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     }
 
     /**
-     * Map the start, end values of all intervals overlapping with the given [start] and [end] using
-     * the [mapper] function.
+     * Maps the intervals overlapping the given [start] and [end] parameters using the [mapper]
+     * function. The overlap check is **inclusive** of both [start] and [end].
      *
-     * If an interval's end becomes less than or equal to its start after mapping, it is removed
-     * from the tree.
+     * If an interval's mapped `end` becomes less than or equal to its `start`, it is removed from
+     * the tree.
      *
-     * This operation assumes that after the mapping the order of the intervals is preserved.
+     * This operation allows mapped intervals to change their `start` and `end` arbitrarily. The
+     * tree is structured as a Binary Search Tree primarily sorted by the `start` index of each
+     * interval. If an interval's new `start` violates this binary search tree ordering (i.e., its
+     * `start` becomes greater than a later interval's `start` or smaller than a preceding
+     * interval's `start`), the tree automatically detaches and reattaches the affected nodes to
+     * safely restore the proper BST ordering.
      *
-     * It's the caller's responsibility to ensure that:
-     * 1. The [mapper] function is pure, has no side effects, and returns the same value for the
-     *    same input.
-     * 2. [mapper] is a monotonic function. If `x1 <= x2` then `mapper(x1) <= mapper(x2)`.
-     * 3. After the mapping, the order of the intervals (sorted by start) is preserved.
+     * Logically, this operation is equivalent to finding, detaching, mapping, and reattaching all
+     * overlapping intervals. However, this implementation is highly optimized: if mapped intervals
+     * do not violate the tree's BST order properties (i.e., their new `start` values maintain the
+     * ascending sequence compared to adjacent nodes and do not jump across unmapped nodes), they
+     * are updated in-place without the overhead of structural removal and reinsertion.
      *
-     * e.g. For an IntIntervalTree that stores the following intervals: `[0, 5], [10, 15], [20, 25],
-     * [30, 35]`
-     *
-     * Calling `mapIntervals(10, 25) { it + 5 }` is safe because the order of the intervals is
-     * preserved: `[0, 5], `**`[15, 20], [25, 30]`**`, [30, 35]`
-     *
-     * Calling `mapIntervals(10, 25) { it + 20 }` is not safe: `[0, 5], `**`[30, 35], [40, 45]`**`,
-     * [30, 35]` Because after [20, 25] is mapped to [40, 45] its start is larger than 30.
+     * @param start The start index of the interval bounds to map.
+     * @param end The end index of the interval bounds to map.
+     * @param mapper The mapping function applied to each overlapping interval. To avoid boxing, the
+     *   [Interval] is passed and returned as a [Long].
      */
-    inline fun mapIntervals(start: Int, end: Int, mapper: (Int) -> Int) {
-        val toRemove = tempArray
+    inline fun mapIntervals(start: Int, end: Int, mapper: (Long) -> Long) {
+        // Keep the list of nodes in the range, we'll update the tree while mapping the nodes
+        val nodes = tempArray
+        // Note: forEachNodeMinMaxInRange will call block for nodes in the order sorted by their
+        // start.
         forEachNodeMinMaxInRange(start, end) {
             val node = Node(it)
-            node.start = mapper(node.start)
-            node.end = mapper(node.end)
-            node.min = mapper(node.min)
-            node.max = mapper(node.max)
-
-            if (node.end <= node.start) {
-                toRemove.add(node)
+            if (node.start <= end && node.end >= start) {
+                nodes.add(it)
             }
         }
 
-        // Cautious: we need to call removeNode with cleanUp == false, and do a cleanup manually.
-        // Because the Node indices will change after clean up, making the following removeNode
-        // incorrect.
-        toRemove.forEach { removeNode(Node(it), cleanUp = false) }
-        toRemove.clear()
+        // After the map phase, the tree's sorted-by-start property may be temporarily broken:
+        // 1. Nodes might be out of order (no longer sorted by their start index).
+        // 2. Some nodes might have a collapsed range.
+        //
+        // For nodes that break the order property, we detach them from the tree
+        // and then reattach them to restore the correct order.
+        // For nodes with collapsed ranges, we simply detach them from the tree and then dispose.
+        //
+        // While the following algorithm might seem unconventional, its correctness is
+        // straightforward to prove. This interval tree maintains three properties:
+        // 1. Balanced (red-black tree properties)
+        // 2. Min/Max invariants (all subtrees' start/end fall within their root node's min/max)
+        // 3. Nodes are sorted by their start index
+        //
+        // The algorithms to maintain these properties are largely independent: tree rebalancing
+        // doesn't depend on the nodes' order, and the min/max propagation algorithm doesn't rely on
+        // the tree being balanced or sorted.
+        //
+        // Because of this, `detachNode` will remove a node without changing the order of the
+        // remaining nodes, while the tree's balanced and min/max properties are still maintained.
+        // Similarly, `attachNode` fix the order without breaking the balance and min/max
+        // properties.
+
+        // maxStart is used to check if the there are nodes that in wrong order after the mapping.
+        var maxStart = start
+        var reattachCount = 0
+        for (index in 0 until nodes.size) {
+            val node = Node(nodes[index])
+            val newStartEnd = Interval(mapper(node.startEnd.packed))
+            val oldStart = node.start
+            node.startEnd = newStartEnd
+
+            // Maintain the node's min, max invariant.
+            updateNodeMinMax(node)
+
+            val newStart = newStartEnd.start
+            val newEnd = newStartEnd.end
+            if (newStart >= newEnd) {
+                // This node range collapsed, needs to remove.
+                detachNode(node)
+                // We must call disposeNode with cleanUp == false, and perform a single cleanup
+                // after the loop. This ensures that node indices remain stable while we are
+                // processing other nodes in [needsUpdate].
+                disposeNode(node, false)
+            } else if (
+                newStart < maxStart || newStart > end || (newStart != oldStart && oldStart < start)
+            ) {
+                // A node is considered to violate the tree's ordering property if:
+                //  1. Its `newStart` is less than `maxStart` (the maximum start value seen so far).
+                //     This happens if a previous node's start was mapped to a larger value, or this
+                //     node's start was mapped to a smaller value.
+                //  2. Its old start is less than the mapping range start, or its new start is
+                //     greater than the mapping end. (We can't be sure if it breaks the order, so we
+                //     safely assume it does).
+                //
+                // Action:
+                // We remove the out-of-order node temporarily. It cannot be reattached immediately
+                // since `attachNode()` expects a correctly ordered tree. To safely restore the
+                // tree's structure, all out-of-order nodes must be removed first and stored in the
+                // `nodes` list for a future reattachment pass.
+                detachNode(node)
+                nodes[reattachCount++] = nodes[index]
+            } else {
+                // Update the maxStart we've seen so far.
+                maxStart = newStart
+            }
+        }
+
+        // Attach all the out-of-order nodes back to the tree.
+        for (index in 0 until reattachCount) {
+            val node = Node(nodes[index])
+            node.color = TreeColorRed
+            node.minMax = node.startEnd
+            node.left = terminator
+            node.right = terminator
+            attachNode(node)
+        }
+        nodes.clear()
         cleanDeletedNodesIfNeeded()
     }
 
     /**
-     * Adds the interval defined between a [start] and an [end] coordinate.
+     * Adds the interval to the tree.
      *
-     * @param start The start index of the interval
-     * @param end The end index of the interval, must be > [start] or it'll return false and do
-     *   nothing
-     * @param item Data item to associate with the interval
+     * @param item Data item to associate with the interval.
+     * @param interval The interval to add.
      * @return true if the interval is added successfully, false otherwise
      */
-    fun addInterval(item: T, start: Int, end: Int): Boolean {
-        if (start >= end) return false
-        if (findNode(item, start, end) != terminator) return false
+    fun addInterval(item: T, interval: Interval): Boolean {
+        if (interval.start >= interval.end) return false
+        if (findNode(item, interval) != terminator) return false
 
-        val node = Node(start, end, item, TreeColorRed)
+        val node = Node(item, interval, 0, TreeColorRed)
+        attachNode(node)
+        return true
+    }
 
+    /**
+     * Attaches the given [node] to the tree, while maintaining the tree's properties. It assumes
+     * the given [Node] is initialized to be [TreeColorRed], no left or right child, and
+     * [Node.minMax] equals to [Node.startEnd].
+     */
+    fun attachNode(node: Node) {
         // Update the tree without doing any balancing
         var current = root
         var parent = terminator
@@ -569,9 +776,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         }
 
         updateNodeMinMax(parent)
-
-        rebalanceAfterInsertion(node)
-        return true
+        rebalancePostAttach(node)
     }
 
     /**
@@ -583,42 +788,46 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
      * @param item Data item associated with the interval
      * @return true if the interval is removed successfully, false otherwise
      */
-    fun removeInterval(item: T, start: Int, end: Int): Boolean {
-        if (start >= end) return false
-        val node = findNode(item, start, end)
+    fun removeInterval(item: T, interval: Interval): Boolean {
+        if (interval.start >= interval.end) return false
+        val node = findNode(item, interval)
         if (node == terminator) return false
-        removeNode(node)
+        detachNode(node)
+        disposeNode(node, true)
         return true
     }
 
     /** Helper method to find a specific Node given the range and data. */
-    private fun findNode(item: T, start: Int, end: Int): Node {
-        if (root == terminator || root.max < end || root.min > start) return terminator
+    private fun findNode(item: T, interval: Interval): Node {
+        if (root == terminator || !root.minMax.overlaps(interval.start, interval.end))
+            return terminator
 
         val stack = tempArray
         stack.add(root)
         while (stack.isNotEmpty()) {
             val node = stack.pop()
-            if (node.start == start && node.end == end && node.item == item) {
+            if (node.startEnd == interval && node.item == item) {
                 stack.clear()
                 return node
             }
-            if (node.start >= start) {
+            if (node.start >= interval.start) {
                 val left = node.left
                 // Prune if left's max is smaller than end.
                 // There is no need to check left.min, because we know node.min >= start and
                 // left.min == node.min.
-                if (left != terminator && left.max >= end) {
+                if (left != terminator && left.max >= interval.end) {
                     stack.add(left)
                 }
             }
 
-            if (node.start <= start) {
+            if (node.start <= interval.start) {
                 val right = node.right
                 // Prune if right's min/max can't contain the target range.
                 // We have to check right.max even if we know end <= node.max, because left.max
                 // can be larger than right.max
-                if (right != terminator && right.min <= start && right.max >= end) {
+                if (
+                    right != terminator && right.min <= interval.start && right.max >= interval.end
+                ) {
                     stack.add(right)
                 }
             }
@@ -627,15 +836,8 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         return terminator
     }
 
-    /**
-     * Removes the given [target] from the tree while maintaining the tree's properties, and marks
-     * it as deleted. Be aware that this method might clean up [Node]s that are marked as deleted,
-     * which will change the indices of existing [Node]s.
-     *
-     * @param target The node to be removed. It cannot be the terminator.
-     * @param cleanUp Whether to perform clean up for the removed node.
-     */
-    private fun removeNode(target: Node, cleanUp: Boolean = true) {
+    /** Detach the given [target] from the tree structure maintaining the tree's properties. */
+    private fun detachNode(target: Node) {
         // [spliced] is the node to be "spliced out" of its original structural position.
         // If [target] has two children, [spliced] is its inorder successor (which will
         // be moved to [target]'s position). Otherwise, [spliced] is [target] itself.
@@ -654,19 +856,21 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         // might be the [terminator], which does not store its own parent pointer.
         val replacementParent: Node
 
-        // There are two case:
+        // There are two cases:
         // Case 1: [target] has 0 or 1 child, in this case replace it with its child (or terminator
         // if [target] has no child). The [spliced] node is the target itself.
         // Case 2: [target] has 2 children. We swap it with the inorder successor first, since it's
-        // inorder successor won't have left child. It also falls in the case 1.
+        // inorder successor won't have left child. This reduces to case 1.
         if (target.left == terminator) {
             replacement = target.right
             replacementParent = target.parent
             transplant(target, target.right)
+            updateNodeMinMaxPostDetach(replacementParent, terminator)
         } else if (target.right == terminator) {
             replacement = target.left
             replacementParent = target.parent
             transplant(target, target.left)
+            updateNodeMinMaxPostDetach(replacementParent, terminator)
         } else {
             // Logically, we swap [target] with its inorder successor and then "remove" the
             // successor from its original structural position. [spliced] refers to the
@@ -690,23 +894,20 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
                 spliced.right.parent = spliced
             }
 
-            transplant(target, spliced)
             spliced.left = target.left
             spliced.left.parent = spliced
             spliced.color = target.color
-            // Also update the node min, max to [target]'s original value.
-            spliced.min = target.min
-            spliced.max = target.max
-        }
+            spliced.minMax = target.minMax
 
-        // We need to update min/max value of the tree starting from replacementParent.
-        updateNodeMinMax(replacementParent)
+            transplant(target, spliced)
+
+            updateNodeMinMaxPostDetach(replacementParent, spliced)
+        }
 
         if (splicedOriginalColor == TreeColorBlack) {
             // We've deleted a black node, we need to rebalance it.
-            rebalanceAfterDeletion(replacement, replacementParent)
+            rebalancePostDetach(replacement, replacementParent)
         }
-        deleteNode(target, cleanUp)
     }
 
     /**
@@ -736,13 +937,17 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     }
 
     /**
-     * Mark the given [node] as deleted. This method does **NOT** remove the [node] from tree, see
-     * [removeNode] if you want to remove the [node] from the tree.
+     * Marks the given [target] node as deleted, and conditionally cleans up the [Node]s that are
+     * marked as deleted.
      *
-     * @param cleanUp Whether to perform clean up after marking the [node] as deleted.
+     * Note that a cleanup will change the indices of existing [Node]s. All references to the
+     * [Node]s might be updated after the cleanup.
+     *
+     * @param target The node to be removed. It cannot be the terminator.
+     * @param cleanUp Whether to perform clean up for the removed node.
      */
-    private fun deleteNode(node: Node, cleanUp: Boolean) {
-        node.color = TreeColorDeleted
+    private fun disposeNode(target: Node, cleanUp: Boolean) {
+        target.isDeleted = true
         deletedNodeCount++
         if (cleanUp) {
             cleanDeletedNodesIfNeeded()
@@ -758,12 +963,12 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     }
 
     /**
-     * Rebalance the tree after deleting a node.
+     * Rebalances the tree after a node is detached from the tree.
      *
-     * @param target The node that takes the place of the deleted node. It can be the [terminator].
-     * @param targetParent the parent of [target].
+     * @param target The node that takes the place of the detached node. It can be the [terminator].
+     * @param targetParent The parent of [target]; this is needed when [target] == [terminator].
      */
-    private fun rebalanceAfterDeletion(target: Node, targetParent: Node) {
+    private fun rebalancePostDetach(target: Node, targetParent: Node) {
         var node = target
         var parent = targetParent
         // In the following loop, [node] points to the first node whose black height is less than
@@ -841,16 +1046,16 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     }
 
     /**
-     * Rebalance the tree after inserting a new node.
+     * Rebalances the tree after a new node is attached to the tree.
      *
-     * @param target The node that's just inserted.
+     * @param target The node that's just attached to the tree.
      */
-    private fun rebalanceAfterInsertion(target: Node) {
+    private fun rebalancePostAttach(target: Node) {
         var node = target
 
         while (node != root && node.parent.color == TreeColorRed) {
             // Because the root is always black, node.parent is red and can't be the root.
-            // then the parent must have a parent.
+            // Therefore, the parent must have a parent.
             val ancestor = node.parent.parent
             if (node.parent == ancestor.left) {
                 val right = ancestor.right
@@ -913,7 +1118,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         right.left = node
         node.parent = right
 
-        updateNodeMinMax(node)
+        updateNodeMinMaxPostRotate(node)
     }
 
     private fun rotateRight(node: Node) {
@@ -939,14 +1144,67 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         left.right = node
         node.parent = left
 
-        updateNodeMinMax(node)
+        updateNodeMinMaxPostRotate(node)
     }
 
+    /**
+     * Helper method to update [Node]'s min/max after a [rotateLeft] or [rotateRight] performed on
+     * the [node].
+     */
+    private fun updateNodeMinMaxPostRotate(node: Node) {
+        // [updateNodeMinMax] will stop propagation early if a node's min/max remains unchanged.
+        // Even if [node]'s min/max doesn't change, its new parent (which was previously its
+        // left or right child) has a new set of children, so its min/max might have changed.
+        // If the first call short-circuits, the second call ensures the parent is updated.
+        // If the first call successfully propagated through the parent, the second call will
+        // simply short-circuit, so there is no performance penalty.
+        updateNodeMinMax(node)
+        updateNodeMinMax(node.parent)
+    }
+
+    /**
+     * Helper method to update [Node]'s min/max property after we detach a node from the tree during
+     * [detachNode].
+     *
+     * @param replacementParent The parent of the node that took the original structural position of
+     *   the detached node. The detached node can be the target node itself, or its inorder
+     *   successor if the target node had 2 children. Since its child was changed to the replacement
+     *   node, its min/max needs updating.
+     * @param transplantedNode The successor node that was moved to replace the target node. This
+     *   node is still in the tree but has new children, so its min/max needs updating. Pass
+     *   [terminator] if no successor was moved.
+     */
+    private fun updateNodeMinMaxPostDetach(replacementParent: Node, transplantedNode: Node) {
+        // The [transplantedNode] is an ancestor of [replacementParent] (unless it's the
+        // [terminator]).
+        // We must update [replacementParent] first because updates must propagate bottom-up.
+        // If we updated the ancestor first, it would read stale min/max values from
+        // [replacementParent], and then we'd end up wasting work recalculating it again
+        // when we finally update [transplantedNode].
+        //
+        // We must also call [updateNodeMinMax] on both nodes because it uses short-circuit
+        // logic. If [replacementParent]'s min/max doesn't change, propagation will stop before
+        // it reaches [transplantedNode]. However, [transplantedNode] has new children and
+        // might still need its own min/max updated. Calling both ensures neither is missed.
+        updateNodeMinMax(replacementParent)
+        updateNodeMinMax(transplantedNode)
+    }
+
+    /**
+     * Updates the [min] and [max] values of the given [node] and its ancestors. This method is
+     * optimized such that once it finds that a [Node]'s min/max has not changed, it stops the
+     * propagation.
+     */
     private fun updateNodeMinMax(node: Node) {
         var current = node
         while (current != terminator) {
-            current.min = min(current.start, min(current.left.min, current.right.min))
-            current.max = max(current.end, max(current.left.max, current.right.max))
+            val previousMinMax = current.minMax
+            val min = minOf(current.start, current.left.min, current.right.min)
+            val max = maxOf(current.end, current.left.max, current.right.max)
+
+            // Nothing updates, stop the propagation.
+            if (previousMinMax.start == min && previousMinMax.end == max) break
+            current.minMax = Interval(min, max)
             current = current.parent
         }
     }
@@ -974,12 +1232,13 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         var thisIndex = STRIDE
         var otherIndex = STRIDE
         while (thisIndex < nodeInfo.size && otherIndex < other.nodeInfo.size) {
-            if (unpackInt1(nodeInfo[thisIndex + COLOR_PARENT]) == TreeColorDeleted) {
+            // Deleted is stored as flag2.
+            if (unpackFlag2(nodeInfo[thisIndex + INFO_PARENT])) {
                 thisIndex += STRIDE
                 continue
             }
 
-            if (unpackInt1(other.nodeInfo[otherIndex + COLOR_PARENT]) == TreeColorDeleted) {
+            if (unpackFlag2(other.nodeInfo[otherIndex + INFO_PARENT])) {
                 otherIndex += STRIDE
                 continue
             }
@@ -1002,7 +1261,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         // The first node is always terminator, ignore it
         while (nodeIndex < nodeInfo.size) {
             val node = Node(nodeIndex)
-            if (node.color != TreeColorDeleted) {
+            if (!node.isDeleted) {
                 result = 31 * result + node.start
                 result = 31 * result + node.end
                 result = 31 * result + node.item.hashCode()
@@ -1052,16 +1311,11 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
 
 internal typealias NodeList = MutableIntList
 
-/**
- * The color of the red-black tree node. In addition to red and black. We also reused this field to
- * mark nodes that's been deleted. A better implementation will pack color and deletion information
- * to a bitwise flags. But the current implementation is simpler and more performant.
- */
+/** The color of the red-black tree node. In addition to red and black. */
 internal typealias TreeColor = Int
 
 internal const val TreeColorRed = 0
 internal const val TreeColorBlack = 1
-internal const val TreeColorDeleted = 2
 
 /**
  * Some constants used denote the traverse state of the tree [Node]. Check

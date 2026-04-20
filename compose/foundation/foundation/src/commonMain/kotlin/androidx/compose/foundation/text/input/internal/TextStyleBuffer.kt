@@ -88,7 +88,7 @@ internal class TextStyleBuffer<T>(
         }
         val startInBuffer = originalIndexToGapBuffer(start)
         val endInBuffer = originalIndexToGapBuffer(end)
-        return intervalTree.addInterval(style, startInBuffer, endInBuffer)
+        return intervalTree.addInterval(style, Interval(startInBuffer, endInBuffer))
     }
 
     /**
@@ -106,11 +106,12 @@ internal class TextStyleBuffer<T>(
         return intervalTree.findIntervalsInRange<R, AnnotatedString.Range<R>>(
             startInBuffer,
             endInBuffer,
-        ) { item, intervalStart, intervalEnd ->
+        ) { item, packedInterval ->
+            val interval = Interval(packedInterval)
             AnnotatedString.Range(
                 item = item,
-                start = gapBufferToOriginalIndex(intervalStart),
-                end = gapBufferToOriginalIndex(intervalEnd),
+                start = gapBufferToOriginalIndex(interval.start),
+                end = gapBufferToOriginalIndex(interval.end),
             )
         }
     }
@@ -126,12 +127,13 @@ internal class TextStyleBuffer<T>(
      */
     fun getAllStyles(): List<AnnotatedString.Range<T>> {
         val result = mutableListOf<AnnotatedString.Range<T>>()
-        intervalTree.forAllIntervals { item, start, end ->
+        intervalTree.forAllIntervals { item, packedInterval ->
+            val interval = Interval(packedInterval)
             result.add(
                 AnnotatedString.Range(
                     item = item,
-                    start = gapBufferToOriginalIndex(start),
-                    end = gapBufferToOriginalIndex(end),
+                    start = gapBufferToOriginalIndex(interval.start),
+                    end = gapBufferToOriginalIndex(interval.end),
                 )
             )
         }
@@ -153,7 +155,7 @@ internal class TextStyleBuffer<T>(
         val startInBuffer = originalIndexToGapBuffer(start)
         val endInBuffer = originalIndexToGapBuffer(end)
 
-        return intervalTree.removeInterval(style, startInBuffer, endInBuffer)
+        return intervalTree.removeInterval(style, Interval(startInBuffer, endInBuffer))
     }
 
     /**
@@ -281,66 +283,169 @@ internal class TextStyleBuffer<T>(
     }
 
     /**
-     * Move the gap to the left by [count] number of characters. This operation won't change the
-     * order of the intervals in this [TextStyleBuffer]. And the red-black tree properties should be
-     * well maintained after this operation.
+     * Moves the gap to the left by [count] characters.
+     *
+     * For example, calling `moveGapLeft(3)` on the following buffer state (where `[` and `)`
+     * represent a style span):
+     * ```
+     *  a b c d e f * * * * g h i j
+     *          [             )
+     * ```
+     *
+     * The style spans `[4, 7)` in the original text, which corresponds to `[4, 11)` in the gap
+     * buffer.
+     *
+     * After the move, the state becomes:
+     * ```
+     *  a b c * * * * d e f g h i j
+     *                  [     )
+     * ```
+     *
+     * The style remains at `[4, 7)` in the original text, but now corresponds to `[8, 11)` in the
+     * gap buffer.
+     *
+     * @param count The number of characters to shift the gap to the left. Must be non-negative and
+     *   less than or equal to the number of characters preceding the gap.
      */
     private fun moveGapLeft(count: Int) {
         if (count == 0) return
-        intervalTree.mapIntervals(gapStart - count, gapStart) { value ->
-            if (value in gapStart - count until gapStart) {
-                value + gapLength
-            } else {
-                value
-            }
+        intervalTree.mapIntervals(gapStart - count, gapStart) { packedInterval ->
+            val interval = Interval(packedInterval)
+            fun map(value: Int): Int =
+                if (value in gapStart - count until gapStart) {
+                    value + gapLength
+                } else {
+                    value
+                }
+            Interval(map(interval.start), map(interval.end)).packed
         }
 
         gapStart -= count
         gapEnd -= count
     }
 
-    /** Move the gap to the right by [count] number of characters. */
+    /**
+     * Moves the gap to the right by [count] characters.
+     *
+     * For example, calling `moveGapRight(3)` on the following buffer state (where `[` and `)`
+     * represent a style span):
+     * ```
+     *  a b c * * * * d e f g h i j
+     *                  [     )
+     * ```
+     *
+     * The style spans `[4, 7)` in the original text, which corresponds to `[8, 11)` in the gap
+     * buffer.
+     *
+     * After the move, the state becomes:
+     * ```
+     *  a b c d e f * * * * g h i j
+     *          [             )
+     * ```
+     *
+     * The style remains at `[4, 7)` in the original text, but now corresponds to `[4, 11)` in the
+     * gap buffer.
+     *
+     * @param count The number of characters to shift the gap to the right. Must be non-negative and
+     *   less than or equal to the number of characters following the gap.
+     */
     private fun moveGapRight(count: Int) {
         if (count == 0) return
-        intervalTree.mapIntervals(gapEnd, gapEnd + count) { value ->
-            if (value in gapEnd until gapEnd + count) {
-                value - gapLength
-            } else {
-                value
-            }
+        intervalTree.mapIntervals(gapEnd, gapEnd + count) { packedInterval ->
+            val interval = Interval(packedInterval)
+            fun map(value: Int): Int =
+                if (value in gapEnd until gapEnd + count) {
+                    value - gapLength
+                } else {
+                    value
+                }
+            Interval(map(interval.start), map(interval.end)).packed
         }
         gapStart += count
         gapEnd += count
     }
 
     /**
-     * Update the style intervals corresponding to deleting [count] characters before the gap this
-     * operation won't change the order of the intervals in this [TextStyleBuffer]. And thus the
-     * red-black tree properties should be well maintained after this operation.
+     * Updates the style intervals to reflect the deletion of [count] characters before the gap.
+     *
+     * For example, calling `deleteBeforeGap(3)` on the following buffer state (where `[` and `)`
+     * represent a style span):
+     * ```
+     *  a b c d e f * * * * g h i j
+     *          [             )
+     * ```
+     *
+     * The style spans `[4, 7)` in the original text, which corresponds to `[4, 11)` in the gap
+     * buffer.
+     *
+     * After the deletion, the state becomes:
+     * ```
+     *  a b c * * * * * * * g h i j
+     *                      [ )
+     * ```
+     *
+     * The style now spans `[3, 4)` in the original text, which corresponds to `[10, 11)` in the gap
+     * buffer.
+     *
+     * This operation won't change the order of the intervals in this [TextStyleBuffer]. And thus
+     * the red-black tree properties should be well maintained after this operation.
+     *
+     * @param count The number of characters to delete before the gap. Must be non-negative and less
+     *   than or equal to the number of characters preceding the gap.
      */
     private fun deleteBeforeGap(count: Int) {
         if (count == 0) return
         val newGapStart = gapStart - count
-        intervalTree.mapIntervals(newGapStart, gapStart) { value ->
-            if (value in newGapStart until gapStart) {
-                gapEnd
-            } else {
-                value
-            }
+        intervalTree.mapIntervals(newGapStart, gapStart) { packedInterval ->
+            val interval = Interval(packedInterval)
+            fun map(value: Int): Int =
+                if (value in newGapStart until gapStart) {
+                    gapEnd
+                } else {
+                    value
+                }
+            Interval(map(interval.start), map(interval.end)).packed
         }
 
         gapStart -= count
     }
 
-    /** Update the style intervals corresponding to deleting [count] characters after the gap. */
+    /**
+     * Updates the style intervals to reflect the deletion of [count] characters after the gap.
+     *
+     * For example, calling `deleteAfterGap(3)` on the following buffer state (where `[` and `)`
+     * represent a style span):
+     * ```
+     *  a b c * * * * d e f g h i j
+     *                  [     )
+     * ```
+     *
+     * The style spans `[4, 7)` in the original text, which corresponds to `[8, 11)` in the gap
+     * buffer.
+     *
+     * After the deletion, the state becomes:
+     * ```
+     *  a b c * * * * * * * g h i j
+     *                      [ )
+     * ```
+     *
+     * The style now spans `[3, 4)` in the original text, which corresponds to `[10, 11)` in the gap
+     * buffer.
+     *
+     * @param count The number of characters to delete after the gap. Must be non-negative and less
+     *   than or equal to the number of characters following the gap.
+     */
     private fun deleteAfterGap(count: Int) {
         if (count == 0) return
-        intervalTree.mapIntervals(gapEnd, gapEnd + count) { value ->
-            if (value in gapEnd until gapEnd + count) {
-                gapEnd + count
-            } else {
-                value
-            }
+        intervalTree.mapIntervals(gapEnd, gapEnd + count) { packedInterval ->
+            val interval = Interval(packedInterval)
+            fun map(value: Int): Int =
+                if (value in gapEnd until gapEnd + count) {
+                    gapEnd + count
+                } else {
+                    value
+                }
+            Interval(map(interval.start), map(interval.end)).packed
         }
 
         gapEnd += count
@@ -351,8 +456,10 @@ internal class TextStyleBuffer<T>(
         if (gapLength >= requiredSize) return
         val offset = gapLength - requiredSize + DEFAULT_GAP_LENGTH
 
-        intervalTree.mapIntervals(gapStart, Int.MAX_VALUE) { value ->
-            if (value >= gapStart) value + offset else value
+        intervalTree.mapIntervals(gapStart, Int.MAX_VALUE) { packedInterval ->
+            val interval = Interval(packedInterval)
+            fun map(value: Int): Int = if (value >= gapStart) value + offset else value
+            Interval(map(interval.start), map(interval.end)).packed
         }
         gapEnd += offset
     }
