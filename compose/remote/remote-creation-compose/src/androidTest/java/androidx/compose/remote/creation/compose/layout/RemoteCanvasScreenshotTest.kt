@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.layout
 
 import android.content.Context
+import android.graphics.Typeface
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -62,17 +63,23 @@ class RemoteCanvasScreenshotTest {
         ) {
             val paintNull =
                 RemotePaint().apply {
+                    // TODO(/b502907551) - switch to a RemoteTypeface
+                    typeface = Typeface.create("roboto-flex", Typeface.NORMAL)
                     color = Color.White.rc
                     textSize = 30f.rf
                 }
             val paintW100 =
                 RemotePaint().apply {
+                    // TODO(/b502907551) - switch to a RemoteTypeface
+                    typeface = Typeface.create("roboto-flex", Typeface.NORMAL)
                     color = Color.White.rc
                     textSize = 30f.rf
                     fontVariationSettings = FontVariation.Settings(FontVariation.weight(100))
                 }
             val paintW900 =
                 RemotePaint().apply {
+                    // TODO(/b502907551) - switch to a RemoteTypeface
+                    typeface = Typeface.create("roboto-flex", Typeface.NORMAL)
                     color = Color.White.rc
                     textSize = 30f.rf
                     fontVariationSettings = FontVariation.Settings(FontVariation.weight(900))
