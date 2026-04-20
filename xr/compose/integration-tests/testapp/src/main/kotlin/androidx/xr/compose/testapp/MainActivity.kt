@@ -70,7 +70,7 @@ import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
-import androidx.xr.compose.subspace.layout.movable
+import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.accessibility.AccessibilityActivity
 import androidx.xr.compose.testapp.animation.Animation
@@ -124,7 +124,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Subspace {
                 SpatialPanel(
-                    modifier = SubspaceModifier.width(800.dp).height(1000.dp).movable(),
+                    modifier = SubspaceModifier.width(800.dp).height(1000.dp).transformingMovable(),
                     resizePolicy = ResizePolicy(),
                 ) {
                     IntegrationTestsAppTheme {
