@@ -33,6 +33,8 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  *   [AppFunctionData], the property names are the names of the function parameters and the property
  *   values are the values of those parameters. The data object may have missing parameters.
  *   Developers are advised to implement defensive handling measures.
+ * @property attribution The attribution that can be used by the privacy setting to provide
+ *   transparency to the user about why an app function was invoked.
  */
 public class ExecuteAppFunctionRequest
 @RestrictTo(LIBRARY_GROUP)
@@ -40,16 +42,20 @@ constructor(
     public val targetPackageName: String,
     public val functionIdentifier: String,
     public val functionParameters: AppFunctionData,
+    @get:RequiresApi(37) public val attribution: AppInteractionAttribution? = null,
     /** Whether the parameters in this request is encoded in the jetpack format or not. */
     @get:RestrictTo(LIBRARY_GROUP) public val useJetpackSchema: Boolean,
-    /**
-     * The attribution that can be used by the privacy setting to provide transparency to the user
-     * about why an app function was invoked.
-     */
-    @get:RestrictTo(LIBRARY_GROUP)
-    @get:RequiresApi(37)
-    public val attribution: AppInteractionAttribution? = null,
 ) {
+    /**
+     * Creates a new [ExecuteAppFunctionRequest].
+     *
+     * @param targetPackageName The package name of the app that hosts the function.
+     * @param functionIdentifier The unique string identifier of the app function to be executed.
+     * @param functionParameters The parameters required to invoke this function. Within this
+     *   [AppFunctionData], the property names are the names of the function parameters and the
+     *   property values are the values of those parameters. The data object may have missing
+     *   parameters. Developers are advised to implement defensive handling measures.
+     */
     public constructor(
         targetPackageName: String,
         functionIdentifier: String,
@@ -58,11 +64,22 @@ constructor(
         targetPackageName,
         functionIdentifier,
         functionParameters,
-        useJetpackSchema = true,
         attribution = null,
+        useJetpackSchema = true,
     )
 
-    @RestrictTo(LIBRARY_GROUP)
+    /**
+     * Creates a new [ExecuteAppFunctionRequest] with attribution.
+     *
+     * @param targetPackageName The package name of the app that hosts the function.
+     * @param functionIdentifier The unique string identifier of the app function to be executed.
+     * @param functionParameters The parameters required to invoke this function. Within this
+     *   [AppFunctionData], the property names are the names of the function parameters and the
+     *   property values are the values of those parameters. The data object may have missing
+     *   parameters. Developers are advised to implement defensive handling measures.
+     * @param attribution The attribution that can be used by the privacy setting to provide
+     *   transparency to the user about why an app function was invoked.
+     */
     @RequiresApi(37)
     public constructor(
         targetPackageName: String,
@@ -73,8 +90,8 @@ constructor(
         targetPackageName,
         functionIdentifier,
         functionParameters,
-        useJetpackSchema = true,
         attribution = attribution,
+        useJetpackSchema = true,
     )
 
     internal fun toPlatformExtensionClass():
@@ -137,8 +154,8 @@ constructor(
             targetPackageName,
             functionIdentifier,
             functionParameters,
-            useJetpackSchema,
             attribution,
+            useJetpackSchema,
         )
 
     public companion object {
