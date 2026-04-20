@@ -21,7 +21,33 @@ import androidx.xr.arcore.runtime.Depth as RuntimeDepth
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
-/** Fake implementation of [Depth][RuntimeDepth] for testing purposes. */
+// TODO b/500091606 Remove when no longer used in G3
+/**
+ * Fake implementation of [Depth][RuntimeDepth] for testing purposes. This should not be used to
+ * unit test `Depth` APIs. Instead, use an [ArCoreTestRule]. Example:
+ * ```
+ * @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
+ *
+ * @Test
+ * fun left_rawOnly_updatesRawDepthMap() {
+ *     session.configure(Config(depthEstimation = DepthEstimationMode.RAW_ONLY))
+ *
+ *     runTest(testDispatcher) {
+ *         val expectedWidth = 2
+ *         val expectedHeight = 2
+ *         arCoreTestRule.leftDepthMaps.width = expectedWidth
+ *         arCoreTestRule.leftDepthMaps.height = expectedHeight
+ *         advanceUntilIdle()
+ *         val underTest = DepthMap.left(session)!!
+ *         assertThat(underTest.state.value.width).isEqualTo(expectedWidth)
+ *         assertThat(underTest.state.value.height).isEqualTo(expectedHeight)
+ *     }
+ * }
+ * ```
+ *
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
+ */
 @Deprecated(
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )

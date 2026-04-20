@@ -32,6 +32,7 @@ import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
 import kotlinx.coroutines.sync.Semaphore
 
+// TODO b/500091606 Remove when no longer used in G3
 /**
  * Fake implementation of [PerceptionRuntime] for testing purposes.
  *
@@ -39,6 +40,8 @@ import kotlinx.coroutines.sync.Semaphore
  * @property perceptionManager the [FakePerceptionManager] for this fake runtime
  * @property xrDevicePreferredDisplayBlendMode the value that will be returned by
  *   [androidx.xr.runtime.XrDevice.getPreferredDisplayBlendMode]
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
  */
 @Suppress("DataClassDefinition")
 @RestrictTo(RestrictTo.Scope.LIBRARY)

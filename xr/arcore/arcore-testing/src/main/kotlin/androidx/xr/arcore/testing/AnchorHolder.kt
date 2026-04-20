@@ -18,7 +18,6 @@ package androidx.xr.arcore.testing
 
 import androidx.xr.arcore.runtime.Anchor
 
-/** Interface that holds [Anchors][Anchor]. */
 @Deprecated(
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )

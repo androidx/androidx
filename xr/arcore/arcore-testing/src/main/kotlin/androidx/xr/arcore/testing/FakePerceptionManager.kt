@@ -35,6 +35,7 @@ import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import java.util.UUID
 
+// TODO b/500091606 Remove when no longer used in G3
 /**
  * Fake implementation of [PerceptionManager] used to validate state transitions.
  *
@@ -45,6 +46,8 @@ import java.util.UUID
  * @property rightDepth the right [Depth] as a [FakeRuntimeDepth]
  * @property monoDepth the mono [Depth] as a [FakeRuntimeDepth]
  * @property isTrackingAvailable a flag to represent available tracking state of the camera
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
  */
 @SuppressWarnings("HiddenSuperclass")
 @Suppress("DEPRECATION")
