@@ -354,12 +354,7 @@ public class ImpressApiImpl : ImpressApi {
         nReleaseGltfAsset(getViewNativeHandle(view), gltfToken)
 
     override fun instanceGltfModel(gltfToken: Long): ImpressNode =
-        ImpressNode(
-            nInstanceGltfModel(getViewNativeHandle(view), gltfToken, /* enableCollider= */ false)
-        )
-
-    override fun instanceGltfModel(gltfToken: Long, enableCollider: Boolean): ImpressNode =
-        ImpressNode(nInstanceGltfModel(getViewNativeHandle(view), gltfToken, enableCollider))
+        ImpressNode(nInstanceGltfModel(getViewNativeHandle(view), gltfToken))
 
     override fun setGltfModelColliderEnabled(
         impressNode: ImpressNode,
@@ -1812,11 +1807,7 @@ public class ImpressApiImpl : ImpressApi {
 
     private external fun nReleaseGltfAsset(view: Long, gltfToken: Long)
 
-    private external fun nInstanceGltfModel(
-        view: Long,
-        gltfToken: Long,
-        enableCollider: Boolean,
-    ): Int
+    private external fun nInstanceGltfModel(view: Long, gltfToken: Long): Int
 
     private external fun nSetGltfModelColliderEnabled(
         view: Long,
