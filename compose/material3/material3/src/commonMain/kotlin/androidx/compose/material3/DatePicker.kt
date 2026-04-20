@@ -67,6 +67,8 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.isShiftTab
+import androidx.compose.material3.internal.isTab
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.DividerTokens
 import androidx.compose.material3.tokens.ElevationTokens
@@ -2094,17 +2096,12 @@ private fun Modifier.dayOnKeyEvent(
         return this.onKeyEvent {
             // Tab should exit days selection and move focus down.
             if (it.isTab) {
-                // Move to dismiss button.
-                val moved = focusManager.moveFocus(FocusDirection.Down)
-                if (moved) {
-                    val direction = if (isRtl) FocusDirection.Left else FocusDirection.Right
-                    // Then move to ok button as its focus comes before the dismiss button's.
-                    focusManager.moveFocus(direction)
-                } else if (!state.isScrollInProgress) {
-                    // If focus didn't move, it's because there's no focus target down like to an ok
-                    // or cancel button. So scroll and move focus forward instead to next month.
-                    goToMonth(+1, state, focusManager, FocusDirection.Next, coroutineScope)
-                }
+                // Move focus Down instead of Next, as that'd go to following month and keep focus
+                // trapped within the date picker. If the date picker is the last element on the
+                // screen, the user should implement a custom focus move back to the top of the
+                // screen to keep the focus flowing. That is not possible to do here with the
+                // existing FocusDirection options.
+                focusManager.moveFocus(FocusDirection.Down)
                 return@onKeyEvent true
             }
             if (state.isScrollInProgress) {
@@ -2569,10 +2566,6 @@ private val YearsVerticalPadding = 16.dp
 private const val MaxCalendarRows = 6
 private const val YearsInRow: Int = 3
 
-private val KeyEvent.isShiftTab: Boolean
-    get() = isShiftPressed && type == KeyEventType.KeyDown && key == Key.Tab
-private val KeyEvent.isTab: Boolean
-    get() = !isShiftPressed && type == KeyEventType.KeyDown && key == Key.Tab
 private val KeyEvent.isDirectionLeft: Boolean
     get() = type == KeyEventType.KeyDown && key == Key.DirectionLeft
 private val KeyEvent.isDirectionRight: Boolean
