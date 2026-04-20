@@ -72,7 +72,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 /**
  * [Material Design button](https://m3.material.io/components/buttons/overview)
@@ -1087,21 +1086,10 @@ object ButtonDefaults {
 
     /** The default height for a medium button container. */
     @ExperimentalMaterial3ExpressiveApi
-    val MediumContainerHeight =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            46.dp
-        } else {
-            ButtonMediumTokens.ContainerHeight
-        }
+    val MediumContainerHeight = ButtonMediumTokens.ContainerHeight
 
     /** The default height for a large button container. */
-    @ExperimentalMaterial3ExpressiveApi
-    val LargeContainerHeight =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            54.dp
-        } else {
-            ButtonLargeTokens.ContainerHeight
-        }
+    @ExperimentalMaterial3ExpressiveApi val LargeContainerHeight = ButtonLargeTokens.ContainerHeight
 
     /** The default height for a extra large button container. */
     @ExperimentalMaterial3ExpressiveApi
@@ -1121,13 +1109,7 @@ object ButtonDefaults {
     @ExperimentalMaterial3ExpressiveApi val MediumIconSize = ButtonMediumTokens.IconSize
 
     /** The default size of the icon used inside a large button. */
-    @ExperimentalMaterial3ExpressiveApi
-    val LargeIconSize =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            24.dp
-        } else {
-            ButtonLargeTokens.IconSize
-        }
+    @ExperimentalMaterial3ExpressiveApi val LargeIconSize = ButtonLargeTokens.IconSize
 
     /** The default size of the icon used inside an extra large button. */
     @ExperimentalMaterial3ExpressiveApi val ExtraLargeIconSize = ButtonXLargeTokens.IconSize
@@ -1148,13 +1130,7 @@ object ButtonDefaults {
     @ExperimentalMaterial3ExpressiveApi val MediumIconSpacing = ButtonMediumTokens.IconLabelSpace
 
     /** The default spacing between an icon and a text when they're inside any large button. */
-    @ExperimentalMaterial3ExpressiveApi
-    val LargeIconSpacing =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            8.dp
-        } else {
-            ButtonLargeTokens.IconLabelSpace
-        }
+    @ExperimentalMaterial3ExpressiveApi val LargeIconSpacing = ButtonLargeTokens.IconLabelSpace
 
     /**
      * The default spacing between an icon and a text when they used inside any extra large button.
@@ -1713,21 +1689,8 @@ object ButtonDefaults {
         val xLargeHeight = ExtraLargeContainerHeight
         return when {
             buttonHeight < mediumHeight -> MaterialTheme.typography.labelLarge
-            buttonHeight < largeHeight ->
-                if (shouldUsePrecisionPointerComponentSizing.value) {
-                    MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp, lineHeight = 22.sp)
-                } else {
-                    MaterialTheme.typography.titleMedium
-                }
-            buttonHeight < xLargeHeight ->
-                if (shouldUsePrecisionPointerComponentSizing.value) {
-                    MaterialTheme.typography.headlineSmall.copy(
-                        fontSize = 18.sp,
-                        lineHeight = 26.sp,
-                    )
-                } else {
-                    MaterialTheme.typography.headlineSmall
-                }
+            buttonHeight < largeHeight -> MaterialTheme.typography.titleMedium
+            buttonHeight < xLargeHeight -> MaterialTheme.typography.headlineSmall
             else -> MaterialTheme.typography.headlineLarge
         }
     }
@@ -1738,46 +1701,14 @@ object ButtonDefaults {
         if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else SmallStartPadding
     private val MediumLeadingPadding = ButtonMediumTokens.LeadingSpace
     private val MediumTrailingPadding = ButtonMediumTokens.TrailingSpace
-    private val MediumVerticalPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 16.dp
-    private val IconMediumLeadingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            20.dp
-        } else {
-            ButtonMediumTokens.LeadingSpace
-        }
-    private val IconMediumTrailingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            20.dp
-        } else {
-            ButtonMediumTokens.TrailingSpace
-        }
-    private val LargeVerticalPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) 14.dp else 32.dp
-    private val LargeLeadingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            32.dp
-        } else {
-            ButtonLargeTokens.LeadingSpace
-        }
-    private val LargeTrailingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            32.dp
-        } else {
-            ButtonLargeTokens.TrailingSpace
-        }
-    private val IconLargeLeadingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            28.dp
-        } else {
-            ButtonLargeTokens.LeadingSpace
-        }
-    private val IconLargeTrailingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            28.dp
-        } else {
-            ButtonLargeTokens.TrailingSpace
-        }
+    private val MediumVerticalPadding = 16.dp
+    private val IconMediumLeadingPadding = ButtonMediumTokens.LeadingSpace
+    private val IconMediumTrailingPadding = ButtonMediumTokens.TrailingSpace
+    private val LargeVerticalPadding = 32.dp
+    private val LargeLeadingPadding = ButtonLargeTokens.LeadingSpace
+    private val LargeTrailingPadding = ButtonLargeTokens.TrailingSpace
+    private val IconLargeLeadingPadding = ButtonLargeTokens.LeadingSpace
+    private val IconLargeTrailingPadding = ButtonLargeTokens.TrailingSpace
 }
 
 /**
