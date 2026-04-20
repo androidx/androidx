@@ -70,6 +70,14 @@ internal constructor(
     /** Flushes the trace packets into the underlying [AbstractTraceSink]. */
     public fun flush() {
         if (isEnabled) {
+            val track = process.currentThreadTrack()
+            val handle =
+                track.beginSection(
+                    category = META_TRACE_CATEGORY,
+                    name = "flush",
+                    token = PropagationUnsupportedToken,
+                )
+            handle.metadata.dispatchToTraceSink()
             process.flush()
             synchronized(process.threads) {
                 process.threads.forEachValue { threadTrack -> threadTrack.flush() }
@@ -77,8 +85,13 @@ internal constructor(
             synchronized(process.counters) {
                 process.counters.forEachValue { counterTrack -> counterTrack.flush() }
             }
-
             // Call flush() on the sink after all the tracks have been flushed.
+            sink.flush()
+            handle.closeable.close()
+            // Force a flush on the track where we emitted the last event so the sink
+            // knows to drain that.
+            track.flush()
+            // Re-flush the sink to pick up the last packet.
             sink.flush()
         }
     }

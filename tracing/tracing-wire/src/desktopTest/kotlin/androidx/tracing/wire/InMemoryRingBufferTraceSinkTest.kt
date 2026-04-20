@@ -16,6 +16,7 @@
 
 package androidx.tracing.wire
 
+import androidx.tracing.META_TRACE_CATEGORY
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -168,10 +169,7 @@ class InMemoryRingBufferTraceSinkTest {
         // and buffered packets are enqueued into the sink, but the sink itself is not cleared.
         driver.flush()
 
-        file.sink().buffer().use { bufferedSink ->
-            driver.flush()
-            sink.flushTo(bufferedSink)
-        }
+        file.sink().buffer().use { bufferedSink -> sink.flushTo(bufferedSink) }
         // Close driver (and sink)
         driver.close()
 
@@ -179,14 +177,20 @@ class InMemoryRingBufferTraceSinkTest {
         assertTrue(file.length() > 0, "File should contain flushed events")
 
         val trace = androidx.tracing.wire.protos.MutableTrace.ADAPTER.decode(file.readBytes())
+        val flushes =
+            findAllPackets(packets = trace.packet) { start ->
+                val meta = start.track_event?.categories?.contains(META_TRACE_CATEGORY) ?: false
+                start.track_event?.name == "flush" && meta
+            }
 
+        val events = trace.packet - flushes.toSet()
         val starts =
-            trace.packet.filter {
+            events.filter {
                 it.track_event?.type ==
                     androidx.tracing.wire.protos.MutableTrackEvent.Type.TYPE_SLICE_BEGIN
             }
         val ends =
-            trace.packet.filter {
+            events.filter {
                 it.track_event?.type ==
                     androidx.tracing.wire.protos.MutableTrackEvent.Type.TYPE_SLICE_END
             }
