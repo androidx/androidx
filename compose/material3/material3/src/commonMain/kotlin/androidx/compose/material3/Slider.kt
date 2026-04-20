@@ -793,8 +793,7 @@ private fun SliderImpl(
 
     val focusRingModifier =
         if (
-            LocalRippleThemeConfiguration.current ==
-                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing
         ) {
             Modifier.indication(
                     interactionSource = interactionSource,
@@ -1230,8 +1229,7 @@ private fun RangeSliderImpl(
 
     val startThumbFocusRingModifier =
         if (
-            LocalRippleThemeConfiguration.current ==
-                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing
         ) {
             Modifier.indication(
                     interactionSource = startInteractionSource,
@@ -1251,8 +1249,7 @@ private fun RangeSliderImpl(
 
     val endThumbFocusRingModifier =
         if (
-            LocalRippleThemeConfiguration.current ==
-                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing
         ) {
             Modifier.indication(
                     interactionSource = endInteractionSource,
