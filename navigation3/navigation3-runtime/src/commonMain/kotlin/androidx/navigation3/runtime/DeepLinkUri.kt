@@ -29,6 +29,12 @@ public expect abstract class DeepLinkUri {
 
     public fun getQueryParameterNames(): Set<String>
 
+    public abstract fun getScheme(): String?
+
+    public abstract fun getAuthority(): String?
+
+    public abstract fun isHierarchical(): Boolean
+
     abstract override fun toString(): String
 }
 

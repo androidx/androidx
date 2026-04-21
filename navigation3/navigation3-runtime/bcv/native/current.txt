@@ -21,9 +21,12 @@ abstract interface androidx.navigation3.runtime/NavKey // androidx.navigation3.r
 abstract class androidx.navigation3.runtime/DeepLinkUri { // androidx.navigation3.runtime/DeepLinkUri|null[0]
     constructor <init>() // androidx.navigation3.runtime/DeepLinkUri.<init>|<init>(){}[0]
 
+    abstract fun getAuthority(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getAuthority|getAuthority(){}[0]
     abstract fun getFragment(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getFragment|getFragment(){}[0]
     abstract fun getPathSegments(): kotlin.collections/List<kotlin/String> // androidx.navigation3.runtime/DeepLinkUri.getPathSegments|getPathSegments(){}[0]
     abstract fun getQuery(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getQuery|getQuery(){}[0]
+    abstract fun getScheme(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getScheme|getScheme(){}[0]
+    abstract fun isHierarchical(): kotlin/Boolean // androidx.navigation3.runtime/DeepLinkUri.isHierarchical|isHierarchical(){}[0]
     abstract fun toString(): kotlin/String // androidx.navigation3.runtime/DeepLinkUri.toString|toString(){}[0]
     open fun getQueryParameterNames(): kotlin.collections/Set<kotlin/String> // androidx.navigation3.runtime/DeepLinkUri.getQueryParameterNames|getQueryParameterNames(){}[0]
     open fun getQueryParameters(kotlin/String): kotlin.collections/List<kotlin/String> // androidx.navigation3.runtime/DeepLinkUri.getQueryParameters|getQueryParameters(kotlin.String){}[0]
