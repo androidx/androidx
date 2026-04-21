@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.hardware.HardwareBuffer
 import android.media.ImageReader
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -68,18 +69,26 @@ public interface CameraSimulator {
     ): CameraGraphSimulator.FrameSimulator
 
     /** Utility function to simulate the production of a [FakeImage]s for one or more streams. */
-    public fun simulateImage(streamId: StreamId, imageTimestamp: Long, outputId: OutputId? = null)
+    public fun simulateImage(
+        streamId: StreamId,
+        imageTimestamp: Long,
+        outputId: OutputId? = null,
+        hardwareBuffer: HardwareBuffer? = null,
+    )
 
     /**
      * Utility function to simulate the production of [FakeImage]s for all outputs on a specific
      * [request]. Use [simulateImage] to directly control simulation of individual outputs.
      * [physicalCameraIds] should be used to select the correct output ids when simulating images
-     * from multi-resolution [ImageReader]s and [ImageSource]s
+     * from multi-resolution [ImageReader]s and [ImageSource]s. [hardwareBuffers] helps generate
+     * corresponding [Image] with the hardware buffer provided. If the hardware buffer is not
+     * provided for the outputId, no hardware buffer will be generated for the image.
      */
     public fun simulateImages(
         request: Request,
         imageTimestamp: Long,
         physicalCameraIds: Set<CameraId> = emptySet(),
+        hardwareBuffers: Map<OutputId, HardwareBuffer> = emptyMap(),
     )
 
     /**

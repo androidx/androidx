@@ -58,7 +58,21 @@ class FakeImageReaderTest {
     @Test
     @Config(minSdk = Build.VERSION_CODES.P)
     fun imageReaderCanSimulateImages() {
-        val hardwareBuffer = HardwareBuffer.create(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, 1, 1)
+        val fakeImage = imageReader.simulateImage(100)
+
+        assertThat(fakeImage.width).isEqualTo(IMAGE_WIDTH)
+        assertThat(fakeImage.height).isEqualTo(IMAGE_HEIGHT)
+        assertThat(fakeImage.format).isEqualTo(StreamFormat.PRIVATE.value)
+        assertThat(fakeImage.timestamp).isEqualTo(100)
+        assertThat(fakeImage.isClosed).isFalse()
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P)
+    fun imageReaderCanSimulateImagesWithCustomHardwareBuffer() {
+        val width = 10
+        val height = 20
+        val hardwareBuffer = HardwareBuffer.create(width, height, IMAGE_FORMAT, 1, 1)
         val fakeImage = imageReader.simulateImage(100, hardwareBuffer = hardwareBuffer)
 
         assertThat(fakeImage.width).isEqualTo(IMAGE_WIDTH)
@@ -66,9 +80,12 @@ class FakeImageReaderTest {
         assertThat(fakeImage.format).isEqualTo(StreamFormat.PRIVATE.value)
         assertThat(fakeImage.timestamp).isEqualTo(100)
         assertThat(fakeImage.hardwareBuffer).isNotNull()
-        assertThat(fakeImage.hardwareBuffer?.width).isEqualTo(IMAGE_WIDTH)
-        assertThat(fakeImage.hardwareBuffer?.height).isEqualTo(IMAGE_HEIGHT)
+        assertThat(fakeImage.hardwareBuffer?.width).isEqualTo(width)
+        assertThat(fakeImage.hardwareBuffer?.height).isEqualTo(height)
+        assertThat(fakeImage.hardwareBuffer?.format).isEqualTo(IMAGE_FORMAT)
         assertThat(fakeImage.isClosed).isFalse()
+
+        hardwareBuffer.close()
     }
 
     @Test
