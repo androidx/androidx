@@ -198,10 +198,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // 20 is taken from AbsSeekbar.java.
         const val AccessibilitySliderStepsCount = 20
 
-        // TODO(b/479058621): Replace the hardcode number with CONTENT_CHANGE_TYPE_CHECKED after
-        // sdk=36.
-        // The copied variable from AccessibilityEvent#CONTENT_CHANGE_TYPE_CHECKED.
-        const val CONTENT_CHANGE_TYPE_CHECKED = 1 shl 13
+        const val CONTENT_CHANGE_TYPE_CHECKED = AccessibilityEvent.CONTENT_CHANGE_TYPE_CHECKED
 
         /**
          * Timeout to determine whether a text selection changed event and the pending text
