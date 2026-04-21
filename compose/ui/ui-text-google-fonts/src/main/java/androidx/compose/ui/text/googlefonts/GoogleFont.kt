@@ -62,7 +62,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @param weight font weight to load
  * @param style italic or normal font
  */
-// contains Google in name because this function provides integration with fonts.google.com
+@Deprecated(
+    "Use the new Font overload without [GoogleFont.Provider]",
+    ReplaceWith("Font(googleFont, fontProvider, weight, style, variationSettings)"),
+    level = DeprecationLevel.HIDDEN,
+)
 @Suppress("MentionsGoogle")
 fun Font(
     googleFont: GoogleFont,
@@ -80,16 +84,17 @@ fun Font(
 }
 
 /**
- * Load a font from Google Fonts via Downloadable Fonts, including variable font settings.
+ * Load a font from Google Fonts via Downloadable Fonts.
  *
  * This function allows specifying a custom font provider. For most common use cases with Google
  * Play Services, consider using the overload that omits the [fontProvider] parameter.
  *
- * Variable font settings are only applied on API level 26 and above.
+ * If the requested [GoogleFont] is available as a variable font in Google Fonts and the non-empty
+ * [FontVariation.Settings] is provided for `variationSettings`, the returned [Font] will be a
+ * variable font. Variable font settings are only applied on API level 26 and above.
  *
- * To learn more about the features supported by Google Fonts, see
- * [Get Started with the Google Fonts for Android](https://developers.google.com/fonts/docs/android)
- *
+ * @sample androidx.compose.ui.text.googlefonts.samples.GoogleFontWithCustomFontProviderSample
+ * @sample androidx.compose.ui.text.googlefonts.samples.GoogleFontWithCustomFontProviderAndVariationSettingsSample
  * @param googleFont A font to load from fonts.google.com
  * @param fontProvider configuration for downloadable font provider
  * @param weight font weight to load
@@ -101,9 +106,9 @@ fun Font(
 fun Font(
     googleFont: GoogleFont,
     fontProvider: GoogleFont.Provider,
-    variationSettings: FontVariation.Settings,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
+    variationSettings: FontVariation.Settings = FontVariation.Settings(),
 ): Font {
     return GoogleFontImpl(
         name = googleFont.name,
@@ -120,45 +125,15 @@ fun Font(
 /**
  * Load a font from Google Fonts via Downloadable Fonts using the default [GoogleFont.Provider].
  *
- * This overload function simplifies the setup by automatically configuring the
- * [GoogleFont.Provider] with the default font certificates required to fetch fonts from Google Play
- * Services.
- *
- * To learn more about the features supported by Google Fonts, see
- * [Get Started with the Google Fonts for Android](https://developers.google.com/fonts/docs/android)
- *
- * @sample androidx.compose.ui.text.googlefonts.samples.GoogleFontSample
- * @param googleFont A font to load from fonts.google.com
- * @param weight font weight to load
- * @param style italic or normal font
- */
-// contains Google in name because this function provides integration with fonts.google.com
-@Suppress("MentionsGoogle")
-fun Font(
-    googleFont: GoogleFont,
-    weight: FontWeight = FontWeight.Normal,
-    style: FontStyle = FontStyle.Normal,
-): Font {
-    return Font(
-        googleFont = googleFont,
-        weight = weight,
-        style = style,
-        variationSettings = FontVariation.Settings(),
-    )
-}
-
-/**
- * Load a font from Google Fonts via Downloadable Fonts using the default [GoogleFont.Provider].
+ * If the requested [GoogleFont] is available as a variable font in Google Fonts and the non-empty
+ * [FontVariation.Settings] is provided for `variationSettings`, the returned [Font] will be a
+ * variable font. Variable font settings are only applied on API level 26 and above.
  *
  * This overload function simplifies the setup by automatically configuring the
  * [GoogleFont.Provider] with the default font certificates required to fetch fonts from Google Play
  * Services.
  *
- * Variable font settings are only applied on API level 26 and above.
- *
- * To learn more about the features supported by Google Fonts, see
- * [Get Started with the Google Fonts for Android](https://developers.google.com/fonts/docs/android)
- *
+ * @sample androidx.compose.ui.text.googlefonts.samples.GoogleFontWithoutVariationSettingsSample
  * @sample androidx.compose.ui.text.googlefonts.samples.GoogleFontWithVariationSettingsSample
  * @param googleFont A font to load from fonts.google.com
  * @param weight font weight to load
@@ -169,9 +144,9 @@ fun Font(
 @Suppress("MentionsGoogle")
 fun Font(
     googleFont: GoogleFont,
-    variationSettings: FontVariation.Settings,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
+    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
 ): Font {
     val fontProvider =
         GoogleFont.Provider(
