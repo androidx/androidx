@@ -34,6 +34,7 @@ import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -76,6 +77,7 @@ public class RemoteWorkManagerClientTest {
             object : TaskExecutor {
                 val executor = Executor { it.run() }
                 val serialExecutor = SerialExecutorImpl(executor)
+                val workCoroutineScope = CoroutineScope(taskCoroutineDispatcher)
 
                 override fun getMainThreadExecutor(): Executor {
                     return serialExecutor
@@ -84,6 +86,8 @@ public class RemoteWorkManagerClientTest {
                 override fun getSerialTaskExecutor(): SerialExecutor {
                     return serialExecutor
                 }
+
+                override fun getCoroutineScope(): CoroutineScope = workCoroutineScope
             }
         val conf = Configuration.Builder().setRunnableScheduler(mRunnableScheduler).build()
         mWorkManager =

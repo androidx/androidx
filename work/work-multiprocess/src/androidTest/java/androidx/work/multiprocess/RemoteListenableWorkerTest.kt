@@ -49,6 +49,7 @@ import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
@@ -91,9 +92,13 @@ public class RemoteListenableWorkerTest {
                 .build()
         mTaskExecutor =
             object : TaskExecutor {
+                private val workCoroutineScope = CoroutineScope(taskCoroutineDispatcher)
+
                 override fun getMainThreadExecutor() = mExecutor
 
                 override fun getSerialTaskExecutor() = SerialExecutorImpl(mExecutor)
+
+                override fun getCoroutineScope(): CoroutineScope = workCoroutineScope
             }
         mScheduler = mock(Scheduler::class.java)
         mForegroundProcessor = mock(ForegroundProcessor::class.java)

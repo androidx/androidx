@@ -39,6 +39,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -185,8 +186,11 @@ class ManualTaskExecutor : TaskExecutor {
     val mainExecutor = ManualExecutor()
     val serialTaskExecutor = ManualExecutor()
     private val serialBackgroundExecutor = SerialExecutorImpl(serialTaskExecutor)
+    private val workCoroutineScope = CoroutineScope(taskCoroutineDispatcher)
 
     override fun getMainThreadExecutor() = mainExecutor
 
     override fun getSerialTaskExecutor(): SerialExecutorImpl = serialBackgroundExecutor
+
+    override fun getCoroutineScope(): CoroutineScope = workCoroutineScope
 }
