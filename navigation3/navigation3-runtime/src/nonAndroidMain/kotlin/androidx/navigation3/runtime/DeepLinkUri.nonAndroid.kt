@@ -29,10 +29,21 @@ public actual abstract class DeepLinkUri {
 
     public actual open fun getQueryParameterNames(): Set<String> = error("Abstract implementation")
 
+    public actual abstract fun getScheme(): String?
+
+    public actual abstract fun isHierarchical(): Boolean
+
+    public actual abstract fun getAuthority(): String?
+
     actual abstract override fun toString(): String
 }
 
-/** Copy of nonAndroid androidx.navigation.NavUriUtils */
+/**
+ * Copy of nonAndroid androidx.navigation.NavUriUtils
+ *
+ * Includes additional APIs copied from
+ * [android.net.Uri](https://developer.android.com/reference/android/net/Uri)
+ */
 internal actual object DeepLinkUriUtils {
     actual fun encode(s: String, allow: String?): String = InternalUri.encode(s, allow)
 
@@ -75,7 +86,7 @@ private class ActualUri(private val uriString: String) : DeepLinkUri() {
 
     override fun getPathSegments(): List<String> = _pathSegments
 
-    private fun isHierarchical(): Boolean {
+    override fun isHierarchical(): Boolean {
         if (schemeSeparatorIndex == -1) return true // All relative URIs are hierarchical.
         if (uriString.length == schemeSeparatorIndex + 1) return false // No ssp.
 
@@ -111,6 +122,29 @@ private class ActualUri(private val uriString: String) : DeepLinkUri() {
                 if (index == -1) return@map it else InternalUri.decode(it.substring(0, index))
             }
             .toSet()
+    }
+
+    override fun getScheme(): String? {
+        return if (schemeSeparatorIndex == -1) {
+            null
+        } else {
+            uriString.substring(0, schemeSeparatorIndex)
+        }
+    }
+
+    override fun getAuthority(): String? {
+        val ssi = schemeSeparatorIndex
+        val start = ssi + 3
+
+        // If "//" follows the scheme separator, we have an authority.
+        if (uriString.length > ssi + 2 && uriString[ssi + 1] == '/' && uriString[ssi + 2] == '/') {
+            // Look for the start of the path, query, or fragment, or the end of the string.
+            val end = uriString.indexOfAny(charArrayOf('/', '\\', '?', '#'), start)
+
+            return uriString.substring(start, if (end != -1) end else uriString.length)
+        } else {
+            return null
+        }
     }
 
     override fun toString(): String = uriString
