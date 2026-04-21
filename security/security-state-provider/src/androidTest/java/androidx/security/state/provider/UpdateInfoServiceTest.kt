@@ -171,6 +171,54 @@ class UpdateInfoServiceTest {
     }
 
     @Test
+    fun fetchUpdates_callsFetchUpdatesAsync_whenOverridden() = runBlocking {
+        // Create a service that ONLY overrides fetchUpdatesAsync
+        val asyncService =
+            object : ListenableFutureUpdateInfoService() {
+                    override fun fetchUpdatesAsync():
+                        com.google.common.util.concurrent.ListenableFuture<
+                            @JvmSuppressWildcards
+                            List<UpdateInfo>
+                        > {
+                        return androidx.concurrent.futures.SuspendToFutureAdapter.launchFuture(
+                            kotlinx.coroutines.Dispatchers.IO
+                        ) {
+                            listOf(
+                                UpdateInfo.Builder()
+                                    .setComponent("SYSTEM")
+                                    .setSecurityPatchLevel(
+                                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString(
+                                            "2025-01-01"
+                                        )
+                                    )
+                                    .build()
+                            )
+                        }
+                    }
+
+                    fun attach(c: Context) {
+                        super.attachBaseContext(c)
+                    }
+                }
+                .apply { attach(context) }
+
+        // We can't call fetchUpdates directly because it's protected,
+        // so we'll test it via the same path as callListAvailableUpdates
+        val intent = Intent("androidx.security.state.provider.UPDATE_INFO_SERVICE")
+        val factory = asyncService.onBind(intent) as IUpdateInfoService
+        val session = factory.openSession(context.packageName, Binder())
+
+        // Use reflection or just test via the public API that it successfully fetches
+        // For simplicity, we just trigger listAvailableUpdates and see if it succeeds.
+        val result = session.listAvailableUpdates()
+        session.close()
+
+        assertEquals(1, result.updates.size)
+        assertEquals("SYSTEM", result.updates[0].component)
+        assertEquals("2025-01-01", result.updates[0].securityPatchLevel.toString())
+    }
+
+    @Test
     fun listAvailableUpdates_returnsCachedDataFromManager() {
         // 1. Setup: Seed the SharedPreferences with data
         val updateInfo =

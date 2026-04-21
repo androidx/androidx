@@ -71,8 +71,9 @@ import kotlinx.coroutines.sync.withLock
  * * [dump]: Debug internal state via `adb shell dumpsys`.
  *
  * ### Host Implementation
- * Host applications (such as the System Updater, Google Play Store, or OEM-specific updaters) must
- * extend this class and implement the [fetchUpdates] method to provide the actual network logic.
+ * Host applications (such as the System Updater, Google Play Store, or OEM-specific updaters)
+ * written in Kotlin should extend this class and implement [fetchUpdates] to provide the actual
+ * network logic. Java consumers should instead extend [ListenableFutureUpdateInfoService].
  *
  * ### Manifest Declaration
  * To expose this service, you must declare it in your `AndroidManifest.xml` with the

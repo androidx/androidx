@@ -32,11 +32,13 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.StringDef
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
+import androidx.concurrent.futures.SuspendToFutureAdapter
 import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_KERNEL_VERSION
 import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_SYSTEM_SPL
 import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_SYSTEM_SUPPLEMENTAL_PATCHES
 import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_VENDOR_SPL
 import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_VENDOR_SUPPLEMENTAL_PATCHES
+import com.google.common.util.concurrent.ListenableFuture
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -867,40 +869,61 @@ constructor(
         @Component component: String,
         timeoutMillis: Long = UPDATE_INFO_SERVICE_BINDING_TIMEOUT_MS,
     ): SecurityPatchLevel {
-        val deviceSpl = getDeviceSecurityPatchLevel(component)
-        val results = queryAllAvailableUpdates(timeoutMillis)
+        return withContext(Dispatchers.IO) {
+            val deviceSpl = getDeviceSecurityPatchLevel(component)
+            val results = queryAllAvailableUpdates(timeoutMillis)
 
-        val maxAvailableSpl =
-            results
-                .asSequence()
-                .flatMap { it.updates }
-                .filter { update -> update.component == component }
-                .mapNotNull { update ->
-                    val spl = update.securityPatchLevel
+            val maxAvailableSpl =
+                results
+                    .asSequence()
+                    .flatMap { it.updates }
+                    .filter { update -> update.component == component }
+                    .mapNotNull { update ->
+                        val spl = update.securityPatchLevel
 
-                    // Only consider updates that match the device's current SPL format.
-                    // This prevents IllegalArgumentExceptions during the maxOrNull() comparison
-                    // and safely filters out malformed strings that were parsed as the
-                    // fallback GenericStringSecurityPatchLevel.
-                    if (spl::class == deviceSpl::class) {
-                        spl
-                    } else {
-                        Log.w(
-                            TAG,
-                            "Ignoring SPL from provider for $component: format mismatch. " +
-                                "Expected ${deviceSpl::class.simpleName}, but received ${spl::class.simpleName}.",
-                        )
-                        null
+                        // Only consider updates that match the device's current SPL format.
+                        // This prevents IllegalArgumentExceptions during the maxOrNull() comparison
+                        // and safely filters out malformed strings that were parsed as the
+                        // fallback GenericStringSecurityPatchLevel.
+                        if (spl::class == deviceSpl::class) {
+                            spl
+                        } else {
+                            Log.w(
+                                TAG,
+                                "Ignoring SPL from provider for $component: format mismatch. " +
+                                    "Expected ${deviceSpl::class.simpleName}, but received ${spl::class.simpleName}.",
+                            )
+                            null
+                        }
                     }
-                }
-                .maxOrNull()
+                    .maxOrNull()
 
-        if (maxAvailableSpl != null && maxAvailableSpl > deviceSpl) {
-            return maxAvailableSpl
+            if (maxAvailableSpl != null && maxAvailableSpl > deviceSpl) {
+                return@withContext maxAvailableSpl
+            }
+
+            return@withContext deviceSpl
         }
-
-        return deviceSpl
     }
+
+    /**
+     * Fetches the latest available security patch level for a specific component.
+     *
+     * This is the Java-friendly variant of [fetchAvailableSecurityPatchLevel] returning a
+     * [ListenableFuture].
+     *
+     * @param component The component to check.
+     * @param timeoutMillis The maximum time to wait for the query to complete, in milliseconds.
+     * @return A [ListenableFuture] containing the latest [SecurityPatchLevel].
+     */
+    @JvmOverloads
+    public fun fetchAvailableSecurityPatchLevelAsync(
+        @Component component: String,
+        timeoutMillis: Long = UPDATE_INFO_SERVICE_BINDING_TIMEOUT_MS,
+    ): ListenableFuture<SecurityPatchLevel> =
+        SuspendToFutureAdapter.launchFuture(Dispatchers.IO) {
+            fetchAvailableSecurityPatchLevel(component, timeoutMillis)
+        }
 
     /**
      * Queries for available security updates from all trusted update providers.
@@ -940,6 +963,23 @@ constructor(
                 }
 
             return@withContext deferredResults.awaitAll()
+        }
+
+    /**
+     * Queries for available security updates from all trusted update providers.
+     *
+     * This is the Java-friendly variant of [queryAllAvailableUpdates] returning a
+     * [ListenableFuture].
+     *
+     * @param timeoutMillis The maximum time to wait for each provider to respond, in milliseconds.
+     * @return A [ListenableFuture] containing a list of [UpdateCheckResult] objects.
+     */
+    @JvmOverloads
+    public fun queryAllAvailableUpdatesAsync(
+        timeoutMillis: Long = UPDATE_INFO_SERVICE_BINDING_TIMEOUT_MS
+    ): ListenableFuture<@JvmSuppressWildcards List<UpdateCheckResult>> =
+        SuspendToFutureAdapter.launchFuture(Dispatchers.IO) {
+            queryAllAvailableUpdates(timeoutMillis)
         }
 
     /**
