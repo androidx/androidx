@@ -58,6 +58,16 @@
                 android:layout_height="wrap_content"
                 android:text="Interactable"
                 android:checked="false" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="16dp" />
+
+            <Button
+                android:id="@+id/resetPosesButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reset Poses" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
