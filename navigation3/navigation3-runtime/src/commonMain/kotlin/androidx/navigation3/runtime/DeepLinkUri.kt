@@ -19,22 +19,50 @@ package androidx.navigation3.runtime
 /** see [android.net.Uri](https://developer.android.com/reference/android/net/Uri) */
 public expect abstract class DeepLinkUri {
 
+    /** Gets the decoded fragment part of this URI, everything after the '#'. */
     public abstract fun getFragment(): String?
 
+    /**
+     * Gets the decoded query component from this URI. The query comes after the query separator
+     * ('?') and before the fragment separator ('#'). This method would return "q=android" for
+     * "http://www.google.com/search?q=android".
+     */
     public abstract fun getQuery(): String?
 
+    /** Gets the decoded path segments. */
     public abstract fun getPathSegments(): List<String>
 
+    /** Searches the query string for parameter values with the given key. */
     public fun getQueryParameters(key: String): List<String>
 
+    /**
+     * Returns a set of the unique names of all query parameters. Iterating over the set will return
+     * the names in order of their first occurrence.
+     *
+     * @return a set of decoded names
+     * @throws UnsupportedOperationException – if this isn't a hierarchical URI
+     */
     public fun getQueryParameterNames(): Set<String>
 
+    /** Gets the scheme of this URI. Example: "http" */
     public abstract fun getScheme(): String?
 
+    /**
+     * Gets the decoded authority part of this URI. For server addresses, the authority is
+     * structured as follows: [ userinfo '@' ] host [ ':' port ]
+     *
+     * Examples: "google.com", "bob@google.com:80"
+     */
     public abstract fun getAuthority(): String?
 
+    /**
+     * Returns true if this URI is hierarchical like "http://google.com". Absolute URIs are
+     * hierarchical if the scheme-specific part starts with a '/'. Relative URIs are always
+     * hierarchical.
+     */
     public abstract fun isHierarchical(): Boolean
 
+    /** Returns the encoded string representation of this URI. Example: "http://google.com/" */
     abstract override fun toString(): String
 }
 
