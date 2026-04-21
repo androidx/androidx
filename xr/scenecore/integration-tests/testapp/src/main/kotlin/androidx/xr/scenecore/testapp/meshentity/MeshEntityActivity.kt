@@ -51,6 +51,7 @@ import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.math.Vector4
 import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.ByteBufferRegion
 import androidx.xr.scenecore.CustomMesh
@@ -59,6 +60,7 @@ import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.KhronosPbrMaterial
 import androidx.xr.scenecore.KhronosUnlitMaterial
+import androidx.xr.scenecore.Material
 import androidx.xr.scenecore.MeshBuffer
 import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.MeshSubset
@@ -75,8 +77,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @SuppressLint("RestrictedApi", "RestrictedApiAndroidX")
@@ -99,6 +99,7 @@ class MeshEntityActivity : AppCompatActivity() {
     )
 
     private val meshEntitiesAndComponents = mutableMapOf<MeshEntity, EntityComponents>()
+    private val initialPoses = mutableMapOf<MeshEntity, Pose>()
     private var movableSwitch: MaterialSwitch? = null
     private var interactableSwitch: MaterialSwitch? = null
 
@@ -138,6 +139,10 @@ class MeshEntityActivity : AppCompatActivity() {
                     entity.removeComponent(components.interactable)
                 }
             }
+        }
+
+        findViewById<android.widget.Button>(R.id.resetPosesButton)?.setOnClickListener {
+            initialPoses.forEach { (entity, pose) -> entity.setPose(pose) }
         }
 
         createMeshEntities()
@@ -357,6 +362,18 @@ class MeshEntityActivity : AppCompatActivity() {
         panel.size = FloatSize2d(0.8f, 0.4f)
     }
 
+    private fun createMeshEntity(
+        session: Session,
+        mesh: CustomMesh,
+        materials: List<Material>,
+        pose: Pose,
+        boneCount: Int = 0,
+    ): MeshEntity {
+        val entity = MeshEntity.create(session, mesh, materials, boneCount, pose)
+        initialPoses[entity] = pose
+        return entity
+    }
+
     private fun createMeshEntities() {
         lifecycleScope.launch {
             val currentSession = session ?: return@launch
@@ -390,6 +407,7 @@ class MeshEntityActivity : AppCompatActivity() {
             material?.setRoughnessFactor(1f)
 
             material2 = KhronosUnlitMaterial.create(currentSession, AlphaMode.OPAQUE)
+            material2?.setBaseColorFactor(Vector4(1f, 1f, 1f, 1f))
 
             createTest1_Cube(currentSession, vertexLayout, stride)
             createTest2_TwoSubsets(currentSession, vertexLayout, stride)
@@ -418,11 +436,11 @@ class MeshEntityActivity : AppCompatActivity() {
                 .setTopology(MeshSubsetTopology.TRIANGLES)
                 .build()
         cubeEntity =
-            MeshEntity.create(
+            createMeshEntity(
                 currentSession,
                 cubeMesh,
                 listOf(material!!),
-                pose = Pose(Vector3(-2f, 0f, -1.5f)),
+                Pose(Vector3(-2f, 0f, -1.5f)),
             )
         createPanel(
             currentSession,
@@ -457,11 +475,11 @@ class MeshEntityActivity : AppCompatActivity() {
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
                 .build()
         twoSubsetsEntity =
-            MeshEntity.create(
+            createMeshEntity(
                 currentSession,
                 twoSubsetsMesh,
                 listOf(material!!, material!!),
-                pose = Pose(Vector3(-1f, 0f, -1.5f)),
+                Pose(Vector3(-1f, 0f, -1.5f)),
             )
         createPanel(
             currentSession,
@@ -515,18 +533,18 @@ class MeshEntityActivity : AppCompatActivity() {
                 )
                 .build()
         sharedBufferBottomEntity =
-            MeshEntity.create(
+            createMeshEntity(
                 currentSession,
                 bottomCubeMesh,
                 listOf(material!!),
-                pose = Pose(Vector3(0f, 0f, -1.5f)),
+                Pose(Vector3(0f, 0f, -1.5f)),
             )
         sharedBufferTopEntity =
-            MeshEntity.create(
+            createMeshEntity(
                 currentSession,
                 topCubeMesh,
                 listOf(material!!),
-                pose = Pose(Vector3(0f, 0f, -1.5f)),
+                Pose(Vector3(0f, 0f, -1.5f)),
             )
         createPanel(
             currentSession,
@@ -558,11 +576,11 @@ class MeshEntityActivity : AppCompatActivity() {
                 .setTopology(MeshSubsetTopology.TRIANGLE_STRIP)
                 .build()
         triangleStripEntity =
-            MeshEntity.create(
+            createMeshEntity(
                 currentSession,
                 cubeMesh,
                 listOf(material!!),
-                pose = Pose(Vector3(1f, 0f, -1.5f)),
+                Pose(Vector3(1f, 0f, -1.5f)),
             )
         createPanel(
             currentSession,
@@ -744,12 +762,12 @@ class MeshEntityActivity : AppCompatActivity() {
                 .build()
 
         wigglingStickEntity =
-            MeshEntity.create(
+            createMeshEntity(
                 currentSession,
                 stickMesh,
                 listOf(material!!),
+                Pose(Vector3(3f, -0.5f, -1.5f)),
                 boneCount = 3,
-                pose = Pose(Vector3(3f, -0.5f, -1.5f)),
             )
 
         createPanel(
@@ -759,7 +777,7 @@ class MeshEntityActivity : AppCompatActivity() {
             listOfNotNull(wigglingStickEntity),
         )
 
-        CoroutineScope(Dispatchers.Main).launch {
+        lifecycleScope.launch {
             var time = 0f
             val idScale = Vector3(1f, 1f, 1f)
             val idRot = Quaternion(0f, 0f, 0f, 1f)
@@ -819,11 +837,11 @@ class MeshEntityActivity : AppCompatActivity() {
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 36, 36))
                 .build()
         twoMaterialsEntity =
-            MeshEntity.create(
+            createMeshEntity(
                 currentSession,
                 cubeMesh,
                 listOf(material!!, material2!!),
-                pose = Pose(Vector3(2f, 0f, -1.5f)),
+                Pose(Vector3(2f, 0f, -1.5f)),
             )
         createPanel(
             currentSession,
