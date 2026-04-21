@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-// TODO(b/494286565) - Remove deprecation suppression when androidx.xr.runtime.FieldOfView is
-// removed.
-@file:Suppress("DEPRECATION")
-
 package androidx.xr.arcore
 
 import androidx.activity.ComponentActivity

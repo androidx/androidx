@@ -101,9 +101,6 @@ internal constructor(
      *
      * @see PerceivedResolutionResult
      */
-    // TODO(b/494286565) - Remove deprecation suppression when androidx.xr.runtime.FieldOfView is
-    // removed.
-    @Suppress("DEPRECATION")
     public fun getPerceivedResolution(renderViewpoint: RenderViewpoint): PerceivedResolutionResult {
         val renderViewpointState = renderViewpoint.state.value
         return rtEntity
