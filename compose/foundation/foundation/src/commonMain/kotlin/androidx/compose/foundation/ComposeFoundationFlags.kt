@@ -77,7 +77,7 @@ object ComposeFoundationFlags {
      * be inherited by text composables contained in a style box.
      */
     // TODO: b/485968143
-    @field:Suppress("MutableBareField") @JvmField var isInheritedTextStyleEnabled = true
+    @field:Suppress("MutableBareField") @JvmField var isInheritedTextStyleEnabled = false
 
     /**
      * Selecting flag to enable the use of new PausableComposition in lazy layout prefetch. This
