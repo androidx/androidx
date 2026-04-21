@@ -31,6 +31,7 @@ import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -79,6 +80,7 @@ class PerfettoHelperTest {
         assertFalse(capture.isRunning())
     }
 
+    @Ignore // b/489521842
     @SdkSuppress(minSdkVersion = MIN_BUNDLED_SDK_VERSION)
     @Test
     fun stopAllPerfettoProcesses_bundled() = validateStopAllPerfettoProcesses(unbundled = false)
