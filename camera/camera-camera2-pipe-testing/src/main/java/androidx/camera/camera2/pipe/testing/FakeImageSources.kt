@@ -55,6 +55,7 @@ public class FakeImageSources(private val fakeImageReaders: FakeImageReaders) : 
                 cameraStream.id,
                 cameraStream.outputs.associate { it.id to it.size },
                 imageSourceConfig.capacity,
+                imageSourceConfig.usageFlags,
                 fakeImageReaders,
             )
         synchronized(lock) { fakeImageSources.add(fakeImageSource) }

@@ -51,6 +51,7 @@ public class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
             cameraStream.id,
             cameraStream.outputs.associate { it.id to it.size },
             capacity,
+            usageFlags = null,
         )
 
     /** Create a [FakeImageReader] from its properties. */
@@ -59,13 +60,21 @@ public class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
         streamId: StreamId,
         outputIdMap: Map<OutputId, Size>,
         capacity: Int,
+        usageFlags: Long?,
     ): FakeImageReader {
         check(this[streamId] == null) {
             "Cannot create multiple ImageReader(s) from the same $streamId!"
         }
 
         val fakeImageReader =
-            FakeImageReader.create(format, streamId, outputIdMap, capacity, fakeSurfaces)
+            FakeImageReader.create(
+                format,
+                streamId,
+                outputIdMap,
+                capacity,
+                usageFlags,
+                fakeSurfaces,
+            )
         synchronized(lock) { fakeImageReaders.add(fakeImageReader) }
         return fakeImageReader
     }
@@ -80,6 +89,7 @@ public class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
             cameraStream.id,
             cameraStream.outputs.associate { it.id to it.size },
             imageSourceConfig.capacity,
+            imageSourceConfig.usageFlags,
         )
 
     /** [check] that all [FakeImageReader]s are closed. */

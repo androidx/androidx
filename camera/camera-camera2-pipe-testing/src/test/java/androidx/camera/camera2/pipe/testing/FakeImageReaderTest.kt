@@ -38,6 +38,7 @@ class FakeImageReaderTest {
             OutputId(42),
             Size(IMAGE_WIDTH, IMAGE_HEIGHT),
             10,
+            null,
         )
 
     @After

@@ -41,6 +41,13 @@ public interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
     public val capacity: Int
 
     /**
+     * Get the usage flags of the images that can be produced by the ImageReader.
+     *
+     * @see [ImageReader.getUsage]
+     */
+    public val usageFlags: Long?
+
+    /**
      * Set the [OnImageListener]. Setting additional listeners will override the previous listener.
      */
     public var onImageListener: OnImageListener?
