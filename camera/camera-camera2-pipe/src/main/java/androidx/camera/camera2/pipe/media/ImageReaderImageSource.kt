@@ -172,7 +172,8 @@ constructor(
 /** An ImageReaderImageSource implements an [ImageSource] using an [ImageReader] */
 public class ImageReaderImageSource(
     private val imageReader: ImageReaderWrapper,
-    private val maxImages: Int,
+    internal val maxImages: Int,
+    internal val usageFlags: Long? = imageReader.usageFlags,
 ) : ImageSource {
     public companion object {
         public const val BUFFER_QUEUE_MAX_CAPACITY: Int = 64
@@ -207,7 +208,13 @@ public class ImageReaderImageSource(
             }
     }
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = imageReader.unwrapAs(type)
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+        return when (type) {
+            ImageReaderImageSource::class -> this as T?
+            else -> imageReader.unwrapAs(type)
+        }
+    }
 
     override fun close() {
         // If this is the first time this is invoked, update the state from ACTIVE to CLOSING and
