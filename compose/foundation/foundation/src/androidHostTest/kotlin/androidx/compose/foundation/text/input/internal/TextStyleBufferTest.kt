@@ -29,8 +29,8 @@ class TextStyleBufferTest {
     @Test
     fun basicAddAndGet() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("style1", 0, 10)
-        buffer.addStyle("style2", 5, 15)
+        buffer.addStyle("style1", Interval(0, 10))
+        buffer.addStyle("style2", Interval(5, 15))
 
         assertThat(buffer.getAllStyles())
             .containsExactly(
@@ -43,17 +43,17 @@ class TextStyleBufferTest {
     @Test
     fun removeStyle() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("a", 0, 10)
-        buffer.removeStyle("a", 0, 10)
+        buffer.addStyle("a", Interval(0, 10))
+        buffer.removeStyle("a", Interval(0, 10))
         assertThat(buffer.getAllStyles()).isEmpty()
     }
 
     @Test
     fun orderIsPreserved() {
         val buffer = TextStyleBuffer<Int>()
-        buffer.addStyle(1, 10, 20)
-        buffer.addStyle(2, 0, 30)
-        buffer.addStyle(3, 5, 15)
+        buffer.addStyle(1, Interval(10, 20))
+        buffer.addStyle(2, Interval(0, 30))
+        buffer.addStyle(3, Interval(5, 15))
 
         // Verifies that styles are returned in insertion order, regardless of their ranges.
         assertThat(buffer.getStyles<Int>(0, 30).map { it.item }).containsExactly(1, 2, 3).inOrder()
@@ -63,18 +63,18 @@ class TextStyleBufferTest {
     fun equalsAndHashCode() {
         val buffer1 =
             TextStyleBuffer<String>().apply {
-                addStyle("a", 0, 10)
-                addStyle("b", 10, 20)
+                addStyle("a", Interval(0, 10))
+                addStyle("b", Interval(10, 20))
             }
         val buffer2 =
             TextStyleBuffer<String>().apply {
-                addStyle("a", 0, 10)
-                addStyle("b", 10, 20)
+                addStyle("a", Interval(0, 10))
+                addStyle("b", Interval(10, 20))
             }
         val buffer3 =
             TextStyleBuffer<String>().apply {
-                addStyle("b", 10, 20)
-                addStyle("a", 0, 10)
+                addStyle("b", Interval(10, 20))
+                addStyle("a", Interval(0, 10))
             }
 
         assertThat(buffer1).isEqualTo(buffer2)
@@ -94,12 +94,12 @@ class TextStyleBufferTest {
 
     @Test
     fun copy_isEqualAndIndependent() {
-        val original = TextStyleBuffer<String>().apply { addStyle("a", 0, 10) }
+        val original = TextStyleBuffer<String>().apply { addStyle("a", Interval(0, 10)) }
 
         val copy = TextStyleBuffer(original)
         assertThat(copy).isEqualTo(original)
 
-        copy.addStyle("b", 10, 20)
+        copy.addStyle("b", Interval(10, 20))
         assertThat(copy).isNotEqualTo(original)
         assertThat(original.getAllStyles()).hasSize(1)
         assertThat(copy.getAllStyles()).hasSize(2)
@@ -107,7 +107,7 @@ class TextStyleBufferTest {
 
     @Test
     fun clear() {
-        val buffer = TextStyleBuffer<String>().apply { addStyle("a", 0, 10) }
+        val buffer = TextStyleBuffer<String>().apply { addStyle("a", Interval(0, 10)) }
         buffer.clear()
         assertThat(buffer.getAllStyles()).isEmpty()
     }
@@ -115,7 +115,7 @@ class TextStyleBufferTest {
     @Test
     fun replaceText_noOverlap() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("style", 10, 20)
+        buffer.addStyle("style", Interval(10, 20))
 
         // Replace [0, 5) with length 10. (Net +5)
         buffer.replaceText(0, 5, 10)
@@ -129,7 +129,7 @@ class TextStyleBufferTest {
     @Test
     fun replaceText_overlappingStart() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("style", 10, 20)
+        buffer.addStyle("style", Interval(10, 20))
 
         // Replace [8, 12) with length 4. (Net 0)
         // [8, 12) deleted. Style start 10 was inside, moves to 12.
@@ -140,7 +140,7 @@ class TextStyleBufferTest {
     @Test
     fun replaceText_overlappingEnd() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("style", 10, 20)
+        buffer.addStyle("style", Interval(10, 20, flag1 = false, flag2 = true))
 
         // Replace [18, 22) with length 4. (Net 0)
         // [18, 22) deleted. Style end 20 was inside, moves to 18 (start of deletion).
@@ -152,7 +152,7 @@ class TextStyleBufferTest {
     @Test
     fun replaceText_fullyContained() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("style", 10, 20)
+        buffer.addStyle("style", Interval(10, 20))
 
         // Replace [12, 18) with length 10. (Net +4)
         buffer.replaceText(12, 18, 10)
@@ -162,7 +162,7 @@ class TextStyleBufferTest {
     @Test
     fun replaceText_fullyCovering() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("style", 10, 20)
+        buffer.addStyle("style", Interval(10, 20))
 
         // Replace [5, 25) with length 5.
         // Style is fully within [5, 25), so it should be removed.
@@ -173,7 +173,7 @@ class TextStyleBufferTest {
     @Test
     fun replaceText_exactlyCovering() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("style", 10, 20)
+        buffer.addStyle("style", Interval(10, 20))
 
         buffer.replaceText(10, 20, 5)
         assertThat(buffer.getAllStyles()).isEmpty()
@@ -182,22 +182,63 @@ class TextStyleBufferTest {
     @Test
     fun replaceText_boundaryBehavior() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("style", 10, 20)
+        // TextStyleBuffer uses flag1(flag2) to indicates if start(end) expands when text is
+        // inserted at start(end).
+        buffer.addStyle("style", Interval(10, 20, flag1 = false, flag2 = true))
 
-        // Insert at 10. (Exclusive at start)
+        // Insert at 10. (Exclusive at start by default)
         buffer.replaceText(10, 10, 5)
         assertThat(buffer.getAllStyles()).containsExactly(AnnotatedString.Range("style", 15, 25))
 
-        // Insert at 25 (original 20). (Inclusive at end)
+        // Insert at 25 (original 20). (Inclusive at end by default)
         buffer.replaceText(25, 25, 5)
         assertThat(buffer.getAllStyles()).containsExactly(AnnotatedString.Range("style", 15, 30))
     }
 
     @Test
+    fun replaceText_expandFlags_atStart() {
+        val buffer = TextStyleBuffer<String>()
+
+        // EXPAND_AT_START means it should include text inserted at the start index.
+        buffer.addStyle("style", Interval(10, 20, flag1 = true, flag2 = false))
+
+        buffer.replaceText(10, 10, 5)
+        assertThat(buffer.getAllStyles()).containsExactly(AnnotatedString.Range("style", 10, 25))
+    }
+
+    @Test
+    fun replaceText_expandFlags_none() {
+        val buffer = TextStyleBuffer<String>()
+        buffer.addStyle("style", Interval(10, 20, flag1 = false, flag2 = false))
+
+        // Insert at 10 (start). Should shift.
+        buffer.replaceText(10, 10, 5)
+        assertThat(buffer.getAllStyles()).containsExactly(AnnotatedString.Range("style", 15, 25))
+
+        // Insert at 25 (end). Should NOT expand.
+        buffer.replaceText(25, 25, 5)
+        assertThat(buffer.getAllStyles()).containsExactly(AnnotatedString.Range("style", 15, 25))
+    }
+
+    @Test
+    fun replaceText_expandFlags_both() {
+        val buffer = TextStyleBuffer<String>()
+        buffer.addStyle("style", Interval(10, 20, flag1 = true, flag2 = true))
+
+        // Insert at 10. Should expand start.
+        buffer.replaceText(10, 10, 5)
+        assertThat(buffer.getAllStyles()).containsExactly(AnnotatedString.Range("style", 10, 25))
+
+        // Insert at 25. Should expand end.
+        buffer.replaceText(25, 25, 5)
+        assertThat(buffer.getAllStyles()).containsExactly(AnnotatedString.Range("style", 10, 30))
+    }
+
+    @Test
     fun replaceText_multipleStyles() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("a", 10, 20)
-        buffer.addStyle("b", 15, 25)
+        buffer.addStyle("a", Interval(10, 20))
+        buffer.addStyle("b", Interval(15, 25))
 
         // Replace [12, 18) with length 2. (Net -4)
         // this is equivalent to delete [12, 18) then insert 2 characters at 12.
@@ -228,16 +269,21 @@ class TextStyleBufferTest {
                         else random.nextInt(start, reference.textLength + 1)
                     if (start < end) {
                         val style = random.nextInt(100)
-                        buffer.addStyle(style, start, end)
-                        reference.addStyle(style, start, end)
+                        val startExpands = random.nextBoolean()
+                        val endExpands = random.nextBoolean()
+
+                        val interval = Interval(start, end, startExpands, endExpands)
+                        buffer.addStyle(style, interval)
+                        reference.addStyle(style, interval)
                     }
                 }
                 1 -> { // removeStyle
-                    if (reference.styles.isNotEmpty()) {
-                        val index = random.nextInt(reference.styles.size)
-                        val range = reference.styles[index]
+                    if (reference.items.isNotEmpty()) {
+                        val index = random.nextInt(reference.items.size)
+                        val interval = reference.intervals[index]
+                        val item = reference.items[index]
 
-                        val removed = buffer.removeStyle(range.item, range.start, range.end)
+                        val removed = buffer.removeStyle(item, interval)
                         assertThat(removed).isTrue()
                         reference.removeAt(index)
                     }
@@ -261,53 +307,92 @@ class TextStyleBufferTest {
                     assertThat(actual).isEqualTo(expected)
                 }
             }
-            assertThat(buffer.getAllStyles()).isEqualTo(reference.styles)
+            verifyIntegrity(buffer.intervalTree)
+            assertThat(buffer.getAllStyles()).isEqualTo(reference.getAllStyles())
         }
     }
 }
 
 private class ReferenceTextStyleBuffer<T>(initialTextLength: Int) {
     var textLength = initialTextLength
-    val styles = mutableListOf<AnnotatedString.Range<T>>()
+    val items = mutableListOf<T>()
+    val intervals = mutableListOf<Interval>()
 
-    fun addStyle(style: T, start: Int, end: Int) {
-        styles.add(AnnotatedString.Range(style, start, end))
+    fun addStyle(style: T, interval: Interval) {
+        items.add(style)
+        intervals.add(interval)
     }
 
     fun removeAt(index: Int) {
-        styles.removeAt(index)
+        items.removeAt(index)
+        intervals.removeAt(index)
     }
 
     fun getStyles(start: Int, end: Int): List<AnnotatedString.Range<T>> {
-        return styles.filter { range -> intersect(start, end, range.start, range.end) }
+        return intervals.mapIndexedNotNull { index, interval ->
+            if (interval.overlaps(start, end)) {
+                AnnotatedString.Range(items[index], interval.start, interval.end)
+            } else {
+                null
+            }
+        }
+    }
+
+    fun getAllStyles(): List<AnnotatedString.Range<T>> {
+        return intervals.mapIndexed { index, interval ->
+            AnnotatedString.Range(items[index], interval.start, interval.end)
+        }
     }
 
     fun replaceText(start: Int, end: Int, newLength: Int) {
-        val newStyles = mutableListOf<AnnotatedString.Range<T>>()
-        for (range in styles) {
-            val newStart =
-                if (range.start < start) {
-                    range.start
-                } else if (range.start < end) {
-                    start + newLength
-                } else {
-                    range.start - (end - start) + newLength
-                }
-            val newEnd =
-                if (range.end < start) {
-                    range.end
-                } else if (range.end < end) {
-                    start + newLength
-                } else {
-                    range.end - (end - start) + newLength
-                }
+        val newIntervals = mutableListOf<Interval>()
+        val newItems = mutableListOf<T>()
+        for (index in intervals.indices) {
+            val interval = intervals[index]
+            val offset = end - start
 
-            if (newStart < newEnd) {
-                newStyles.add(AnnotatedString.Range(range.item, newStart, newEnd))
+            fun mapIndexAfterDeletion(index: Int): Int {
+                return if (index < start) {
+                    index
+                } else if (index < end) {
+                    start
+                } else {
+                    index - offset
+                }
+            }
+
+            val startAfterDeletion = mapIndexAfterDeletion(interval.start)
+            val endAfterDeletion = mapIndexAfterDeletion(interval.end)
+
+            if (startAfterDeletion < endAfterDeletion) {
+                // A replace operation is considered as deleting the range `[start, end)` followed
+                // by an insertion at index `start` of `newLength` characters.
+                val insertIndex = start
+                val newStart =
+                    if (startAfterDeletion < insertIndex) {
+                        startAfterDeletion
+                    } else if (startAfterDeletion == insertIndex && interval.flag1) {
+                        insertIndex
+                    } else {
+                        startAfterDeletion + newLength
+                    }
+
+                val newEnd =
+                    if (endAfterDeletion < insertIndex) {
+                        endAfterDeletion
+                    } else if (endAfterDeletion == insertIndex && !interval.flag2) {
+                        insertIndex
+                    } else {
+                        endAfterDeletion + newLength
+                    }
+                newIntervals.add(Interval(newStart, newEnd, interval.flag1, interval.flag2))
+                newItems.add(items[index])
             }
         }
-        styles.clear()
-        styles.addAll(newStyles)
+        intervals.clear()
+        intervals.addAll(newIntervals)
+        items.clear()
+        items.addAll(newItems)
         textLength += newLength - (end - start)
     }
 }
