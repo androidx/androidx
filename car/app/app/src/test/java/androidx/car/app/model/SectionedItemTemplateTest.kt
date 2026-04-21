@@ -215,6 +215,15 @@ class SectionedItemTemplateTest {
     }
 
     @Test
+    fun build_withCondensedSection_containsCondensedSection() {
+        val item = CondensedItem.Builder().setTitle("Title").build()
+        val section = CondensedSection.Builder().addItem(item).build()
+        val template = SectionedItemTemplate.Builder().addSection(section).build()
+
+        assertThat(template.sections).containsExactly(section)
+    }
+
+    @Test
     fun addAction_throwsException_whenNotFabConstrained() {
         try {
             // Back action is not allowed as a FAB
