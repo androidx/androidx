@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
+import androidx.camera.camera2.pipe.media.ImageReaderImageSource
 
 /** Internal debug utilities, constants, and checks. */
 public object Debug {
@@ -209,6 +210,12 @@ public object Debug {
                 append("  Mode:      $operatingMode\n")
                 append("Outputs:\n")
                 for (stream in cameraGraph.streams.streams) {
+                    val imageReaderImageSource =
+                        cameraGraph.streams
+                            .getImageSource(stream.id)
+                            ?.unwrapAs(ImageReaderImageSource::class)
+                    val maxImages = imageReaderImageSource?.maxImages
+                    val usageFlags = imageReaderImageSource?.usageFlags
                     stream.outputs.forEachIndexed { i, output ->
                         append("  ")
                         val streamId = if (i == 0) output.stream.id.toString() else ""
@@ -221,6 +228,8 @@ public object Debug {
                         output.dynamicRangeProfile?.let { append(" [$it]") }
                         output.streamUseCase?.let { append(" [$it]") }
                         output.streamUseHint?.let { append(" [$it]") }
+                        maxImages?.let { append(" $it images/stream") }
+                        usageFlags?.let { append(" (usageFlags: $it [0x${it.toString(16)}])") }
                         if (output.camera != graphConfig.camera) {
                             append(" [")
                             append(output.camera)
