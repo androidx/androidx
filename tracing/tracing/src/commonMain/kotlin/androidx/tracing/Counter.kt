@@ -16,13 +16,18 @@
 
 package androidx.tracing
 
-/** Useful to emit counters into a Trace. */
-public abstract class Counter {
-    public abstract fun name(): String
+/**
+ * Handle for emitting [Long] or [Counter] counter event updates into a trace.
+ *
+ * This allows you to monitor numeric values that change over time in a trace, such as the number of
+ * events in a queue, or memory usage.
+ */
+public interface Counter {
+    public fun name(): String
 
     /** Emits a [Long] value into the trace for the provided [name]. */
-    public abstract fun setValue(value: Long)
+    public fun setValue(value: Long)
 
     /** Emits a [Double] value into the trace for the provided [name]. */
-    public abstract fun setValue(value: Double)
+    public fun setValue(value: Double)
 }
