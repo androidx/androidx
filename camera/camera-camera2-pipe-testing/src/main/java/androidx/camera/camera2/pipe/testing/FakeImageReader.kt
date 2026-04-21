@@ -32,6 +32,7 @@ public class FakeImageReader
 private constructor(
     private val format: StreamFormat,
     override val capacity: Int,
+    override val usageFlags: Long?,
     override val surface: Surface,
     public val streamId: StreamId,
     private val outputs: Map<OutputId, Size>,
@@ -142,9 +143,10 @@ private constructor(
             outputId: OutputId,
             size: Size,
             capacity: Int,
+            usageFlags: Long?,
             fakeSurfaces: FakeSurfaces? = null,
         ): FakeImageReader =
-            create(format, streamId, mapOf(outputId to size), capacity, fakeSurfaces)
+            create(format, streamId, mapOf(outputId to size), capacity, usageFlags, fakeSurfaces)
 
         /** Create a [FakeImageReader] that can simulate different sized images. */
         public fun create(
@@ -152,6 +154,7 @@ private constructor(
             streamId: StreamId,
             outputIdMap: Map<OutputId, Size>,
             capacity: Int,
+            usageFlags: Long?,
             fakeSurfaces: FakeSurfaces? = null,
         ): FakeImageReader {
 
@@ -161,7 +164,7 @@ private constructor(
             val surface =
                 fakeSurfaces?.createFakeSurface(smallestOutput)
                     ?: FakeSurfaces.create(smallestOutput)
-            return FakeImageReader(format, capacity, surface, streamId, outputIdMap)
+            return FakeImageReader(format, capacity, usageFlags, surface, streamId, outputIdMap)
         }
     }
 }

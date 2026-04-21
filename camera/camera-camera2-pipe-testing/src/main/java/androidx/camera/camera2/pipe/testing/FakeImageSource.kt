@@ -76,9 +76,11 @@ private constructor(
             streamId: StreamId,
             outputs: Map<OutputId, Size>,
             capacity: Int,
+            usageFlags: Long?,
             fakeImageReaders: FakeImageReaders,
         ): FakeImageSource {
-            val fakeImageReader = fakeImageReaders.create(streamFormat, streamId, outputs, capacity)
+            val fakeImageReader =
+                fakeImageReaders.create(streamFormat, streamId, outputs, capacity, usageFlags)
 
             val imageReaderImageSource = ImageReaderImageSource.create(fakeImageReader)
             return FakeImageSource(fakeImageReader, imageReaderImageSource)
