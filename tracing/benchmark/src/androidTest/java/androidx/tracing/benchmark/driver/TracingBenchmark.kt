@@ -23,7 +23,6 @@ import androidx.benchmark.junit4.measureRepeated
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.tracing.AbstractTraceDriver
 import androidx.tracing.PerfettoTracer
 import androidx.tracing.TRACE_PACKET_BUFFER_SIZE
 import androidx.tracing.benchmark.BASIC_STRING
@@ -52,7 +51,7 @@ class TracingBenchmark {
     private fun buildTraceDriver(
         sink: TraceSink,
         @Suppress("SameParameterValue") isEnabled: Boolean,
-    ): AbstractTraceDriver {
+    ): TraceDriver {
         val context = ApplicationProvider.getApplicationContext<Context>()
         return TraceDriver(context = context, sink = sink, isEnabled = isEnabled)
     }
@@ -149,6 +148,43 @@ class TracingBenchmark {
     @Test
     fun beginEnd_basic32_withSerialization() {
         beginEndBenchmark32(measureSerialization = true)
+    }
+
+    @Test
+    fun beginEnd_counter32() {
+        benchmarkCounter32(measureSerialization = false)
+    }
+
+    @Test
+    fun beginEnd_counter32_withSerialization() {
+        benchmarkCounter32(measureSerialization = true)
+    }
+
+    private fun benchmarkCounter32(measureSerialization: Boolean) {
+        // we assert this value at runtime and build the number into the method name so it's
+        // clear how many begin/ends it is measuring. test needs to be renamed if const changes.
+        assertEquals(TRACE_PACKET_BUFFER_SIZE, 32)
+        // Bootstrap a counter
+        tracer.counter(category = CATEGORY, name = BASIC_STRING)
+        benchmarkRule.measureRepeated {
+            repeat(2) {
+                repeat(16) {
+                    tracer.counter(category = CATEGORY, name = BASIC_STRING).setValue(42L)
+                }
+                if (!measureSerialization) {
+                    // Only send 16 events so we only measure producer write cost without sending to
+                    // sink.
+                    runWithMeasurementDisabled {
+                        traceDriver.context.process
+                            .getOrCreateCounterTrack(name = BASIC_STRING)
+                            .resetTraceEvents()
+                    }
+                }
+            }
+            if (measureSerialization) {
+                dispatcher.scheduler.advanceUntilIdle()
+            }
+        }
     }
 
     private fun beginEndBenchmark32(measureSerialization: Boolean) {
