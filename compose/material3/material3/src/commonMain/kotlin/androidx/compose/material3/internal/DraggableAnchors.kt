@@ -17,6 +17,7 @@
 package androidx.compose.material3.internal
 
 /** Material-specific anchor layout logic which considers lookahead. */
+import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.material3.ComposeMaterial3Flags.isAnchoredDraggableComponentsAnchorRecoveryEnabled
@@ -40,8 +41,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.roundToInt
 
 /**
- * This Modifier allows configuring a [MaterialAnchoredDraggableState]'s anchors based on this
- * layout node's size and offsetting it. It considers lookahead and reports the appropriate size and
+ * This Modifier allows configuring an [AnchoredDraggableState]'s anchors based on this layout
+ * node's size and offsetting it. It considers lookahead and reports the appropriate size and
  * measurement for the appropriate phase.
  *
  * @param state The state the anchors should be attached to
@@ -51,13 +52,13 @@ import kotlin.math.roundToInt
  */
 @Stable
 internal fun <T> Modifier.draggableAnchors(
-    state: MaterialAnchoredDraggableState<T>,
+    state: AnchoredDraggableState<T>,
     orientation: Orientation,
     anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
 ) = this then DraggableAnchorsElement(state, anchors, orientation)
 
 private class DraggableAnchorsElement<T>(
-    private val state: MaterialAnchoredDraggableState<T>,
+    private val state: AnchoredDraggableState<T>,
     private val anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
     private val orientation: Orientation,
 ) : ModifierNodeElement<DraggableAnchorsNode<T>>() {
@@ -97,7 +98,7 @@ private class DraggableAnchorsElement<T>(
 }
 
 private class DraggableAnchorsNode<T>(
-    var state: MaterialAnchoredDraggableState<T>,
+    var state: AnchoredDraggableState<T>,
     var anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
     var orientation: Orientation,
 ) : Modifier.Node(), LayoutModifierNode {
@@ -113,7 +114,7 @@ private class DraggableAnchorsNode<T>(
 
     @OptIn(ExperimentalMaterial3Api::class)
     fun update(
-        state: MaterialAnchoredDraggableState<T>,
+        state: AnchoredDraggableState<T>,
         anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
         orientation: Orientation,
     ) {
@@ -195,8 +196,8 @@ private class DraggableAnchorsNode<T>(
     }
 
     /**
-     * Require the [MaterialAnchoredDraggableState.offset] to be a valid float, or throw an
-     * exception with more information otherwise.
+     * Require the [AnchoredDraggableState.offset] to be a valid float, or throw an exception with
+     * more information otherwise.
      */
     private fun checkOffsetIsValid(offset: Float, isLookingAhead: Boolean) {
         if (offset.isNaN()) {

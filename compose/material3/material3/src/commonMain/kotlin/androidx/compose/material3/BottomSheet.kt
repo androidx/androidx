@@ -18,10 +18,12 @@ package androidx.compose.material3
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -32,8 +34,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
-import androidx.compose.material3.internal.MaterialAnchoredDraggableDefaults
-import androidx.compose.material3.internal.MaterialAnchoredDraggableDefaults.materialAnchoredDraggable
 import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.internal.PredictiveBackHandler
 import androidx.compose.material3.internal.Strings
@@ -209,7 +209,7 @@ internal fun BottomSheetImpl(
     val density = LocalDensity.current
 
     val anchoredDraggableFlingBehavior =
-        MaterialAnchoredDraggableDefaults.flingBehavior(
+        AnchoredDraggableDefaults.flingBehavior(
             state = state.anchoredDraggableState,
             positionalThreshold = { _ -> state.positionalThreshold.invoke() },
             animationSpec = spatialFlingSpec,
@@ -321,7 +321,7 @@ internal fun BottomSheetImpl(
                         }
                     return@draggableAnchors newAnchors to newTarget
                 }
-                .materialAnchoredDraggable(
+                .anchoredDraggable(
                     state = state.anchoredDraggableState,
                     orientation = Orientation.Vertical,
                     enabled = gesturesEnabled && state.currentValue != Hidden,
