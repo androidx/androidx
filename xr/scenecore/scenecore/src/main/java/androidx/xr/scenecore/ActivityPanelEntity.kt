@@ -20,7 +20,6 @@ import android.app.Activity
 import android.content.Intent
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.XrLog
-import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.ActivityPanelEntity as RtActivityPanelEntity
@@ -66,7 +65,6 @@ private constructor(
     public companion object {
         @Suppress("RestrictedApiAndroidX")
         internal fun create(
-            lifecycleManager: LifecycleManager,
             sceneRuntime: SceneRuntime,
             perceptionSpace: PerceptionSpace,
             entityRegistry: EntityRegistry,
@@ -119,7 +117,6 @@ private constructor(
             parent: Entity? = null,
         ): ActivityPanelEntity =
             create(
-                session.perceptionRuntime.lifecycleManager,
                 session.sceneRuntime,
                 session.scene.perceptionSpace,
                 session.scene.entityRegistry,

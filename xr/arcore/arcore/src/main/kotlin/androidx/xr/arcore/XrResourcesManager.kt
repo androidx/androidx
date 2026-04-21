@@ -24,10 +24,10 @@ import androidx.xr.arcore.runtime.Eye as RuntimeEye
 import androidx.xr.arcore.runtime.Face as RuntimeFace
 import androidx.xr.arcore.runtime.Geospatial as RuntimeGeospatial
 import androidx.xr.arcore.runtime.Hand as RuntimeHand
+import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.arcore.runtime.Plane as RuntimePlane
 import androidx.xr.arcore.runtime.RenderViewpoint as RuntimeRenderViewpoint
 import androidx.xr.arcore.runtime.Trackable as RuntimeTrackable
-import androidx.xr.runtime.internal.LifecycleManager
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
@@ -35,7 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 /** Manages all XR resources that are used by the ARCore for XR API. */
 internal class XrResourcesManager {
 
-    internal lateinit var lifecycleManager: LifecycleManager
+    internal lateinit var perceptionRuntime: PerceptionRuntime
 
     /** List of [Updatable]s that are updated every frame. */
     private val _updatables = CopyOnWriteArrayList<Updatable>()

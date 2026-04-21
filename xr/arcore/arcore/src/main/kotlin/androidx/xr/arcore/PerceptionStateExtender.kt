@@ -44,7 +44,7 @@ public class PerceptionStateExtender : StateExtender {
     override fun initialize(runtimes: List<JxrRuntime>) {
         val perceptionRuntime = runtimes.filterIsInstance<PerceptionRuntime>().single()
         perceptionManager = perceptionRuntime.perceptionManager
-        xrResourcesManager.lifecycleManager = perceptionRuntime.lifecycleManager
+        xrResourcesManager.perceptionRuntime = perceptionRuntime
         xrResourcesManager.initiateHands(perceptionManager.leftHand, perceptionManager.rightHand)
         xrResourcesManager.initiateArDeviceAndRenderViewpoints(
             perceptionManager.arDevice,

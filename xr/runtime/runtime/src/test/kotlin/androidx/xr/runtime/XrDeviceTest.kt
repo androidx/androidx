@@ -47,6 +47,7 @@ class XrDeviceTest {
         activity = activityController.get()
 
         val shadowApplication = shadowOf(activity.application)
+
         StubPerceptionRuntime.TestPermissions.forEach { permission ->
             shadowApplication.grantPermissions(permission)
         }

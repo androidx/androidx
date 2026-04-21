@@ -229,7 +229,6 @@ class EntityRegistryTest {
     private fun createActivityPanelEntity() {
         activityPanelEntity =
             ActivityPanelEntity.create(
-                session.perceptionRuntime.lifecycleManager,
                 sceneRuntime,
                 session.scene.perceptionSpace,
                 entityRegistry,

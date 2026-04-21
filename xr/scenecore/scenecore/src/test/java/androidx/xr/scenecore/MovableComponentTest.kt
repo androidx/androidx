@@ -162,8 +162,6 @@ class MovableComponentTest {
     @Suppress("DEPRECATION")
     private lateinit var mFakeRuntime: androidx.xr.arcore.testing.FakePerceptionRuntime
     @Suppress("DEPRECATION")
-    private lateinit var mFakeLifecycleManager: androidx.xr.arcore.testing.FakeLifecycleManager
-    @Suppress("DEPRECATION")
     private lateinit var mFakePerceptionManager: androidx.xr.arcore.testing.FakePerceptionManager
     private lateinit var fakeActivitySpace: RtActivitySpace
     private lateinit var testDispatcher: TestDispatcher
@@ -186,10 +184,9 @@ class MovableComponentTest {
             session.runtimes
                 .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
                 .first()
-        mFakeLifecycleManager = mFakeRuntime.lifecycleManager
         mFakePerceptionManager = mFakeRuntime.perceptionManager
         sceneRuntime = session.sceneRuntime
-        timeSource = mFakeLifecycleManager.timeSource
+        timeSource = mFakeRuntime.timeSource
         SystemClock.setCurrentTimeMillis(mCurrentTimeMillis)
     }
 
@@ -210,9 +207,8 @@ class MovableComponentTest {
             session.runtimes
                 .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
                 .first()
-        mFakeLifecycleManager = mFakeRuntime.lifecycleManager
         mFakePerceptionManager = mFakeRuntime.perceptionManager
-        timeSource = mFakeLifecycleManager.timeSource
+        timeSource = mFakeRuntime.timeSource
         SystemClock.setCurrentTimeMillis(mCurrentTimeMillis)
     }
 

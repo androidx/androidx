@@ -142,7 +142,6 @@ fun Activity.configureFakeSession(
                         androidx.xr.arcore.testing
                             .FakePerceptionRuntimeFactory()
                             .createRuntime(this)
-                            .apply { lifecycleManager.create() }
                     ),
                 ),
             lifecycleOwner = this as LifecycleOwner,

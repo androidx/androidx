@@ -45,7 +45,8 @@ public class ArDevice internal constructor(internal val runtimeArDevice: Runtime
         @JvmStatic
         public fun getInstance(session: Session): ArDevice {
             val perceptionStateExtender = getPerceptionStateExtender(session)
-            val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
+
+            val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
             check(config.deviceTracking != DeviceTrackingMode.DISABLED) {
                 "Config.DeviceTrackingMode is set to DISABLED."
             }

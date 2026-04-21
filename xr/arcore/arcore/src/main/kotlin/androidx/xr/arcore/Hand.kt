@@ -54,7 +54,7 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
         @JvmStatic
         public fun left(session: Session): Hand? {
             val perceptionStateExtender = getPerceptionStateExtender(session)
-            val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
+            val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
             check(config.handTracking != HandTrackingMode.DISABLED) {
                 "Config.HandTrackingMode is set to DISABLED."
             }
@@ -71,7 +71,7 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
         @JvmStatic
         public fun right(session: Session): Hand? {
             val perceptionStateExtender = getPerceptionStateExtender(session)
-            val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
+            val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
             check(config.handTracking != HandTrackingMode.DISABLED) {
                 "Config.HandTrackingMode is set to DISABLED."
             }

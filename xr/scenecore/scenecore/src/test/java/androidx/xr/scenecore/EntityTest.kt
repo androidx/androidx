@@ -31,7 +31,6 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
-import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
@@ -83,7 +82,6 @@ class EntityTest {
     private lateinit var entityRegistry: EntityRegistry
     private lateinit var session: Session
     private lateinit var renderViewpoint: RenderViewpoint
-    private lateinit var lifecycleManager: LifecycleManager
     private lateinit var activitySpace: ActivitySpace
     private lateinit var gltfModel: GltfModel
     private lateinit var gltfModelEntity: GltfModelEntity
@@ -141,7 +139,6 @@ class EntityTest {
         session = (result as SessionCreateSuccess).session
         sceneRuntime = session.sceneRuntime
         renderingRuntime = session.renderingRuntime
-        lifecycleManager = session.perceptionRuntime.lifecycleManager
         session.configure(
             Config(
                 planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,

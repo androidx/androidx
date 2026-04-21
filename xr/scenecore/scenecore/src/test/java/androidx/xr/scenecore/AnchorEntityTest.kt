@@ -73,8 +73,6 @@ class AnchorEntityTest {
     @Suppress("DEPRECATION")
     private lateinit var mFakeRuntime: androidx.xr.arcore.testing.FakePerceptionRuntime
     @Suppress("DEPRECATION")
-    private lateinit var mFakeLifecycleManager: androidx.xr.arcore.testing.FakeLifecycleManager
-    @Suppress("DEPRECATION")
     private lateinit var mFakePerceptionManager: androidx.xr.arcore.testing.FakePerceptionManager
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
@@ -94,9 +92,8 @@ class AnchorEntityTest {
             session.runtimes
                 .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
                 .first()
-        mFakeLifecycleManager = mFakeRuntime.lifecycleManager
         mFakePerceptionManager = mFakeRuntime.perceptionManager
-        timeSource = mFakeLifecycleManager.timeSource
+        timeSource = mFakeRuntime.timeSource
         SystemClock.setCurrentTimeMillis(mCurrentTimeMillis)
     }
 
@@ -259,7 +256,7 @@ class AnchorEntityTest {
             advanceClock(6.seconds)
             mFakePerceptionManager.addTrackable(plane)
 
-            mFakeLifecycleManager.allowOneMoreCallToUpdate()
+            mFakeRuntime.allowOneMoreCallToUpdate()
             advanceUntilIdle()
 
             assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.TIMED_OUT)
@@ -287,7 +284,7 @@ class AnchorEntityTest {
             // Check once every 5 seconds up to 500 seconds
             for (i in 0 until anchorAttempts) {
                 advanceClock(5.seconds)
-                mFakeLifecycleManager.allowOneMoreCallToUpdate()
+                mFakeRuntime.allowOneMoreCallToUpdate()
                 advanceUntilIdle()
                 assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.UNANCHORED)
             }
