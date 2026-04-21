@@ -660,11 +660,11 @@ package androidx.xr.arcore {
   }
 
   public static final class RenderViewpoint.State {
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.runtime.FieldOfView getFieldOfView();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.FieldOfView getFieldOfView();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getLocalPose();
     method @InaccessibleFromKotlin public androidx.xr.arcore.RenderViewpoint getOwner();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
-    property @Deprecated public androidx.xr.runtime.FieldOfView fieldOfView;
+    property public androidx.xr.runtime.FieldOfView fieldOfView;
     property public androidx.xr.runtime.math.Pose localPose;
     property public androidx.xr.arcore.RenderViewpoint owner;
     property public androidx.xr.runtime.math.Pose pose;

@@ -274,9 +274,9 @@ package androidx.xr.arcore.runtime {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface RenderViewpoint {
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.runtime.FieldOfView getFieldOfView();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.FieldOfView getFieldOfView();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
-    property @Deprecated public abstract androidx.xr.runtime.FieldOfView fieldOfView;
+    property public abstract androidx.xr.runtime.FieldOfView fieldOfView;
     property public abstract androidx.xr.runtime.math.Pose pose;
   }
 

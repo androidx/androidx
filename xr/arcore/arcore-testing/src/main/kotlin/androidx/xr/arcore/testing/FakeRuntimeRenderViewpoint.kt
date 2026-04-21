@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-// TODO(b/494286565) - Remove deprecation suppression when androidx.xr.runtime.FieldOfView is
-// removed.
 @file:Suppress("DEPRECATION")
 
 package androidx.xr.arcore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.RenderViewpoint
-import androidx.xr.runtime.FieldOfView
+import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
 
 // TODO b/500091606 Remove when no longer used in G3
@@ -50,6 +48,5 @@ import androidx.xr.runtime.math.Pose
 )
 public class FakeRuntimeRenderViewpoint(
     override var pose: Pose = Pose(),
-    @Deprecated(message = "Convert to androidx.xr.runtime.math.FieldOfView")
     override var fieldOfView: FieldOfView = FieldOfView(0f, 0f, 0f, 0f),
 ) : RenderViewpoint {}

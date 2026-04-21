@@ -159,9 +159,6 @@ class PersistentAnchorsActivity : ComponentActivity() {
         }
     }
 
-    // TODO(b/494286565) - Remove deprecation suppression when androidx.xr.runtime.FieldOfView is
-    // removed.
-    @Suppress("DEPRECATION")
     private fun updatePanelInViewStatusUpdates(cameraStates: List<RenderViewpoint.State>) {
         val mainPanelEntity = session.scene.mainPanelEntity
         val panelPoseInActivitySpace = mainPanelEntity.getPose()

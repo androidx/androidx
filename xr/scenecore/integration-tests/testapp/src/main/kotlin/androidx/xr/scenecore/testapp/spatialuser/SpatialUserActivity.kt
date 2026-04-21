@@ -164,9 +164,6 @@ class SpatialUserActivity : AppCompatActivity() {
         }
     }
 
-    // TODO(b/494286565) - Remove deprecation suppression when androidx.xr.runtime.FieldOfView is
-    // removed.
-    @Suppress("DEPRECATION")
     private fun isEntityInView(entity: Entity, camera: RenderViewpoint): Boolean {
         val cameraScenePose =
             session!!.scene.perceptionSpace.getScenePoseFromPerceptionPose(camera.state.value.pose)

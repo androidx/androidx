@@ -24,11 +24,6 @@ package androidx.xr.runtime
  * @property angleUp The angle in radians of the top edge of the field of view.
  * @property angleDown The angle in radians of the bottom edge of the field of view.
  */
-@Deprecated(
-    message = "Use androidx.xr.runtime.math.FieldOfView instead",
-    replaceWith =
-        ReplaceWith(expression = "FieldOfView", imports = ["androidx.xr.runtime.math.FieldOfView"]),
-)
 public class FieldOfView
 constructor(
     public val angleLeft: Float,

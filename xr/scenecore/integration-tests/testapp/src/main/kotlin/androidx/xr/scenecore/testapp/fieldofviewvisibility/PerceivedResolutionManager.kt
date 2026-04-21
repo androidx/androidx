@@ -69,9 +69,6 @@ class PerceivedResolutionManager(
     private var mStopLoop = false
 
     // Runnable to update the perceived resolution display
-    // TODO(b/494286565) - Remove deprecation suppression when androidx.xr.runtime.FieldOfView is
-    // removed.
-    @Suppress("DEPRECATION")
     private val mUpdatePerceivedResolutionRunnable =
         object : Runnable {
             override fun run() {
