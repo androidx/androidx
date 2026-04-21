@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 
 import kotlinx.coroutines.CoroutineDispatcher;
+import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.ExecutorsKt;
 
 import org.jspecify.annotations.NonNull;
@@ -55,7 +56,23 @@ public interface TaskExecutor {
      */
     @NonNull SerialExecutor getSerialTaskExecutor();
 
+    /**
+     * Get the coroutine scope used for all WorkManager tasks
+     */
+    @NonNull CoroutineScope getCoroutineScope();
+
     default @NonNull CoroutineDispatcher getTaskCoroutineDispatcher() {
         return ExecutorsKt.from(getSerialTaskExecutor());
+    }
+
+    /**
+     * Dispatcher for event listener hooks e.g. {@link Configuration#getExecutionEventListener()}.
+     * These events maintain an ordering guarantee with each other but not necessarily with any
+     * other tasks on the task executor.
+     *
+     * @return The {@link CoroutineDispatcher} for running event listener hooks
+     */
+    default @NonNull CoroutineDispatcher getEventListenerDispatcher() {
+        return getTaskCoroutineDispatcher();
     }
 }

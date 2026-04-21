@@ -19,11 +19,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.room.withTransaction
 import androidx.work.Clock
 import androidx.work.Configuration
 import androidx.work.Data
 import androidx.work.DirectExecutor
+import androidx.work.ExecutionEventListener
 import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result.Failure
 import androidx.work.Logger
@@ -40,6 +40,7 @@ import androidx.work.impl.model.generationalId
 import androidx.work.impl.model.getWorkInfo
 import androidx.work.impl.utils.WorkForegroundUpdater
 import androidx.work.impl.utils.WorkProgressUpdater
+import androidx.work.impl.utils.dispatchEvent
 import androidx.work.impl.utils.safeAccept
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.workForeground
@@ -113,27 +114,33 @@ public class WorkerWrapper internal constructor(builder: Builder) {
             val executionListener =
                 if (startedWork) configuration.getExecutionEventListener() else null
             var needsReschedule = false
-            workDatabase.withTransaction {
+            workDatabase.runInTransaction {
                 when (resolution) {
                     is Resolution.Finished -> {
                         needsReschedule = onWorkFinished(resolution.result)
-                        executionListener?.onFinished(
+                        executionListener?.dispatchEvent(
+                            workTaskExecutor,
                             resolution.result,
                             workSpecDao.getWorkInfo(workSpecId)!!,
+                            ExecutionEventListener::onFinished,
                         )
                     }
                     is Resolution.Failed -> {
                         needsReschedule = onWorkFailed(Failure())
-                        executionListener?.onException(
+                        executionListener?.dispatchEvent(
+                            workTaskExecutor,
                             resolution.throwable,
                             workSpecDao.getWorkInfo(workSpecId)!!,
+                            ExecutionEventListener::onException,
                         )
                     }
                     is Resolution.Stopped -> {
                         needsReschedule = resetWorkerStatus(resolution.reason)
-                        executionListener?.onStopped(
+                        executionListener?.dispatchEvent(
+                            workTaskExecutor,
                             resolution.reason,
                             workSpecDao.getWorkInfo(workSpecId)!!,
+                            ExecutionEventListener::onStopped,
                         )
                     }
                     is Resolution.WorkerWrapperFailure ->
@@ -450,20 +457,26 @@ public class WorkerWrapper internal constructor(builder: Builder) {
         }
     }
 
-    private suspend fun trySetRunning(): Boolean =
-        workDatabase.withTransaction {
-            val currentState = workSpecDao.getState(workSpecId)
-            if (currentState === WorkInfo.State.ENQUEUED) {
-                workSpecDao.setState(WorkInfo.State.RUNNING, workSpecId)
-                workSpecDao.incrementWorkSpecRunAttemptCount(workSpecId)
-                workSpecDao.setStopReason(workSpecId, STOP_REASON_NOT_STOPPED)
-                configuration
-                    .getExecutionEventListener()
-                    ?.onStarted(workSpecDao.getWorkInfo(workSpecId)!!)
-                startedWork = true
-                true
-            } else false
-        }
+    private fun trySetRunning(): Boolean =
+        workDatabase.runInTransaction(
+            Callable {
+                val currentState = workSpecDao.getState(workSpecId)
+                if (currentState === WorkInfo.State.ENQUEUED) {
+                    workSpecDao.setState(WorkInfo.State.RUNNING, workSpecId)
+                    workSpecDao.incrementWorkSpecRunAttemptCount(workSpecId)
+                    workSpecDao.setStopReason(workSpecId, STOP_REASON_NOT_STOPPED)
+                    configuration
+                        .getExecutionEventListener()
+                        ?.dispatchEvent(
+                            workTaskExecutor,
+                            workSpecDao.getWorkInfo(workSpecId)!!,
+                            ExecutionEventListener::onStarted,
+                        )
+                    startedWork = true
+                    true
+                } else false
+            }
+        )
 
     @VisibleForTesting
     public fun setFailed(result: ListenableWorker.Result): Boolean {

@@ -48,6 +48,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -96,6 +97,7 @@ class ProcessorTests : DatabaseTest() {
         val taskExecutor =
             object : TaskExecutor {
                 val mainExecutor = Executor { runnable -> runnable.run() }
+                val workCoroutineScope = CoroutineScope(taskCoroutineDispatcher)
 
                 override fun getMainThreadExecutor(): Executor {
                     return mainExecutor
@@ -104,6 +106,8 @@ class ProcessorTests : DatabaseTest() {
                 override fun getSerialTaskExecutor(): SerialExecutorImpl {
                     return serialExecutor
                 }
+
+                override fun getCoroutineScope(): CoroutineScope = workCoroutineScope
             }
         val configuration =
             Configuration.Builder().setWorkerFactory(factory).setExecutor(defaultExecutor).build()

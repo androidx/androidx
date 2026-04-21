@@ -29,6 +29,7 @@ import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
 import androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode
+import kotlinx.coroutines.CoroutineScope
 
 internal fun createTestWorkManagerImpl(
     context: Context,
@@ -39,10 +40,13 @@ internal fun createTestWorkManagerImpl(
     val taskExecutor =
         object : TaskExecutor {
             val synchronousExecutor = SynchronousExecutor()
+            val workCoroutineScope = CoroutineScope(taskCoroutineDispatcher)
 
             override fun getMainThreadExecutor() = synchronousExecutor
 
             override fun getSerialTaskExecutor() = serialExecutor
+
+            override fun getCoroutineScope(): CoroutineScope = workCoroutineScope
         }
     return WorkManagerImpl(
         context = context,
