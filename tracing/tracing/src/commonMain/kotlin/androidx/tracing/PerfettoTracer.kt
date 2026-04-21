@@ -125,8 +125,7 @@ public class PerfettoTracer(context: TraceContext) : Tracer(isEnabled = context.
     override fun counter(category: String, name: String): Counter {
         // getOrCreateCounterTrack() is synchronized, so we get the same instance of the counter
         // for the provided name.
-        val counter = process.getOrCreateCounterTrack(name)
-        return PerfettoCounter(category = category, track = counter)
+        return process.getOrCreateCounterTrack(name)
     }
 
     @DelicateTracingApi
