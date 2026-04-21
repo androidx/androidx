@@ -22,6 +22,7 @@ import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toComp
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
@@ -119,7 +120,7 @@ class ExecuteAppFunctionResponseTest {
             )
         val appFunctionData =
             AppFunctionData.Builder(
-                    TEST_APP_FUNCTION_METADATA.parameters,
+                    TEST_APP_FUNCTION_URI_GRANT_METADATA.parameters,
                     AppFunctionComponentsMetadata(),
                 )
                 .setAppFunctionData(
@@ -152,6 +153,40 @@ class ExecuteAppFunctionResponseTest {
     }
 
     companion object {
+        private val TEST_APP_FUNCTION_URI_GRANT_METADATA =
+            AppFunctionMetadata(
+                name =
+                    AppFunctionName(
+                        packageName = "testPackage",
+                        functionIdentifier = "testUriGrant",
+                    ),
+                schema = null,
+                parameters =
+                    listOf(
+                        AppFunctionParameterMetadata(
+                            name = "uriGrant",
+                            isRequired = false,
+                            dataType =
+                                AppFunctionObjectTypeMetadata(
+                                    properties =
+                                        mapOf(
+                                            "uri" to
+                                                AppFunctionStringTypeMetadata(isNullable = false)
+                                        ),
+                                    required = listOf("uri"),
+                                    qualifiedName = "androidx.appfunctions.AppFunctionUriGrant",
+                                    isNullable = true,
+                                ),
+                        )
+                    ),
+                response = AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(false)),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = "testPackage",
+                        components = AppFunctionComponentsMetadata(),
+                    ),
+                isEnabled = true,
+            )
         private val TEST_APP_FUNCTION_METADATA =
             AppFunctionMetadata(
                 name = AppFunctionName(packageName = "testPackage", functionIdentifier = "testId"),
