@@ -43,11 +43,11 @@ androidXMultiplatform {
         commonMain.dependencies {
             api("androidx.annotation:annotation:1.8.1")
             implementation(project(":compose:material3:xr:xr"))
-            implementation("androidx.compose.material3:material3:1.5.0-alpha11")
+            implementation("androidx.compose.material3:material3:1.5.0-alpha17")
         }
 
         androidMain.dependencies {
-            implementation("androidx.xr.compose:compose:1.0.0-alpha09")
+            implementation("androidx.xr.compose:compose:1.0.0-alpha12")
         }
     }
 }
