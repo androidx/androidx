@@ -22,6 +22,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.RenderViewpoint
+import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.FieldOfView
@@ -29,6 +30,7 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
+import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
@@ -568,6 +570,7 @@ private constructor(
         /**
          * Factory method for SurfaceEntity.
          *
+         * @param perceptionRuntime An ARCore PerceptionRuntime
          * @param sceneRuntime SceneRuntime to use.
          * @param renderingRuntime RenderingRuntime to use.
          * @param entityRegistry A SceneCore [EntityRegistry]
@@ -590,6 +593,8 @@ private constructor(
         @Suppress("RestrictedApiAndroidX")
         internal fun create(
             session: Session,
+            perceptionRuntime: PerceptionRuntime,
+            renderingRuntime: RenderingRuntime,
             stereoMode: StereoMode = StereoMode.MONO,
             mediaBlendingMode: MediaBlendingMode = MediaBlendingMode.TRANSPARENT,
             pose: Pose = Pose.Identity,
@@ -618,7 +623,7 @@ private constructor(
             val surfaceEntity =
                 SurfaceEntity(
                     session.scene.perceptionSpace,
-                    session.renderingRuntime.createSurfaceEntity(
+                    renderingRuntime.createSurfaceEntity(
                         getRtStereoMode(stereoMode),
                         getRtMediaBlendingMode(mediaBlendingMode),
                         pose,
@@ -672,6 +677,8 @@ private constructor(
         ): SurfaceEntity =
             SurfaceEntity.create(
                 session,
+                session.perceptionRuntime,
+                session.renderingRuntime,
                 stereoMode,
                 MediaBlendingMode.TRANSPARENT,
                 pose,
@@ -715,6 +722,8 @@ private constructor(
         ): SurfaceEntity =
             SurfaceEntity.create(
                 session,
+                session.perceptionRuntime,
+                session.renderingRuntime,
                 stereoMode,
                 mediaBlendingMode,
                 pose,

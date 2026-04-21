@@ -224,7 +224,7 @@ internal constructor(
      *   (e.g. ran out of memory)
      */
     public suspend fun persist(): UUID {
-        val config = xrResourceManager.lifecycleManager.config
+        val config = xrResourceManager.perceptionRuntime.config
         check(config.anchorPersistence != AnchorPersistenceMode.DISABLED) {
             "Config.AnchorPersistenceMode is set to DISABLED."
         }

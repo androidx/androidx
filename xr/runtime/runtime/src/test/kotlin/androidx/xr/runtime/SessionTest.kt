@@ -252,6 +252,7 @@ class SessionTest {
     fun configure_returnsSuccessAndChangesConfig() {
         activityController.create().start().resume()
         underTest = createSession()
+
         val stubRuntime = getStubRuntime()
         check(
             stubRuntime.config ==
@@ -306,6 +307,7 @@ class SessionTest {
     fun configure_unsupportedMode_throwsUnsupportedOperationException() {
         activityController.create().start().resume()
         underTest = createSession()
+
         val stubRuntime = getStubRuntime()
 
         val currentConfig = underTest.config

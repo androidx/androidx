@@ -205,12 +205,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
         activitySpace = ActivitySpace.create(sceneRuntime, entityRegistry)
         val perceptionRuntime = runtimes.filterIsInstance<PerceptionRuntime>().first()
         mainPanelEntity =
-            MainPanelEntity.create(
-                perceptionRuntime.lifecycleManager,
-                sceneRuntime,
-                perceptionSpace,
-                entityRegistry,
-            )
+            MainPanelEntity.create(perceptionRuntime, sceneRuntime, perceptionSpace, entityRegistry)
         keyEntity = mainPanelEntity
 
         sceneRuntime.spatialModeChangeListener =

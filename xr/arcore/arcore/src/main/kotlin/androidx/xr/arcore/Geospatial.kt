@@ -366,7 +366,9 @@ internal constructor(
     }
 
     private fun checkGeospatialModeEnabled() {
-        check(xrResourcesManager.lifecycleManager.config.geospatial == GeospatialMode.VPS_AND_GPS) {
+        check(
+            xrResourcesManager.perceptionRuntime.config.geospatial == GeospatialMode.VPS_AND_GPS
+        ) {
             "To use this function, Config.GeospatialMode must be set to VPS_AND_GPS."
         }
     }

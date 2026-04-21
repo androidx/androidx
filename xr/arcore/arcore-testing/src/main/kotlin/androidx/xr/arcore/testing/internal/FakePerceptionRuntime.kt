@@ -108,7 +108,7 @@ internal class FakePerceptionRuntime(
 
         this.config = config
         allowOneMoreCallToUpdate()
-        this.perceptionManager.updateTrackingStates(config)
+        perceptionManager.updateTrackingStates(config)
     }
 
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
@@ -127,7 +127,7 @@ internal class FakePerceptionRuntime(
     override suspend fun update(): ComparableTimeMark {
         check(state == State.RESUMED)
         semaphore.acquire()
-        this.perceptionManager.updateTrackingStates(this.config)
+        perceptionManager.updateTrackingStates(config)
         return timeSource.markNow()
     }
 

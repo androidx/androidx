@@ -93,7 +93,7 @@ class AnchorableModifierTest {
 
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     @Suppress("DEPRECATION")
-    private lateinit var lifecycleManager: androidx.xr.arcore.testing.FakeLifecycleManager
+    private lateinit var perceptionRuntime: androidx.xr.arcore.testing.FakePerceptionRuntime
     @Suppress("DEPRECATION")
     private lateinit var perceptionManager: androidx.xr.arcore.testing.FakePerceptionManager
     private lateinit var activitySpace: FakeActivitySpace
@@ -113,7 +113,7 @@ class AnchorableModifierTest {
             .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
             .single()
             .let {
-                lifecycleManager = it.lifecycleManager
+                perceptionRuntime = it
                 perceptionManager = it.perceptionManager
             }
         session.runtimes.filterIsInstance<FakeSceneRuntime>().single().let {
@@ -693,8 +693,8 @@ class AnchorableModifierTest {
                 extents,
             )
         )
-        lifecycleManager.timeSource.plusAssign(1.milliseconds)
-        lifecycleManager.allowOneMoreCallToUpdate()
+        perceptionRuntime.timeSource.plusAssign(1.milliseconds)
+        perceptionRuntime.allowOneMoreCallToUpdate()
         testDispatcher.scheduler.advanceUntilIdle()
     }
 

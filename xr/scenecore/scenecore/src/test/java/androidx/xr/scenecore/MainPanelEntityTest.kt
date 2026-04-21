@@ -227,7 +227,7 @@ class MainPanelEntityTest {
         fun createMainPanelEntity(): WeakReference<MainPanelEntity> {
             val entity =
                 MainPanelEntity.create(
-                    session.perceptionRuntime.lifecycleManager,
+                    session.perceptionRuntime,
                     session.sceneRuntime,
                     session.scene.perceptionSpace,
                     session.scene.entityRegistry,

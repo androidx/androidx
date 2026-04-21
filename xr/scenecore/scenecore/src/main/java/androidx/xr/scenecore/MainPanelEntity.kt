@@ -18,9 +18,9 @@
 
 package androidx.xr.scenecore
 
+import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
@@ -40,7 +40,7 @@ import java.util.function.Consumer
  */
 public class MainPanelEntity
 internal constructor(
-    private val lifecycleManager: LifecycleManager,
+    private val perceptionRuntime: PerceptionRuntime,
     private val sceneRuntime: SceneRuntime,
     perceptionSpace: PerceptionSpace,
     entityRegistry: EntityRegistry,
@@ -83,7 +83,7 @@ internal constructor(
         callbackExecutor: Executor,
         listener: Consumer<IntSize2d>,
     ): Unit {
-        check(lifecycleManager.config.deviceTracking == DeviceTrackingMode.SPATIAL_LAST_KNOWN) {
+        check(perceptionRuntime.config.deviceTracking == DeviceTrackingMode.SPATIAL_LAST_KNOWN) {
             "Config.DeviceTrackingMode is not set to SpatialLastKnown."
         }
         val rtListener =
@@ -147,12 +147,12 @@ internal constructor(
     public companion object {
         /** Returns the MainPanelEntity backed by the main window for the Activity. */
         internal fun create(
-            lifecycleManager: LifecycleManager,
+            perceptionRuntime: PerceptionRuntime,
             sceneRuntime: SceneRuntime,
             perceptionSpace: PerceptionSpace,
             entityRegistry: EntityRegistry,
         ): MainPanelEntity =
-            MainPanelEntity(lifecycleManager, sceneRuntime, perceptionSpace, entityRegistry)
+            MainPanelEntity(perceptionRuntime, sceneRuntime, perceptionSpace, entityRegistry)
     }
 
     override fun disposeInternal() {

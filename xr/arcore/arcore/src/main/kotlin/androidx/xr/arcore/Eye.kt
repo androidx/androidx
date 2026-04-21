@@ -44,7 +44,7 @@ public class Eye internal constructor(internal val runtimeEye: RuntimeEye) :
         @JvmStatic
         public fun left(session: Session): Eye? {
             val perceptionStateExtender = getPerceptionStateExtender(session)
-            val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
+            val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
             check(config.eyeTracking != EyeTrackingMode.DISABLED) {
                 "Config.EyeTrackingMode is set to DISABLED."
             }
@@ -60,7 +60,7 @@ public class Eye internal constructor(internal val runtimeEye: RuntimeEye) :
         @JvmStatic
         public fun right(session: Session): Eye? {
             val perceptionStateExtender = getPerceptionStateExtender(session)
-            val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
+            val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
             check(config.eyeTracking != EyeTrackingMode.DISABLED) {
                 "Config.EyeTrackingMode is set to DISABLED."
             }
