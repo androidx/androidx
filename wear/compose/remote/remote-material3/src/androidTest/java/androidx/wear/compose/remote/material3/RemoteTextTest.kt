@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import java.text.DecimalFormat
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -55,6 +56,7 @@ class RemoteTextTest {
     val remoteComposeTestRule =
         RemoteComposeScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            matcher = MSSIMMatcher(threshold = 0.999),
             profile = TestProfiles.androidXWithCoreText,
         )
 
