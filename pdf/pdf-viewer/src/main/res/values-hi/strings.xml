@@ -67,8 +67,7 @@
     <string name="page_broken" msgid="2968770793669433462">"PDF दस्तावेज़ के लिए पेज लोड नहीं हो रहा है"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF दस्तावेज़ को प्रोसेस करने के लिए, ज़रूरत के मुताबिक डेटा नहीं है"</string>
     <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF फ़ाइल नहीं खोली जा सकी"</string>
-    <!-- no translation found for error_cannot_open_password_protected_pdf (3400883576932438749) -->
-    <skip />
+    <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"पासवर्ड से लॉक की गई PDF फ़ाइलों का इस्तेमाल नहीं किया जा सकता."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"इस PDF फ़ाइल में बदलाव नहीं किया जा सकता"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"PDF से कॉपी किया गया कॉन्टेंट"</string>
     <string name="fast_scroller_thumb" msgid="6712048991132846541">"स्क्रोल बार"</string>

@@ -67,8 +67,7 @@
     <string name="page_broken" msgid="2968770793669433462">"PDF ഡോക്യുമെന്റിനായി പേജ് ലോഡ് ചെയ്യാനായില്ല"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF ഡോക്യുമെന്റ് പ്രോസസ് ചെയ്യാൻ മതിയായ ഡാറ്റയില്ല"</string>
     <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF ഫയൽ തുറക്കാനാകുന്നില്ല"</string>
-    <!-- no translation found for error_cannot_open_password_protected_pdf (3400883576932438749) -->
-    <skip />
+    <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"പാസ്‌വേഡ് പരിരക്ഷയുള്ള PDF-കൾ പിന്തുണയ്ക്കുന്നില്ല."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"ഈ PDF എഡിറ്റ് ചെയ്യാനാകില്ല"</string>
     <string name="clipboard_label" msgid="8943155331324944981">"ഉള്ളടക്കം PDF-ൽ നിന്ന് പകർത്തി"</string>
     <string name="fast_scroller_thumb" msgid="6712048991132846541">"സ്‌ക്രോൾബാർ"</string>

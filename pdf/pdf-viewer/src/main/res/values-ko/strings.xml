@@ -67,8 +67,7 @@
     <string name="page_broken" msgid="2968770793669433462">"PDF 문서의 페이지가 손상되었습니다."</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF 문서 처리를 위한 데이터가 부족합니다."</string>
     <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF 파일을 열 수 없음"</string>
-    <!-- no translation found for error_cannot_open_password_protected_pdf (3400883576932438749) -->
-    <skip />
+    <string name="error_cannot_open_password_protected_pdf" msgid="3400883576932438749">"비밀번호로 보호된 PDF는 지원되지 않습니다."</string>
     <string name="cannot_edit_pdf" msgid="7677598370087228978">"이 PDF는 수정할 수 없습니다."</string>
     <string name="clipboard_label" msgid="8943155331324944981">"PDF에서 복사된 콘텐츠"</string>
     <string name="fast_scroller_thumb" msgid="6712048991132846541">"스크롤바"</string>
