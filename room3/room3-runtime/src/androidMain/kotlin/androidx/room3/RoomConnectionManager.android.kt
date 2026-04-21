@@ -63,12 +63,22 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
                     statementCacheSize = config.preparedStatementCacheSize,
                 )
             } else {
-                newConnectionPool(
-                    connectionFactory = createConnectionFactory(config.sqliteDriver, config.name),
-                    maxNumOfReaders = config.journalMode.getMaxNumberOfReaders(),
-                    maxNumOfWriters = config.journalMode.getMaxNumberOfWriters(),
-                    statementCacheSize = config.preparedStatementCacheSize,
-                )
+                when (val poolConfig = configuration.connectionPoolConfiguration) {
+                    is SingleConnection ->
+                        newSingleConnectionPool(
+                            connectionFactory =
+                                createConnectionFactory(config.sqliteDriver, config.name),
+                            statementCacheSize = config.preparedStatementCacheSize,
+                        )
+                    is MultipleConnection ->
+                        newConnectionPool(
+                            connectionFactory =
+                                createConnectionFactory(config.sqliteDriver, config.name),
+                            maxNumOfReaders = poolConfig.numOfReaders,
+                            maxNumOfWriters = poolConfig.numOfWriters,
+                            statementCacheSize = config.preparedStatementCacheSize,
+                        )
+                }
             }
     }
 

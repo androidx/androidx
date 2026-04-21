@@ -441,15 +441,15 @@ public actual abstract class RoomDatabase actual constructor() {
         WRITE_AHEAD_LOGGING;
 
         /** Resolves [AUTOMATIC] to either [TRUNCATE] or [WRITE_AHEAD_LOGGING]. */
-        internal fun resolve(context: Context): JournalMode {
+        internal fun resolve(context: Context?): JournalMode {
             if (this != AUTOMATIC) {
                 return this
             }
-            val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-            if (manager != null && !manager.isLowRamDevice) {
-                return WRITE_AHEAD_LOGGING
+            val manager = context?.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            if (manager != null && manager.isLowRamDevice) {
+                return TRUNCATE
             }
-            return TRUNCATE
+            return WRITE_AHEAD_LOGGING
         }
     }
 
@@ -541,6 +541,7 @@ public actual abstract class RoomDatabase actual constructor() {
 
         private var driver: SQLiteDriver? = null
         private var queryCoroutineContext: CoroutineContext? = null
+        private var connectionPoolConfiguration: ConnectionPoolConfiguration? = null
 
         private var inMemoryTrackingTableMode = true
 
@@ -1062,6 +1063,63 @@ public actual abstract class RoomDatabase actual constructor() {
         }
 
         /**
+         * Sets the database connection pool to use a single connection for both reading and
+         * writing.
+         *
+         * A connection pool is only used if the supplied [SQLiteDriver] has no internal pool, i.e.
+         * [SQLiteDriver.hasConnectionPool] returns `false`. If the configured driver has an
+         * internal pool then calling this function has no effect.
+         *
+         * Calling this function overrides any previous setting. If neither this function or
+         * [setMultipleConnectionPool] are called then Room will default to a connection pool
+         * configuration that is based on the [JournalMode]. For [JournalMode.TRUNCATE] a single
+         * connection is used, while for [JournalMode.WRITE_AHEAD_LOGGING] multiple connections are
+         * used, four reader and one writer.
+         *
+         * @return This builder instance.
+         * @see setMultipleConnectionPool
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        public actual fun setSingleConnectionPool(): Builder<T> = apply {
+            this.connectionPoolConfiguration = SingleConnection
+        }
+
+        /**
+         * Sets the database connection pool to use multiple connections, separating readers and
+         * writers.
+         *
+         * A connection pool is only used if the supplied [SQLiteDriver] has no internal pool, i.e.
+         * [SQLiteDriver.hasConnectionPool] returns `false`. If the configured driver has an
+         * internal pool then calling this function has no effect.
+         *
+         * If the database being built is an in-memory database, then calling this function has no
+         * effect since a single connection will be used.
+         *
+         * Calling this function overrides any previous setting. If neither this function or
+         * [setMultipleConnectionPool] are called then Room will default to a connection pool
+         * configuration that is based on the [JournalMode]. For [JournalMode.TRUNCATE] a single
+         * connection is used, while for [JournalMode.WRITE_AHEAD_LOGGING] multiple connections are
+         * used, four reader and one writer.
+         *
+         * It is recommended to only use multiple connections when [JournalMode.WRITE_AHEAD_LOGGING]
+         * is configured. Be aware that if multiple writers are used then database operations might
+         * fail with `SQLITE_BUSY` errors. These must be handled by the callers and might be
+         * mitigated by configuring the `busy_timeout`.
+         *
+         * @param maxNumOfReaders The maximum number of reader connections.
+         * @param maxNumOfWriters The maximum number of writer connections.
+         * @return This builder instance.
+         * @see setSingleConnectionPool
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        public actual fun setMultipleConnectionPool(
+            @IntRange(from = 1) maxNumOfReaders: Int,
+            @IntRange(from = 1) maxNumOfWriters: Int,
+        ): Builder<T> = apply {
+            this.connectionPoolConfiguration = MultipleConnection(maxNumOfReaders, maxNumOfWriters)
+        }
+
+        /**
          * Creates the databases and initializes it.
          *
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -1076,8 +1134,7 @@ public actual abstract class RoomDatabase actual constructor() {
                 // No driver, use default one for Android
                 driver = AndroidSQLiteDriver()
             }
-            val journalMode =
-                context?.let { journalMode.resolve(context) } ?: JournalMode.WRITE_AHEAD_LOGGING
+            val journalMode = journalMode.resolve(context) ?: JournalMode.WRITE_AHEAD_LOGGING
             val autoCloseConfig =
                 if (autoCloseTimeout > 0) {
                     AutoCloserConfig(autoCloseTimeout, requireNotNull(autoCloseTimeUnit))
@@ -1111,6 +1168,21 @@ public actual abstract class RoomDatabase actual constructor() {
                 } else {
                     null
                 }
+            val poolConfig =
+                if (name == null) {
+                    SingleConnection
+                } else if (connectionPoolConfiguration != null) {
+                    checkNotNull(connectionPoolConfiguration)
+                } else {
+                    if (journalMode == JournalMode.TRUNCATE) {
+                        SingleConnection
+                    } else {
+                        MultipleConnection(
+                            numOfReaders = WAL_DEFAULT_NUMBER_OF_READERS,
+                            numOfWriters = WAL_DEFAULT_NUMBER_OF_WRITERS,
+                        )
+                    }
+                }
             val configuration =
                 DatabaseConfiguration(
                         context = context,
@@ -1130,6 +1202,7 @@ public actual abstract class RoomDatabase actual constructor() {
                             allowDestructiveMigrationForAllTables,
                         sqliteDriver = requireNotNull(driver),
                         queryCoroutineContext = queryCoroutineContext ?: Dispatchers.IO,
+                        connectionPoolConfiguration = poolConfig,
                     )
                     .apply {
                         this.useTempTrackingTable = inMemoryTrackingTableMode

@@ -16,11 +16,13 @@
 
 package androidx.room3
 
+import androidx.annotation.RestrictTo
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.sqlite.SQLiteDriver
 import kotlin.coroutines.CoroutineContext
 
 /** Configuration class for a [RoomDatabase]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public actual class DatabaseConfiguration(
     /* The name of the database file or null if it is an in-memory database. */
     public actual val name: String?,
@@ -45,4 +47,6 @@ public actual class DatabaseConfiguration(
     public actual val sqliteDriver: SQLiteDriver,
     /* The Coroutine context for the database. */
     public actual val queryCoroutineContext: CoroutineContext,
+    /* The connection pool configuration. */
+    public actual val connectionPoolConfiguration: ConnectionPoolConfiguration,
 )

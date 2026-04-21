@@ -20,6 +20,7 @@ import android.app.Instrumentation
 import android.content.Context
 import androidx.room3.DatabaseConfiguration
 import androidx.room3.RoomDatabase
+import androidx.room3.SingleConnection
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.migration.Migration
 import androidx.room3.migration.bundle.SchemaBundle
@@ -288,6 +289,7 @@ private sealed class AndroidMigrationTestHelper(
             allowDestructiveMigrationForAllTables = false,
             sqliteDriver = sqliteDriver,
             queryCoroutineContext = Dispatchers.IO,
+            connectionPoolConfiguration = SingleConnection,
         )
 }
 
