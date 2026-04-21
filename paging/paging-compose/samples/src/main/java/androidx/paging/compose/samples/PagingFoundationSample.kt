@@ -43,14 +43,19 @@ import androidx.paging.PagingConfig
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import androidx.paging.compose.samples.util.TestBackend
 
-private val db: TestBackend =
-    TestBackend(loadDelay = 0, backendDataList = (0..500).toList().map { "$it" })
+private val db: TestBackend<String> =
+    TestBackend(
+        loadDelay = 0,
+        backendDataList = (0..500).toList().map { it },
+        transform = { "$it" },
+    )
 
 private val pager =
     Pager(
             config = PagingConfig(pageSize = 5, initialLoadSize = 15, enablePlaceholders = true),
-            pagingSourceFactory = { db.getAllData() },
+            pagingSourceFactory = { db.getPagingSource() },
         )
         .flow
 
