@@ -350,7 +350,7 @@ class BuilderTest {
         assertThat(config.context).isEqualTo(context)
         assertThat(config.name).isNull()
         assertThat(config.allowMainThreadQueries).isFalse()
-        assertThat(config.journalMode).isEqualTo(RoomDatabase.JournalMode.TRUNCATE)
+        assertThat(config.journalMode).isEqualTo(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
     }
 
     @Test
@@ -452,6 +452,64 @@ class BuilderTest {
             }
             .hasMessageThat()
             .contains("Cannot create from asset when no Context is provided to this Builder.")
+    }
+
+    @Test
+    fun defaultPoolConfiguration() {
+        val automaticDb =
+            databaseBuilder<TestDatabase>("test.db")
+                .setJournalMode(RoomDatabase.JournalMode.AUTOMATIC)
+                .build()
+        assertThat(automaticDb.getConfiguration().connectionPoolConfiguration)
+            .isEqualTo(MultipleConnection(4, 1))
+        automaticDb.close()
+
+        val truncateDb =
+            databaseBuilder<TestDatabase>("test.db")
+                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+                .build()
+        assertThat(truncateDb.getConfiguration().connectionPoolConfiguration)
+            .isEqualTo(SingleConnection)
+        truncateDb.close()
+
+        val walDb =
+            databaseBuilder<TestDatabase>("test.db")
+                .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+                .build()
+        assertThat(walDb.getConfiguration().connectionPoolConfiguration)
+            .isEqualTo(MultipleConnection(4, 1))
+        walDb.close()
+
+        val memDb = inMemoryDatabaseBuilder<TestDatabase>().build()
+        assertThat(memDb.getConfiguration().connectionPoolConfiguration).isEqualTo(SingleConnection)
+        memDb.close()
+    }
+
+    @Test
+    fun setMultiplePoolConnection() {
+        val myDb =
+            databaseBuilder<TestDatabase>("test.db")
+                .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+                .setMultipleConnectionPool(2, 1)
+                .build()
+        assertThat(myDb.getConfiguration().connectionPoolConfiguration)
+            .isEqualTo(MultipleConnection(2, 1))
+        myDb.close()
+    }
+
+    @Test
+    fun setInvalidMultiplePoolConnection() {
+        assertThrows<IllegalArgumentException> {
+                databaseBuilder<TestDatabase>("test.db").setMultipleConnectionPool(0, 1)
+            }
+            .hasMessageThat()
+            .isEqualTo("Number of readers must be greater than 0")
+
+        assertThrows<IllegalArgumentException> {
+                databaseBuilder<TestDatabase>("test.db").setMultipleConnectionPool(1, 0)
+            }
+            .hasMessageThat()
+            .isEqualTo("Number of writers must be greater than 0")
     }
 
     internal abstract class TestDatabase : RoomDatabase()
