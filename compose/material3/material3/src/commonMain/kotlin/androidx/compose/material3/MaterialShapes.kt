@@ -50,6 +50,7 @@ import kotlin.math.sin
  * @param startAngle the angle (in degrees) from which to begin drawing the generated path. By
  *   default, it is set to 0 degrees, meaning the [Path] begins drawing at the 3 o'clock position.
  */
+@ExperimentalMaterial3ExpressiveApi
 fun Morph.toPath(progress: Float, path: Path = Path(), startAngle: Int = 0): Path {
     return this.toPath(path = path, progress = progress, startAngle = startAngle)
 }
@@ -62,6 +63,7 @@ fun Morph.toPath(progress: Float, path: Path = Path(), startAngle: Int = 0): Pat
  *   The returned path is rotated by this angle around the [RoundedPolygon]'s centroid (centerX,
  *   centerY).
  */
+@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun RoundedPolygon.toPath(startAngle: Int = 0): Path {
     val path = remember { Path() }
@@ -78,6 +80,7 @@ fun RoundedPolygon.toPath(startAngle: Int = 0): Path {
  *   position. The returned path is rotated by this angle around the [RoundedPolygon]'s centroid
  *   (centerX, centerY).
  */
+@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun RoundedPolygon.toShape(startAngle: Int = 0): Shape {
     return remember(this, startAngle) {
@@ -125,6 +128,7 @@ fun RoundedPolygon.toShape(startAngle: Int = 0): Shape {
  *
  * @see RoundedPolygon.normalized
  */
+@ExperimentalMaterial3ExpressiveApi
 sealed class MaterialShapes {
 
     companion object {

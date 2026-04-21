@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.RoundedPolygon
 
 // TODO: Consider adding this as an official @sampled code, perhaps with less shapes.
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview(showBackground = true)
 @Composable
 fun AllShapes() {
@@ -68,6 +70,7 @@ fun AllShapes() {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun allMaterialShapes(): List<Pair<String, RoundedPolygon>> {
     return listOf(
         "Circle" to MaterialShapes.Circle,

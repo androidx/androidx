@@ -63,6 +63,7 @@ import kotlinx.coroutines.launch
 @Preview
 @Sampled
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LoadingIndicatorSample() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) { LoadingIndicator() }
 }
@@ -70,6 +71,7 @@ fun LoadingIndicatorSample() {
 @Preview
 @Sampled
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun ContainedLoadingIndicatorSample() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) { ContainedLoadingIndicator() }
 }
@@ -77,6 +79,7 @@ fun ContainedLoadingIndicatorSample() {
 @Preview
 @Sampled
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun DeterminateLoadingIndicatorSample() {
     var progress by remember { mutableFloatStateOf(0f) }
     val animatedProgress by
@@ -106,6 +109,7 @@ fun DeterminateLoadingIndicatorSample() {
 @Preview
 @Sampled
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun DeterminateContainedLoadingIndicatorSample() {
     var progress by remember { mutableFloatStateOf(0f) }
     val animatedProgress by

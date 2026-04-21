@@ -2258,7 +2258,7 @@ package androidx.compose.material3 {
     property public androidx.compose.ui.graphics.Shape shape;
   }
 
-  public final class LoadingIndicatorDefaults {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class LoadingIndicatorDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getContainedContainerColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getContainedIndicatorColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getContainerHeight-D9Ej5fM();
@@ -2280,22 +2280,22 @@ package androidx.compose.material3 {
     field public static final androidx.compose.material3.LoadingIndicatorDefaults INSTANCE;
   }
 
-  public final class LoadingIndicatorKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void ContainedLoadingIndicator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color indicatorColor, optional androidx.compose.ui.graphics.Shape containerShape, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> polygons);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void ContainedLoadingIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color indicatorColor, optional androidx.compose.ui.graphics.Shape containerShape, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> polygons);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void ContainedLoadingIndicator-DTcfvLk(androidx.compose.ui.Modifier?, long, long, androidx.compose.ui.graphics.Shape?, java.util.List<androidx.graphics.shapes.RoundedPolygon!>?, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void ContainedLoadingIndicator-Y0xEhic(kotlin.jvm.functions.Function0<java.lang.Float!>, androidx.compose.ui.Modifier?, long, long, androidx.compose.ui.graphics.Shape?, java.util.List<androidx.graphics.shapes.RoundedPolygon!>?, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void LoadingIndicator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color color, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> polygons);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void LoadingIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color color, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> polygons);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void LoadingIndicator-3IgeMak(androidx.compose.ui.Modifier?, long, java.util.List<androidx.graphics.shapes.RoundedPolygon!>?, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void LoadingIndicator-cf5BqRc(kotlin.jvm.functions.Function0<java.lang.Float!>, androidx.compose.ui.Modifier?, long, java.util.List<androidx.graphics.shapes.RoundedPolygon!>?, androidx.compose.runtime.Composer?, int, int);
+  @SuppressCompatibility public final class LoadingIndicatorKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void ContainedLoadingIndicator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color indicatorColor, optional androidx.compose.ui.graphics.Shape containerShape, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> polygons);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void ContainedLoadingIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color indicatorColor, optional androidx.compose.ui.graphics.Shape containerShape, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> polygons);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void ContainedLoadingIndicator-DTcfvLk(androidx.compose.ui.Modifier?, long, long, androidx.compose.ui.graphics.Shape?, java.util.List<androidx.graphics.shapes.RoundedPolygon!>?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void ContainedLoadingIndicator-Y0xEhic(kotlin.jvm.functions.Function0<java.lang.Float!>, androidx.compose.ui.Modifier?, long, long, androidx.compose.ui.graphics.Shape?, java.util.List<androidx.graphics.shapes.RoundedPolygon!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void LoadingIndicator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color color, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> polygons);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void LoadingIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color color, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> polygons);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void LoadingIndicator-3IgeMak(androidx.compose.ui.Modifier?, long, java.util.List<androidx.graphics.shapes.RoundedPolygon!>?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void LoadingIndicator-cf5BqRc(kotlin.jvm.functions.Function0<java.lang.Float!>, androidx.compose.ui.Modifier?, long, java.util.List<androidx.graphics.shapes.RoundedPolygon!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public abstract sealed exhaustive class MaterialShapes {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public abstract sealed exhaustive class MaterialShapes {
     field public static final androidx.compose.material3.MaterialShapes.Companion Companion;
   }
 
-  public static final class MaterialShapes.Companion {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static final class MaterialShapes.Companion {
     method @InaccessibleFromKotlin public androidx.graphics.shapes.RoundedPolygon getArch();
     method @InaccessibleFromKotlin public androidx.graphics.shapes.RoundedPolygon getArrow();
     method @InaccessibleFromKotlin public androidx.graphics.shapes.RoundedPolygon getBoom();
@@ -2368,13 +2368,13 @@ package androidx.compose.material3 {
     property public androidx.graphics.shapes.RoundedPolygon VerySunny;
   }
 
-  public final class MaterialShapesKt {
-    method public static androidx.compose.ui.graphics.Path toPath(androidx.graphics.shapes.Morph, float progress, optional androidx.compose.ui.graphics.Path path, optional int startAngle);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon, optional int startAngle);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon, int, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly public static androidx.compose.ui.graphics.Path! toPath$default(androidx.graphics.shapes.Morph!, float, androidx.compose.ui.graphics.Path!, int, int, Object!);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Shape toShape(androidx.graphics.shapes.RoundedPolygon, optional int startAngle);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Shape toShape(androidx.graphics.shapes.RoundedPolygon, int, androidx.compose.runtime.Composer?, int, int);
+  @SuppressCompatibility public final class MaterialShapesKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static androidx.compose.ui.graphics.Path toPath(androidx.graphics.shapes.Morph, float progress, optional androidx.compose.ui.graphics.Path path, optional int startAngle);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon, optional int startAngle);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon, int, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static androidx.compose.ui.graphics.Path! toPath$default(androidx.graphics.shapes.Morph!, float, androidx.compose.ui.graphics.Path!, int, int, Object!);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Shape toShape(androidx.graphics.shapes.RoundedPolygon, optional int startAngle);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Shape toShape(androidx.graphics.shapes.RoundedPolygon, int, androidx.compose.runtime.Composer?, int, int);
   }
 
   public final class MaterialTheme {
@@ -5438,8 +5438,8 @@ package androidx.compose.material3.pulltorefresh {
     method @BytecodeOnly @androidx.compose.runtime.Composable public void Indicator-2poqoh4(androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, androidx.compose.ui.Modifier?, long, long, float, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public void IndicatorBox(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.unit.Dp maxDistance, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.unit.Dp elevation, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void IndicatorBox-1CPYgEU(androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, androidx.compose.ui.Modifier?, float, androidx.compose.ui.graphics.Shape?, long, float, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public void LoadingIndicator(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.Dp elevation, optional androidx.compose.ui.unit.Dp maxDistance);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void LoadingIndicator-4eDdRP8(androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, androidx.compose.ui.Modifier?, long, long, float, float, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public void LoadingIndicator(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.Dp elevation, optional androidx.compose.ui.unit.Dp maxDistance);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public void LoadingIndicator-4eDdRP8(androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, androidx.compose.ui.Modifier?, long, long, float, float, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public long getContainerColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getElevation-D9Ej5fM();
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getIndicatorColor(androidx.compose.runtime.Composer?, int);
