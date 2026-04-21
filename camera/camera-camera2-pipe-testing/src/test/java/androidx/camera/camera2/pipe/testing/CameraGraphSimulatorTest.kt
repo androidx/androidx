@@ -46,6 +46,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -68,6 +69,11 @@ class CameraGraphSimulatorTest {
 
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+
+    @After
+    fun tearDown() {
+        simulator.close()
+    }
 
     @Test
     fun closingCameraGraphSimulatorShouldStopCameraGraph() =

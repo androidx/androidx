@@ -62,7 +62,6 @@ private constructor(
         val output = outputId ?: outputs.keys.single()
         val size =
             checkNotNull(outputs[output]) { "Unexpected $output! Available outputs are $outputs" }
-
         val image = FakeImage(size.width, size.height, format.value, imageTimestamp, hardwareBuffer)
         simulateImage(image, output)
         return image
