@@ -26,8 +26,22 @@ import androidx.xr.runtime.math.GeospatialPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 
+// TODO b/500091606 Remove when no longer used in G3
 /**
- * Fake implementation of [Geospatial][RuntimeGeospatial] for testing purposes.
+ * Fake implementation of [Geospatial][RuntimeGeospatial] for testing purposes. This should not be
+ * used to unit test `Geospatial` APIs. Instead, use an [ArCoreTestRule]. Example:
+ * ```
+ * @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
+ *
+ * @Test
+ * fun update_stateMatchesDeviceState_whenNotAuthorized() = runTest(testDispatcher) {
+ *     val underTest = Geospatial.getInstance(session)
+ *     arCoreTestRule.geospatial.state = GeospatialState.ERROR_NOT_AUTHORIZED
+ *     advanceUntilIdle()
+ *
+ *     assertThat(underTest.state.value).isEqualTo(GeospatialState.ERROR_NOT_AUTHORIZED)
+ * }
+ * ```
  *
  * @property nextGeospatialPoseResult the next [GeospatialPoseResult] that will be returned by
  *   [createGeospatialPoseFromPose]
@@ -36,6 +50,8 @@ import androidx.xr.runtime.math.Quaternion
  * @property nextAnchor the next [Anchor] that will be returned by [createAnchor]
  * @property nextVpsAvailabilityResult the [VpsAvailabilityResult] to be returned by
  *   [checkVpsAvailability]
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Deprecated(

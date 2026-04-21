@@ -26,7 +26,26 @@ import androidx.xr.runtime.math.Vector3
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 
-/** Fake implementation of [Face][RuntimeFace] for testing purposes. */
+// TODO b/500091606 Remove when no longer used in G3
+/**
+ * Fake implementation of [Face][RuntimeFace] for testing purposes. This should not be used to unit
+ * test `Face` APIs. Instead, use an [ArCoreTestRule]. Example:
+ * ```
+ * @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
+ *
+ * @Test
+ * fun getUserFace_stateMatchesRuntimeFace() = runTest(testDispatcher) {
+ *     val underTest = Face.getUserFace(session)
+ *     arCoreTestRule.face.isValid = true
+ *     advanceUntilIdle()
+ *     assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
+ *         .isEqualTo(TrackingState.TRACKING)
+ * }
+ * ```
+ *
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
+ */
 @Deprecated(
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."
 )

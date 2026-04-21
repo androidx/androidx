@@ -24,10 +24,30 @@ import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 
+// TODO b/500091606 Remove when no longer used in G3
 /**
- * Fake implementation of [AugmentedObject][RuntimeObject] for testing purposes.
+ * Fake implementation of [AugmentedObject][RuntimeObject] for testing purposes. This should not be
+ * used to unit test `AugmentedObject` APIs. Instead, use an [ArCoreTestRule]. Example:
+ * ```
+ * @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
+ *
+ * @Test
+ * fun subscribe_collectReturnsObject() = runTest(testDispatcher) {
+ *     val testObject = TestAugmentedObject(AugmentedObjectCategory.KEYBOARD)
+ *     arCoreTestRule.addTrackables(testObject)
+ *     advanceUntilIdle()
+ *     var underTest = emptyList<AugmentedObject>()
+ *     testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+ *         AugmentedObject.subscribe(session).collect { underTest = it.toList() }
+ *     }
+ *     advanceUntilIdle()
+ *     assertThat(underTest.single().state.value.category).isEqualTo(testObject.category)
+ * }
+ * ```
  *
  * @property anchors a [MutableCollection] of [Anchors][RuntimeAnchor] attached to this object
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
  */
 @SuppressWarnings("HiddenSuperclass")
 @Deprecated(
