@@ -146,8 +146,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    private fun isConfigured() =
-        arCoreTestRule.runtime.config.geospatial == GeospatialMode.VPS_AND_GPS
+    private fun isConfigured() = arCoreTestRule.runtime.config.geospatial == GeospatialMode.SPATIAL
 }
 
 internal fun GeospatialState.toRuntimeType(): RuntimeGeospatialState =

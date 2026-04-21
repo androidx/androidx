@@ -331,9 +331,9 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
          * from the Depth API will include terrain and building geometry when in a location with VPS
          * coverage.
          *
-         * Not all devices support GeospatialMode.VPS_AND_GPS, use [Config.ConfigMode.isSupported]
-         * to check if the current device and selected camera support enabling this mode. These
-         * checks are done in the call to [Session.configure].
+         * Not all devices support GeospatialMode.SPATIAL, use [Config.ConfigMode.isSupported] to
+         * check if the current device and selected camera support enabling this mode. These checks
+         * are done in the call to [Session.configure].
          *
          * Supported runtimes:
          * - Play Services (on supported devices)
@@ -344,7 +344,26 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
          * - [ACCESS_FINE_LOCATION][android.Manifest.permission.ACCESS_FINE_LOCATION]
          * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
          */
-        @JvmField public val VPS_AND_GPS: GeospatialMode = GeospatialMode(1)
+        @JvmField public val SPATIAL: GeospatialMode = GeospatialMode(1)
+
+        @Deprecated("Use SPATIAL instead.", ReplaceWith("SPATIAL"))
+        @JvmField
+        public val VPS_AND_GPS: GeospatialMode = SPATIAL
+
+        /**
+         * Geospatial tracking mode that uses only inertial measurement unit (IMU) and GPS data for
+         * localization.
+         *
+         * This mode provides a lower-power alternative to visual positioning systems, allowing the
+         * camera to be disabled when high precision is not strictly required.
+         *
+         * Supported runtimes:
+         * - None
+         *
+         * Required permissions:
+         * - [ACCESS_FINE_LOCATION][android.Manifest.permission.ACCESS_FINE_LOCATION]
+         */
+        @JvmField public val INERTIAL: GeospatialMode = GeospatialMode(2)
     }
 }
 
@@ -444,11 +463,13 @@ public fun DepthEstimationMode.toInternalDepthEstimationMode(): InternalDepthEst
         else -> throw IllegalStateException("Invalid DepthEstimationMode")
     }
 
+@OptIn(PreviewSpatialApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun GeospatialMode.toInternalGeospatialMode(): InternalGeospatialMode =
     when (this) {
         GeospatialMode.DISABLED -> InternalGeospatialMode.DISABLED
-        GeospatialMode.VPS_AND_GPS -> InternalGeospatialMode.VPS_AND_GPS
+        GeospatialMode.SPATIAL -> InternalGeospatialMode.SPATIAL
+        GeospatialMode.INERTIAL -> InternalGeospatialMode.INERTIAL
         else -> throw IllegalStateException("Invalid GeospatialMode")
     }
 

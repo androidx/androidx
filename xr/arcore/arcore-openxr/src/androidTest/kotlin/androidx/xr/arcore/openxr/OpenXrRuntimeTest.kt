@@ -69,11 +69,11 @@ class OpenXrRuntimeTest {
     }
 
     @Test
-    fun isSupported_geospatialVpsAndGps_returnsTrue() = initOpenXrRuntimeAndRunTest {
+    fun isSupported_geospatialSpatial_returnsTrue() = initOpenXrRuntimeAndRunTest {
         underTest.initialize()
         underTest.resume()
         // Result comes from //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
-        assertThat(underTest.isSupported(GeospatialMode.VPS_AND_GPS)).isTrue()
+        assertThat(underTest.isSupported(GeospatialMode.SPATIAL)).isTrue()
     }
 
     @Test

@@ -187,7 +187,14 @@ internal class OpenXrRuntime(
         return now
     }
 
+    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     override fun configure(config: Config) {
+        if (config.geospatial == GeospatialMode.INERTIAL) {
+            throw UnsupportedOperationException(
+                "Failed to configure session, runtime does not support GeospatialMode.INERTIAL"
+            )
+        }
+
         if (config.depthEstimation == DepthEstimationMode.SMOOTH_AND_RAW) {
             throw UnsupportedOperationException(
                 "Failed to configure session, runtime does not support raw and smooth depth simultaneously."
@@ -299,7 +306,7 @@ internal class OpenXrRuntime(
         }
 
         if (config.geospatial != this.config.geospatial) {
-            if (config.geospatial == GeospatialMode.VPS_AND_GPS) {
+            if (config.geospatial == GeospatialMode.SPATIAL) {
                 perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.geospatial)
             } else {
                 perceptionManager.xrResources.removeUpdatable(
@@ -311,9 +318,13 @@ internal class OpenXrRuntime(
         this.config = config
     }
 
+    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     override fun isSupported(configMode: ConfigMode): Boolean {
-        if (configMode == GeospatialMode.VPS_AND_GPS) {
+        if (configMode == GeospatialMode.SPATIAL) {
             return nativeIsGeospatialSupported()
+        }
+        if (configMode == GeospatialMode.INERTIAL) {
+            return false
         }
         return SUPPORTED_CONFIG_MODES.contains(configMode)
     }

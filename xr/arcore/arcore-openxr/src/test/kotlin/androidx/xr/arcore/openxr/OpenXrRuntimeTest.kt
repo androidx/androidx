@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
+
 package androidx.xr.arcore.openxr
 
 import androidx.activity.ComponentActivity
@@ -65,6 +67,13 @@ class OpenXrRuntimeTest {
 
         assertFailsWith<SecurityException> {
             underTest.configure(Config(handTracking = HandTrackingMode.BOTH))
+        }
+    }
+
+    @Test
+    fun configure_withInertial_throwsUnsupportedOperationException() {
+        assertFailsWith<UnsupportedOperationException> {
+            underTest.configure(Config(geospatial = androidx.xr.runtime.GeospatialMode.INERTIAL))
         }
     }
 

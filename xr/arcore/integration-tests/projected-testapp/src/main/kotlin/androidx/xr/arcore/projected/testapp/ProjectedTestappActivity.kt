@@ -73,7 +73,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
         listOf(
             "Geospatial On, 6DoF On" to
                 Config(
-                    geospatial = GeospatialMode.VPS_AND_GPS,
+                    geospatial = GeospatialMode.SPATIAL,
                     deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                 ),
             "Geospatial Off, 6DoF On" to
@@ -93,7 +93,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
                 ),
             "Geospatial On, Device Tracking Off" to
                 Config(
-                    geospatial = GeospatialMode.VPS_AND_GPS,
+                    geospatial = GeospatialMode.SPATIAL,
                     deviceTracking = DeviceTrackingMode.DISABLED,
                 ),
         )
@@ -152,7 +152,6 @@ class ProjectedTestAppActivity : ComponentActivity() {
                 sessionInitialized.await()
                 Log.i("JetpackXR", "sessionInitialized.await()")
                 geospatial = Geospatial.getInstance(session)
-                // Check VPS availability
                 checkVpsAvailability(37.422, -122.084) // Googleplex coordinates
                 while (true) {
                     update()
@@ -213,7 +212,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
             return
         }
 
-        val geoOn = currentConfig.geospatial == GeospatialMode.VPS_AND_GPS
+        val geoOn = currentConfig.geospatial == GeospatialMode.SPATIAL
         val trackingOn = currentConfig.deviceTracking != DeviceTrackingMode.DISABLED
 
         if (geoOn && trackingOn) {
