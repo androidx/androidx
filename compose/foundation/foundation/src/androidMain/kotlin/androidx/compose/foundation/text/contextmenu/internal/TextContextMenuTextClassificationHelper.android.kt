@@ -54,13 +54,17 @@ private object TextClassificationHelper34 {
     fun sendIntentAllowBackgroundActivityStart(pendingIntent: PendingIntent) {
         @Suppress("DEPRECATION")
         try {
-            pendingIntent.send(
-                ActivityOptions.makeBasic()
-                    .setPendingIntentBackgroundActivityStartMode(
-                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
-                    )
-                    .toBundle()
-            )
+            val options = ActivityOptions.makeBasic()
+            if (Build.VERSION.SDK_INT >= 36) {
+                options.setPendingIntentBackgroundActivityStartMode(
+                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_IF_VISIBLE
+                )
+            } else {
+                options.setPendingIntentBackgroundActivityStartMode(
+                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                )
+            }
+            pendingIntent.send(options.toBundle())
         } catch (e: PendingIntent.CanceledException) {
             Log.e(TAG, "error sending pendingIntent: $pendingIntent error: $e")
         }
