@@ -1101,7 +1101,7 @@ private fun IndicatorRipple(interactionSource: InteractionSource, indicatorShape
     Box(
         Modifier.layoutId(IndicatorRippleLayoutIdTag)
             .clip(indicatorShape)
-            .indication(interactionSource, ripple())
+            .indication(interactionSource, ripple(focusRingShape = indicatorShape))
     )
 }
 

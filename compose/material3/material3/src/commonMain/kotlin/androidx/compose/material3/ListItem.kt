@@ -1433,7 +1433,8 @@ private fun InteractiveListItem(
                     .clip(shape)
                     .combinedClickable(
                         interactionSource = interactionSource,
-                        indication = ripple(),
+                        indication =
+                            @OptIn(ExperimentalMaterial3Api::class) ripple(focusRingShape = shape),
                         enabled = enabled,
                         onLongClick = onLongClick,
                         onLongClickLabel = onLongClickLabel,

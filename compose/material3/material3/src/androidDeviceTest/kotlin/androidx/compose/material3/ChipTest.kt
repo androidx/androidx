@@ -1323,6 +1323,217 @@ class ChipTest {
 
         assertThat(clicked).isTrue()
     }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveFilterChip_arrangement_noIcons() {
+        rule.setMaterialContent(lightColorScheme()) {
+            FilterChip(
+                selected = false,
+                onClick = {},
+                label = { Text("Filter Chip", Modifier.testTag(TestChipTag)) },
+                shapes = FilterChipDefaults.shapes(),
+            )
+        }
+
+        // Expected position: ContentPadding.start (8.dp) + DefaultHorizontalArrangement spacing
+        // (8.dp) = 16.dp
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(16.dp)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveFilterChip_arrangement_leadingIcon() {
+        rule.setMaterialContent(lightColorScheme()) {
+            FilterChip(
+                selected = false,
+                onClick = {},
+                label = { Text("Filter Chip", Modifier.testTag(TestChipTag)) },
+                leadingIcon = {
+                    Box(Modifier.size(FilterChipDefaults.IconSize).testTag("Leading"))
+                },
+                shapes = FilterChipDefaults.shapes(),
+            )
+        }
+
+        // Expected Leading: ContentPadding.start (8.dp)
+        rule
+            .onNodeWithTag("Leading", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp)
+
+        // Expected Label: 8.dp (padding) + IconSize (18.dp) + ExpressiveHorizontalSpacing (4.dp) =
+        // 30.dp
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp + FilterChipDefaults.IconSize + 4.dp)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveFilterChip_arrangement_trailingIcon() {
+        rule.setMaterialContent(lightColorScheme()) {
+            FilterChip(
+                selected = false,
+                onClick = {},
+                label = { Text("Filter Chip", Modifier.testTag(TestChipTag)) },
+                trailingIcon = {
+                    Box(Modifier.size(FilterChipDefaults.IconSize).testTag("Trailing"))
+                },
+                shapes = FilterChipDefaults.shapes(),
+            )
+        }
+
+        // Expected Label: 8.dp (padding) + spacing2 (4.dp) = 12.dp
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp + 4.dp)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveFilterChip_arrangement_bothIcons() {
+        rule.setMaterialContent(lightColorScheme()) {
+            FilterChip(
+                selected = false,
+                onClick = {},
+                label = { Text("Filter Chip", Modifier.testTag(TestChipTag)) },
+                leadingIcon = {
+                    Box(Modifier.size(FilterChipDefaults.IconSize).testTag("Leading"))
+                },
+                trailingIcon = {
+                    Box(Modifier.size(FilterChipDefaults.IconSize).testTag("Trailing"))
+                },
+                shapes = FilterChipDefaults.shapes(),
+            )
+        }
+
+        rule
+            .onNodeWithTag("Leading", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp)
+
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp + FilterChipDefaults.IconSize + 4.dp)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveFilterChip_largeWidth_trailingIconPlacement() {
+        val chipWidth = 200.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            FilterChip(
+                selected = false,
+                onClick = {},
+                modifier = Modifier.width(chipWidth),
+                label = { Text("Filter Chip", Modifier.testTag(TestChipTag)) },
+                leadingIcon = {
+                    Box(Modifier.size(FilterChipDefaults.IconSize).testTag("Leading"))
+                },
+                trailingIcon = {
+                    Box(Modifier.size(FilterChipDefaults.IconSize).testTag("Trailing"))
+                },
+                shapes = FilterChipDefaults.shapes(),
+            )
+        }
+
+        rule
+            .onNodeWithTag("Leading", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp)
+
+        rule
+            .onNodeWithTag("Trailing", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(chipWidth - 8.dp - FilterChipDefaults.IconSize)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveInputChip_arrangement_noIcons() {
+        rule.setMaterialContent(lightColorScheme()) {
+            InputChip(
+                selected = false,
+                onClick = {},
+                label = { Text("Input Chip", Modifier.testTag(TestChipTag)) },
+                shapes = InputChipDefaults.shapes(),
+            )
+        }
+
+        // Expected position: contentPadding.start (4.dp) + DefaultHorizontalArrangement spacing
+        // (8.dp) = 12.dp
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(12.dp)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveInputChip_arrangement_leadingIcon() {
+        rule.setMaterialContent(lightColorScheme()) {
+            InputChip(
+                selected = false,
+                onClick = {},
+                label = { Text("Input Chip", Modifier.testTag(TestChipTag)) },
+                leadingIcon = { Box(Modifier.size(InputChipDefaults.IconSize).testTag("Leading")) },
+                shapes = InputChipDefaults.shapes(),
+            )
+        }
+
+        // Expected Leading: contentPadding.start (8.dp)
+        rule
+            .onNodeWithTag("Leading", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp)
+
+        // Expected Label: 8.dp (padding) + IconSize (18.dp) + ExpressiveHorizontalSpacing (4.dp) =
+        // 30.dp
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp + InputChipDefaults.IconSize + 4.dp)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveInputChip_arrangement_avatar() {
+        rule.setMaterialContent(lightColorScheme()) {
+            InputChip(
+                selected = false,
+                onClick = {},
+                label = { Text("Input Chip", Modifier.testTag(TestChipTag)) },
+                avatar = { Box(Modifier.size(InputChipDefaults.AvatarSize).testTag("Avatar")) },
+                shapes = InputChipDefaults.shapes(),
+            )
+        }
+
+        // Expected Avatar: contentPadding.start (4.dp)
+        rule.onNodeWithTag("Avatar", useUnmergedTree = true).assertLeftPositionInRootIsEqualTo(4.dp)
+
+        // Expected Label: 4.dp (padding) + AvatarSize (24.dp) + ExpressiveHorizontalSpacing (4.dp)
+        // = 32.dp
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(4.dp + InputChipDefaults.AvatarSize + 4.dp)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveInputChip_arrangement_trailingIcon() {
+        rule.setMaterialContent(lightColorScheme()) {
+            InputChip(
+                selected = false,
+                onClick = {},
+                label = { Text("Input Chip", Modifier.testTag(TestChipTag)) },
+                trailingIcon = {
+                    Box(Modifier.size(InputChipDefaults.IconSize).testTag("Trailing"))
+                },
+                shapes = InputChipDefaults.shapes(),
+            )
+        }
+
+        // Expected Label: contentPadding.start (4.dp) + spacing2 (4.dp) = 8.dp
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(4.dp + 4.dp)
+    }
 }
 
 private const val TestChipTag = "chip"

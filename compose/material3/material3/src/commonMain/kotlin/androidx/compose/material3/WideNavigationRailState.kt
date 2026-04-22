@@ -19,9 +19,7 @@ package androidx.compose.material3
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.animateTo
-import androidx.compose.foundation.gestures.snapTo
+import androidx.compose.material3.internal.MaterialAnchoredDraggableState
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -167,8 +165,8 @@ internal class ModalWideNavigationRailState(
     state: WideNavigationRailState,
     val animationSpec: AnimationSpec<Float>,
 ) : WideNavigationRailState by state {
-    internal val anchoredDraggableState: AnchoredDraggableState<WideNavigationRailValue> =
-        AnchoredDraggableState(initialValue = state.targetValue)
+    internal val anchoredDraggableState: MaterialAnchoredDraggableState<WideNavigationRailValue> =
+        MaterialAnchoredDraggableState(initialValue = state.targetValue)
 
     /**
      * The current value of the state.
@@ -178,10 +176,7 @@ internal class ModalWideNavigationRailState(
      * corresponds to the value the rail was in before the swipe or animation started.
      */
     override val currentValue: WideNavigationRailValue
-        // Note: Current Value is mapping to the newly introduced settled value for roughly
-        // analogous behavior to internal fork. anchoredDraggableState.currentValue now maps to the
-        // value the touch target is closest to, regardless of release/settling.
-        get() = anchoredDraggableState.settledValue
+        get() = anchoredDraggableState.currentValue
 
     /**
      * The target value of the dismissible modal wide navigation rail state.
@@ -210,8 +205,6 @@ internal class ModalWideNavigationRailState(
 
     /**
      * The current position (in pixels) of the rail, or Float.NaN before the offset is initialized.
-     *
-     * @see [AnchoredDraggableState.offset] for more information.
      */
     val currentOffset: Float
         get() = anchoredDraggableState.offset

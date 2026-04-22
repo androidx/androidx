@@ -22,8 +22,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
@@ -60,6 +66,39 @@ class ButtonScreenshotTest {
             .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_light_theme")
+    }
+
+    @Test
+    fun default_Button_lightTheme_focused_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+
+                Button(
+                    onClick = { /* doSomething() */ },
+                    modifier = Modifier.focusRequester(focusRequester).testTag("default button"),
+                ) {
+                    Text("Button")
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule
+            .onNodeWithTag("default button")
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "button_lightTheme_focused_insetFocusRings")
     }
 
     @Test
@@ -168,6 +207,42 @@ class ButtonScreenshotTest {
             .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "outlined_button_light_theme")
+    }
+
+    @Test
+    fun outlinedButton_lightTheme_focused_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+
+                OutlinedButton(
+                    onClick = { /* doSomething() */ },
+                    modifier = Modifier.focusRequester(focusRequester).testTag("outlined button"),
+                ) {
+                    Text("Outlined Button")
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule
+            .onNodeWithTag("outlined button")
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "outlined_button_lightTheme_focused_insetFocusRings",
+            )
     }
 
     @Test

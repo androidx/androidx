@@ -16,6 +16,24 @@
 
 package androidx.compose.material3
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
 internal actual val DefaultMenuProperties = PopupProperties(focusable = true)
+
+@Composable
+@ExperimentalMaterial3ExpressiveApi
+internal actual fun DropdownMenuPopupImpl(
+    onDismissRequest: () -> Unit,
+    popupPositionProvider: DropdownMenuPopupPositionProvider,
+    properties: PopupProperties,
+    content: @Composable (() -> Unit)
+) {
+    Popup(
+        onDismissRequest = onDismissRequest,
+        popupPositionProvider = popupPositionProvider,
+        properties = properties,
+        content = content,
+    )
+}

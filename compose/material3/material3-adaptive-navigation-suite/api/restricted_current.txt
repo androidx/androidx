@@ -66,8 +66,8 @@ package androidx.compose.material3.adaptive.navigationsuite {
     method @InaccessibleFromKotlin public androidx.compose.ui.Alignment.Horizontal getPrimaryActionContentAlignment();
     method @KotlinOnly public androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType navigationSuiteType(androidx.compose.material3.adaptive.WindowAdaptiveInfo adaptiveInfo);
     method @BytecodeOnly public String navigationSuiteType-JYfApLo(androidx.compose.material3.adaptive.WindowAdaptiveInfo);
-    property public androidx.compose.ui.graphics.Color containerColor;
-    property public androidx.compose.ui.graphics.Color contentColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color containerColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color contentColor;
     property public androidx.compose.ui.Alignment.Horizontal primaryActionContentAlignment;
     field public static final androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults INSTANCE;
   }

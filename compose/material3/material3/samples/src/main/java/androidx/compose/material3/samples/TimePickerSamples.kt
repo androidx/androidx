@@ -121,6 +121,7 @@ fun TimeInputSample() {
             onDismissRequest = { showTimePicker = false },
             confirmButton = {
                 TextButton(
+                    enabled = state.isInputValid,
                     onClick = {
                         val cal = Calendar.getInstance()
                         cal.set(Calendar.HOUR_OF_DAY, state.hour)
@@ -130,7 +131,7 @@ fun TimeInputSample() {
                             snackState.showSnackbar("Entered time: ${formatter.format(cal.time)}")
                         }
                         showTimePicker = false
-                    }
+                    },
                 ) {
                     Text("Ok")
                 }
@@ -169,6 +170,7 @@ fun TimePickerSwitchableSample() {
             onDismissRequest = { showTimePicker = false },
             confirmButton = {
                 TextButton(
+                    enabled = state.isInputValid,
                     onClick = {
                         val cal = Calendar.getInstance()
                         cal.set(Calendar.HOUR_OF_DAY, state.hour)
@@ -178,7 +180,7 @@ fun TimePickerSwitchableSample() {
                             snackState.showSnackbar("Entered time: ${formatter.format(cal.time)}")
                         }
                         showTimePicker = false
-                    }
+                    },
                 ) {
                     Text("Ok")
                 }

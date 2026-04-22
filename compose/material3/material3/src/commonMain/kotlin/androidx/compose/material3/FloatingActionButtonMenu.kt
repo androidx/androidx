@@ -550,7 +550,7 @@ private fun ToggleFloatingActionButton(
                     value = checked,
                     onValueChange = onCheckedChange,
                     interactionSource = null,
-                    indication = ripple(radius = fabRippleRadius),
+                    indication = ripple(radius = fabRippleRadius, focusRingShape = shape),
                 )
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)
