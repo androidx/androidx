@@ -282,8 +282,7 @@ internal class PdfViewAccessibilityManager(
 
         node.apply {
             contentDescription =
-                pageText?.let { getContentDescriptionForPage(pdfView.context, virtualViewId, it) }
-                    ?: getDefaultDesc(pdfView.context, virtualViewId)
+                getContentDescriptionForPage(pdfView.context, virtualViewId, pageText)
 
             setBoundsInScreenFromBoundsInParent(
                 node,
