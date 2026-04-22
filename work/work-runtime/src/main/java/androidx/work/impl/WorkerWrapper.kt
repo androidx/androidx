@@ -27,6 +27,7 @@ import androidx.work.ExecutionEventListener
 import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result.Failure
 import androidx.work.Logger
+import androidx.work.ScheduleEventListener
 import androidx.work.WorkInfo
 import androidx.work.WorkInfo.Companion.STOP_REASON_NOT_STOPPED
 import androidx.work.WorkerExceptionInfo
@@ -37,10 +38,13 @@ import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.model.generationalId
+import androidx.work.impl.model.getAllDependentWork
 import androidx.work.impl.model.getWorkInfo
+import androidx.work.impl.model.getWorkInfos
 import androidx.work.impl.utils.WorkForegroundUpdater
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.dispatchEvent
+import androidx.work.impl.utils.dispatchEvents
 import androidx.work.impl.utils.safeAccept
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.workForeground
@@ -54,7 +58,6 @@ import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
-import kotlin.collections.removeLast as removeLastKt
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
@@ -89,6 +92,8 @@ public class WorkerWrapper internal constructor(builder: Builder) {
     private val workerJob = Job()
 
     private var startedWork = false
+    private var unblockedDependents = mutableListOf<String>()
+    private var failedDependents = mutableListOf<String>()
 
     public val workGenerationalId: WorkGenerationalId
         get() = workSpec.generationalId()
@@ -148,6 +153,17 @@ public class WorkerWrapper internal constructor(builder: Builder) {
                             if (resolution.recoverable) resetWorkerStatus(STOP_REASON_NOT_STOPPED)
                             else onWorkFailed(Failure())
                 }
+                val scheduleListener = configuration.getScheduleEventListener()
+                scheduleListener?.dispatchEvents(
+                    workTaskExecutor,
+                    workSpecDao.getWorkInfos(unblockedDependents),
+                    ScheduleEventListener::onUnblocked,
+                )
+                scheduleListener?.dispatchEvents(
+                    workTaskExecutor,
+                    workSpecDao.getWorkInfos(failedDependents),
+                    ScheduleEventListener::onPrerequisiteFailed,
+                )
             }
             needsReschedule
         }
@@ -493,14 +509,16 @@ public class WorkerWrapper internal constructor(builder: Builder) {
     }
 
     private fun iterativelyFailWorkAndDependents(workSpecId: String) {
-        val idsToProcess = mutableListOf(workSpecId)
-        while (idsToProcess.isNotEmpty()) {
-            val id = idsToProcess.removeLastKt()
+        val idsToFail = mutableListOf(workSpecId)
+        idsToFail.addAll(dependencyDao.getAllDependentWork(workSpecId))
+        for (id in idsToFail) {
             // Don't fail already cancelled work.
             if (workSpecDao.getState(id) !== WorkInfo.State.CANCELLED) {
                 workSpecDao.setState(WorkInfo.State.FAILED, id)
+                if (id != workSpecId) {
+                    failedDependents.add(id)
+                }
             }
-            idsToProcess.addAll(dependencyDao.getDependentWorkIds(id))
         }
     }
 
@@ -551,6 +569,7 @@ public class WorkerWrapper internal constructor(builder: Builder) {
                 logi(TAG) { "Setting status to enqueued for $dependentWorkId" }
                 workSpecDao.setState(WorkInfo.State.ENQUEUED, dependentWorkId)
                 workSpecDao.setLastEnqueueTime(dependentWorkId, currentTimeMillis)
+                unblockedDependents.add(dependentWorkId)
             }
         }
         return false

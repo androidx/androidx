@@ -27,6 +27,7 @@ package androidx.work {
     method @InaccessibleFromKotlin public int getMinJobSchedulerId();
     method @InaccessibleFromKotlin public long getRemoteSessionTimeoutMillis();
     method @InaccessibleFromKotlin public androidx.work.RunnableScheduler getRunnableScheduler();
+    method @SuppressCompatibility @androidx.work.ExperimentalEventsApi public androidx.work.ScheduleEventListener? getScheduleEventListener();
     method @InaccessibleFromKotlin public androidx.core.util.Consumer<java.lang.Throwable>? getSchedulingExceptionHandler();
     method @InaccessibleFromKotlin public java.util.concurrent.Executor getTaskExecutor();
     method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getWorkerCoroutineContext();
@@ -70,6 +71,7 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int loggingLevel);
     method public androidx.work.Configuration.Builder setRemoteSessionTimeoutMillis(@IntRange(from=0L, to=1200000L) long timeoutMillis);
     method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler runnableScheduler);
+    method @SuppressCompatibility @androidx.work.ExperimentalEventsApi public androidx.work.Configuration.Builder setScheduleEventListener(androidx.work.ScheduleEventListener listener);
     method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable> schedulingExceptionHandler);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor taskExecutor);
     method public androidx.work.Configuration.Builder setWorkerCoroutineContext(kotlin.coroutines.CoroutineContext context);
@@ -401,6 +403,14 @@ package androidx.work {
   public interface RunnableScheduler {
     method public void cancel(Runnable);
     method public void scheduleWithDelay(@IntRange(from=0) long, Runnable);
+  }
+
+  @SuppressCompatibility @androidx.work.ExperimentalEventsApi public interface ScheduleEventListener {
+    method public default suspend Object? onCancelled(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public default suspend Object? onEnqueued(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public default suspend Object? onPrerequisiteFailed(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public default suspend Object? onUnblocked(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public default suspend Object? onUpdated(androidx.work.WorkInfo oldWorkInfo, androidx.work.WorkInfo updatedWorkInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public abstract class WorkContinuation {

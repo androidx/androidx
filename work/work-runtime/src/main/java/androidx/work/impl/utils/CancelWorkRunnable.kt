@@ -19,21 +19,41 @@ package androidx.work.impl.utils
 
 import android.app.job.JobParameters
 import androidx.work.Operation
-import androidx.work.WorkInfo
+import androidx.work.ScheduleEventListener
 import androidx.work.impl.Schedulers
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.model.getAllDependentWork
+import androidx.work.impl.model.getWorkInfos
 import androidx.work.launchOperation
 import java.util.UUID
-import kotlin.collections.removeLast as removeLastKt
 
+/** Cancel work and its dependents and dispatch schedule events */
 private fun cancel(workManagerImpl: WorkManagerImpl, workSpecId: String) {
-    iterativelyCancelWorkAndDependents(workManagerImpl.workDatabase, workSpecId)
+    val toCancel = workManagerImpl.workDatabase.getWorkToCancel(workSpecId)
+    val workSpecDao = workManagerImpl.workDatabase.workSpecDao()
+    for (id in toCancel) {
+        workSpecDao.setCancelledState(id)
+    }
     val processor = workManagerImpl.processor
     processor.stopAndCancelWork(workSpecId, JobParameters.STOP_REASON_CANCELLED_BY_APP)
     for (scheduler in workManagerImpl.schedulers) {
         scheduler.cancel(workSpecId)
     }
+    val scheduleEventListener = workManagerImpl.configuration.getScheduleEventListener()
+    scheduleEventListener?.dispatchEvents(
+        workManagerImpl.workTaskExecutor,
+        workSpecDao.getWorkInfos(toCancel),
+        ScheduleEventListener::onCancelled,
+    )
+}
+
+private fun WorkDatabase.getWorkToCancel(workSpecId: String): List<String> {
+    val workSpecDao = workSpecDao()
+    val dependencyDao = dependencyDao()
+    val toCancel = mutableListOf(workSpecId)
+    toCancel.addAll(dependencyDao.getAllDependentWork(workSpecId))
+    return toCancel.filter { id -> workSpecDao.getState(id)?.let { !it.isFinished } ?: false }
 }
 
 private fun reschedulePendingWorkers(workManagerImpl: WorkManagerImpl) {
@@ -42,21 +62,6 @@ private fun reschedulePendingWorkers(workManagerImpl: WorkManagerImpl) {
         workManagerImpl.workDatabase,
         workManagerImpl.schedulers,
     )
-}
-
-private fun iterativelyCancelWorkAndDependents(workDatabase: WorkDatabase, workSpecId: String) {
-    val workSpecDao = workDatabase.workSpecDao()
-    val dependencyDao = workDatabase.dependencyDao()
-    val idsToProcess = mutableListOf(workSpecId)
-    while (idsToProcess.isNotEmpty()) {
-        val id = idsToProcess.removeLastKt()
-        // Don't fail already cancelled work.
-        val state = workSpecDao.getState(id)
-        if (state !== WorkInfo.State.SUCCEEDED && state !== WorkInfo.State.FAILED) {
-            workSpecDao.setCancelledState(id)
-        }
-        idsToProcess.addAll(dependencyDao.getDependentWorkIds(id))
-    }
 }
 
 /**
