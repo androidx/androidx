@@ -36,6 +36,7 @@ public class ChipStyleTest {
         assertThat(style.getBackgroundColor()).isNull();
         assertThat(style.getContentColor()).isNull();
         assertThat(style.getOutlineColor()).isNull();
+        assertThat(style.getShape()).isNull();
     }
 
     @Test
@@ -63,17 +64,27 @@ public class ChipStyleTest {
     }
 
     @Test
+    public void setShape() {
+        ChipStyle style = new ChipStyle.Builder()
+                .setShape(Shape.CORNER_SMALL)
+                .build();
+        assertThat(style.getShape()).isEqualTo(Shape.CORNER_SMALL);
+    }
+
+    @Test
     public void equals() {
         ChipStyle style = new ChipStyle.Builder()
                 .setBackgroundColor(CarColor.RED)
                 .setContentColor(CarColor.BLUE)
                 .setOutlineColor(CarColor.GREEN)
+                .setShape(Shape.CORNER_SMALL)
                 .build();
 
         assertThat(new ChipStyle.Builder()
                 .setBackgroundColor(CarColor.RED)
                 .setContentColor(CarColor.BLUE)
                 .setOutlineColor(CarColor.GREEN)
+                .setShape(Shape.CORNER_SMALL)
                 .build())
                 .isEqualTo(style);
     }
@@ -105,6 +116,17 @@ public class ChipStyleTest {
                 .build();
         assertThat(new ChipStyle.Builder()
                 .setOutlineColor(CarColor.BLUE)
+                .build()
+        ).isNotEqualTo(style);
+    }
+
+    @Test
+    public void notEquals_differentShape() {
+        ChipStyle style = new ChipStyle.Builder()
+                .setShape(Shape.CORNER_SMALL)
+                .build();
+        assertThat(new ChipStyle.Builder()
+                .setShape(Shape.CORNER_LARGE)
                 .build()
         ).isNotEqualTo(style);
     }

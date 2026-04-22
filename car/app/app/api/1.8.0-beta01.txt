@@ -1430,6 +1430,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarColor? getBackgroundColor();
     method public androidx.car.app.model.CarColor? getContentColor();
     method public androidx.car.app.model.CarColor? getOutlineColor();
+    method public androidx.car.app.model.Shape? getShape();
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class ChipStyle.Builder {
@@ -1438,6 +1439,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ChipStyle.Builder setBackgroundColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.ChipStyle.Builder setContentColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.ChipStyle.Builder setOutlineColor(androidx.car.app.model.CarColor);
+    method public androidx.car.app.model.ChipStyle.Builder setShape(androidx.car.app.model.Shape);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(2) public final class ClickableSpan extends androidx.car.app.model.CarSpan {
