@@ -48,6 +48,7 @@ internal class CameraStateExtender : StateExtender {
 
     private var isInitialized = false
     private var isPlayServicesEnvironment = false
+    private var outputVerticesBuffer: FloatBuffer? = null
 
     override fun initialize(runtimes: List<JxrRuntime>) {
         isInitialized = true
@@ -69,25 +70,43 @@ internal class CameraStateExtender : StateExtender {
     internal fun close() {
         cameraStateMap.clear()
         timeMarkQueue.clear()
+        outputVerticesBuffer = null
     }
 
     private fun getTransformCoordinates2DFunction(): ((FloatBuffer) -> FloatBuffer)? =
         if (perceptionManager.displayChanged)
             { inputVertices: FloatBuffer ->
-                val outputVertices =
-                    ByteBuffer.allocateDirect(inputVertices.capacity() * 4)
-                        .order(ByteOrder.nativeOrder())
-                        .asFloatBuffer()
-                synchronized(perceptionManager.frameLock) {
-                    perceptionManager._latestFrame.transformCoordinates2d(
-                        Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
-                        inputVertices,
-                        Coordinates2d.TEXTURE_NORMALIZED,
-                        outputVertices,
-                    )
+                val originalPosition = inputVertices.position()
+                inputVertices.rewind()
+                try {
+                    val requiredCapacity = inputVertices.limit()
+                    synchronized(perceptionManager.frameLock) {
+                        var outputVertices = outputVerticesBuffer
+                        if (
+                            outputVertices == null || outputVertices.capacity() < requiredCapacity
+                        ) {
+                            outputVertices =
+                                ByteBuffer.allocateDirect(requiredCapacity * 4)
+                                    .order(ByteOrder.nativeOrder())
+                                    .asFloatBuffer()
+                            outputVerticesBuffer = outputVertices
+                        }
+                        outputVertices.clear()
+                        outputVertices.limit(requiredCapacity)
+
+                        perceptionManager._latestFrame.transformCoordinates2d(
+                            Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
+                            inputVertices,
+                            Coordinates2d.TEXTURE_NORMALIZED,
+                            outputVertices,
+                        )
+                        perceptionManager.displayChanged = false
+                        outputVertices.rewind()
+                        outputVertices
+                    }
+                } finally {
+                    inputVertices.position(originalPosition)
                 }
-                perceptionManager.displayChanged = false
-                outputVertices
             }
         else {
             null
