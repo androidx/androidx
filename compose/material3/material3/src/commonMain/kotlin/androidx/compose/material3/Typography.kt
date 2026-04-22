@@ -43,6 +43,9 @@ import androidx.compose.ui.text.font.FontFamily
  * To learn more about typography, see
  * [Material Design typography](https://m3.material.io/styles/typography/overview).
  *
+ * @sample androidx.compose.material3.samples.TypographySample
+ * @sample androidx.compose.material3.samples.TypographyCustomFontFamilySample
+ * @sample androidx.compose.material3.samples.TypographyCustomFontFamilyOverrideSample
  * @property displayLarge displayLarge is the largest display text.
  * @property displayMedium displayMedium is the second largest display text.
  * @property displaySmall displaySmall is the smallest display text.
@@ -144,6 +147,11 @@ class Typography(
      *
      * To learn more about typography, see
      * [Material Design typography](https://m3.material.io/styles/typography/overview).
+     *
+     * The [fontFamily] provided to this constructor will be used as the default font family for all
+     * text styles. Individual [TextStyle] parameters can be used to override specific styles,
+     * including their own [FontFamily]. If a [TextStyle] parameter is null, the default will be
+     * used.
      *
      * @param fontFamily the [FontFamily] to be used for the typography.
      * @param displayLarge displayLarge is the largest display text.
@@ -267,6 +275,23 @@ class Typography(
         labelMediumEmphasized = labelMediumEmphasized,
         labelSmallEmphasized = labelSmallEmphasized,
     )
+
+    /**
+     * The Material Design type scale includes a range of contrasting styles that support the needs
+     * of your product and its content.
+     *
+     * Use typography to make writing legible and beautiful. Material's default type scale includes
+     * contrasting and flexible styles to support a wide range of use cases.
+     *
+     * The type scale is a combination of thirteen styles that are supported by the type system. It
+     * contains reusable categories of text, each with an intended application and meaning.
+     *
+     * To learn more about typography, see
+     * [Material Design typography](https://m3.material.io/styles/typography/overview).
+     *
+     * @param fontFamily the [FontFamily] to be used for the typography.
+     */
+    constructor(fontFamily: FontFamily) : this(fontFamily = fontFamily, displayLarge = null)
 
     private constructor(
         tokens: TypographyTokens,

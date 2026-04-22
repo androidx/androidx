@@ -578,6 +578,20 @@ private val TopAppBar =
         examples = TopAppBarExamples,
     )
 
+private val Typography =
+    Component(
+        id = nextId(),
+        name = "Typography",
+        description =
+            "The Material Design type scale includes a range of contrasting styles that " +
+                "support the needs of your product and its content.",
+        // No typography icon
+        guidelinesUrl = "$StyleGuidelinesUrl/typography",
+        docsUrl = "$PackageSummaryUrl#typography",
+        sourceUrl = "$Material3SourceUrl/Typography.kt",
+        examples = TypographyExamples,
+    )
+
 /** Components for the catalog, ordered alphabetically by name. */
 val Components =
     listOf(
@@ -621,4 +635,5 @@ val Components =
         ToggleButtons,
         Tooltips,
         TopAppBar,
+        Typography,
     )
