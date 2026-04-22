@@ -58,7 +58,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.input.TextFieldValue
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
@@ -119,6 +121,29 @@ actual fun DragAndDropExample() {
             contentAlignment = Alignment.Center
         ) {
             Text("Clickable and Draggable", color = Color.White)
+        }
+
+        var textFieldValue by remember { mutableStateOf(TextFieldValue("Drag me")) }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
+                .dragAndDropSource { _: Offset ->
+                    val dataTransfer = createDataTransfer()
+                    dataTransfer.setData("text/plain", textFieldValue.text)
+                    DragAndDropTransferData(dataTransfer)
+                }
+                .background(Color(0xFFE0E0E0))
+                .border(BorderStroke(1.dp, Color.DarkGray))
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            TextField(
+                value = textFieldValue,
+                onValueChange = { textFieldValue = it },
+                label = { Text("Draggable text input") }
+            )
         }
 
         val dragAndDropTarget = remember {
