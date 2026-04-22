@@ -20,9 +20,7 @@ import android.os.CancellationSignal;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.ServiceWorkerController;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebStorage;
-import android.webkit.WebView;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntRange;
@@ -389,114 +387,6 @@ public interface Profile {
     void warmUpRendererProcess();
 
     /**
-     * Denotes that the OriginMatchedHeader API surface is experimental.
-     * It may change without warning.
-     */
-    @Retention(RetentionPolicy.CLASS)
-    @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
-    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-    @interface ExperimentalOriginMatchedHeader {
-    }
-
-    /**
-     * Set a custom header to be applied to HTTP requests to the specified origins.
-     * <p>
-     * It applies to all requests that are initiated after this method is called, including
-     * prefetch requests and requests sent from service workers.
-     * It does <em>not</em> apply the header to WebSocket requests.
-     *
-     * <p>Headers added through this API will be present in the set returned by
-     * {@link WebResourceRequest#getRequestHeaders()} provided in
-     * {@link android.webkit.WebViewClient#shouldInterceptRequest(WebView, WebResourceRequest)}
-     * and {@link android.webkit.ServiceWorkerClient#shouldInterceptRequest(WebResourceRequest)}.
-     * <p>
-     * Calling this method again with the same {@code headerName} parameter will overwrite any
-     * previously set mapping.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#ORIGIN_MATCHED_HEADERS}.
-     *
-     * @param headerName  A
-     *                    <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-3.2">valid HTTP header name string</a>
-     * @param headerValue A
-     *                    <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-3.2">valid HTTP value name string</a>
-     * @param originRules a set of origin rules following the same format as
-     *                    {@link WebViewCompat#addWebMessageListener}
-     * @throws UnsupportedOperationException if the {@link WebViewFeature#ORIGIN_MATCHED_HEADERS}
-     *                                       feature is not supported.
-     */
-    @RequiresFeature(name = WebViewFeature.ORIGIN_MATCHED_HEADERS,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @UiThread
-    @ExperimentalOriginMatchedHeader
-    void setOriginMatchedHeader(@NonNull String headerName,
-            @NonNull String headerValue, @NonNull Set<String> originRules);
-
-    /**
-     * Returns true if the profile has a value set for the given header name.
-     *
-     * <p>This method is case sensitive.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#ORIGIN_MATCHED_HEADERS}.
-     *
-     * @param headerName A
-     *                   <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-3.2">valid HTTP header name string</a>
-     * @return {@code true} if there is a value mapped for the provided {@code
-     * headerName}, {code false} otherwise.
-     * @see #setOriginMatchedHeader(String, String, Set)
-     * @throws UnsupportedOperationException if the {@link WebViewFeature#ORIGIN_MATCHED_HEADERS}
-     *                                       feature is not supported.
-     */
-    @RequiresFeature(name = WebViewFeature.ORIGIN_MATCHED_HEADERS,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @UiThread
-    @ExperimentalOriginMatchedHeader
-    boolean hasOriginMatchedHeader(@NonNull String headerName);
-
-    /**
-     * Removes the specified header from the set of headers attached to requests.
-     * <p>
-     * It is safe to call this method even if {@code headerName} has not previously been set via
-     * {@link #setOriginMatchedHeader(String, String, Set)}
-     *
-     * <p>This method is case sensitive.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#ORIGIN_MATCHED_HEADERS}.
-     *
-     * @param headerName Header to remove.
-     * @see #setOriginMatchedHeader(String, String, Set)
-     * @throws UnsupportedOperationException if the {@link WebViewFeature#ORIGIN_MATCHED_HEADERS}
-     *                                       feature is not supported.
-     */
-    @RequiresFeature(name = WebViewFeature.ORIGIN_MATCHED_HEADERS,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @UiThread
-    @ExperimentalOriginMatchedHeader
-    void clearOriginMatchedHeader(@NonNull String headerName);
-
-    /**
-     * Remove any currently set headers from being applied to network requests.
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#ORIGIN_MATCHED_HEADERS}.
-     *
-     * @see #setOriginMatchedHeader(String, String, Set)
-     * @throws UnsupportedOperationException if the {@link WebViewFeature#ORIGIN_MATCHED_HEADERS}
-     *                                       feature is not supported.
-     */
-    @RequiresFeature(name = WebViewFeature.ORIGIN_MATCHED_HEADERS,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @UiThread
-    @ExperimentalOriginMatchedHeader
-    void clearAllOriginMatchedHeaders();
-
-    /**
      * Add a header for outgoing requests that match the given origin rules.
      * <p>
      * It applies to all requests that are initiated after this method is called,
@@ -563,8 +453,7 @@ public interface Profile {
     }
 
     /**
-     * Returns all custom headers set with {@link #addCustomHeader(CustomHeader)} or
-     * {@link #setOriginMatchedHeader(String, String, Set)}.
+     * Returns all custom headers set with {@link #addCustomHeader(CustomHeader)}.
      * <p>
      * This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
@@ -582,8 +471,8 @@ public interface Profile {
     }
 
     /**
-     * Returns all custom headers set with {@link #addCustomHeader(CustomHeader)} or
-     * {@link #setOriginMatchedHeader(String, String, Set)} which have the specified {@code name}.
+     * Returns all custom headers set with {@link #addCustomHeader(CustomHeader)} which have the
+     * specified {@code name}.
      *
      * <p>This method is case insensitive.
      * <p>
@@ -605,9 +494,8 @@ public interface Profile {
     }
 
     /**
-     * Returns all custom headers set with {@link #addCustomHeader(CustomHeader)} or
-     * {@link #setOriginMatchedHeader(String, String, Set)} which have the specified {@code name}
-     * and {@code value}.
+     * Returns all custom headers set with {@link #addCustomHeader(CustomHeader)} which have the
+     * specified {@code name} and {@code value}.
      *
      * <p>This method is case insensitive for {@code name} but case-sensitive for {@code value}.
      * <p>
@@ -635,8 +523,7 @@ public interface Profile {
      * remove all configured headers that match {@code headerName}.
      * <p>
      * It is safe to call this method even if {@code headerName} has not previously been set via
-     * {@link #addCustomHeader(CustomHeader)} or
-     * {@link #setOriginMatchedHeader(String, String, Set)}.
+     * {@link #addCustomHeader(CustomHeader)}.
      *
      * <p>This method is case insensitive.
      * <p>
@@ -661,9 +548,7 @@ public interface Profile {
      * Removes the specified header from the set of headers attached to requests.
      * <p>
      * It is safe to call this method even if {@code (headerName, headerValue)} has not
-     * previously been set via
-     * {@link #addCustomHeader(CustomHeader)} or
-     * {@link #setOriginMatchedHeader(String, String, Set)}.
+     * previously been set via {@link #addCustomHeader(CustomHeader)}.
      *
      * <p>This method is case insensitive for {@code name} but case-sensitive for {@code value}.
      * <p>
@@ -693,7 +578,6 @@ public interface Profile {
      * {@link WebViewFeature#CUSTOM_REQUEST_HEADERS}.
      *
      * @see #addCustomHeader(CustomHeader)
-     * @see #setOriginMatchedHeader(String, String, Set)
      * @throws UnsupportedOperationException if the
      *                                       {@link WebViewFeature#CUSTOM_REQUEST_HEADERS}
      *                                       feature is not supported.
