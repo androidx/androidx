@@ -522,6 +522,9 @@ public fun WorkSpecDao.getWorkStatusPojoFlowForTag(
 
 public fun WorkSpecDao.getWorkInfo(id: String): WorkInfo? = getWorkStatusPojoForId(id)?.toWorkInfo()
 
+internal fun WorkSpecDao.getWorkInfos(ids: List<String>): List<WorkInfo> =
+    getWorkStatusPojoForIds(ids).map { it.toWorkInfo() }
+
 internal fun Flow<List<WorkSpec.WorkInfoPojo>>.dedup(
     dispatcher: CoroutineDispatcher
 ): Flow<List<WorkInfo>> =

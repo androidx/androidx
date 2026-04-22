@@ -88,6 +88,7 @@ dependencies {
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.mockitoKotlin)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-runtime"))
     testImplementation(libs.junit)

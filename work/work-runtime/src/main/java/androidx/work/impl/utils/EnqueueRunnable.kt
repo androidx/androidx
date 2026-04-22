@@ -17,9 +17,9 @@ package androidx.work.impl.utils
 
 import android.text.TextUtils
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.work.ExistingWorkPolicy
 import androidx.work.Logger
+import androidx.work.ScheduleEventListener
 import androidx.work.WorkInfo
 import androidx.work.WorkRequest
 import androidx.work.impl.Schedulers
@@ -28,6 +28,7 @@ import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.model.Dependency
 import androidx.work.impl.model.WorkName
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.model.getWorkInfos
 
 /** Manages the enqueuing of a [WorkContinuationImpl]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -44,13 +45,9 @@ public object EnqueueRunnable {
         }
     }
 
-    /**
-     * Adds the [WorkSpec]'s to the datastore, parent first. Schedules work on the background
-     * scheduler, if transaction is successful.
-     */
-    @VisibleForTesting
+    /** Adds the [WorkSpec]'s to the datastore, parent first. */
     @Suppress("deprecation")
-    public fun addToDatabase(workContinuation: WorkContinuationImpl): Boolean {
+    private fun addToDatabase(workContinuation: WorkContinuationImpl): Boolean {
         val workManagerImpl = workContinuation.workManagerImpl
         val workDatabase = workManagerImpl.workDatabase
         workDatabase.beginTransaction()
@@ -69,8 +66,7 @@ public object EnqueueRunnable {
     }
 
     /** Schedules work on the background scheduler. */
-    @VisibleForTesting
-    public fun scheduleWorkInBackground(workContinuation: WorkContinuationImpl) {
+    private fun scheduleWorkInBackground(workContinuation: WorkContinuationImpl) {
         val workManager = workContinuation.workManagerImpl
         Schedulers.schedule(
             workManager.configuration,
@@ -129,6 +125,8 @@ public object EnqueueRunnable {
         name: String?,
         existingWorkPolicy: ExistingWorkPolicy,
     ): Boolean {
+        val scheduleListener = workManagerImpl.configuration.getScheduleEventListener()
+        val taskExecutor = workManagerImpl.workTaskExecutor
         var prerequisiteIds = prerequisiteIds
         var needsScheduling = false
 
@@ -199,6 +197,16 @@ public object EnqueueRunnable {
                             val workSpecDao = workDatabase.workSpecDao()
                             val idAndStates: List<WorkSpec.IdAndState> =
                                 workSpecDao.getWorkSpecIdAndStatesForName(name)
+                            val ids = idAndStates.map { (id, _) -> id }
+                            // Modify the snapshot to have the cancelled state since we're avoiding
+                            // the unnecessary database cancel.
+                            scheduleListener?.dispatchEvents(
+                                taskExecutor,
+                                workSpecDao.getWorkStatusPojoForIds(ids).map {
+                                    it.copy(state = WorkInfo.State.CANCELLED).toWorkInfo()
+                                },
+                                ScheduleEventListener::onCancelled,
+                            )
                             for (idAndState in idAndStates) {
                                 workSpecDao.delete(idAndState.id)
                             }
@@ -281,6 +289,42 @@ public object EnqueueRunnable {
             workDatabase.workTagDao().insertTags(work.stringId, work.tags)
             if (isNamed) {
                 workDatabase.workNameDao().insert(WorkName(name!!, work.stringId))
+            }
+        }
+        if (scheduleListener != null) {
+            val workSnapshots =
+                workDatabase.workSpecDao().getWorkInfos(workList.map { it.stringId })
+            for (work in workSnapshots) {
+                scheduleListener.dispatchEvent(
+                    taskExecutor,
+                    work,
+                    ScheduleEventListener::onEnqueued,
+                )
+                when (work.state) {
+                    WorkInfo.State.ENQUEUED -> {
+                        // WorkInfo.State.ENQUEUED specifically means not BLOCKED so unblocked...
+                        scheduleListener.dispatchEvent(
+                            taskExecutor,
+                            work,
+                            ScheduleEventListener::onUnblocked,
+                        )
+                    }
+                    WorkInfo.State.FAILED -> {
+                        scheduleListener.dispatchEvent(
+                            taskExecutor,
+                            work,
+                            ScheduleEventListener::onPrerequisiteFailed,
+                        )
+                    }
+                    WorkInfo.State.CANCELLED -> {
+                        scheduleListener.dispatchEvent(
+                            taskExecutor,
+                            work,
+                            ScheduleEventListener::onCancelled,
+                        )
+                    }
+                    else -> {}
+                }
             }
         }
         return needsScheduling

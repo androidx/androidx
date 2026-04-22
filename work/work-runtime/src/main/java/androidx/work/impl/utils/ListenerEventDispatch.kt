@@ -17,6 +17,7 @@
 package androidx.work.impl.utils
 
 import androidx.work.ExecutionEventListener
+import androidx.work.ScheduleEventListener
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import kotlinx.coroutines.launch
 
@@ -36,5 +37,36 @@ internal fun <T1, T2> ExecutionEventListener.dispatchEvent(
 ) {
     taskExecutor.coroutineScope.launch(taskExecutor.eventListenerDispatcher) {
         block(snapshotData1, snapshotData2)
+    }
+}
+
+internal fun <T> ScheduleEventListener.dispatchEvent(
+    taskExecutor: TaskExecutor,
+    snapshotData: T,
+    block: suspend ScheduleEventListener.(T) -> Unit,
+) {
+    taskExecutor.coroutineScope.launch(taskExecutor.eventListenerDispatcher) { block(snapshotData) }
+}
+
+internal fun <T1, T2> ScheduleEventListener.dispatchEvent(
+    taskExecutor: TaskExecutor,
+    snapshotData1: T1,
+    snapshotData2: T2,
+    block: suspend ScheduleEventListener.(T1, T2) -> Unit,
+) {
+    taskExecutor.coroutineScope.launch(taskExecutor.eventListenerDispatcher) {
+        block(snapshotData1, snapshotData2)
+    }
+}
+
+internal fun <T> ScheduleEventListener.dispatchEvents(
+    taskExecutor: TaskExecutor,
+    snapshotData: List<T>,
+    block: suspend ScheduleEventListener.(T) -> Unit,
+) {
+    taskExecutor.coroutineScope.launch(taskExecutor.eventListenerDispatcher) {
+        for (snapshot in snapshotData) {
+            block(snapshot)
+        }
     }
 }

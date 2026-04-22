@@ -19,6 +19,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlin.collections.removeLast as removeLastKt
 
 /** The Data Access Object for [Dependency]. */
 @Dao
@@ -71,4 +72,16 @@ public interface DependencyDao {
      */
     @Query("SELECT COUNT(*)>0 FROM dependency WHERE prerequisite_id=:id")
     public fun hasDependents(id: String): Boolean
+}
+
+/** Get all dependent work, including dependents of dependents. */
+public fun DependencyDao.getAllDependentWork(id: String): List<String> {
+    val dependentWork = mutableSetOf<String>()
+    val idsToProcess = getDependentWorkIds(id).toMutableList()
+    while (idsToProcess.isNotEmpty()) {
+        val id = idsToProcess.removeLastKt()
+        dependentWork.add(id)
+        idsToProcess.addAll(getDependentWorkIds(id))
+    }
+    return dependentWork.toList()
 }
