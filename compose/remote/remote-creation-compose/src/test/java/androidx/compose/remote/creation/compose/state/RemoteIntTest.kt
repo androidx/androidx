@@ -27,6 +27,7 @@ import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import com.google.common.truth.Truth.assertThat
 import java.text.DecimalFormat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -52,8 +53,14 @@ class RemoteIntTest {
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
-    val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
     val time = RemoteInt.createNamedRemoteInt("time", 100).createReference()
+    lateinit var creationState: RemoteComposeCreationState
+
+    @Before
+    fun setUp() {
+        // Necessary for test isolation.
+        creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
+    }
 
     @Test
     fun addition() {
@@ -644,6 +651,37 @@ class RemoteIntTest {
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(exprId)).isEqualTo(51)
+    }
+
+    @Test
+    fun sharedExpressionReferenced() {
+        val a = (time + 123) * 456
+        val b = a + 789
+
+        // Write 'a' to document first to ensure it's in the document and hasBeenWrittenToDoc
+        // returns true
+        a.getIdForCreationState(creationState)
+        assertThat(a.hasBeenWrittenToDoc(creationState)).isTrue()
+
+        // Now 'b' should reference 'a' instead of inlining it
+        val bArray = b.arrayForCreationState(creationState)
+
+        // Expected bArray: [ID_A, 789, ADD] -> size 3
+        // If inlined: [TIME, 123, ADD, 456, MUL, 789, ADD] -> size 7
+        assertThat(bArray.size).isEqualTo(3)
+        assertThat(bArray[0]).isEqualTo(a.getLongIdForCreationState(creationState))
+    }
+
+    @Test
+    fun unsharedExpressionInlined() {
+        val a = (time + 123) * 456
+        val b = a + 789
+
+        // 'b' should inline 'a' instead
+        val bArray = b.arrayForCreationState(creationState)
+
+        // Expected bArray: [TIME, 123, ADD, 456, MUL, 789, ADD] -> size 7
+        assertThat(bArray.size).isEqualTo(7)
     }
 
     private fun getOperationsStrings(): List<String> =
