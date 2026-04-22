@@ -663,7 +663,7 @@ open class GlanceAppWidgetReceiverTest {
         val file = context.dataStoreFile(layoutDatastoreKey(appWidgetId))
         assertThat(file.exists())
 
-        val isDeleted = LayoutConfiguration.delete(context, glanceId)
+        val isDeleted = runBlocking { LayoutConfiguration.delete(context, glanceId) }
         assertThat(isDeleted).isTrue()
     }
 
