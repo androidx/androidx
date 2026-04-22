@@ -47,6 +47,18 @@ public final class androidx/navigation/compose/ComposeNavigatorDestinationBuilde
 	public final fun setSizeTransform (Lkotlin/jvm/functions/Function1;)V
 }
 
+public final class androidx/navigation/compose/DefaultNavTransitions {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/navigation/compose/DefaultNavTransitions;
+	public final fun getEnterTransition ()Lkotlin/jvm/functions/Function1;
+	public final fun getExitTransition ()Lkotlin/jvm/functions/Function1;
+	public final fun getPredictivePopEnterTransition ()Lkotlin/jvm/functions/Function2;
+	public final fun getPredictivePopExitTransition ()Lkotlin/jvm/functions/Function2;
+	public final fun getSizeTransform ()Lkotlin/jvm/functions/Function1;
+	public final fun popEnterTransition (Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function1;
+	public final fun popExitTransition (Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function1;
+}
+
 public final class androidx/navigation/compose/DialogHostKt {
 	public static final fun DialogHost (Landroidx/navigation/compose/DialogNavigator;Landroidx/compose/runtime/Composer;I)V
 }
