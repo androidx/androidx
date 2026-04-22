@@ -1411,14 +1411,14 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
-    public int storeBitmapUrl(int imageId, @NonNull String url) {
+    public int storeBitmapUrl(int imageId, @NonNull String url, int width, int height) {
         addOperation(
                 new BitmapData(
                         imageId,
                         BitmapData.TYPE_PNG,
-                        (short) 1,
+                        (short) width,
                         BitmapData.ENCODING_URL,
-                        (short) 1,
+                        (short) height,
                         url.getBytes(StandardCharsets.UTF_8)));
         return imageId;
     }
