@@ -4,26 +4,6 @@ apply from: "${buildscript.sourceFile.parent}/kotlin-dsl-dependency.gradle"
 // copy findGradleKotlinDsl to a local variable: https://github.com/gradle/gradle/issues/26057
 def findGradleKotlinDsl = project.findGradleKotlinDsl
 
-configurations {
-    // TODO(b/410631668): Migrate away from using internal API in binary compatibility validator
-    // Until we migrate, use the configuration below. It removes need for suppressing
-    // INVISIBLE_REFERENCE and INVISIBLE_MEMBER in the
-    // :binarycompatibilityvalidator:binarycompatibilityvalidator module.
-    // IDE does not support this configuration yet, so you will still see references to internal
-    // members marked as an error
-    friends {
-        canBeResolved = true
-        canBeConsumed = false
-        transitive = false
-        attributes {
-            attribute(
-                    Attribute.of("artifactType", String), "jar"
-            )
-        }
-    }
-    compileOnly.extendsFrom(friends)
-}
-
 dependencies {
 
     // Gradle APIs
@@ -35,7 +15,7 @@ dependencies {
 
     // Plugins we use and configure
     api(libs.kotlinGradlePlugin)
-    friends(libs.kotlinCompiler) // for binaryCompatibilityValidator
+    compileOnly(libs.kotlinCompiler) // for binaryCompatibilityValidator
     implementation(libs.androidGradlePluginApi)
     runtimeOnly(libs.androidGradlePlugin)
     implementation(libs.androidToolsCommon) // for com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
@@ -45,6 +25,7 @@ dependencies {
     runtimeOnly(libs.androidKotlinMultiplatform)
     runtimeOnly(libs.androidLegacyKaptPlugin)
     compileOnly(libs.kotlinAbiTools)
+    implementation(libs.kotlinAbiToolsApi)
 
     // For Room Gradle Plugin
     implementation(libs.kspGradlePlugin) {
