@@ -39,7 +39,7 @@ configurations {
 }
 
 dependencies {
-    compileOnly("com.android.tools.build:gradle-api:8.4.2")
+    compileOnly("com.android.tools.build:gradle-api:8.5.2")
     implementation(project(":navigation:navigation-safe-args-generator"))
     implementation(gradleApi())
     implementation(libs.gson)
@@ -48,10 +48,10 @@ dependencies {
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.hamcrestCore)
     testImplementation(libs.junit)
-    testPlugin("com.android.tools.build:gradle:8.4.2")
-    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950")
-    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950:linux")
-    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950:osx")
+    testPlugin("com.android.tools.build:gradle:8.5.2")
+    testPlugin("com.android.tools.build:aapt2:8.5.2-11315950")
+    testPlugin("com.android.tools.build:aapt2:8.5.2-11315950:linux")
+    testPlugin("com.android.tools.build:aapt2:8.5.2-11315950:osx")
     testPlugin(libs.kotlinGradlePlugin)
 }
 
