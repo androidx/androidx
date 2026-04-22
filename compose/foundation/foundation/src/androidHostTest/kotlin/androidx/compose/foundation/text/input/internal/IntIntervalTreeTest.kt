@@ -302,7 +302,7 @@ class IntIntervalTreeTest {
         val random = Random(42)
 
         repeat(1000) {
-            val op = random.nextInt(4)
+            val op = random.nextInt(6)
             when (op) {
                 0 -> { // Add
                     val start = random.nextInt(0, 100)
@@ -342,9 +342,123 @@ class IntIntervalTreeTest {
                     reference.mapIntervals(start, end, mapper)
                     verifyIntegrity(tree)
                 }
+                4 -> { // nextTransition
+                    val start = random.nextInt(0, 100)
+                    val limit = random.nextInt(start, 120)
+                    assertThat(tree.nextTransition(start, limit))
+                        .isEqualTo(reference.nextTransition(start, limit))
+                }
+                5 -> { // previousTransition
+                    val start = random.nextInt(0, 120)
+                    val limit = random.nextInt(0, start + 1)
+                    assertThat(tree.previousTransition(start, limit))
+                        .isEqualTo(reference.previousTransition(start, limit))
+                }
             }
         }
         assertThat(tree.getAllStyles()).isEqualTo(reference.getAllStyles())
+    }
+
+    @Test
+    fun testTransitions() {
+        val buffer = IntIntervalTree<String>()
+        buffer.addIntervalAndVerifyIntegrity("a", 0, 5)
+        buffer.addIntervalAndVerifyIntegrity("b", 3, 7)
+
+        // Transitions are at 0, 3, 5, 7
+        assertThat(buffer.nextTransition(0, 10)).isEqualTo(3)
+        assertThat(buffer.nextTransition(3, 10)).isEqualTo(5)
+        assertThat(buffer.nextTransition(5, 10)).isEqualTo(7)
+        assertThat(buffer.nextTransition(7, 10)).isEqualTo(10)
+
+        assertThat(buffer.previousTransition(10, 0)).isEqualTo(7)
+        assertThat(buffer.previousTransition(7, 0)).isEqualTo(5)
+        assertThat(buffer.previousTransition(5, 0)).isEqualTo(3)
+        assertThat(buffer.previousTransition(3, 0)).isEqualTo(0)
+    }
+
+    @Test
+    fun testTransitions_noChange() {
+        val buffer = IntIntervalTree<String>()
+        buffer.addIntervalAndVerifyIntegrity("a", 1, 5)
+
+        assertThat(buffer.nextTransition(1, 3)).isEqualTo(3)
+        assertThat(buffer.previousTransition(5, 3)).isEqualTo(3)
+    }
+
+    @Test
+    fun testTransitions_limit() {
+        val buffer = IntIntervalTree<String>()
+        buffer.addIntervalAndVerifyIntegrity("a", 10, 20)
+
+        // Next transition is 10, but limit is 5.
+        // The search should be bounded by limit, returning limit (5)
+        assertThat(buffer.nextTransition(0, 5)).isEqualTo(5)
+
+        // Next transition is 10, limit is 15.
+        // The search finds the transition before limit, returning 10.
+        assertThat(buffer.nextTransition(0, 15)).isEqualTo(10)
+
+        // Previous transition is 20, but limit is 25.
+        // The search going backwards is bounded by limit, returning limit (25)
+        assertThat(buffer.previousTransition(30, 25)).isEqualTo(25)
+
+        // Previous transition is 20, limit is 15.
+        // The search finds the transition before limit, returning 20.
+        assertThat(buffer.previousTransition(30, 15)).isEqualTo(20)
+    }
+
+    @Test
+    fun testTransitions_overlapping() {
+        val buffer = IntIntervalTree<String>()
+        buffer.addIntervalAndVerifyIntegrity("a", 10, 20)
+        buffer.addIntervalAndVerifyIntegrity("b", 15, 25)
+
+        assertThat(buffer.nextTransition(0, 30)).isEqualTo(10)
+        assertThat(buffer.nextTransition(10, 30)).isEqualTo(15)
+        assertThat(buffer.nextTransition(15, 30)).isEqualTo(20)
+        assertThat(buffer.nextTransition(20, 30)).isEqualTo(25)
+
+        assertThat(buffer.previousTransition(30, 0)).isEqualTo(25)
+        assertThat(buffer.previousTransition(25, 0)).isEqualTo(20)
+        assertThat(buffer.previousTransition(20, 0)).isEqualTo(15)
+        assertThat(buffer.previousTransition(15, 0)).isEqualTo(10)
+    }
+
+    @Test
+    fun testTransitions_nested() {
+        val buffer = IntIntervalTree<String>()
+        buffer.addIntervalAndVerifyIntegrity("a", 10, 30)
+        buffer.addIntervalAndVerifyIntegrity("b", 15, 25)
+
+        assertThat(buffer.nextTransition(0, 40)).isEqualTo(10)
+        assertThat(buffer.nextTransition(10, 40)).isEqualTo(15)
+        assertThat(buffer.nextTransition(15, 40)).isEqualTo(25)
+        assertThat(buffer.nextTransition(25, 40)).isEqualTo(30)
+
+        assertThat(buffer.previousTransition(40, 0)).isEqualTo(30)
+        assertThat(buffer.previousTransition(30, 0)).isEqualTo(25)
+        assertThat(buffer.previousTransition(25, 0)).isEqualTo(15)
+        assertThat(buffer.previousTransition(15, 0)).isEqualTo(10)
+    }
+
+    @Test
+    fun testTransitions_potentialTransitions_withIdenticalStyles() {
+        val buffer = IntIntervalTree<String>()
+        // Two identical styles applied to overlapping ranges.
+        // The final merged style would be continuous "bold" from 0 to 7,
+        // but the tree should report all potential transition points.
+        buffer.addIntervalAndVerifyIntegrity("bold", 0, 5)
+        buffer.addIntervalAndVerifyIntegrity("bold", 3, 7)
+
+        // Transitions should be at 0, 3, 5, 7
+        assertThat(buffer.nextTransition(0, 10)).isEqualTo(3)
+        assertThat(buffer.nextTransition(3, 10)).isEqualTo(5)
+        assertThat(buffer.nextTransition(5, 10)).isEqualTo(7)
+
+        assertThat(buffer.previousTransition(7, 0)).isEqualTo(5)
+        assertThat(buffer.previousTransition(5, 0)).isEqualTo(3)
+        assertThat(buffer.previousTransition(3, 0)).isEqualTo(0)
     }
 }
 
@@ -396,6 +510,32 @@ internal class ReferenceIntervalBuffer<T> {
                 }
             }
         }
+    }
+
+    fun nextTransition(start: Int, limit: Int): Int {
+        var minTransition = limit
+        for ((_, s, e) in intervals) {
+            if (s > start && s < minTransition) {
+                minTransition = s
+            }
+            if (e > start && e < minTransition) {
+                minTransition = e
+            }
+        }
+        return minTransition
+    }
+
+    fun previousTransition(start: Int, limit: Int): Int {
+        var maxTransition = limit
+        for ((_, s, e) in intervals) {
+            if (s < start && s > maxTransition) {
+                maxTransition = s
+            }
+            if (e < start && e > maxTransition) {
+                maxTransition = e
+            }
+        }
+        return maxTransition
     }
 }
 

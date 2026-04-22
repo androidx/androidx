@@ -459,6 +459,101 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         }
     }
 
+    /**
+     * Finds the next transition point (the start or end of any interval) from the given [start] up
+     * to the [limit].
+     *
+     * A transition represents a position where the applied interval items (e.g., text styles) might
+     * potentially change. For example, if there are two overlapping intervals on `[0, 5)` and `[3,
+     * 7)`, the transitions are at `0, 3, 5, 7`.
+     *
+     * @param start The index to start searching from (exclusive).
+     * @param limit The maximum index to search up to (inclusive). If no transition is found before
+     *   this index, [limit] is returned.
+     * @return The index of the next transition, or [limit] if none exists.
+     */
+    fun nextTransition(start: Int, limit: Int): Int {
+        require(limit >= start) { "limit ($limit) cannot be less than start ($start)" }
+        if (limit == start) return limit
+        return nextTransition(root, start, limit)
+    }
+
+    private fun nextTransition(node: Node, start: Int, limit: Int): Int {
+        // If the entire subtree is beyond the current limit, or entirely before the start,
+        // it cannot contain any transitions in (start, limit).
+        if (limit <= node.min || node.max <= start) return limit
+
+        return if (start < node.start) {
+            // [start] is strictly before this node.
+            // Since this is a BST, node.right.min >= node.start, meaning the right subtree
+            // cannot possibly contain a transition closer than node.start.
+            // Thus, we only need to check the left subtree, bounded by node.start.
+            val newLimit = min(limit, node.start)
+            min(node.start, nextTransition(node.left, start, newLimit))
+        } else if (start < node.end) {
+            // [start] is within this node's range.
+            // node.end is a valid transition candidate.
+            val newLimit = min(node.end, limit)
+            // Both subtrees could have transitions in (start, node.end). The left subtree
+            // might have interval ends > start, and the right subtree might have starts/ends >
+            // start.
+            val leftLimit = nextTransition(node.left, start, newLimit)
+            min(leftLimit, nextTransition(node.right, start, leftLimit))
+        } else {
+            // [start] is after this node. The node itself provides no valid next transition.
+            // However, its children might (e.g., left subtree might have ends > start,
+            // right subtree might have starts/ends > start). We must search both.
+            val leftLimit = nextTransition(node.left, start, limit)
+            min(leftLimit, nextTransition(node.right, start, leftLimit))
+        }
+    }
+
+    /**
+     * Finds the previous transition point (the start or end of any interval) from the given [start]
+     * down to the [limit].
+     *
+     * A transition represents a position where the applied interval items (e.g., text styles) might
+     * potentially change. For example, if there are two overlapping intervals on `[0, 5)` and `[3,
+     * 7)`, the transitions are at `0, 3, 5, 7`.
+     *
+     * @param start The index to start searching backwards from (exclusive).
+     * @param limit The minimum index to search down to (inclusive). If no transition is found
+     *   before this index, [limit] is returned.
+     * @return The index of the previous transition, or [limit] if none exists.
+     */
+    fun previousTransition(start: Int, limit: Int): Int {
+        require(limit <= start) { "limit ($limit) cannot be greater than start ($start)" }
+        if (limit == start) return limit
+        return previousTransition(root, start, limit)
+    }
+
+    private fun previousTransition(node: Node, start: Int, limit: Int): Int {
+        // If the entire subtree is before the current limit, or entirely after the start,
+        // it cannot contain any transitions in (limit, start).
+        if (start <= node.min || node.max <= limit) return limit
+
+        return if (start <= node.start) {
+            // [start] is before or at this node's start. This node and its right subtree
+            // (where all starts >= node.start) cannot possibly offer a transition strictly < start.
+            // We only need to search the left subtree.
+            previousTransition(node.left, start, limit)
+        } else if (start <= node.end) {
+            // [start] is within this node's range.
+            // node.start is a valid transition candidate < start.
+            val newLimit = max(node.start, limit)
+            // Both subtrees could have transitions in (node.start, start).
+            val leftLimit = previousTransition(node.left, start, newLimit)
+            max(leftLimit, previousTransition(node.right, start, leftLimit))
+        } else {
+            // [start] is strictly after this node's end.
+            // node.end is a valid transition candidate < start.
+            val newLimit = max(node.end, limit)
+            // Both subtrees could have transitions in (node.end, start).
+            val leftLimit = previousTransition(node.left, start, newLimit)
+            max(leftLimit, previousTransition(node.right, start, leftLimit))
+        }
+    }
+
     /** Clears this tree and prepares it for reuse. */
     fun clear() {
         root = terminator

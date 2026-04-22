@@ -252,6 +252,52 @@ internal class TextStyleBuffer<T>(
     }
 
     /**
+     * Finds the next transition point (the start or end of any style) from the given [start] up to
+     * the [limit].
+     *
+     * A transition represents a position where the applied interval items (e.g., text styles) might
+     * potentially change.
+     *
+     * @param start The index to start searching from (exclusive).
+     * @param limit The maximum index to search up to (inclusive). If no transition is found before
+     *   this index, [limit] is returned.
+     * @return The index of the next transition, or [limit] if none exists.
+     */
+    fun nextTransition(start: Int, limit: Int): Int {
+        require(limit >= start) { "limit ($limit) cannot be less than start ($start)" }
+        if (start == limit) return limit
+
+        val startInBuffer = if (start < gapStart) start else start + gapLength
+        val limitInBuffer = if (limit < gapStart) limit else limit + gapLength
+
+        val transitionInBuffer = intervalTree.nextTransition(startInBuffer, limitInBuffer)
+        return gapBufferToOriginalIndex(transitionInBuffer)
+    }
+
+    /**
+     * Finds the previous transition point (the start or end of any style) from the given [start]
+     * down to the [limit].
+     *
+     * A transition represents a position where the applied interval items (e.g., text styles) might
+     * potentially change.
+     *
+     * @param start The index to start searching backwards from (exclusive).
+     * @param limit The minimum index to search down to (inclusive). If no transition is found
+     *   before this index, [limit] is returned.
+     * @return The index of the previous transition, or [limit] if none exists.
+     */
+    fun previousTransition(start: Int, limit: Int): Int {
+        require(limit <= start) { "limit ($limit) cannot be greater than start ($start)" }
+        if (start == limit) return limit
+
+        val startInBuffer = if (start <= gapStart) start else start + gapLength
+        val limitInBuffer = if (limit <= gapStart) limit else limit + gapLength
+
+        val transitionInBuffer = intervalTree.previousTransition(startInBuffer, limitInBuffer)
+        return gapBufferToOriginalIndex(transitionInBuffer)
+    }
+
+    /**
      * Maps an index in the original text to the corresponding index in the `gapBuffer`.
      *
      * The start and end of the range are mapped differently based on whether they expand. If the

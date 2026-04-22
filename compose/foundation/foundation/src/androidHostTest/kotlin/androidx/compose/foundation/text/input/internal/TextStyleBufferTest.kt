@@ -311,6 +311,99 @@ class TextStyleBufferTest {
             assertThat(buffer.getAllStyles()).isEqualTo(reference.getAllStyles())
         }
     }
+
+    @Test
+    fun testTransitions_aroundGap() {
+        val buffer = TextStyleBuffer<String>()
+        buffer.addStyle("a", Interval(0, 10, false, false))
+        buffer.addStyle("b", Interval(20, 30, false, false))
+
+        // Transitions currently at 0, 10, 20, 30
+        assertThat(buffer.nextTransition(0, 40)).isEqualTo(10)
+        assertThat(buffer.nextTransition(10, 40)).isEqualTo(20)
+        assertThat(buffer.nextTransition(20, 40)).isEqualTo(30)
+
+        // Insert 10 characters at index 15
+        buffer.replaceText(15, 15, 10)
+
+        // Style "b" is shifted by 10 to [30, 40)
+        // Transitions currently at 0, 10, 30, 40
+        assertThat(buffer.nextTransition(0, 50)).isEqualTo(10)
+        assertThat(buffer.nextTransition(10, 50)).isEqualTo(30)
+        assertThat(buffer.nextTransition(30, 50)).isEqualTo(40)
+
+        assertThat(buffer.previousTransition(50, 0)).isEqualTo(40)
+        assertThat(buffer.previousTransition(40, 0)).isEqualTo(30)
+        assertThat(buffer.previousTransition(30, 0)).isEqualTo(10)
+        assertThat(buffer.previousTransition(10, 0)).isEqualTo(0)
+    }
+
+    @Test
+    fun testTransitions_insideGap() {
+        val buffer = TextStyleBuffer<String>()
+        buffer.addStyle("a", Interval(0, 10, false, false))
+
+        // Insert text inside the style, splitting it or expanding it depending on edit
+        // Here we just insert 10 at index 5. "a" remains at 0, 10. Wait, "a" shifted its end to 20.
+        buffer.replaceText(5, 5, 10)
+
+        // gap is now at 15
+        // "a" was at [0, 10). It is now [0, 20) because it was inserted inside.
+        // Wait, insertion strictly inside extends the end.
+        // So transitions are at 0 and 20.
+        assertThat(buffer.nextTransition(0, 30)).isEqualTo(20)
+        assertThat(buffer.nextTransition(5, 30)).isEqualTo(20)
+        assertThat(buffer.previousTransition(30, 0)).isEqualTo(20)
+        assertThat(buffer.previousTransition(20, 0)).isEqualTo(0)
+    }
+
+    @Test
+    fun testTransitions_insideGap_startExpands() {
+        val buffer = TextStyleBuffer<String>()
+        buffer.addStyle("a", Interval(0, 10, true, false))
+
+        // Insert text strictly at the start index.
+        buffer.replaceText(0, 0, 10)
+
+        // Since startExpands = true, the style includes the new text. It is now [0, 20).
+        // Transitions are at 0 and 20.
+        assertThat(buffer.nextTransition(0, 30)).isEqualTo(20)
+        assertThat(buffer.nextTransition(5, 30)).isEqualTo(20)
+        assertThat(buffer.previousTransition(30, 0)).isEqualTo(20)
+        assertThat(buffer.previousTransition(20, 0)).isEqualTo(0)
+    }
+
+    @Test
+    fun testTransitions_insideGap_endExpands() {
+        val buffer = TextStyleBuffer<String>()
+        buffer.addStyle("a", Interval(0, 10, false, true))
+
+        // Insert text strictly at the end index.
+        buffer.replaceText(10, 10, 10)
+
+        // Since endExpands = true, the style includes the new text. It is now [0, 20).
+        // Transitions are at 0 and 20.
+        assertThat(buffer.nextTransition(0, 30)).isEqualTo(20)
+        assertThat(buffer.nextTransition(5, 30)).isEqualTo(20)
+        assertThat(buffer.previousTransition(30, 0)).isEqualTo(20)
+        assertThat(buffer.previousTransition(20, 0)).isEqualTo(0)
+    }
+
+    @Test
+    fun testTransitions_insideGap_noExpand() {
+        val buffer = TextStyleBuffer<String>()
+        buffer.addStyle("a", Interval(0, 10, false, false))
+
+        // Insert text strictly at the start index.
+        buffer.replaceText(0, 0, 10)
+
+        // Since startExpands = false, the style is shifted. It is now [10, 20).
+        // Transitions are at 10 and 20.
+        assertThat(buffer.nextTransition(0, 30)).isEqualTo(10)
+        assertThat(buffer.nextTransition(10, 30)).isEqualTo(20)
+        assertThat(buffer.previousTransition(30, 0)).isEqualTo(20)
+        assertThat(buffer.previousTransition(20, 0)).isEqualTo(10)
+    }
 }
 
 private class ReferenceTextStyleBuffer<T>(initialTextLength: Int) {
