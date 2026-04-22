@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.contextmenu.internal
 import android.app.RemoteAction
 import android.content.Context
 import android.graphics.Rect as AndroidRect
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Looper
 import android.view.ActionMode
@@ -318,6 +319,7 @@ internal class AndroidTextContextMenuToolbarProvider(
                                 view.context,
                                 component.textClassification,
                                 component.index,
+                                component.icon,
                             )
                         }
                     }
@@ -432,21 +434,22 @@ private object TextToolbarHelperApi28 {
         context: Context,
         textClassification: TextClassification,
         index: Int,
+        icon: Drawable? = null,
     ) {
         if (index < 0) {
-            addLegacyMenuItem(menu, orderId, context, textClassification)
+            addLegacyMenuItem(menu, orderId, context, textClassification, icon)
         } else {
             val isPrimary = (index == 0)
-            addMenuItem(menu, orderId, context, isPrimary, textClassification.actions[index])
+            addMenuItem(menu, orderId, isPrimary, textClassification.actions[index], icon)
         }
     }
 
     fun addMenuItem(
         menu: Menu,
         orderId: Int,
-        context: Context,
         isPrimary: Boolean,
         remoteAction: RemoteAction,
+        icon: Drawable? = null,
     ) {
         val item =
             menu.add(
@@ -460,8 +463,8 @@ private object TextToolbarHelperApi28 {
             if (isPrimary) MenuItem.SHOW_AS_ACTION_ALWAYS else MenuItem.SHOW_AS_ACTION_NEVER
         )
 
-        if (isPrimary || remoteAction.shouldShowIcon()) {
-            item.icon = remoteAction.icon.loadDrawable(context)
+        if (icon != null) {
+            item.icon = icon
         }
 
         item.setOnMenuItemClickListener {
@@ -476,6 +479,7 @@ private object TextToolbarHelperApi28 {
         orderId: Int,
         context: Context,
         textClassification: TextClassification,
+        icon: Drawable? = null,
     ) {
         val item =
             menu.add(
@@ -486,8 +490,7 @@ private object TextToolbarHelperApi28 {
             )
 
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        item.icon = textClassification.icon
-
+        item.icon = icon
         item.setOnMenuItemClickListener {
             TextClassificationHelperApi28.sendLegacyIntent(context, textClassification)
             true
