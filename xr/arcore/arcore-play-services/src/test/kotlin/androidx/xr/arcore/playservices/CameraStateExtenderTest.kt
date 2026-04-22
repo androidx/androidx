@@ -176,6 +176,7 @@ class CameraStateExtenderTest {
         assertThat(coreState.cameraState!!.transformCoordinates2D).isNotNull()
 
         // act
+        inputVertices.rewind()
         val outputVertices = coreState.cameraState!!.transformCoordinates2D!!.invoke(inputVertices)
 
         // assert
@@ -250,6 +251,7 @@ class CameraStateExtenderTest {
             assertThat(coreState.cameraState!!.transformCoordinates2D).isNotNull()
 
             // act
+            inputVertices.rewind()
             val outputVertices =
                 coreState.cameraState!!.transformCoordinates2D!!.invoke(inputVertices)
 
