@@ -121,6 +121,9 @@ class SessionLifecycleHelper(
         ) {
             permissions.add(ACCESS_FINE_LOCATION)
         }
+        if (config.augmentedImageDatabase?.entries?.isNotEmpty() == true) {
+            permissions.add(SCENE_UNDERSTANDING_COARSE)
+        }
         return permissions
     }
 

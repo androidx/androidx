@@ -228,6 +228,19 @@ class ArCoreRuntimeTest {
     }
 
     @Test
+    fun configure_imageTracking_setsAugmentedImageDatabase_toValue_Empty() {
+        val mockArConfig = mock<ArConfig>()
+        underTest._session = mockSession
+        whenever(mockSession.config).thenReturn(mockArConfig)
+
+        val config = Config(augmentedImageDatabase = null)
+        underTest.configure(config)
+
+        assertThat(mockArConfig.augmentedImageDatabase).isEqualTo(null)
+        assertThat(underTest.config.augmentedImageDatabase?.entries).isNull()
+    }
+
+    @Test
     fun configure_handTracking_throwsUnsupportedOperationException() {
         val mockArConfig = mock<ArConfig>()
         underTest._session = mockSession

@@ -38,6 +38,7 @@ import androidx.xr.runtime.internal.LibraryNotLinkedException
 import androidx.xr.runtime.internal.UnsupportedDeviceException
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.ArCoreApk.Availability
+import com.google.ar.core.AugmentedImageDatabase
 import com.google.ar.core.Config as ArConfig
 import com.google.ar.core.Config as ArCoreConfig
 import com.google.ar.core.Config.AugmentedFaceMode
@@ -150,6 +151,20 @@ internal constructor(
             } else {
                 PlaneFindingMode.DISABLED
             }
+
+        config.augmentedImageDatabase?.let {
+            if (it.entries.isEmpty()) {
+                throw UnsupportedOperationException(
+                    "Failed to configure session, the image database has exceeded the maximum number of entries."
+                )
+            }
+
+            val augmentedImageDatabase = AugmentedImageDatabase(_session)
+            it.entries.forEach { entry ->
+                augmentedImageDatabase.addImage("", entry.bitmap, entry.widthInMeters)
+            }
+            arConfig.augmentedImageDatabase = augmentedImageDatabase
+        }
 
         if (config.handTracking != HandTrackingMode.DISABLED) {
             throw UnsupportedOperationException()

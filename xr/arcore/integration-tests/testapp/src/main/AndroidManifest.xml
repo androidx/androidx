@@ -65,6 +65,11 @@
         android:label="Hello AR Plane"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
     <activity
+        android:name=".helloar.HelloArAugmentedImageActivity"
+        android:exported="true"
+        android:label="Hello AR Augmented Image"
+        android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <activity
         android:name=".persistentanchors.PersistentAnchorsActivity"
         android:exported="true"
         android:label="Persistent Anchors"

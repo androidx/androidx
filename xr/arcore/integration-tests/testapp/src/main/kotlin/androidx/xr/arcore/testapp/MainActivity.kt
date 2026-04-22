@@ -66,6 +66,7 @@ import androidx.xr.arcore.testapp.eyetracking.EyeTrackingActivity
 import androidx.xr.arcore.testapp.facetracking.FaceTrackingActivity
 import androidx.xr.arcore.testapp.geospatial.GeospatialActivity
 import androidx.xr.arcore.testapp.handtracking.HandTrackingActivity
+import androidx.xr.arcore.testapp.helloar.HelloArAugmentedImageActivity
 import androidx.xr.arcore.testapp.helloar.HelloArObjectActivity
 import androidx.xr.arcore.testapp.helloar.HelloArPlaneActivity
 import androidx.xr.arcore.testapp.persistentanchors.PersistentAnchorsActivity
@@ -195,6 +196,9 @@ class MainActivity : ComponentActivity() {
                 TestCaseColumnRowItem(R.string.blend_mode) { startTest<HelloArPlaneActivity>(it) }
                 TestCaseColumnRowItem(R.string.geospatial) { startTest<GeospatialActivity>(it) }
                 TestCaseColumnRowItem(R.string.capabilities) { startTest<CapabilitiesActivity>(it) }
+                TestCaseColumnRowItem(R.string.augmented_image_tracking) {
+                    startTest<HelloArAugmentedImageActivity>(it)
+                }
             }
         }
     }

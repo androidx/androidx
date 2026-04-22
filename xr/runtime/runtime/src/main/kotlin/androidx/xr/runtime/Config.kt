@@ -38,6 +38,8 @@ import androidx.annotation.RestrictTo
  *   [androidx.xr.runtime.GeospatialMode].
  * @property augmentedObjectCategories Feature that allows tracking of recognizable objects in the
  *   environment. See [androidx.xr.runtime.AugmentedObjectCategory].
+ * @property augmentedImageDatabase The current active [AugmentedImageDatabase]. If not empty, the
+ *   image tracking feature will be enabled.
  */
 public class Config
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -54,6 +56,7 @@ constructor(
     public val eyeTracking: EyeTrackingMode = EyeTrackingMode.DISABLED,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val cameraFacingDirection: CameraFacingDirection = CameraFacingDirection.WORLD,
+    public val augmentedImageDatabase: AugmentedImageDatabase? = null,
 ) {
 
     @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
@@ -81,6 +84,8 @@ constructor(
      *   [GeospatialMode].
      * @param augmentedObjectCategories Feature that allows tracking of recognizable objects in the
      *   environment. See [AugmentedObjectCategory].
+     * @param augmentedImageDatabase Feature that allows tracking of recognizable images in the
+     *   environment. See [AugmentedImageDatabase].
      */
     @JvmOverloads
     public constructor(
@@ -92,6 +97,7 @@ constructor(
         faceTracking: FaceTrackingMode = FaceTrackingMode.DISABLED,
         geospatial: GeospatialMode = GeospatialMode.DISABLED,
         augmentedObjectCategories: Set<AugmentedObjectCategory> = setOf(),
+        augmentedImageDatabase: AugmentedImageDatabase? = null,
     ) : this(
         planeTracking,
         handTracking,
@@ -102,6 +108,7 @@ constructor(
         geospatial,
         augmentedObjectCategories,
         eyeTracking = EyeTrackingMode.DISABLED,
+        augmentedImageDatabase = augmentedImageDatabase,
     )
 
     /**
@@ -128,6 +135,7 @@ constructor(
         augmentedObjectCategories = config.augmentedObjectCategories,
         eyeTracking = config.eyeTracking,
         cameraFacingDirection = config.cameraFacingDirection,
+        augmentedImageDatabase = config.augmentedImageDatabase,
     ) {
         this._sceneSignalTypes = sceneSignalTypes
     }
@@ -147,6 +155,7 @@ constructor(
         if (augmentedObjectCategories != other.augmentedObjectCategories) return false
         if (eyeTracking != other.eyeTracking) return false
         if (cameraFacingDirection != other.cameraFacingDirection) return false
+        if (augmentedImageDatabase != other.augmentedImageDatabase) return false
         if (_sceneSignalTypes != other.getSceneSignalTypes()) return false
 
         return true
@@ -164,6 +173,7 @@ constructor(
         result = 31 * result + augmentedObjectCategories.hashCode()
         result = 31 * result + eyeTracking.hashCode()
         result = 31 * result + cameraFacingDirection.hashCode()
+        result = 31 * result + augmentedImageDatabase.hashCode()
         result = 31 * result + _sceneSignalTypes.hashCode()
         return result
     }
@@ -183,6 +193,7 @@ constructor(
         faceTracking: FaceTrackingMode = this.faceTracking,
         geospatial: GeospatialMode = this.geospatial,
         augmentedObjectCategories: Set<AugmentedObjectCategory> = this.augmentedObjectCategories,
+        augmentedImageDatabase: AugmentedImageDatabase? = this.augmentedImageDatabase,
     ): Config {
         val newConfig =
             Config(
@@ -196,6 +207,7 @@ constructor(
                 augmentedObjectCategories = augmentedObjectCategories,
                 eyeTracking = this.eyeTracking,
                 cameraFacingDirection = this.cameraFacingDirection,
+                augmentedImageDatabase = augmentedImageDatabase,
             )
         newConfig._sceneSignalTypes = this._sceneSignalTypes
         return newConfig
@@ -215,6 +227,7 @@ constructor(
         augmentedObjectCategories: Set<AugmentedObjectCategory> = this.augmentedObjectCategories,
         eyeTracking: EyeTrackingMode = this.eyeTracking,
         cameraFacingDirection: CameraFacingDirection = this.cameraFacingDirection,
+        augmentedImageDatabase: AugmentedImageDatabase? = this.augmentedImageDatabase,
     ): Config {
         val newConfig =
             Config(
@@ -228,6 +241,7 @@ constructor(
                 geospatial = geospatial,
                 eyeTracking = eyeTracking,
                 cameraFacingDirection = cameraFacingDirection,
+                augmentedImageDatabase = augmentedImageDatabase,
             )
         newConfig._sceneSignalTypes = this._sceneSignalTypes
         return newConfig

@@ -100,6 +100,7 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     internal val persistedAnchorUUIDs: MutableMap<UUID, Pose> = mutableMapOf()
     internal val anchors: MutableList<FakeRuntimeAnchor> = mutableListOf()
     internal var isCameraTracking: Boolean = true
+    internal var isSizeEstimationSupported: Boolean = true
 
     override fun createAnchor(pose: Pose): Anchor {
         // TODO: b/349862231 - Modify it once detach is implemented.
@@ -155,6 +156,10 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
         persistedAnchorUUIDs.remove(uuid)
     }
 
+    override val imageDatabaseMaxLoadedImageCount: Int = 5
+
+    override val isPhysicalSizeEstimationSupported: Boolean = isSizeEstimationSupported
+
     override fun onAnchorPersisted(anchor: Anchor) {
         require(anchor.uuid != null)
         persistedAnchorUUIDs[anchor.uuid!!] = anchor.pose
@@ -182,6 +187,11 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
         }
         if (config.faceTracking != FaceTrackingMode.MESHES) {
             trackables.filterIsInstance<FakeRuntimeFace>().forEach {
+                it.trackingState = TrackingState.STOPPED
+            }
+        }
+        if (config.augmentedImageDatabase == null) {
+            trackables.filterIsInstance<FakeRuntimeAugmentedImage>().forEach {
                 it.trackingState = TrackingState.STOPPED
             }
         }

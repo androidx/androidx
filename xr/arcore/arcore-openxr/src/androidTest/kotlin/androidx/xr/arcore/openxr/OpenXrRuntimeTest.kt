@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore.openxr
 
+import android.graphics.Bitmap
 import androidx.activity.ComponentActivity
 import androidx.kruth.assertThat
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -23,6 +24,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.AnchorPersistenceMode
+import androidx.xr.runtime.AugmentedImageDatabase
+import androidx.xr.runtime.AugmentedImageDatabaseEntryMode
 import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
@@ -332,6 +335,44 @@ class OpenXrRuntimeTest {
             underTest.configure(
                 Config(augmentedObjectCategories = setOf(AugmentedObjectCategory.KEYBOARD))
             )
+            underTest.update()
+
+            Truth.assertThat(underTest.perceptionManager.trackables).isNotEmpty()
+        }
+    }
+
+    @Test
+    fun update_imageTrackingDisabled_doesNotUpdateTrackables() = initOpenXrRuntimeAndRunTest {
+        runTest {
+            underTest.initialize()
+            underTest.resume()
+            check(underTest.perceptionManager.trackables.isEmpty())
+            underTest.configure(Config())
+
+            underTest.update()
+
+            Truth.assertThat(underTest.perceptionManager.trackables).isEmpty()
+        }
+    }
+
+    @Test
+    @Ignore("This test requires internal clock to be mocked")
+    fun update_imageTracking_addsImageToUpdatables() = initOpenXrRuntimeAndRunTest {
+        runTest {
+            underTest.initialize()
+            underTest.resume()
+            check(underTest.perceptionManager.xrResources.updatables.isEmpty())
+
+            val augmentedImageDatabase = AugmentedImageDatabase()
+            augmentedImageDatabase.addAugmentedImageDatabaseEntry(
+                AugmentedImageDatabaseEntryMode.DYNAMIC,
+                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+            )
+
+            underTest.configure(Config(augmentedImageDatabase = augmentedImageDatabase))
+            check(underTest.config.augmentedImageDatabase != null)
+            check(underTest.config.augmentedImageDatabase?.entries?.isNotEmpty() == true)
+
             underTest.update()
 
             Truth.assertThat(underTest.perceptionManager.trackables).isNotEmpty()

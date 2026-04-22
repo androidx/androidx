@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore.openxr
 
+import android.graphics.Bitmap
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -25,6 +26,8 @@ import androidx.xr.arcore.runtime.AnchorInvalidUuidException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.HandJointType
 import androidx.xr.arcore.runtime.TrackingState
+import androidx.xr.runtime.AugmentedImageDatabase
+import androidx.xr.runtime.AugmentedImageDatabaseEntryMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
@@ -144,6 +147,36 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
+    @Ignore("This test requires internal clock to be mocked")
+    fun updateAugmentedImages_addsIdentityAugmentedImage() = initOpenXrRuntimeAndRunTest {
+        // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
+        // and a
+        // fake perception library can be used mock trackables.
+        underTest.updateAugmentedImages(XR_TIME)
+
+        assertThat(underTest.trackables).hasSize(1)
+        // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
+        // they
+        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        assertThat((underTest.trackables.first() as OpenXrAugmentedImage).centerPose)
+            .isEqualTo(Pose(Vector3(0f, 0f, 0f), Quaternion(0f, 0f, 0f, 1.0f)))
+    }
+
+    @Test
+    fun updateAugmentedImages_imageTrackingDisabled_doesNotAddAugmentedImage() =
+        initOpenXrRuntimeAndRunTest {
+            // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented
+            // properly
+            // and
+            // a fake perception library can be used mock trackables.
+            openXrRuntime.configure(Config(augmentedImageDatabase = null))
+
+            underTest.updateAugmentedImages(XR_TIME)
+
+            assertThat(underTest.trackables).hasSize(0)
+        }
+
+    @Test
     fun update_updatesTrackables() = initOpenXrRuntimeAndRunTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
         // and a
@@ -156,6 +189,23 @@ class OpenXrPerceptionManagerTest {
         // they
         // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat((underTest.trackables.first() as OpenXrPlane).centerPose)
+            .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
+    }
+
+    @Test
+    @Ignore("This test requires internal clock to be mocked")
+    fun update_updatesAugmentedImagesTrackables() = initOpenXrRuntimeAndRunTest {
+        // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
+        // and a
+        // fake perception library can be used mock trackables.
+        underTest.updateAugmentedImages(XR_TIME)
+        underTest.update(XR_TIME)
+
+        assertThat(underTest.trackables).hasSize(1)
+        // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
+        // they
+        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        assertThat((underTest.trackables.first() as OpenXrAugmentedImage).centerPose)
             .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
     }
 
@@ -422,6 +472,7 @@ class OpenXrPerceptionManagerTest {
     @Test
     fun clear_clearXrResources() = initOpenXrRuntimeAndRunTest {
         underTest.updatePlanes(XR_TIME)
+        underTest.updateAugmentedImages(XR_TIME)
         underTest.update(XR_TIME)
         underTest.createAnchor(Pose())
         check(underTest.trackables.isNotEmpty())
@@ -438,6 +489,13 @@ class OpenXrPerceptionManagerTest {
     private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {
         activityRule.scenario.onActivity {
             val timeSource = OpenXrTimeSource()
+
+            val augmentedImageDatabase = AugmentedImageDatabase()
+            augmentedImageDatabase.addAugmentedImageDatabaseEntry(
+                AugmentedImageDatabaseEntryMode.DYNAMIC,
+                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+            )
+
             val lifecycleManager = OpenXrManager(timeSource)
             openXrRuntime = OpenXrRuntime(it, lifecycleManager, underTest, timeSource)
             openXrRuntime.initialize()
@@ -447,6 +505,7 @@ class OpenXrPerceptionManagerTest {
                     deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                     planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
                     //                    handTracking = Config.HandTrackingMode.BOTH,
+                    augmentedImageDatabase = augmentedImageDatabase,
                 )
             )
 

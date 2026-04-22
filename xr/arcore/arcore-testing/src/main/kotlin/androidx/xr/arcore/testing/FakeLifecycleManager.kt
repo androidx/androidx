@@ -105,6 +105,15 @@ public class FakeLifecycleManager(
             owner.shouldSupportFaceTracking = value
         }
 
+    @get:JvmName("shouldSupportImageTracking")
+    public var shouldSupportImageTracking: Boolean
+        get() {
+            return owner.shouldSupportImageTracking
+        }
+        set(value) {
+            owner.shouldSupportImageTracking = value
+        }
+
     @Suppress("DEPRECATION")
     override fun create() {
         owner.initialize()

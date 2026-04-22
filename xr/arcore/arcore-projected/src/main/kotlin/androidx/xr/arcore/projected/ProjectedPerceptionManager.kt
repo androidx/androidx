@@ -112,6 +112,18 @@ internal constructor(private val timeSource: ProjectedTimeSource) : PerceptionMa
         throw NotImplementedError("Anchor persistence is currently not supported by Projected.")
     }
 
+    override val imageDatabaseMaxLoadedImageCount: Int
+        get() =
+            throw NotImplementedError(
+                "Image database max loaded image count is not supported by Projected."
+            )
+
+    override val isPhysicalSizeEstimationSupported: Boolean
+        get() =
+            throw NotImplementedError(
+                "Physical size estimation check is not supported by Projected."
+            )
+
     override val trackables: Collection<Trackable> = emptyList()
 
     override val leftEye: Eye? = null

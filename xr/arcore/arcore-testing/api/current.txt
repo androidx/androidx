@@ -7,6 +7,7 @@ package androidx.xr.arcore.testing {
     method protected void before();
     method public void clearPersistedAnchors();
     method @InaccessibleFromKotlin public int getAnchorResourceLimit();
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> getAugmentableImages();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> getAugmentableObjects();
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.TestConversationSceneSignal getConversationSceneSignal();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestArDevice getDevice();
@@ -27,6 +28,7 @@ package androidx.xr.arcore.testing {
     method public java.util.UUID persistAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public void setAnchorResourceLimit(int);
     property public int anchorResourceLimit;
+    property public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> augmentableImages;
     property public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> augmentableObjects;
     property @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.TestConversationSceneSignal conversationSceneSignal;
     property public androidx.xr.arcore.testing.TestArDevice device;
@@ -46,6 +48,26 @@ package androidx.xr.arcore.testing {
     property public androidx.xr.arcore.testing.TestRenderViewpoint rightRenderViewpoint;
   }
 
+  @Deprecated public final class FakeRuntimeAugmentedImage {
+    ctor @Deprecated public FakeRuntimeAugmentedImage();
+    ctor @BytecodeOnly @Deprecated public FakeRuntimeAugmentedImage(androidx.xr.arcore.runtime.TrackingState!, androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.FloatSize2d!, int, java.util.Collection!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @Deprecated public FakeRuntimeAugmentedImage(optional androidx.xr.arcore.runtime.TrackingState trackingState, optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.FloatSize2d extents, optional int index, optional java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors);
+    method @InaccessibleFromKotlin @Deprecated public java.util.Collection<androidx.xr.arcore.runtime.Anchor> getAnchors();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.runtime.math.Pose getCenterPose();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.runtime.math.FloatSize2d getExtents();
+    method @InaccessibleFromKotlin @Deprecated public int getIndex();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.arcore.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin @Deprecated public void setCenterPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin @Deprecated public void setExtents(androidx.xr.runtime.math.FloatSize2d);
+    method @InaccessibleFromKotlin @Deprecated public void setIndex(int);
+    method @InaccessibleFromKotlin @Deprecated public void setTrackingState(androidx.xr.arcore.runtime.TrackingState);
+    property @Deprecated public java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors;
+    property @Deprecated public androidx.xr.runtime.math.Pose centerPose;
+    property @Deprecated public androidx.xr.runtime.math.FloatSize2d extents;
+    property @Deprecated public int index;
+    property @Deprecated public androidx.xr.arcore.runtime.TrackingState trackingState;
+  }
+
   public final class TestArDevice {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
     method @InaccessibleFromKotlin public boolean isCameraTracking();
@@ -53,6 +75,22 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
     property public boolean isCameraTracking;
     property public androidx.xr.runtime.math.Pose pose;
+  }
+
+  public final class TestAugmentedImage extends androidx.xr.arcore.testing.TestTrackable {
+    ctor public TestAugmentedImage(int index);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
+    method @InaccessibleFromKotlin public int getIndex();
+    method @InaccessibleFromKotlin public boolean isVisible();
+    method @InaccessibleFromKotlin public void setCenterPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setExtents(androidx.xr.runtime.math.FloatSize2d);
+    method @InaccessibleFromKotlin public void setIndex(int);
+    method @InaccessibleFromKotlin public void setVisible(boolean);
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.runtime.math.FloatSize2d extents;
+    property public int index;
+    property public boolean isVisible;
   }
 
   public final class TestAugmentedObject extends androidx.xr.arcore.testing.TestTrackable {

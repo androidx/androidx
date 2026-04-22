@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.xr.arcore.AugmentedImage
 import androidx.xr.arcore.AugmentedObject
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.PlaneLabel
@@ -95,6 +96,9 @@ fun TrackableCard(trackable: Trackable<Trackable.State>) {
                     Text("Plane Type: ${trackable.type}")
                     PlaneStateInfo(state.value as Plane.State)
                 }
+                is AugmentedImage -> {
+                    AugmentedImageStateInfo(state.value as AugmentedImage.State)
+                }
             }
         }
     }
@@ -146,6 +150,12 @@ private fun convertAugmentedObjectCategoryToColor(category: AugmentedObjectCateg
         AugmentedObjectCategory.MOUSE -> Color.Blue
         else -> Color.Magenta
     }
+
+@Composable
+fun AugmentedImageStateInfo(state: AugmentedImage.State) {
+    Text(text = "Augmented Image Center Pose: ${state.centerPose}")
+    Text(text = "Augmented Image Extents: ${state.extents}")
+}
 
 @Composable
 fun TestCaseButton(text: String, onClick: () -> Unit) {
