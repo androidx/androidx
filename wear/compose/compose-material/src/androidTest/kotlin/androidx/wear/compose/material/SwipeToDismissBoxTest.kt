@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -67,7 +68,7 @@ import org.junit.Test
 class SwipeToDismissBoxTest {
     @OptIn(ExperimentalCoroutinesApi::class) // b/457630005
     @get:Rule
-    val rule = createComposeRule(UnconfinedTestDispatcher())
+    val rule = createComposeRule(ComposeUiTestConfig(UnconfinedTestDispatcher()))
 
     @Test
     fun supports_testtag() {

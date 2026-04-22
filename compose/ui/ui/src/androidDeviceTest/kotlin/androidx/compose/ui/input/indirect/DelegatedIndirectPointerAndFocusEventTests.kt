@@ -49,7 +49,6 @@ import androidx.test.core.view.MotionEventBuilder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -64,7 +63,7 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class DelegatedIndirectPointerAndFocusEventTests {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     // Used to dispatch motion events
     private lateinit var rootView: AndroidComposeView

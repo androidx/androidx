@@ -67,7 +67,6 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -78,7 +77,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class StatelessInputConnectionTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var ic: StatelessInputConnection
     private var lastExtractedTextRequestToken = -1

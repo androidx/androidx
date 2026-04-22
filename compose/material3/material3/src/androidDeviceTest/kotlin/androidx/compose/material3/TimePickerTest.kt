@@ -84,7 +84,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import kotlin.math.PI
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -94,7 +93,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TimePickerTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun timePicker_vertical_layout() {

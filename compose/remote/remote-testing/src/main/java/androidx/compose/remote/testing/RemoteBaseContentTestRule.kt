@@ -29,7 +29,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -52,10 +51,7 @@ private constructor(
 
     public constructor(
         composeTestRule: ComposeContentTestRule?
-    ) : this(
-        composeTestRule ?: createComposeRule(StandardTestDispatcher()),
-        composeTestRule != null,
-    )
+    ) : this(composeTestRule ?: createComposeRule(), composeTestRule != null)
 
     public constructor() : this(null)
 

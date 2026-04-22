@@ -39,7 +39,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.test.Test
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -48,7 +47,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TransformingLazyColumnItemAnimationTest {
 
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val containerSize = 200.dp
     private val itemSize = 80.dp

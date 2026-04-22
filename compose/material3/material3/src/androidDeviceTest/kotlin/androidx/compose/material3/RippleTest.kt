@@ -60,7 +60,6 @@ import com.google.common.truth.Truth
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,7 +81,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 class RippleTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun bounded_lightTheme_pressed() {

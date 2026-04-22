@@ -57,7 +57,6 @@ import com.google.common.base.Joiner.on
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withTimeout
 import org.junit.Rule
 import org.junit.Test
@@ -70,7 +69,7 @@ import org.mockito.kotlin.mock
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 class AlertDialogTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun customStyleProperties_shouldApply() {

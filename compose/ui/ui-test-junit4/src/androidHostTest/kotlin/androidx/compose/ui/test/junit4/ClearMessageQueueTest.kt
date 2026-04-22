@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,7 +37,8 @@ import org.robolectric.annotation.Config
 class ClearMessageQueueTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @get:Rule
-    val rule = createComposeRule(effectContext = UnconfinedTestDispatcher(null, null))
+    val rule =
+        createComposeRule(ComposeUiTestConfig(effectContext = UnconfinedTestDispatcher(null, null)))
 
     /**
      * This test forces the GlobalSnapshotManager to have a coroutine that will execute when the

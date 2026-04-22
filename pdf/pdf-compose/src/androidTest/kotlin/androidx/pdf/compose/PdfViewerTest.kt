@@ -58,7 +58,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Rule
@@ -69,7 +68,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalPdfApi::class)
 @LargeTest
 class PdfViewerTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 

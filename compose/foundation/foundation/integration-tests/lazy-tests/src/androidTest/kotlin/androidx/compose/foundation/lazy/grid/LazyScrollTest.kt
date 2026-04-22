@@ -39,7 +39,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Rule
@@ -48,8 +47,8 @@ import org.junit.Test
 @MediumTest
 // @RunWith(Parameterized::class)
 class LazyScrollTest { // (private val orientation: Orientation)
-    val testDispatcher = StandardTestDispatcher()
-    @get:Rule val rule = createComposeRule(testDispatcher)
+
+    @get:Rule val rule = createComposeRule()
 
     private val vertical: Boolean
         get() = true // orientation == Orientation.Vertical
@@ -421,7 +420,7 @@ class LazyScrollTest { // (private val orientation: Orientation)
 
         scope.launch { state.animateScrollToItem(toIndex, toOffset) }
 
-        testDispatcher.scheduler.runCurrent()
+        rule.mainClock.scheduler.runCurrent()
 
         while (!state.isScrollInProgress) {
             Thread.sleep(5)

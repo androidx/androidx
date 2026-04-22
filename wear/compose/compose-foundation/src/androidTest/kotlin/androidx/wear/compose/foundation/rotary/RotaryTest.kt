@@ -60,7 +60,6 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -71,7 +70,7 @@ import org.mockito.Mockito.`when`
 
 // TODO(b/278705775): Add more tests to check Rotary Snap behavior
 class RotaryScrollTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private var itemSizePx: Float = 50f
     private var itemSizeDp: Dp = Dp.Infinity

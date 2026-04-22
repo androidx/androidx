@@ -57,7 +57,6 @@ import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -74,7 +73,7 @@ class LazyStaggeredGridItemPlacementAnimationTest(private val config: Config) {
     private val reverseLayout: Boolean
         get() = config.reverseLayout
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     // the numbers should be divisible by 8 to avoid the rounding issues as we run 4 or 8 frames
     // of the animation.

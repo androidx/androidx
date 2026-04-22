@@ -29,7 +29,6 @@ import androidx.navigationevent.testing.TestNavigationEventDispatcherOwner
 import androidx.navigationevent.testing.TestNavigationEventHandler
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +37,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 internal class NavigationEventDispatcherOwnerTest {
 
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun rememberNavigationEventDispatcherOwner_asChild_whenInComposition_thenCreatesChildDispatcher() {

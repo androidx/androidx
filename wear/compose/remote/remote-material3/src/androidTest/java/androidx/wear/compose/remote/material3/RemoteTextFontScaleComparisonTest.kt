@@ -74,7 +74,6 @@ import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,8 +90,7 @@ class RemoteTextFontScaleComparisonTest {
     private val size = Size(500f, 500f)
     private val creationDisplayInfo = createCreationDisplayInfo(context, size)
 
-    @get:Rule
-    val composeTestRule: ComposeContentTestRule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val composeTestRule: ComposeContentTestRule = createComposeRule()
 
     @get:Rule val screenshotTestRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 

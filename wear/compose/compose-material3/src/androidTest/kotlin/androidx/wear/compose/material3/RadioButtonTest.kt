@@ -55,13 +55,12 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.samples.RadioButtonSample
 import androidx.wear.compose.material3.samples.SplitRadioButtonSample
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 class RadioButtonTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun radio_button_supports_testtag() {

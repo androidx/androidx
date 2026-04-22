@@ -59,7 +59,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -70,7 +69,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class CheckboxTest(private val isCheckboxStyleM3FixEnabled: Boolean) {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val defaultTag = "myCheckbox"
 

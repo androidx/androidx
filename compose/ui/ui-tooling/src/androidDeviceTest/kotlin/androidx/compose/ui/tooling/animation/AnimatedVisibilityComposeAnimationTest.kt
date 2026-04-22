@@ -19,14 +19,13 @@ package androidx.compose.ui.tooling.animation
 import androidx.compose.animation.tooling.ComposeAnimationType
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.Utils.createTestAnimatedVisibility
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 class AnimatedVisibilityComposeAnimationTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun createComposeAnimation() {

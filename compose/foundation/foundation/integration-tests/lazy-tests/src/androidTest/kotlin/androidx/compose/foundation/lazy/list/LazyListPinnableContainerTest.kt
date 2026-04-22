@@ -62,7 +62,6 @@ import kotlin.random.Random
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -78,7 +77,7 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
         fun params() = arrayOf(true, false)
     }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private var pinnableContainer: PinnableContainer? = null
 

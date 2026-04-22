@@ -34,7 +34,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assume.assumeFalse
 import org.junit.Before
@@ -51,8 +50,7 @@ class EmbeddedPhotoPickerTest {
     private val TestEmbeddedPhotoPickerProvider.lastTestSession: TestEmbeddedPhotoPickerSession
         get() = sessions.last() as TestEmbeddedPhotoPickerSession
 
-    private val testDispatcher = StandardTestDispatcher()
-    @get:Rule val composeTestRule = createComposeRule(effectContext = testDispatcher)
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Before
     fun setUp() {
@@ -65,7 +63,7 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerProvidesSurfaceHostTokenToState() =
-        runTest(testDispatcher) {
+        runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
             lateinit var state: EmbeddedPhotoPickerState
 
@@ -83,7 +81,7 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerProvidesSurfaceSizeToState() =
-        runTest(testDispatcher) {
+        runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
             lateinit var state: EmbeddedPhotoPickerStateImpl
 
@@ -101,7 +99,7 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerOpensSession() =
-        runTest(testDispatcher) {
+        runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
 
             composeTestRule.setContent {
@@ -121,7 +119,7 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerClosesSessionOnDisposal() =
-        runTest(testDispatcher) {
+        runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
             var showPicker by mutableStateOf(true)
 
@@ -150,7 +148,7 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerResizingSync() =
-        runTest(testDispatcher) {
+        runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
 
             val initialSize = IntSize(200, 400)
@@ -182,7 +180,7 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerConfigurationChangePropagation() =
-        runTest(testDispatcher) {
+        runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
 
             lateinit var state: EmbeddedPhotoPickerState
@@ -217,7 +215,7 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerProgrammaticExpansionSync() =
-        runTest(testDispatcher) {
+        runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
 
             lateinit var state: EmbeddedPhotoPickerState
@@ -249,7 +247,7 @@ class EmbeddedPhotoPickerTest {
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerFeatureInfoPropagation() =
-        runTest(testDispatcher) {
+        runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
 
             val maxSelectionLimit = 5

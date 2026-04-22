@@ -40,7 +40,6 @@ import androidx.wear.compose.material.TEST_TAG
 import androidx.wear.compose.material.TestIcon
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.setContentWithTheme
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -51,7 +50,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ChipScreenshotTest {
 
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 

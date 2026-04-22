@@ -33,7 +33,7 @@ import com.google.android.apps.common.testing.accessibility.framework.Accessibil
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 import kotlinx.coroutines.test.StandardTestDispatcher
 
-private val composeTestRule = createComposeRule(effectContext = StandardTestDispatcher())
+private val composeTestRule = createComposeRule()
 private val androidComposeTestRule =
     createAndroidComposeRule<ComponentActivity>(
         effectContext = kotlinx.coroutines.test.StandardTestDispatcher()

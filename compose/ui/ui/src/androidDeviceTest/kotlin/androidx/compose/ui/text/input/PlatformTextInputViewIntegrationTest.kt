@@ -55,7 +55,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,7 +63,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PlatformTextInputViewIntegrationTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var hostView: AndroidComposeView
     private lateinit var coroutineScope: CoroutineScope

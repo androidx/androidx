@@ -51,7 +51,6 @@ import androidx.wear.compose.material3.rememberAnimatedRoundedCornerShape
 import androidx.wear.compose.material3.setContentWithTheme
 import androidx.wear.compose.material3.touchTargetAwareSize
 import androidx.wear.compose.material3.verifyScreenshot
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -62,7 +61,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class IconButtonScreenshotTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 

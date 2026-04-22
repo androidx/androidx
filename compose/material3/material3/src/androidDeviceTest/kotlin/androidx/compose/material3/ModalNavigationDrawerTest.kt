@@ -75,7 +75,6 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assume.assumeFalse
 import org.junit.Rule
@@ -86,7 +85,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ModalNavigationDrawerTest {
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     private val NavigationDrawerWidth = NavigationDrawerTokens.ContainerWidth
 

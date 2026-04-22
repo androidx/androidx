@@ -78,7 +78,7 @@ class ClickTestRuleTest(private val config: TestConfig) {
     @get:Rule
     val composeTestRule =
         when (config.activityClass) {
-            null -> createComposeRule(StandardTestDispatcher())
+            null -> createComposeRule()
             else -> createAndroidComposeRule(config.activityClass, StandardTestDispatcher())
         }
 

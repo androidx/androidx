@@ -47,7 +47,6 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -55,7 +54,7 @@ import org.junit.Test
 private val DefaultRect = Rect(Offset.Zero, Size(10f, 10f))
 
 class TextContextMenuToolbarHandlerTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun whenCallShow_providerCalled() {

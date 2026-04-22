@@ -27,7 +27,6 @@ import androidx.window.layout.WindowLayoutInfo
 import androidx.window.testing.layout.FoldingFeature
 import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -37,7 +36,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class CollectFoldingFeaturesAsStateTest {
-    private val composeRule = createComposeRule(StandardTestDispatcher())
+    private val composeRule = createComposeRule()
     private val publisherRule = WindowLayoutInfoPublisherRule()
 
     @get:Rule val testRule: TestRule

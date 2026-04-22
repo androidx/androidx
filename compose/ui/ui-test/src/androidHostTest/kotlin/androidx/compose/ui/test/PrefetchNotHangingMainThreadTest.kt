@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +36,7 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class PrefetchNotHangingMainThreadTest {
 
-    @get:Rule val composeRule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val composeRule = createComposeRule()
 
     @Test
     fun prefetchNotHangingMainThread() {

@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,7 +65,7 @@ import org.mockito.kotlin.verify
 @LargeTest
 @RunWith(ContextMenuFlagFlipperRunner::class)
 class SelectionContainerFocusTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val textContent = "Text Demo Text"
     private val fontFamily = TEST_FONT_FAMILY

@@ -72,7 +72,6 @@ import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -96,8 +95,7 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
             arrayOf(ImplementationMode.EXTERNAL, ImplementationMode.EMBEDDED)
     }
 
-    val testDispatcher = StandardTestDispatcher()
-    @get:Rule val rule = createComposeRule(testDispatcher)
+    @get:Rule val rule = createComposeRule()
 
     @After
     fun tearDown() {
@@ -265,7 +263,7 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
     @Test
     fun viewfinderInPagerWithDefaultOffscreenPageCount_afterMoveOffThenOnScreen_validSurfaceIsAvailable():
         Unit =
-        runTest(testDispatcher) {
+        runTest(rule.mainClock.scheduler) {
             assumeFalse(
                 "Test fails on cuttlefish b/467137284",
                 Build.MODEL.contains("Cuttlefish", ignoreCase = true),
@@ -293,7 +291,7 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
     @Test
     fun viewfinderInPagerWithOneOffscreenPageCount_afterMoveOffThenOnScreen_validSurfaceIsAvailable():
         Unit =
-        runTest(testDispatcher) {
+        runTest(rule.mainClock.scheduler) {
             // When the beyondViewportPageCount keeps the underlying View alive, we don't expect
             // the session to be recreated since the composable is never removed from the
             // composition.
@@ -313,7 +311,7 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
 
     @Test
     fun frameRenderedListener_isInvokedWhenSurfaceIsDrawn(): Unit =
-        runTest(testDispatcher) {
+        runTest(rule.mainClock.scheduler) {
             assumeFalse(
                 "FrameRenderedListener may not be invoked on emulator environments due to GL/rendering limitations or cause crashes",
                 AndroidUtil.isEmulator(),

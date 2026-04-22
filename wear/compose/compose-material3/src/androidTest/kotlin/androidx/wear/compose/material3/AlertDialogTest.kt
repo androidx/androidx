@@ -67,7 +67,6 @@ import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -76,7 +75,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(TestParameterInjector::class)
 class AlertDialogTest(@TestParameter private val contentContainer: ContentContainer) {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun dialog_supports_testtag_with_bottomButton() {

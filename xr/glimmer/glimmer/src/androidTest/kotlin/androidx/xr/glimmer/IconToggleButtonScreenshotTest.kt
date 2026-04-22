@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -43,7 +42,7 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class IconToggleButtonScreenshotTest(private val parameters: ToggleButtonStates) {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_DIRECTORY)
 

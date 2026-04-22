@@ -39,7 +39,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.weight
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -49,7 +48,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TimeTextScreenshotTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 

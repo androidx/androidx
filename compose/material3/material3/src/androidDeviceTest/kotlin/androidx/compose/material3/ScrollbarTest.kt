@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -43,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.math.abs
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -65,8 +65,7 @@ class ScrollbarTest(
             override var scaleFactor: Float = 1f
         }
 
-    @get:Rule
-    val rule = createComposeRule(effectContext = motionDurationScale + StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule(ComposeUiTestConfig(motionDurationScale))
 
     @After
     fun tearDown() {

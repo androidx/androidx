@@ -39,7 +39,9 @@ import org.junit.Test
 class PagerScrollingTest : SingleParamBasePagerTest() {
 
     private fun resetTestCase(initialPage: Int = 0) {
-        rule.runOnIdle { runTest(testDispatcher) { pagerState.scrollToPage(initialPage) } }
+        rule.runOnIdle {
+            runTest(rule.mainClock.scheduler) { pagerState.scrollToPage(initialPage) }
+        }
     }
 
     @Test

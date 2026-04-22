@@ -72,7 +72,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -83,7 +82,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterialApi::class)
 class ModalBottomSheetTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val sheetHeight = 256.dp
     private val sheetTag = "sheetContentTag"

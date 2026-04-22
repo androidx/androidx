@@ -40,7 +40,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +48,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LazyListSlotsReuseTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     val itemsSizePx = 30f
     val itemsSizeDp = with(rule.density) { itemsSizePx.toDp() }
