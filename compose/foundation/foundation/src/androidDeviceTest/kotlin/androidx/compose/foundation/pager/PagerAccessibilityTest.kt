@@ -20,6 +20,7 @@ import android.view.accessibility.AccessibilityNodeProvider
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.PivotBringIntoViewSpec
 import androidx.compose.foundation.internal.checkPreconditionNotNull
@@ -182,7 +183,10 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
     @Test
     fun focusScroll_forwardAndBackward_pageIsFocusable_fullPage_shouldScrollFullPage_pivotSpec() {
         // Arrange
-        createPager(pageCount = { DefaultPageCount }, bringIntoViewSpec = PivotBringIntoViewSpec)
+        createPager(
+            pageCount = { DefaultPageCount },
+            localBringIntoViewSpec = PivotBringIntoViewSpec,
+        )
         rule.runOnUiThread { initialFocusedItem.requestFocus() }
         rule.waitForIdle()
 
@@ -289,7 +293,7 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
             modifier = Modifier.size(200.dp), // make sure one page is halfway shown
             pageCount = { DefaultPageCount },
             pageSize = { PageSize.Fixed(50.dp) },
-            bringIntoViewSpec = PivotBringIntoViewSpec,
+            localBringIntoViewSpec = PivotBringIntoViewSpec,
         ) {
             Page(it, 3)
         }
@@ -331,7 +335,7 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
             modifier = Modifier.size(200.dp), // make sure one page is halfway shown
             pageCount = { DefaultPageCount },
             pageSize = { PageSize.Fixed(50.dp) },
-            bringIntoViewSpec = PivotBringIntoViewSpec,
+            localBringIntoViewSpec = PivotBringIntoViewSpec,
         ) {
             Page(it, 3)
         }
@@ -413,7 +417,7 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
                     Box(modifier = Modifier.size(30.dp).focusRequester(focusRequester).focusable())
                 }
             },
-            bringIntoViewSpec = PivotBringIntoViewSpec,
+            localBringIntoViewSpec = PivotBringIntoViewSpec,
         )
         rule.runOnUiThread { initialFocusedItem.requestFocus() }
         rule.waitForIdle()
@@ -499,7 +503,7 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
                     Box(modifier = Modifier.size(30.dp).focusRequester(focusRequester).focusable())
                 }
             },
-            bringIntoViewSpec = PivotBringIntoViewSpec,
+            localBringIntoViewSpec = PivotBringIntoViewSpec,
         )
         val lastVisibleItem = pagerState.layoutInfo.visiblePagesInfo.last().index
         rule.runOnUiThread { focusRequesters[lastVisibleItem - 1]?.requestFocus() }
@@ -557,7 +561,7 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
                     }
                 }
             },
-            bringIntoViewSpec = PivotBringIntoViewSpec,
+            localBringIntoViewSpec = PivotBringIntoViewSpec,
         )
 
         rule.runOnUiThread { focusRequesters[3]?.requestFocus() }
@@ -580,6 +584,44 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
         // Act: move backward
         val resultBackward = rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Previous) }
         assertThat(resultBackward).isTrue() // focus moved
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(0)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+    }
+
+    @Test
+    fun focusScroll_forwardAndBackward_paramSpec_overridesCompositionLocal() {
+        // Arrange
+        val noOpSpec =
+            object : BringIntoViewSpec {
+                override fun calculateScrollDistance(
+                    offset: Float,
+                    size: Float,
+                    containerSize: Float,
+                ) = 0f
+            }
+        createPager(
+            pageCount = { DefaultPageCount },
+            localBringIntoViewSpec = noOpSpec,
+            bringIntoViewSpec = PivotBringIntoViewSpec,
+        )
+        rule.runOnUiThread { initialFocusedItem.requestFocus() }
+        rule.waitForIdle()
+
+        // Act: move forward
+        rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Next) }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(1)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+
+        // Act: move backward
+        rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Previous) }
 
         // Assert
         rule.runOnIdle {
