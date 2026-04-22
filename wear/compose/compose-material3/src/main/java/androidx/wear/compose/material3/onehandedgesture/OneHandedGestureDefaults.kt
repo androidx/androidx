@@ -70,8 +70,10 @@ import androidx.wear.compose.material3.ScrollIndicatorDefaults
 import androidx.wear.compose.material3.TransformingLazyColumnStateAdapter
 import androidx.wear.compose.material3.VerticalPageIndicator
 import kotlin.math.max
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Contains the default values used by one-handed gestures */
 public object OneHandedGestureDefaults {
@@ -220,8 +222,10 @@ public object OneHandedGestureDefaults {
                     finalScaleAnimationJob.join()
                     finalButtonAnimationJob.join()
                 } finally {
-                    buttonContentAlpha.snapTo(1f)
-                    avdAnimationScale.snapTo(0f)
+                    withContext(NonCancellable) {
+                        buttonContentAlpha.snapTo(1f)
+                        avdAnimationScale.snapTo(0f)
+                    }
                     avdActive = false
 
                     onGestureIndicatorFinished()
@@ -431,9 +435,11 @@ public object OneHandedGestureDefaults {
                     finalScaleAnimationJob.join()
                     indicatorColorResetJob.join()
                 } finally {
-                    avdAnimationScale.snapTo(0f)
-                    indicatorColor.snapTo(indicatorDefaultColor)
-                    jiggleFractionAnimatable.snapTo(0f)
+                    withContext(NonCancellable) {
+                        avdAnimationScale.snapTo(0f)
+                        indicatorColor.snapTo(indicatorDefaultColor)
+                        jiggleFractionAnimatable.snapTo(0f)
+                    }
                     indicatorState.jiggleAmount = 0f
 
                     avdActive = false
@@ -659,7 +665,7 @@ public object OneHandedGestureDefaults {
 
                     finalScaleAnimationJob.join()
                 } finally {
-                    avdAnimationScale.snapTo(0f)
+                    withContext(NonCancellable) { avdAnimationScale.snapTo(0f) }
                     avdActive = false
 
                     onGestureIndicatorFinished()
