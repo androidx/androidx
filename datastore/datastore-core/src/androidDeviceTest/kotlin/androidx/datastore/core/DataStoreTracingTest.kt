@@ -65,7 +65,7 @@ class DataStoreTracingTest {
                         bufferedSink = traceFile.appendingSink().buffer(),
                         coroutineContext = dataStoreScope.coroutineContext,
                     ),
-                isEnabled = true,
+                isCategoryEnabled = { true },
             )
         tracer = driver.tracer
     }

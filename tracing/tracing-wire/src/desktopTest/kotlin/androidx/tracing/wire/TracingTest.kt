@@ -37,6 +37,7 @@ import kotlin.test.assertFails
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -108,7 +109,7 @@ class TracingTest {
     @Before
     internal fun setUp() {
         sink.packets.clear()
-        driver = TraceDriver(sink = sink, isEnabled = true)
+        driver = TraceDriver(sink = sink, isGloballyEnabled = true)
         tracer = driver.tracer
     }
 
@@ -118,7 +119,7 @@ class TracingTest {
         driver =
             TraceDriver(
                 sink = sink,
-                isEnabled = true,
+                isGloballyEnabled = true,
                 attributes = { addAttribute("isTest", "true") },
             )
         driver.use {
@@ -286,7 +287,7 @@ class TracingTest {
                                 name = "third",
                                 token = token,
                             ) {
-                                delay(200L)
+                                delay(200L.milliseconds)
                             }
                         }
                     }
@@ -313,7 +314,7 @@ class TracingTest {
             tracer.traceCoroutine(category = "category", name = "first") {
                 val token = tracer.tokenFromCoroutineContext()
                 tracer.traceCoroutine(category = "category", name = "second", token = token) {
-                    delay(10)
+                    delay(10L.milliseconds)
                 }
             }
         }
@@ -364,7 +365,7 @@ class TracingTest {
                 coroutineScope {
                     async {
                             tracer.traceCoroutine(category = "category", name = "method1") {
-                                delay(10)
+                                delay(10L.milliseconds)
                             }
                         }
                         .await()
@@ -428,7 +429,7 @@ class TracingTest {
                         coroutineContext = dispatcher,
                     )
             )
-        val driver = TraceDriver(sink = sink, isEnabled = true)
+        val driver = TraceDriver(sink = sink, isGloballyEnabled = true)
         // Create the Tracer
         val tracer = driver.tracer
         // Warm up tracks
@@ -492,12 +493,12 @@ class TracingTest {
     @Test
     internal fun testDisabledTracerWritesNoBytes() = runTest {
         val testSink = TestSink()
-        TraceDriver(sink = testSink, isEnabled = false).use { driver ->
+        TraceDriver(sink = testSink, isGloballyEnabled = false).use { driver ->
             val disabledTracer = driver.tracer
 
             disabledTracer.traceCoroutine("cat", "event") {
                 // Do some work
-                delay(50)
+                delay(50L.milliseconds)
             }
 
             driver.flush()
@@ -517,7 +518,7 @@ class TracingTest {
 
     @Test
     internal fun imperativeBeginEndShouldNotEmitPackets() {
-        TraceDriver(sink = sink, isEnabled = false).use { driver ->
+        TraceDriver(sink = sink, isGloballyEnabled = false).use { driver ->
             driver.tracer.beginSection(
                 category = "category",
                 name = "name",
@@ -527,6 +528,29 @@ class TracingTest {
             driver.context.process.currentThreadTrack().endSection()
         }
         // The only packet we should see is one that we eagerly emit for the process track.
+        assertEquals(1, sink.packets.size)
+        // We should not find any track event packets.
+        assertFails { sink.firstStartStopWithName("name") }
+    }
+
+    @Test
+    internal fun testCategoryFilters() {
+        // Start off with an empty sink.
+        // The setup phase creates a process track that we don't want.
+        sink.packets.clear()
+        TraceDriver(sink = sink, isGloballyEnabled = true, isCategoryEnabled = { false }).use {
+            driver ->
+            driver.tracer.trace(
+                category = "category",
+                name = "name",
+                token = null,
+                metadataBlock = {},
+            ) {
+                // Does nothing.
+            }
+        }
+        // The only packet we should see is one that we eagerly emit for the process track.
+        // Importantly no flush packets.
         assertEquals(1, sink.packets.size)
         // We should not find any track event packets.
         assertFails { sink.firstStartStopWithName("name") }

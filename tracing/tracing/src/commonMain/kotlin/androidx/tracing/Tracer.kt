@@ -24,13 +24,7 @@ import kotlinx.coroutines.withContext
  *
  * To obtain an instance of `Tracer` use [AbstractTraceDriver.tracer].
  */
-public abstract class Tracer(
-    /** Is set to `true` if Tracing is enabled. */
-    @JvmField
-    @field:Suppress("MutableBareField") // public / mutable to minimize overhead
-    public val isEnabled: Boolean
-) {
-
+public abstract class Tracer {
     /**
      * Creates a [PropagationToken] that can be used for manual context propagation in
      * [androidx.tracing.Tracer].
@@ -119,6 +113,18 @@ public abstract class Tracer(
         token: PropagationToken?,
         isRoot: Boolean,
     ): EventMetadataCloseable
+
+    /**
+     * @return `true` if the provided trace [category] should be enabled.
+     *
+     * If `false` then trace events corresponding to the [category] are dropped to reduce tracing
+     * overhead. This is particularly useful when you want to lower the overhead of trace events
+     * from uninteresting or noisy categories.
+     *
+     * Note:This method should be **extremely** low overhead given it's called every time a [Tracer]
+     * can emit trace events.
+     */
+    public abstract fun isCategoryEnabled(category: String): Boolean
 
     /**
      * @return The [Counter] instance for the provided [category] and [name]. This can be used to
@@ -243,7 +249,7 @@ public abstract class Tracer(
         crossinline block: () -> T,
     ): T {
         val closeable =
-            if (!isEnabled) {
+            if (!isCategoryEnabled(category)) {
                 EmptyCloseable
             } else {
                 beginSection(
@@ -296,7 +302,7 @@ public abstract class Tracer(
         crossinline block: suspend () -> T,
     ): T {
         val result =
-            if (!isEnabled) {
+            if (!isCategoryEnabled(category)) {
                 EmptyEventMetadataCloseable
             } else {
                 beginCoroutineSection(

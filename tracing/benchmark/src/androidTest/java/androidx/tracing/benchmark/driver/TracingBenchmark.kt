@@ -48,12 +48,9 @@ import org.junit.runner.RunWith
 class TracingBenchmark {
     @get:Rule val benchmarkRule = BenchmarkRule()
 
-    private fun buildTraceDriver(
-        sink: TraceSink,
-        @Suppress("SameParameterValue") isEnabled: Boolean,
-    ): TraceDriver {
+    private fun buildTraceDriver(sink: TraceSink): TraceDriver {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        return TraceDriver(context = context, sink = sink, isEnabled = isEnabled)
+        return TraceDriver(context = context, sink = sink, isCategoryEnabled = { true })
     }
 
     fun buildInMemorySink(coroutineContext: CoroutineContext): TraceSink {
@@ -72,7 +69,7 @@ class TracingBenchmark {
     // there is no good way to advance the TestScheduler by calling advanceUntilIdle().
     // Not calling close() here is okay, given we drain all trace packets before the next
     // measurement loop.
-    private val traceDriver = buildTraceDriver(sink, true)
+    private val traceDriver = buildTraceDriver(sink)
     private val tracer = traceDriver.tracer as PerfettoTracer
 
     /**

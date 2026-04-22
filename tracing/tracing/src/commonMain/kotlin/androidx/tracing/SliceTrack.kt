@@ -90,7 +90,7 @@ public abstract class SliceTrack(
         eventMetadataCloseable.metadata = EmptyEventMetadata
         eventMetadataCloseable.closeable = EmptyCloseable
         eventMetadataCloseable.propagationToken = PropagationUnsupportedToken
-        if (context.isEnabled) {
+        if (context.isGloballyEnabled) {
             emitPreamble()
             val event = obtainTraceEvent()
             if (event != null) {
@@ -115,7 +115,7 @@ public abstract class SliceTrack(
         eventMetadataCloseable.metadata = EmptyEventMetadata
         eventMetadataCloseable.closeable = EmptyCloseable
         eventMetadataCloseable.propagationToken = PropagationUnsupportedToken
-        if (context.isEnabled) {
+        if (context.isGloballyEnabled) {
             emitPreamble()
             val event = obtainTraceEvent()
             if (event != null) {
@@ -143,7 +143,7 @@ public abstract class SliceTrack(
      * un-paired calls to [endSection] are ignored when the trace is displayed.
      */
     public open fun endSection() {
-        if (!context.isEnabled) return
+        if (!context.isGloballyEnabled) return
         val event = obtainTraceEvent()
         event?.apply {
             event.setEndSection(trackUuid = uuid)
@@ -163,7 +163,7 @@ public abstract class SliceTrack(
      * Except it is faster to write, and guaranteed zero duration.
      */
     public fun instant(category: String, name: String): EventMetadataCloseable {
-        if (!context.isEnabled) return EmptyEventMetadataCloseable
+        if (!context.isGloballyEnabled) return EmptyEventMetadataCloseable
         emitPreamble()
         val event = obtainTraceEvent()
         event?.apply {
@@ -176,7 +176,7 @@ public abstract class SliceTrack(
     }
 
     public fun traceAttributes(): TraceAttributes {
-        if (!context.isEnabled) return EmptyTraceAttributes
+        if (!context.isGloballyEnabled) return EmptyTraceAttributes
         emitPreamble()
         val event = obtainTraceEvent()
         event?.timestamp = nanoTime()
