@@ -31,7 +31,9 @@ public expect open class NavDestinationBuilder<out D : NavDestination> {
     /**
      * DSL for constructing a new [NavDestination] with a unique route.
      *
-     * This will also update the [id] of the destination based on route.
+     * This will also update the
+     * [id](https://developer.android.com/reference/androidx/navigation/NavDestinationBuilder#getId())
+     * of the destination based on route.
      *
      * @param navigator navigator used to create the destination
      * @param route the destination's unique route
@@ -42,7 +44,9 @@ public expect open class NavDestinationBuilder<out D : NavDestination> {
     /**
      * DSL for constructing a new [NavDestination] with a serializable [KClass].
      *
-     * This will also update the [id] of the destination based on KClass's serializer.
+     * This will also update the
+     * [id](https://developer.android.com/reference/androidx/navigation/NavDestinationBuilder#getId())
+     * of the destination based on KClass's serializer.
      *
      * @param navigator navigator used to create the destination
      * @param route the [KClass] of the destination

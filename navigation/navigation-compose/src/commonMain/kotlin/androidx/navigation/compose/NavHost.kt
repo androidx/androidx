@@ -52,7 +52,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.Navigator
-import androidx.navigation.compose.internal.DefaultNavTransitions
 import androidx.navigation.compose.internal.PredictiveBackHandler
 import androidx.navigation.createGraph
 import androidx.navigation.get
@@ -135,9 +134,9 @@ public fun NavHost(
     exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
         DefaultNavTransitions.exitTransition,
     popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     builder: NavGraphBuilder.() -> Unit,
 ) {
     NavHost(
@@ -198,11 +197,11 @@ public fun NavHost(
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     sizeTransform:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
@@ -267,11 +266,11 @@ public fun NavHost(
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     predictivePopEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition) =
@@ -350,11 +349,11 @@ public fun NavHost(
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     sizeTransform:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
@@ -425,11 +424,11 @@ public fun NavHost(
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     predictivePopEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition) =
@@ -508,11 +507,11 @@ public fun NavHost(
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     sizeTransform:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
@@ -583,11 +582,11 @@ public fun NavHost(
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     predictivePopEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition) =
@@ -673,9 +672,9 @@ public fun NavHost(
     exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
         DefaultNavTransitions.exitTransition,
     popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
 ) {
     NavHost(
         navController,
@@ -728,11 +727,11 @@ public fun NavHost(
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     sizeTransform:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
@@ -790,11 +789,11 @@ public fun NavHost(
     popEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        enterTransition,
+        DefaultNavTransitions.popEnterTransition(enterTransition),
     popExitTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
-        exitTransition,
+        DefaultNavTransitions.popExitTransition(exitTransition),
     predictivePopEnterTransition:
         (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition) =

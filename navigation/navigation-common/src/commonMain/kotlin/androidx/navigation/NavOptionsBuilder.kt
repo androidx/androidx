@@ -34,8 +34,9 @@ public expect class NavOptionsBuilder() {
      * Whether this navigation action should launch as single-top (i.e., there will be at most one
      * copy of a given destination on the top of the back stack).
      *
-     * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP] works with
-     * activities.
+     * This functions similarly to how
+     * [android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP](https://developer.android.com/reference/android/content/Intent#FLAG_ACTIVITY_SINGLE_TOP)
+     * works with activities.
      */
     public var launchSingleTop: Boolean
 

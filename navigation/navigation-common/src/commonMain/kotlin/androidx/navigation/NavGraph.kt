@@ -32,7 +32,7 @@ import kotlinx.serialization.KSerializer
  * NavGraph is a collection of [NavDestination] nodes fetchable by ID.
  *
  * A NavGraph serves as a 'virtual' destination: while the NavGraph itself will not appear on the
- * back stack, navigating to the NavGraph will cause the [starting destination][getStartDestination]
+ * back stack, navigating to the NavGraph will cause the [starting destination][startDestinationId]
  * to be added to the back stack.
  *
  * Construct a new NavGraph. This NavGraph is not valid until you
@@ -192,6 +192,7 @@ public expect open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     /** Clear all destinations from this navigation graph. */
     public fun clear()
 
+    @Suppress("KmpHideShowAnnotationMismatch") // hidden in androidMain and nonAndroidMain
     override val displayName: String
 
     /**
@@ -254,6 +255,7 @@ public expect open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     public var startDestinationRoute: String?
         private set
 
+    @Suppress("KmpHideShowAnnotationMismatch") // hidden in androidMain and nonAndroidMain
     public val startDestDisplayName: String
 
     public companion object {
