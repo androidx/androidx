@@ -204,53 +204,6 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
-    @ExperimentalOriginMatchedHeader
-    @SuppressWarnings("deprecation")
-    public void setOriginMatchedHeader(@NonNull String headerName, @NonNull String headerValue,
-            @NonNull Set<String> originRules) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.ORIGIN_MATCHED_HEADERS;
-        if (feature.isSupportedByWebView()) {
-            mProfileImpl.setOriginMatchedHeader(headerName, headerValue, originRules);
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-    @Override
-    @ExperimentalOriginMatchedHeader
-    public boolean hasOriginMatchedHeader(@NonNull String headerName) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.ORIGIN_MATCHED_HEADERS;
-        if (feature.isSupportedByWebView()) {
-            return mProfileImpl.hasOriginMatchedHeader(headerName);
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-    @Override
-    @ExperimentalOriginMatchedHeader
-    @SuppressWarnings("deprecation")
-    public void clearOriginMatchedHeader(@NonNull String headerName) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.ORIGIN_MATCHED_HEADERS;
-        if (feature.isSupportedByWebView()) {
-            mProfileImpl.clearOriginMatchedHeader(headerName);
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-    @Override
-    @ExperimentalOriginMatchedHeader
-    public void clearAllOriginMatchedHeaders() {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.ORIGIN_MATCHED_HEADERS;
-        if (feature.isSupportedByWebView()) {
-            mProfileImpl.clearAllOriginMatchedHeaders();
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-    @Override
     public void addCustomHeader(@NonNull CustomHeader header) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.CUSTOM_REQUEST_HEADERS;
         if (feature.isSupportedByWebView()) {

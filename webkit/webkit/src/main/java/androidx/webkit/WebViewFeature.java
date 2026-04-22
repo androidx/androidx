@@ -134,7 +134,6 @@ public class WebViewFeature {
             PRECONNECT,
             PROVIDER_WEAKLY_REF_WEBVIEW,
             HYPERLINK_CONTEXT_MENU_ITEMS,
-            ORIGIN_MATCHED_HEADERS,
             CUSTOM_REQUEST_HEADERS,
             ADD_QUIC_HINTS_V1,
             PAGE_GET_URL,
@@ -874,17 +873,6 @@ public class WebViewFeature {
      */
     @Profile.ExperimentalWarmUpRendererProcess
     public static final String WARM_UP_RENDERER_PROCESS = "WARM_UP_RENDERER_PROCESS";
-
-    /**
-     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
-     * This feature covers {@link Profile#setOriginMatchedHeader(String, String, Set)},
-     * {@link Profile#hasOriginMatchedHeader(String)},
-     * {@link Profile#clearOriginMatchedHeader(String)}, and
-     * {@link Profile#clearAllOriginMatchedHeaders()}.
-     *
-     */
-    @Profile.ExperimentalOriginMatchedHeader
-    public static final String ORIGIN_MATCHED_HEADERS = "ORIGIN_MATCHED_HEADERS";
 
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
