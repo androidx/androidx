@@ -1133,14 +1133,14 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     public boolean canScrollHorizontally() {
         // We can scroll horizontally if we have horizontal orientation, or if
         // we are vertical and have more than one column.
-        return mOrientation == HORIZONTAL || mNumRows > 1;
+        return mOrientation == HORIZONTAL || (!mBaseGridView.isInTouchMode() && mNumRows > 1);
     }
 
     @Override
     public boolean canScrollVertically() {
         // We can scroll vertically if we have vertical orientation, or if we
         // are horizontal and have more than one row.
-        return mOrientation == VERTICAL || mNumRows > 1;
+        return mOrientation == VERTICAL || (!mBaseGridView.isInTouchMode() && mNumRows > 1);
     }
 
     /**

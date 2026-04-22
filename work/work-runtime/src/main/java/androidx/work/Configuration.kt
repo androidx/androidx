@@ -172,6 +172,14 @@ public class Configuration internal constructor(builder: Builder) {
         return executionEventListener
     }
 
+    @property:ExperimentalEventsApi private val scheduleEventListener: ScheduleEventListener?
+
+    /** The [ScheduleEventListener] that listens to work execution events for all workers. */
+    @ExperimentalEventsApi
+    public fun getScheduleEventListener(): ScheduleEventListener? {
+        return scheduleEventListener
+    }
+
     /**
      * @return The [Tracer] instance that can be used by [WorkManager] to record trace spans when
      *   executing [WorkRequest]s.
@@ -235,6 +243,7 @@ public class Configuration internal constructor(builder: Builder) {
         contentUriTriggerWorkersLimit = builder.contentUriTriggerWorkersLimit
         isMarkingJobsAsImportantWhileForeground = builder.markJobsAsImportantWhileForeground
         executionEventListener = builder.executionEventListener
+        scheduleEventListener = builder.scheduleEventListener
         tracer = builder.tracer ?: createDefaultTracer()
         enableRepresentativeJobs = builder.enableRepresentativeJobs
     }
@@ -261,6 +270,7 @@ public class Configuration internal constructor(builder: Builder) {
         internal var contentUriTriggerWorkersLimit: Int = DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT
         internal var markJobsAsImportantWhileForeground: Boolean = true
         internal var executionEventListener: ExecutionEventListener? = null
+        internal var scheduleEventListener: ScheduleEventListener? = null
         internal var tracer: Tracer? = null
         internal var enableRepresentativeJobs: Boolean = false
 
@@ -297,6 +307,7 @@ public class Configuration internal constructor(builder: Builder) {
             markJobsAsImportantWhileForeground =
                 configuration.isMarkingJobsAsImportantWhileForeground
             executionEventListener = configuration.executionEventListener
+            scheduleEventListener = configuration.scheduleEventListener
             tracer = configuration.tracer
         }
 
@@ -609,6 +620,22 @@ public class Configuration internal constructor(builder: Builder) {
         @ExperimentalEventsApi
         public fun setExecutionEventListener(listener: ExecutionEventListener): Builder {
             this.executionEventListener = listener
+            return this
+        }
+
+        /**
+         * Set a [ScheduleEventListener] to run whenever work scheduling events occur for any
+         * worker.
+         *
+         * These callbacks will be invoked on a thread bound to [Configuration.taskExecutor].
+         *
+         * @param listener [ScheduleEventListener] to set
+         * @return This [Builder] instance
+         */
+        @SuppressLint("ExecutorRegistration") // Developer can configure taskExecutor directly
+        @ExperimentalEventsApi
+        public fun setScheduleEventListener(listener: ScheduleEventListener): Builder {
+            this.scheduleEventListener = listener
             return this
         }
 
