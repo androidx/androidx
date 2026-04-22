@@ -3852,7 +3852,7 @@ public class RemoteComposeWriter {
     /**
      * Ensures the bitmap is stored.
      *
-     * @param image the bitbap to store
+     * @param image the bitmap to store
      * @return the id of the bitmap
      */
     public int storeBitmap(@NonNull Object image) {
@@ -3874,16 +3874,28 @@ public class RemoteComposeWriter {
     /**
      * Ensures the bitmap is stored.
      *
-     * @param url the bitbap to store
+     * @param url the bitmap to store
+     * @param width the bitmap width
+     * @param height the bitmap height
      * @return the id of the bitmap
      */
-    public int addBitmapUrl(@NonNull String url) {
+    public int addBitmapUrl(@NonNull String url, int width, int height) {
         int imageId = mState.dataGetId(url);
         if (imageId == -1) {
             imageId = mState.cacheData(url);
-            mBuffer.storeBitmapUrl(imageId, url);
+            mBuffer.storeBitmapUrl(imageId, url, width, height);
         }
         return imageId;
+    }
+
+    /**
+     * Ensures the bitmap is stored.
+     *
+     * @param url the bitmap to store
+     * @return the id of the bitmap
+     */
+    public int addBitmapUrl(@NonNull String url) {
+        return addBitmapUrl(url, 1, 1);
     }
 
     /**

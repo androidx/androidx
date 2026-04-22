@@ -2476,12 +2476,20 @@ public class RemoteComposeBuffer {
      * Store an image url in the buffer
      *
      * @param imageId the image id
-     * @param url the image url
+     * @param url     the image url
+     * @param width   the bitmap width
+     * @param height  the bitmap height
      * @return the image id
      */
-    public int storeBitmapUrl(int imageId, @NonNull String url) {
-        BitmapData.apply(mBuffer, imageId, BitmapData.TYPE_PNG, (short) 1, BitmapData.ENCODING_URL,
-                (short) 1, url.getBytes(StandardCharsets.UTF_8));
+    public int storeBitmapUrl(int imageId, @NonNull String url, int width, int height) {
+        BitmapData.apply(
+                mBuffer,
+                imageId,
+                BitmapData.TYPE_PNG,
+                (short) width,
+                BitmapData.ENCODING_URL,
+                (short) height,
+                url.getBytes(StandardCharsets.UTF_8));
         return imageId;
     }
 
