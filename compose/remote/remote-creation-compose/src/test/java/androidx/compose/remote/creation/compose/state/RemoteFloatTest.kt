@@ -42,6 +42,7 @@ import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -56,9 +57,7 @@ class RemoteFloatTest {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
     val applicationContext = ApplicationProvider.getApplicationContext<Context>()
-    val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
     val time = RemoteFloat.createNamedRemoteFloat("time", 100f).createReference()
-
     val JUN_06_2025_UTC =
         RemoteLong(
             LocalDateTime.parse("2025-06-06T01:02:03")
@@ -66,6 +65,13 @@ class RemoteFloatTest {
                 .toInstant()
                 .toEpochMilli()
         )
+    lateinit var creationState: RemoteComposeCreationState
+
+    @Before
+    fun setUp() {
+        // Necessary for test isolation.
+        creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
+    }
 
     @Test
     fun addition() {
@@ -1308,6 +1314,39 @@ class RemoteFloatTest {
 
         assertThat(floatFromId.hasConstantValue).isTrue()
         assertThat(floatFromId.cacheKey).isEqualTo(RemoteConstantCacheKey(42f))
+    }
+
+    @Test
+    fun sharedExpressionReferenced() {
+        val a = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) + 1f
+        val b = a * 2f
+
+        // Write 'a' first to ensure it's in the document and hasBeenWrittenToDoc
+        // returns true
+        a.getIdForCreationState(creationState)
+        assertThat(a.hasBeenWrittenToDoc(creationState)).isTrue()
+
+        // Now 'b' should reference 'a' instead of inlining it
+        val bArray = b.arrayForCreationState(creationState)
+
+        // Expected bArray: [ID_A, 2.0, ADD] -> size 3
+        // If inlined: [SEC, 1.0, ADD, 2.0, ADD] -> size 5
+        assertThat(bArray.size).isEqualTo(3)
+        assertThat(bArray[0]).isEqualTo(a.getFloatIdForCreationState(creationState))
+    }
+
+    @Test
+    fun unsharedExpressionInlined() {
+        val a = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) + 1f
+        val b = a * 2f
+
+        assertThat(a.hasBeenWrittenToDoc(creationState)).isFalse()
+
+        // 'b' should inline 'a' instead
+        val bArray = b.arrayForCreationState(creationState)
+
+        // Expected bArray: [SEC, 1.0, ADD, 2.0, ADD] -> size 5
+        assertThat(bArray.size).isEqualTo(5)
     }
 
     private fun makeAndPaintCoreDocument() =

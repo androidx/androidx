@@ -127,6 +127,9 @@ internal constructor(
         }
     }
 
+    internal fun hasBeenWrittenToDoc(creationState: RemoteComposeCreationState) =
+        creationState.remoteVariableToId.contains(cacheKey)
+
     /**
      * Converts this [RemoteInt] to a [RemoteFloat]. If the [RemoteInt] is a literal, it\'s directly
      * converted to a float. Otherwise, a [RemoteFloatExpression] is created that references the
@@ -695,9 +698,17 @@ internal fun combineToLongArray(
     var totalSizeReference = extras.size + remoteInts.size
     var arrays =
         Array<LongArray>(remoteInts.size) { i ->
-            var array = remoteInts[i].arrayForCreationState(creationState)
-            totalSizeInline += array.size
-            array
+            val remoteInt = remoteInts[i]
+            // If remoteInt has already been written to the document then use a reference
+            // rather than inlining the expression. This results in smaller documents.
+            if (remoteInt.hasBeenWrittenToDoc(creationState)) {
+                totalSizeInline += 1
+                longArrayOf(remoteInt.getLongIdForCreationState(creationState))
+            } else {
+                var array = remoteInt.arrayForCreationState(creationState)
+                totalSizeInline += array.size
+                array
+            }
         }
 
     val combinedArray: LongArray
