@@ -79,4 +79,11 @@ class TypographyTest {
             )
         assertThat(typ.labelMedium.fontFamily).isEqualTo(FontFamily.SansSerif)
     }
+
+    @Test
+    fun typography_nullValuesWithCustomFont_fallbackToCustomFontTokens() {
+        val customFontFamily = FontFamily.Cursive
+        val typ = Typography(fontFamily = customFontFamily, displayLarge = null)
+        assertThat(typ.displayLarge.fontFamily).isEqualTo(customFontFamily)
+    }
 }

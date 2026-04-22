@@ -289,6 +289,9 @@ import androidx.compose.material3.samples.TonalToggleButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxRoundedStrokesSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
+import androidx.compose.material3.samples.TypographyCustomFontFamilyOverrideSample
+import androidx.compose.material3.samples.TypographyCustomFontFamilySample
+import androidx.compose.material3.samples.TypographySample
 import androidx.compose.material3.samples.VerticalButtonGroupSample
 import androidx.compose.material3.samples.VerticalCenteredSliderSample
 import androidx.compose.material3.samples.VerticalFloatingToolbarWithFabSample
@@ -1141,6 +1144,36 @@ val TopAppBarExamples =
             isExpressive = true,
         ) {
             CustomTwoRowsTopAppBar()
+        },
+    )
+
+private const val TypographyExampleDescription = "Typography examples"
+private const val TypographyExampleSourceUrl = "$SampleSourceUrl/TypographySamples.kt"
+val TypographyExamples =
+    listOf(
+        Example(
+            name = "TypographySample",
+            description = TypographyExampleDescription,
+            sourceUrl = TypographyExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            TypographySample()
+        },
+        Example(
+            name = "TypographyCustomFontFamilySample",
+            description = TypographyExampleDescription,
+            sourceUrl = TypographyExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            TypographyCustomFontFamilySample()
+        },
+        Example(
+            name = "TypographyCustomFontFamilyOverrideSample",
+            description = TypographyExampleDescription,
+            sourceUrl = TypographyExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            TypographyCustomFontFamilyOverrideSample()
         },
     )
 
