@@ -68,6 +68,7 @@ internal class OpenXrManager internal constructor(internal val timeSource: OpenX
             DeviceTrackingMode.DISABLED,
             DepthEstimationMode.DISABLED,
             AnchorPersistenceMode.LOCAL,
+            augmentedImageDatabase = null,
         )
         private set
 

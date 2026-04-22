@@ -35,6 +35,7 @@ import androidx.xr.runtime.internal.UnsupportedDeviceException
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
 import com.google.ar.core.AugmentedFace as ARCore1xAugmentedFace
+import com.google.ar.core.AugmentedImage as ARCore1xAugmentedImage
 import com.google.ar.core.CameraConfig
 import com.google.ar.core.CameraConfigFilter
 import com.google.ar.core.Frame
@@ -176,6 +177,16 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
         throw NotImplementedError("Anchor persistence is currently not supported by ARCore.")
     }
 
+    override val imageDatabaseMaxLoadedImageCount: Int
+        get() =
+            throw NotImplementedError(
+                "Image database max loaded image count is not supported by ARCore."
+            )
+
+    override val isPhysicalSizeEstimationSupported: Boolean
+        get() =
+            throw NotImplementedError("Physical size estimation check is not supported by ARCore.")
+
     override val trackables: Collection<Trackable> = xrResources.trackables.values
 
     override val leftEye: Eye? = null
@@ -244,6 +255,18 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
                 }
             }
         augmentedFaces.forEach { xrResources.addTrackable(it, ArCoreFace(it)) }
+
+        val augmentedImages = _latestFrame.getUpdatedTrackables(ARCore1xAugmentedImage::class.java)
+        // Don't retain any AugmentedImages that the ArCore Session is no longer tracking
+        xrResources.trackables
+            .filter { it.value is ArCoreAugmentedImage }
+            .keys
+            .forEach {
+                if (!augmentedImages.contains(it)) {
+                    xrResources.removeTrackable(it)
+                }
+            }
+        augmentedImages.forEach { xrResources.addTrackable(it, ArCoreAugmentedImage(it)) }
 
         arDevice.update(_latestFrame)
 

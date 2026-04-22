@@ -122,6 +122,7 @@ internal class OpenXrRuntime(
             DepthEstimationMode.DISABLED,
             AnchorPersistenceMode.LOCAL,
             augmentedObjectCategories = setOf(),
+            augmentedImageDatabase = null,
         )
         private set(value) {
             lifecycleManager.configure(value)
@@ -178,6 +179,10 @@ internal class OpenXrRuntime(
             perceptionManager.updateAugmentedObjects(xrTime)
         }
 
+        if (config.augmentedImageDatabase?.entries?.isNotEmpty() == true) {
+            perceptionManager.updateAugmentedImages(xrTime)
+        }
+
         perceptionManager.update(xrTime)
         // Block the call for a time that is appropriate for OpenXR devices.
         // TODO: b/359871229 - Implement dynamic delay. We start with a fixed 20ms delay as it is
@@ -212,6 +217,27 @@ internal class OpenXrRuntime(
             throw SecurityException()
         }
 
+        config.augmentedImageDatabase?.let {
+            if (
+                it.entries.isEmpty() ||
+                    it.entries.size > perceptionManager.imageDatabaseMaxLoadedImageCount
+            ) {
+                throw IllegalArgumentException(
+                    "Failed to configure session, the image database has exceeded the maximum number of entries."
+                )
+            }
+
+            val isPhysicalSizeEstimationSupported =
+                perceptionManager.isPhysicalSizeEstimationSupported
+            it.entries.forEach { entry ->
+                if (entry.widthInMeters <= 0f && !isPhysicalSizeEstimationSupported) {
+                    throw IllegalArgumentException(
+                        "Failed to configure session, the image database entries requires the widthInMeters parameter to be higher than 0f."
+                    )
+                }
+            }
+        }
+
         val objectLabels: MutableList<Long> = mutableListOf()
         var objectMode: Int = 0
 
@@ -236,6 +262,10 @@ internal class OpenXrRuntime(
                     objectTracking = objectMode,
                     objectLabels = objectLabels.toLongArray(),
                     geospatial = config.geospatial.mode,
+                    augmentedImageDatabase =
+                        config.augmentedImageDatabase?.let {
+                            OpenXrAugmentedImageDatabase.fromAugmentedImageDatabase(it)
+                        },
                 )
             ) {
                 -2L ->
@@ -412,6 +442,7 @@ internal class OpenXrRuntime(
         objectTracking: Int,
         objectLabels: LongArray,
         geospatial: Int,
+        augmentedImageDatabase: OpenXrAugmentedImageDatabase? = null,
     ): Long
 
     private external fun nativeGetFaceTrackerCalibration(): Boolean

@@ -96,6 +96,15 @@ public interface PerceptionManager {
     public fun setDisplayRotation(rotation: Int, width: Int, height: Int): Unit =
         throw UnsupportedOperationException()
 
+    /**
+     * Returns the maximum number of images that can be added to an
+     * [androidx.xr.runtime.AugmentedImageDatabase]
+     */
+    public val imageDatabaseMaxLoadedImageCount: Int
+
+    /** Returns if the device support physical size estimation. Used for image tracking. */
+    public val isPhysicalSizeEstimationSupported: Boolean
+
     public val trackables: Collection<Trackable>
     public val leftEye: Eye?
     public val rightEye: Eye?

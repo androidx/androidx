@@ -188,6 +188,12 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
         lastUpdateXrTime = xrTime
     }
 
+    override val imageDatabaseMaxLoadedImageCount: Int
+        get() = nativeGetImageDatabaseMaxLoadedImageCount()
+
+    override val isPhysicalSizeEstimationSupported: Boolean
+        get() = nativeIsPhysicalSizeEstimationSupported()
+
     internal fun updateAugmentedObjects(xrTime: Long) {
         val objects = nativeGetAugmentedObjects(xrTime)
         // Add new objects to the list of trackables.
@@ -223,6 +229,26 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
                 OpenXrPlane(plane, Plane.Type.fromOpenXrType(planeTypeInt), timeSource, xrResources)
             xrResources.addTrackable(plane, trackable)
             xrResources.addUpdatable(trackable as Updatable)
+        }
+    }
+
+    internal fun updateAugmentedImages(xrTime: Long) {
+        val augmentedImages = nativeGetAugmentedImages()
+        // Add new images to the list of trackables.
+        for (augmentedImage in augmentedImages) {
+            if (xrResources.trackablesMap.containsKey(augmentedImage)) continue
+
+            val trackable = OpenXrAugmentedImage(augmentedImage)
+            xrResources.addTrackable(augmentedImage, trackable)
+            xrResources.addUpdatable(trackable as Updatable)
+        }
+
+        // Remove images that are no longer tracked.
+        for ((key, value) in xrResources.trackablesMap.toMap()) {
+            if (value is OpenXrAugmentedImage && !augmentedImages.contains(key)) {
+                xrResources.removeUpdatable(value as Updatable)
+                xrResources.removeTrackable(key)
+            }
         }
     }
 
@@ -291,4 +317,10 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
     ): Array<ViewCameraState>?
 
     private external fun nativeGetDepthImagesDataBuffers(timestampNs: Long): Array<ByteBuffer>
+
+    private external fun nativeGetAugmentedImages(): LongArray
+
+    private external fun nativeGetImageDatabaseMaxLoadedImageCount(): Int
+
+    private external fun nativeIsPhysicalSizeEstimationSupported(): Boolean
 }

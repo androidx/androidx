@@ -22,6 +22,7 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import com.google.ar.core.Anchor as ARCoreAnchor
+import com.google.ar.core.AugmentedImage as ARCore1xAugmentedImage
 import com.google.ar.core.Camera
 import com.google.ar.core.Frame
 import com.google.ar.core.HitResult
@@ -205,5 +206,23 @@ class ArCorePerceptionManagerTest {
         assertThat(underTest.trackables).hasSize(1)
         assertIs<ArCorePlane>(underTest.trackables.first())
         verify(mockFrame).getUpdatedTrackables(ARCore1xPlane::class.java)
+    }
+
+    @Test
+    fun update_addsAugmentedImagesToTrackables() {
+        val mockFrame = mock<Frame>()
+        val mockAugmentedImage = mock<ARCore1xAugmentedImage>()
+        val timestamp = 1000L
+        whenever(mockFrame.getUpdatedTrackables(ARCore1xAugmentedImage::class.java))
+            .thenReturn(listOf(mockAugmentedImage))
+        whenever(mockFrame.timestamp).thenReturn(timestamp)
+        whenever(mockFrame.camera).thenReturn(mockCamera)
+        whenever(mockSession.update()).thenReturn(mockFrame)
+
+        underTest.update()
+
+        assertThat(underTest.trackables).hasSize(1)
+        assertIs<ArCoreAugmentedImage>(underTest.trackables.first())
+        verify(mockFrame).getUpdatedTrackables(ARCore1xAugmentedImage::class.java)
     }
 }

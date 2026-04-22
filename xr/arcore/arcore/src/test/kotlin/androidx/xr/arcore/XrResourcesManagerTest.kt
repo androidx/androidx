@@ -20,6 +20,7 @@ import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
 import androidx.xr.arcore.runtime.ArDevice as RuntimeArDevice
+import androidx.xr.arcore.runtime.AugmentedImage as RuntimeAugmentedImage
 import androidx.xr.arcore.runtime.AugmentedObject as RuntimeAugmentedObject
 import androidx.xr.arcore.runtime.Depth as RuntimeDepth
 import androidx.xr.arcore.runtime.Face as RuntimeFace
@@ -215,6 +216,19 @@ class XrResourcesManagerTest {
     }
 
     @Test
+    fun syncTrackables_handlesAugmentedImages() {
+        val runtimeAugmentedImage1 = StubRuntimeAugmentedImage()
+        val runtimeAugmentedImage2 = StubRuntimeAugmentedImage()
+        val runtimeAugmentedImage3 = StubRuntimeAugmentedImage()
+
+        underTest.syncTrackables(listOf(runtimeAugmentedImage1, runtimeAugmentedImage2))
+
+        assertThat(underTest.trackablesMap[runtimeAugmentedImage1]).isNotNull()
+        assertThat(underTest.trackablesMap[runtimeAugmentedImage2]).isNotNull()
+        assertThat(underTest.trackablesMap[runtimeAugmentedImage3]).isNull()
+    }
+
+    @Test
     fun clear_clearsAllTrackables() {
         val runtimePlane = StubRuntimePlane()
         underTest.syncTrackables(listOf(runtimePlane))
@@ -314,6 +328,13 @@ class XrResourcesManagerTest {
         override val category = AugmentedObjectCategory.UNKNOWN
         override val centerPose = Pose()
         override val extents = FloatSize3d()
+        override val trackingState = TrackingState.TRACKING
+    }
+
+    private class StubRuntimeAugmentedImage : RuntimeAugmentedImage {
+        override val index = 0
+        override val centerPose = Pose()
+        override val extents = FloatSize2d()
         override val trackingState = TrackingState.TRACKING
     }
 

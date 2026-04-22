@@ -16,6 +16,7 @@
 
 package androidx.xr.runtime
 
+import android.graphics.Bitmap
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -88,6 +89,21 @@ class ConfigTest {
         val config1 = Config(anchorPersistence = AnchorPersistenceMode.LOCAL)
 
         val config2 = Config(anchorPersistence = AnchorPersistenceMode.DISABLED)
+
+        assertThat(config1).isNotEqualTo(config2)
+    }
+
+    @Test
+    fun equals_differentImageTracking_returnsFalse() {
+        val augmentedImageDatabase =
+            AugmentedImageDatabase().apply {
+                addAugmentedImageDatabaseEntry(
+                    mode = AugmentedImageDatabaseEntryMode.DYNAMIC,
+                    bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+                )
+            }
+        val config1 = Config(augmentedImageDatabase = AugmentedImageDatabase())
+        val config2 = Config(augmentedImageDatabase = augmentedImageDatabase)
 
         assertThat(config1).isNotEqualTo(config2)
     }

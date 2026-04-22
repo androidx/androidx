@@ -18,6 +18,7 @@ package androidx.xr.arcore
 
 import android.annotation.SuppressLint
 import androidx.xr.arcore.runtime.ArDevice as RuntimeArDevice
+import androidx.xr.arcore.runtime.AugmentedImage as RuntimeImage
 import androidx.xr.arcore.runtime.AugmentedObject as RuntimeObject
 import androidx.xr.arcore.runtime.Depth as RuntimeDepth
 import androidx.xr.arcore.runtime.Eye as RuntimeEye
@@ -200,6 +201,7 @@ internal class XrResourcesManager {
             when (runtimeTrackable) {
                 is RuntimePlane -> Plane(runtimeTrackable, this)
                 is RuntimeObject -> AugmentedObject(runtimeTrackable, this)
+                is RuntimeImage -> AugmentedImage(runtimeTrackable)
                 is RuntimeFace -> Face(runtimeTrackable, this)
                 is RuntimeEye -> Eye(runtimeTrackable)
                 is RuntimeHand -> Hand(runtimeTrackable)

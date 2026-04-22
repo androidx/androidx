@@ -72,6 +72,9 @@ internal class FakePerceptionRuntime(
     /** If false, [configure] will throw an exception if the config enables FaceTracking */
     @get:JvmName("shouldSupportFaceTracking") var shouldSupportFaceTracking: Boolean = true
 
+    /** If false, [configure] will throw an Exception if the config enables ImageTracking. */
+    @get:JvmName("shouldSupportImageTracking") var shouldSupportImageTracking: Boolean = true
+
     override var config: Config = Config()
 
     override fun initialize() {
@@ -101,6 +104,10 @@ internal class FakePerceptionRuntime(
         }
 
         if (!shouldSupportFaceTracking && config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
+            throw UnsupportedOperationException()
+        }
+
+        if (!shouldSupportImageTracking && config.augmentedImageDatabase != null) {
             throw UnsupportedOperationException()
         }
 

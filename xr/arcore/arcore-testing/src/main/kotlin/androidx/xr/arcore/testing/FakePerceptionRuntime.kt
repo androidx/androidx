@@ -16,10 +16,13 @@
 
 package androidx.xr.arcore.testing
 
+import android.graphics.Bitmap
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory as InternalFactory
 import androidx.xr.runtime.AnchorPersistenceMode
+import androidx.xr.runtime.AugmentedImageDatabase
+import androidx.xr.runtime.AugmentedImageDatabaseEntryMode
 import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
@@ -92,6 +95,11 @@ public data class FakePerceptionRuntime(
     @get:JvmName("shouldSupportFaceTracking")
     public var shouldSupportFaceTracking: Boolean = true
 
+    /** If false, [configure] will throw an Exception if the config enables ImageTracking. */
+    @get:JvmName("shouldSupportImageTracking") public var shouldSupportImageTracking: Boolean = true
+
+    public var augmentedImageDatabase: AugmentedImageDatabase = AugmentedImageDatabase()
+
     public override var config: Config =
         Config(
             PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
@@ -100,6 +108,7 @@ public data class FakePerceptionRuntime(
             DepthEstimationMode.SMOOTH_AND_RAW,
             AnchorPersistenceMode.LOCAL,
             augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
+            augmentedImageDatabase = augmentedImageDatabase,
         )
 
     override fun initialize() {
@@ -112,6 +121,10 @@ public data class FakePerceptionRuntime(
             InternalFactory.runtimeInitializeException = null
             throw exceptionToThrow
         }
+        augmentedImageDatabase.addAugmentedImageDatabaseEntry(
+            mode = AugmentedImageDatabaseEntryMode.DYNAMIC,
+            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+        )
         state = State.INITIALIZED
     }
 
@@ -127,6 +140,13 @@ public data class FakePerceptionRuntime(
         }
 
         if (!shouldSupportFaceTracking && config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
+            throw UnsupportedOperationException()
+        }
+
+        if (
+            !shouldSupportImageTracking &&
+                config.augmentedImageDatabase?.entries?.isNotEmpty() == true
+        ) {
             throw UnsupportedOperationException()
         }
 

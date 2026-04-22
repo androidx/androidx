@@ -43,6 +43,7 @@ public class ArCoreTestRule : ExternalResource() {
     private val _persistedAnchorPoses: MutableMap<UUID, Pose> = mutableMapOf()
     private val _planes: MutableList<TestPlane> = mutableListOf()
     private val _objects: MutableList<TestAugmentedObject> = mutableListOf()
+    private val _images: MutableList<TestAugmentedImage> = mutableListOf()
     private val _faceMeshes: MutableList<TestFace> = mutableListOf()
 
     internal lateinit var runtime: FakePerceptionRuntime
@@ -74,6 +75,14 @@ public class ArCoreTestRule : ExternalResource() {
      */
     public val augmentableObjects: List<TestAugmentedObject>
         get() = _objects.toList()
+
+    /**
+     * A list of all [TestAugmentedImage] objects in the environment. Tracking must be configured
+     * via [androidx.xr.runtime.Session.configure] in order for an added object to be ingested by
+     * the runtime.
+     */
+    public val augmentableImages: List<TestAugmentedImage>
+        get() = _images.toList()
 
     /**
      * A list of all [TestFace] objects in the environment, excluding the user's. Tracking must be
@@ -225,6 +234,12 @@ public class ArCoreTestRule : ExternalResource() {
                         runtime.perceptionManager.trackables.add(it.fakeRuntimeTrackable)
                     }
                 }
+                is TestAugmentedImage -> {
+                    _images.add(it)
+                    if (it.isConfigured()) {
+                        runtime.perceptionManager.trackables.add(it.fakeRuntimeTrackable)
+                    }
+                }
             }
             // TODO: b/497925970 ensure trackables added before they get configured are
             // retroactively added to the PerceptionManager
@@ -305,6 +320,22 @@ public class ArCoreTestRule : ExternalResource() {
                     noseTipPose = testTrackable.noseTipPose
                     foreheadLeftPose = testTrackable.foreheadLeftPose
                     foreheadRightPose = testTrackable.foreheadRightPose
+                    trackingState =
+                        if (testTrackable.isVisible) {
+                            TrackingState.TRACKING
+                        } else {
+                            TrackingState.PAUSED
+                        }
+                }
+            }
+            is TestAugmentedImage -> {
+                if (!testTrackable.isConfigured()) {
+                    return
+                }
+                testTrackable.fakeRuntimeTrackable.apply {
+                    centerPose = testTrackable.centerPose
+                    extents = testTrackable.extents
+                    index = testTrackable.index
                     trackingState =
                         if (testTrackable.isVisible) {
                             TrackingState.TRACKING

@@ -18,6 +18,7 @@ package androidx.xr.runtime
 
 import android.Manifest
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
@@ -320,6 +321,32 @@ class SessionTest {
         }
         assertThat(underTest.config).isEqualTo(currentConfig)
         stubRuntime.shouldSupportPlaneTracking = true
+    }
+
+    @Test
+    fun configure_unsupportedImageMode_returnsConfigurationNotSupportedResult() {
+        activityController.create().start().resume()
+        underTest = createSession()
+        val stubRuntime = getStubRuntime()
+
+        val currentConfig = underTest.config
+        stubRuntime.shouldSupportImageTracking = false
+
+        assertFailsWith<UnsupportedOperationException> {
+            underTest.configure(
+                currentConfig.copy(
+                    augmentedImageDatabase =
+                        AugmentedImageDatabase().apply {
+                            addAugmentedImageDatabaseEntry(
+                                mode = AugmentedImageDatabaseEntryMode.DYNAMIC,
+                                bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+                            )
+                        }
+                )
+            )
+        }
+        assertThat(underTest.config).isEqualTo(currentConfig)
+        stubRuntime.shouldSupportImageTracking = true
     }
 
     @Test

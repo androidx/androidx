@@ -185,6 +185,7 @@ package androidx.xr.arcore.runtime {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface PerceptionManager {
     method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.ArDevice getArDevice();
+    method @InaccessibleFromKotlin public int getImageDatabaseMaxLoadedImageCount();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.Depth? getLeftDepth();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Eye? getLeftEye();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Hand? getLeftHand();
@@ -199,10 +200,13 @@ package androidx.xr.arcore.runtime {
     method @InaccessibleFromKotlin public java.util.Collection<androidx.xr.arcore.runtime.Trackable> getTrackables();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.runtime.Face? getUserFace();
     method public java.util.List<androidx.xr.arcore.runtime.HitResult> hitTest(androidx.xr.runtime.math.Ray ray);
+    method @InaccessibleFromKotlin public boolean isPhysicalSizeEstimationSupported();
     method public androidx.xr.arcore.runtime.Anchor loadAnchor(java.util.UUID uuid);
     method public default void setDisplayRotation(int rotation, int width, int height);
     method public void unpersistAnchor(java.util.UUID uuid);
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.ArDevice arDevice;
+    property public abstract int imageDatabaseMaxLoadedImageCount;
+    property public abstract boolean isPhysicalSizeEstimationSupported;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public abstract androidx.xr.arcore.runtime.Depth? leftDepth;
     property public abstract androidx.xr.arcore.runtime.Eye? leftEye;
     property public abstract androidx.xr.arcore.runtime.Hand? leftHand;

@@ -74,6 +74,15 @@ internal class FakeLifecycleManager(private val owner: FakePerceptionRuntime) : 
             owner.shouldSupportPlaneTracking = value
         }
 
+    @get:JvmName("shouldSupportImageTracking")
+    var shouldSupportImageTracking: Boolean
+        get() {
+            return owner.shouldSupportImageTracking
+        }
+        set(value) {
+            owner.shouldSupportImageTracking = value
+        }
+
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @get:JvmName("shouldSupportFaceTracking")
