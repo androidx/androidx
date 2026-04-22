@@ -21,6 +21,7 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,16 +39,18 @@ class InMemoryRingBufferTraceSinkTest {
         val folder = tmpFolder.newFolder()
         val file1 = File(folder, "trace1.perfetto")
         val sink = InMemoryRingBufferTraceSink(capacityInBytes = 10_000_000, sequenceId = 1)
-        TraceDriver(sink = sink, isEnabled = true).use { driver ->
+        TraceDriver(sink = sink, isGloballyEnabled = true).use { driver ->
             val tracer = driver.tracer
 
             val job =
                 launch(Dispatchers.Default) {
-                    repeat(100) { tracer.traceCoroutine("cat", "event-$it") { delay(1) } }
+                    repeat(100) {
+                        tracer.traceCoroutine("cat", "event-$it") { delay(1.milliseconds) }
+                    }
                 }
 
             // Wait for potential background processing
-            delay(50)
+            delay(50.milliseconds)
 
             val bufferedSink = file1.sink().buffer()
             driver.flush()
@@ -72,14 +75,14 @@ class InMemoryRingBufferTraceSinkTest {
         // Small capacity
         val capacity = 1024L
         val sink = InMemoryRingBufferTraceSink(capacityInBytes = capacity, sequenceId = 1)
-        TraceDriver(sink = sink, isEnabled = true).use { driver ->
+        TraceDriver(sink = sink, isGloballyEnabled = true).use { driver ->
             val tracer = driver.tracer
 
             // Generate enough data to overflow
             repeat(1000) { tracer.traceCoroutine("cat", "event-$it") {} }
 
             // Wait for potential background processing
-            delay(50)
+            delay(50.milliseconds)
 
             file.sink().buffer().use { bufferedSink ->
                 driver.flush()
@@ -105,7 +108,7 @@ class InMemoryRingBufferTraceSinkTest {
         val file = File(folder, "trace_complex.perfetto")
         // Sufficient for one complex event
         val sink = InMemoryRingBufferTraceSink(capacityInBytes = 10_000, sequenceId = 1)
-        TraceDriver(sink = sink, isEnabled = true).use { driver ->
+        TraceDriver(sink = sink, isGloballyEnabled = true).use { driver ->
             val tracer = driver.tracer
 
             tracer.traceCoroutine(
@@ -121,7 +124,7 @@ class InMemoryRingBufferTraceSinkTest {
             }
 
             // Wait for potential background processing
-            delay(50)
+            delay(50.milliseconds)
 
             file.sink().buffer().use { bufferedSink ->
                 driver.flush()
@@ -138,13 +141,13 @@ class InMemoryRingBufferTraceSinkTest {
         val folder = tmpFolder.newFolder()
         val file = File(folder, "trace_dropped.perfetto")
         val sink = InMemoryRingBufferTraceSink(capacityInBytes = 10_000, sequenceId = 1)
-        val driver = TraceDriver(sink = sink, isEnabled = true)
+        val driver = TraceDriver(sink = sink, isGloballyEnabled = true)
         val tracer = driver.tracer
 
         tracer.traceCoroutine("cat", "event-dropped") {}
 
         // Wait for potential background processing
-        delay(50)
+        delay(50.milliseconds)
 
         // Close driver (and sink) without persistence (no sink provided to close)
         driver.close()
@@ -158,7 +161,7 @@ class InMemoryRingBufferTraceSinkTest {
         val folder = tmpFolder.newFolder()
         val file = File(folder, "trace_tracks.perfetto")
         val sink = InMemoryRingBufferTraceSink(capacityInBytes = 10_000_000, sequenceId = 1)
-        val driver = TraceDriver(sink = sink, isEnabled = true)
+        val driver = TraceDriver(sink = sink, isGloballyEnabled = true)
         val tracer = driver.tracer
 
         tracer.trace("cat", "event-test") {

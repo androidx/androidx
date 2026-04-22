@@ -22,9 +22,14 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class RecyclingTest {
-    private val sink = NoOpSink()
-    private val context: TraceContext = TraceContext(sink = sink, isEnabled = true, isDebug = true)
-    private val tracer: Tracer = context.createTracer()
+    private val context: TraceContext =
+        TraceContext(
+            sink = EmptyTraceSink,
+            isGloballyEnabled = true,
+            isCategoryEnabled = { true },
+            isDebug = true,
+        )
+    private val tracer: Tracer = PerfettoTracer(context = context, categoryEnabled = { true })
     private val category: String = "Tests"
 
     fun TraceContext.validateEachTrackHasOnePoolable() {

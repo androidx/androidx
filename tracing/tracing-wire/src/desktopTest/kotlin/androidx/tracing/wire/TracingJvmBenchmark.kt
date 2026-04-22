@@ -18,6 +18,7 @@ package androidx.tracing.wire
 
 import androidx.tracing.AbstractTraceSink
 import androidx.tracing.EmptyTraceContext
+import androidx.tracing.PerfettoTracer
 import androidx.tracing.TraceContext
 import kotlin.coroutines.CoroutineContext
 import kotlinx.benchmark.Benchmark
@@ -38,20 +39,28 @@ import okio.buffer
 @State(Scope.Benchmark)
 open class TracingJvmBenchmark {
     private val disabledTraceContext =
-        buildTraceContext(sink = buildInMemorySink(), isEnabled = false)
-    private val disabledRingBufferTraceContext =
-        buildTraceContext(sink = buildInMemoryRingBufferSink(), isEnabled = false)
+        buildTraceContext(sink = buildInMemorySink(), isGloballyEnabled = false)
 
-    private val disabledTracer = disabledTraceContext.createTracer()
-    private val disabledRingBufferTracer = disabledRingBufferTraceContext.createTracer()
+    private val disabledRingBufferTraceContext =
+        buildTraceContext(sink = buildInMemoryRingBufferSink(), isGloballyEnabled = false)
+
+    private val disabledTracer =
+        PerfettoTracer(context = disabledTraceContext, categoryEnabled = { false })
+
+    private val disabledRingBufferTracer =
+        PerfettoTracer(context = disabledRingBufferTraceContext, categoryEnabled = { false })
 
     private val enabledTraceContext =
-        buildTraceContext(sink = buildInMemorySink(), isEnabled = true)
-    private val enabledRingBufferTraceContext =
-        buildTraceContext(sink = buildInMemoryRingBufferSink(), isEnabled = true)
+        buildTraceContext(sink = buildInMemorySink(), isGloballyEnabled = true)
 
-    private val enabledTracer = enabledTraceContext.createTracer()
-    private val enabledRingBufferTracer = enabledRingBufferTraceContext.createTracer()
+    private val enabledRingBufferTraceContext =
+        buildTraceContext(sink = buildInMemoryRingBufferSink(), isGloballyEnabled = true)
+
+    private val enabledTracer =
+        PerfettoTracer(context = enabledTraceContext, categoryEnabled = { true })
+
+    private val enabledRingBufferTracer =
+        PerfettoTracer(context = enabledRingBufferTraceContext, categoryEnabled = { true })
 
     private val category = "Tests"
 
@@ -95,10 +104,10 @@ open class TracingJvmBenchmark {
 
     private fun buildTraceContext(
         sink: AbstractTraceSink,
-        @Suppress("SameParameterValue") isEnabled: Boolean,
+        @Suppress("SameParameterValue") isGloballyEnabled: Boolean,
     ): TraceContext {
-        return if (isEnabled) {
-            TraceContext(sink = sink, isEnabled = isEnabled)
+        return if (isGloballyEnabled) {
+            TraceContext(sink = sink, isGloballyEnabled = true, isCategoryEnabled = { true })
         } else {
             EmptyTraceContext
         }

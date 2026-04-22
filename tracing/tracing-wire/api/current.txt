@@ -22,13 +22,19 @@ package androidx.tracing.wire {
 
   public final class TraceDriver extends androidx.tracing.AbstractTraceDriver {
     ctor public TraceDriver(android.content.Context context, androidx.tracing.AbstractTraceSink sink);
-    ctor public TraceDriver(android.content.Context context, androidx.tracing.AbstractTraceSink sink, optional boolean isEnabled);
-    ctor @BytecodeOnly public TraceDriver(android.content.Context!, androidx.tracing.AbstractTraceSink!, boolean, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public TraceDriver(android.content.Context context, androidx.tracing.AbstractTraceSink sink, optional boolean isEnabled, optional kotlin.jvm.functions.Function1<? super androidx.tracing.TraceAttributes,kotlin.Unit>? attributes);
+    ctor @BytecodeOnly public TraceDriver(android.content.Context!, androidx.tracing.AbstractTraceSink!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public TraceDriver(android.content.Context context, androidx.tracing.AbstractTraceSink sink, optional kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean> isCategoryEnabled);
+    ctor public TraceDriver(android.content.Context context, androidx.tracing.AbstractTraceSink sink, optional kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean> isCategoryEnabled, optional kotlin.jvm.functions.Function1<? super androidx.tracing.TraceAttributes,kotlin.Unit>? attributes);
     method public void close();
     method public void flush();
     method @InaccessibleFromKotlin public androidx.tracing.Tracer getTracer();
+    method public static androidx.tracing.wire.TraceDriver stubTraceDriver();
     property public androidx.tracing.Tracer tracer;
+    field public static final androidx.tracing.wire.TraceDriver.Companion Companion;
+  }
+
+  public static final class TraceDriver.Companion {
+    method public androidx.tracing.wire.TraceDriver stubTraceDriver();
   }
 
   public final class TraceSink extends androidx.tracing.AbstractTraceSink {
@@ -40,7 +46,7 @@ package androidx.tracing.wire {
     method public void onDroppedTraceEvent();
   }
 
-  public final class TraceSinkUtils {
+  public final class TraceSinks {
     method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext);
     method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext, optional java.io.File traceFile);
     method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext, java.io.OutputStream outputStream);

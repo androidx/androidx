@@ -49,7 +49,7 @@ public open class CounterTrack(
     }
 
     public override fun setValue(value: Long) {
-        if (context.isEnabled) {
+        if (context.isGloballyEnabled) {
             synchronized(packetLock) {
                 val event = obtainTraceEvent()
                 event?.setCounterLong(trackUuid = uuid, value = value)
@@ -59,7 +59,7 @@ public open class CounterTrack(
     }
 
     public override fun setValue(value: Double) {
-        if (context.isEnabled) {
+        if (context.isGloballyEnabled) {
             synchronized(packetLock) {
                 val event = obtainTraceEvent()
                 event?.setCounterDouble(trackUuid = uuid, value = value)

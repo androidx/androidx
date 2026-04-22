@@ -24,19 +24,9 @@ public abstract class AbstractTraceDriver : AutoCloseable {
      */
     public val sink: AbstractTraceSink
 
-    /**
-     * When [isEnabled] is `true`, then the [Tracer] obtained from the [AbstractTraceDriver] emits
-     * trace events. Otherwise, no events are emitted.
-     */
-    public val isEnabled: Boolean
-
-    /**
-     * Builds an instance of [AbstractTraceDriver] using the provided [AbstractTraceSink] if
-     * `isEnabled` is `true`. Otherwise, you get an instance of a no-op [AbstractTraceDriver].
-     */
-    protected constructor(sink: AbstractTraceSink, isEnabled: Boolean) {
+    /** Builds an instance of [AbstractTraceDriver] using the provided [AbstractTraceSink]. */
+    protected constructor(sink: AbstractTraceSink) {
         this.sink = sink
-        this.isEnabled = isEnabled
     }
 
     /** Return an instance of a [Tracer] that can be used to emit trace events. */

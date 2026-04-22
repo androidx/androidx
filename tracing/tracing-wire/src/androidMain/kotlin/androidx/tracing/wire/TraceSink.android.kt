@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("TraceSinkUtils") // Provide a reasonable name for Java users.
+@file:JvmName("TraceSinks") // Provide a reasonable name for Java users.
 
 package androidx.tracing.wire
 
