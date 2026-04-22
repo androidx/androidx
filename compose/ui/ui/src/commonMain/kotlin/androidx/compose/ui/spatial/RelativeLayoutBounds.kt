@@ -105,6 +105,7 @@ internal constructor(
             val t = unpackY(topLeft)
             val r = unpackX(bottomRight)
             val b = unpackY(bottomRight)
+
             if (viewToWindowMatrix != null) {
                 // TODO: we could implement a `Matrix.map(l, t, r, b): IntRect` that was only a
                 //  single allocation if we wanted to. this would avoid the two Rect(FFFF)
@@ -131,6 +132,7 @@ internal constructor(
                     windowRect.bottom + offset.y,
                 )
             }
+
             val l = unpackX(topLeft)
             val t = unpackY(topLeft)
             val r = unpackX(bottomRight)
@@ -160,13 +162,16 @@ internal constructor(
      * @return A [List] of the rectangles that occlude the associated Composable Layout.
      */
     fun calculateOcclusions(): List<IntRect> {
-        val rectManager = node.requireOwner().rectManager
-        val id = node.requireLayoutNode().semanticsId
-        val rectList = rectManager.rects
-        val idIndex = rectList.indexOf(id)
-        if (idIndex < 0) {
+        val targetNode = node.requireLayoutNode()
+        if (targetNode.rectListIndex == NotFound) {
             return emptyList()
         }
+
+        val rectManager = node.requireOwner().rectManager
+        val rectList = rectManager.rects
+
+        val id = targetNode.semanticsId
+        val idIndex = rectList.indexOf(targetNode.semanticsId, targetNode.rectListIndex)
         // For the given `id`, finds intersections and determines occlusions by the result of
         // the 'RectManager.isTargetDrawnFirst', if the node for 'id' is drawn first, then it's
         // being occluded and the intersecting rect is added to the list result.

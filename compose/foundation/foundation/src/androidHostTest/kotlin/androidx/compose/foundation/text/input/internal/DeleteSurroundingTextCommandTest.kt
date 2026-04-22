@@ -28,6 +28,18 @@ import org.junit.runners.JUnit4
 internal class DeleteSurroundingTextCommandTest : ImeEditCommandTest() {
 
     @Test
+    fun test_delete_reversed_selection() {
+        initialize("ABCDE", TextRange(4, 2))
+
+        imeScope.deleteSurroundingText(1, 1)
+
+        assertThat(state.text.toString()).isEqualTo("ACD")
+        assertThat(state.selection.start).isEqualTo(1)
+        assertThat(state.selection.end).isEqualTo(3)
+        assertThat(state.composition).isNull()
+    }
+
+    @Test
     fun test_delete_after() {
         initialize("ABCDE", TextRange(1))
 

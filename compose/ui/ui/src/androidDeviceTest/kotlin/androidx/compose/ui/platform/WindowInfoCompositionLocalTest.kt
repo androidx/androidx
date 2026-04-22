@@ -497,7 +497,6 @@ class WindowInfoCompositionLocalTest {
             view = LocalView.current
             containerSize = LocalWindowInfo.current.containerSize
         }
-        @OptIn(ExperimentalComposeViewContextApi::class)
         rule.runOnIdle {
             val composeViewContext = view.findViewTreeComposeViewContext()
             val resources = rule.activity.resources

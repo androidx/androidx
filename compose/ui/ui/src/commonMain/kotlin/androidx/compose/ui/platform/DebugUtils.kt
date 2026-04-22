@@ -15,9 +15,4 @@
  */
 package androidx.compose.ui.platform
 
-internal inline fun ifDebug(block: () -> Unit) {
-    // Right now, we always run these.  At a later point, we may revisit this
-    block()
-}
-
 internal expect fun simpleIdentityToString(obj: Any, name: String?): String

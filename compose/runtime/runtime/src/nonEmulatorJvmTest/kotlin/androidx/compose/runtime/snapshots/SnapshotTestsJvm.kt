@@ -20,12 +20,18 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.internal.AtomicInt
 import androidx.compose.runtime.internal.AtomicReference
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.runTest
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 class SnapshotTestsJvm {
 
@@ -113,6 +119,29 @@ class SnapshotTestsJvm {
         reader.join()
 
         exception?.let { throw it }
+    }
+
+    /**
+     * This is a regression test against a race condition that caused [writableRecord] to throw
+     * unnecessary [IllegalStateException]s. More details about the race condition are available in
+     * b/440975176.
+     */
+    @Test
+    fun writableRecordRegressionTest() = runTest {
+        repeat(1000) {
+            val state = mutableIntStateOf(0)
+            val list = mutableStateListOf<Int>()
+            coroutineScope {
+                Snapshot.notifyObjectsInitialized()
+                repeat(100) { index ->
+                    launch(Dispatchers.Default) { list += index }
+                    launch(Dispatchers.Default) {
+                        state.intValue += 1
+                        Snapshot.sendApplyNotifications()
+                    }
+                }
+            }
+        }
     }
 }
 

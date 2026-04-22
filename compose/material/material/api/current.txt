@@ -25,8 +25,8 @@ package androidx.compose.material {
     property public androidx.compose.ui.unit.Dp BottomAppBarElevation;
     property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public androidx.compose.ui.unit.Dp TopAppBarElevation;
-    property public androidx.compose.foundation.layout.WindowInsets bottomAppBarWindowInsets;
-    property public androidx.compose.foundation.layout.WindowInsets topAppBarWindowInsets;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets bottomAppBarWindowInsets;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets topAppBarWindowInsets;
     field public static final androidx.compose.material.AppBarDefaults INSTANCE;
   }
 
@@ -56,8 +56,8 @@ package androidx.compose.material {
     property public androidx.compose.ui.unit.Dp FrontLayerElevation;
     property public androidx.compose.ui.unit.Dp HeaderHeight;
     property public androidx.compose.ui.unit.Dp PeekHeight;
-    property public androidx.compose.ui.graphics.Color frontLayerScrimColor;
-    property public androidx.compose.ui.graphics.Shape frontLayerShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color frontLayerScrimColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape frontLayerShape;
     field public static final androidx.compose.material.BackdropScaffoldDefaults INSTANCE;
   }
 
@@ -146,7 +146,7 @@ package androidx.compose.material {
     method @BytecodeOnly public float getElevation-D9Ej5fM();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.ui.unit.Dp Elevation;
-    property public androidx.compose.foundation.layout.WindowInsets windowInsets;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material.BottomNavigationDefaults INSTANCE;
   }
 
@@ -248,7 +248,7 @@ package androidx.compose.material {
     property public static float OutlinedBorderOpacity;
     property public androidx.compose.ui.unit.Dp OutlinedBorderSize;
     property public androidx.compose.foundation.layout.PaddingValues TextButtonContentPadding;
-    property public androidx.compose.foundation.BorderStroke outlinedBorder;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedBorder;
     field public static final androidx.compose.material.ButtonDefaults INSTANCE;
     field public static final float OutlinedBorderOpacity = 0.12f;
   }
@@ -326,7 +326,7 @@ package androidx.compose.material {
     property public static float OutlinedBorderOpacity;
     property public androidx.compose.ui.unit.Dp OutlinedBorderSize;
     property public androidx.compose.ui.unit.Dp SelectedIconSize;
-    property public androidx.compose.foundation.BorderStroke outlinedBorder;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedBorder;
     field public static final float ContentOpacity = 0.87f;
     field public static final androidx.compose.material.ChipDefaults INSTANCE;
     field public static final float LeadingIconOpacity = 0.54f;
@@ -393,9 +393,9 @@ package androidx.compose.material {
     method @BytecodeOnly @androidx.compose.runtime.Composable public float getDisabled(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public float getHigh(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public float getMedium(androidx.compose.runtime.Composer?, int);
-    property public float disabled;
-    property public float high;
-    property public float medium;
+    property @androidx.compose.runtime.Composable public float disabled;
+    property @androidx.compose.runtime.Composable public float high;
+    property @androidx.compose.runtime.Composable public float medium;
     field public static final androidx.compose.material.ContentAlpha INSTANCE;
   }
 
@@ -449,9 +449,9 @@ package androidx.compose.material {
     property public androidx.compose.animation.core.TweenSpec<java.lang.Float> AnimationSpec;
     property public androidx.compose.ui.unit.Dp Elevation;
     property public static float ScrimOpacity;
-    property public androidx.compose.ui.graphics.Color backgroundColor;
-    property public androidx.compose.ui.graphics.Color scrimColor;
-    property public androidx.compose.ui.graphics.Shape shape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color backgroundColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color scrimColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.compose.material.DrawerDefaults INSTANCE;
     field public static final float ScrimOpacity = 0.32f;
   }
@@ -619,9 +619,9 @@ package androidx.compose.material {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material.Colors getColors(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material.Shapes getShapes(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material.Typography getTypography(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.material.Colors colors;
-    property public androidx.compose.material.Shapes shapes;
-    property public androidx.compose.material.Typography typography;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material.Colors colors;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material.Shapes shapes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material.Typography typography;
     field public static final androidx.compose.material.MaterialTheme INSTANCE;
   }
 
@@ -642,7 +642,7 @@ package androidx.compose.material {
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getScrimColor(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.animation.core.AnimationSpec<java.lang.Float> AnimationSpec;
     property public androidx.compose.ui.unit.Dp Elevation;
-    property public androidx.compose.ui.graphics.Color scrimColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color scrimColor;
     field public static final androidx.compose.material.ModalBottomSheetDefaults INSTANCE;
   }
 
@@ -684,7 +684,7 @@ package androidx.compose.material {
     method @BytecodeOnly public float getElevation-D9Ej5fM();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.ui.unit.Dp Elevation;
-    property public androidx.compose.foundation.layout.WindowInsets windowInsets;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material.NavigationRailDefaults INSTANCE;
   }
 
@@ -792,7 +792,7 @@ package androidx.compose.material {
 
   public final class ScaffoldDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getContentWindowInsets(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.foundation.layout.WindowInsets contentWindowInsets;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets contentWindowInsets;
     field public static final androidx.compose.material.ScaffoldDefaults INSTANCE;
   }
 
@@ -889,8 +889,8 @@ package androidx.compose.material {
   public final class SnackbarDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getBackgroundColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getPrimaryActionColor(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.ui.graphics.Color backgroundColor;
-    property public androidx.compose.ui.graphics.Color primaryActionColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color backgroundColor;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color primaryActionColor;
     field public static final androidx.compose.material.SnackbarDefaults INSTANCE;
   }
 
@@ -1126,8 +1126,8 @@ package androidx.compose.material {
     property public static float IconOpacity;
     property public androidx.compose.ui.unit.Dp MinHeight;
     property public androidx.compose.ui.unit.Dp MinWidth;
-    property public androidx.compose.ui.graphics.Shape OutlinedTextFieldShape;
-    property public androidx.compose.ui.graphics.Shape TextFieldShape;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Shape OutlinedTextFieldShape;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Shape TextFieldShape;
     property public androidx.compose.ui.unit.Dp UnfocusedBorderThickness;
     property public static float UnfocusedIndicatorLineOpacity;
     field public static final float BackgroundOpacity = 0.12f;

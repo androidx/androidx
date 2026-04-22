@@ -17,6 +17,27 @@
 package androidx.compose.ui.tooling
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.StateFactoryMarker
+
+/**
+ * Extend [mutableStateOf] with debug information required for animation tooling.
+ *
+ * @param value the initial value for the [MutableState]
+ * @param states the set of possible states for the [MutableState]
+ * @param label the label of the [MutableState] to display in tooling
+ */
+@StateFactoryMarker
+internal fun <T> animationDebugMutableStateOf(
+    value: T,
+    createMutableState: (T) -> MutableState<T>,
+    states: () -> Set<T>,
+    label: String,
+): MutableState<T> {
+    return if (isAnimationPreviewEnabled)
+        AnimationDebugMutableState(createMutableState(value), states, label)
+    else createMutableState(value)
+}
 
 /**
  * A mutable value holder which extends [MutableState] with extra debug information required for

@@ -279,7 +279,7 @@ internal class CompositionBuilder(
         checkCapturingSubCompositions(node, children)
 
         val layoutInfo = group.node as? LayoutInfo
-        if (layoutInfo != null) {
+        if (layoutInfo != null && !layoutInfo.isVirtual) {
             return parseLayoutInfo(layoutInfo, context, node)
         }
 
@@ -434,7 +434,7 @@ internal class CompositionBuilder(
         val size = box.size.toSize()
         val coordinates = layoutInfo.coordinates
         var bounds: QuadBounds? = null
-        if (!layoutInfo.isAttached || !coordinates.isAttached || !layoutInfo.isPlaced) {
+        if (!layoutInfo.isAttached || !coordinates.isAttached) {
             // This could happen for extra items generated for reusable content like the
             // items in a LazyColumn. Mark these nodes unwanted i.e. filter them out.
             node.unknownLocation = true

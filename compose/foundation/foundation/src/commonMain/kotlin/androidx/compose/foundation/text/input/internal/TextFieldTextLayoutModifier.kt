@@ -189,11 +189,11 @@ internal class TextFieldTextLayoutModifierNode(
                 )
             )
 
-        // calculate the min height for single line text to prevent text cuts.
+        // calculate the height for single line text to prevent text cuts.
         // for single line text maxLines puts in max height constraint based on
         // constant characters therefore if the user enters a character that is
         // longer (i.e. emoji or a tall script) the text is cut
-        textLayoutState.minHeightForSingleLineField =
+        textLayoutState.heightForSingleLineField =
             if (singleLine) {
                 result.getLineBottom(0).ceilToIntPx().toDp()
             } else {

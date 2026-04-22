@@ -810,9 +810,7 @@ private class SlotTableGroup(
         get() = table.groupObjectKey(group) ?: table.groupKeyOf(group)
 
     override val sourceInfo: String?
-        get() =
-            if (table.groupHasAux(group)) table.groupAux(group) as? String
-            else table.addressSpace.sourceInformationOf(group)?.sourceInformation
+        get() = table.addressSpace.sourceInformationOf(group)?.sourceInformation
 
     override val node: Any?
         get() = table.groupNode(group)
@@ -1091,7 +1089,7 @@ internal fun nodeIndexOf(groupAddress: GroupAddress, table: SlotTable): Int {
         run {
             addressSpace.traverseChildren(parent) {
                 if (it == current) return@run
-                nodeIndex += groups.groupNodeCount(current)
+                nodeIndex += groups.groupNodeCount(it)
             }
         }
         if (IsNodeFlag in groups.groupFlags(parent)) break

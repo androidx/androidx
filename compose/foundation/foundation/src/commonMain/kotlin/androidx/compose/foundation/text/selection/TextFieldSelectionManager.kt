@@ -1047,6 +1047,12 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
         return Offset(x, cursorRect.bottom)
     }
 
+    internal fun getCursorRect(): Rect {
+        val offset = offsetMapping.originalToTransformed(value.selection.start)
+        val layoutResult = state?.layoutResult!!.value
+        return layoutResult.getCursorRect(offset.coerceIn(0, layoutResult.layoutInput.text.length))
+    }
+
     /**
      * Update the [LegacyTextFieldState.showFloatingToolbar] state and show/hide the toolbar.
      *

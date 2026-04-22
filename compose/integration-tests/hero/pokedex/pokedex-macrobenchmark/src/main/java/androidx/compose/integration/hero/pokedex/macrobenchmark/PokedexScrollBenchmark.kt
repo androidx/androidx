@@ -121,14 +121,16 @@ class PokedexScrollBenchmark(
         // specifically only want to measure scroll here.
         val upSpeed = (FLING_SPEED_DP_PER_SECOND * targetDisplayDensity).roundToInt()
         val downSpeed = (upSpeed * OPPOSING_DIRECTION_FLING_FACTOR).roundToInt()
-        content.fling(Direction.DOWN, upSpeed)
-        device.waitForIdle()
-        content.fling(Direction.UP, downSpeed)
-        device.waitForIdle()
-        content.fling(Direction.DOWN, upSpeed)
-        device.waitForIdle()
-        content.fling(Direction.UP, downSpeed)
-        device.waitForIdle()
+        fun flingAndWaitForIdle(direction: Direction, speed: Int) {
+            trace("PokedexScrollBenchmark#fling($direction, speed=$speed)") {
+                content.fling(direction, speed)
+                device.waitForIdle()
+            }
+        }
+        flingAndWaitForIdle(Direction.DOWN, upSpeed)
+        flingAndWaitForIdle(Direction.UP, downSpeed)
+        flingAndWaitForIdle(Direction.DOWN, upSpeed)
+        flingAndWaitForIdle(Direction.UP, downSpeed)
     }
 
     /** Density of the instrumentation's target context, in DP. */

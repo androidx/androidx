@@ -21,7 +21,6 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.splineBasedDecay
-import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.MutatePriority
@@ -64,7 +63,6 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.dispatchOnScrollChanged
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.requireDensity
@@ -343,18 +341,12 @@ internal class ScrollableNode(
     private var mouseWheelScrollingLogic: MouseWheelScrollingLogic? = null
     private var trackpadScrollingLogic: TrackpadScrollingLogic? = null
 
-    private var scrollableContainerNode: ScrollableContainerNode? = null
-
     init {
         /** Nested scrolling */
         delegate(nestedScrollModifierNode(nestedScrollConnection, nestedScrollDispatcher))
 
         /** Focus scrolling */
         delegate(BringIntoViewResponderNode(contentInViewNode))
-
-        if (!isDelayPressesUsingGestureConsumptionEnabled) {
-            scrollableContainerNode = delegate(ScrollableContainerNode(enabled))
-        }
     }
 
     override fun dispatchScrollDeltaInfo(delta: Offset) {
@@ -454,7 +446,6 @@ internal class ScrollableNode(
         var shouldInvalidateSemantics = false
         if (this.enabled != enabled) { // enabled changed
             nestedScrollConnection.enabled = enabled
-            scrollableContainerNode?.update(enabled)
             shouldInvalidateSemantics = true
         }
         // a new fling behavior was set, change the resolved one.
@@ -1106,23 +1097,6 @@ internal val DefaultScrollMotionDurationScale =
         override val scaleFactor: Float
             get() = DefaultScrollMotionDurationScaleFactor
     }
-
-/**
- * (b/311181532): This could not be flattened so we moved it to TraversableNode, but ideally
- * ScrollabeNode should be the one to be travesable.
- */
-internal class ScrollableContainerNode(enabled: Boolean) : Modifier.Node(), TraversableNode {
-    override val traverseKey: Any = TraverseKey
-
-    var enabled: Boolean = enabled
-        private set
-
-    companion object TraverseKey
-
-    fun update(enabled: Boolean) {
-        this.enabled = enabled
-    }
-}
 
 internal val UnityDensity =
     object : Density {

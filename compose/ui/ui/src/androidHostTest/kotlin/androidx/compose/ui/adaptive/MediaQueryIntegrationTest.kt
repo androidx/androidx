@@ -271,6 +271,99 @@ class MediaQueryIntegrationTest {
     }
 
     @Test
+    fun mediaQuery_pointerPrecision_fallbackToFineForScrollAxes() {
+        // Emulators and some virtual devices may use composite sources.
+        val compositeSource = InputDevice.SOURCE_MOUSE or InputDevice.SOURCE_TOUCHSCREEN
+
+        val device =
+            InputDeviceBuilder.newBuilder()
+                .setId(1)
+                .setSources(compositeSource)
+                // Primary axis with composite source (triggers the fallback logic)
+                .addMotionRange(MotionEvent.AXIS_X, compositeSource, 0f, 1000f, 0f, 0f, 1f)
+                // Secondary fallback axis
+                .addMotionRange(MotionEvent.AXIS_VSCROLL, compositeSource, -1f, 1f, 0f, 0f, 1f)
+                .build()
+        shadowInputManager.addInputDevice(device)
+
+        var result = false
+        rule.setContent {
+            val mediaScope =
+                obtainUiMediaScope(
+                    context = LocalContext.current,
+                    view = LocalView.current,
+                    windowInfo = LocalWindowInfo.current,
+                )
+            CompositionLocalProvider(LocalUiMediaScope provides mediaScope) {
+                result = mediaQuery { pointerPrecision == PointerPrecision.Fine }
+            }
+        }
+        assertTrue(result)
+    }
+
+    @Test
+    fun mediaQuery_pointerPrecision_fallbackToCoarseForTouchAxes() {
+        val compositeSource = InputDevice.SOURCE_STYLUS or InputDevice.SOURCE_TOUCHSCREEN
+
+        val device =
+            InputDeviceBuilder.newBuilder()
+                .setId(1)
+                .setSources(compositeSource)
+                // Primary axis with composite source
+                .addMotionRange(MotionEvent.AXIS_X, compositeSource, 0f, 1000f, 0f, 0f, 1f)
+                // Secondary fallback axis for touch devices
+                .addMotionRange(MotionEvent.AXIS_TOUCH_MAJOR, compositeSource, 0f, 100f, 0f, 0f, 1f)
+                .build()
+        shadowInputManager.addInputDevice(device)
+
+        var result = false
+        rule.setContent {
+            val mediaScope =
+                obtainUiMediaScope(
+                    context = LocalContext.current,
+                    view = LocalView.current,
+                    windowInfo = LocalWindowInfo.current,
+                )
+            CompositionLocalProvider(LocalUiMediaScope provides mediaScope) {
+                result = mediaQuery { pointerPrecision == PointerPrecision.Coarse }
+            }
+        }
+        assertTrue(result)
+    }
+
+    @Test
+    fun mediaQuery_pointerPrecision_verifiedMotionRangeSourceOverridesFallback() {
+        val compositeSource = InputDevice.SOURCE_MOUSE or InputDevice.SOURCE_TOUCHSCREEN
+
+        // Add a virtual/emulator device that triggers the Fine fallback
+        val virtualDesktopDevice =
+            InputDeviceBuilder.newBuilder()
+                .setId(1)
+                .setSources(compositeSource)
+                .addMotionRange(MotionEvent.AXIS_X, compositeSource, 0f, 1000f, 0f, 0f, 1f)
+                .addMotionRange(MotionEvent.AXIS_VSCROLL, compositeSource, -1f, 1f, 0f, 0f, 1f)
+                .build()
+        shadowInputManager.addInputDevice(virtualDesktopDevice)
+
+        // Add a real, verified physical touchscreen (Exact source match)
+        addPointerDevice(id = 2, InputDevice.SOURCE_TOUCHSCREEN)
+
+        var result = false
+        rule.setContent {
+            val mediaScope =
+                obtainUiMediaScope(
+                    context = LocalContext.current,
+                    view = LocalView.current,
+                    windowInfo = LocalWindowInfo.current,
+                )
+            CompositionLocalProvider(LocalUiMediaScope provides mediaScope) {
+                result = mediaQuery { pointerPrecision == PointerPrecision.Coarse }
+            }
+        }
+        assertTrue(result)
+    }
+
+    @Test
     fun mediaQuery_keyboardKind_returnsPhysicalWhenConnected() {
         val physicalKeyboard =
             InputDeviceBuilder.newBuilder()

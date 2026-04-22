@@ -59,6 +59,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachReversed
+import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -2697,5 +2698,27 @@ class SeekableTransitionStateTest {
         rule.onNodeWithTag("1").assertIsDisplayed()
         rule.onNodeWithTag("2").assertIsNotDisplayed()
         rule.onNodeWithTag("3").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun exitingContentKillTransition() {
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var transition: Transition<AnimStates>
+
+        rule.setContent {
+            transition = rememberTransition(seekableTransitionState, label = "Test")
+            transition.AnimatedVisibility(visible = { it == AnimStates.From }) {
+                coroutineScope = rememberCoroutineScope()
+                Box(Modifier.fillMaxSize())
+            }
+        }
+
+        rule.runOnIdle {
+            coroutineScope.launch { seekableTransitionState.animateTo(AnimStates.To) }
+        }
+
+        rule.waitForIdle()
+        assertThat(transition.playTimeNanos).isEqualTo(0L)
     }
 }

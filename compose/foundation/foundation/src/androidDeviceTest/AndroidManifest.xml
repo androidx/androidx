@@ -28,6 +28,10 @@
             android:theme="@android:style/Theme.Material.Light.NoActionBar"
             />
         <activity
+            android:name="androidx.compose.foundation.WindowTestActivity"
+            android:theme="@android:style/Theme.Material.Light.Dialog"
+            android:exported="true" />
+        <activity
             android:name="androidx.fragment.app.FragmentActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
         <!--

@@ -18,7 +18,10 @@ package androidx.compose.runtime.composer
 
 import kotlin.jvm.JvmInline
 
-/** Group types used with [Composer.start] to differentiate between different types of groups */
+/**
+ * Group types used with the Composer's start function to differentiate between different types of
+ * groups.
+ */
 @JvmInline
 internal value class GroupKind private constructor(val value: Int) {
     inline val isNode

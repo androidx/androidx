@@ -48,23 +48,47 @@ class VelocityPathFinderCalculateDurationTest(private val config: TestConfig) {
         val requestedVelocity: Float,
         val expectedDurationMillis: Long? = null,
         val expectSuggestions: Boolean = false,
-        val expectedError: Regex? = if (expectSuggestions) errorWithSuggestions else null,
+        val expectedError: ExpectedError? = if (expectSuggestions) errorWithSuggestions else null,
         val tolerance: Float = 0.1f,
     )
+
+    /**
+     * Data class to represent an expected error, decoupling the matching [regex] from a safe [name]
+     * suitable for use in test identifiers.
+     *
+     * ResultDB imposes restrictions on characters allowed in identifiers, prohibiting characters
+     * like escape sequences often found in regular expressions. This class uses the [name] as its
+     * string representation (via [toString]) to comply with ResultDB's constraints.
+     */
+    data class ExpectedError(val name: String, val regex: Regex) {
+        override fun toString() = name
+    }
 
     companion object {
         private val DistanceZero = Offset.Zero
         private val Distance100 = Offset(100f, 0f)
 
-        private val errorNegativeVelocity = Regex("Velocity cannot be .*, it must be positive")
-        private val errorPositiveVelocity =
-            Regex("When start == end; velocity cannot be .*, it must be 0f")
-        private val errorWithSuggestions =
-            Regex(
-                "Unable to generate a swipe gesture between .* and .* that ends with " +
-                    "velocity of .* px/s, without going outside of the range " +
-                    "\\[start\\.\\.end]\\. Suggested fixes: .*"
+        private val errorNegativeVelocity =
+            ExpectedError(
+                name = "errorNegativeVelocity",
+                regex = Regex("Velocity cannot be .*, it must be positive"),
             )
+        private val errorPositiveVelocity =
+            ExpectedError(
+                name = "errorPositiveVelocity",
+                regex = Regex("When start == end; velocity cannot be .*, it must be 0f"),
+            )
+        private val errorWithSuggestions =
+            ExpectedError(
+                name = "errorWithSuggestions",
+                regex =
+                    Regex(
+                        "Unable to generate a swipe gesture between .* and .* that ends with " +
+                            "velocity of .* px/s, without going outside of the range " +
+                            "\\[start\\.\\.end]\\. Suggested fixes: .*"
+                    ),
+            )
+
         private val suggestedFixesRegex =
             Regex(
                 "1\\. set velocity to (.*) px/s or lower; or " +
@@ -178,7 +202,7 @@ class VelocityPathFinderCalculateDurationTest(private val config: TestConfig) {
             )
             fail("Expected an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
-            assertThat(e.message).matches(config.expectedError!!.toPattern())
+            assertThat(e.message).matches(config.expectedError!!.regex.toPattern())
 
             if (testSuggestions) {
                 val suggestedFixes = e.message!!.substringAfter("Suggested fixes: ")

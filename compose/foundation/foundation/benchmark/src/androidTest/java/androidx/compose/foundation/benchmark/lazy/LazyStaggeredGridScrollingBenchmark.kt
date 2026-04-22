@@ -263,11 +263,13 @@ class StaggeredGridRemeasureTestCase(
         assertEquals(targetItemOffset, state.firstVisibleItemScrollOffset)
     }
 
-    override suspend fun programmaticScroll(amount: Int) {
-        runBlocking { state.scrollBy(amount.toFloat()) }
+    override fun programmaticScroll(amount: Int) {
+        state.dispatchRawDelta(amount.toFloat())
     }
 
     override fun setUp() {
+        @Suppress("INVISIBLE_REFERENCE") // b/407927787
+        state.prefetchingEnabled = false
         runBlocking { state.scrollToItem(firstItemIndex, 0) }
     }
 

@@ -14,20 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.foundation
 
-/** This is for the experimental [ComposeViewContext] API and all APIs related to it. */
-@RequiresOptIn(
-    level = RequiresOptIn.Level.ERROR,
-    message =
-        "This is an experimental API for Compose and is likely to change before becoming " +
-            "stable.",
-)
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY,
-    AnnotationTarget.PROPERTY_GETTER,
-)
-@Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalComposeViewContextApi
+internal actual val isNewContextMenuInitiallyEnabled: Boolean
+    get() = true

@@ -92,7 +92,6 @@ import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ComposeViewContext
-import androidx.compose.ui.platform.ExperimentalComposeViewContextApi
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.RenderNodeApi23
@@ -395,7 +394,6 @@ class AndroidLayoutDrawTest {
                     get() = lifecycleRegistry
             }
 
-        @OptIn(ExperimentalComposeViewContextApi::class)
         return AndroidComposeView(
             activity,
             ComposeViewContext(

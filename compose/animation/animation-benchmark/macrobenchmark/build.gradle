@@ -43,6 +43,7 @@ android {
 dependencies {
     implementation(project(":benchmark:benchmark-macro-junit4"))
     implementation(project(":internal-testutils-benchmark-macro"))
+    implementation(project(":internal-testutils-espresso"))
     implementation(libs.testExtJunit)
     implementation(libs.espressoCore)
     implementation(libs.testUiautomator)

@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
@@ -49,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -315,6 +317,34 @@ class StyleEquivalenceTests {
                     background = SolidColor(Color.Green),
                 ) {
                     Box(modifier = Modifier.size(10.dp).background(Color.Blue))
+                }
+            },
+        )
+    }
+
+    @Test
+    fun colorFilter() {
+        checkEquivalence(
+            styleVersion = {
+                BaseStyleableButton(
+                    onClick = {},
+                    style = { colorFilter(ColorFilter.tint(Color.Red)) },
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.size(10.dp).background(shape = CircleShape, color = Color.Blue)
+                    )
+                }
+            },
+            modifierVersion = {
+                BaseModifierButton(
+                    onClick = {},
+                    layerSpec = { colorFilter = ColorFilter.tint(Color.Red) },
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.size(10.dp).background(shape = CircleShape, color = Color.Blue)
+                    )
                 }
             },
         )

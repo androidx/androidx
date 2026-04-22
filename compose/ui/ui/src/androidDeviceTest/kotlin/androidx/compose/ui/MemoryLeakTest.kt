@@ -16,6 +16,8 @@
 
 package androidx.compose.ui
 
+import android.os.Looper
+import android.os.MessageQueue
 import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -52,6 +54,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.junit.Rule
@@ -285,6 +288,7 @@ class MemoryLeakTest {
                 if (i % gcFrequency == 0) {
                     // Let any scheduled cleanup processes run before we take measurements
                     yield()
+                    waitForIdle()
                     Runtime.getRuntime().let {
                         it.gc() // Run gc
                         rawStats.add(it.totalMemory() - it.freeMemory()) // Collect memory info
@@ -331,6 +335,24 @@ class MemoryLeakTest {
             }
 
             Log.i("MemoryTest", "Measured memory data: $formattedStats")
+        }
+
+        private suspend fun waitForIdle() {
+            suspendCancellableCoroutine { c ->
+                val idleHandler =
+                    MessageQueue.IdleHandler {
+                        c.resumeWith(Result.success(Unit))
+                        false
+                    }
+                if (Looper.getMainLooper().queue.isIdle) {
+                    c.resumeWith(Result.success(Unit))
+                } else {
+                    Looper.getMainLooper().queue.addIdleHandler(idleHandler)
+                    c.invokeOnCancellation {
+                        Looper.getMainLooper().queue.removeIdleHandler(idleHandler)
+                    }
+                }
+            }
         }
     }
 }

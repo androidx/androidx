@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.MutableObjectList
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -216,17 +217,32 @@ internal class LookaheadPassDelegate(
         forEachChildAlignmentLinesOwner { child ->
             child.alignmentLines.usedDuringParentLayout = false
         }
-        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { forAlignment ->
-            layoutNode.children.fastForEach {
-                it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = forAlignment
+
+        val lookaheadDelegate =
+            innerCoordinator.lookaheadDelegate ?: error("Expected lookahead delegate")
+        var childrenPlacingForAlignment: MutableObjectList<LayoutNode>? = null
+        layoutNode.children.fastForEach {
+            val childDelegate = it.outerCoordinator.lookaheadDelegate ?: return@fastForEach
+            val isPlacingForAlignment = childDelegate.isPlacingForAlignment
+            if (isPlacingForAlignment) {
+                // This is an edge case that might only happen during recursive alignment
+                // calculations, so we allocate the list here to preserve correctness instead of
+                // reserving a field for this.
+                childrenPlacingForAlignment =
+                    childrenPlacingForAlignment
+                        ?: MutableObjectList<LayoutNode>().also { childrenPlacingForAlignment = it }
+                childrenPlacingForAlignment.add(it)
             }
+            childDelegate.isPlacingForAlignment = lookaheadDelegate.isPlacingForAlignment
         }
-        innerCoordinator.lookaheadDelegate!!.measureResult.placeChildren()
-        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { _ ->
-            layoutNode.children.fastForEach {
-                it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = false
-            }
+
+        lookaheadDelegate.measureResult.placeChildren()
+
+        layoutNode.children.fastForEach {
+            val wasPlacingForAlignment = childrenPlacingForAlignment?.contains(it) == true
+            it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = wasPlacingForAlignment
         }
+
         checkChildrenPlaceOrderForUpdates()
         forEachChildAlignmentLinesOwner { child ->
             child.alignmentLines.previousUsedDuringParentLayout =
@@ -334,9 +350,10 @@ internal class LookaheadPassDelegate(
                 alignmentLines.usedByModifierLayout = true
             }
         }
+        val wasPlacingForAlignment = innerCoordinator.lookaheadDelegate?.isPlacingForAlignment
         innerCoordinator.lookaheadDelegate?.isPlacingForAlignment = true
         layoutChildren()
-        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment = false
+        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment = wasPlacingForAlignment ?: false
         return alignmentLines.getLastCalculation()
     }
 

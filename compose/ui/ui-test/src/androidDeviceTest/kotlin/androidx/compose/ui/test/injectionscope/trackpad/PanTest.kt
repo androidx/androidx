@@ -20,8 +20,6 @@ import android.os.Build
 import android.view.MotionEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
@@ -85,11 +83,7 @@ class PanTest {
 
                 assertThat(events.size)
                     .isEqualTo(
-                        @OptIn(ExperimentalComposeUiApi::class)
-                        if (
-                            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                Build.VERSION.SDK_INT >= 34
-                        ) {
+                        if (Build.VERSION.SDK_INT >= 34) {
                             4
                         } else {
                             5
@@ -99,11 +93,7 @@ class PanTest {
                 // TODO: b/461873914
                 //       the system sends an exit here, but we don't see it in Compose currently
                 events[1].let { event ->
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (
-                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                            Build.VERSION.SDK_INT >= 34
-                    ) {
+                    if (Build.VERSION.SDK_INT >= 34) {
                         event.verifyTrackpadEvent(T, PanStart, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
@@ -130,11 +120,7 @@ class PanTest {
                     }
                 }
                 events[2].let { event ->
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (
-                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                            Build.VERSION.SDK_INT >= 34
-                    ) {
+                    if (Build.VERSION.SDK_INT >= 34) {
                         event.verifyTrackpadEvent(T * 2, PanMove, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
@@ -161,11 +147,7 @@ class PanTest {
                     }
                 }
                 events[3].let { event ->
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (
-                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                            Build.VERSION.SDK_INT >= 34
-                    ) {
+                    if (Build.VERSION.SDK_INT >= 34) {
                         event.verifyTrackpadEvent(T * 3, PanEnd, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
@@ -191,11 +173,7 @@ class PanTest {
                         assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
                     }
                 }
-                @OptIn(ExperimentalComposeUiApi::class)
-                if (
-                    !(ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                        Build.VERSION.SDK_INT >= 34)
-                ) {
+                if (!(Build.VERSION.SDK_INT >= 34)) {
                     // TODO: b/461873914
                     //       since we didn't see the exit before, the enter gets overwritten to be a
                     //       move
@@ -225,11 +203,7 @@ class PanTest {
 
                 assertThat(events.size)
                     .isEqualTo(
-                        @OptIn(ExperimentalComposeUiApi::class)
-                        if (
-                            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                Build.VERSION.SDK_INT >= 34
-                        ) {
+                        if (Build.VERSION.SDK_INT >= 34) {
                             4
                         } else {
                             5
@@ -239,11 +213,7 @@ class PanTest {
                 // TODO: b/461873914
                 //       the system sends an exit here, but we don't see it in Compose currently
                 events[1].let { event ->
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (
-                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                            Build.VERSION.SDK_INT >= 34
-                    ) {
+                    if (Build.VERSION.SDK_INT >= 34) {
                         event.verifyTrackpadEvent(T, PanStart, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
@@ -270,11 +240,7 @@ class PanTest {
                     }
                 }
                 events[2].let { event ->
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (
-                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                            Build.VERSION.SDK_INT >= 34
-                    ) {
+                    if (Build.VERSION.SDK_INT >= 34) {
                         event.verifyTrackpadEvent(T * 2, PanMove, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
@@ -301,11 +267,7 @@ class PanTest {
                     }
                 }
                 events[3].let { event ->
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (
-                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                            Build.VERSION.SDK_INT >= 34
-                    ) {
+                    if (Build.VERSION.SDK_INT >= 34) {
                         event.verifyTrackpadEvent(T * 3, PanEnd, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
@@ -331,11 +293,7 @@ class PanTest {
                         assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
                     }
                 }
-                @OptIn(ExperimentalComposeUiApi::class)
-                if (
-                    !(ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                        Build.VERSION.SDK_INT >= 34)
-                ) {
+                if (!(Build.VERSION.SDK_INT >= 34)) {
                     // TODO: b/461873914
                     //       since we didn't see the exit before, the enter gets overwritten to be a
                     //       move
@@ -367,11 +325,7 @@ class PanTest {
 
                 assertThat(events.size)
                     .isEqualTo(
-                        @OptIn(ExperimentalComposeUiApi::class)
-                        if (
-                            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                Build.VERSION.SDK_INT >= 34
-                        ) {
+                        if (Build.VERSION.SDK_INT >= 34) {
                             6
                         } else {
                             7
@@ -383,11 +337,7 @@ class PanTest {
                 // TODO: b/461873914
                 //       the system sends an exit here, but we don't see it in Compose currently
                 events[3].let { event ->
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (
-                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                            Build.VERSION.SDK_INT >= 34
-                    ) {
+                    if (Build.VERSION.SDK_INT >= 34) {
                         event.verifyTrackpadEvent(T, PanStart, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
@@ -414,11 +364,7 @@ class PanTest {
                     }
                 }
                 events[4].let { event ->
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (
-                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                            Build.VERSION.SDK_INT >= 34
-                    ) {
+                    if (Build.VERSION.SDK_INT >= 34) {
                         event.verifyTrackpadEvent(T * 2, PanMove, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
@@ -445,11 +391,7 @@ class PanTest {
                     }
                 }
                 events[5].let { event ->
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (
-                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                            Build.VERSION.SDK_INT >= 34
-                    ) {
+                    if (Build.VERSION.SDK_INT >= 34) {
                         event.verifyTrackpadEvent(T * 3, PanEnd, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
@@ -475,11 +417,7 @@ class PanTest {
                         assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
                     }
                 }
-                @OptIn(ExperimentalComposeUiApi::class)
-                if (
-                    !(ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                        Build.VERSION.SDK_INT >= 34)
-                ) {
+                if (!(Build.VERSION.SDK_INT >= 34)) {
                     // TODO: b/461873914
                     //       since we didn't see the exit before, the enter gets overwritten to be a
                     //       move

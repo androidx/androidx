@@ -456,6 +456,8 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
      */
     fun incrementAccessors(view: View) {
         if (accessCount == 0) {
+            // Ensure the listener is in a fresh reset state
+            insetsListener.resetState()
             // add listeners
             ViewCompat.setOnApplyWindowInsetsListener(view, insetsListener)
 
@@ -636,6 +638,13 @@ private class InsetsListener(val composeInsets: WindowInsetsHolder) :
     var runningAnimation = false
 
     var savedInsets: WindowInsetsCompat? = null
+
+    /** Resets the internal state of the listener. */
+    fun resetState() {
+        prepared = false
+        runningAnimation = false
+        savedInsets = null
+    }
 
     override fun onPrepare(animation: WindowInsetsAnimationCompat) {
         prepared = true

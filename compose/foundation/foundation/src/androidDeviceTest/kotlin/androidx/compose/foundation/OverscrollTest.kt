@@ -404,6 +404,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).performTouchInput {
             down(center)
             moveBy(Offset(1000f, 0f))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 
@@ -423,6 +424,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).performTouchInput {
             down(center)
             moveBy(Offset(1000f, 0f))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 
@@ -490,6 +492,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).performTouchInput {
             down(center)
             moveBy(Offset(500f, 0f))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 
@@ -506,6 +509,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).performTouchInput {
             down(center)
             moveBy(Offset(500f, 0f))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 
@@ -1448,7 +1452,10 @@ class OverscrollTest {
             assertThat(controller.lastOverscrollDelta).isEqualTo(Offset.Zero)
         }
 
-        rule.onNodeWithTag(boxTag).performTouchInput { up() }
+        rule.onNodeWithTag(boxTag).performTouchInput {
+            advanceEventTime(3000L) // Prevent fling gesture.
+            up()
+        }
 
         rule.runOnIdle { consumeOnlyHalf = true }
 
@@ -1465,7 +1472,10 @@ class OverscrollTest {
             assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.UserInput)
         }
 
-        rule.onNodeWithTag(boxTag).performTouchInput { up() }
+        rule.onNodeWithTag(boxTag).performTouchInput {
+            advanceEventTime(3000L) // Prevent fling gesture.
+            up()
+        }
 
         rule.runOnIdle {
             assertThat(controller.lastVelocity.x).isWithin(0.01f).of(0f)

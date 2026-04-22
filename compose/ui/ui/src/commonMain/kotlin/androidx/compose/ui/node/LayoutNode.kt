@@ -44,11 +44,8 @@ import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.Remeasurement
+import androidx.compose.ui.node.LayoutNode.Companion.NotPlacedPlaceOrder
 import androidx.compose.ui.node.LayoutNode.LayoutState.Idle
-import androidx.compose.ui.node.LayoutNode.LayoutState.LayingOut
-import androidx.compose.ui.node.LayoutNode.LayoutState.LookaheadLayingOut
-import androidx.compose.ui.node.LayoutNode.LayoutState.LookaheadMeasuring
-import androidx.compose.ui.node.LayoutNode.LayoutState.Measuring
 import androidx.compose.ui.node.Nodes.PointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -58,6 +55,7 @@ import androidx.compose.ui.platform.simpleIdentityToString
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsInfo
 import androidx.compose.ui.semantics.generateSemanticsId
+import androidx.compose.ui.spatial.NotFound
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
@@ -74,14 +72,11 @@ private val DefaultDensity = Density(1f)
 /** An element in the layout hierarchy, built with compose UI. */
 @OptIn(InternalComposeUiApi::class)
 internal class LayoutNode(
-    // Virtual LayoutNode is the temporary concept allows us to a node which is not a real node,
-    // but just a holder for its children - allows us to combine some children into something we
-    // can subcompose in(LayoutNode) without being required to define it as a real layout - we
-    // don't want to define the layout strategy for such nodes, instead the children of the
-    // virtual nodes will be treated as the direct children of the virtual node parent.
-    // This whole concept will be replaced with a proper subcomposition logic which allows to
-    // subcompose multiple times into the same LayoutNode and define offsets.
-    private val isVirtual: Boolean = false,
+    // Virtual LayoutNode is a node which is not a real layout node, but just a holder for its
+    // children. It allows combining children into a structure that can subcompose without
+    // being required to define it as a real layout. The children of the virtual node are treated
+    // as the direct children of the virtual node's parent.
+    override val isVirtual: Boolean = false,
     // The unique semantics ID that is used by all semantics modifiers attached to this LayoutNode.
     // TODO(b/281907968): Implement this with a getter that returns the compositeKeyHash.
     override var semanticsId: Int = generateSemanticsId(),
@@ -106,7 +101,10 @@ internal class LayoutNode(
     // rect in parent is the sum of transformations for parent's coordinators not including the
     // outer one, and the transformations on this node's outer coordinator.
     internal var rectInParentDirty: Boolean = true
-    internal var addedToRectList: Boolean = false
+    // Cached last known rect list index. It might be incorrect if RectManager structure got updated
+    // since last access. Expected to be reset to the default value when the node is removed from
+    // the list.
+    internal var rectListIndex: Int = NotFound
     // Params managed by RectManager end.
 
     override var compositeKeyHash: Int = 0
@@ -637,7 +635,7 @@ internal class LayoutNode(
 
     override fun toString(): String {
         return "${simpleIdentityToString(this, null)} children: ${children.size} " +
-            "measurePolicy: $measurePolicy deactivated: $isDeactivated"
+            "measurePolicy: $measurePolicy deactivated: $isDeactivated isVirtual: $isVirtual isPlaced: $isPlaced"
     }
 
     internal val hasFixedInnerContentConstraints: Boolean
@@ -1188,7 +1186,7 @@ internal class LayoutNode(
     internal fun onCoordinatorRectChanged(coordinator: NodeCoordinator) {
         val rectManager = owner?.rectManager
         val placementPending = layoutState != Idle || measurePending || layoutPending
-        if (addedToRectList && rectManager != null) {
+        if (rectListIndex != NotFound && rectManager != null) {
             if (coordinator === outerCoordinator) {
                 // transformations on the outer coordinator update the offset from parent
                 rectInParentDirty = true

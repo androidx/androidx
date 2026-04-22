@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.DefaultCameraDistance
 import androidx.compose.ui.graphics.DefaultShadowColor
+import androidx.compose.ui.graphics.LayerOutsets
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -72,6 +73,7 @@ class GraphicsLayerModifierTest {
                 ValueElement("compositingStrategy", CompositingStrategy.Auto),
                 ValueElement("blendMode", BlendMode.SrcOver),
                 ValueElement("colorFilter", null),
+                ValueElement("outsets", LayerOutsets.Zero),
             )
     }
 

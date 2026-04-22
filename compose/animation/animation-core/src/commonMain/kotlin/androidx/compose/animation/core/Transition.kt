@@ -675,11 +675,11 @@ public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() 
                     }
                     runAnimations()
                     currentState = targetState
-                    waitForComposition()
                     fraction = 0f
+                    transition.onTransitionEnd()
+                    waitForComposition()
                 }
             }
-            transition.onTransitionEnd()
         }
     }
 

@@ -735,6 +735,33 @@ package androidx.compose.ui.graphics {
     method public operator void plusAssign(androidx.compose.ui.graphics.Interval<T> interval);
   }
 
+  @androidx.compose.runtime.Immutable public final class LayerOutsets {
+    ctor @KotlinOnly public LayerOutsets(optional androidx.compose.ui.unit.Dp left, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp right, optional androidx.compose.ui.unit.Dp bottom);
+    ctor @BytecodeOnly public LayerOutsets(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public LayerOutsets(float, float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public float getBottom-D9Ej5fM();
+    method @BytecodeOnly public float getLeft-D9Ej5fM();
+    method @BytecodeOnly public float getRight-D9Ej5fM();
+    method @BytecodeOnly public float getTop-D9Ej5fM();
+    property public androidx.compose.ui.unit.Dp bottom;
+    property public androidx.compose.ui.unit.Dp left;
+    property public androidx.compose.ui.unit.Dp right;
+    property public androidx.compose.ui.unit.Dp top;
+    field public static final androidx.compose.ui.graphics.LayerOutsets.Companion Companion;
+  }
+
+  public static final class LayerOutsets.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.LayerOutsets getZero();
+    property public androidx.compose.ui.graphics.LayerOutsets Zero;
+  }
+
+  public final class LayerOutsetsKt {
+    method @KotlinOnly public static androidx.compose.ui.graphics.LayerOutsets LayerOutsets(androidx.compose.ui.unit.Dp all);
+    method @KotlinOnly public static androidx.compose.ui.graphics.LayerOutsets LayerOutsets(androidx.compose.ui.unit.Dp vertical, androidx.compose.ui.unit.Dp horizontal);
+    method @BytecodeOnly public static androidx.compose.ui.graphics.LayerOutsets LayerOutsets-0680j_4(float);
+    method @BytecodeOnly public static androidx.compose.ui.graphics.LayerOutsets LayerOutsets-YgX7TsA(float, float);
+  }
+
   @androidx.compose.runtime.Immutable public final class LightingColorFilter extends androidx.compose.ui.graphics.ColorFilter {
     ctor @KotlinOnly public LightingColorFilter(androidx.compose.ui.graphics.Color multiply, androidx.compose.ui.graphics.Color add);
     ctor @BytecodeOnly public LightingColorFilter(long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1404,7 +1431,7 @@ package androidx.compose.ui.graphics.colorspace {
     method @BytecodeOnly public static androidx.compose.ui.graphics.colorspace.ColorModel! box-impl(long);
     method @BytecodeOnly @IntRange(from=1L, to=4L) public static int getComponentCount-impl(long);
     method @BytecodeOnly public long unbox-impl();
-    property @androidx.compose.runtime.Stable public int componentCount;
+    property @IntRange(from=1L, to=4L) @androidx.compose.runtime.Stable public int componentCount;
     field public static final androidx.compose.ui.graphics.colorspace.ColorModel.Companion Companion;
   }
 
@@ -1963,6 +1990,7 @@ package androidx.compose.ui.graphics.layer {
     method @InaccessibleFromKotlin public void setClip(boolean);
     method @InaccessibleFromKotlin public void setColorFilter(androidx.compose.ui.graphics.ColorFilter?);
     method @BytecodeOnly public void setCompositingStrategy-Wpw9cng(int);
+    method public void setOutsets(@IntRange(from=0L) int left, @IntRange(from=0L) int top, @IntRange(from=0L) int right, @IntRange(from=0L) int bottom);
     method public void setPathOutline(androidx.compose.ui.graphics.Path path);
     method @BytecodeOnly public void setPivotOffset-k-4lQ0M(long);
     method @KotlinOnly public void setRectOutline(optional androidx.compose.ui.geometry.Offset topLeft, optional androidx.compose.ui.geometry.Size size);

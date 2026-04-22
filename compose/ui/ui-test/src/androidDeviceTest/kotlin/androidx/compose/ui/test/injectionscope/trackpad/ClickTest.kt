@@ -28,8 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.expectError
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -403,10 +401,7 @@ class ClickTest {
             dragAndDrop(center, center + Offset(2f * width, 4f * height))
         }
         waitForIdle()
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
-            assertWithMessage("xOffset").that(xOffsetPx).isWithin(marginPx).of(2 * sizePx)
-            assertWithMessage("yOffset").that(yOffsetPx).isWithin(marginPx).of(4 * sizePx)
-        }
+        assertWithMessage("xOffset").that(xOffsetPx).isWithin(marginPx).of(2 * sizePx)
+        assertWithMessage("yOffset").that(yOffsetPx).isWithin(marginPx).of(4 * sizePx)
     }
 }

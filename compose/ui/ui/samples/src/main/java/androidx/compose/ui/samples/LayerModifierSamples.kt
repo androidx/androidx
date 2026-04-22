@@ -20,14 +20,21 @@ import androidx.annotation.Sampled
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.LayerOutsets
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
@@ -71,5 +78,28 @@ fun CompositingStrategyModulateAlpha() {
         // occur with CompositingStrategy.Auto or CompositingStrategy.Offscreen
         inset(0f, 0f, size.width / 3, size.height / 3) { drawRect(color = Color.Red) }
         inset(size.width / 3, size.height / 3, 0f, 0f) { drawRect(color = Color.Blue) }
+    }
+}
+
+@Sampled
+@Composable
+fun CompositingStrategyOffscreenLayerOutsets() {
+    Box(Modifier.size(100.dp).graphicsLayer(alpha = 0.5f, outsets = LayerOutsets(100.dp))) {
+        // Configuring an alpha less than 1.0 has promoted the layer to an offscreen buffer thus
+        // implicitly clipping
+        // the layer to its bounds. The inner box draws a Rect which extends beyond the layout
+        // bounds of the outer
+        // box. LayerOutsets are provided to the layer that is promoted to the offscreen buffer to
+        // extend its visual bounds
+        // to avoid clipping the content drawn by its children.
+        Box(
+            Modifier.fillMaxSize().drawBehind {
+                drawRect(
+                    topLeft = Offset(100f, 100f),
+                    brush = SolidColor(Color.Red),
+                    size = Size(800f, 500f),
+                )
+            }
+        )
     }
 }

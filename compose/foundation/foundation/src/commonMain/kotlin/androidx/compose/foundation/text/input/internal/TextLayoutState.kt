@@ -76,11 +76,11 @@ internal class TextLayoutState {
     var decoratorNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
 
     /** Set to a non-zero value for single line TextFields in order to prevent text cuts. */
-    var minHeightForSingleLineField by mutableStateOf(0.dp)
+    var heightForSingleLineField by mutableStateOf(0.dp)
 
     /**
      * A [BringIntoViewRequester] that can be used to request a specific region of text be brought
-     * into view (via [TextLayoutState.bringCursorIntoView]).
+     * into view.
      *
      * This requester should only be applied to the core text field node, _inside_ the internal
      * scroll container.

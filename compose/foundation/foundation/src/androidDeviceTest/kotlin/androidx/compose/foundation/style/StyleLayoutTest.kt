@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -60,6 +61,37 @@ class StyleLayoutTest {
             .onParentWith(parent = { contentPadding(10.dp) }, child = { size(10.dp) })
             .assertWidthIsEqualTo(30.dp) // 10.dp (child) + 10.dp (padding) + 10.dp (padding)
             .assertHeightIsEqualTo(30.dp) // 10.dp (child) + 10.dp (padding) + 10.dp (padding)
+    }
+
+    @Test
+    fun testPaddingValues() {
+        rule
+            .onParentWith(
+                parent = {
+                    contentPadding(
+                        PaddingValues(start = 10.dp, top = 20.dp, end = 30.dp, bottom = 40.dp)
+                    )
+                },
+                child = { size(10.dp) },
+            )
+            .assertWidthIsEqualTo(50.dp)
+            .assertHeightIsEqualTo(70.dp)
+    }
+
+    @Test
+    fun testExternalPaddingValues() {
+        rule
+            .onParentWith(
+                parent = {
+                    externalPadding(
+                        PaddingValues(start = 10.dp, top = 20.dp, end = 30.dp, bottom = 40.dp)
+                    )
+                    size(100.dp)
+                },
+                child = { fillSize() },
+            )
+            .assertWidthIsEqualTo(140.dp)
+            .assertHeightIsEqualTo(160.dp)
     }
 
     @Test

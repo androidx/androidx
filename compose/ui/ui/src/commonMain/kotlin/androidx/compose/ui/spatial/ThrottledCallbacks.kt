@@ -463,7 +463,7 @@ internal class ThrottledCallbacks {
                     put(key, next)
                 } else {
                     val layoutNode = value.node.node.requireLayoutNode()
-                    if (layoutNode.addedToRectList) {
+                    if (layoutNode.isAttached) {
                         layoutNode.requireOwner().rectManager.unsetHasCallbacksFor(layoutNode)
                     }
                 }

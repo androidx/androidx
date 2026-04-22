@@ -193,6 +193,21 @@ fun DrawScope.GraphicsLayerAlphaSample(layer: GraphicsLayer) {
 }
 
 @Sampled
+fun DrawScope.GraphicsLayerOutsetsSample(layer: GraphicsLayer) {
+    // Create a layer sized to the destination draw scope that is comprised
+    // of an inset red rectangle
+    layer.apply {
+        record { drawRect(Color.Red) }
+        // Renders the content of the layer with 50% alpha when it is drawn
+        // into the destination
+        alpha = 0.5f
+        // Increase the visual bounds of layer by 20px to avoid clipping the underlying content if
+        // any.
+        setOutsets(20, 20, 20, 20)
+    }
+}
+
+@Sampled
 fun DrawScope.GraphicsLayerOutlineSample(layer: GraphicsLayer) {
     // Create a layer sized to the destination draw scope that is comprised
     // of an inset red rectangle

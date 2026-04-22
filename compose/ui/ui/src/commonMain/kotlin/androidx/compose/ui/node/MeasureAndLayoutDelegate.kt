@@ -101,6 +101,8 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                 "updateRootConstraints called while measuring"
             }
             rootConstraints = constraints
+            if (!root.isAttached) return
+
             if (root.lookaheadRoot != null) {
                 root.markLookaheadMeasurePending()
             }

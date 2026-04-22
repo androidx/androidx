@@ -18,13 +18,18 @@ package androidx.compose.foundation.style
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.CompositionLocalAccessorScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -37,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -874,6 +880,16 @@ sealed interface StyleScope : CompositionLocalAccessorScope, Density {
     fun rotationZ(value: Float)
 
     /**
+     * Sets the [ColorFilter] to apply to the component.
+     *
+     * This property is *not* inherited
+     *
+     * @param value The color filter to apply.
+     * @see androidx.compose.ui.graphics.graphicsLayer
+     */
+    fun colorFilter(value: ColorFilter?)
+
+    /**
      * Offset percentage along the x and y axis for which contents are rotated and scaled. The
      * default value of 0.5f, 0.5f indicates the pivot point will be at the midpoint of the left and
      * right as well as the top and bottom bounds of the layer. Default value is
@@ -1306,6 +1322,19 @@ sealed interface StyleScope : CompositionLocalAccessorScope, Density {
     fun fontSynthesis(value: FontSynthesis) // enum int value, 4 possible values,
 
     /**
+     * Sets the text motion strategy, which can be used to optimize for readability or for smooth
+     * animations. This property is inherited by child text components if not overridden. This
+     * affects text layout and is a component of a [TextStyle].
+     *
+     * This property is inherited.
+     *
+     * @param value The [TextMotion] strategy to apply.
+     * @see textStyle
+     * @see androidx.compose.ui.text.TextStyle
+     */
+    fun textMotion(value: TextMotion)
+
+    /**
      * A helper function to implement state reading extension functions such as
      * [StyleScope.pressed].
      *
@@ -1374,4 +1403,46 @@ fun StyleScope.fillSize() {
 @ExperimentalFoundationStyleApi
 fun StyleScope.apply(style: Style) {
     with(style) { this@apply.applyStyle() }
+}
+
+/**
+ * Sets the padding for the component's content. Content padding is the space between the
+ * component's border (if any) and its content. The width/height of the component includes content
+ * padding.
+ *
+ * This property is *not* inherited
+ *
+ * @param paddingValues The [PaddingValues] to apply to the content.
+ * @see contentPadding
+ * @see androidx.compose.foundation.layout.padding
+ */
+@ExperimentalFoundationStyleApi
+fun StyleScope.contentPadding(paddingValues: PaddingValues) {
+    contentPadding(
+        start = paddingValues.calculateStartPadding(LocalLayoutDirection.currentValue),
+        top = paddingValues.calculateTopPadding(),
+        end = paddingValues.calculateEndPadding(LocalLayoutDirection.currentValue),
+        bottom = paddingValues.calculateBottomPadding(),
+    )
+}
+
+/**
+ * Sets the external padding for the component. The external padding is the space between the edge
+ * of the component and its border (if any). The width/height of the component includes external
+ * padding.
+ *
+ * This property is *not* inherited
+ *
+ * @param paddingValues The [PaddingValues] to apply to the external padding.
+ * @see externalPadding
+ * @see androidx.compose.foundation.layout.padding
+ */
+@ExperimentalFoundationStyleApi
+fun StyleScope.externalPadding(paddingValues: PaddingValues) {
+    externalPadding(
+        start = paddingValues.calculateStartPadding(LocalLayoutDirection.currentValue),
+        top = paddingValues.calculateTopPadding(),
+        end = paddingValues.calculateEndPadding(LocalLayoutDirection.currentValue),
+        bottom = paddingValues.calculateBottomPadding(),
+    )
 }

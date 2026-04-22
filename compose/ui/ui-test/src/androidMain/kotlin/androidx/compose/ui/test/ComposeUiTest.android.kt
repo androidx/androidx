@@ -47,6 +47,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -814,7 +815,7 @@ internal constructor(
         }
     }
 
-    internal inner class AndroidComposeUiTestImpl : AndroidComposeUiTest<A> {
+    internal inner class AndroidComposeUiTestImpl : AndroidComposeUiTest<A>, TestOwnerProvider {
 
         override val activity: A?
             get() = this@AndroidComposeUiTestEnvironment.activity
@@ -825,6 +826,9 @@ internal constructor(
 
         override val mainClock: MainTestClock
             get() = mainClockImpl
+
+        override val testOwner: TestOwner
+            get() = this@AndroidComposeUiTestEnvironment.testOwner
 
         override fun setComposeAccessibilityValidator(validator: ComposeAccessibilityValidator?) {
             testContext.platform.composeAccessibilityValidator = validator
@@ -839,6 +843,22 @@ internal constructor(
             waitForIdle()
             // Execute the action on ui thread in a blocking way.
             return runOnUiThread(action)
+        }
+
+        override fun <T> runWhenIdle(action: () -> T): T {
+            // Method below make sure that compose is idle.
+            waitForIdle()
+            // Execute the action on ui thread in a blocking way.
+            return runOnUiThread { testOwner.withImplicitWaitSuppressed(action) }
+        }
+
+        override suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T {
+            // Method below make sure that compose is idle.
+            awaitIdle()
+            // Execute the action on ui thread.
+            return withContext(Dispatchers.Main.immediate) {
+                testOwner.withImplicitWaitSuppressed(action)
+            }
         }
 
         override fun waitForIdle() {
@@ -933,6 +953,10 @@ internal constructor(
                 waitForIdle()
             }
         }
+
+        override fun hasPendingWork(): Boolean {
+            return !composeIdlingResource.isIdle
+        }
     }
 
     private fun throwPendingException() {
@@ -942,14 +966,30 @@ internal constructor(
         }
     }
 
+    /** Executes the given [action] with implicit wait synchronization temporarily disabled. */
+    private inline fun <T> TestOwner.withImplicitWaitSuppressed(action: () -> T): T {
+        val previousState = this.isImplicitWaitSuppressed
+        this.isImplicitWaitSuppressed = true
+        return try {
+            action()
+        } finally {
+            // Always restore the original synchronization state
+            this.isImplicitWaitSuppressed = previousState
+        }
+    }
+
     private inner class AndroidTestOwner : TestOwner {
+        override var isImplicitWaitSuppressed: Boolean = false
+
         override val mainClock: MainTestClock
             get() = mainClockImpl
 
         override fun <T> runOnUiThread(action: () -> T): T = testReceiverScope.runOnUiThread(action)
 
         override fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest> {
-            waitForIdle(atLeastOneRootExpected)
+            if (!isOnUiThread() || !isImplicitWaitSuppressed) {
+                waitForIdle(atLeastOneRootExpected)
+            }
             return composeRootRegistry.getRegisteredComposeRoots()
         }
 
@@ -1014,6 +1054,10 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
 
     actual fun <T> runOnIdle(action: () -> T): T
 
+    actual fun <T> runWhenIdle(action: () -> T): T
+
+    actual suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T
+
     actual fun waitForIdle()
 
     actual suspend fun awaitIdle()
@@ -1031,6 +1075,8 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     fun unregisterIdlingResource(idlingResource: IdlingResource)
 
     actual fun setContent(composable: @Composable () -> Unit)
+
+    actual fun hasPendingWork(): Boolean
 }
 
 /**
@@ -1053,4 +1099,12 @@ private fun CoroutineContext.createDefaultTestDispatcher(
         return StandardTestDispatcher(this[TestCoroutineScheduler])
     }
     return UnconfinedTestDispatcher(this[TestCoroutineScheduler])
+}
+
+/**
+ * Internal interface to expose the TestOwner safely to extension functions within the same
+ * module/library group.
+ */
+internal interface TestOwnerProvider {
+    val testOwner: TestOwner
 }

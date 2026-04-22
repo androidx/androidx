@@ -16,15 +16,21 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.internal.throwIllegalStateException
 import androidx.compose.ui.text.AnnotatedString
 
 /**
  * A [TextStyleBuffer] implemented as an interval tree. It is also order-aware; styles are returned
  * in the order they were added.
+ *
+ * @param source The [TextStyleBuffer] to copy from.
+ * @param mutable Whether this [TextStyleBuffer] is mutable.
  */
-internal class TextStyleBuffer<T>(source: TextStyleBuffer<T>? = null) {
-    private val intervalTree: IntIntervalTree<T> =
-        source?.let { IntIntervalTree(it.intervalTree) } ?: IntIntervalTree()
+internal class TextStyleBuffer<T>(
+    source: TextStyleBuffer<T>? = null,
+    private val mutable: Boolean = true,
+) {
+    private val intervalTree: IntIntervalTree<T> = source?.intervalTree?.copy() ?: IntIntervalTree()
 
     /**
      * Similar to a [GapBuffer], this buffer utilizes a "gap" to optimize performance when
@@ -48,6 +54,27 @@ internal class TextStyleBuffer<T>(source: TextStyleBuffer<T>? = null) {
     }
 
     /**
+     * Returns an immutable copy of this [TextStyleBuffer].
+     *
+     * @return A copy of this [TextStyleBuffer].
+     */
+    fun toImmutable(): TextStyleBuffer<T> = TextStyleBuffer(this, false)
+
+    /**
+     * Syncs this [TextStyleBuffer] with another [TextStyleBuffer].
+     *
+     * @param other The [TextStyleBuffer] to sync with.
+     */
+    fun syncTo(other: TextStyleBuffer<T>) {
+        if (!mutable) {
+            throwIllegalStateException("This buffer is immutable")
+        }
+        gapStart = other.gapStart
+        gapEnd = other.gapEnd
+        intervalTree.syncTo(other.intervalTree)
+    }
+
+    /**
      * Adds the style defined between an interval defined by [start] and [end].
      *
      * @param style The style to be added.
@@ -56,37 +83,36 @@ internal class TextStyleBuffer<T>(source: TextStyleBuffer<T>? = null) {
      * @return true if the style is added, false otherwise.
      */
     fun addStyle(style: T, start: Int, end: Int): Boolean {
+        if (!mutable) {
+            throwIllegalStateException("This TextStyleBuffer is immutable")
+        }
         val startInBuffer = originalIndexToGapBuffer(start)
         val endInBuffer = originalIndexToGapBuffer(end)
         return intervalTree.addInterval(style, startInBuffer, endInBuffer)
     }
 
-    /*
-     * Returns the styles that overlap with the interval defined by [start] and [end]. The overlap
-     * is inclusive on [start] but exclusive at the [end].
+    /**
+     * Returns the styles with type [R] that overlap with the interval defined by [start] and [end].
+     * The overlap is inclusive on [start] but exclusive at the [end].
      *
      * @return a list of [AnnotatedString.Range]s representing the styles in the buffer in the order
      *   they are added.
      */
-    fun getStyles(start: Int, end: Int): List<AnnotatedString.Range<T>> {
+    inline fun <reified R : T> getStyles(start: Int, end: Int): List<AnnotatedString.Range<R>> {
         if (start > end) return emptyList()
         val startInBuffer = originalIndexToGapBuffer(start)
         val endInBuffer = originalIndexToGapBuffer(end)
 
-        val result = mutableListOf<AnnotatedString.Range<T>>()
-        intervalTree.forEachIntervalInRange(startInBuffer, endInBuffer) {
-            item,
-            intervalStart,
-            intervalEnd ->
-            result.add(
-                AnnotatedString.Range(
-                    item = item,
-                    start = gapBufferToOriginalIndex(intervalStart),
-                    end = gapBufferToOriginalIndex(intervalEnd),
-                )
+        return intervalTree.findIntervalsInRange<R, AnnotatedString.Range<R>>(
+            startInBuffer,
+            endInBuffer,
+        ) { item, intervalStart, intervalEnd ->
+            AnnotatedString.Range(
+                item = item,
+                start = gapBufferToOriginalIndex(intervalStart),
+                end = gapBufferToOriginalIndex(intervalEnd),
             )
         }
-        return result
     }
 
     /**
@@ -121,6 +147,9 @@ internal class TextStyleBuffer<T>(source: TextStyleBuffer<T>? = null) {
      * @return true if the style is removed, false otherwise.
      */
     fun removeStyle(style: T, start: Int, end: Int): Boolean {
+        if (!mutable) {
+            throwIllegalStateException("This TextStyleBuffer is immutable")
+        }
         val startInBuffer = originalIndexToGapBuffer(start)
         val endInBuffer = originalIndexToGapBuffer(end)
 
@@ -147,6 +176,9 @@ internal class TextStyleBuffer<T>(source: TextStyleBuffer<T>? = null) {
      *   inserted text at [end] extends the range. Ideally, this behavior should be customizable.
      */
     fun replaceText(start: Int, end: Int, newLength: Int): Boolean {
+        if (!mutable) {
+            throwIllegalStateException("This buffer is immutable")
+        }
         if (intervalTree.isEmpty()) return false
         enlargeGapIfNeeded(newLength - (end - start))
 
@@ -333,12 +365,17 @@ internal class TextStyleBuffer<T>(source: TextStyleBuffer<T>? = null) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TextStyleBuffer<T>) return false
+        if (gapStart != other.gapStart) return false
+        if (gapEnd != other.gapEnd) return false
 
         return intervalTree == other.intervalTree
     }
 
     override fun hashCode(): Int {
-        return intervalTree.hashCode()
+        var result = intervalTree.hashCode()
+        result = 31 * result + gapStart
+        result = 31 * result + gapEnd
+        return result
     }
 }
 

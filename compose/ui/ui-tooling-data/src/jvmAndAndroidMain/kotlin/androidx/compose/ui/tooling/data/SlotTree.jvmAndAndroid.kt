@@ -262,12 +262,12 @@ private fun CompositionGroup.getGroup(parentContext: SourceInformationContext?):
 
     // Calculate bounding box
     val box =
-        when (node) {
-            is LayoutInfo -> boundsOfLayoutNode(node)
-            else ->
-                if (children.isEmpty()) emptyBox
-                else children.map { g -> g.box }.reduce { acc, box -> box.union(acc) }
+        when {
+            node is LayoutInfo && !node.isVirtual -> boundsOfLayoutNode(node)
+            children.isEmpty() -> emptyBox
+            else -> children.map { g -> g.box }.reduce { acc, box -> box.union(acc) }
         }
+
     val location =
         if (context?.isCall == true) {
             parentContext?.nextSourceLocation()
@@ -334,7 +334,8 @@ private class CompositionCallStack<T, R>(
                 childCallIndex++
             }
         }
-        box = (group.node as? LayoutInfo)?.let { boundsOfLayoutNode(it) } ?: box
+        val node = (group.node as? LayoutInfo)?.takeIf { !it.isVirtual }
+        box = node?.let { boundsOfLayoutNode(it) } ?: box
         currentCallIndex = callIndex
         bounds = box
 

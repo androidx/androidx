@@ -313,6 +313,7 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
                 advanceEventTime(1_000) // avoid this being interpreted as a multi-tap
                 down(center)
                 moveBy(Offset(-viewConfiguration.touchSlop - fontSizePx, 0f))
+                advanceEventTime(3000L) // Prevent fling gesture.
                 up()
             }
             assertTextToolbarShown()

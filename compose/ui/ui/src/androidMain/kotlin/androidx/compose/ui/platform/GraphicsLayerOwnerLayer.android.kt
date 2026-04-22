@@ -89,6 +89,18 @@ internal class GraphicsLayerOwnerLayer(
         val maybeChangedFields = scope.mutatedFields or mutatedFields
         this.layoutDirection = scope.layoutDirection
         this.density = scope.graphicsDensity
+
+        if (maybeChangedFields and Fields.Outsets != 0) {
+            with(density) {
+                graphicsLayer.setOutsets(
+                    left = scope.outsets.left.roundToPx(),
+                    top = scope.outsets.top.roundToPx(),
+                    right = scope.outsets.right.roundToPx(),
+                    bottom = scope.outsets.bottom.roundToPx(),
+                )
+                invalidate()
+            }
+        }
         if (maybeChangedFields and Fields.TransformOrigin != 0) {
             this.transformOrigin = scope.transformOrigin
         }

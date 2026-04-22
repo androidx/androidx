@@ -23,6 +23,7 @@ import android.os.Build
 import android.view.DisplayListCanvas
 import android.view.RenderNode
 import android.view.View
+import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isUnspecified
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.requirePrecondition
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPorterDuffMode
 import androidx.compose.ui.unit.Density
@@ -178,16 +180,20 @@ internal class GraphicsLayerV23(
     override var pivotOffset: Offset = Offset.Unspecified
         set(value) {
             field = value
-            if (value.isUnspecified) {
-                shouldManuallySetCenterPivot = true
-                renderNode.pivotX = size.width / 2f
-                renderNode.pivotY = size.height / 2f
-            } else {
-                shouldManuallySetCenterPivot = false
-                renderNode.pivotX = value.x
-                renderNode.pivotY = value.y
-            }
+            updatePivot()
         }
+
+    private fun updatePivot() {
+        if (pivotOffset.isUnspecified) {
+            shouldManuallySetCenterPivot = true
+            renderNode.pivotX = size.width / 2f + outsetLeft
+            renderNode.pivotY = size.height / 2f + outsetTop
+        } else {
+            shouldManuallySetCenterPivot = false
+            renderNode.pivotX = pivotOffset.x + outsetLeft
+            renderNode.pivotY = pivotOffset.y + outsetTop
+        }
+    }
 
     override var scaleX: Float = 1f
         set(value) {
@@ -268,8 +274,47 @@ internal class GraphicsLayerV23(
             applyClip()
         }
 
+    private var outsetLeft: Int = 0
+
+    private var outsetTop: Int = 0
+
+    private var outsetRight: Int = 0
+
+    private var outsetBottom: Int = 0
+
+    override fun setOutsets(
+        @IntRange(from = 0) left: Int,
+        @IntRange(from = 0) top: Int,
+        @IntRange(from = 0) right: Int,
+        @IntRange(from = 0) bottom: Int,
+    ) {
+        requirePrecondition(left >= 0 && top >= 0 && right >= 0 && bottom >= 0) {
+            "Outsets cannot be negative! Left: $left, Top: $top, Right: $right, Bottom: $bottom"
+        }
+        if (
+            left != outsetLeft || top != outsetTop || right != outsetRight || bottom != outsetBottom
+        ) {
+            val isPivotAffected = (left != outsetLeft || top != outsetTop)
+            outsetLeft = left
+            outsetTop = top
+            outsetRight = right
+            outsetBottom = bottom
+            updatePosition()
+            if (isPivotAffected) {
+                updatePivot()
+            }
+        }
+    }
+
     private var clipToBounds = false
     private var clipToOutline = false
+
+    // The position of the render node without the outsets. These coordinates represent
+    // the top-left corner of the layer's content before the outsets are accounted for.
+    // These are stored separately because the RenderNode's actual left/top include the
+    // outsets, and we need the original coordinates to recalculate bounds when outsets change.
+    private var x: Int = 0
+    private var y: Int = 0
 
     private fun applyClip() {
         val newClipToBounds = clip && !outlineIsProvided
@@ -292,14 +337,26 @@ internal class GraphicsLayerV23(
     override var renderEffect: RenderEffect? = null
 
     override fun setPosition(x: Int, y: Int, size: IntSize) {
-        renderNode.setLeftTopRightBottom(x, y, x + size.width, y + size.height)
-        if (this.size != size) {
-            if (shouldManuallySetCenterPivot) {
-                renderNode.pivotX = size.width / 2f
-                renderNode.pivotY = size.height / 2f
+        this.x = x
+        this.y = y
+        val hasSizeChanged = this.size != size
+        this.size = size
+        updatePosition()
+        if (hasSizeChanged) {
+            if (shouldManuallySetCenterPivot || pivotOffset == Offset.Unspecified) {
+                renderNode.pivotX = size.width / 2f + outsetLeft
+                renderNode.pivotY = size.height / 2f + outsetTop
             }
-            this.size = size
         }
+    }
+
+    private fun updatePosition() {
+        renderNode.setLeftTopRightBottom(
+            x - outsetLeft,
+            y - outsetTop,
+            x + size.width + outsetRight,
+            y + size.height + outsetBottom,
+        )
     }
 
     override fun setOutline(outline: Outline?, outlineSize: IntSize) {
@@ -322,12 +379,33 @@ internal class GraphicsLayerV23(
     ) {
         val recordingCanvas =
             renderNode.start(
-                maxOf(size.width, outlineSize.width),
-                maxOf(size.height, outlineSize.height),
+                maxOf(size.width + outsetLeft + outsetRight, outlineSize.width),
+                maxOf(size.height + outsetTop + outsetBottom, outlineSize.height),
             )
+        val topLeftOutset = Offset(outsetLeft.toFloat(), outsetTop.toFloat())
         try {
             canvasHolder.drawInto(recordingCanvas) {
-                canvasDrawScope.draw(density, layoutDirection, this, size.toSize(), layer, block)
+                if (outsetLeft > 0f || outsetTop > 0f) {
+                    translate(topLeftOutset.x, topLeftOutset.y)
+                    canvasDrawScope.draw(
+                        density,
+                        layoutDirection,
+                        this,
+                        size.toSize(),
+                        layer,
+                        block,
+                    )
+                    translate(-topLeftOutset.x, -topLeftOutset.y)
+                } else {
+                    canvasDrawScope.draw(
+                        density,
+                        layoutDirection,
+                        this,
+                        size.toSize(),
+                        layer,
+                        block,
+                    )
+                }
             }
         } finally {
             renderNode.end(recordingCanvas)

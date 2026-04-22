@@ -1512,6 +1512,7 @@ class SwipeableTest {
         rule.onNodeWithTag(swipeableTag).performTouchInput {
             down(Offset(x = 10f, y = 10f))
             moveBy(Offset(x = 0f, y = -1500f))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 
@@ -1523,6 +1524,7 @@ class SwipeableTest {
         rule.onNodeWithTag(swipeableTag).performTouchInput {
             down(Offset(x = 10f, y = 10f))
             moveBy(Offset(x = 0f, y = 1500f))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 

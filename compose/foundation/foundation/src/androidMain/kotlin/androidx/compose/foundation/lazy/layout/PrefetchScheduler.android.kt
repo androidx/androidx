@@ -61,10 +61,10 @@ internal actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
  * The differences with the implementation in RecyclerView:
  * 1) Prefetch is per-list-index, and performed on whole item. With RecyclerView, nested scrolling
  *    RecyclerViews would prefetch incrementally, e.g. items like the following in a scrolling
- *    vertical list could be broken up within a frame: [Row1 [a], [b], [c]] [Row2 [d], [e]]
- *    [Row3 [f], [g], [h]] You could have frames that break up this work arbitrarily: Frame 1 -
- *    prefetch [a] Frame 2 - prefetch [b], [c] Frame 3 - prefetch [d] Frame 4 - prefetch [e], [f]
- *    Something similar is not possible with LazyColumn yet.
+ *    vertical list could be broken up within a frame: `[Row1 [a], [b], [c]]` `[Row2 [d], [e]]`
+ *    `[Row3 [f], [g], [h]]` You could have frames that break up this work arbitrarily: Frame 1 -
+ *    prefetch `[a]` Frame 2 - prefetch `[b]`, `[c]` Frame 3 - prefetch `[d]` Frame 4 - prefetch
+ *    `[e]`, `[f]` Something similar is not possible with LazyColumn yet.
  * 2) Prefetching time estimation only captured during the prefetch. We currently don't track the
  *    time of the regular subcompose call happened during the regular measure pass, only the ones
  *    which are done during the prefetching. The downside is we build our prefetch information only
