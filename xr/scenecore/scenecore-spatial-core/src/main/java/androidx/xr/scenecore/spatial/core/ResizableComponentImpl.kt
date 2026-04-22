@@ -18,6 +18,8 @@
 
 package androidx.xr.scenecore.spatial.core
 
+import android.os.Handler
+import android.os.Looper
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.PanelEntity
@@ -47,6 +49,7 @@ internal class ResizableComponentImpl(
 ) : ResizableComponent {
     private val resizeEventListenerMap = ConcurrentHashMap<ResizeEventListener, Executor>()
     private val isContentHidden = AtomicBoolean(false)
+    private val mainHandler = Handler(Looper.getMainLooper())
     // Visible for testing.
     var reformEventConsumer: Consumer<ReformEvent>? = null
     private var entity: Entity? = null
@@ -213,6 +216,12 @@ internal class ResizableComponentImpl(
         fixedAspectRatio = updatedFixedAspectRatio
     }
 
+    private val onSetSizeCompleteListener = Runnable {
+        if (autoHideContent) {
+            restoreEntityContent()
+        }
+    }
+
     override fun onAttach(entity: Entity): Boolean {
         if (this.entity != null) {
             return false
@@ -226,6 +235,10 @@ internal class ResizableComponentImpl(
             if (shape is SurfaceEntity.Shape.Quad) {
                 entitySize = shape.dimensions
             }
+        }
+
+        if (entity is MainPanelEntityImpl) {
+            entity.addOnSetSizeCompleteListener(executor, onSetSizeCompleteListener)
         }
 
         val reformOptions = (entity as AndroidXrEntity).getReformOptions()
@@ -249,34 +262,58 @@ internal class ResizableComponentImpl(
     }
 
     override fun onDetach(entity: Entity) {
-        restoreEntityContent()
+        // Restore the entity's alpha synchronously here rather than calling restoreEntityContent().
+        // Since restoreEntityContent() posts to the main thread, the asynchronous task might
+        // execute after 'this.entity' has already been set to null below, resulting in a failure to
+        // restore the UI.
+        if (isContentHidden.compareAndSet(true, false)) {
+            xrExtensions.createNodeTransaction().use { transaction ->
+                transaction
+                    .setAlpha((entity as AndroidXrEntity).getNode(), entity.getAlpha())
+                    .apply()
+            }
+        }
+
         val reformOptions = (entity as AndroidXrEntity).getReformOptions()
         reformOptions.enabledReform =
             reformOptions.enabledReform and ReformOptions.ALLOW_RESIZE.inv()
         entity.updateReformOptions()
+        if (entity is MainPanelEntityImpl) {
+            entity.removeOnSetSizeCompleteListener(onSetSizeCompleteListener)
+        }
         reformEventConsumer?.let { entity.removeReformEventConsumer(it) }
         this.entity = null
+        mainHandler.removeCallbacksAndMessages(null)
     }
 
     private fun hideEntityContent() {
-        // Return early if the entity content is already hidden.
-        if (isContentHidden.get()) {
-            return
-        }
-        xrExtensions.createNodeTransaction().use { transaction ->
-            transaction.setAlpha((entity as AndroidXrEntity).getNode(), 0f).apply()
-            isContentHidden.set(true)
+        if (isContentHidden.compareAndSet(false, true)) {
+            mainHandler.post {
+                // Double-check the state to ensure we don't hide the content if it was already
+                // restored (e.g., by onDetach) while this task was in the queue.
+                if (!isContentHidden.get()) return@post
+
+                val currentEntity = entity as? AndroidXrEntity ?: return@post
+                xrExtensions.createNodeTransaction().use { transaction ->
+                    transaction.setAlpha(currentEntity.getNode(), 0f).apply()
+                }
+            }
         }
     }
 
     private fun restoreEntityContent() {
-        // Return early if the entity content is already visible.
-        if (!isContentHidden.get()) {
-            return
-        }
-        xrExtensions.createNodeTransaction().use { transaction ->
-            transaction.setAlpha((entity as AndroidXrEntity).getNode(), entity!!.getAlpha()).apply()
-            isContentHidden.set(false)
+        if (isContentHidden.compareAndSet(true, false)) {
+            mainHandler.post {
+                // Double-check the state to ensure we don't restore the content if it was
+                // hidden again (e.g., by another rapid resize event) while this task was in the
+                // queue.
+                if (isContentHidden.get()) return@post
+
+                val currentEntity = entity as? AndroidXrEntity ?: return@post
+                xrExtensions.createNodeTransaction().use { transaction ->
+                    transaction.setAlpha(currentEntity.getNode(), currentEntity.getAlpha()).apply()
+                }
+            }
         }
     }
 
@@ -294,34 +331,61 @@ internal class ResizableComponentImpl(
             size = proposedSize
         }
 
-        val resizeEventListenerAction =
-            BiConsumer { listener: ResizeEventListener, listenerExecutor: Executor ->
-                listenerExecutor.execute {
-                    val reformState = reformEvent.state
-                    if (autoHideContent && reformState != ReformEvent.REFORM_STATE_END) {
-                        // Set the alpha to 0 when the resize is active before any
-                        // app callbacks, and restore when the resize ends after any
-                        // app callbacks, to hide the entity content while it's
-                        // being resized.
-                        hideEntityContent()
-                    }
-                    listener.onResizeEvent(
-                        ResizeEvent(
-                            RuntimeUtils.getResizeEventState(reformEvent.state),
-                            proposedSize,
+        val reformState = reformEvent.state
+        val currentEntity = entity
+
+        if (autoHideContent && reformState != ReformEvent.REFORM_STATE_END) {
+            // Set the alpha to 0 when the resize is active before any
+            // app callbacks, and restore when the resize ends after any
+            // app callbacks, to hide the entity content while it's
+            // being resized.
+            hideEntityContent()
+        }
+
+        if (resizeEventListenerMap.isEmpty()) {
+            restoreContentIfNotWaitingForSize(reformState, entity)
+        } else {
+            val resizeEventListenerAction =
+                BiConsumer { listener: ResizeEventListener, listenerExecutor: Executor ->
+                    listenerExecutor.execute {
+                        listener.onResizeEvent(
+                            ResizeEvent(
+                                RuntimeUtils.getResizeEventState(reformEvent.state),
+                                proposedSize,
+                            )
                         )
-                    )
-                    if (autoHideContent && reformState == ReformEvent.REFORM_STATE_END) {
-                        // Restore the entity alpha to its original value after the
-                        // resize callback. We can't guarantee that the app has
-                        // finished resizing when this is called, since the panel
-                        // resize itself is asynchronous, or the app can use this
-                        // callback to schedule resize call on a different thread.
-                        restoreEntityContent()
+                        restoreContentIfNotWaitingForSize(reformState, entity)
                     }
                 }
-            }
-        resizeEventListenerMap.forEach(resizeEventListenerAction)
+            resizeEventListenerMap.forEach(resizeEventListenerAction)
+        }
+    }
+
+    /**
+     * Handles the content restoration logic at the end of a resize operation.
+     *
+     * This checks the state of the resize event and, if applicable (e.g. for MainPanelEntity),
+     * defers the restoration if an asynchronous size update is currently in-flight.
+     */
+    private fun restoreContentIfNotWaitingForSize(reformState: Int, currentEntity: Entity?) {
+        if (reformState != ReformEvent.REFORM_STATE_END) return
+        // For MainPanelEntityImpl, setting the size is an asynchronous operation.
+        // We must wait for it to complete before restoring the content's visibility
+        // to prevent visual artifacts. If an IPC call is in-flight (regardless of
+        // what triggered it), return early and defer restoration to the completion listener.
+        //
+        // TODO(b/502252493): Fix potential race condition with async size updates.
+        // This mechanism assumes that the `size` property of MainPanelEntity is set
+        // synchronously within the onResizeEvent callback above, which allows
+        // `isWaitingForSetSize()` to return true immediately.
+        // If an app developer defers setting the property (e.g., using `post`),
+        // this check will fail, and content may be restored prematurely.
+        if (currentEntity is MainPanelEntityImpl && currentEntity.isWaitingForSetSize()) {
+            return
+        }
+        if (autoHideContent) {
+            restoreEntityContent()
+        }
     }
 
     override fun addResizeEventListener(

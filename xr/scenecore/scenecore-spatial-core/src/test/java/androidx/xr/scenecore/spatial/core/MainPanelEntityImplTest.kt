@@ -25,6 +25,7 @@ import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
+import com.google.common.util.concurrent.MoreExecutors
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -126,5 +127,122 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
         val expected =
             Vector3(mainPanelEntity.size.width * -0.5f, mainPanelEntity.size.height * 0.5f, 0.0f)
         Truth.assertThat(position).isEqualTo(expected)
+    }
+
+    @Test
+    fun mainPanelEntitySetSize_notifyListenersOnCompletion() {
+        val shadowExtensions =
+            android.extensions.xr.ShadowXrExtensions.extract(xrExtensions.underlyingObject)
+
+        var listenerInvoked = false
+        val listener = Runnable { listenerInvoked = true }
+        mainPanelEntity.addOnSetSizeCompleteListener(MoreExecutors.directExecutor(), listener)
+
+        // Defer the underlying IPC callback to simulate an asynchronous in-flight request.
+        shadowExtensions.deferSetMainWindowSizeCallbacks(true)
+
+        val kTestDimensions100 = Dimensions(100f, 100f, 100f)
+        mainPanelEntity.size = kTestDimensions100
+
+        // Verify: While the IPC call is in-flight, the listener must not be invoked,
+        // and the entity should be in a pending state.
+        Truth.assertThat(listenerInvoked).isFalse()
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
+
+        // Manually trigger the completion of the IPC call.
+        shadowExtensions.flushSetMainWindowSizeCallbacks(activity)
+
+        // Verify: Once the IPC completes, the listener is synchronously notified
+        // and the pending state is cleared.
+        Truth.assertThat(listenerInvoked).isTrue()
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isFalse()
+
+        // Cleanup
+        mainPanelEntity.removeOnSetSizeCompleteListener(listener)
+        shadowExtensions.deferSetMainWindowSizeCallbacks(false)
+    }
+
+    @Test
+    fun mainPanelEntitySetSize_rapidUpdates_coalescesIntermediateRequests() {
+        val shadowExtensions =
+            android.extensions.xr.ShadowXrExtensions.extract(xrExtensions.underlyingObject)
+
+        val kTestDimensions100 = Dimensions(100f, 100f, 100f)
+        val kTestDimensions200 = Dimensions(200f, 200f, 200f)
+        val kTestDimensions300 = Dimensions(300f, 300f, 300f)
+        val kTestDimensions400 = Dimensions(400f, 400f, 400f)
+
+        // Defer the underlying IPC callback to simulate an asynchronous in-flight request.
+        shadowExtensions.deferSetMainWindowSizeCallbacks(true)
+
+        // 1. Send the initial size request.
+        mainPanelEntity.size = kTestDimensions100
+
+        // Verify: The first request is sent to the underlying API immediately.
+        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity)).isEqualTo(100)
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
+
+        // 2. Simulate rapid, consecutive size updates from the user before the first request
+        // completes.
+        mainPanelEntity.size = kTestDimensions200
+        mainPanelEntity.size = kTestDimensions300
+        mainPanelEntity.size = kTestDimensions400
+
+        // Verify: The underlying API width is STILL 100 because the IPC is in-flight.
+        // The intermediate requests (200, 300, 400) are deferred and coalesced.
+        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity))
+            .isEqualTo(kTestDimensions100.width.toInt())
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
+
+        // 3. Manually complete the FIRST request (100).
+        // This triggers handleSetSizeComplete(), which discovers the coalesced deferred
+        // request (400) and automatically sends it out.
+        shadowExtensions.flushSetMainWindowSizeCallbacks(activity)
+
+        // Verify: The system automatically skipped 200 and 300, and immediately
+        // sent the latest requested size (400) to the underlying API.
+        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity)).isEqualTo(400)
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
+
+        // 4. Manually complete the SECOND request (400).
+        shadowExtensions.flushSetMainWindowSizeCallbacks(activity)
+
+        // Verify: The system has finished all resize operations and is now idle.
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isFalse()
+
+        // Cleanup
+        shadowExtensions.deferSetMainWindowSizeCallbacks(false)
+    }
+
+    @Test
+    fun mainPanelEntitySetSize_resetsStateOnException() {
+        // Register a listener to verify it is invoked even when an exception occurs.
+        var listenerInvoked = false
+        val listener = Runnable { listenerInvoked = true }
+        mainPanelEntity.addOnSetSizeCompleteListener(MoreExecutors.directExecutor(), listener)
+
+        // Trigger an intentional failure by passing negative dimensions.
+        org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+            mainPanelEntity.size = Dimensions(-1f, -1f, -1f)
+        }
+
+        // Verify: Even if the underlying API throws an exception synchronously,
+        // our error handling ensures the pending flag is correctly recovered to false.
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isFalse()
+
+        // Verify: The listener MUST be invoked on failure to prevent the UI
+        // from getting permanently stuck in a hidden state.
+        Truth.assertThat(listenerInvoked).isTrue()
+
+        // Verify: Ensure the internal execution lock is also released by sending
+        // a valid request and confirming it reaches the underlying API.
+        val kTestDimensions100 = Dimensions(100f, 100f, 100f)
+        mainPanelEntity.size = kTestDimensions100
+
+        val shadowExtensions = ShadowXrExtensions.extract(xrExtensions)
+        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity)).isEqualTo(100)
+
+        // Cleanup
+        mainPanelEntity.removeOnSetSizeCompleteListener(listener)
     }
 }
