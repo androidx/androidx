@@ -58,6 +58,7 @@ import androidx.xr.scenecore.testing.FakeComponent
 import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import androidx.xr.scenecore.testing.FakeSurfaceFeature
+import androidx.xr.scenecore.testing.MemoryUtils
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.environment.EnvironmentVisibilityState
 import com.android.extensions.xr.environment.PassthroughVisibilityState
@@ -80,6 +81,7 @@ import com.android.extensions.xr.space.VisibilityState
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors
+import java.lang.ref.WeakReference
 import java.util.function.Consumer
 import org.junit.After
 import org.junit.Before
@@ -106,7 +108,7 @@ class SpatialSceneRuntimeTest {
     private val sceneNodeRegistry = SceneNodeRegistry()
     private val nodeRepository = NodeRepository.getInstance()
     private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
-    private val fakeExecutor = FakeScheduledExecutorService()
+    private var fakeExecutor = FakeScheduledExecutorService()
     private val mockGltfFeature = mock<GltfFeature>()
     private val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
     private val contentResolver = activity.contentResolver
@@ -150,6 +152,9 @@ class SpatialSceneRuntimeTest {
     }
 
     private fun createRuntime(): SpatialSceneRuntime {
+        if (fakeExecutor.isShutdown) {
+            fakeExecutor = FakeScheduledExecutorService()
+        }
         return SpatialSceneRuntime.create(activity!!, fakeExecutor, xrExtensions, sceneNodeRegistry)
     }
 
@@ -2477,6 +2482,19 @@ class SpatialSceneRuntimeTest {
 
         assertThat(closeable.isClosed).isTrue()
         assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+    }
+
+    @Test
+    fun genericEntity_garbageCollection_disposesEntity() {
+        fun createEntity(): WeakReference<Entity> {
+            val entity = testRuntime.createEntity(Pose(), "test", null)
+            return WeakReference(entity)
+        }
+
+        val entityRef = createEntity()
+        assertThat(entityRef.get()).isNotNull()
+
+        MemoryUtils.assertGarbageCollected(entityRef)
     }
 
     companion object {

@@ -22,6 +22,7 @@ import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toComp
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
@@ -109,6 +110,39 @@ class ExecuteAppFunctionResponseTest {
         assertThat(response.returnValue.extras.isEmpty).isTrue()
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun toPlatformExecuteAppFunctionResponseWithUriGrants_success() {
+        val uriGrant =
+            AppFunctionUriGrant(
+                uri = android.net.Uri.parse("content://com.example/1"),
+                modeFlags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+        val appFunctionData =
+            AppFunctionData.Builder(
+                    TEST_APP_FUNCTION_URI_GRANT_METADATA.parameters,
+                    AppFunctionComponentsMetadata(),
+                )
+                .setAppFunctionData(
+                    "uriGrant",
+                    AppFunctionData.serialize(uriGrant, AppFunctionUriGrant::class.java),
+                )
+                .build()
+
+        val response = ExecuteAppFunctionResponse.Success(appFunctionData)
+        val platformResponse = response.toPlatformExecuteAppFunctionResponse()
+
+        assertThat(platformResponse.resultDocument).isEqualTo(appFunctionData.genericDocument)
+        assertThat(platformResponse.extras.isEmpty()).isTrue()
+
+        val platformUriGrants = platformResponse.uriGrants
+        assertThat(platformUriGrants).hasSize(1)
+        assertThat(platformUriGrants[0].uri)
+            .isEqualTo(android.net.Uri.parse("content://com.example/1"))
+        assertThat(platformUriGrants[0].modeFlags)
+            .isEqualTo(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+
     private fun assumeAppFunctionExtensionLibraryAvailable() {
         try {
             Class.forName("com.android.extensions.appfunctions.ExecuteAppFunctionResponse")
@@ -119,6 +153,40 @@ class ExecuteAppFunctionResponseTest {
     }
 
     companion object {
+        private val TEST_APP_FUNCTION_URI_GRANT_METADATA =
+            AppFunctionMetadata(
+                name =
+                    AppFunctionName(
+                        packageName = "testPackage",
+                        functionIdentifier = "testUriGrant",
+                    ),
+                schema = null,
+                parameters =
+                    listOf(
+                        AppFunctionParameterMetadata(
+                            name = "uriGrant",
+                            isRequired = false,
+                            dataType =
+                                AppFunctionObjectTypeMetadata(
+                                    properties =
+                                        mapOf(
+                                            "uri" to
+                                                AppFunctionStringTypeMetadata(isNullable = false)
+                                        ),
+                                    required = listOf("uri"),
+                                    qualifiedName = "androidx.appfunctions.AppFunctionUriGrant",
+                                    isNullable = true,
+                                ),
+                        )
+                    ),
+                response = AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(false)),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = "testPackage",
+                        components = AppFunctionComponentsMetadata(),
+                    ),
+                isEnabled = true,
+            )
         private val TEST_APP_FUNCTION_METADATA =
             AppFunctionMetadata(
                 name = AppFunctionName(packageName = "testPackage", functionIdentifier = "testId"),

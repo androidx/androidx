@@ -144,23 +144,12 @@ public fun FadingExpandingLabel(
             return@LaunchedEffect
         }
 
-        // If the text is expanding, update it before the fading lines animation, if it's
-        // collapsing, update it after the animation. This is because we can only animate the
-        // expanding fading effect on the larger text.
-        val isLinesDecreasing = currentTextMeasureResult.lineCount > textMeasureResult.lineCount
-        if (!isLinesDecreasing) {
-            currentText = text
-            currentTextMeasureResult = textMeasureResult
-        }
+        currentText = text
+        currentTextMeasureResult = textMeasureResult
 
         showAnimatedTextHeight = true
         // Animate to the new text height to reveal it with a fade-in animation
         animatedHeight.animateTo(textMeasureResult.size.height.toFloat(), animationSpec)
-
-        if (isLinesDecreasing) {
-            currentText = text
-            currentTextMeasureResult = textMeasureResult
-        }
     }
 
     Text(

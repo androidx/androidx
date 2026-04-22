@@ -44,6 +44,7 @@ class ImageSourceTest {
             outputId = outputId,
             size = fakeImageSize,
             capacity = 10,
+            usageFlags = null,
         )
     private val imageSource = ImageReaderImageSource(fakeImageReader, fakeImageReader.capacity - 2)
 

@@ -29,6 +29,7 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class IntIntervalTreeTest {
+
     @Test
     fun basicAddAndGet() {
         val buffer = IntIntervalTree<String>()
@@ -301,7 +302,7 @@ class IntIntervalTreeTest {
         val random = Random(42)
 
         repeat(1000) {
-            val op = random.nextInt(3)
+            val op = random.nextInt(6)
             when (op) {
                 0 -> { // Add
                     val start = random.nextInt(0, 100)
@@ -325,179 +326,309 @@ class IntIntervalTreeTest {
                     val refResult = reference.getStyles(start, end)
                     assertThat(treeResult).isEqualTo(refResult)
                 }
+                3 -> { // Map
+                    val start = random.nextInt(0, 100)
+                    val end = random.nextInt(start, 100 + 1)
+
+                    val offset = random.nextInt(-100, 100)
+                    val mapper: (Long) -> Long = { packed ->
+                        val interval = Interval(packed)
+                        val newStart = max(0, interval.start + offset)
+                        val newEnd = max(newStart, interval.end + offset)
+                        Interval(newStart, newEnd, interval.flag1, interval.flag2).packed
+                    }
+
+                    tree.mapIntervals(start, end, mapper)
+                    reference.mapIntervals(start, end, mapper)
+                    verifyIntegrity(tree)
+                }
+                4 -> { // nextTransition
+                    val start = random.nextInt(0, 100)
+                    val limit = random.nextInt(start, 120)
+                    assertThat(tree.nextTransition(start, limit))
+                        .isEqualTo(reference.nextTransition(start, limit))
+                }
+                5 -> { // previousTransition
+                    val start = random.nextInt(0, 120)
+                    val limit = random.nextInt(0, start + 1)
+                    assertThat(tree.previousTransition(start, limit))
+                        .isEqualTo(reference.previousTransition(start, limit))
+                }
             }
         }
         assertThat(tree.getAllStyles()).isEqualTo(reference.getAllStyles())
     }
 
     @Test
-    fun mapIntervals_basic() {
+    fun testTransitions() {
         val buffer = IntIntervalTree<String>()
         buffer.addIntervalAndVerifyIntegrity("a", 0, 5)
-        buffer.addIntervalAndVerifyIntegrity("b", 10, 15)
-        buffer.addIntervalAndVerifyIntegrity("c", 20, 30)
-        buffer.addIntervalAndVerifyIntegrity("d", 30, 35)
+        buffer.addIntervalAndVerifyIntegrity("b", 3, 7)
 
-        // Mapping only elements overlapping with [10, 25] (which covers "b" and "c")
-        buffer.mapIntervals(10, 25) { if (it in 10 until 25) it + 5 else it }
+        // Transitions are at 0, 3, 5, 7
+        assertThat(buffer.nextTransition(0, 10)).isEqualTo(3)
+        assertThat(buffer.nextTransition(3, 10)).isEqualTo(5)
+        assertThat(buffer.nextTransition(5, 10)).isEqualTo(7)
+        assertThat(buffer.nextTransition(7, 10)).isEqualTo(10)
 
-        assertThat(buffer.getAllStyles())
-            .containsExactly(
-                AnnotatedString.Range("a", 0, 5),
-                AnnotatedString.Range("b", 15, 20),
-                AnnotatedString.Range("c", 25, 30),
-                AnnotatedString.Range("d", 30, 35),
-            )
-            .inOrder()
-        // We didn't change the order of the intervals, the tree properties should remain.
-        verifyIntegrity(buffer)
+        assertThat(buffer.previousTransition(10, 0)).isEqualTo(7)
+        assertThat(buffer.previousTransition(7, 0)).isEqualTo(5)
+        assertThat(buffer.previousTransition(5, 0)).isEqualTo(3)
+        assertThat(buffer.previousTransition(3, 0)).isEqualTo(0)
     }
 
     @Test
-    fun mapIntervals_removeCollapsed() {
+    fun testTransitions_noChange() {
         val buffer = IntIntervalTree<String>()
-        buffer.addIntervalAndVerifyIntegrity("a", 0, 10)
-        buffer.addIntervalAndVerifyIntegrity("b", 10, 20)
-        buffer.addIntervalAndVerifyIntegrity("c", 20, 30)
+        buffer.addIntervalAndVerifyIntegrity("a", 1, 5)
 
-        // Map "b" so that it becomes collapsed (e.g. start=10, end=20 -> start=10, end=10)
-        buffer.mapIntervals(10, 20) { if (it == 20) 10 else it }
-
-        assertThat(buffer.getAllStyles())
-            .containsExactly(AnnotatedString.Range("a", 0, 10), AnnotatedString.Range("c", 10, 30))
-            .inOrder()
-        verifyIntegrity(buffer)
+        assertThat(buffer.nextTransition(1, 3)).isEqualTo(3)
+        assertThat(buffer.previousTransition(5, 3)).isEqualTo(3)
     }
 
-    /**
-     * A simple implementation of the interval buffer that's inefficient but easy to ensure
-     * correctness. Used as a reference for testing [IntIntervalTree].
-     */
-    private class ReferenceIntervalBuffer<T> {
-        val intervals = mutableListOf<Triple<T, Int, Int>>()
+    @Test
+    fun testTransitions_limit() {
+        val buffer = IntIntervalTree<String>()
+        buffer.addIntervalAndVerifyIntegrity("a", 10, 20)
 
-        fun addInterval(item: T, start: Int, end: Int) {
-            if (start >= end) return
-            intervals.add(Triple(item, start, end))
+        // Next transition is 10, but limit is 5.
+        // The search should be bounded by limit, returning limit (5)
+        assertThat(buffer.nextTransition(0, 5)).isEqualTo(5)
+
+        // Next transition is 10, limit is 15.
+        // The search finds the transition before limit, returning 10.
+        assertThat(buffer.nextTransition(0, 15)).isEqualTo(10)
+
+        // Previous transition is 20, but limit is 25.
+        // The search going backwards is bounded by limit, returning limit (25)
+        assertThat(buffer.previousTransition(30, 25)).isEqualTo(25)
+
+        // Previous transition is 20, limit is 15.
+        // The search finds the transition before limit, returning 20.
+        assertThat(buffer.previousTransition(30, 15)).isEqualTo(20)
+    }
+
+    @Test
+    fun testTransitions_overlapping() {
+        val buffer = IntIntervalTree<String>()
+        buffer.addIntervalAndVerifyIntegrity("a", 10, 20)
+        buffer.addIntervalAndVerifyIntegrity("b", 15, 25)
+
+        assertThat(buffer.nextTransition(0, 30)).isEqualTo(10)
+        assertThat(buffer.nextTransition(10, 30)).isEqualTo(15)
+        assertThat(buffer.nextTransition(15, 30)).isEqualTo(20)
+        assertThat(buffer.nextTransition(20, 30)).isEqualTo(25)
+
+        assertThat(buffer.previousTransition(30, 0)).isEqualTo(25)
+        assertThat(buffer.previousTransition(25, 0)).isEqualTo(20)
+        assertThat(buffer.previousTransition(20, 0)).isEqualTo(15)
+        assertThat(buffer.previousTransition(15, 0)).isEqualTo(10)
+    }
+
+    @Test
+    fun testTransitions_nested() {
+        val buffer = IntIntervalTree<String>()
+        buffer.addIntervalAndVerifyIntegrity("a", 10, 30)
+        buffer.addIntervalAndVerifyIntegrity("b", 15, 25)
+
+        assertThat(buffer.nextTransition(0, 40)).isEqualTo(10)
+        assertThat(buffer.nextTransition(10, 40)).isEqualTo(15)
+        assertThat(buffer.nextTransition(15, 40)).isEqualTo(25)
+        assertThat(buffer.nextTransition(25, 40)).isEqualTo(30)
+
+        assertThat(buffer.previousTransition(40, 0)).isEqualTo(30)
+        assertThat(buffer.previousTransition(30, 0)).isEqualTo(25)
+        assertThat(buffer.previousTransition(25, 0)).isEqualTo(15)
+        assertThat(buffer.previousTransition(15, 0)).isEqualTo(10)
+    }
+
+    @Test
+    fun testTransitions_potentialTransitions_withIdenticalStyles() {
+        val buffer = IntIntervalTree<String>()
+        // Two identical styles applied to overlapping ranges.
+        // The final merged style would be continuous "bold" from 0 to 7,
+        // but the tree should report all potential transition points.
+        buffer.addIntervalAndVerifyIntegrity("bold", 0, 5)
+        buffer.addIntervalAndVerifyIntegrity("bold", 3, 7)
+
+        // Transitions should be at 0, 3, 5, 7
+        assertThat(buffer.nextTransition(0, 10)).isEqualTo(3)
+        assertThat(buffer.nextTransition(3, 10)).isEqualTo(5)
+        assertThat(buffer.nextTransition(5, 10)).isEqualTo(7)
+
+        assertThat(buffer.previousTransition(7, 0)).isEqualTo(5)
+        assertThat(buffer.previousTransition(5, 0)).isEqualTo(3)
+        assertThat(buffer.previousTransition(3, 0)).isEqualTo(0)
+    }
+}
+
+/**
+ * A simple implementation of the interval buffer that's inefficient but easy to ensure correctness.
+ * Used as a reference for testing [IntIntervalTree].
+ */
+internal class ReferenceIntervalBuffer<T> {
+    val intervals = mutableListOf<Triple<T, Int, Int>>()
+
+    fun addInterval(item: T, start: Int, end: Int) {
+        if (start >= end) return
+        intervals.add(Triple(item, start, end))
+    }
+
+    fun removeInterval(item: T, start: Int, end: Int) {
+        val iterator = intervals.iterator()
+        while (iterator.hasNext()) {
+            val (i, s, e) = iterator.next()
+            if (i == item && s == start && e == end) {
+                iterator.remove()
+                return
+            }
         }
+    }
 
-        fun removeInterval(item: T, start: Int, end: Int) {
-            val iterator = intervals.iterator()
-            while (iterator.hasNext()) {
-                val (i, s, e) = iterator.next()
-                if (i == item && s == start && e == end) {
+    fun getStyles(start: Int, end: Int): List<AnnotatedString.Range<T>> {
+        return intervals
+            .filter { (_, s, e) -> intersect(start, end, s, e) }
+            .map { (i, s, e) -> AnnotatedString.Range(i, s, e) }
+    }
+
+    fun getAllStyles(): List<AnnotatedString.Range<T>> {
+        return intervals.map { (i, s, e) -> AnnotatedString.Range(i, s, e) }
+    }
+
+    fun mapIntervals(start: Int, end: Int, block: (Long) -> Long) {
+        val iterator = intervals.listIterator()
+        while (iterator.hasNext()) {
+            val (item, intervalStart, intervalEnd) = iterator.next()
+            if (start <= intervalEnd && end >= intervalStart) {
+                val packed = Interval(intervalStart, intervalEnd).packed
+                val newPacked = block(packed)
+                val newInterval = Interval(newPacked)
+                if (newInterval.start >= newInterval.end) {
                     iterator.remove()
-                    return
+                } else {
+                    iterator.set(Triple(item, newInterval.start, newInterval.end))
                 }
             }
         }
+    }
 
-        fun getStyles(start: Int, end: Int): List<AnnotatedString.Range<T>> {
-            return intervals
-                .filter { (_, s, e) -> intersect(start, end, s, e) }
-                .map { (i, s, e) -> AnnotatedString.Range(i, s, e) }
+    fun nextTransition(start: Int, limit: Int): Int {
+        var minTransition = limit
+        for ((_, s, e) in intervals) {
+            if (s > start && s < minTransition) {
+                minTransition = s
+            }
+            if (e > start && e < minTransition) {
+                minTransition = e
+            }
         }
+        return minTransition
+    }
 
-        fun getAllStyles(): List<AnnotatedString.Range<T>> {
-            return intervals.map { (i, s, e) -> AnnotatedString.Range(i, s, e) }
+    fun previousTransition(start: Int, limit: Int): Int {
+        var maxTransition = limit
+        for ((_, s, e) in intervals) {
+            if (s < start && s > maxTransition) {
+                maxTransition = s
+            }
+            if (e < start && e > maxTransition) {
+                maxTransition = e
+            }
         }
+        return maxTransition
+    }
+}
+
+internal fun <T> IntIntervalTree<T>.addIntervalAndVerifyIntegrity(
+    t: T,
+    start: Int,
+    end: Int,
+): Boolean {
+    val result = addInterval(t, Interval(start, end, false, true))
+    verifyIntegrity(this)
+    return result
+}
+
+internal fun <T> IntIntervalTree<T>.removeIntervalAndVerifyIntegrity(
+    t: T,
+    start: Int,
+    end: Int,
+): Boolean {
+    val result = removeInterval(t, Interval(start, end, false, true))
+    verifyIntegrity(this)
+    return result
+}
+
+internal inline fun <reified T> IntIntervalTree<T>.getStyles(
+    start: Int,
+    end: Int,
+): List<AnnotatedString.Range<T>> {
+    return findIntervalsInRange<T, AnnotatedString.Range<T>>(start, end) { item, packed ->
+        val interval = Interval(packed)
+        AnnotatedString.Range(item, interval.start, interval.end)
+    }
+}
+
+internal fun <T> IntIntervalTree<T>.getAllStyles(): List<AnnotatedString.Range<T>> {
+    val result = mutableListOf<AnnotatedString.Range<T>>()
+    forAllIntervals { item, packedInterval ->
+        val interval = Interval(packedInterval)
+        result.add(AnnotatedString.Range(item, interval.start, interval.end))
+    }
+    return result
+}
+
+internal fun verifyIntegrity(tree: IntIntervalTree<*>) {
+    tree.verifyRedBlackProperties(tree.root)
+}
+
+internal fun IntIntervalTree<*>.verifyRedBlackProperties(node: Node): Int {
+    if (node == terminator) {
+        return 1 // Terminator is black
     }
 
-    private fun <T> IntIntervalTree<T>.addIntervalAndVerifyIntegrity(
-        t: T,
-        start: Int,
-        end: Int,
-    ): Boolean {
-        val result = addInterval(t, start, end)
-        verifyIntegrity(this)
-        return result
+    if (node.isDeleted) {
+        throw AssertionError("Deleted node at ${node.index} shouldn't be reachable in traverse")
     }
 
-    private fun <T> IntIntervalTree<T>.removeIntervalAndVerifyIntegrity(
-        t: T,
-        start: Int,
-        end: Int,
-    ): Boolean {
-        val result = removeInterval(t, start, end)
-        verifyIntegrity(this)
-        return result
-    }
-
-    private inline fun <reified T> IntIntervalTree<T>.getStyles(
-        start: Int,
-        end: Int,
-    ): List<AnnotatedString.Range<T>> {
-        return findIntervalsInRange<T, AnnotatedString.Range<T>>(start, end) { item, s, e ->
-            AnnotatedString.Range(item, s, e)
-        }
-    }
-
-    private fun <T> IntIntervalTree<T>.getAllStyles(): List<AnnotatedString.Range<T>> {
-        val result = mutableListOf<AnnotatedString.Range<T>>()
-        forAllIntervals { item, s, e -> result.add(AnnotatedString.Range(item, s, e)) }
-        return result
-    }
-
-    private fun verifyIntegrity(buffer: IntIntervalTree<*>) {
-        verifyRedBlackProperties(buffer, buffer.root)
-    }
-
-    private fun verifyRedBlackProperties(buffer: IntIntervalTree<*>, node: Node): Int {
-        with(buffer) {
-            if (node == terminator) {
-                return 1 // Terminator is black
-            }
-
-            if (node.color == TreeColorDeleted) {
-                throw AssertionError(
-                    "Deleted node at ${node.index} shouldn't be reachable in traverse"
-                )
-            }
-
-            // 1. Red Rule: If a node is red, both its children must be black.
-            if (node.color == TreeColorRed) {
-                if (node.left.color != TreeColorBlack || node.right.color != TreeColorBlack) {
-                    throw AssertionError(
-                        "Red violation at node ${node.start}: Red node has red children"
-                    )
-                }
-            }
-
-            // 2. Binary Search Tree Property: left.start <= node.start < right.start
-            if (node.left != terminator && node.left.start > node.start) {
-                throw AssertionError(
-                    "BST violation: Left child ${node.left.start} > parent ${node.start}"
-                )
-            }
-            if (node.right != terminator && node.right.start < node.start) {
-                throw AssertionError(
-                    "BST violation: Right child ${node.right.start} < parent ${node.start}"
-                )
-            }
-
-            // 3. Interval Property: node.min and node.max must be correct
-            val expectedMin = min(node.start, min(node.left.min, node.right.min))
-            val expectedMax = max(node.end, max(node.left.max, node.right.max))
-            if (node.min != expectedMin || node.max != expectedMax) {
-                throw AssertionError(
-                    "Interval violation at ${node.start}: " +
-                        "Expected min/max [$expectedMin, $expectedMax], got [${node.min}, ${node.max}]"
-                )
-            }
-
-            // 4. Black Depth Rule: Recursive check
-            val leftHeight = verifyRedBlackProperties(buffer, node.left)
-            val rightHeight = verifyRedBlackProperties(buffer, node.right)
-
-            if (leftHeight != rightHeight) {
-                throw AssertionError(
-                    "Black height violation at node ${node.start}: " +
-                        "Left height $leftHeight != Right height $rightHeight"
-                )
-            }
-
-            // Return height: +1 if this node is black
-            return if (node.color == TreeColorBlack) leftHeight + 1 else leftHeight
+    // 1. Red Rule: If a node is red, both its children must be black.
+    if (node.color == TreeColorRed) {
+        if (node.left.color != TreeColorBlack || node.right.color != TreeColorBlack) {
+            throw AssertionError("Red violation at node ${node.start}: Red node has red children")
         }
     }
+
+    // 2. Binary Search Tree Property: left.start <= node.start < right.start
+    if (node.left != terminator && node.left.start > node.start) {
+        throw AssertionError("BST violation: Left child ${node.left.start} > parent ${node.start}")
+    }
+    if (node.right != terminator && node.right.start < node.start) {
+        throw AssertionError(
+            "BST violation: Right child ${node.right.start} < parent ${node.start}"
+        )
+    }
+
+    // 3. Interval Property: node.min and node.max must be correct
+    val expectedMin = min(node.start, min(node.left.min, node.right.min))
+    val expectedMax = max(node.end, max(node.left.max, node.right.max))
+    if (node.min != expectedMin || node.max != expectedMax) {
+        throw AssertionError(
+            "Interval violation at ${node.start}: " +
+                "Expected min/max [$expectedMin, $expectedMax], got [${node.min}, ${node.max}]"
+        )
+    }
+
+    // 4. Black Depth Rule: Recursive check
+    val leftHeight = verifyRedBlackProperties(node.left)
+    val rightHeight = verifyRedBlackProperties(node.right)
+
+    if (leftHeight != rightHeight) {
+        throw AssertionError(
+            "Black height violation at node ${node.start}: " +
+                "Left height $leftHeight != Right height $rightHeight"
+        )
+    }
+
+    // Return height: +1 if this node is black
+    return if (node.color == TreeColorBlack) leftHeight + 1 else leftHeight
 }

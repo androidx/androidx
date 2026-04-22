@@ -21,7 +21,7 @@ import androidx.xr.arcore.runtime.AnchorInvalidUuidException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.AnchorRuntimeFailureException
 import androidx.xr.arcore.runtime.ConversationState
-import androidx.xr.arcore.runtime.DepthMap
+import androidx.xr.arcore.runtime.Depth
 import androidx.xr.arcore.runtime.Eye
 import androidx.xr.arcore.runtime.Face
 import androidx.xr.arcore.runtime.Hand
@@ -54,9 +54,9 @@ import java.util.UUID
  * @property monoRenderViewpoint the mono [RenderViewpoint], or null if not available
  * @property userFace the user's [Face], or null if not available
  * @property geospatial the [OpenXrGeospatial] instance
- * @property leftDepthMap the left [DepthMap], or null if not available
- * @property rightDepthMap the right [DepthMap], or null if not available
- * @property monoDepthMap the mono [DepthMap], or null if not available
+ * @property leftDepth the left [Depth], or null if not available
+ * @property rightDepth the right [Depth], or null if not available
+ * @property monoDepth the mono [Depth], or null if not available
  */
 internal class OpenXrPerceptionManager
 internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManager {
@@ -143,14 +143,14 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
 
     override val geospatial: OpenXrGeospatial = xrResources.geospatial
 
-    override val leftDepthMap: DepthMap?
-        get() = xrResources.leftDepthMap
+    override val leftDepth: Depth?
+        get() = xrResources.leftDepth
 
-    override val rightDepthMap: DepthMap?
-        get() = xrResources.rightDepthMap
+    override val rightDepth: Depth?
+        get() = xrResources.rightDepth
 
     // Mono depth map is not supported in OpenXR.
-    override val monoDepthMap: DepthMap? = null
+    override val monoDepth: Depth? = null
 
     // Conversation scene signal is not supported in OpenXR.
     override val conversationSceneSignal: ConversationState? = null
@@ -177,8 +177,8 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
 
         if (depthEstimationMode != DepthEstimationMode.DISABLED) {
             val depthMapBuffers = nativeGetDepthImagesDataBuffers(xrTime)
-            xrResources.leftDepthMap.update(depthMapBuffers)
-            xrResources.rightDepthMap.update(depthMapBuffers)
+            xrResources.leftDepth.update(depthMapBuffers)
+            xrResources.rightDepth.update(depthMapBuffers)
         }
 
         if (eyeTrackingMode != EyeTrackingMode.DISABLED) {

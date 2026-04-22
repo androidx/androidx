@@ -130,9 +130,9 @@ class ResizableComponentTest {
 
         entity.removeComponent(resizableComponent)
 
-        assertThat((entity as BaseEntity<*>).rtEntity?.getComponents()).hasSize(0)
-        // The listeners map will not be reset after removing the component.
-        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+        assertThat((entity as BaseEntity<*>).rtEntity.getComponents()).hasSize(0)
+        // The listeners map will be reset after removing the component.
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(0)
     }
 
     @Test
@@ -555,18 +555,21 @@ class ResizableComponentTest {
         // Detach and reattach the resizable component.
         entity.removeComponent(resizableComponent)
 
-        assertThat((entity as BaseEntity<*>).rtEntity?.getComponents()).hasSize(0)
+        assertThat((entity as BaseEntity<*>).rtEntity.getComponents()).hasSize(0)
+        // Runtime listeners should be cleared.
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(0)
 
         rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 
-        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(3)
+        // preserved listeners (initialListener and resizeListener2) should be re-added.
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(2)
 
         // Invoke the runtime resize event listener with a resize event.
         rtResizableComponent.onResizeEvent(rtResizeEvent)
         rtResizableComponent.onResizeEvent(rtResizeEvent)
 
-        // addComponent two times so initialListener is added two times.
-        assertThat(initialListener.callCount).isEqualTo(6)
+        // initialListener and resizeListener2 should each have been called 4 times total.
+        assertThat(initialListener.callCount).isEqualTo(4)
         assertThat(initialListener.lastEvent).isNotNull()
         assertThat(initialListener.lastEvent).isEqualTo(expectedStartResizeEvent)
         assertThat(resizeListener2.callCount).isEqualTo(4)
@@ -607,15 +610,15 @@ class ResizableComponentTest {
         assertThat(entity.addComponent(resizableComponent)).isTrue()
 
         // 2. Get the underlying runtime components.
-        val rtComponents = (entity as BaseEntity<*>).rtEntity?.getComponents()
+        val rtComponents = (entity as BaseEntity<*>).rtEntity.getComponents()
         assertThat(rtComponents).isNotNull()
         assertThat(rtComponents).hasSize(1)
 
         // 3. Assert the component is the correct fake type.
-        val rtComponent = rtComponents!![0]
+        val rtComponent = rtComponents[0]
         assertThat(rtComponent).isInstanceOf(FakeResizableComponent::class.java)
 
-        // 4. Return the casted component.
+        // 4. Return the cast component.
         return rtComponent as FakeResizableComponent
     }
 }

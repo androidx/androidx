@@ -17,7 +17,7 @@
 package androidx.xr.arcore.testing
 
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
-import androidx.xr.arcore.testing.internal.FakeRuntimeDepthMap
+import androidx.xr.arcore.testing.internal.FakeRuntimeDepth
 import androidx.xr.runtime.DepthEstimationMode
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
@@ -25,8 +25,8 @@ import java.nio.FloatBuffer
 /**
  * Represents a camera view perspective on the device.
  *
- * @property width the width of the [androidx.xr.arcore.DepthMap]
- * @property height the height of the [androidx.xr.arcore.DepthMap]
+ * @property width the width of the [androidx.xr.arcore.Depth]
+ * @property height the height of the [androidx.xr.arcore.Depth]
  * @property rawDepthMap the [FloatBuffer] containing raw depth data
  * @property rawConfidenceMap the [ByteBuffer] containing raw depth confidence
  * @property smoothDepthMap the [FloatBuffer] containing smooth depth data
@@ -35,13 +35,13 @@ import java.nio.FloatBuffer
 public class TestDepth
 internal constructor(
     private val arCoreTestRule: ArCoreTestRule,
-    private val fakeRuntimeDepthMap: FakeRuntimeDepthMap,
+    private val fakeRuntimeDepth: FakeRuntimeDepth,
 ) {
     public var width: Int = 0
         set(value) {
             field = value
             if (arCoreTestRule.runtime.config.depthEstimation != DepthEstimationMode.DISABLED) {
-                fakeRuntimeDepthMap.width = value
+                fakeRuntimeDepth.width = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
@@ -50,7 +50,7 @@ internal constructor(
         set(value) {
             field = value
             if (arCoreTestRule.runtime.config?.depthEstimation != DepthEstimationMode.DISABLED) {
-                fakeRuntimeDepthMap.height = value
+                fakeRuntimeDepth.height = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
@@ -59,7 +59,7 @@ internal constructor(
         set(value) {
             field = value
             if (isRawDepthConfigured()) {
-                fakeRuntimeDepthMap.rawDepthMap = value
+                fakeRuntimeDepth.rawDepthMap = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
@@ -68,7 +68,7 @@ internal constructor(
         set(value) {
             field = value
             if (isRawDepthConfigured()) {
-                fakeRuntimeDepthMap.rawConfidenceMap = value
+                fakeRuntimeDepth.rawConfidenceMap = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
@@ -77,7 +77,7 @@ internal constructor(
         set(value) {
             field = value
             if (isSmoothDepthConfigured()) {
-                fakeRuntimeDepthMap.smoothDepthMap = value
+                fakeRuntimeDepth.smoothDepthMap = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
@@ -86,7 +86,7 @@ internal constructor(
         set(value) {
             field = value
             if (isSmoothDepthConfigured()) {
-                fakeRuntimeDepthMap.smoothConfidenceMap = value
+                fakeRuntimeDepth.smoothConfidenceMap = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }

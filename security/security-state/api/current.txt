@@ -10,6 +10,9 @@ package androidx.security.state {
     method public final boolean areCvesPatched(java.util.List<java.lang.String> cveList);
     method public final suspend Object? fetchAvailableSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component, optional long timeoutMillis, kotlin.coroutines.Continuation<? super androidx.security.state.SecurityPatchState.SecurityPatchLevel>);
     method @BytecodeOnly public static Object! fetchAvailableSecurityPatchLevel$default(androidx.security.state.SecurityPatchState!, String!, long, kotlin.coroutines.Continuation!, int, Object!);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.security.state.SecurityPatchState.SecurityPatchLevel> fetchAvailableSecurityPatchLevelAsync(@androidx.security.state.SecurityPatchState.Component String component);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.security.state.SecurityPatchState.SecurityPatchLevel> fetchAvailableSecurityPatchLevelAsync(@androidx.security.state.SecurityPatchState.Component String component, optional long timeoutMillis);
+    method @BytecodeOnly public static com.google.common.util.concurrent.ListenableFuture! fetchAvailableSecurityPatchLevelAsync$default(androidx.security.state.SecurityPatchState!, String!, long, int, Object!);
     method public static final androidx.security.state.SecurityPatchState.SecurityPatchLevel getComponentSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component, String securityPatchLevel);
     method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getDeviceSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component);
     method public java.util.Map<androidx.security.state.SecurityPatchState.Severity,java.util.Set<java.lang.String>> getPatchedCves(@androidx.security.state.SecurityPatchState.Component String component, androidx.security.state.SecurityPatchState.SecurityPatchLevel spl);
@@ -20,6 +23,9 @@ package androidx.security.state {
     method @WorkerThread public final void loadVulnerabilityReport(String jsonString);
     method public final suspend Object? queryAllAvailableUpdates(optional long timeoutMillis, kotlin.coroutines.Continuation<? super java.util.List<androidx.security.state.UpdateCheckResult>>);
     method @BytecodeOnly public static Object! queryAllAvailableUpdates$default(androidx.security.state.SecurityPatchState!, long, kotlin.coroutines.Continuation!, int, Object!);
+    method public final com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.security.state.UpdateCheckResult>> queryAllAvailableUpdatesAsync();
+    method public final com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.security.state.UpdateCheckResult>> queryAllAvailableUpdatesAsync(optional long timeoutMillis);
+    method @BytecodeOnly public static com.google.common.util.concurrent.ListenableFuture! queryAllAvailableUpdatesAsync$default(androidx.security.state.SecurityPatchState!, long, int, Object!);
     field public static final String COMPONENT_KERNEL = "KERNEL";
     field public static final String COMPONENT_SYSTEM = "SYSTEM";
     field public static final String COMPONENT_SYSTEM_MODULES = "SYSTEM_MODULES";

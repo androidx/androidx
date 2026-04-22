@@ -152,7 +152,8 @@ public final class FontRequest {
         mCertificatesArray = certificates;
         mSystemFont = systemFont;
         mVariationSettings = variationSettings;
-        mIdentifier = createIdentifier(providerAuthority, providerPackage, query, null, null);
+        mIdentifier = createIdentifier(providerAuthority, providerPackage, query, null,
+                mVariationSettings);
     }
 
     private String createIdentifier(

@@ -45,6 +45,7 @@ public class AndroidImageReader
 private constructor(
     private val imageReader: ImageReader,
     override val capacity: Int,
+    override val usageFlags: Long?,
     private val streamId: StreamId,
     private val outputId: OutputId,
 ) : ImageReaderWrapper, ImageReader.OnImageAvailableListener {
@@ -196,7 +197,8 @@ private constructor(
                 }
 
             // Create the ImageSource and wire it up the onImageAvailableListener
-            val androidImageReader = AndroidImageReader(imageReader, capacity, streamId, outputId)
+            val androidImageReader =
+                AndroidImageReader(imageReader, capacity, usageFlags, streamId, outputId)
             imageReader.setOnImageAvailableListener(androidImageReader, handler)
             return androidImageReader
         }
@@ -209,6 +211,7 @@ public class AndroidMultiResolutionImageReader(
     private val multiResolutionImageReader: MultiResolutionImageReader,
     private val streamFormat: StreamFormat,
     override val capacity: Int,
+    override val usageFlags: Long?,
     private val streamId: StreamId,
     internal val outputConfigurations: List<OutputConfiguration>,
     private val streamInfoToOutputIdMap: Map<MultiResolutionStreamInfo, OutputId>,
@@ -398,6 +401,7 @@ public class AndroidMultiResolutionImageReader(
                     multiResolutionImageReader,
                     StreamFormat(outputFormat),
                     capacity,
+                    usageFlags,
                     streamId,
                     outputConfigurations,
                     streamInfoToOutputIdMap,

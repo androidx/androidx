@@ -23,9 +23,11 @@ import androidx.annotation.RestrictTo
 import androidx.room3.concurrent.CloseBarrier
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.migration.Migration
+import androidx.room3.util.PlatformType
 import androidx.room3.util.containsCommon as containsCommon
 import androidx.room3.util.defaultQueryDispatcher
 import androidx.room3.util.findMigrationPathCommon
+import androidx.room3.util.platform
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import kotlin.coroutines.ContinuationInterceptor
@@ -51,6 +53,7 @@ import kotlinx.coroutines.cancel
  */
 public actual abstract class RoomDatabase actual constructor() {
 
+    private lateinit var configuration: DatabaseConfiguration
     private lateinit var connectionManager: RoomConnectionManager
     private lateinit var coroutineScope: CoroutineScope
 
@@ -84,6 +87,7 @@ public actual abstract class RoomDatabase actual constructor() {
      * @throws IllegalArgumentException if initialization fails.
      */
     internal actual fun init(configuration: DatabaseConfiguration) {
+        this.configuration = configuration
         val openDelegate = createOpenDelegate() as RoomOpenDelegate
         connectionManager = createConnectionManager(configuration, openDelegate)
         internalTracker = createInvalidationTracker()
@@ -105,12 +109,7 @@ public actual abstract class RoomDatabase actual constructor() {
         configuration: DatabaseConfiguration,
         openDelegate: RoomOpenDelegate,
     ): RoomConnectionManager =
-        RoomConnectionManager(
-            configuration = configuration,
-            sqliteDriver = checkNotNull(configuration.sqliteDriver),
-            openDelegate = openDelegate,
-            callbacks = configuration.callbacks,
-        )
+        RoomConnectionManager(config = configuration, openDelegate = openDelegate)
 
     /**
      * Creates a delegate to configure and initialize the database when it is being opened. An
@@ -141,6 +140,8 @@ public actual abstract class RoomDatabase actual constructor() {
             "This function should be implemented by Room's generated database implementation."
         )
     }
+
+    internal fun getConfiguration() = configuration
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun getCoroutineScope(): CoroutineScope {
@@ -314,6 +315,7 @@ public actual abstract class RoomDatabase actual constructor() {
         private val typeConverters: MutableList<Any> = mutableListOf()
         private var journalMode: JournalMode = JournalMode.WRITE_AHEAD_LOGGING
         private var queryCoroutineContext: CoroutineContext? = null
+        private var connectionPoolConfiguration: ConnectionPoolConfiguration? = null
 
         /** Migrations, mapped by from-to pairs. */
         private val migrationContainer: MigrationContainer = MigrationContainer()
@@ -526,6 +528,61 @@ public actual abstract class RoomDatabase actual constructor() {
         }
 
         /**
+         * Sets the database connection pool to use a single connection for both reading and
+         * writing.
+         *
+         * A connection pool is only used if the supplied [SQLiteDriver] has no internal pool, i.e.
+         * [SQLiteDriver.hasConnectionPool] returns `false`. If the configured driver has an
+         * internal pool then calling this function has no effect.
+         *
+         * Calling this function overrides any previous setting. If neither this function or
+         * [setMultipleConnectionPool] are called then Room will default to a connection pool
+         * configuration that is based on the [JournalMode]. For [JournalMode.TRUNCATE] a single
+         * connection is used, while for [JournalMode.WRITE_AHEAD_LOGGING] multiple connections are
+         * used, four reader and one writer.
+         *
+         * @return This builder instance.
+         * @see setMultipleConnectionPool
+         */
+        public actual fun setSingleConnectionPool(): Builder<T> = apply {
+            this.connectionPoolConfiguration = SingleConnection
+        }
+
+        /**
+         * Sets the database connection pool to use multiple connections, separating readers and
+         * writers.
+         *
+         * A connection pool is only used if the supplied [SQLiteDriver] has no internal pool, i.e.
+         * [SQLiteDriver.hasConnectionPool] returns `false`. If the configured driver has an
+         * internal pool then calling this function has no effect.
+         *
+         * If the database being built is an in-memory database, then calling this function has no
+         * effect since a single connection will be used.
+         *
+         * Calling this function overrides any previous setting. If neither this function or
+         * [setMultipleConnectionPool] are called then Room will default to a connection pool
+         * configuration that is based on the [JournalMode]. For [JournalMode.TRUNCATE] a single
+         * connection is used, while for [JournalMode.WRITE_AHEAD_LOGGING] multiple connections are
+         * used, four reader and one writer.
+         *
+         * It is recommended to only use multiple connections when [JournalMode.WRITE_AHEAD_LOGGING]
+         * is configured. Be aware that if multiple writers are used then database operations might
+         * fail with `SQLITE_BUSY` errors. These must be handled by the callers and might be
+         * mitigated by configuring the `busy_timeout`.
+         *
+         * @param maxNumOfReaders The maximum number of reader connections.
+         * @param maxNumOfWriters The maximum number of writer connections.
+         * @return This builder instance.
+         * @see setSingleConnectionPool
+         */
+        public actual fun setMultipleConnectionPool(
+            maxNumOfReaders: Int,
+            maxNumOfWriters: Int,
+        ): Builder<T> = apply {
+            this.connectionPoolConfiguration = MultipleConnection(maxNumOfReaders, maxNumOfWriters)
+        }
+
+        /**
          * Creates the database and initializes it.
          *
          * @return A new database instance.
@@ -538,6 +595,22 @@ public actual abstract class RoomDatabase actual constructor() {
                 }
 
             validateMigrationsNotRequired(migrationStartAndEndVersions, migrationsNotRequiredFrom)
+
+            val poolConfig =
+                if (name == null) {
+                    SingleConnection
+                } else if (connectionPoolConfiguration != null) {
+                    checkNotNull(connectionPoolConfiguration)
+                } else {
+                    if (platform == PlatformType.WEB || journalMode == JournalMode.TRUNCATE) {
+                        SingleConnection
+                    } else {
+                        MultipleConnection(
+                            numOfReaders = WAL_DEFAULT_NUMBER_OF_READERS,
+                            numOfWriters = WAL_DEFAULT_NUMBER_OF_WRITERS,
+                        )
+                    }
+                }
 
             val configuration =
                 DatabaseConfiguration(
@@ -553,6 +626,7 @@ public actual abstract class RoomDatabase actual constructor() {
                     allowDestructiveMigrationForAllTables = allowDestructiveMigrationForAllTables,
                     sqliteDriver = driver,
                     queryCoroutineContext = queryCoroutineContext ?: defaultQueryDispatcher,
+                    connectionPoolConfiguration = poolConfig,
                 )
             val db = factory.invoke()
             db.init(configuration)

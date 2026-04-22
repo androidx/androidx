@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.testapp.spatialgltfmodel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
@@ -57,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,13 +74,16 @@ import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxWidth
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.heightIn
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.rotate
+import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.rememberSpatialGltfModelState
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
@@ -147,6 +152,21 @@ class SpatialGltfModelActivity : ComponentActivity() {
                     checked = state.useRotation,
                     onCheckedChange = { state.useRotation = !state.useRotation },
                 )
+
+                SwitchRow(
+                    label = "Use App-Managed Movement (movable)",
+                    checked = state.useCustomMovement,
+                    onCheckedChange = { state.useCustomMovement = it },
+                )
+
+                if (state.useCustomMovement) {
+                    Button(
+                        onClick = { state.resetCustomMovement() },
+                        modifier = Modifier.padding(vertical = 8.dp),
+                    ) {
+                        Text("Reset Model Position")
+                    }
+                }
 
                 Spacer(Modifier.height(16.dp))
 
@@ -395,6 +415,7 @@ class SpatialGltfModelActivity : ComponentActivity() {
         }
     }
 
+    @SuppressLint("PrimitiveInCollection")
     @Composable
     @SubspaceComposable
     fun DragonModel(state: DragonControlState, modifier: SubspaceModifier = SubspaceModifier) {
@@ -408,9 +429,36 @@ class SpatialGltfModelActivity : ComponentActivity() {
                 source = SpatialGltfModelSource.fromPath(Paths.get("models", "xyzArrows.glb"))
             )
 
+        val density = LocalDensity.current
+
+        val customMovement: (SpatialMoveEvent) -> Unit = { event ->
+            val deltaX = event.pose.translation.x - event.previousPose.translation.x
+            val deltaY = event.pose.translation.y - event.previousPose.translation.y
+            val deltaZ = event.pose.translation.z - event.previousPose.translation.z
+
+            val deltaRot = event.previousPose.rotation.inverse * event.pose.rotation
+
+            with(density) {
+                state.customX += deltaX.toDp()
+                state.customY += deltaY.toDp()
+                state.customZ += deltaZ.toDp()
+            }
+            state.customRotation *= deltaRot
+        }
+
         LaunchedEffect(dragonModelState) { state.dragonModelState = dragonModelState }
 
-        SpatialGltfModel(state = dragonModelState, modifier = modifier) {
+        val movementModifier =
+            if (state.useCustomMovement) {
+                modifier
+                    .offset(x = state.customX, y = state.customY, z = state.customZ)
+                    .rotate(state.customRotation)
+                    .movable(scaleWithDistance = false, onMove = customMovement)
+            } else {
+                modifier.transformingMovable(scaleWithDistance = false)
+            }
+
+        SpatialGltfModel(state = dragonModelState, modifier = movementModifier) {
             val selectedNode = state.selectedNode
             if (selectedNode != null) {
                 val nodeOffset =
@@ -464,11 +512,23 @@ class SpatialGltfModelActivity : ComponentActivity() {
         var useRotation by mutableStateOf(false)
         var showArrows by mutableStateOf(false)
 
-        // Material Override State
+        var useCustomMovement by mutableStateOf(false)
+
+        var customX by mutableStateOf(0.dp)
+        var customY by mutableStateOf(0.dp)
+        var customZ by mutableStateOf(0.dp)
+        var customRotation by mutableStateOf(Quaternion.Identity)
+
+        fun resetCustomMovement() {
+            customX = 0.dp
+            customY = 0.dp
+            customZ = 0.dp
+            customRotation = Quaternion.Identity
+        }
+
         var overrideMaterial: KhronosPbrMaterial? = null
         val isMaterialOverridden by derivedStateOf { overriddenMaterials.containsKey(selectedNode) }
 
-        // New State for Material Properties
         var metallic by mutableFloatStateOf(1.0f)
         var roughness by mutableFloatStateOf(0.0f)
 
@@ -480,7 +540,6 @@ class SpatialGltfModelActivity : ComponentActivity() {
         suspend fun initializeSession(session: Session) {
             if (this.session == null) {
                 this.session = session
-                // Create material with initial values
                 val mat = KhronosPbrMaterial.create(session, AlphaMode.OPAQUE)
                 mat.setMetallicFactor(metallic)
                 mat.setRoughnessFactor(roughness)

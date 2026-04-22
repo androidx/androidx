@@ -13,7 +13,7 @@
     <string name="loading_anchors">Loading Persisted Anchor test case</string>
     <string name="fov_main_panel">FOV Testing of ViewCamera test case</string>
     <string name="device_tracking_test">Device Tracking test case</string>
-    <string name="depth_maps">Depth Maps test case</string>
+    <string name="depth">Depth test case</string>
     <string name="face_tracking">Face Tracking test case</string>
     <string name="eye_tracking">Eye Tracking test case</string>
     <string name="blend_mode">Blend Mode test case</string>

@@ -19,6 +19,7 @@ package androidx.xr.arcore.testapp.geospatial
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log.w
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -79,7 +80,6 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.GeospatialPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -138,9 +138,8 @@ class GeospatialActivity : ComponentActivity() {
                 onSessionAvailable = { session ->
                     this.session = session
                     if (session.config.geospatial == GeospatialMode.DISABLED) {
-                        if (session.runtimes.first().isSupported(GeospatialMode.VPS_AND_GPS)) {
-                            val newConfig =
-                                session.config.copy(geospatial = GeospatialMode.VPS_AND_GPS)
+                        if (session.runtimes.first().isSupported(GeospatialMode.SPATIAL)) {
+                            val newConfig = session.config.copy(geospatial = GeospatialMode.SPATIAL)
                             sessionHelper.tryUpdateConfig(newConfig)
                             return@SessionLifecycleHelper
                         } else {
@@ -182,7 +181,7 @@ class GeospatialActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         for (entity in anchorEntities) {
-            entity.dispose()
+            entity.parent = null
         }
     }
 
@@ -503,14 +502,14 @@ class GeospatialActivity : ComponentActivity() {
         }
         anchors.clear()
         for (entity in anchorEntities) {
-            entity.dispose()
+            entity.parent = null
         }
         anchorEntities.clear()
         sharedPreferences.edit().remove(SAVED_ANCHORS_KEY).apply()
     }
 
     private fun logAndShowToast(message: String, throwable: Throwable? = null) {
-        XrLog.warn(throwable) { message }
+        w("JetpackXR", message, throwable)
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 

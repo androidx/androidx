@@ -19,6 +19,7 @@ package androidx.xr.arcore.apps.whitebox.mobile.common
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.CAMERA
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -35,7 +36,6 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.SessionCreateTimedOut
 import androidx.xr.runtime.SessionCreateUnknownError
 import androidx.xr.runtime.SessionCreateUnsupportedDevice
-import androidx.xr.runtime.XrLog
 
 /**
  * Observer class to manage the lifecycle of the JXR Runtime Session based on the lifecycle owner
@@ -95,9 +95,10 @@ class SessionLifecycleHelper(
                     try {
                         when (val configResult = session.configure(config)) {
                             is SessionConfigureLibraryNotLinked -> {
-                                XrLog.error {
-                                    "Library \"${configResult.libraryName}\" not linked."
-                                }
+                                Log.e(
+                                    "JetpackXR",
+                                    "Library \"${configResult.libraryName}\" not linked.",
+                                )
                             }
 
                             is SessionConfigureSuccess -> {
@@ -148,7 +149,7 @@ class SessionLifecycleHelper(
     }
 
     private fun <F> showErrorMessage(error: F) {
-        XrLog.error { error.toString() }
+        Log.e("JetpackXR", error.toString())
         Toast.makeText(activity, error.toString(), Toast.LENGTH_LONG).show()
     }
 }

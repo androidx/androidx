@@ -21,6 +21,7 @@ package androidx.xr.scenecore
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.xr.scenecore.SpatialEnvironment.Companion.NO_PASSTHROUGH_OPACITY_PREFERENCE
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SpatialEnvironment as RtSpatialEnvironment
 import androidx.xr.scenecore.runtime.SpatialEnvironment.SpatialEnvironmentPreference as RtSpatialEnvironmentPreference

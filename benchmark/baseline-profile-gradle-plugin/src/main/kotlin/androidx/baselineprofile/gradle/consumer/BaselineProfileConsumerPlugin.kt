@@ -408,7 +408,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                 // output is src/main/baseline-prof.txt.
                 if (!forceOutputInSrcMain) {
 
-                    val srcOutputDirPath = srcOutputDir.asFile.apply { mkdirs() }.absolutePath
+                    val srcOutputDirPath = srcOutputDir.asFile.absolutePath
                     fun applySourceSets(variant: Variant) {
                         variant.sources.baselineProfiles?.addStaticSourceDirectory(srcOutputDirPath)
                     }

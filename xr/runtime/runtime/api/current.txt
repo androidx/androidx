@@ -96,14 +96,12 @@ package androidx.xr.runtime {
   public final class DeviceTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
     field public static final androidx.xr.runtime.DeviceTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.DeviceTrackingMode DISABLED;
-    field @SuppressCompatibility @androidx.xr.runtime.PreviewSpatialApi public static final androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
     field @Deprecated public static final androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
     field public static final androidx.xr.runtime.DeviceTrackingMode SPATIAL_LAST_KNOWN;
   }
 
   public static final class DeviceTrackingMode.Companion {
     property public androidx.xr.runtime.DeviceTrackingMode DISABLED;
-    property @SuppressCompatibility @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
     property @Deprecated public androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
     property public androidx.xr.runtime.DeviceTrackingMode SPATIAL_LAST_KNOWN;
   }
@@ -158,33 +156,37 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.FaceTrackingMode DISABLED;
   }
 
-  @Deprecated public final class FieldOfView {
-    ctor @Deprecated public FieldOfView(float angleLeft, float angleRight, float angleUp, float angleDown);
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy();
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy(optional float angleLeft);
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight);
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
-    method @BytecodeOnly @Deprecated public static androidx.xr.runtime.FieldOfView! copy$default(androidx.xr.runtime.FieldOfView!, float, float, float, float, int, Object!);
-    method @InaccessibleFromKotlin @Deprecated public float getAngleDown();
-    method @InaccessibleFromKotlin @Deprecated public float getAngleLeft();
-    method @InaccessibleFromKotlin @Deprecated public float getAngleRight();
-    method @InaccessibleFromKotlin @Deprecated public float getAngleUp();
-    property @Deprecated public float angleDown;
-    property @Deprecated public float angleLeft;
-    property @Deprecated public float angleRight;
-    property @Deprecated public float angleUp;
+  public final class FieldOfView {
+    ctor public FieldOfView(float angleLeft, float angleRight, float angleUp, float angleDown);
+    method public androidx.xr.runtime.FieldOfView copy();
+    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft);
+    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight);
+    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
+    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
+    method @BytecodeOnly public static androidx.xr.runtime.FieldOfView! copy$default(androidx.xr.runtime.FieldOfView!, float, float, float, float, int, Object!);
+    method @InaccessibleFromKotlin public float getAngleDown();
+    method @InaccessibleFromKotlin public float getAngleLeft();
+    method @InaccessibleFromKotlin public float getAngleRight();
+    method @InaccessibleFromKotlin public float getAngleUp();
+    property public float angleDown;
+    property public float angleLeft;
+    property public float angleRight;
+    property public float angleUp;
   }
 
   public final class GeospatialMode extends androidx.xr.runtime.Config.ConfigMode {
     field public static final androidx.xr.runtime.GeospatialMode.Companion Companion;
     field public static final androidx.xr.runtime.GeospatialMode DISABLED;
-    field public static final androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
+    field public static final androidx.xr.runtime.GeospatialMode INERTIAL;
+    field public static final androidx.xr.runtime.GeospatialMode SPATIAL;
+    field @Deprecated public static final androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
   }
 
   public static final class GeospatialMode.Companion {
     property public androidx.xr.runtime.GeospatialMode DISABLED;
-    property public androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
+    property public androidx.xr.runtime.GeospatialMode INERTIAL;
+    property public androidx.xr.runtime.GeospatialMode SPATIAL;
+    property @Deprecated public androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
   }
 
   public final class HandTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
@@ -448,34 +450,6 @@ package androidx.xr.runtime {
     property @Deprecated public androidx.xr.runtime.XrDevice.DisplayBlendMode NO_DISPLAY;
   }
 
-  public final class XrLog {
-    method @InaccessibleFromKotlin public androidx.xr.runtime.XrLog.Level getLevel();
-    method @InaccessibleFromKotlin public boolean isEnabled();
-    method @InaccessibleFromKotlin public void setEnabled(boolean);
-    method @InaccessibleFromKotlin public void setLevel(androidx.xr.runtime.XrLog.Level);
-    property public boolean isEnabled;
-    property public androidx.xr.runtime.XrLog.Level level;
-    field public static final androidx.xr.runtime.XrLog INSTANCE;
-  }
-
-  public static final class XrLog.Level implements java.lang.Comparable<androidx.xr.runtime.XrLog.Level> {
-    method public int compareTo(androidx.xr.runtime.XrLog.Level other);
-    field public static final androidx.xr.runtime.XrLog.Level.Companion Companion;
-    field public static final androidx.xr.runtime.XrLog.Level DEBUG;
-    field public static final androidx.xr.runtime.XrLog.Level ERROR;
-    field public static final androidx.xr.runtime.XrLog.Level INFO;
-    field public static final androidx.xr.runtime.XrLog.Level VERBOSE;
-    field public static final androidx.xr.runtime.XrLog.Level WARN;
-  }
-
-  public static final class XrLog.Level.Companion {
-    property public androidx.xr.runtime.XrLog.Level DEBUG;
-    property public androidx.xr.runtime.XrLog.Level ERROR;
-    property public androidx.xr.runtime.XrLog.Level INFO;
-    property public androidx.xr.runtime.XrLog.Level VERBOSE;
-    property public androidx.xr.runtime.XrLog.Level WARN;
-  }
-
 }
 
 package androidx.xr.runtime.math {
@@ -497,24 +471,6 @@ package androidx.xr.runtime.math {
   public static final class BoundingBox.Companion {
     method public androidx.xr.runtime.math.BoundingBox fromCenterAndHalfExtents(androidx.xr.runtime.math.Vector3 center, androidx.xr.runtime.math.FloatSize3d halfExtents);
     method public androidx.xr.runtime.math.BoundingBox fromMinMax(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
-  }
-
-  public final class FieldOfView {
-    ctor public FieldOfView(float angleLeft, float angleRight, float angleUp, float angleDown);
-    method public androidx.xr.runtime.math.FieldOfView copy();
-    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft);
-    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight);
-    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
-    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
-    method @BytecodeOnly public static androidx.xr.runtime.math.FieldOfView! copy$default(androidx.xr.runtime.math.FieldOfView!, float, float, float, float, int, Object!);
-    method @InaccessibleFromKotlin public float getAngleDown();
-    method @InaccessibleFromKotlin public float getAngleLeft();
-    method @InaccessibleFromKotlin public float getAngleRight();
-    method @InaccessibleFromKotlin public float getAngleUp();
-    property public float angleDown;
-    property public float angleLeft;
-    property public float angleRight;
-    property public float angleUp;
   }
 
   public final class FloatSize2d {
@@ -980,6 +936,8 @@ package androidx.xr.runtime.math {
     property public androidx.xr.runtime.math.Vector4 One;
     property public androidx.xr.runtime.math.Vector4 Zero;
   }
+
+  public typealias FieldOfView = androidx.xr.runtime.FieldOfView;
 
 }
 

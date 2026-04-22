@@ -20,34 +20,58 @@ import androidx.room3.coroutines.ConnectionPool
 import androidx.room3.coroutines.PassthroughConnectionPool
 import androidx.room3.coroutines.newConnectionPool
 import androidx.room3.coroutines.newSingleConnectionPool
-import androidx.sqlite.SQLiteDriver
 
-internal actual class RoomConnectionManager(
-    override val configuration: DatabaseConfiguration,
-    sqliteDriver: SQLiteDriver,
-    override val openDelegate: RoomOpenDelegate,
-    override val callbacks: List<RoomDatabase.Callback>,
-) : BaseRoomConnectionManager() {
+internal actual class RoomConnectionManager : BaseRoomConnectionManager {
 
-    private val connectionPool: ConnectionPool =
-        if (sqliteDriver.hasConnectionPool) {
-            // If the driver already has a connection pool then use a pass-through pool.
-            PassthroughConnectionPool(
-                connectionFactory =
-                    createConnectionFactory(sqliteDriver, configuration.name ?: ":memory:")
-            )
-        } else if (configuration.name == null) {
-            // An in-memory database must use a single connection pool.
-            newSingleConnectionPool(
-                connectionFactory = createConnectionFactory(sqliteDriver, ":memory:")
-            )
-        } else {
-            newConnectionPool(
-                connectionFactory = createConnectionFactory(sqliteDriver, configuration.name),
-                maxNumOfReaders = configuration.journalMode.getMaxNumberOfReaders(),
-                maxNumOfWriters = configuration.journalMode.getMaxNumberOfWriters(),
-            )
-        }
+    override val configuration: DatabaseConfiguration
+    override val openDelegate: RoomOpenDelegate
+    override val callbacks: List<RoomDatabase.Callback>
+
+    internal val connectionPool: ConnectionPool
+
+    constructor(config: DatabaseConfiguration, openDelegate: RoomOpenDelegate) {
+        this.configuration = config
+        this.openDelegate = openDelegate
+        this.callbacks = configuration.callbacks
+        this.connectionPool =
+            if (configuration.sqliteDriver.hasConnectionPool) {
+                // If the driver already has a connection pool then use a pass-through pool.
+                PassthroughConnectionPool(
+                    connectionFactory =
+                        createConnectionFactory(
+                            configuration.sqliteDriver,
+                            configuration.name ?: ":memory:",
+                        )
+                )
+            } else if (configuration.name == null) {
+                // An in-memory database must use a single connection pool.
+                newSingleConnectionPool(
+                    connectionFactory =
+                        createConnectionFactory(configuration.sqliteDriver, ":memory:")
+                )
+            } else {
+                when (val poolConfig = configuration.connectionPoolConfiguration) {
+                    is SingleConnection ->
+                        newSingleConnectionPool(
+                            connectionFactory =
+                                createConnectionFactory(
+                                    configuration.sqliteDriver,
+                                    configuration.name,
+                                )
+                        )
+                    is MultipleConnection ->
+                        newConnectionPool(
+                            connectionFactory =
+                                createConnectionFactory(
+                                    configuration.sqliteDriver,
+                                    configuration.name,
+                                ),
+                            maxNumOfReaders = poolConfig.numOfReaders,
+                            maxNumOfWriters = poolConfig.numOfWriters,
+                        )
+                }
+            }
+    }
 
     override suspend fun <R> useConnection(isReadOnly: Boolean, block: suspend (Transactor) -> R) =
         connectionPool.useConnection(isReadOnly, block)

@@ -35,7 +35,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.material3.adaptive:adaptive:1.2.0")
     implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0")
-    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0-alpha11")
+    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0-alpha17")
     implementation(project(":xr:compose:compose"))
 
     testImplementation(libs.mockitoKotlin)

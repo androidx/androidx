@@ -26,6 +26,7 @@ import androidx.camera.core.impl.CameraExtensionCapabilities
 public class FakeCameraExtensionCapabilities(
     private val isPostviewSupported: Boolean = false,
     private val isCaptureProcessProgressSupported: Boolean = false,
+    private val isNightModeIndicatorSupported: Boolean = false,
     private val outputSizesFormat: Map<Int, Set<Size>> = emptyMap(),
     private val outputSizesClass: Map<Class<*>, Set<Size>> = emptyMap(),
     private val postviewSizes: Map<CaptureConfig, Set<Size>> = emptyMap(),
@@ -45,6 +46,8 @@ public class FakeCameraExtensionCapabilities(
     override fun isPostviewSupported(): Boolean = isPostviewSupported
 
     override fun isCaptureProcessProgressSupported(): Boolean = isCaptureProcessProgressSupported
+
+    override fun isNightModeIndicatorSupported(): Boolean = isNightModeIndicatorSupported
 
     override fun getOutputSizes(format: Int): Set<Size> = outputSizesFormat[format] ?: emptySet()
 

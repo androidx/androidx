@@ -56,8 +56,10 @@ public class Camera2ExtensionsSessionProcessor(
 
     private var extensionStrengthLiveData: MutableLiveData<Int>? = null
     private var currentExtensionTypeLiveData: MutableLiveData<Int>? = null
+    private var nightModeIndicatorLiveData: MutableLiveData<Int>? = null
     private val extensionStrength: AtomicInteger = AtomicInteger(100)
     private val currentExtensionType: AtomicInteger = AtomicInteger(mode)
+    private val nightModeIndicator: AtomicInteger = AtomicInteger(0)
 
     @AdapterCameraInfo.CameraOperation
     private val supportedCameraOperations: Set<Int> =
@@ -77,6 +79,9 @@ public class Camera2ExtensionsSessionProcessor(
         }
         if (isExtensionStrengthAvailable()) {
             extensionStrengthLiveData = MutableLiveData<Int>(100)
+        }
+        if (isNightModeIndicatorAvailable()) {
+            nightModeIndicatorLiveData = MutableLiveData<Int>(0)
         }
     }
 
@@ -118,6 +123,16 @@ public class Camera2ExtensionsSessionProcessor(
                             ?.let {
                                 if (extensionStrength.getAndSet(it) != it) {
                                     extensionStrengthLiveData?.postValue(it)
+                                }
+                            }
+                    }
+
+                    if (Build.VERSION.SDK_INT >= 36 && isNightModeIndicatorAvailable()) {
+                        cameraCaptureResult.captureResult
+                            ?.get(CaptureResult.EXTENSION_NIGHT_MODE_INDICATOR)
+                            ?.let {
+                                if (nightModeIndicator.getAndSet(it) != it) {
+                                    nightModeIndicatorLiveData?.postValue(it)
                                 }
                             }
                     }
@@ -168,6 +183,11 @@ public class Camera2ExtensionsSessionProcessor(
         vendorExtender.isCurrentExtensionModeAvailable
 
     override fun getCurrentExtensionMode(): LiveData<Int>? = currentExtensionTypeLiveData
+
+    override fun isNightModeIndicatorAvailable(): Boolean =
+        vendorExtender.isNightModeIndicatorAvailable
+
+    override fun getNightModeIndicator(): LiveData<Int>? = nightModeIndicatorLiveData
 
     override fun getRealtimeCaptureLatency(): Pair<Long, Long>? {
         synchronized(lock) {

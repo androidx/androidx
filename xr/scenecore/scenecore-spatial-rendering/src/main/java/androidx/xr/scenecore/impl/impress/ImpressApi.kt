@@ -244,17 +244,10 @@ public interface ImpressApi {
 
     /**
      * This method instantiates a glTF model from a previously loaded model and returns an entity ID
-     * corresponding to the Impress node associated with the model. Using this method will enable
-     * the collider for the model.
+     * corresponding to the Impress node associated with the model. The model will be instantiated
+     * with no colliders.
      */
     public fun instanceGltfModel(gltfToken: Long): ImpressNode
-
-    /**
-     * This method instantiates a glTF model from a previously loaded model and returns an entity ID
-     * corresponding to the Impress node associated with the model. It gives the ability to disable
-     * the collider for the model.
-     */
-    public fun instanceGltfModel(gltfToken: Long, enableCollider: Boolean): ImpressNode
 
     /**
      * Toggle the collider of a glTF model.

@@ -17,8 +17,6 @@
 
 package androidx.xr.scenecore
 
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.PlaneType
@@ -33,6 +31,7 @@ import androidx.xr.scenecore.SurfaceEntity.Shape.TriangleMesh
 import androidx.xr.scenecore.runtime.AnchorEntity as RtAnchorEntity
 import androidx.xr.scenecore.runtime.AnchorPlacement as RtAnchorPlacement
 import androidx.xr.scenecore.runtime.Dimensions as RtDimensions
+import androidx.xr.scenecore.runtime.DirectExecutor
 import androidx.xr.scenecore.runtime.HitTestResult as RtHitTestResult
 import androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceType as RtHitTestSurfaceType
 import androidx.xr.scenecore.runtime.InputEvent as RtInputEvent
@@ -54,20 +53,9 @@ import androidx.xr.scenecore.runtime.SpatialVisibility as RtSpatialVisibility
 import androidx.xr.scenecore.runtime.SurfaceEntity.Shape.TriangleMesh as RtTriangleMesh
 import androidx.xr.scenecore.runtime.TextureSampler as RtTextureSampler
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.Executor
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
-
-internal class HandlerExecutor(val handler: Handler) : Executor {
-    override fun execute(command: Runnable) {
-        handler.post(command)
-    }
-
-    companion object {
-        val mainThreadExecutor: Executor = HandlerExecutor(Handler(Looper.getMainLooper()))
-    }
-}
 
 /**
  * Extension function that converts a [androidx.xr.runtime.math.FloatSize3d] to
@@ -562,12 +550,6 @@ internal suspend fun <T> ListenableFuture<T>.awaitSuspending(): T {
     )
 
     return deferred.await()
-}
-
-internal object DirectExecutor : Executor {
-    override fun execute(command: Runnable) {
-        command.run()
-    }
 }
 
 internal fun RtTriangleMesh.toTriangleMesh(): TriangleMesh {

@@ -1,1 +1,10 @@
 // Signature format: 4.0
+package androidx.text.vertical.compose {
+
+  public final class VerticalTextKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void VerticalText(CharSequence text, android.text.TextPaint paint, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.style.TextOverflow overflow, optional int maxColumns, optional int minColumns, optional androidx.text.vertical.TextOrientation orientation);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void VerticalText-RtHMXFc(CharSequence, android.text.TextPaint, androidx.compose.ui.Modifier?, int, int, int, androidx.text.vertical.TextOrientation?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+

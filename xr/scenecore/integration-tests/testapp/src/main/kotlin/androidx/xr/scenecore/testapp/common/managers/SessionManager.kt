@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testapp.common.managers
 
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -76,9 +77,7 @@ class SessionManager(private val activity: AppCompatActivity) {
                 }
 
                 else -> {
-                    androidx.xr.runtime.XrLog.error {
-                        "Unexpected ${sessionCreateResult::class.simpleName}"
-                    }
+                    Log.e("JetpackXR", "Unexpected ${sessionCreateResult::class.simpleName}")
                 }
             }
         } catch (e: SecurityException) {

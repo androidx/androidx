@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.res.AssetFileDescriptor
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SoundEffect as RtSoundEffect
 import java.util.concurrent.Executor

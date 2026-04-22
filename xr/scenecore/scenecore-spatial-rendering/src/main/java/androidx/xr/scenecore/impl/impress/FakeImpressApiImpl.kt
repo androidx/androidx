@@ -222,10 +222,6 @@ public class FakeImpressApiImpl : ImpressApi {
     }
 
     override fun instanceGltfModel(gltfToken: Long): ImpressNode {
-        return instanceGltfModel(gltfToken, true)
-    }
-
-    override fun instanceGltfModel(gltfToken: Long, enableCollider: Boolean): ImpressNode {
         require(gltfModels.containsKey(gltfToken)) { "Model token not found" }
         val entityId = nextNodeId++
         gltfModels[gltfToken]?.add(entityId)

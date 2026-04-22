@@ -41,6 +41,7 @@ import com.android.extensions.xr.environment.PassthroughVisibilityState
 import com.android.extensions.xr.environment.ShadowEnvironmentVisibilityState
 import com.android.extensions.xr.environment.ShadowPassthroughVisibilityState
 import com.android.extensions.xr.node.Box3
+import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.android.extensions.xr.node.Vec3
 import com.android.extensions.xr.space.Bounds
@@ -75,10 +76,10 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
     // TODO(b/329902726): Move this boilerplate for creating a TestSceneRuntime into a test util
     private val activityController: ActivityController<Activity> =
         Robolectric.buildActivity(Activity::class.java)
-    private val activity: Activity = activityController.create().start().get()
-    private val fakeExecutor = FakeScheduledExecutorService()
+    override val activity: Activity = activityController.create().start().get()
+    override val fakeExecutor = FakeScheduledExecutorService()
     private val nodeRepository = NodeRepository.getInstance()
-    private lateinit var xrExtensions: XrExtensions
+    override lateinit var xrExtensions: XrExtensions
     private lateinit var testRuntime: SceneRuntime
     private lateinit var activitySpace: ActivitySpaceImpl
 
@@ -86,9 +87,27 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         return SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions, SceneNodeRegistry())
     }
 
+    /**
+     * Creates a new [AndroidXrEntity] for testing.
+     *
+     * @param node The [Node] to use for the entity.
+     * @return The created [AndroidXrEntity].
+     */
+    override fun createEntity(node: Node): AndroidXrEntity {
+        return ActivitySpaceImpl(
+            node,
+            activity,
+            xrExtensions,
+            SceneNodeRegistry(),
+            { xrExtensions.getSpatialState(activity) },
+            fakeExecutor,
+        )
+    }
+
     @Before
     fun setUp() {
         xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
+
         testRuntime = createTestSceneRuntime()
 
         activitySpace = testRuntime.activitySpace as ActivitySpaceImpl

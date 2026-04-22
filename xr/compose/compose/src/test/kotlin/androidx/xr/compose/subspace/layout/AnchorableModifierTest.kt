@@ -93,7 +93,7 @@ class AnchorableModifierTest {
 
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     @Suppress("DEPRECATION")
-    private lateinit var lifecycleManager: androidx.xr.arcore.testing.FakeLifecycleManager
+    private lateinit var perceptionRuntime: androidx.xr.arcore.testing.FakePerceptionRuntime
     @Suppress("DEPRECATION")
     private lateinit var perceptionManager: androidx.xr.arcore.testing.FakePerceptionManager
     private lateinit var activitySpace: FakeActivitySpace
@@ -113,7 +113,7 @@ class AnchorableModifierTest {
             .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
             .single()
             .let {
-                lifecycleManager = it.lifecycleManager
+                perceptionRuntime = it
                 perceptionManager = it.perceptionManager
             }
         session.runtimes.filterIsInstance<FakeSceneRuntime>().single().let {
@@ -281,7 +281,7 @@ class AnchorableModifierTest {
     }
 
     @Test
-    fun anchorable_columnEntity_noComponentWhenAnchorableIsEnabled() {
+    fun anchorable_columnEntity_oneComponentWhenAnchorableIsEnabled() {
         composeTestRule.setContent {
             Subspace {
                 SpatialColumn(
@@ -296,7 +296,7 @@ class AnchorableModifierTest {
                 }
             }
         }
-        assertMovableComponentDoesNotExist("column")
+        assertMovableComponentDoesExist("column")
     }
 
     @Test
@@ -335,7 +335,7 @@ class AnchorableModifierTest {
     }
 
     @Test
-    fun anchorable_rowEntity_noComponentWhenAnchorableIsEnabled() {
+    fun anchorable_rowEntity_oneComponentWhenAnchorableIsEnabled() {
         composeTestRule.setContent {
             Subspace {
                 SpatialRow(
@@ -350,7 +350,7 @@ class AnchorableModifierTest {
                 }
             }
         }
-        assertMovableComponentDoesNotExist("row")
+        assertMovableComponentDoesExist("row")
     }
 
     @Test
@@ -693,8 +693,8 @@ class AnchorableModifierTest {
                 extents,
             )
         )
-        lifecycleManager.timeSource.plusAssign(1.milliseconds)
-        lifecycleManager.allowOneMoreCallToUpdate()
+        perceptionRuntime.timeSource.plusAssign(1.milliseconds)
+        perceptionRuntime.allowOneMoreCallToUpdate()
         testDispatcher.scheduler.advanceUntilIdle()
     }
 
@@ -760,6 +760,13 @@ class AnchorableModifierTest {
             composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode().components
         assertNotNull(components)
         assertEquals(0, components.size)
+    }
+
+    private fun assertMovableComponentDoesExist(testTag: String = "panel") {
+        val components =
+            composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode().components
+        assertNotNull(components)
+        assertEquals(1, components.size)
     }
 
     private companion object {

@@ -18,6 +18,7 @@ package androidx.room3.testing
 
 import androidx.room3.DatabaseConfiguration
 import androidx.room3.RoomDatabase
+import androidx.room3.SingleConnection
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.migration.Migration
 import androidx.room3.migration.bundle.SchemaBundle
@@ -189,5 +190,6 @@ public actual class MigrationTestHelper(
             allowDestructiveMigrationForAllTables = false,
             sqliteDriver = driver,
             queryCoroutineContext = Dispatchers.IO,
+            connectionPoolConfiguration = SingleConnection,
         )
 }

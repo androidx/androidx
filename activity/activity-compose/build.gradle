@@ -35,7 +35,7 @@ dependencies {
     api(project(":activity:activity"))
     api("androidx.navigationevent:navigationevent-compose:1.0.0")
     api("androidx.compose.ui:ui:1.0.1")
-    api("androidx.core:core-ktx:1.18.0-rc01")
+    api("androidx.core:core-ktx:1.18.0")
     api("androidx.lifecycle:lifecycle-viewmodel:2.9.4")
     implementation("androidx.lifecycle:lifecycle-common:2.9.4")
     implementation("androidx.lifecycle:lifecycle-runtime:2.9.4")

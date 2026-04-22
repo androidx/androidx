@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
 import androidx.xr.arcore.runtime.ConversationState
-import androidx.xr.arcore.runtime.DepthMap
+import androidx.xr.arcore.runtime.Depth
 import androidx.xr.arcore.runtime.Eye
 import androidx.xr.arcore.runtime.Face
 import androidx.xr.arcore.runtime.Geospatial
@@ -35,16 +35,19 @@ import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import java.util.UUID
 
+// TODO b/500091606 Remove when no longer used in G3
 /**
  * Fake implementation of [PerceptionManager] used to validate state transitions.
  *
  * @property anchors a [MutableList] of [FakeRuntimeAnchors][FakeRuntimeAnchor] created
  * @property leftHand the left [Hand] as a [FakeRuntimeHand]
  * @property rightHand the right [Hand] as a [FakeRuntimeHand]
- * @property leftDepthMap the left [DepthMap] as a [FakeRuntimeDepthMap]
- * @property rightDepthMap the right [DepthMap] as a [FakeRuntimeDepthMap]
- * @property monoDepthMap the mono [DepthMap] as a [FakeRuntimeDepthMap]
+ * @property leftDepth the left [Depth] as a [FakeRuntimeDepth]
+ * @property rightDepth the right [Depth] as a [FakeRuntimeDepth]
+ * @property monoDepth the mono [Depth] as a [FakeRuntimeDepth]
  * @property isTrackingAvailable a flag to represent available tracking state of the camera
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
  */
 @SuppressWarnings("HiddenSuperclass")
 @Suppress("DEPRECATION")
@@ -83,11 +86,11 @@ public class FakePerceptionManager : PerceptionManager, AnchorHolder {
 
     override val geospatial: Geospatial = FakeRuntimeGeospatial()
 
-    override val leftDepthMap: DepthMap? = FakeRuntimeDepthMap()
+    override val leftDepth: Depth? = FakeRuntimeDepth()
 
-    override val rightDepthMap: DepthMap? = FakeRuntimeDepthMap()
+    override val rightDepth: Depth? = FakeRuntimeDepth()
 
-    override val monoDepthMap: DepthMap? = FakeRuntimeDepthMap()
+    override val monoDepth: Depth? = FakeRuntimeDepth()
 
     override val conversationSceneSignal: ConversationState? = null
 

@@ -190,11 +190,9 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        activityPanelEntity = null
+        panelEntity = null
         super.onDestroy()
-        activityPanelEntity?.parent = null
-        activityPanelEntity?.dispose()
-        panelEntity?.parent = null
-        panelEntity?.dispose()
     }
 
     fun tryToCreateActivityPanel(capabilities: Set<SpatialCapability>) {

@@ -198,10 +198,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // 20 is taken from AbsSeekbar.java.
         const val AccessibilitySliderStepsCount = 20
 
-        // TODO(b/479058621): Replace the hardcode number with CONTENT_CHANGE_TYPE_CHECKED after
-        // sdk=36.
-        // The copied variable from AccessibilityEvent#CONTENT_CHANGE_TYPE_CHECKED.
-        const val CONTENT_CHANGE_TYPE_CHECKED = 1 shl 13
+        const val CONTENT_CHANGE_TYPE_CHECKED = AccessibilityEvent.CONTENT_CHANGE_TYPE_CHECKED
 
         /**
          * Timeout to determine whether a text selection changed event and the pending text
@@ -287,8 +284,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     _enabledServices = it
                 }
 
-    private var isAccessibilityEnabled = false
-
     /**
      * True if any accessibility service enabled in the system, except the UIAutomator (as it
      * doesn't appear in the list of enabled services)
@@ -298,7 +293,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             accessibilityForceEnabledForTesting ||
                 // checking the list allows us to filter out the UIAutomator which doesn't appear in
                 // it
-                (isAccessibilityEnabled && enabledServices.isNotEmpty())
+                (accessibilityManager.isEnabled && enabledServices.isNotEmpty())
 
     /**
      * True if accessibility service with the touch exploration (e.g. Talkback) is enabled in the
@@ -307,7 +302,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private val isTouchExplorationEnabled
         get() =
             accessibilityForceEnabledForTesting ||
-                (isAccessibilityEnabled && accessibilityManager.isTouchExplorationEnabled)
+                (accessibilityManager.isEnabled && accessibilityManager.isTouchExplorationEnabled)
 
     internal var requestFromAccessibilityToolForTesting: Boolean? = null
 
@@ -424,8 +419,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // case
         // there have been changes while the window was detached that the listeners
         // might not catch.
-        isAccessibilityEnabled = accessibilityManager.isEnabled
-        if (isAccessibilityEnabled) resetEnabledAccessibilityServiceList()
+        if (accessibilityManager.isEnabled) resetEnabledAccessibilityServiceList()
         accessibilityManager.addAccessibilityStateChangeListener(this)
         accessibilityManager.addTouchExplorationStateChangeListener(this)
     }
@@ -437,12 +431,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     override fun onAccessibilityStateChanged(enabled: Boolean) {
-        isAccessibilityEnabled = enabled
-        if (enabled) resetEnabledAccessibilityServiceList()
+        resetEnabledAccessibilityServiceList()
     }
 
     override fun onTouchExplorationStateChanged(enabled: Boolean) {
-        if (enabled && isAccessibilityEnabled) resetEnabledAccessibilityServiceList()
+        resetEnabledAccessibilityServiceList()
     }
 
     /**
@@ -579,7 +572,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      */
     private fun emptyNodeInfoOrNull(): AccessibilityNodeInfoCompat? {
         // Accessibility Manager is not enabled if this code is used by Assistant
-        return if (!isAccessibilityEnabled) {
+        return if (!accessibilityManager.isEnabled) {
             AccessibilityNodeInfoCompat.obtain()
         } else null
     }

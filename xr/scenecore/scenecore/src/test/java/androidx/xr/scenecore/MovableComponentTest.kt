@@ -162,8 +162,6 @@ class MovableComponentTest {
     @Suppress("DEPRECATION")
     private lateinit var mFakeRuntime: androidx.xr.arcore.testing.FakePerceptionRuntime
     @Suppress("DEPRECATION")
-    private lateinit var mFakeLifecycleManager: androidx.xr.arcore.testing.FakeLifecycleManager
-    @Suppress("DEPRECATION")
     private lateinit var mFakePerceptionManager: androidx.xr.arcore.testing.FakePerceptionManager
     private lateinit var fakeActivitySpace: RtActivitySpace
     private lateinit var testDispatcher: TestDispatcher
@@ -186,10 +184,9 @@ class MovableComponentTest {
             session.runtimes
                 .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
                 .first()
-        mFakeLifecycleManager = mFakeRuntime.lifecycleManager
         mFakePerceptionManager = mFakeRuntime.perceptionManager
         sceneRuntime = session.sceneRuntime
-        timeSource = mFakeLifecycleManager.timeSource
+        timeSource = mFakeRuntime.timeSource
         SystemClock.setCurrentTimeMillis(mCurrentTimeMillis)
     }
 
@@ -210,15 +207,14 @@ class MovableComponentTest {
             session.runtimes
                 .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
                 .first()
-        mFakeLifecycleManager = mFakeRuntime.lifecycleManager
         mFakePerceptionManager = mFakeRuntime.perceptionManager
-        timeSource = mFakeLifecycleManager.timeSource
+        timeSource = mFakeRuntime.timeSource
         SystemClock.setCurrentTimeMillis(mCurrentTimeMillis)
     }
 
     @After
     fun tearDown() {
-        anchorEntityToDispose?.dispose()
+        anchorEntityToDispose?.disposeInternal()
         anchorEntityToDispose = null
     }
 
@@ -355,10 +351,10 @@ class MovableComponentTest {
 
         val movableComponent = MovableComponent.createSystemMovable(session)
         assertThat(entity.addComponent(movableComponent)).isTrue()
-        assertThat(rtEntity?.getComponents()).hasSize(1)
+        assertThat(rtEntity.getComponents()).hasSize(1)
 
         entity.removeComponent(movableComponent)
-        assertThat(rtEntity?.getComponents()).hasSize(0)
+        assertThat(rtEntity.getComponents()).hasSize(0)
     }
 
     @Test
@@ -578,7 +574,7 @@ class MovableComponentTest {
     }
 
     @Test
-    fun movablecomponent_canAttachAgainAfterDetach() {
+    fun movableComponent_canAttachAgainAfterDetach() {
         createCustomSession()
         val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
@@ -662,7 +658,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -702,7 +698,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -729,7 +725,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -770,7 +766,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -797,7 +793,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -841,7 +837,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    entity.rtEntity!!,
+                    entity.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -870,12 +866,10 @@ class MovableComponentTest {
 
             val activitySpaceScale = Vector3(2f, 2f, 2f)
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.activitySpace.rtScenePose as FakeScenePose).activitySpaceScale =
                 activitySpaceScale
-            (session.scene.activitySpace.rtEntity!! as FakeActivitySpace).setScale(
-                activitySpaceScale
-            )
+            (session.scene.activitySpace.rtEntity as FakeActivitySpace).setScale(activitySpaceScale)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -915,7 +909,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -942,7 +936,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -982,7 +976,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -996,7 +990,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1029,7 +1023,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1075,7 +1069,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1089,7 +1083,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1122,7 +1116,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1168,7 +1162,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1182,7 +1176,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1212,12 +1206,10 @@ class MovableComponentTest {
 
             val activitySpaceScale = Vector3(2f, 2f, 2f)
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.activitySpace.rtScenePose as FakeScenePose).activitySpaceScale =
                 activitySpaceScale
-            (session.scene.activitySpace.rtEntity!! as FakeActivitySpace).setScale(
-                activitySpaceScale
-            )
+            (session.scene.activitySpace.rtEntity as FakeActivitySpace).setScale(activitySpaceScale)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1258,7 +1250,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1272,7 +1264,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1304,7 +1296,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1332,7 +1324,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1357,7 +1349,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1397,7 +1389,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1422,7 +1414,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1462,7 +1454,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1487,7 +1479,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1527,7 +1519,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1541,7 +1533,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1571,7 +1563,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1598,12 +1590,10 @@ class MovableComponentTest {
 
             val activitySpaceScale = Vector3(2f, 2f, 2f)
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.activitySpace.rtScenePose as FakeScenePose).activitySpaceScale =
                 activitySpaceScale
-            (session.scene.activitySpace.rtEntity!! as FakeActivitySpace).setScale(
-                activitySpaceScale
-            )
+            (session.scene.activitySpace.rtEntity as FakeActivitySpace).setScale(activitySpaceScale)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1644,7 +1634,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1658,7 +1648,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1689,7 +1679,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    panelEntity.rtEntity!!.parent!!,
+                    panelEntity.rtEntity.parent!!,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1717,7 +1707,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1762,7 +1752,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1776,7 +1766,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1806,7 +1796,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1833,7 +1823,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1873,7 +1863,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1887,7 +1877,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1917,7 +1907,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -1950,7 +1940,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -1990,7 +1980,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -2004,7 +1994,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -2039,7 +2029,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -2074,7 +2064,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -2114,7 +2104,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )
@@ -2139,7 +2129,7 @@ class MovableComponentTest {
             activityController.create().start().resume()
 
             val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
-            session.scene.activitySpace.rtEntity!!.setPose(activitySpacePose)
+            session.scene.activitySpace.rtEntity.setPose(activitySpacePose)
             (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
                 activitySpacePose.inverse
 
@@ -2180,7 +2170,7 @@ class MovableComponentTest {
                     proposedPose,
                     entityScale,
                     entityScale,
-                    session.scene.activitySpace.rtEntity!!,
+                    session.scene.activitySpace.rtEntity,
                     updatedParent = null,
                     disposedEntity = null,
                 )

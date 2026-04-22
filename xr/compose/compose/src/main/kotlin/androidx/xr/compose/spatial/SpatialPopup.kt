@@ -358,7 +358,9 @@ private class SpatialPopupRenderer(
     }
 
     override fun onForgotten() {
+        content = {}
         panelEntity?.dispose()
+        panelEntity = null
         view?.disposeComposition()
     }
 

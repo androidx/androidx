@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.testing
 import android.graphics.Rect
 import android.hardware.HardwareBuffer
 import android.os.Build
+import android.os.Build.VERSION_CODES
 import androidx.camera.camera2.pipe.media.ImagePlane
 import androidx.camera.camera2.pipe.media.ImageWrapper
 import kotlin.reflect.KClass
@@ -30,7 +31,7 @@ public class FakeImage(
     override val height: Int,
     override val format: Int,
     override val timestamp: Long,
-    override val hardwareBuffer: HardwareBuffer? = null,
+    private val providedHardwareBuffer: HardwareBuffer? = null,
     override var cropRect: Rect = Rect(0, 0, width, height),
 ) : ImageWrapper {
     private val debugId = debugIds.incrementAndGet()
@@ -38,6 +39,16 @@ public class FakeImage(
     public val isClosed: Boolean
         get() = closed.value
 
+    override val hardwareBuffer: HardwareBuffer? by lazy {
+        // Create default hardware buffer only after API 34
+        if (
+            providedHardwareBuffer == null &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        ) {
+            HardwareBuffer.create(width, height, format, 1, HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE)
+        }
+        providedHardwareBuffer
+    }
     public var numberOfTimesClosed: Int = 0
         private set
 
@@ -55,7 +66,9 @@ public class FakeImage(
     override fun close() {
         numberOfTimesClosed++
         if (closed.compareAndSet(expect = false, update = true)) {
-            // FakeImage close is a NoOp
+            if (Build.VERSION.SDK_INT > VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                hardwareBuffer?.close()
+            }
         }
     }
 

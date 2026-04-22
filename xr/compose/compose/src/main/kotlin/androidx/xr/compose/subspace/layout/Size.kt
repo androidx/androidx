@@ -37,7 +37,8 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.scene
 
 /**
- * Declare the preferred size of the content to be exactly [width] dp along the x dimension.
+ * Declare the preferred size of the content to be exactly [width] dp along the x dimension of the
+ * Composable's local coordinate space.
  *
  * @param width preferred width in [Dp].
  */
@@ -45,7 +46,8 @@ public fun SubspaceModifier.width(width: Dp): SubspaceModifier =
     this.then(SizeElement(minWidth = width, maxWidth = width, enforceIncoming = true))
 
 /**
- * Declare the preferred size of the content to be exactly [height] dp along the y dimension.
+ * Declare the preferred size of the content to be exactly [height] dp along the y dimension of the
+ * Composable's local coordinate space.
  *
  * @param height preferred height in [Dp].
  */
@@ -53,8 +55,8 @@ public fun SubspaceModifier.height(height: Dp): SubspaceModifier =
     this.then(SizeElement(minHeight = height, maxHeight = height, enforceIncoming = true))
 
 /**
- * Declare the preferred size of the content to be exactly [depth] dp along the z dimension. Panels
- * have 0 depth and ignore this modifier.
+ * Declare the preferred size of the content to be exactly [depth] dp along the z dimension of the
+ * Composable's local coordinate space.
  *
  * @param depth preferred depth in [Dp].
  */
@@ -62,8 +64,7 @@ public fun SubspaceModifier.depth(depth: Dp): SubspaceModifier =
     this.then(SizeElement(minDepth = depth, maxDepth = depth, enforceIncoming = true))
 
 /**
- * Declare the preferred size of the content to be exactly a [size] dp cube. When applied to a
- * Panel, the preferred size will be a [size] dp square instead.
+ * Declare the preferred size of the content to be exactly a [size] dp cube.
  *
  * @param size preferred size in [Dp] for all dimensions.
  */
@@ -82,7 +83,8 @@ public fun SubspaceModifier.size(size: Dp): SubspaceModifier =
 
 /**
  * Declare the preferred size of the content to be exactly [width] dp along the x dimensions,
- * [height] dp along the y dimensions, and [depth] dp along the z dimension.
+ * [height] dp along the y dimensions, and [depth] dp along the z dimension, of the Composable's
+ * local coordinate space.
  *
  * @param width preferred width in [Dp].
  * @param height preferred height in [Dp].
@@ -107,7 +109,8 @@ public fun SubspaceModifier.size(
 
 /**
  * Declare the preferred size of the content to be exactly [size] in each of the three dimensions.
- * Panels have 0 depth and ignore the z-component of this modifier.
+ * Panels have 0 depth and ignore the z-component of this modifier. Applying rotations to an object
+ * will also rotate the xyz axes of this modifier.
  *
  * @param size preferred volume size as a [DpVolumeSize].
  */
@@ -283,8 +286,8 @@ private class RecommendedSizeNode :
 }
 
 /**
- * Declare the size of the content to be exactly [width] dp along the x dimension, disregarding the
- * incoming [VolumeConstraints].
+ * Declare the size of the content to be exactly [width] dp along the x dimension of the
+ * Composable's local coordinate space, disregarding the incoming [VolumeConstraints].
  *
  * This is in contrast to [SubspaceModifier.width], which respects the parent's constraints.
  * `requiredWidth` will ignore the `minWidth` and `maxWidth` from the incoming constraints, which
@@ -296,8 +299,8 @@ public fun SubspaceModifier.requiredWidth(width: Dp): SubspaceModifier =
     this.then(SizeElement(minWidth = width, maxWidth = width, enforceIncoming = false))
 
 /**
- * Declare the size of the content to be exactly [height] dp along the y dimension, disregarding the
- * incoming [VolumeConstraints].
+ * Declare the size of the content to be exactly [height] dp along the y dimension of the
+ * Composable's local coordinate space, disregarding the incoming [VolumeConstraints].
  *
  * This is in contrast to [SubspaceModifier.height], which respects the parent's constraints.
  * `requiredHeight` will ignore the `minHeight` and `maxHeight` from the incoming constraints, which
@@ -309,8 +312,8 @@ public fun SubspaceModifier.requiredHeight(height: Dp): SubspaceModifier =
     this.then(SizeElement(minHeight = height, maxHeight = height, enforceIncoming = false))
 
 /**
- * Declare the size of the content to be exactly [depth] dp along the z dimension, disregarding the
- * incoming [VolumeConstraints].
+ * Declare the size of the content to be exactly [depth] dp along the z dimension of the
+ * Composable's local coordinate space, disregarding the incoming [VolumeConstraints].
  *
  * This is in contrast to [SubspaceModifier.depth], which respects the parent's constraints.
  * `requiredDepth` will ignore the `minDepth` and `maxDepth` from the incoming constraints, which
@@ -345,9 +348,8 @@ public fun SubspaceModifier.requiredSize(size: Dp): SubspaceModifier =
     )
 
 /**
- * Declare the size of the content to be exactly [size] in each of the three dimensions,
- * disregarding the incoming [VolumeConstraints]. Panels have 0 depth and ignore the z-component of
- * this modifier.
+ * Declare the size of the content to be exactly [size] in each of the three dimensions of the
+ * Composable's local coordinate space, disregarding the incoming [VolumeConstraints].
  *
  * This is in contrast to [SubspaceModifier.size], which respects the parent's constraints.
  * `requiredSize` will ignore all min and max constraints from the incoming constraints, which can
@@ -371,8 +373,8 @@ public fun SubspaceModifier.requiredSize(size: DpVolumeSize): SubspaceModifier =
 
 /**
  * Declare the size of the content to be exactly [width], [height], and [depth] in each of the three
- * dimensions, disregarding the incoming [VolumeConstraints]. Panels have 0 depth and ignore the
- * z-component of this modifier.
+ * dimensions of the Composable's local coordinate space, disregarding the incoming
+ * [VolumeConstraints].
  *
  * This is in contrast to [SubspaceModifier.size], which respects the parent's constraints.
  * `requiredSize` will ignore all min and max constraints from the incoming constraints, which can

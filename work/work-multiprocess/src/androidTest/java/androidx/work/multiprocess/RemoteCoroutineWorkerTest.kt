@@ -40,6 +40,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.isRemoteWorkRequest
 import androidx.work.multiprocess.RemoteListenableDelegatingWorker.Companion.ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -74,9 +75,13 @@ public class RemoteCoroutineWorkerTest {
             Configuration.Builder().setExecutor(mExecutor).setTaskExecutor(mExecutor).build()
         mTaskExecutor =
             object : TaskExecutor {
+                private val workCoroutineScope = CoroutineScope(taskCoroutineDispatcher)
+
                 override fun getMainThreadExecutor() = mExecutor
 
                 override fun getSerialTaskExecutor() = SerialExecutorImpl(mExecutor)
+
+                override fun getCoroutineScope(): CoroutineScope = workCoroutineScope
             }
         mScheduler = mock(Scheduler::class.java)
         mForegroundProcessor = mock(ForegroundProcessor::class.java)

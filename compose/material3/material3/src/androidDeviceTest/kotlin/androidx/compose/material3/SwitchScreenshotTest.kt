@@ -46,6 +46,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -298,6 +299,53 @@ class SwitchScreenshotTest {
         rule.waitForIdle()
 
         assertToggeableAgainstGolden("switch_focus_insetFocusRings")
+    }
+
+    @Test
+    fun switchTest_focus_customInsetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleThemeConfiguration(
+                        RippleThemeConfiguration.Focus.InsetRing(
+                            outerStrokeInset = 0.dp,
+                            outerStrokeWidth = 2.dp,
+                            innerStrokeInset = 1.dp,
+                            innerStrokeWidth = 4.dp,
+                        )
+                    ),
+                LocalRippleConfiguration provides
+                    RippleConfiguration(
+                        focus =
+                            RippleConfiguration.Focus.InsetRing(
+                                outerStrokeColor = Color.Green,
+                                innerStrokeColor = Color.Red,
+                            )
+                    ),
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+                Box(wrapperModifier) {
+                    Switch(
+                        checked = true,
+                        onCheckedChange = {},
+                        modifier = Modifier.focusRequester(focusRequester),
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.waitForIdle()
+
+        assertToggeableAgainstGolden("switch_focus_customInsetFocusRings")
     }
 
     @Test

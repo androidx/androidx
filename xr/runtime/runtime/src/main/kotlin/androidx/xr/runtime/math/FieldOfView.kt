@@ -16,48 +16,5 @@
 
 package androidx.xr.runtime.math
 
-/**
- * Represents the field of view of a virtual (or rendering) camera.
- *
- * @property angleLeft The angle in radians of the left edge of the field of view.
- * @property angleRight The angle in radians of the right edge of the field of view.
- * @property angleUp The angle in radians of the top edge of the field of view.
- * @property angleDown The angle in radians of the bottom edge of the field of view.
- */
-public class FieldOfView
-constructor(
-    public val angleLeft: Float,
-    public val angleRight: Float,
-    public val angleUp: Float,
-    public val angleDown: Float,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is FieldOfView) return false
-
-        if (angleLeft != other.angleLeft) return false
-        if (angleRight != other.angleRight) return false
-        if (angleUp != other.angleUp) return false
-        if (angleDown != other.angleDown) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = angleLeft.hashCode()
-        result = 31 * result + angleRight.hashCode()
-        result = 31 * result + angleUp.hashCode()
-        result = 31 * result + angleDown.hashCode()
-        return result
-    }
-
-    @JvmOverloads
-    public fun copy(
-        angleLeft: Float = this.angleLeft,
-        angleRight: Float = this.angleRight,
-        angleUp: Float = this.angleUp,
-        angleDown: Float = this.angleDown,
-    ): FieldOfView {
-        return FieldOfView(angleLeft, angleRight, angleUp, angleDown)
-    }
-}
+/** Represents the field of view of a virtual (or rendering) camera. */
+public typealias FieldOfView = androidx.xr.runtime.FieldOfView

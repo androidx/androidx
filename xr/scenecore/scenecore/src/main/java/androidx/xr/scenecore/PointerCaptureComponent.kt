@@ -64,7 +64,6 @@ private constructor(
     }
 
     private var attachedEntity: Entity? = null
-
     private val rtInputEventListener = RtInputEventListener { rtEvent ->
         inputEventListener.accept(rtEvent.toInputEvent(entityRegistry))
     }
@@ -83,7 +82,6 @@ private constructor(
                 }
             }
         }
-
     private val rtComponent by lazy {
         sceneRuntime.createPointerCaptureComponent(executor, rtStateListener, rtInputEventListener)
     }
@@ -94,14 +92,14 @@ private constructor(
         }
         attachedEntity = entity
 
-        return (entity as BaseEntity<*>).rtEntity!!.addComponent(rtComponent)
+        return (entity as BaseEntity<*>).rtEntity.addComponent(rtComponent)
     }
 
     override fun onDetach(entity: Entity) {
         if (entity != attachedEntity) {
             return
         }
-        (entity as BaseEntity<*>).rtEntity!!.removeComponent(rtComponent)
+        (entity as BaseEntity<*>).rtEntity.removeComponent(rtComponent)
         attachedEntity = null
     }
 

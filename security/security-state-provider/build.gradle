@@ -29,14 +29,20 @@ plugins {
 }
 
 dependencies {
+    api(libs.guavaListenableFuture)
     implementation(libs.kotlinSerializationJson)
+    implementation(project(":concurrent:concurrent-futures"))
     implementation(project(":security:security-state"))
 
+    testImplementation(libs.junit)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.mockitoKotlin4)
 
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinCoroutinesCore)
+    androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.robolectric)
 }
 

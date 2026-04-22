@@ -38,11 +38,11 @@ import kotlin.time.ComparableTimeMark
  *   [timeMark], or null when not supported by the current platform
  * @property monoRenderViewpointState the state of the mono viewpoint used for rendering at the
  *   [timeMark], or null when not supported by the current platform
- * @property leftDepthMapState the state of the left depth map at the [timeMark], or null when not
+ * @property leftDepthState the state of the left depth map at the [timeMark], or null when not
  *   supported by the current platform
- * @property rightDepthMapState the state of the right depth map at the [timeMark], or null when not
+ * @property rightDepthState the state of the right depth map at the [timeMark], or null when not
  *   supported by the current platform
- * @property monoDepthMapState the state of the mono depth map at the [timeMark], or null when not
+ * @property monoDepthState the state of the mono depth map at the [timeMark], or null when not
  *   supported by the current platform
  * @property userFaceState the state of the user's face at the [timeMark], or null when not
  *   supported by the current platform
@@ -61,9 +61,9 @@ internal constructor(
     public val leftRenderViewpointState: RenderViewpoint.State?,
     public val rightRenderViewpointState: RenderViewpoint.State?,
     public val monoRenderViewpointState: RenderViewpoint.State?,
-    public val leftDepthMapState: DepthMap.State?,
-    public val rightDepthMapState: DepthMap.State?,
-    public val monoDepthMapState: DepthMap.State?,
+    public val leftDepthState: Depth.State?,
+    public val rightDepthState: Depth.State?,
+    public val monoDepthState: Depth.State?,
     public val userFaceState: Face.State?,
     public val leftEyeState: Eye.State?,
     public val rightEyeState: Eye.State?,
@@ -79,9 +79,9 @@ internal constructor(
         if (leftRenderViewpointState != other.leftRenderViewpointState) return false
         if (rightRenderViewpointState != other.rightRenderViewpointState) return false
         if (monoRenderViewpointState != other.monoRenderViewpointState) return false
-        if (leftDepthMapState != other.leftDepthMapState) return false
-        if (rightDepthMapState != other.rightDepthMapState) return false
-        if (monoDepthMapState != other.monoDepthMapState) return false
+        if (leftDepthState != other.leftDepthState) return false
+        if (rightDepthState != other.rightDepthState) return false
+        if (monoDepthState != other.monoDepthState) return false
         if (userFaceState != other.userFaceState) return false
         if (leftEyeState != other.leftEyeState) return false
         if (rightEyeState != other.rightEyeState) return false
@@ -97,9 +97,9 @@ internal constructor(
         result = 31 * result + leftRenderViewpointState.hashCode()
         result = 31 * result + rightRenderViewpointState.hashCode()
         result = 31 * result + monoRenderViewpointState.hashCode()
-        result = 31 * result + leftDepthMapState.hashCode()
-        result = 31 * result + rightDepthMapState.hashCode()
-        result = 31 * result + monoDepthMapState.hashCode()
+        result = 31 * result + leftDepthState.hashCode()
+        result = 31 * result + rightDepthState.hashCode()
+        result = 31 * result + monoDepthState.hashCode()
         result = 31 * result + userFaceState.hashCode()
         return result
     }

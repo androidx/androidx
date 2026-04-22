@@ -18,6 +18,8 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
+import android.graphics.Color;
+
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
@@ -31,24 +33,42 @@ import java.util.Objects;
 /**
  * A background for a user interface component.
  *
- * <p>The image will be modified to ensure safe a color contrast ratio with the content.
+ * <p>The image or color will be modified to ensure safe a color contrast ratio with the content.
  *
- * <p>Initially only image backgrounds are supported but further options will be added.
+ * <p>The background can be set as either a solid color using {@link CarColor} or an image
+ * using {@link CarIcon}. Only one of these can be set at a time.
  */
 @CarProtocol
 @KeepFields
 @ExperimentalCarApi
 @RequiresCarApi(9)
 public final class Background {
+    /**
+     * A transparent background.
+     */
+    public static final @NonNull Background TRANSPARENT =
+            new Background.Builder().setColor(
+                    CarColor.createCustom(Color.TRANSPARENT, Color.TRANSPARENT)).build();
+
+    private final @Nullable CarColor mColor;
     private final @Nullable CarIcon mImage;
 
     Background(Builder builder) {
+        mColor = builder.mColor;
         mImage = builder.mImage;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Background() {
+        mColor = null;
         mImage = null;
+    }
+
+    /**
+     * Returns the {@link CarColor} used for the background, or {@code null} if not set.
+     */
+    public @Nullable CarColor getColor() {
+        return mColor;
     }
 
     /**
@@ -72,24 +92,26 @@ public final class Background {
             return false;
         }
         Background otherBackground = (Background) other;
-        return Objects.equals(mImage, otherBackground.mImage);
+        return Objects.equals(mImage, otherBackground.mImage) && Objects.equals(mColor,
+                otherBackground.mColor);
     }
 
     @Override
     public @NonNull String toString() {
-        return "[image: " + mImage + "]";
+        return "Background [image: " + mImage + ", color: " + mColor + "]";
     }
 
     /** A builder of {@link Background}. */
     public static final class Builder {
         private @Nullable CarIcon mImage;
+        private @Nullable CarColor mColor;
 
         /**
          * Sets the {@link CarIcon} that will be displayed as the background.
          *
-         * @throws NullPointerException if {@code image} is {@code null}
+         * @throws NullPointerException     if {@code image} is {@code null}
          * @throws IllegalArgumentException if {@code image} is not of type
-         * {@link CarIcon#TYPE_CUSTOM}
+         *                                  {@link CarIcon#TYPE_CUSTOM}
          */
         public @NonNull Builder setImage(@NonNull CarIcon image) {
             requireNonNull(image);
@@ -102,13 +124,29 @@ public final class Background {
         }
 
         /**
+         * Sets the {@link CarColor} to be used for the background.
+         *
+         * @throws NullPointerException if {@code color} is {@code null}
+         */
+        public @NonNull Builder setColor(@NonNull CarColor color) {
+            mColor = requireNonNull(color);
+            return this;
+        }
+
+        /**
          * Constructs the {@link Background} defined by this builder.
          *
-         * @throws IllegalStateException if the image is not set
+         * <p>Ensures that exactly one of either an image or a color is set for the background.
+         *
+         * @throws IllegalStateException if neither an image nor a color is set,
+         *                               or if both an image and a color are set.
          */
         public @NonNull Background build() {
-            if (mImage == null) {
-                throw new IllegalStateException("Image must be set");
+            // Check if both are null OR both are set using an equality check
+            if ((mImage == null) == (mColor == null)) {
+                throw new IllegalStateException(
+                        "Background must have exactly one property set: either Image or Color."
+                );
             }
             return new Background(this);
         }
@@ -117,8 +155,10 @@ public final class Background {
         public Builder() {
         }
 
-        /** Returns a new {@link Builder} with the data from the given {@link Background}
-         *  instance. */
+        /**
+         * Returns a new {@link Builder} with the data from the given {@link Background}
+         * instance.
+         */
         public Builder(@NonNull Background background) {
             mImage = requireNonNull(background).getImage();
         }

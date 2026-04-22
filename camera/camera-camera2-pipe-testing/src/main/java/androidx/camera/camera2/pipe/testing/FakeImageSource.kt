@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.hardware.HardwareBuffer
 import android.util.Size
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
@@ -44,8 +45,12 @@ private constructor(
     public val isFlushed: Boolean
         get() = fakeImageReader.isFlushed
 
-    public fun simulateImage(timestamp: Long, outputId: OutputId? = null): FakeImage {
-        return fakeImageReader.simulateImage(timestamp, outputId)
+    public fun simulateImage(
+        timestamp: Long,
+        outputId: OutputId? = null,
+        hardwareBuffer: HardwareBuffer? = null,
+    ): FakeImage {
+        return fakeImageReader.simulateImage(timestamp, outputId, hardwareBuffer = hardwareBuffer)
     }
 
     public fun simulateExpectedOutputs(timestamp: Long, outputIds: Set<OutputId>) {
@@ -76,9 +81,11 @@ private constructor(
             streamId: StreamId,
             outputs: Map<OutputId, Size>,
             capacity: Int,
+            usageFlags: Long?,
             fakeImageReaders: FakeImageReaders,
         ): FakeImageSource {
-            val fakeImageReader = fakeImageReaders.create(streamFormat, streamId, outputs, capacity)
+            val fakeImageReader =
+                fakeImageReaders.create(streamFormat, streamId, outputs, capacity, usageFlags)
 
             val imageReaderImageSource = ImageReaderImageSource.create(fakeImageReader)
             return FakeImageSource(fakeImageReader, imageReaderImageSource)

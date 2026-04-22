@@ -22,6 +22,7 @@ import androidx.room3.DatabaseConfiguration
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 import androidx.room3.RoomDatabase
+import androidx.room3.SingleConnection
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 
@@ -48,4 +49,5 @@ fun createDefaultConfiguration(instrumentation: Instrumentation) =
         allowDestructiveMigrationForAllTables = true,
         sqliteDriver = AndroidSQLiteDriver(),
         queryCoroutineContext = Dispatchers.IO,
+        connectionPoolConfiguration = SingleConnection,
     )

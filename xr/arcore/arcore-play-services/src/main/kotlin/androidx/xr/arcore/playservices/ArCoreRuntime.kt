@@ -31,7 +31,6 @@ import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
@@ -119,6 +118,7 @@ internal constructor(
         return timeSource.markNow()
     }
 
+    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     override fun configure(config: Config) {
         val arConfig = _session.config
 
@@ -177,10 +177,13 @@ internal constructor(
             }
 
         arConfig.geospatialMode =
-            if (config.geospatial == GeospatialMode.VPS_AND_GPS) {
-                ArGeospatialMode.ENABLED
-            } else {
-                ArGeospatialMode.DISABLED
+            when (config.geospatial) {
+                GeospatialMode.SPATIAL -> ArGeospatialMode.ENABLED
+                GeospatialMode.INERTIAL ->
+                    throw UnsupportedOperationException(
+                        "Failed to configure session, runtime does not support GeospatialMode.INERTIAL"
+                    )
+                else -> ArGeospatialMode.DISABLED
             }
 
         try {
@@ -223,9 +226,6 @@ internal constructor(
                 throw ApkNotInstalledException(ARCORE_PACKAGE_NAME)
             }
             Availability.UNSUPPORTED_DEVICE_NOT_CAPABLE -> {
-                XrLog.error {
-                    "Session cannot be created because ARCore is not supported on this device."
-                }
                 throw UnsupportedDeviceException()
             }
             Availability.UNKNOWN_CHECKING -> {
@@ -258,10 +258,12 @@ internal constructor(
         return _session.isDepthModeSupported(arCoreDepthMode)
     }
 
+    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     private fun isGeoSpatialModeSupportedInArCore1x(geospatialMode: GeospatialMode): Boolean {
         val arCoreGeospatialMode =
             when (geospatialMode) {
-                GeospatialMode.VPS_AND_GPS -> ArCoreConfig.GeospatialMode.ENABLED
+                GeospatialMode.SPATIAL -> ArCoreConfig.GeospatialMode.ENABLED
+                GeospatialMode.INERTIAL -> return false
                 else -> ArCoreConfig.GeospatialMode.DISABLED
             }
         return _session.isGeospatialModeSupported(arCoreGeospatialMode)

@@ -103,7 +103,6 @@ package androidx.xr.scenecore {
   public abstract class BaseEntity<RtEntityType extends androidx.xr.scenecore.runtime.Entity> extends androidx.xr.scenecore.BaseScenePose<androidx.xr.scenecore.runtime.ScenePose> implements androidx.xr.scenecore.Entity {
     method public void addChild(androidx.xr.scenecore.Entity child);
     method public boolean addComponent(androidx.xr.scenecore.Component component);
-    method public void dispose();
     method public float getAlpha(optional androidx.xr.scenecore.Space relativeTo);
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.Entity> getChildren();
     method public java.util.List<androidx.xr.scenecore.Component> getComponents();
@@ -205,7 +204,6 @@ package androidx.xr.scenecore {
     method public static androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session, optional String? name);
     method public static androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session, optional String? name, optional androidx.xr.runtime.math.Pose pose);
     method public static androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session, optional String? name, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Entity? parent);
-    method public void dispose();
     method @FloatRange(from=0.0, to=1.0) public default float getAlpha();
     method @FloatRange(from=0.0, to=1.0) public float getAlpha(optional androidx.xr.scenecore.Space relativeTo);
     method @BytecodeOnly @FloatRange(from=0.0, to=1.0) public static float getAlpha$default(androidx.xr.scenecore.Entity!, androidx.xr.scenecore.Space!, int, Object!);

@@ -187,7 +187,14 @@ internal class OpenXrRuntime(
         return now
     }
 
+    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     override fun configure(config: Config) {
+        if (config.geospatial == GeospatialMode.INERTIAL) {
+            throw UnsupportedOperationException(
+                "Failed to configure session, runtime does not support GeospatialMode.INERTIAL"
+            )
+        }
+
         if (config.depthEstimation == DepthEstimationMode.SMOOTH_AND_RAW) {
             throw UnsupportedOperationException(
                 "Failed to configure session, runtime does not support raw and smooth depth simultaneously."
@@ -272,10 +279,10 @@ internal class OpenXrRuntime(
         }
 
         if (config.depthEstimation != this.config.depthEstimation) {
-            perceptionManager.xrResources.leftDepthMap.updateDepthEstimationMode(
+            perceptionManager.xrResources.leftDepth.updateDepthEstimationMode(
                 config.depthEstimation
             )
-            perceptionManager.xrResources.rightDepthMap.updateDepthEstimationMode(
+            perceptionManager.xrResources.rightDepth.updateDepthEstimationMode(
                 config.depthEstimation
             )
             perceptionManager.depthEstimationMode = config.depthEstimation
@@ -299,7 +306,7 @@ internal class OpenXrRuntime(
         }
 
         if (config.geospatial != this.config.geospatial) {
-            if (config.geospatial == GeospatialMode.VPS_AND_GPS) {
+            if (config.geospatial == GeospatialMode.SPATIAL) {
                 perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.geospatial)
             } else {
                 perceptionManager.xrResources.removeUpdatable(
@@ -311,9 +318,13 @@ internal class OpenXrRuntime(
         this.config = config
     }
 
+    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     override fun isSupported(configMode: ConfigMode): Boolean {
-        if (configMode == GeospatialMode.VPS_AND_GPS) {
+        if (configMode == GeospatialMode.SPATIAL) {
             return nativeIsGeospatialSupported()
+        }
+        if (configMode == GeospatialMode.INERTIAL) {
+            return false
         }
         return SUPPORTED_CONFIG_MODES.contains(configMode)
     }
@@ -335,6 +346,7 @@ internal class OpenXrRuntime(
         }
     }
 
+    @Suppress("RestrictedApiAndroidX")
     private fun setAuthentication(context: Context) {
         var apiKey: String? = null
         try {
@@ -362,9 +374,11 @@ internal class OpenXrRuntime(
         }
 
         if (apiKey == null) {
+            // TODO: b/498318910 - Replace logging with bespoke API to communicate this
             XrLog.verbose("No API Key provided, using keyless authentication.")
             nativeSetKeylessAuth()
         } else {
+            // TODO: b/498318910 - Replace logging with bespoke API to communicate this
             XrLog.verbose("Using provided API Key.")
             nativeSetApiKeyAuth(apiKey)
         }

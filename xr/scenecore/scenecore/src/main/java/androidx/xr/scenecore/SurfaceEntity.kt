@@ -22,6 +22,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.RenderViewpoint
+import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.FieldOfView
@@ -29,6 +30,7 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
+import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
@@ -568,6 +570,7 @@ private constructor(
         /**
          * Factory method for SurfaceEntity.
          *
+         * @param perceptionRuntime An ARCore PerceptionRuntime
          * @param sceneRuntime SceneRuntime to use.
          * @param renderingRuntime RenderingRuntime to use.
          * @param entityRegistry A SceneCore [EntityRegistry]
@@ -587,8 +590,11 @@ private constructor(
          *   [Scene]'s [ActivitySpace].
          * @return a SurfaceEntity instance
          */
+        @Suppress("RestrictedApiAndroidX")
         internal fun create(
             session: Session,
+            perceptionRuntime: PerceptionRuntime,
+            renderingRuntime: RenderingRuntime,
             stereoMode: StereoMode = StereoMode.MONO,
             mediaBlendingMode: MediaBlendingMode = MediaBlendingMode.TRANSPARENT,
             pose: Pose = Pose.Identity,
@@ -617,7 +623,7 @@ private constructor(
             val surfaceEntity =
                 SurfaceEntity(
                     session.scene.perceptionSpace,
-                    session.renderingRuntime.createSurfaceEntity(
+                    renderingRuntime.createSurfaceEntity(
                         getRtStereoMode(stereoMode),
                         getRtMediaBlendingMode(mediaBlendingMode),
                         pose,
@@ -637,6 +643,7 @@ private constructor(
                     session.scene.entityRegistry,
                     shape,
                 )
+            surfaceEntity.parent = parent as? BaseEntity<*>
             surfaceEntity.contentColorMetadata = contentColorMetadata
             return surfaceEntity
         }
@@ -670,6 +677,8 @@ private constructor(
         ): SurfaceEntity =
             SurfaceEntity.create(
                 session,
+                session.perceptionRuntime,
+                session.renderingRuntime,
                 stereoMode,
                 MediaBlendingMode.TRANSPARENT,
                 pose,
@@ -713,6 +722,8 @@ private constructor(
         ): SurfaceEntity =
             SurfaceEntity.create(
                 session,
+                session.perceptionRuntime,
+                session.renderingRuntime,
                 stereoMode,
                 mediaBlendingMode,
                 pose,
@@ -732,14 +743,10 @@ private constructor(
      * @throws IllegalStateException when setting this value if the Entity has been disposed.
      */
     public var stereoMode: StereoMode
-        get() {
-            checkNotDisposed()
-            return getStereoModeFromRt(rtEntity!!.stereoMode)
-        }
+        get() = getStereoModeFromRt(rtEntity.stereoMode)
         @MainThread
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.stereoMode = getRtStereoMode(value)
+            rtEntity.stereoMode = getRtStereoMode(value)
         }
 
     /**
@@ -749,16 +756,12 @@ private constructor(
      */
     public var mediaBlendingMode: MediaBlendingMode
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get() {
-            checkNotDisposed()
-            return getMediaBlendingModeFromRt(rtEntity!!.mediaBlendingMode)
-        }
+        get() = getMediaBlendingModeFromRt(rtEntity.mediaBlendingMode)
         @MainThread
         @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.mediaBlendingMode = getRtMediaBlendingMode(value)
+            rtEntity.mediaBlendingMode = getRtMediaBlendingMode(value)
         }
 
     /**
@@ -767,10 +770,7 @@ private constructor(
      * This value is entirely determined by the value of [shape].
      */
     public val dimensions: FloatSize3d
-        get() {
-            checkNotDisposed()
-            return rtEntity!!.dimensions.toFloatSize3d()
-        }
+        get() = rtEntity.dimensions.toFloatSize3d()
 
     /**
      * The shape of the canvas that backs the Entity. Updating this value will alter the
@@ -796,7 +796,7 @@ private constructor(
                         )
                     else -> throw IllegalArgumentException("Unsupported canvas shape: $value")
                 }
-            rtEntity!!.shape = rtShape
+            rtEntity.shape = rtShape
             field = value
         }
 
@@ -817,8 +817,7 @@ private constructor(
         @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.setPrimaryAlphaMaskTexture(value?.texture)
+            rtEntity.setPrimaryAlphaMaskTexture(value?.texture)
             field = value
         }
 
@@ -839,8 +838,7 @@ private constructor(
         @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
-            checkNotDisposed()
-            rtEntity!!.setAuxiliaryAlphaMaskTexture(value?.texture)
+            rtEntity.setAuxiliaryAlphaMaskTexture(value?.texture)
             field = value
         }
 
@@ -869,7 +867,7 @@ private constructor(
                         )
                     else -> throw IllegalArgumentException("Unsupported edge feather: $value")
                 }
-            rtEntity!!.edgeFeather = rtEdgeFeather
+            rtEntity.edgeFeather = rtEdgeFeather
             field = value
         }
 
@@ -891,16 +889,15 @@ private constructor(
     public var contentColorMetadata: ContentColorMetadata? = null
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() {
-            checkNotDisposed()
-            return if (!rtEntity!!.contentColorMetadataSet) {
+            return if (!rtEntity.contentColorMetadataSet) {
                 null
             } else {
                 ContentColorMetadata(
-                    colorSpace = ContentColorMetadata.getColorSpaceFromRt(rtEntity!!.colorSpace),
+                    colorSpace = ContentColorMetadata.getColorSpaceFromRt(rtEntity.colorSpace),
                     colorTransfer =
-                        ContentColorMetadata.getColorTransferFromRt(rtEntity!!.colorTransfer),
-                    colorRange = ContentColorMetadata.getColorRangeFromRt(rtEntity!!.colorRange),
-                    maxContentLightLevel = rtEntity!!.maxContentLightLevel,
+                        ContentColorMetadata.getColorTransferFromRt(rtEntity.colorTransfer),
+                    colorRange = ContentColorMetadata.getColorRangeFromRt(rtEntity.colorRange),
+                    maxContentLightLevel = rtEntity.maxContentLightLevel,
                 )
             }
         }
@@ -908,11 +905,10 @@ private constructor(
         @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
-            checkNotDisposed()
             if (value == null) {
-                rtEntity!!.resetContentColorMetadata()
+                rtEntity.resetContentColorMetadata()
             } else {
-                rtEntity!!.setContentColorMetadata(
+                rtEntity.setContentColorMetadata(
                     ContentColorMetadata.getRtColorSpace(value.colorSpace),
                     ContentColorMetadata.getRtColorTransfer(value.colorTransfer),
                     ContentColorMetadata.getRtColorRange(value.colorRange),
@@ -930,8 +926,7 @@ private constructor(
      */
     @MainThread
     public fun getSurface(): Surface {
-        checkNotDisposed()
-        return rtEntity!!.surface
+        return rtEntity.surface
     }
 
     /**
@@ -956,8 +951,7 @@ private constructor(
     @MainThread
     @ExperimentalSurfaceEntityPixelDimensionsApi
     public fun setSurfacePixelDimensions(dimensions: IntSize2d) {
-        checkNotDisposed()
-        rtEntity!!.setSurfacePixelDimensions(dimensions.width, dimensions.height)
+        rtEntity.setSurfacePixelDimensions(dimensions.width, dimensions.height)
     }
 
     /**
@@ -982,13 +976,9 @@ private constructor(
      *   [androidx.xr.runtime.Config.DeviceTrackingMode.SPATIAL_LAST_KNOWN].
      * @see PerceivedResolutionResult
      */
-    // TODO(b/494286565) - Remove deprecation suppression when androidx.xr.runtime.FieldOfView is
-    // removed.
-    @Suppress("DEPRECATION")
     public fun getPerceivedResolution(renderViewpoint: RenderViewpoint): PerceivedResolutionResult {
-        checkNotDisposed()
         val renderViewpointState = renderViewpoint.state.value
-        return rtEntity!!
+        return rtEntity
             .getPerceivedResolution(
                 (perceptionSpace.getScenePoseFromPerceptionPose(renderViewpointState.pose)
                         as PerceptionScenePose)

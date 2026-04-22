@@ -22,7 +22,9 @@ import android.content.Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 import android.net.Uri
+import android.os.Build
 import androidx.annotation.IntDef
+import androidx.annotation.RequiresApi
 import java.util.Objects
 
 /**
@@ -91,6 +93,12 @@ public class AppFunctionUriGrant(
 
     override fun toString(): String {
         return "AppFunctionUriGrant(uri=$uri, modeFlags=$modeFlags)"
+    }
+
+    /** Converts [AppFunctionUriGrant] to platform class. */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    internal fun toPlatformClass(): android.app.appfunctions.AppFunctionUriGrant {
+        return android.app.appfunctions.AppFunctionUriGrant(uri, modeFlags)
     }
 
     private companion object {

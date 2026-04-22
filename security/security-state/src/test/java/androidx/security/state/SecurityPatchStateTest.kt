@@ -3614,6 +3614,67 @@ class SecurityPatchStateTest {
         }
     }
 
+    @Test
+    fun testFetchAvailableSecurityPatchLevelAsync_returnsFutureWithResult() {
+        // GIVEN the Device SPL for SYSTEM is 2025-01-01
+        mockDeviceSpl(SecurityPatchState.COMPONENT_SYSTEM, "2025-01-01")
+
+        // AND a provider reports a newer SYSTEM update (2025-05-01)
+        val update =
+            UpdateInfo.Builder()
+                .setComponent(SecurityPatchState.COMPONENT_SYSTEM)
+                .setSecurityPatchLevel(
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-05-01")
+                )
+                .build()
+
+        setupTrustedUpdateInfoServiceWithUpdates(update)
+
+        // WHEN we request the Available SPL for SYSTEM asynchronously
+        val future =
+            securityState.fetchAvailableSecurityPatchLevelAsync(SecurityPatchState.COMPONENT_SYSTEM)
+
+        // THEN it returns the newer update SPL when the future completes
+        assertEquals("2025-05-01", future.get().toString())
+    }
+
+    @Test
+    fun testQueryAllAvailableUpdatesAsync_returnsFutureWithResult() {
+        // GIVEN a trusted provider returns specific updates
+        val trustedInfo =
+            createUpdateInfoServiceResolveInfo("com.google.android.gms", isSystem = true)
+        val expectedUpdates =
+            listOf(
+                UpdateInfo.Builder()
+                    .setComponent("SYSTEM")
+                    .setSecurityPatchLevel(
+                        SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2025-01-01")
+                    )
+                    .build()
+            )
+        val expectedTime = 123456789L
+
+        val mockResult = UpdateCheckResult("com.google.android.gms", expectedUpdates, expectedTime)
+        setupUpdateInfoServiceResponse(mockResult)
+        setupUpdateInfoServiceBinding()
+
+        `when`(mockPackageManager.queryIntentServices(any(Intent::class.java), anyInt()))
+            .thenReturn(listOf(trustedInfo))
+
+        // WHEN we query for all available updates asynchronously
+        val future = securityState.queryAllAvailableUpdatesAsync()
+        val results = future.get()
+
+        // THEN the data is correctly marshalled back
+        assertEquals(1, results.size)
+        assertEquals("com.google.android.gms", results[0].providerPackageName)
+        assertEquals(expectedUpdates, results[0].updates)
+        assertEquals(expectedTime, results[0].lastCheckTimeMillis)
+
+        // AND verify we unbound from the service
+        verifyUpdateInfoServiceUnbound()
+    }
+
     /** Helper to mock the current Device Security Patch Level. */
     private fun mockDeviceSpl(component: String, spl: String) {
         val bundle = Bundle()

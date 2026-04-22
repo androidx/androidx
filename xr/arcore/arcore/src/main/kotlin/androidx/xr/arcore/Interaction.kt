@@ -40,7 +40,7 @@ public fun hitTest(session: Session, ray: Ray): List<HitResult> {
     val perceptionStateExtender =
         session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
     val perceptionManager = perceptionStateExtender.perceptionManager
-    val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
+    val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
 
     check(config.planeTracking != PlaneTrackingMode.DISABLED) {
         "Config.PlaneTrackingMode is set to DISABLED."

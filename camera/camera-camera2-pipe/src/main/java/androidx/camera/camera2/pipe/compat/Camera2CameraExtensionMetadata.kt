@@ -53,7 +53,7 @@ internal class Camera2CameraExtensionMetadata(
     private val supportedExtensionSizesByClass = mutableMapOf<Class<*>, Lazy<Set<Size>>>()
 
     @GuardedBy("supportedPostviewSizes")
-    private val supportedPostviewSizes = mutableMapOf<Size, Lazy<Set<Size>>>()
+    private val supportedPostviewSizes = mutableMapOf<Pair<Size, Int>, Lazy<Set<Size>>>()
 
     @GuardedBy("estimatedCaptureLatencyRangeMillis")
     private val estimatedCaptureLatencyRangeMillis =
@@ -136,7 +136,7 @@ internal class Camera2CameraExtensionMetadata(
 
         val lazySizes =
             synchronized(supportedPostviewSizes) {
-                supportedPostviewSizes.getOrPut(captureSize) {
+                supportedPostviewSizes.getOrPut(captureSize to format) {
                     lazyOrEmptySet("$camera#getPostviewSupportedSizes($captureSize, $format)") {
                         Api34Compat.getPostviewSupportedSizes(
                                 extensionCharacteristics,

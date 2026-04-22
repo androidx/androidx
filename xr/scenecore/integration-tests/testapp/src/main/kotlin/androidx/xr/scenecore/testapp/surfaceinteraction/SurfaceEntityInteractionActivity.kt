@@ -403,7 +403,9 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         exoPlayer?.stop()
         exoPlayer?.release()
         exoPlayer = null
-        surfaceEntity?.dispose()
+
+        surfaceEntity?.removeAllComponents()
+        surfaceEntity?.parent = null
         surfaceEntity = null
         videoSelected = null
 

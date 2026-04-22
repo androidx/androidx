@@ -21,8 +21,12 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -34,13 +38,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
-import androidx.compose.material3.internal.MaterialAnchoredDraggableState
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -118,8 +123,12 @@ class SheetState(
      * was in before the swipe or animation started.
      */
     val currentValue: SheetValue
-        get() = anchoredDraggableState.currentValue
+        // Note: Current Value is mapping to the newly introduced settled value for roughly
+        // analogous behavior to internal fork. anchoredDraggableState.currentValue now maps to the
+        // value the touch target is closest to, regardless of release/settling.
+        get() = anchoredDraggableState.settledValue
 
+    // TODO(b/477969920): Remove forked targetValue logic when foundation dependencies are updated.
     /**
      * The target value of the bottom sheet state.
      *
@@ -127,12 +136,33 @@ class SheetState(
      * finishes. If an animation is running, this is the target value of that animation. Finally, if
      * no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    val targetValue: SheetValue
-        get() = anchoredDraggableState.targetValue
+    val targetValue: SheetValue by derivedStateOf {
+        // AnchoredDraggableState does not expose the dragTarget, but isAnimationRunning returns
+        // whether AnchoredDraggableState.dragTarget is null. If it's not, we can use the
+        // targetValue; otherwise we apply the calculation fix.
+        if (isAnimationRunning) {
+            anchoredDraggableState.targetValue
+        } else {
+            calculateTargetValueWithFix(offset)
+        }
+    }
+
+    private fun calculateTargetValueWithFix(currentOffset: Float): SheetValue {
+        return if (!currentOffset.isNaN()) {
+            // DraggableAnchors allows multiple anchors with the same offsets. If the offset is
+            // already equal to the currentValue's offset, this anchor gets priority.
+            val currentValueOffset = anchoredDraggableState.anchors.positionOf(currentValue)
+            if (currentValueOffset.isNaN() || currentOffset == currentValueOffset) {
+                currentValue
+            } else {
+                anchoredDraggableState.anchors.closestAnchor(currentOffset) ?: currentValue
+            }
+        } else currentValue
+    }
 
     /** Whether the modal bottom sheet is visible. */
     val isVisible: Boolean
-        get() = anchoredDraggableState.closestValue != Hidden
+        get() = anchoredDraggableState.currentValue != Hidden
 
     /**
      * Whether an expanding or collapsing sheet animation is currently in progress.
@@ -252,11 +282,8 @@ class SheetState(
     internal var anchoredDraggableMotionSpec: AnimationSpec<Float> = BottomSheetAnimationSpec
 
     @Suppress("Deprecation")
-    internal var anchoredDraggableState: MaterialAnchoredDraggableState<SheetValue> =
-        MaterialAnchoredDraggableState(
-            initialValue = initialValue,
-            confirmValueChange = confirmValueChange,
-        )
+    internal var anchoredDraggableState: AnchoredDraggableState<SheetValue> =
+        AnchoredDraggableState(initialValue = initialValue, confirmValueChange = confirmValueChange)
 
     /**
      * Calculate the new offset for a [delta] to ensure it is coerced in the bounds
@@ -264,10 +291,28 @@ class SheetState(
      * @param delta The delta to be added to the [offset]
      * @return The coerced offset
      */
-    internal fun newOffsetForDelta(delta: Float) = anchoredDraggableState.newOffsetForDelta(delta)
+    internal fun newOffsetForDelta(delta: Float) =
+        ((if (offset.isNaN()) 0f else offset) + delta).coerceIn(
+            anchoredDraggableState.anchors.minPosition(),
+            anchoredDraggableState.anchors.maxPosition(),
+        )
 
-    internal suspend fun anchoredDrag(flingBehavior: FlingBehavior, initialVelocity: Float): Float =
-        anchoredDraggableState.anchoredDrag(flingBehavior, initialVelocity)
+    internal suspend fun anchoredDrag(flingBehavior: FlingBehavior, initialVelocity: Float): Float {
+        var consumedVelocity = 0f
+        anchoredDraggableState.anchoredDrag {
+            val scrollScope =
+                object : ScrollScope {
+                    override fun scrollBy(pixels: Float): Float {
+                        val newOffset = newOffsetForDelta(pixels)
+                        val consumed = newOffset - offset
+                        dragTo(newOffset)
+                        return consumed
+                    }
+                }
+            consumedVelocity = with(flingBehavior) { scrollScope.performFling(initialVelocity) }
+        }
+        return consumedVelocity
+    }
 
     internal val offset: Float
         get() = anchoredDraggableState.offset

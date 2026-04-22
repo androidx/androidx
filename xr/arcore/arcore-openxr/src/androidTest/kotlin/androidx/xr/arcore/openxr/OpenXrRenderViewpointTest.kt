@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-// TODO(b/494286565) - Remove deprecation suppression when androidx.xr.runtime.FieldOfView is
-// removed.
-@file:Suppress("DEPRECATION")
-
 package androidx.xr.arcore.openxr
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.xr.runtime.FieldOfView as OldFieldOfView
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -55,18 +50,12 @@ class OpenXrRenderViewpointTest {
                 FieldOfView(45.0f, 45.0f, 30.0f, 30.0f),
             )
         check(underTest.pose == Pose())
-        check(convertToNewFieldOfView(underTest.fieldOfView) == FieldOfView(0f, 0f, 0f, 0f))
+        check(underTest.fieldOfView == FieldOfView(0f, 0f, 0f, 0f))
 
         underTest.update(viewCameraState)
 
         assertThat(underTest.pose).isEqualTo(viewCameraState.pose)
 
-        assertThat(convertToNewFieldOfView(underTest.fieldOfView))
-            .isEqualTo(viewCameraState.fieldOfView)
-    }
-
-    // TODO(b/494286565) - Remove this function when androidx.xr.runtime.FieldOfView is removed.
-    private fun convertToNewFieldOfView(fov: OldFieldOfView): FieldOfView {
-        return FieldOfView(fov.angleLeft, fov.angleRight, fov.angleUp, fov.angleDown)
+        assertThat(underTest.fieldOfView).isEqualTo(viewCameraState.fieldOfView)
     }
 }

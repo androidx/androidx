@@ -21,6 +21,7 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
+import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.PixelDimensions
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
@@ -39,6 +40,8 @@ internal class ActivityPanelEntityImpl(
     executor: ScheduledExecutorService,
 ) : BasePanelEntity(context, node, extensions, sceneNodeRegistry, executor), ActivityPanelEntity {
 
+    private val activityPanelCleanupAction: ActivityPanelCleanupAction
+
     // TODO(b/352630140): Add a static factory method and remove the business logic from
     // SpatialSceneRuntime.
     init {
@@ -53,7 +56,12 @@ internal class ActivityPanelEntityImpl(
                 .apply()
         }
         super.cornerRadiusValue = defaultCornerRadiusInMeters
+        activityPanelCleanupAction = ActivityPanelCleanupAction(activityPanel)
+        registerCleanup(executor, activityPanelCleanupAction)
     }
+
+    private class ActivityPanelCleanupAction(activityPanel: ActivityPanel) :
+        CleanupAction({ activityPanel.delete() })
 
     override fun launchActivity(intent: Intent, bundle: Bundle?) {
         // Note that launching an Activity into the Panel doesn't actually update the size. The
@@ -87,7 +95,6 @@ internal class ActivityPanelEntityImpl(
      * This will delete the ActivityPanel and destroy the embedded activity.
      */
     override fun dispose() {
-        activityPanel.delete()
         super.dispose()
     }
 }

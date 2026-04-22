@@ -45,7 +45,7 @@
         android:theme="@style/Theme.AppCompat.NoActionBar">
     </activity>
     <activity
-        android:name=".depthmaps.DepthMapsActivity"
+        android:name=".depth.DepthActivity"
         android:exported="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
     </activity>

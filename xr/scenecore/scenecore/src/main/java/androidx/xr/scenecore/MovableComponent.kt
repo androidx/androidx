@@ -27,6 +27,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.MovableComponent.Companion.createAnchorable
 import androidx.xr.scenecore.MovableComponent.Companion.createSystemMovable
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.MoveEventListener as RtMoveEventListener
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
@@ -54,7 +55,7 @@ import kotlinx.coroutines.flow.StateFlow
 public class MovableComponent
 private constructor(
     private val session: Session,
-    private val entityRegistry: EntityRegistry,
+    entityRegistry: EntityRegistry,
     private val systemMovable: Boolean = true,
     private val scaleInZ: Boolean = true,
     private val anchorPlacement: Set<AnchorPlacement> = emptySet(),
@@ -71,6 +72,7 @@ private constructor(
         sceneRuntime.createMovableComponent(systemMovable, scaleInZ, anchorable)
     }
     private val moveListenersMap = ConcurrentHashMap<EntityMoveListener, Executor>()
+
     @OptIn(ExperimentalCustomMeshApi::class)
     private val rtMoveEventListener: RtMoveEventListener = RtMoveEventListener { rtMoveEvent ->
         val moveEvent = rtMoveEvent.toMoveEvent(entityRegistry)
@@ -122,7 +124,6 @@ private constructor(
             }
         }
     }
-
     private var entity: Entity? = null
     private lateinit var planesFlow: StateFlow<Collection<Plane>>
 
@@ -172,7 +173,7 @@ private constructor(
             return false
         }
         this.entity = entity
-        val attached = (entity as BaseEntity<*>).rtEntity!!.addComponent(rtMovableComponent)
+        val attached = (entity as BaseEntity<*>).rtEntity.addComponent(rtMovableComponent)
         if (attached) {
             if (anchorable) {
                 planesFlow = Plane.subscribe(session)
@@ -190,7 +191,8 @@ private constructor(
     }
 
     override fun onDetach(entity: Entity) {
-        (entity as BaseEntity<*>).rtEntity!!.removeComponent(rtMovableComponent)
+        rtMovableComponent.removeMoveEventListener(rtMoveEventListener)
+        (entity as BaseEntity<*>).rtEntity.removeComponent(rtMovableComponent)
         this.entity = null
     }
 
@@ -315,7 +317,7 @@ private constructor(
                         disposeParentOnReAnchor &&
                         prevParent.children.isEmpty()
                 ) {
-                    prevParent.dispose()
+                    (prevParent as? BaseEntity<*>)?.disposeInternal()
                     createdAnchorEntity = null
                 }
             }
@@ -396,7 +398,7 @@ private constructor(
          * This [Component] can be attached to a single instance of an [Entity]. When attached, this
          * Component will enable the user to translate the Entity by pointing and dragging on it.
          *
-         * When created with this function the MovableComponent will not move or rescale the Entity
+         * When created with this function the MovableComponent will not move or rescale the Entity,
          * but it could be done using the [EntityMoveListener.onMoveUpdate] callback.
          *
          * This component cannot be attached to an [AnchorEntity] or to the [ActivitySpace]. Calling

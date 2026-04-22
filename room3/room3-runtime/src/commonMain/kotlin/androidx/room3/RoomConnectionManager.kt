@@ -17,7 +17,6 @@
 package androidx.room3
 
 import androidx.annotation.RestrictTo
-import androidx.room3.RoomDatabase.JournalMode.TRUNCATE
 import androidx.room3.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING
 import androidx.room3.coroutines.ConnectionFactory
 import androidx.room3.coroutines.ExclusiveMutex
@@ -341,22 +340,6 @@ public abstract class BaseRoomConnectionManager {
                     "WHERE type = 'table' AND name = '${RoomMasterTable.TABLE_NAME}'"
             )
             .use { it.step() && it.getLong(0) != 0L }
-
-    @Suppress("REDUNDANT_ELSE_IN_WHEN") // Redundant in common but not in Android
-    protected fun RoomDatabase.JournalMode.getMaxNumberOfReaders(): Int =
-        when (this) {
-            TRUNCATE -> 1
-            WRITE_AHEAD_LOGGING -> 4
-            else -> error("Can't get max number of reader for journal mode '$this'")
-        }
-
-    @Suppress("REDUNDANT_ELSE_IN_WHEN") // Redundant in common but not in Android
-    protected fun RoomDatabase.JournalMode.getMaxNumberOfWriters(): Int =
-        when (this) {
-            TRUNCATE -> 1
-            WRITE_AHEAD_LOGGING -> 1
-            else -> error("Can't get max number of writers for journal mode '$this'")
-        }
 
     private suspend fun invokeCreateCallback(connection: SQLiteConnection) {
         callbacks.forEach { it.onCreate(connection) }

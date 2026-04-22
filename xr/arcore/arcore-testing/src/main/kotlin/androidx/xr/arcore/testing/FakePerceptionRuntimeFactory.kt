@@ -25,7 +25,13 @@ import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-/** Factory for creating a [FakePerceptionRuntime] for testing purposes. */
+// TODO b/500091606 Remove when no longer used in G3
+/**
+ * Factory for creating a [FakePerceptionRuntime] for testing purposes.
+ *
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Deprecated(
     "arcore-testing fakes have been moved internal and should no longer be used by unit tests."

@@ -29,6 +29,7 @@ import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PixelDimensions
@@ -47,6 +48,7 @@ import java.util.concurrent.ScheduledExecutorService
 @SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
     private val surfaceControlViewHost: SurfaceControlViewHost
+    private val panelCleanupAction: PanelEntityCleanupAction
 
     constructor(
         context: Context,
@@ -65,6 +67,8 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
                 Objects.requireNonNull<Display>(context.display),
                 Binder(),
             )
+        panelCleanupAction = PanelEntityCleanupAction(surfaceControlViewHost)
+        registerCleanup(executor, panelCleanupAction)
         setupSurfaceControlViewHostAndCornerRadius(reparentedView, surfaceDimensionsPx, name)
         setDefaultOnBackInvokedCallback(view)
     }
@@ -91,9 +95,14 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
                 Objects.requireNonNull<Display>(context.display),
                 Binder(),
             )
+        panelCleanupAction = PanelEntityCleanupAction(surfaceControlViewHost)
+        registerCleanup(executor, panelCleanupAction)
         setupSurfaceControlViewHostAndCornerRadius(reparentedView, surfaceDimensionsPx, name)
         setDefaultOnBackInvokedCallback(view)
     }
+
+    private class PanelEntityCleanupAction(surfaceControlViewHost: SurfaceControlViewHost) :
+        CleanupAction({ surfaceControlViewHost.release() })
 
     // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
     private fun setupSurfaceControlViewHostAndCornerRadius(
@@ -166,7 +175,6 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
         }
 
     override fun dispose() {
-        surfaceControlViewHost.release()
         super.dispose()
     }
 

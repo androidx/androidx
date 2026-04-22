@@ -228,10 +228,9 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
         videoPlaying = false
         exoPlayer?.release()
         exoPlayer = null
-        if (surfaceEntity != null) {
-            surfaceEntity!!.dispose()
-            surfaceEntity = null
-        }
+        surfaceEntity?.removeAllComponents()
+        surfaceEntity?.parent = null
+        surfaceEntity = null
     }
 
     fun getCanvasAspectRatio(

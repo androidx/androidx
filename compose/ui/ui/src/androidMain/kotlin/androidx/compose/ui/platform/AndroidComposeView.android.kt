@@ -890,8 +890,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     /** List of lambdas to be called when [onEndApplyChanges] is called. */
     private val endApplyChangesListeners = mutableObjectListOf<(() -> Unit)?>()
 
-    private var currentFrameRate = 0f
-    private var currentFrameRateCategory = 0f
+    private var currentFrameRate = Float.NaN
+    private var currentFrameRateCategory = Float.NaN
+
+    private var lastSetFrameRate = Float.NaN
+    private var lastSetFrameRateCategory = Float.NaN
 
     /**
      * Runnable used to update the pointer position after layout. If another pointer event comes in
@@ -2202,10 +2205,17 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
         // Used to handle frame rate information
         if (isArrEnabled) {
-            Api35Impl.setRequestedFrameRate(this, currentFrameRate)
+            // Float.NaN == Float.NaN is false, so we use compareTo to check for equality
+            if (currentFrameRate.compareTo(lastSetFrameRate) != 0) {
+                lastSetFrameRate = currentFrameRate
+                Api35Impl.setRequestedFrameRate(this, currentFrameRate)
+            }
             val frameRateCategoryView = frameRateCategoryView
             if (frameRateCategoryView != null) {
-                Api35Impl.setRequestedFrameRate(frameRateCategoryView, currentFrameRateCategory)
+                if (currentFrameRateCategory.compareTo(lastSetFrameRateCategory) != 0) {
+                    lastSetFrameRateCategory = currentFrameRateCategory
+                    Api35Impl.setRequestedFrameRate(frameRateCategoryView, currentFrameRateCategory)
+                }
 
                 if (!currentFrameRateCategory.isNaN()) {
                     frameRateCategoryView.invalidate()

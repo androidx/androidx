@@ -29,10 +29,13 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.AnchorEntity as RtAnchorEntity
+import androidx.xr.scenecore.runtime.HandlerExecutor
+import java.lang.ref.WeakReference
 import java.time.Duration
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
@@ -43,6 +46,10 @@ import kotlinx.coroutines.launch
  * Note that Anchors are only relative to the "real world", and not virtual environments. Also,
  * setting the [Entity.parent] property on an AnchorEntity has no effect, as the parenting of an
  * Anchor is controlled by the system.
+ *
+ * AnchorEntity users must maintain a strong reference while the instance is in use. If there's no
+ * strong references to anchor instance in client code, anchor instance may become phantom
+ * reachable, and it will be garbage collected.
  */
 @SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 public class AnchorEntity
@@ -74,7 +81,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         private set
 
     /** The current tracking state for this AnchorEntity. */
-    public var state: State = rtEntity.state.fromRtState()
+    public var state: State = fromRtState(rtEntity.state)
         private set(value) {
             // TODO: b/440191514 - On dispose, verify any pending anchor entity ops are cancelled.
             field = value
@@ -83,7 +90,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
 
     init {
         rtEntity.setOnOriginChangedListener(
-            { onOriginChangedListeners.fire(Unit) },
+            WeakRunnable(onOriginChangedListeners) { it.fire(Unit) },
             // Use the default executor for the rtEntity runtime callback. We fan out to the client
             // executors when the event fires.
             null,
@@ -151,7 +158,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         private fun getAnchorDeadline(anchorSearchTimeout: Duration?): Long? {
             // If the timeout is zero or null then we return null here and the anchor search will
             // continue indefinitely.
-            if (anchorSearchTimeout == null || anchorSearchTimeout.isZero()) {
+            if (anchorSearchTimeout == null || anchorSearchTimeout.isZero) {
                 return null
             }
             return SystemClock.uptimeMillis() + anchorSearchTimeout.toMillis()
@@ -160,19 +167,22 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         private fun findAndSetPlaneAnchor(
             session: Session,
             info: PlaneFindingInfo,
-            entity: AnchorEntity,
+            anchorEntity: AnchorEntity,
         ) {
-            entity.planeFindingJob =
+            val weakAnchorEntity = WeakReference(anchorEntity)
+            anchorEntity.planeFindingJob =
                 session.coroutineScope.launch {
-                    Plane.subscribe(session).collect {
+                    Plane.subscribe(session).collect { planes ->
+                        val entity = weakAnchorEntity.get() ?: return@collect
                         val timeNow = SystemClock.uptimeMillis()
                         if (info.searchDeadline != null && timeNow > info.searchDeadline) {
                             entity.updateState(State.TIMED_OUT)
+                            this.cancel()
                             return@collect
                         }
 
                         val plane =
-                            it.firstOrNull {
+                            planes.firstOrNull {
                                 val planeState = it.state.value
                                 val planeOrientation = it.type.toSceneCoreOrientation()
                                 val planeSemanticType = planeState.label.toSceneCoreSemanticType()
@@ -186,12 +196,13 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                             val anchorCreateResult = plane.createAnchor(Pose.Identity)
                             if (anchorCreateResult is AnchorCreateSuccess) {
                                 val anchor = anchorCreateResult.anchor
-                                if (entity.rtEntity!!.setAnchor(anchor)) {
+                                if (entity.rtEntity.setAnchor(anchor)) {
                                     entity.anchor = anchor
                                     // Set the owned Anchor separately as it is being detached when
                                     // the Entity is in an Error state.
                                     entity.ownedAnchor = anchor
                                     entity.updateState(State.ANCHORED)
+                                    this.cancel()
                                 } else {
                                     anchor.detach()
                                 }
@@ -227,7 +238,11 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
 
             val rtAnchorEntity = session.sceneRuntime.createAnchorEntity()
             val anchorEntity = AnchorEntity(rtAnchorEntity, entityRegistry)
-            rtAnchorEntity.setOnStateChangedListener(anchorEntity.defaultStateChangedListener)
+            rtAnchorEntity.setOnStateChangedListener(
+                WeakListener<AnchorEntity, Int>(anchorEntity) { entity, state ->
+                    entity.updateState(entity.fromRtState(state))
+                }::invoke
+            )
 
             val info =
                 PlaneFindingInfo(
@@ -251,7 +266,11 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
             entityRegistry: EntityRegistry,
         ): AnchorEntity {
             val anchorEntity = AnchorEntity(rtAnchorEntity, entityRegistry)
-            rtAnchorEntity.setOnStateChangedListener(anchorEntity.defaultStateChangedListener)
+            rtAnchorEntity.setOnStateChangedListener(
+                WeakListener<AnchorEntity, Int>(anchorEntity) { entity, state ->
+                    entity.updateState(entity.fromRtState(state))
+                }::invoke
+            )
             return anchorEntity
         }
 
@@ -266,7 +285,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
          *   attach.
          * @param planeSemanticType [PlaneSemanticType] of the plane to which this AnchorEntity
          *   should attach.
-         * @param timeout The amount of time as a [Duration] to search for the a suitable plane to
+         * @param timeout The amount of time as a [Duration] to search for the suitable plane to
          *   attach to. If a plane is not found within the timeout, the returned AnchorEntity state
          *   will be set to AnchorEntity.State.TIMED_OUT. It may take longer than the timeout period
          *   before the anchor state is updated. If the timeout duration is zero it will search for
@@ -309,7 +328,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
          *   should attach.
          * @param planeSemanticTypes [PlaneSemanticType]s of the plane to which this AnchorEntity
          *   should attach.
-         * @param timeout The amount of time as a [Duration] to search for the a suitable plane to
+         * @param timeout The amount of time as a [Duration] to search for the suitable plane to
          *   attach to. If a plane is not found within the timeout, the returned AnchorEntity state
          *   will be set to AnchorEntity.State.TIMED_OUT. It may take longer than the timeout period
          *   before the anchor state is updated. If the timeout duration is zero it will search for
@@ -347,27 +366,24 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
             val rtAnchorEntity = session.sceneRuntime.createAnchorEntity()
             val anchorEntity = AnchorEntity(rtAnchorEntity, session.scene.entityRegistry)
             anchorEntity.anchor = anchor
-            rtAnchorEntity.setOnStateChangedListener(anchorEntity.defaultStateChangedListener)
+            rtAnchorEntity.setOnStateChangedListener(
+                WeakListener<AnchorEntity, Int>(anchorEntity) { entity, state ->
+                    entity.updateState(entity.fromRtState(state))
+                }::invoke
+            )
             rtAnchorEntity.setAnchor(anchor)
             return anchorEntity
         }
     }
 
-    private val defaultStateChangedListener: (@RtAnchorEntity.State Int) -> Unit = { newRtState ->
-        updateState(newRtState.fromRtState())
-    }
-
-    /**
-     * Extension function that converts [androidx.xr.scenecore.runtime.AnchorEntity.State] to
-     * [AnchorEntity.State].
-     */
-    private fun Int.fromRtState(): State =
-        when (this) {
+    /** Converts [androidx.xr.scenecore.runtime.AnchorEntity.State] to [AnchorEntity.State]. */
+    private fun fromRtState(state: Int): State =
+        when (state) {
             RtAnchorEntity.State.UNANCHORED -> State.UNANCHORED
             RtAnchorEntity.State.ANCHORED -> State.ANCHORED
             RtAnchorEntity.State.TIMED_OUT -> State.TIMED_OUT
             RtAnchorEntity.State.ERROR -> State.ERROR
-            else -> throw IllegalArgumentException("Unknown state: $this")
+            else -> throw IllegalArgumentException("Unknown state: $state")
         }
 
     /**
@@ -593,11 +609,13 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         }
     }
 
-    override fun dispose() {
+    override fun disposeInternal() {
+        if (isDisposed) return
         onOriginChangedListeners.clear()
         onStateChangedListeners.clear()
-        rtEntity?.setOnOriginChangedListener(null, null)
-        rtEntity?.setOnStateChangedListener(null)
-        super.dispose()
+        planeFindingJob?.cancel()
+        rtEntity.setOnOriginChangedListener(null, null)
+        rtEntity.setOnStateChangedListener(null)
+        super.disposeInternal()
     }
 }

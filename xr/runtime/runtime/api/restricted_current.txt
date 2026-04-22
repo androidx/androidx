@@ -123,14 +123,14 @@ package androidx.xr.runtime {
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.DeviceTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.DeviceTrackingMode DISABLED;
-    field @SuppressCompatibility @androidx.xr.runtime.PreviewSpatialApi public static final androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
     field @Deprecated public static final androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
     field public static final androidx.xr.runtime.DeviceTrackingMode SPATIAL_LAST_KNOWN;
   }
 
   public static final class DeviceTrackingMode.Companion {
     property public androidx.xr.runtime.DeviceTrackingMode DISABLED;
-    property @SuppressCompatibility @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
+    property public androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
     property @Deprecated public androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
     property public androidx.xr.runtime.DeviceTrackingMode SPATIAL_LAST_KNOWN;
   }
@@ -189,22 +189,22 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.FaceTrackingMode MESHES;
   }
 
-  @Deprecated public final class FieldOfView {
-    ctor @Deprecated public FieldOfView(float angleLeft, float angleRight, float angleUp, float angleDown);
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy();
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy(optional float angleLeft);
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight);
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
-    method @Deprecated public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
-    method @BytecodeOnly @Deprecated public static androidx.xr.runtime.FieldOfView! copy$default(androidx.xr.runtime.FieldOfView!, float, float, float, float, int, Object!);
-    method @InaccessibleFromKotlin @Deprecated public float getAngleDown();
-    method @InaccessibleFromKotlin @Deprecated public float getAngleLeft();
-    method @InaccessibleFromKotlin @Deprecated public float getAngleRight();
-    method @InaccessibleFromKotlin @Deprecated public float getAngleUp();
-    property @Deprecated public float angleDown;
-    property @Deprecated public float angleLeft;
-    property @Deprecated public float angleRight;
-    property @Deprecated public float angleUp;
+  public final class FieldOfView {
+    ctor public FieldOfView(float angleLeft, float angleRight, float angleUp, float angleDown);
+    method public androidx.xr.runtime.FieldOfView copy();
+    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft);
+    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight);
+    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
+    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
+    method @BytecodeOnly public static androidx.xr.runtime.FieldOfView! copy$default(androidx.xr.runtime.FieldOfView!, float, float, float, float, int, Object!);
+    method @InaccessibleFromKotlin public float getAngleDown();
+    method @InaccessibleFromKotlin public float getAngleLeft();
+    method @InaccessibleFromKotlin public float getAngleRight();
+    method @InaccessibleFromKotlin public float getAngleUp();
+    property public float angleDown;
+    property public float angleLeft;
+    property public float angleRight;
+    property public float angleUp;
   }
 
   public final class GeospatialMode extends androidx.xr.runtime.Config.ConfigMode {
@@ -212,12 +212,16 @@ package androidx.xr.runtime {
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
     field public static final androidx.xr.runtime.GeospatialMode.Companion Companion;
     field public static final androidx.xr.runtime.GeospatialMode DISABLED;
-    field public static final androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
+    field public static final androidx.xr.runtime.GeospatialMode INERTIAL;
+    field public static final androidx.xr.runtime.GeospatialMode SPATIAL;
+    field @Deprecated public static final androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
   }
 
   public static final class GeospatialMode.Companion {
     property public androidx.xr.runtime.GeospatialMode DISABLED;
-    property public androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
+    property public androidx.xr.runtime.GeospatialMode INERTIAL;
+    property public androidx.xr.runtime.GeospatialMode SPATIAL;
+    property @Deprecated public androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
   }
 
   public final class HandTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
@@ -231,49 +235,6 @@ package androidx.xr.runtime {
   public static final class HandTrackingMode.Companion {
     property public androidx.xr.runtime.HandTrackingMode BOTH;
     property public androidx.xr.runtime.HandTrackingMode DISABLED;
-  }
-
-  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Log {
-    method @Deprecated public void debug(String message);
-    method @Deprecated public void debug(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @Deprecated public static void debug$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @Deprecated public void error(String message);
-    method @Deprecated public void error(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @Deprecated public static void error$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @InaccessibleFromKotlin @Deprecated public boolean getEnabled();
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.runtime.Log.Level getLevel();
-    method @Deprecated public void info(String message);
-    method @Deprecated public void info(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @Deprecated public static void info$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @InaccessibleFromKotlin @Deprecated public void setEnabled(boolean);
-    method @InaccessibleFromKotlin @Deprecated public void setLevel(androidx.xr.runtime.Log.Level);
-    method @Deprecated public void verbose(String message);
-    method @Deprecated public void verbose(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @Deprecated public static void verbose$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @Deprecated public void warn(String message);
-    method @Deprecated public void warn(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @Deprecated public static void warn$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    property @Deprecated public boolean enabled;
-    property @Deprecated public androidx.xr.runtime.Log.Level level;
-    field @Deprecated public static final androidx.xr.runtime.Log INSTANCE;
-  }
-
-  @Deprecated public static final class Log.Level implements java.lang.Comparable<androidx.xr.runtime.Log.Level> {
-    method @Deprecated public int compareTo(androidx.xr.runtime.Log.Level other);
-    field @Deprecated public static final androidx.xr.runtime.Log.Level.Companion Companion;
-    field @Deprecated public static final androidx.xr.runtime.Log.Level DEBUG;
-    field @Deprecated public static final androidx.xr.runtime.Log.Level ERROR;
-    field @Deprecated public static final androidx.xr.runtime.Log.Level INFO;
-    field @Deprecated public static final androidx.xr.runtime.Log.Level VERBOSE;
-    field @Deprecated public static final androidx.xr.runtime.Log.Level WARN;
-  }
-
-  @Deprecated public static final class Log.Level.Companion {
-    property @Deprecated public androidx.xr.runtime.Log.Level DEBUG;
-    property @Deprecated public androidx.xr.runtime.Log.Level ERROR;
-    property @Deprecated public androidx.xr.runtime.Log.Level INFO;
-    property @Deprecated public androidx.xr.runtime.Log.Level VERBOSE;
-    property @Deprecated public androidx.xr.runtime.Log.Level WARN;
   }
 
   @SuppressCompatibility public final class NativeDataExt {
@@ -600,49 +561,6 @@ package androidx.xr.runtime {
     ctor public XrExtensionsHolder(T extensions, Class<? extends java.lang.Object?> type);
   }
 
-  public final class XrLog {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void debug(String message);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void debug(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void debug$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void error(String message);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void error(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void error$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @InaccessibleFromKotlin public androidx.xr.runtime.XrLog.Level getLevel();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void info(String message);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void info(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void info$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @InaccessibleFromKotlin public boolean isEnabled();
-    method @InaccessibleFromKotlin public void setEnabled(boolean);
-    method @InaccessibleFromKotlin public void setLevel(androidx.xr.runtime.XrLog.Level);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void verbose(String message);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void verbose(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void verbose$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void warn(String message);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void warn(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void warn$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    property public boolean isEnabled;
-    property public androidx.xr.runtime.XrLog.Level level;
-    field public static final androidx.xr.runtime.XrLog INSTANCE;
-  }
-
-  public static final class XrLog.Level implements java.lang.Comparable<androidx.xr.runtime.XrLog.Level> {
-    method public int compareTo(androidx.xr.runtime.XrLog.Level other);
-    field public static final androidx.xr.runtime.XrLog.Level.Companion Companion;
-    field public static final androidx.xr.runtime.XrLog.Level DEBUG;
-    field public static final androidx.xr.runtime.XrLog.Level ERROR;
-    field public static final androidx.xr.runtime.XrLog.Level INFO;
-    field public static final androidx.xr.runtime.XrLog.Level VERBOSE;
-    field public static final androidx.xr.runtime.XrLog.Level WARN;
-  }
-
-  public static final class XrLog.Level.Companion {
-    property public androidx.xr.runtime.XrLog.Level DEBUG;
-    property public androidx.xr.runtime.XrLog.Level ERROR;
-    property public androidx.xr.runtime.XrLog.Level INFO;
-    property public androidx.xr.runtime.XrLog.Level VERBOSE;
-    property public androidx.xr.runtime.XrLog.Level WARN;
-  }
-
 }
 
 package androidx.xr.runtime.internal {
@@ -745,24 +663,6 @@ package androidx.xr.runtime.math {
   public static final class BoundingBox.Companion {
     method public androidx.xr.runtime.math.BoundingBox fromCenterAndHalfExtents(androidx.xr.runtime.math.Vector3 center, androidx.xr.runtime.math.FloatSize3d halfExtents);
     method public androidx.xr.runtime.math.BoundingBox fromMinMax(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
-  }
-
-  public final class FieldOfView {
-    ctor public FieldOfView(float angleLeft, float angleRight, float angleUp, float angleDown);
-    method public androidx.xr.runtime.math.FieldOfView copy();
-    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft);
-    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight);
-    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
-    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
-    method @BytecodeOnly public static androidx.xr.runtime.math.FieldOfView! copy$default(androidx.xr.runtime.math.FieldOfView!, float, float, float, float, int, Object!);
-    method @InaccessibleFromKotlin public float getAngleDown();
-    method @InaccessibleFromKotlin public float getAngleLeft();
-    method @InaccessibleFromKotlin public float getAngleRight();
-    method @InaccessibleFromKotlin public float getAngleUp();
-    property public float angleDown;
-    property public float angleLeft;
-    property public float angleRight;
-    property public float angleUp;
   }
 
   public final class FloatSize2d {
@@ -1228,6 +1128,8 @@ package androidx.xr.runtime.math {
     property public androidx.xr.runtime.math.Vector4 One;
     property public androidx.xr.runtime.math.Vector4 Zero;
   }
+
+  public typealias FieldOfView = androidx.xr.runtime.FieldOfView;
 
 }
 

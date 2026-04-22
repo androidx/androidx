@@ -22,6 +22,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -192,8 +193,13 @@ public constructor(
          * lifespan of the provided [context], else the session will experience undefined behavior.
          *
          * **Note:** Providing a non-[Activity] context is not supported by SceneCore runtimes, and
-         * they will not be loaded. Please use the [create] method with an [Activity] parameter
-         * instead if you wish to use SceneCore APIs.
+         * they will not be loaded. Please use an [Activity] as the [context] if you wish to use
+         * SceneCore APIs.
+         *
+         * **Note:** You must provide a Projected [Context] if you want to create a Session on a
+         * Projected device. This can be an [Activity] that is being displayed on a Projected device
+         * or a context obtained from
+         * [androidx.xr.projected.ProjectedContext.createProjectedDeviceContext].
          *
          * It is strongly recommended to call this method from a background thread (e.g.,
          * [Dispatchers.IO][kotlinx.coroutines.Dispatchers.IO]).
@@ -354,6 +360,7 @@ public constructor(
         private val RUNTIME_FACTORY_PROVIDERS =
             listOf(
                 "androidx.xr.arcore.openxr.OpenXrRuntimeFactory",
+                "androidx.xr.arcore.projected.ProjectedRuntimeFactory",
                 "androidx.xr.arcore.playservices.ArCoreRuntimeFactory",
                 "androidx.xr.arcore.testing.FakePerceptionRuntimeFactory",
                 "androidx.xr.runtime.StubPerceptionRuntimeFactory",
@@ -400,7 +407,8 @@ public constructor(
     public var config: Config = Config()
         private set
 
-    private val lifecycleObserver = LifecycleEventObserver { _, event ->
+    @get:VisibleForTesting
+    internal val lifecycleObserver = LifecycleEventObserver { _, event ->
         when (event) {
             Lifecycle.Event.ON_RESUME -> resume()
             Lifecycle.Event.ON_PAUSE -> pause()
@@ -500,13 +508,13 @@ public constructor(
      */
     private fun destroy() {
         contextSessionMap.remove(context)
-        for (runtime in runtimes) {
-            runtime.destroy()
-        }
-        for (sessionConnector in sessionConnectors) {
+        coroutineScope.cancel()
+        for (sessionConnector in sessionConnectors.asReversed()) {
             sessionConnector.close()
         }
-        coroutineScope.cancel()
+        for (runtime in runtimes.asReversed()) {
+            runtime.destroy()
+        }
     }
 
     private suspend fun updateLoop() {

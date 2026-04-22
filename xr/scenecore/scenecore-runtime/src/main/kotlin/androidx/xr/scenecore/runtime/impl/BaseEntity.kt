@@ -18,16 +18,22 @@ package androidx.xr.scenecore.runtime.impl
 
 import android.app.Activity
 import android.content.Context
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.Component
 import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.HandlerExecutor
+import androidx.xr.scenecore.runtime.ReferenceCleaner
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpaceValue
+import java.lang.ref.WeakReference
+import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.max
 import kotlin.math.min
@@ -45,7 +51,21 @@ public abstract class BaseEntity public constructor(private var _context: Contex
     private var _scale = Vector3(1.0f, 1.0f, 1.0f)
     private var _alpha = 1.0f
     private var _hidden = false
+    private var _isDisposed = false
     private var accessibilityLayout: ViewGroup? = null
+    private val _cleanupActions = mutableListOf<Pair<Executor, CleanupAction>>()
+
+    private val cleanupAction =
+        BaseEntityCleanupAction(BaseEntityCleanupState(WeakReference(_context)))
+
+    init {
+        registerCleanup(HandlerExecutor.mainThreadExecutor, cleanupAction)
+    }
+
+    protected fun registerCleanup(executor: Executor, action: CleanupAction) {
+        synchronized(_cleanupActions) { _cleanupActions.add(executor to action) }
+        ReferenceCleaner.getInstance().register(this, executor, action)
+    }
 
     protected fun addChildInternal(child: Entity) {
         synchronized(_children) {
@@ -77,6 +97,7 @@ public abstract class BaseEntity public constructor(private var _context: Contex
             accessibilityLayout =
                 FrameLayout(activity).apply { layoutParams = FrameLayout.LayoutParams(1, 1) }
             mainLayout.addView(accessibilityLayout)
+            cleanupAction.accessibilityLayout = accessibilityLayout
         }
 
         // There should be only one child as per this design
@@ -125,13 +146,21 @@ public abstract class BaseEntity public constructor(private var _context: Contex
     override var parent: Entity?
         get() = _parent.get()
         set(value) {
-            if (value != null && value !is BaseEntity) {
-                throw IllegalStateException("Cannot set non-BaseEntity as a parent of a BaseEntity")
-            }
+            synchronized(_parent) {
+                if (value != null && value !is BaseEntity) {
+                    throw IllegalStateException(
+                        "Cannot set non-BaseEntity as a parent of a BaseEntity"
+                    )
+                }
 
-            val oldParent: BaseEntity? = _parent.getAndSet(value)
-            oldParent?.removeChildInternal(this)
-            value?.addChildInternal(this)
+                val oldParent: BaseEntity? = _parent.getAndSet(value)
+                if (oldParent == value) {
+                    return
+                }
+
+                oldParent?.removeChildInternal(this)
+                value?.addChildInternal(this)
+            }
         }
 
     override val children: List<Entity>
@@ -149,7 +178,7 @@ public abstract class BaseEntity public constructor(private var _context: Contex
                 try {
                     val view = getAccessibilityView()
                     return view.contentDescription ?: ""
-                } catch (e: IllegalStateException) {
+                } catch (_: IllegalStateException) {
                     // Accessibility view is not set.
                 }
             }
@@ -276,7 +305,30 @@ public abstract class BaseEntity public constructor(private var _context: Contex
     }
 
     override fun dispose() {
-        destroyAccessibilityView()
+        if (_isDisposed) {
+            return
+        }
+        _isDisposed = true
+
+        synchronized(_cleanupActions) {
+            _cleanupActions.forEach { (executor, action) ->
+                if (executor is HandlerExecutor && executor.handler.looper != Looper.myLooper()) {
+                    executor.execute(action)
+                } else {
+                    action.run()
+                }
+            }
+            _cleanupActions.clear()
+        }
+
+        if (parent != null) {
+            parent = null
+        }
+
+        val childrenToDetach = synchronized(_children) { ArrayList<Entity>(_children) }
+        childrenToDetach.forEach { it.parent = null }
+
+        removeAllComponents()
         _context = null
     }
 
@@ -314,4 +366,28 @@ public abstract class BaseEntity public constructor(private var _context: Contex
             _componentList.clear()
         }
     }
+}
+
+private class BaseEntityCleanupState(
+    @Volatile var contextRef: WeakReference<Context?>,
+    @Volatile var accessibilityLayoutRef: WeakReference<ViewGroup?> = WeakReference(null),
+)
+
+private class BaseEntityCleanupAction(private val state: BaseEntityCleanupState) :
+    CleanupAction({
+        val context: Context? = state.contextRef.get()
+        val activity = context as? Activity
+        val layout: ViewGroup? = state.accessibilityLayoutRef.get()
+        if (activity != null && layout != null) {
+            val mainLayout = activity.window.decorView as ViewGroup
+            mainLayout.removeView(layout)
+        }
+        state.accessibilityLayoutRef = WeakReference(null)
+        state.contextRef = WeakReference(null)
+    }) {
+    var accessibilityLayout: ViewGroup?
+        get() = state.accessibilityLayoutRef.get()
+        set(value) {
+            state.accessibilityLayoutRef = WeakReference(value)
+        }
 }

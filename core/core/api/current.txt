@@ -5160,6 +5160,22 @@ package androidx.core.view.inputmethod {
     method public static androidx.core.view.inputmethod.InputContentInfoCompat? wrap(Object?);
   }
 
+  public final class TextAttributeCompat {
+    method public android.os.PersistableBundle getExtras();
+    method public java.util.List<java.lang.String!> getTextConversionSuggestions();
+    method public boolean isTextSuggestionSelected();
+    method public Object? unwrap();
+    method public static androidx.core.view.inputmethod.TextAttributeCompat? wrap(Object?);
+  }
+
+  public static final class TextAttributeCompat.Builder {
+    ctor public TextAttributeCompat.Builder();
+    method public androidx.core.view.inputmethod.TextAttributeCompat build();
+    method public androidx.core.view.inputmethod.TextAttributeCompat.Builder setExtras(android.os.PersistableBundle);
+    method public androidx.core.view.inputmethod.TextAttributeCompat.Builder setTextConversionSuggestions(java.util.List<java.lang.String!>);
+    method public androidx.core.view.inputmethod.TextAttributeCompat.Builder setTextSuggestionSelected(boolean);
+  }
+
 }
 
 package androidx.core.view.insets {

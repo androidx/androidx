@@ -11,7 +11,7 @@
 -keep class androidx.xr.runtime.TrackingState { *; }
 -keep class androidx.xr.runtime.TrackingState$Companion { *; }
 # androidx.xr.runtime.math.FieldOfView is referenced by native code.
--keep class androidx.xr.runtime.math.FieldOfView { *; }
+-keep class androidx.xr.runtime.FieldOfView { *; }
 # androidx.xr.runtime.math.FloatSize2d is referenced by native code.
 -keep class androidx.xr.runtime.math.FloatSize2d { *; }
 # androidx.xr.runtime.math.FloatSize3d is referenced by native code.

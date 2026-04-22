@@ -29,6 +29,7 @@ import org.junit.runner.notification.RunNotifier
  * empty class to create a connected test that consists of native tests written against the Google
  * Test Framework.
  */
+@Deprecated("Library is deprecated")
 class GtestRunner(testClass: Class<*>) : Runner(), Filterable {
     private val targetClass: Class<*>
     private var description: Description
@@ -65,11 +66,13 @@ class GtestRunner(testClass: Class<*>) : Runner(), Filterable {
     }
 
     init {
+        @Suppress("DEPRECATION")
         synchronized(GtestRunner::class.java) {
             check(!onceFlag) { "Error multiple GtestRunners defined" }
             onceFlag = true
         }
         targetClass = testClass
+        @Suppress("DEPRECATION")
         val library =
             testClass.getAnnotation(TargetLibrary::class.java)
                 ?: throw IllegalStateException("Missing required @TargetLibrary annotation")

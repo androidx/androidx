@@ -38,8 +38,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:orientation="vertical"
             android:padding="16dp">
 
             <com.google.android.material.materialswitch.MaterialSwitch
@@ -48,6 +47,27 @@
                 android:layout_height="wrap_content"
                 android:text="Movable"
                 android:checked="false" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="16dp" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/interactableSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Interactable"
+                android:checked="false" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="16dp" />
+
+            <Button
+                android:id="@+id/resetPosesButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reset Poses" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

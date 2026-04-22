@@ -74,7 +74,6 @@ public open class ProjectedSceneCoreServiceClient {
             val connection =
                 object : ServiceConnection {
                     override fun onServiceConnected(className: ComponentName, binder: IBinder) {
-                        XrLog.info { "Projected SceneCore Service Connected" }
                         val connectedService = IProjectedSceneCoreService.Stub.asInterface(binder)
                         service = connectedService
 
@@ -84,7 +83,6 @@ public open class ProjectedSceneCoreServiceClient {
                     }
 
                     override fun onServiceDisconnected(className: ComponentName) {
-                        XrLog.info { "Projected SceneCore Service Disconnected" }
                         service = null
                         // We do not unbind here automatically; the system might attempt to
                         // reconnect. However, if the caller relies on a non-null service, they must
@@ -94,7 +92,6 @@ public open class ProjectedSceneCoreServiceClient {
                     }
 
                     override fun onBindingDied(name: ComponentName?) {
-                        XrLog.warn { "Binding died for $name" }
                         unbindService()
                         if (continuation.isActive) {
                             continuation.resumeWithException(
@@ -104,7 +101,6 @@ public open class ProjectedSceneCoreServiceClient {
                     }
 
                     override fun onNullBinding(name: ComponentName?) {
-                        XrLog.warn { "Null binding for $name" }
                         unbindService()
                         if (continuation.isActive) {
                             continuation.resumeWithException(
@@ -129,7 +125,6 @@ public open class ProjectedSceneCoreServiceClient {
                 val didBind =
                     context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
                 if (didBind) {
-                    XrLog.info { "bindService request accepted, waiting for connection..." }
                     mActiveConnection = connection
                     mBoundContext = context
                 } else {
@@ -144,6 +139,7 @@ public open class ProjectedSceneCoreServiceClient {
     }
 
     /** Unbinds from the service and releases resources. */
+    @Suppress("RestrictedApiAndroidX")
     public open fun unbindService() {
         val connection = mActiveConnection
         val context = mBoundContext

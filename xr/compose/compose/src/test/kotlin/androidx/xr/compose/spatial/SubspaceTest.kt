@@ -204,7 +204,7 @@ class SubspaceTest {
         val arDevice = fakeRuntime.perceptionManager.arDevice
         arDevice.devicePose = arDevice.devicePose.translate(translation = offset)
         testDispatcher.scheduler.advanceUntilIdle()
-        fakeRuntime.lifecycleManager.allowOneMoreCallToUpdate()
+        fakeRuntime.allowOneMoreCallToUpdate()
     }
 
     @Suppress("DEPRECATION")
@@ -214,14 +214,12 @@ class SubspaceTest {
         offset: Quaternion,
     ) {
         val fakePerceptionManager = fakeRuntime.perceptionManager
-        val fakeLifecycleManager: androidx.xr.arcore.testing.FakeLifecycleManager =
-            fakeRuntime.lifecycleManager
 
         fakePerceptionManager.arDevice.devicePose =
             fakePerceptionManager.arDevice.devicePose.rotate(rotation = offset)
 
         testDispatcher.scheduler.advanceUntilIdle()
-        fakeLifecycleManager.allowOneMoreCallToUpdate()
+        fakeRuntime.allowOneMoreCallToUpdate()
     }
 
     private fun assertExistenceAndGetNodeWorldPose(testTag: String): Pose {

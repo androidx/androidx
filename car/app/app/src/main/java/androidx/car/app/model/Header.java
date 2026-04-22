@@ -25,6 +25,7 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.BackgroundConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.utils.CollectionUtils;
@@ -264,6 +265,7 @@ public final class Header {
         @ExperimentalCarApi
         @RequiresCarApi(9)
         public @NonNull Builder setBackground(@NonNull Background background) {
+            BackgroundConstraints.UNCONSTRAINED.validateOrThrow(background);
             mBackground = requireNonNull(background);
             return this;
         }

@@ -802,8 +802,10 @@ package androidx.xr.compose.subspace.layout {
   }
 
   public final class MovableKt {
-    method public static androidx.xr.compose.subspace.layout.SubspaceModifier movable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional boolean stickyPose, optional boolean scaleWithDistance, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMoveStart, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMoveEnd, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,java.lang.Boolean>? onMove);
-    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier! movable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, boolean, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier movable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional boolean stickyPose, optional boolean scaleWithDistance, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMoveStart, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMoveEnd, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,java.lang.Boolean>? onMove);
+    method public static androidx.xr.compose.subspace.layout.SubspaceModifier movable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional boolean scaleWithDistance, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit> onMove);
+    method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier! movable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, boolean, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier! movable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class OffsetKt {
@@ -1217,13 +1219,35 @@ package androidx.xr.compose.subspace.layout {
   }
 
   public final class SpatialMoveEvent {
-    ctor public SpatialMoveEvent(androidx.xr.runtime.math.Pose pose, float scale, androidx.xr.compose.unit.IntVolumeSize size);
+    ctor @KotlinOnly public SpatialMoveEvent(androidx.xr.compose.subspace.layout.SpatialMoveEventType type, androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.math.Pose previousPose, float scale, float previousScale, androidx.xr.compose.unit.IntVolumeSize size);
+    ctor @BytecodeOnly public SpatialMoveEvent(int, androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.Pose!, float, float, androidx.xr.compose.unit.IntVolumeSize!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPreviousPose();
+    method @InaccessibleFromKotlin public float getPreviousScale();
     method @InaccessibleFromKotlin public float getScale();
     method @InaccessibleFromKotlin public androidx.xr.compose.unit.IntVolumeSize getSize();
+    method @BytecodeOnly public int getType-fViBfJQ();
     property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.math.Pose previousPose;
+    property public float previousScale;
     property public float scale;
     property public androidx.xr.compose.unit.IntVolumeSize size;
+    property public androidx.xr.compose.subspace.layout.SpatialMoveEventType type;
+  }
+
+  @kotlin.jvm.JvmInline public final value class SpatialMoveEventType {
+    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SpatialMoveEventType! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.xr.compose.subspace.layout.SpatialMoveEventType.Companion Companion;
+  }
+
+  public static final class SpatialMoveEventType.Companion {
+    method @BytecodeOnly public int getEnd-fViBfJQ();
+    method @BytecodeOnly public int getMoving-fViBfJQ();
+    method @BytecodeOnly public int getStart-fViBfJQ();
+    property public androidx.xr.compose.subspace.layout.SpatialMoveEventType End;
+    property public androidx.xr.compose.subspace.layout.SpatialMoveEventType Moving;
+    property public androidx.xr.compose.subspace.layout.SpatialMoveEventType Start;
   }
 
   public final class SpatialRoundedCornerShape implements androidx.xr.compose.subspace.layout.SpatialShape {
@@ -1340,6 +1364,11 @@ package androidx.xr.compose.subspace.layout {
     method public final void placeRelative(androidx.xr.compose.subspace.layout.SubspacePlaceable, androidx.xr.runtime.math.Pose pose);
     property public androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates? coordinates;
     property protected abstract androidx.compose.ui.unit.LayoutDirection parentLayoutDirection;
+  }
+
+  public final class TransformingMovableKt {
+    method public static androidx.xr.compose.subspace.layout.SubspaceModifier transformingMovable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional boolean scaleWithDistance, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMove);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier! transformingMovable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   @Deprecated public typealias SpatialMoveEndEvent = androidx.xr.compose.subspace.layout.SpatialMoveEvent;

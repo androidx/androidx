@@ -43,6 +43,9 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.7.8")
 
     androidTestImplementation("androidx.activity:activity-compose:1.8.2")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.11.0-rc01")
+    androidTestImplementation("androidx.compose.ui:ui-test-manifest:1.7.8")
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)

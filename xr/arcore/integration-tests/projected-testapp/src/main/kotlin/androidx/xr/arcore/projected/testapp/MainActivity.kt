@@ -19,6 +19,7 @@ package androidx.xr.arcore.projected.testapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -39,15 +40,11 @@ import androidx.compose.ui.unit.sp
 import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureTrackingActivity
 import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
-import androidx.xr.runtime.XrLog
 
 @OptIn(ExperimentalProjectedApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        XrLog.isEnabled = true
-        XrLog.level = XrLog.Level.VERBOSE
 
         setContent {
             Column(
@@ -92,7 +89,7 @@ class MainActivity : ComponentActivity() {
             try {
                 ProjectedContext.createProjectedDeviceContext(context)
             } catch (e: IllegalStateException) {
-                XrLog.warn(e) { "Error creating projected device" }
+                Log.w("JetpackXR", "Error creating projected device", e)
                 return
             }
         val intent = Intent(context, activityClass)

@@ -83,6 +83,7 @@ class InvalidationTrackerTest {
                     allowDestructiveMigrationForAllTables = false,
                     sqliteDriver = sqliteDriver,
                     queryCoroutineContext = testCoroutineScope.coroutineContext,
+                    connectionPoolConfiguration = SingleConnection,
                 )
                 .apply { this.preparedStatementCacheSize = 0 }
         )

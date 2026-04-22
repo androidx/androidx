@@ -30,6 +30,7 @@ public class GroupEntity private constructor(rtEntity: RtEntity, entityRegistry:
     BaseEntity<RtEntity>(rtEntity, entityRegistry) {
     public companion object {
         /** Factory method to create GroupEntity entities. */
+        @Suppress("RestrictedApiAndroidX")
         internal fun create(
             sceneRuntime: SceneRuntime,
             entityRegistry: EntityRegistry,
@@ -38,22 +39,23 @@ public class GroupEntity private constructor(rtEntity: RtEntity, entityRegistry:
             parent: Entity? = entityRegistry.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): GroupEntity =
             GroupEntity(
-                @Suppress("DEPRECATION")
-                sceneRuntime.createGroupEntity(
-                    pose,
-                    name,
-                    if (parent != null && parent !is BaseEntity<*>) {
-                        XrLog.warn(
-                            "The provided parent is not a BaseEntity. The GroupEntity will " +
-                                "be created without a parent."
-                        )
-                        null
-                    } else {
-                        parent?.rtEntity
-                    },
-                ),
-                entityRegistry,
-            )
+                    @Suppress("DEPRECATION")
+                    sceneRuntime.createGroupEntity(
+                        pose,
+                        name,
+                        if (parent != null && parent !is BaseEntity<*>) {
+                            XrLog.warn(
+                                "The provided parent is not a BaseEntity. The GroupEntity will " +
+                                    "be created without a parent."
+                            )
+                            null
+                        } else {
+                            parent?.rtEntity
+                        },
+                    ),
+                    entityRegistry,
+                )
+                .also { it.parent = parent as? BaseEntity<*> }
 
         /**
          * Public factory method for creating a [GroupEntity].

@@ -46,7 +46,7 @@ public object SpatialMediaPlayer {
         session.sceneRuntime.mediaPlayerExtensionsWrapper.setPointSourceParams(
             mediaPlayer,
             params.rtPointSourceParams,
-            entity.rtEntity!!,
+            entity.rtEntity,
         )
     }
 

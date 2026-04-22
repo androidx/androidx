@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
+import android.hardware.HardwareBuffer
 import android.hardware.camera2.CaptureResult
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -201,8 +202,13 @@ internal constructor(
         return pendingFrameQueue.removeAt(0)
     }
 
-    override fun simulateImage(streamId: StreamId, imageTimestamp: Long, outputId: OutputId?) {
-        check(simulateImageInternal(streamId, outputId, imageTimestamp)) {
+    override fun simulateImage(
+        streamId: StreamId,
+        imageTimestamp: Long,
+        outputId: OutputId?,
+        hardwareBuffer: HardwareBuffer?,
+    ) {
+        check(simulateImageInternal(streamId, outputId, imageTimestamp, hardwareBuffer)) {
             "Failed to simulate image for $streamId on $this!"
         }
     }
@@ -211,6 +217,7 @@ internal constructor(
         request: Request,
         imageTimestamp: Long,
         physicalCameraIds: Set<CameraId>,
+        hardwareBuffers: Map<OutputId, HardwareBuffer>,
     ) {
         var imageSimulated = false
         for (streamId in request.streams) {
@@ -225,7 +232,13 @@ internal constructor(
                 simulateExpectedOutputs(streamId, imageTimestamp, outputIds.toSet())
             }
             for (outputId in outputIds) {
-                val success = simulateImageInternal(streamId, outputId, imageTimestamp)
+                val success =
+                    simulateImageInternal(
+                        streamId,
+                        outputId,
+                        imageTimestamp,
+                        hardwareBuffers[outputId],
+                    )
                 imageSimulated = imageSimulated || success
             }
         }
@@ -240,6 +253,7 @@ internal constructor(
         streamId: StreamId,
         outputId: OutputId?,
         imageTimestamp: Long,
+        hardwareBuffer: HardwareBuffer? = null,
     ): Boolean {
         val stream = streams[streamId]
         checkNotNull(stream) { "Cannot simulate an image for invalid $streamId on $this!" }
@@ -247,12 +261,20 @@ internal constructor(
         // defer to the imageSource if an imageReader does not exist.
         val imageReader = fakeImageReaders[streamId]
         if (imageReader != null) {
-            imageReader.simulateImage(imageTimestamp = imageTimestamp, outputId = outputId)
+            imageReader.simulateImage(
+                imageTimestamp = imageTimestamp,
+                outputId = outputId,
+                hardwareBuffer = hardwareBuffer,
+            )
             return true
         } else {
             val fakeImageSource = fakeImageSources[streamId]
             if (fakeImageSource != null) {
-                fakeImageSource.simulateImage(timestamp = imageTimestamp, outputId = outputId)
+                fakeImageSource.simulateImage(
+                    timestamp = imageTimestamp,
+                    outputId = outputId,
+                    hardwareBuffer = hardwareBuffer,
+                )
                 return true
             }
         }
@@ -406,13 +428,19 @@ internal constructor(
             streamId: StreamId,
             imageTimestamp: Long? = null,
             outputId: OutputId? = null,
+            hardwareBuffer: HardwareBuffer? = null,
         ) {
             val timestamp = imageTimestamp ?: timestampNanos
             checkNotNull(timestamp) {
                 "Cannot simulate an image without a timestamp! Provide an " +
                     "imageTimestamp or call simulateStarted before simulateImage."
             }
-            this@CameraGraphSimulator.simulateImage(streamId, timestamp, outputId)
+            this@CameraGraphSimulator.simulateImage(
+                streamId,
+                timestamp,
+                outputId,
+                hardwareBuffer = hardwareBuffer,
+            )
         }
 
         /**
@@ -422,13 +450,19 @@ internal constructor(
         public fun simulateImages(
             imageTimestamp: Long? = null,
             physicalCameraIds: Set<CameraId> = emptySet(),
+            hardwareBuffers: Map<OutputId, HardwareBuffer> = emptyMap(),
         ) {
             val timestamp = imageTimestamp ?: timestampNanos
             checkNotNull(timestamp) {
                 "Cannot simulate an image without a timestamp! Provide an " +
                     "imageTimestamp or call simulateStarted before simulateImage."
             }
-            this@CameraGraphSimulator.simulateImages(request, timestamp, physicalCameraIds)
+            this@CameraGraphSimulator.simulateImages(
+                request = request,
+                imageTimestamp = timestamp,
+                physicalCameraIds = physicalCameraIds,
+                hardwareBuffers = hardwareBuffers,
+            )
         }
 
         public fun simulateExpectedOutputs(

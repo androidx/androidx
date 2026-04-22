@@ -55,7 +55,9 @@ public open class FakePanelEntity(public val view: View? = null, name: String = 
     }
 
     override fun dispose() {
-        windowManager?.removeView(view)
+        if (view?.parent != null) {
+            windowManager?.removeView(view)
+        }
         super.dispose()
     }
 

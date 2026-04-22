@@ -70,7 +70,7 @@ class GazeRenderer {
         }
 
         fun dispose() {
-            entity.dispose()
+            entity.parent = null
         }
 
         fun update(eyeState: Eye.State) {

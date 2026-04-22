@@ -2213,9 +2213,8 @@ object SearchBarDefaults {
                                 .then(
                                     if (
                                         !isInTouchMode &&
-                                            LocalRippleThemeConfiguration.current ==
-                                                RippleDefaults
-                                                    .InsetFocusRingRippleThemeConfiguration
+                                            LocalRippleThemeConfiguration.current.focus is
+                                                RippleThemeConfiguration.Focus.InsetRing
                                     ) {
                                         Modifier.indication(
                                             interactionSource,
@@ -2421,8 +2420,8 @@ object SearchBarDefaults {
                             Modifier.textFieldBackground(containerColor::value, shape)
                                 .then(
                                     if (
-                                        LocalRippleThemeConfiguration.current ==
-                                            RippleDefaults.InsetFocusRingRippleThemeConfiguration
+                                        LocalRippleThemeConfiguration.current.focus
+                                            is RippleThemeConfiguration.Focus.InsetRing
                                     ) {
                                         Modifier.indication(
                                             interactionSource,

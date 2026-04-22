@@ -22,6 +22,7 @@ import androidx.xr.runtime.internal.LifecycleManager
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
 
+// TODO b/500091606 Remove when no longer used in G3
 /**
  * Fake implementation of [LifecycleManager] used to validate state transitions.
  *
@@ -33,6 +34,8 @@ import kotlin.time.TestTimeSource
  * @property shouldSupportPlaneTracking if false, [configure] will throw an exception if the config
  *   enables plane tracking
  * @property config the current [Config] of the session
+ * @deprecated This will be removed in a future release. In order to test androidx.xr.arcore APIs,
+ *   use an [ArCoreTestRule] in your tests.
  */
 @Suppress("NotCloseable")
 @Deprecated(

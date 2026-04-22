@@ -92,10 +92,10 @@ import androidx.xr.compose.subspace.layout.depth
 import androidx.xr.compose.subspace.layout.fillMaxHeight
 import androidx.xr.compose.subspace.layout.fillMaxWidth
 import androidx.xr.compose.subspace.layout.height
-import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.rotate
+import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.common.AnotherActivity
@@ -275,7 +275,7 @@ class SpatialCompose : ComponentActivity() {
                             SubspaceModifier.fillMaxHeight()
                                 .fillMaxWidth()
                                 .testTag("ActivityPanel")
-                                .movable(),
+                                .transformingMovable(),
                     )
                 }
                 SpatialColumn(
@@ -298,7 +298,11 @@ class SpatialCompose : ComponentActivity() {
         var moveResizeLocked by remember { mutableStateOf(true) }
         var alpha by remember { mutableFloatStateOf(1f) }
         SpatialPanel(
-            modifier = modifier.testTag(text).alpha(alpha).movable(enabled = !moveResizeLocked),
+            modifier =
+                modifier
+                    .testTag(text)
+                    .alpha(alpha)
+                    .transformingMovable(enabled = !moveResizeLocked),
             resizePolicy =
                 ResizePolicy(
                     isEnabled = !moveResizeLocked,

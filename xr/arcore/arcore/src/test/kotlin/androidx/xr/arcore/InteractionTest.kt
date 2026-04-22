@@ -13,102 +13,105 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 
 package androidx.xr.arcore
 
 import androidx.activity.ComponentActivity
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.rule.GrantPermissionRule
-import androidx.xr.arcore.runtime.HitResult as RuntimeHitResult
-import androidx.xr.arcore.testing.FakeLifecycleManager
-import androidx.xr.arcore.testing.FakePerceptionManager
-import androidx.xr.arcore.testing.FakeRuntimePlane
+import androidx.xr.arcore.testing.ArCoreTestRule
+import androidx.xr.arcore.testing.TestPlane
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.CoreState
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlin.time.TestTimeSource
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
+import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
+@Suppress("DEPRECATION")
 class InteractionTest {
+    companion object {
+        @ClassRule @JvmField val arCoreTestRule = ArCoreTestRule()
+    }
 
+    private lateinit var activityController: ActivityController<ComponentActivity>
+    private lateinit var activity: ComponentActivity
+    private lateinit var testDispatcher: TestDispatcher
     private lateinit var session: Session
-    private lateinit var timeSource: TestTimeSource
-    private lateinit var perceptionStateExtender: PerceptionStateExtender
-    private lateinit var perceptionManager: FakePerceptionManager
 
-    @get:Rule
-    val grantPermissionRule =
-        GrantPermissionRule.grant(
-            "android.permission.SCENE_UNDERSTANDING_COARSE",
-            "android.permission.HAND_TRACKING",
-        )
+    @Before
+    fun setUp() {
+        testDispatcher = StandardTestDispatcher()
+        activityController = Robolectric.buildActivity(ComponentActivity::class.java)
+        activity = activityController.get()
 
+        shadowOf(activity.application).grantPermissions(SCENE_UNDERSTANDING_COARSE)
+
+        activityController.create().start().resume()
+
+        session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
+        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun hitTest_successWithOneHitResult() = createTestSessionAndRunTest {
-        runTest {
-            timeSource =
-                (session.perceptionRuntime.lifecycleManager as FakeLifecycleManager).timeSource
-            perceptionStateExtender =
-                session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
-            perceptionManager = perceptionStateExtender.perceptionManager as FakePerceptionManager
-            val runtimePlane = FakeRuntimePlane()
-            perceptionManager.addTrackable(runtimePlane)
-            // Mock the behavior of session update.
-            val timeMark = timeSource.markNow()
-            val state = CoreState(timeMark)
-            perceptionStateExtender.extend(state)
-            check(state.perceptionState?.trackableStates?.size == 1)
-            val expectedTrackable = state.perceptionState?.trackableStates?.first()
-            val runtimeHitResult: RuntimeHitResult =
-                RuntimeHitResult(
-                    distance = 1f,
-                    hitPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f)),
-                    trackable = runtimePlane,
-                )
-            perceptionManager.addHitResult(runtimeHitResult)
+    fun hitTest_successWithOneHitResult() =
+        runTest(testDispatcher) {
+            // 1. Place a plane 1 unit in front of the device pose
+            val devicePose = Pose()
+            val expectedHitPose = Pose(Vector3.Forward, Quaternion.Identity)
+            val testPlane = TestPlane(PlaneType.VERTICAL, PlaneLabel.WALL)
+            arCoreTestRule.device.pose = devicePose
+            arCoreTestRule.addTrackables(testPlane)
+            testPlane.centerPose = expectedHitPose
+            advanceUntilIdle()
 
-            val hitResults = hitTest(session, Ray(Vector3(0f, 0f, 0f), Vector3(0f, 0f, 1f)))
+            // 2. Detect the Plane
+            var foundPlanes = emptyList<Plane>()
+            backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                Plane.subscribe(session).collect { foundPlanes = it.toList() }
+            }
+            advanceUntilIdle()
+
+            // 3. Perform a hitTest to find Planes along ray from device in forward direction
+            val plane = foundPlanes.first()
+            val ray = Ray(origin = devicePose.translation, direction = devicePose.forward)
+            val hitResults = hitTest(session, ray)
+            val expectedDistance =
+                (plane.state.value.centerPose.translation - devicePose.translation).length
 
             assertThat(hitResults.size).isEqualTo(1)
-            assertThat(hitResults[0].distance).isEqualTo(runtimeHitResult.distance)
-            assertThat(hitResults[0].hitPose).isEqualTo(runtimeHitResult.hitPose)
-            assertThat(hitResults[0].trackable).isEqualTo((expectedTrackable as Plane.State).owner)
+
+            val underTest = hitResults.single()
+            assertThat(underTest.distance).isEqualTo(expectedDistance)
+            assertThat(underTest.hitPose).isEqualTo(expectedHitPose)
+            assertThat(underTest.trackable).isEqualTo(plane)
         }
-    }
 
     @Test
-    fun hitTest_planeTrackingDisabled_throwsIllegalStateException() = createTestSessionAndRunTest {
-        runTest {
-            session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
-
+    fun hitTest_planeTrackingDisabled_throwsIllegalStateException() {
+        session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
+        runTest(testDispatcher) {
             assertFailsWith<IllegalStateException> { hitTest(session, Ray()) }
-        }
-    }
-
-    private fun createTestSessionAndRunTest(testBody: () -> Unit) {
-        ActivityScenario.launch(ComponentActivity::class.java).use {
-            it.onActivity { activity ->
-                session =
-                    (Session.create(activity, StandardTestDispatcher()) as SessionCreateSuccess)
-                        .session
-
-                testBody()
-            }
         }
     }
 }

@@ -41,8 +41,8 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.size
+import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi
@@ -69,7 +69,7 @@ class CapabilitiesActivity : ComponentActivity() {
             DepthEstimationMode.SMOOTH_ONLY,
             DepthEstimationMode.SMOOTH_AND_RAW,
         )
-    private val geospatialCaps = listOf(GeospatialMode.DISABLED, GeospatialMode.VPS_AND_GPS)
+    private val geospatialCaps = listOf(GeospatialMode.DISABLED, GeospatialMode.SPATIAL)
     private val renderingCaps = listOf(RenderingMode.MONO, RenderingMode.STEREO)
 
     @OptIn(ExperimentalXrDeviceLifecycleApi::class)
@@ -81,7 +81,9 @@ class CapabilitiesActivity : ComponentActivity() {
         setContent {
             Subspace {
                 SpatialPanel(
-                    modifier = SubspaceModifier.size(DpVolumeSize(640.dp, 480.dp, 0.dp)).movable(),
+                    modifier =
+                        SubspaceModifier.size(DpVolumeSize(640.dp, 480.dp, 0.dp))
+                            .transformingMovable(),
                     resizePolicy = ResizePolicy(),
                 ) {
                     Scaffold(
@@ -190,7 +192,7 @@ class CapabilitiesActivity : ComponentActivity() {
             DepthEstimationMode.SMOOTH_AND_RAW -> "SMOOTH_AND_RAW"
             // Geospatial  Modes
             GeospatialMode.DISABLED -> "DISABLED"
-            GeospatialMode.VPS_AND_GPS -> "VPS_AND_GPS"
+            GeospatialMode.SPATIAL -> "SPATIAL"
             // Rendering Modes
             RenderingMode.MONO -> "MONO"
             RenderingMode.STEREO -> "STEREO"

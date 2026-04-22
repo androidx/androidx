@@ -135,7 +135,7 @@ class EntityRegistryTest {
                 gltfModelEntity,
             )
 
-        entity.dispose()
+        (entity as BaseEntity<*>).disposeInternal()
 
         assertThat(entityRegistry.getAllEntities().size).isAtLeast(4)
         assertThat(entityRegistry.getAllEntities()).doesNotContain(entity)
@@ -164,7 +164,7 @@ class EntityRegistryTest {
     }
 
     @Test
-    fun removeRtEntity_removesEntityfromEntityRegistry() {
+    fun removeRtEntity_removesEntityFromEntityRegistry() {
         createEntity()
         createPanelEntity()
         createAnchorEntity()
@@ -229,7 +229,6 @@ class EntityRegistryTest {
     private fun createActivityPanelEntity() {
         activityPanelEntity =
             ActivityPanelEntity.create(
-                session.perceptionRuntime.lifecycleManager,
                 sceneRuntime,
                 session.scene.perceptionSpace,
                 entityRegistry,
