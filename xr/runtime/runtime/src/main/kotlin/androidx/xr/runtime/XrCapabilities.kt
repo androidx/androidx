@@ -157,7 +157,7 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
          * Supported runtimes:
          * - Projected
          */
-        @PreviewSpatialApi
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @JvmField
         public val INERTIAL_LAST_KNOWN: DeviceTrackingMode = DeviceTrackingMode(2)
     }
