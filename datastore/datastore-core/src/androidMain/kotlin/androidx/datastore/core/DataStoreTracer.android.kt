@@ -62,4 +62,4 @@ internal actual suspend fun captureTraceToken(tracer: DataStoreTracer?): DataSto
     return tracer?.tokenFromCoroutineContext()
 }
 
-private const val TRACE_CATEGORY = "Jetpack DataStore"
+private const val TRACE_CATEGORY = "androidx.datastore"
