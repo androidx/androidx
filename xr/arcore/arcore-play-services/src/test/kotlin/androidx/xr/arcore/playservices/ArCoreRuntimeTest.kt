@@ -68,7 +68,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, androidx.xr.runtime.PreviewSpatialApi::class)
 @RunWith(AndroidJUnit4::class)
 class ArCoreRuntimeTest {
 
@@ -514,19 +514,26 @@ class ArCoreRuntimeTest {
     }
 
     @Test
-    fun isSupported_geospatialVpsAndGps_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
+    fun isSupported_geospatialSpatial_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
         underTest._session = mockSession
         whenever(mockSession.isGeospatialModeSupported(GeospatialMode.ENABLED)).thenReturn(false)
 
-        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.VPS_AND_GPS)).isFalse()
+        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.SPATIAL)).isFalse()
     }
 
     @Test
-    fun isSupported_geospatialVpsAndGps_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
+    fun isSupported_geospatialSpatial_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
         underTest._session = mockSession
         whenever(mockSession.isGeospatialModeSupported(GeospatialMode.ENABLED)).thenReturn(true)
 
-        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.VPS_AND_GPS)).isTrue()
+        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.SPATIAL)).isTrue()
+    }
+
+    @Test
+    fun isSupported_geospatialInertial_returnsFalse() = initRuntimeAndRunTest {
+        underTest._session = mockSession
+
+        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.INERTIAL)).isFalse()
     }
 
     @Test

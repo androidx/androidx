@@ -202,7 +202,7 @@ class OpenXrGeospatialTest {
             openXrRuntime = OpenXrRuntime(it, lifecycleManager, perceptionManager, timeSource)
             openXrRuntime.initialize()
             openXrRuntime.resume()
-            openXrRuntime.configure(Config(geospatial = GeospatialMode.VPS_AND_GPS))
+            openXrRuntime.configure(Config(geospatial = GeospatialMode.SPATIAL))
 
             testBody()
 

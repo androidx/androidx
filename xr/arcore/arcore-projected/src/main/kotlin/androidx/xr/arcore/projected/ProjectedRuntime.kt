@@ -115,10 +115,16 @@ internal constructor(
         return timeSource.markNow()
     }
 
+    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     override fun configure(config: Config) {
+        if (config.geospatial == GeospatialMode.INERTIAL) {
+            throw UnsupportedOperationException(
+                "Failed to configure session, runtime does not support GeospatialMode.INERTIAL"
+            )
+        }
         if (
             config.deviceTracking == DeviceTrackingMode.DISABLED &&
-                config.geospatial == GeospatialMode.VPS_AND_GPS
+                config.geospatial == GeospatialMode.SPATIAL
         ) {
             throw UnsupportedOperationException(
                 "Geospatial mode is not supported when device tracking is disabled."
@@ -291,7 +297,7 @@ internal constructor(
         // I.E. if no features are needed from the service we don't require it.
         return config.deviceTracking == DeviceTrackingMode.SPATIAL_LAST_KNOWN ||
             config.deviceTracking == DeviceTrackingMode.INERTIAL_LAST_KNOWN ||
-            config.geospatial == GeospatialMode.VPS_AND_GPS
+            config.geospatial == GeospatialMode.SPATIAL
     }
 
     @OptIn(PreviewSpatialApi::class)
@@ -300,7 +306,7 @@ internal constructor(
         val serviceConfig = ProjectedConfig()
         // TODO: b/452091636 - Remove hardcoded config" so we remember to address this.
         // TODO: b/455872882 - Currently, Geo is not compatible with 3DoF tracking stack.
-        if (config.geospatial == GeospatialMode.VPS_AND_GPS) {
+        if (config.geospatial == GeospatialMode.SPATIAL) {
             serviceConfig.geospatialMode = ProjectedGeospatialMode.ENABLED
             serviceConfig.trackingMode = ProjectedTrackingMode.PROJECTED_TRACKING_6DOF
         } else {
@@ -355,7 +361,7 @@ internal constructor(
                 AnchorPersistenceMode.DISABLED,
                 FaceTrackingMode.DISABLED,
                 GeospatialMode.DISABLED,
-                GeospatialMode.VPS_AND_GPS,
+                GeospatialMode.SPATIAL,
                 EyeTrackingMode.DISABLED,
             )
     }

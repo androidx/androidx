@@ -63,8 +63,10 @@ internal class OpenXrDeviceCapabilityProvider(
     override fun isGeospatialModeSupported(mode: GeospatialMode): Boolean {
         return if (mode == GeospatialMode.DISABLED) {
             true
-        } else {
+        } else if (mode == GeospatialMode.SPATIAL) {
             nativeIsGeospatialSupported(nativeManager)
+        } else {
+            false
         }
     }
 

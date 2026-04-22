@@ -69,7 +69,7 @@ class CapabilitiesActivity : ComponentActivity() {
             DepthEstimationMode.SMOOTH_ONLY,
             DepthEstimationMode.SMOOTH_AND_RAW,
         )
-    private val geospatialCaps = listOf(GeospatialMode.DISABLED, GeospatialMode.VPS_AND_GPS)
+    private val geospatialCaps = listOf(GeospatialMode.DISABLED, GeospatialMode.SPATIAL)
     private val renderingCaps = listOf(RenderingMode.MONO, RenderingMode.STEREO)
 
     @OptIn(ExperimentalXrDeviceLifecycleApi::class)
@@ -192,7 +192,7 @@ class CapabilitiesActivity : ComponentActivity() {
             DepthEstimationMode.SMOOTH_AND_RAW -> "SMOOTH_AND_RAW"
             // Geospatial  Modes
             GeospatialMode.DISABLED -> "DISABLED"
-            GeospatialMode.VPS_AND_GPS -> "VPS_AND_GPS"
+            GeospatialMode.SPATIAL -> "SPATIAL"
             // Rendering Modes
             RenderingMode.MONO -> "MONO"
             RenderingMode.STEREO -> "STEREO"

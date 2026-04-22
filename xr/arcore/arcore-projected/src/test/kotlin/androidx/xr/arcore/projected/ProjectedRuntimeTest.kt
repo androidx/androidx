@@ -118,7 +118,7 @@ class ProjectedRuntimeTest {
         val config =
             Config(
                 deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
-                geospatial = GeospatialMode.VPS_AND_GPS,
+                geospatial = GeospatialMode.SPATIAL,
             )
 
         underTest.configure(config)
@@ -136,7 +136,7 @@ class ProjectedRuntimeTest {
         val config =
             Config(
                 deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
-                geospatial = GeospatialMode.VPS_AND_GPS,
+                geospatial = GeospatialMode.SPATIAL,
             )
 
         assertThrows(SecurityException::class.java) { underTest.configure(config) }
@@ -162,7 +162,7 @@ class ProjectedRuntimeTest {
         val config =
             Config(
                 deviceTracking = DeviceTrackingMode.DISABLED,
-                geospatial = GeospatialMode.VPS_AND_GPS,
+                geospatial = GeospatialMode.SPATIAL,
             )
         assertThrows(UnsupportedOperationException::class.java) { underTest.configure(config) }
     }
@@ -174,7 +174,7 @@ class ProjectedRuntimeTest {
         val config =
             Config(
                 deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
-                geospatial = GeospatialMode.VPS_AND_GPS,
+                geospatial = GeospatialMode.SPATIAL,
             )
 
         underTest.configure(config)
@@ -235,7 +235,7 @@ class ProjectedRuntimeTest {
         val config =
             Config(
                 deviceTracking = DeviceTrackingMode.INERTIAL_LAST_KNOWN,
-                geospatial = GeospatialMode.VPS_AND_GPS,
+                geospatial = GeospatialMode.SPATIAL,
             )
 
         underTest.configure(config)

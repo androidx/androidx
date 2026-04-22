@@ -169,7 +169,7 @@ class XrDeviceTest {
         xrDeviceTestRule.supportedGeospatialModes = emptySet()
 
         assertThat(device.isGeospatialModeSupported(GeospatialMode.DISABLED)).isFalse()
-        assertThat(device.isGeospatialModeSupported(GeospatialMode.VPS_AND_GPS)).isFalse()
+        assertThat(device.isGeospatialModeSupported(GeospatialMode.SPATIAL)).isFalse()
     }
 
     @OptIn(ExperimentalXrDeviceLifecycleApi::class)
@@ -177,10 +177,10 @@ class XrDeviceTest {
     fun isGeospatialModeSupported_returnsTrueWhenInternalModeSupported() {
         val device = XrDevice.getCurrentDevice(activity)
         xrDeviceTestRule.supportedGeospatialModes =
-            setOf(GeospatialMode.DISABLED, GeospatialMode.VPS_AND_GPS)
+            setOf(GeospatialMode.DISABLED, GeospatialMode.SPATIAL)
 
         assertThat(device.isGeospatialModeSupported(GeospatialMode.DISABLED)).isTrue()
-        assertThat(device.isGeospatialModeSupported(GeospatialMode.VPS_AND_GPS)).isTrue()
+        assertThat(device.isGeospatialModeSupported(GeospatialMode.SPATIAL)).isTrue()
     }
 
     @OptIn(ExperimentalXrDeviceLifecycleApi::class)

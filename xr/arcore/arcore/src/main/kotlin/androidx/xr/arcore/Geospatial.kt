@@ -37,9 +37,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * Provides localization ability in Earth-relative coordinates.
  *
  * To use the Geospatial object, configure the session with
- * [androidx.xr.runtime.GeospatialMode.VPS_AND_GPS].
+ * [androidx.xr.runtime.GeospatialMode.SPATIAL].
  *
- * Not all devices support [androidx.xr.runtime.GeospatialMode.VPS_AND_GPS], use
+ * Not all devices support [androidx.xr.runtime.GeospatialMode.SPATIAL], use
  * [androidx.xr.runtime.Config.ConfigMode.isSupported] to check if the current device supports
  * enabling this mode.
  *
@@ -366,10 +366,8 @@ internal constructor(
     }
 
     private fun checkGeospatialModeEnabled() {
-        check(
-            xrResourcesManager.perceptionRuntime.config.geospatial == GeospatialMode.VPS_AND_GPS
-        ) {
-            "To use this function, Config.GeospatialMode must be set to VPS_AND_GPS."
+        check(xrResourcesManager.perceptionRuntime.config.geospatial == GeospatialMode.SPATIAL) {
+            "To use this function, Config.GeospatialMode must be set to SPATIAL."
         }
     }
 

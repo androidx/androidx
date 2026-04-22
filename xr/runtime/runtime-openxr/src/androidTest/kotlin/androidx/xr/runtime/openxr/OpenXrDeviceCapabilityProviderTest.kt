@@ -97,7 +97,7 @@ class OpenXrDeviceCapabilityProviderTest {
     @Test
     fun isGeospatialSupportedAny_returnsTrueForAllModes() {
         assertThat(underTest.isGeospatialModeSupported(GeospatialMode.DISABLED)).isTrue()
-        assertThat(underTest.isGeospatialModeSupported(GeospatialMode.VPS_AND_GPS)).isTrue()
+        assertThat(underTest.isGeospatialModeSupported(GeospatialMode.SPATIAL)).isTrue()
     }
 
     @Test

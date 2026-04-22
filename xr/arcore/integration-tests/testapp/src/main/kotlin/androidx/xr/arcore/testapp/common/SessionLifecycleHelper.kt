@@ -115,7 +115,10 @@ class SessionLifecycleHelper(
         if (config.eyeTracking == EyeTrackingMode.FINE_TRACKING) {
             permissions.add(EYE_TRACKING_FINE)
         }
-        if (config.geospatial == GeospatialMode.VPS_AND_GPS) {
+        if (
+            config.geospatial == GeospatialMode.SPATIAL ||
+                config.geospatial == GeospatialMode.INERTIAL
+        ) {
             permissions.add(ACCESS_FINE_LOCATION)
         }
         return permissions

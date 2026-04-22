@@ -73,8 +73,11 @@ public class GeospatialMode private constructor(public val mode: Int) {
         /** Geospatial tracking will not be provided. */
         @JvmField public val DISABLED: GeospatialMode = GeospatialMode(0)
 
-        /** The device will use a combination of VPS and GPS to provide geospatial tracking. */
-        @JvmField public val VPS_AND_GPS: GeospatialMode = GeospatialMode(1)
+        /** The device will use a combination of VPS, IMU and GPS to provide geospatial tracking. */
+        @JvmField public val SPATIAL: GeospatialMode = GeospatialMode(1)
+
+        /** The device will use a combination of IMU and GPS to provide geospatial tracking. */
+        @JvmField public val INERTIAL: GeospatialMode = GeospatialMode(2)
     }
 }
 

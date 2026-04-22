@@ -66,12 +66,14 @@ package androidx.xr.runtime.interfaces {
     property public int mode;
     field public static final androidx.xr.runtime.interfaces.GeospatialMode.Companion Companion;
     field public static final androidx.xr.runtime.interfaces.GeospatialMode DISABLED;
-    field public static final androidx.xr.runtime.interfaces.GeospatialMode VPS_AND_GPS;
+    field public static final androidx.xr.runtime.interfaces.GeospatialMode INERTIAL;
+    field public static final androidx.xr.runtime.interfaces.GeospatialMode SPATIAL;
   }
 
   public static final class GeospatialMode.Companion {
     property public androidx.xr.runtime.interfaces.GeospatialMode DISABLED;
-    property public androidx.xr.runtime.interfaces.GeospatialMode VPS_AND_GPS;
+    property public androidx.xr.runtime.interfaces.GeospatialMode INERTIAL;
+    property public androidx.xr.runtime.interfaces.GeospatialMode SPATIAL;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class HandTrackingMode {
