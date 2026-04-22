@@ -58,6 +58,9 @@ public class SensorSupport {
         mLight = null;
         if (count > 0) {
             mSensorManager = (SensorManager) application.getSystemService(Context.SENSOR_SERVICE);
+            if (mSensorManager == null) {
+                return;
+            }
             for (int i = 0; i < count; i++) {
                 switch (ids[i]) {
                     case RemoteContext.ID_ACCELERATION_X:
@@ -133,7 +136,7 @@ public class SensorSupport {
         Sensor[] sensors = {mAcc, mGyro, mMag, mLight};
         for (int i = 0; i < sensors.length; i++) {
             Sensor sensor = sensors[i];
-            if (sensor != null) {
+            if (sensor != null && mSensorManager != null) {
                 mListener = listener;
                 mSensorManager.registerListener(
                         mListener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
