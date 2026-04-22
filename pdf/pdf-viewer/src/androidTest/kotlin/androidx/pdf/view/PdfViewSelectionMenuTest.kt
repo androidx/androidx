@@ -19,10 +19,12 @@ package androidx.pdf.view
 import android.R as androidR
 import android.graphics.Point
 import android.graphics.RectF
+import android.os.Build
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.pdf.R
+import androidx.pdf.TestUtils.assertNotNullObjectByText
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.selection.ContextMenuComponent
 import androidx.pdf.selection.PdfSelectionMenuKeys
@@ -105,13 +107,20 @@ class PdfViewSelectionMenuTest {
         longClickAtCenter()
 
         assert(selectionMenuItemPreparer.components.size == 2)
-        onView(withText(androidR.string.copy))
-            .inRoot(RootMatchers.isPlatformPopup())
-            .check(matches(isDisplayed()))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            assertNotNullObjectByText(pdfView.context.resources.getString(androidR.string.copy))
+            assertNotNullObjectByText(
+                pdfView.context.resources.getString(androidR.string.selectAll)
+            )
+        } else {
+            onView(withText(androidR.string.copy))
+                .inRoot(RootMatchers.isPlatformPopup())
+                .check(matches(isDisplayed()))
 
-        onView(withText(androidR.string.selectAll))
-            .inRoot(RootMatchers.isPlatformPopup())
-            .check(matches(isDisplayed()))
+            onView(withText(androidR.string.selectAll))
+                .inRoot(RootMatchers.isPlatformPopup())
+                .check(matches(isDisplayed()))
+        }
     }
 
     // On SDK < 25: Extra menu options collapses into an overflow menu.
@@ -174,9 +183,13 @@ class PdfViewSelectionMenuTest {
         longClickAtCenter()
 
         assert(selectionMenuItemPreparer.components.size == 1)
-        onView(withText(androidR.string.copy))
-            .inRoot(RootMatchers.isPlatformPopup())
-            .check(matches(isDisplayed()))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            assertNotNullObjectByText(pdfView.context.resources.getString(androidR.string.copy))
+        } else {
+            onView(withText(androidR.string.copy))
+                .inRoot(RootMatchers.isPlatformPopup())
+                .check(matches(isDisplayed()))
+        }
     }
 
     private fun longClickAtCenter() {

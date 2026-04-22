@@ -77,7 +77,7 @@ class ImageSelectionTest {
     fun enablingImageSelection_onTestDeviceWithSdkExt_smallerThan19() = runTest {
         kotlin.test.assertFalse(pdfView.isImageSelectionEnabled)
 
-        if (isImageSelectionAvailableInSdk()) {
+        if (!isImageSelectionAvailableInSdk()) {
             pdfView.isImageSelectionEnabled = true
         }
 
