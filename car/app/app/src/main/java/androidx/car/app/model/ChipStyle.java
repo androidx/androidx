@@ -50,6 +50,8 @@ public final class ChipStyle {
     private final CarColor mContentColor;
     @Nullable
     private final CarColor mOutlineColor;
+    @Nullable
+    private final Shape mShape;
 
     /**
      * Returns the background color of the chip, or {@code null} if not set.
@@ -75,6 +77,14 @@ public final class ChipStyle {
         return mOutlineColor;
     }
 
+    /**
+     * Returns the shape of the chip, or {@code null} if not set.
+     */
+    @Nullable
+    public Shape getShape() {
+        return mShape;
+    }
+
     @Override
     @NonNull
     public String toString() {
@@ -83,14 +93,16 @@ public final class ChipStyle {
                 + mBackgroundColor
                 + ", contentColor="
                 + mContentColor
-                + ", strokeColor="
+                + ", outlineColor="
                 + mOutlineColor
+                + ", shape="
+                + mShape
                 + "}";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mBackgroundColor, mContentColor, mOutlineColor);
+        return Objects.hash(mBackgroundColor, mContentColor, mOutlineColor, mShape);
     }
 
     @Override
@@ -104,13 +116,15 @@ public final class ChipStyle {
         ChipStyle otherStyle = (ChipStyle) other;
         return Objects.equals(mBackgroundColor, otherStyle.mBackgroundColor)
                 && Objects.equals(mContentColor, otherStyle.mContentColor)
-                && Objects.equals(mOutlineColor, otherStyle.mOutlineColor);
+                && Objects.equals(mOutlineColor, otherStyle.mOutlineColor)
+                && Objects.equals(mShape, otherStyle.mShape);
     }
 
     ChipStyle(Builder builder) {
         mBackgroundColor = builder.mBackgroundColor;
         mContentColor = builder.mContentColor;
         mOutlineColor = builder.mOutlineColor;
+        mShape = builder.mShape;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -118,16 +132,19 @@ public final class ChipStyle {
         mBackgroundColor = null;
         mContentColor = null;
         mOutlineColor = null;
+        mShape = null;
     }
 
     /** A builder of {@link ChipStyle}. */
     public static final class Builder {
         @Nullable
-        CarColor mBackgroundColor;
+        private CarColor mBackgroundColor;
         @Nullable
-        CarColor mContentColor;
+        private CarColor mContentColor;
         @Nullable
-        CarColor mOutlineColor;
+        private CarColor mOutlineColor;
+        @Nullable
+        private Shape mShape;
 
         /**
          * Sets the background color of the chip.
@@ -173,6 +190,19 @@ public final class ChipStyle {
         @NonNull
         public Builder setOutlineColor(@NonNull CarColor outlineColor) {
             mOutlineColor = requireNonNull(outlineColor);
+            return this;
+        }
+
+        /**
+         * Sets the shape of the chip.
+         *
+         * <p>If the shape is not set, a host default shape will be used.
+         *
+         * @throws NullPointerException if {@code shape} is {@code null}
+         */
+        @NonNull
+        public Builder setShape(@NonNull Shape shape) {
+            mShape = requireNonNull(shape);
             return this;
         }
 
