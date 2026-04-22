@@ -18,6 +18,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.collection.MutableIntObjectMap
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -39,6 +40,13 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>() {
     private class PendingSet(val index: RemoteInt, val value: RemoteFloat, val generation: Int)
 
     private val pendingSetList = mutableListOf<PendingSet>()
+    private val constantValueCache =
+        MutableIntObjectMap<RemoteFloat>().apply {
+            val zero = RemoteFloat(0f)
+            for (i in 0 until this@RemoteMutableFloatArray.size) {
+                this[i] = zero
+            }
+        }
     private var generation = 0
 
     internal enum class OperationKey {
@@ -61,6 +69,12 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>() {
      * dereference operation on a remote float array.
      */
     public operator fun get(v: RemoteInt): RemoteFloat {
+        if (v.hasConstantValue) {
+            constantValueCache[v.constantValue]?.let {
+                return it
+            }
+        }
+
         val currentGeneration = generation
         return UncachedRemoteFloatExpression(
             constantValueOrNull = null,
@@ -83,10 +97,18 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>() {
     }
 
     public operator fun set(index: Int, v: RemoteFloat) {
+        constantValueCache[index] = v
         pendingSetList.add(PendingSet(RemoteInt(index), v, generation++))
     }
 
     public operator fun set(index: RemoteInt, v: RemoteFloat) {
+        if (index.hasConstantValue) {
+            constantValueCache[index.constantValue] = v
+        } else {
+            // We've no idea which index is getting written to, so we have to throw away cached
+            // values.
+            constantValueCache.clear()
+        }
         pendingSetList.add(PendingSet(index, v, generation++))
     }
 

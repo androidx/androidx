@@ -157,6 +157,65 @@ class RemoteMutableFloatArrayTest {
         assertThat(context.getFloat(resultId2)).isEqualTo(5678f)
     }
 
+    @Test
+    fun arrayGet_initialValue_isZero() {
+        val remoteFloatArray = RemoteMutableFloatArray(4)
+
+        val result = remoteFloatArray[2]
+
+        assertThat(result.hasConstantValue).isTrue()
+        assertThat(result.constantValue).isEqualTo(0f)
+    }
+
+    @Test
+    fun arrayGet_cachedValue_isSameObject() {
+        val remoteFloatArray = RemoteMutableFloatArray(4)
+
+        val val1 = remoteFloatArray[2]
+        val val2 = remoteFloatArray[2]
+
+        assertThat(val1).isSameInstanceAs(val2)
+    }
+
+    @Test
+    fun arraySet_constIndex_updatesCache() {
+        val remoteFloatArray = RemoteMutableFloatArray(4)
+        val value = 1234.rf
+
+        remoteFloatArray[2] = value
+        val result = remoteFloatArray[2]
+
+        assertThat(result).isSameInstanceAs(value)
+    }
+
+    @Test
+    fun arraySet_constRemoteInt_updatesCache() {
+        val remoteFloatArray = RemoteMutableFloatArray(4)
+        val index = 2.ri
+        val value = 1234.rf
+
+        remoteFloatArray[index] = value
+        val result = remoteFloatArray[2]
+
+        assertThat(result).isSameInstanceAs(value)
+    }
+
+    @Test
+    fun arraySet_dynamicIndex_clearsCache() {
+        val remoteFloatArray = RemoteMutableFloatArray(4)
+        val dynamicIndex = RemoteInt.createNamedRemoteInt("testInt", 2)
+
+        remoteFloatArray[1] = 123.rf
+        assertThat(remoteFloatArray[1].constantValue).isEqualTo(123f)
+
+        // Setting a dynamic index should clear the cache
+        remoteFloatArray[dynamicIndex] = 456.rf
+
+        val resultAfterDynamicSet = remoteFloatArray[1]
+        // It should no longer be a constant from cache, but a dynamic expression
+        assertThat(resultAfterDynamicSet.hasConstantValue).isFalse()
+    }
+
     private fun makeAndPaintCoreDocument(cs: RemoteComposeCreationState = creationState) =
         CoreDocument().apply {
             val buffer = cs.document.buffer
