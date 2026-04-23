@@ -1733,12 +1733,14 @@ private fun DatePickerContent(
                         modifier =
                             Modifier.focusRequester(dividerFocusRequester)
                                 .onKeyEvent {
-                                    if (
-                                        it.key == Key.DirectionUp ||
-                                            (it.isShiftPressed && it.key == Key.Tab)
-                                    ) {
+                                    if (it.key == Key.DirectionUp) {
                                         // If focus is coming from below, move back up.
                                         focusManager.moveFocus(FocusDirection.Previous)
+                                        return@onKeyEvent true
+                                    } else if ((it.isShiftPressed && it.key == Key.Tab)) {
+                                        // To keep focus order consistent, if shift + tabbing then
+                                        // focus back on the selected year.
+                                        currentYearFocusRequester.requestFocus()
                                         return@onKeyEvent true
                                     } else if (it.key == Key.DirectionDown || it.key == Key.Tab) {
                                         // If focus is coming from above, move forward down.

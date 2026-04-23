@@ -1007,7 +1007,7 @@ class DatePickerTest {
         rule.onNodeWithText("January 2010").performKeyInput { pressKey(Key.Enter) }
         rule.waitForIdle()
 
-        // Assert focus jumps to selected year
+        // Assert focus jumps to selected year.
         rule.onNodeWithText("Navigate to year 2010").assertIsFocused()
 
         // Assert tabbing goes to ok button.
@@ -1018,14 +1018,14 @@ class DatePickerTest {
         rule.onNodeWithText("OK").performKeyInput {
             withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
         }
-        // Assert shift + tabbing goes to year above cancel button.
+        // Assert shift + tabbing goes back to selected year.
         rule.onNodeWithText("Cancel").performKeyInput {
             withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
         }
-        rule.onNodeWithText("Navigate to year 2025").assertIsFocused()
+        rule.onNodeWithText("Navigate to year 2010").assertIsFocused()
 
         // Assert shift + tabbing goes back to year picker button.
-        rule.onNodeWithText("Navigate to year 2025").performKeyInput {
+        rule.onNodeWithText("Navigate to year 2010").performKeyInput {
             withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
         }
         rule.onNodeWithText("January 2010").assertIsFocused()
