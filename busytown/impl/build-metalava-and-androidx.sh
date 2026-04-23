@@ -31,7 +31,7 @@ gw="$METALAVA_DIR/gradlew -Dorg.gradle.jvmargs=-Xmx24g"
 export ANDROID_HOME="$CHECKOUT_ROOT/prebuilts/fullsdk-linux/"
 
 # Use androidx prebuilts repo since the metalava repo is not in the checkout
-export METALAVA_PREBUILTS_REPO="$CHECKOUT_ROOT/prebuilts/androidx/external"
+export METALAVA_PREBUILTS_REPOS="$CHECKOUT_ROOT/prebuilts/androidx/external,$CHECKOUT_ROOT/prebuilts/androidx/internal"
 
 function buildMetalava() {
   METALAVA_BUILD_LOG="$OUT_DIR/metalava.log"
