@@ -171,7 +171,14 @@ public constructor(
             providerService: ComponentName,
         ): WearWidgetProviderInfo {
             val pm = context.packageManager
-            val serviceInfo = pm.getServiceInfo(providerService, PackageManager.GET_META_DATA)
+            val serviceInfo =
+                pm.getServiceInfo(
+                    providerService,
+                    PackageManager.GET_META_DATA or
+                        PackageManager.GET_RESOLVED_FILTER or
+                        PackageManager.MATCH_DIRECT_BOOT_AWARE or
+                        PackageManager.MATCH_DIRECT_BOOT_UNAWARE,
+                )
             val providerResources = pm.getResourcesForApplication(serviceInfo.applicationInfo)
             val xmlParser =
                 try {
