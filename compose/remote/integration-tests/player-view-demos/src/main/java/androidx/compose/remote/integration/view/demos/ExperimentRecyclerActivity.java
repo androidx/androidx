@@ -1002,6 +1002,85 @@ public class ExperimentRecyclerActivity extends Activity {
         return getp(name, () -> gen.get().mRemoteWriter);
     }
 
+
+    /**
+     * Creates a document with a name and a writer supplier
+     *
+     * @param name        name of the document
+     * @param docSupplier the writer supplier
+     * @return the document
+     */
+    @SuppressLint("RestrictedApiAndroidX")
+    public static @NonNull RCDoc get(@NonNull String name,
+            @NonNull Supplier<byte @NonNull []> docSupplier) {
+        return new RCDoc() {
+            @NonNull
+            final Supplier<byte @NonNull []> mSupplier = docSupplier;
+            byte @Nullable [] mDoc;
+            float mBuildTime = 0;
+
+            @Override
+            public float getBuildTime() {
+                return mBuildTime;
+            }
+
+            public byte @NonNull [] doc() {
+                if (mDoc == null) {
+                    mDoc = mSupplier.get();
+                }
+
+                return mDoc;
+            }
+
+            @Override
+            public int getColor() {
+                return 0;
+            }
+
+            @Override
+            public void run() {
+            }
+
+            @Override
+            public int size() {
+                return doc().length;
+            }
+
+            @Override
+            public int zipSize() {
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                try {
+                    DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(baos);
+                    deflaterOutputStream.write(doc(), 0, doc().length);
+                    deflaterOutputStream.finish();
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                return baos.size();
+            }
+
+            @Override
+            @NonNull
+            public String toString() {
+                return name;
+            }
+
+            @Override
+            public RemoteDocument getDoc() {
+                Log.v("perf", "build doc \"" + name + "\"");
+                long time = System.nanoTime();
+                RemoteDocument ret = new RemoteDocument(
+                        new ByteArrayInputStream(doc(), 0, doc().length));
+                mBuildTime = (System.nanoTime() - time) * 1E-6f;
+                return ret;
+            }
+        };
+    }
+
+    /**
     /**
      * Creates a document with a name and a writer supplier
      *

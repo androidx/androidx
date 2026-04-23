@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter.HTag
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
+import androidx.compose.remote.creation.dsl.RcTextAlign
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
@@ -40,24 +41,29 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun RcDslDemoPreview() {
-    RemoteDocPreview(RemoteDocument(RcDslDemo()))
+    RemoteDocPreview(RemoteDocument(dslDemo()))
 }
 
 /** A simple demo using the new RemoteCompose DSL. */
 @Suppress("RestrictedApiAndroidX")
-fun RcDslDemo(): ByteArray {
+fun dslDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_DP),
     ) {
-        val count = addNamedFloat("count", 0f)
-        val textVar = addNamedText("message", "Click me!")
+        val count = remoteNamedFloat("count", 0f)
+        val textVar = remoteNamedText("message", "Click me!")
 
         Column(
             modifier = Modifier.fillMaxSize().background(0xFFEEEEEE).padding(20f),
             horizontal = RcHorizontalPositioning.Center,
         ) {
-            Text("Hello from New DSL!", fontSize = 24.rsp, color = 0xFF333333.toInt())
+            Text(
+                "Hello from New DSL!",
+                fontSize = 24.rsp,
+                color = 0xFF333333.toInt(),
+                textAlign = RcTextAlign.Center,
+            )
 
             Box(
                 modifier =
@@ -66,7 +72,7 @@ fun RcDslDemo(): ByteArray {
                         setValue(textVar, "Button Clicked!")
                     }
             ) {
-                Text("Click Box", color = 0xFFFFFFFF)
+                Text("Click Box", color = 0xFFFFFFFF, textAlign = RcTextAlign.Center)
             }
 
             Text(textVar, fontSize = 36.rsp)

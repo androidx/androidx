@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcRowHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcText
+import androidx.compose.remote.creation.dsl.RcTextAlign
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
@@ -38,6 +39,7 @@ import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.utils.RcToString
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -82,7 +84,7 @@ class DslComparisonTest {
                     0,
                     400f,
                     null,
-                    1,
+                    5,
                     1,
                     1,
                 ) {}
@@ -110,7 +112,7 @@ class DslComparisonTest {
             }
 
         // 3. Compare
-        assertThat(dslBytes).isEqualTo(legacyBytes)
+        assertThat(RcToString.toString(dslBytes)).isEqualTo(RcToString.toString(legacyBytes))
     }
 
     @Test
@@ -160,7 +162,7 @@ class DslComparisonTest {
                         0,
                         400f,
                         null,
-                        1,
+                        5,
                         1,
                         1,
                     ) {}
@@ -174,7 +176,7 @@ class DslComparisonTest {
                         0,
                         400f,
                         null,
-                        1,
+                        5,
                         1,
                         1,
                     ) {}
@@ -221,8 +223,8 @@ class DslComparisonTest {
                 RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
                 RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
             ) {
-                val count = addNamedFloat("count", 0f)
-                val textVar = addNamedText("message", "Click me!")
+                val count = remoteNamedFloat("count", 0f)
+                val textVar = remoteNamedText("message", "Click me!")
 
                 Column(
                     modifier = Modifier.background(0xFF111111.toInt()).size(500f, 800f),
@@ -235,7 +237,7 @@ class DslComparisonTest {
                         fontSize = 32.rsp,
                         color = 0xFFFFFFFF.toInt(),
                         fontWeight = 700f,
-                        textAlign = 3, // CENTER
+                        textAlign = RcTextAlign.Center, // CENTER
                     )
 
                     Row(
@@ -260,14 +262,14 @@ class DslComparisonTest {
                             "Inside Box",
                             fontSize = 14.rsp,
                             color = 0xFFFFFFFF.toInt(),
-                            textAlign = 3,
+                            textAlign = RcTextAlign.Center,
                         )
                     }
                 }
             }
 
         // 3. Compare
-        assertThat(dslBytes).isEqualTo(legacyBytes)
+        assertThat(RcToString.toString(dslBytes)).isEqualTo(RcToString.toString(legacyBytes))
     }
 
     @Test

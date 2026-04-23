@@ -76,9 +76,9 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.integration.view.demos.dsl.RcDslClock
-import androidx.compose.remote.integration.view.demos.dsl.RcDslDemo
-import androidx.compose.remote.integration.view.demos.dsl.RcDslTicker
+import androidx.compose.remote.integration.view.demos.dsl.dslClock
+import androidx.compose.remote.integration.view.demos.dsl.dslDemo
+import androidx.compose.remote.integration.view.demos.dsl.dslTicker
 import androidx.compose.remote.integration.view.demos.examples.DemoPaths.pathTest
 import androidx.compose.remote.integration.view.demos.examples.LayoutModifierDemo1
 import androidx.compose.remote.integration.view.demos.examples.LayoutModifierDemo2
@@ -320,9 +320,9 @@ class ExperimentActivity : ComponentActivity() {
                 ),
             "Procedural..." to
                 listOf(
-                    getb("Rc DSL Clock Demo") { RcDslClock() },
-                    getb("Rc DSL Ticker Demo") { RcDslTicker() },
-                    getb("Rc DSL Demo") { RcDslDemo() },
+                    getb("Rc DSL Clock Demo") { dslClock() },
+                    getb("Rc DSL Ticker Demo") { dslTicker() },
+                    getb("Rc DSL Demo") { dslDemo() },
                     getpc("RcClicks") { RcClicksDemo() },
                     getpc("RcRatio") { RcRatio() },
                     getpc("RcScrollViewport") { RcScrollview() },

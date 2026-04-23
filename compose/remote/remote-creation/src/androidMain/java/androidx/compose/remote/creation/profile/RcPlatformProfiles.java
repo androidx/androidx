@@ -181,6 +181,40 @@ public class RcPlatformProfiles {
      *
      * <p>It uses the {@link RemoteComposeWriterAndroid} to serialize the UI tree.
      */
+    public static final @NonNull Profile ANDROIDX7 = new Profile(7,
+            RcProfiles.PROFILE_ANDROIDX, new AndroidxRcPlatformServices(),
+            (creationDisplayInfo, profile, callback) ->
+                    new RemoteComposeWriterAndroid(
+                            creationDisplayInfo, null, profile, callback));
+
+    /**
+     * A profile for creating Remote Compose UIs for use with the embedded AndroidX Player.
+     *
+     * <p>It uses the {@link RemoteComposeWriterAndroid} to serialize the UI tree.
+     */
+    public static final @NonNull Profile ANDROIDX8 = new Profile(8,
+            RcProfiles.PROFILE_ANDROIDX, new AndroidxRcPlatformServices(),
+            (creationDisplayInfo, profile, callback) ->
+                    new RemoteComposeWriterAndroid(
+                            creationDisplayInfo, null, profile, callback));
+
+    /**
+     * A profile for creating Remote Compose UIs for use with the embedded AndroidX Player.
+     *
+     * <p>It uses the {@link RemoteComposeWriterAndroid} to serialize the UI tree.
+     */
+    public static final @NonNull Profile ANDROIDX9 = new Profile(9,
+            RcProfiles.PROFILE_ANDROIDX, new AndroidxRcPlatformServices(),
+            (creationDisplayInfo, profile, callback) ->
+                    new RemoteComposeWriterAndroid(
+                            creationDisplayInfo, null, profile, callback));
+
+
+    /**
+     * A profile for creating Remote Compose UIs for use with the embedded AndroidX Player.
+     *
+     * <p>It uses the {@link RemoteComposeWriterAndroid} to serialize the UI tree.
+     */
     public static final @NonNull Profile ANDROIDX = new Profile(CoreDocument.DOCUMENT_API_LEVEL,
             RcProfiles.PROFILE_ANDROIDX,
             new AndroidxRcPlatformServices(),

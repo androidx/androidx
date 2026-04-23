@@ -19,12 +19,12 @@
 package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.operations.DrawTextOnCircle
+import androidx.compose.remote.creation.RFloat
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.RemoteComposeWriter.HTag
 import androidx.compose.remote.creation.RemoteComposeWriterInterface
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
@@ -91,8 +91,9 @@ public interface RcScope {
         modifier: Modifier = Modifier,
         color: Any = 0xFF000000.toInt(),
         fontSize: RcSp = 16.rsp,
-        fontWeight: Float = 400f,
-        textAlign: Int = 1, // LEFT
+        fontWeight: Float = RcFontWeight.Normal,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
     )
 
     /** Adds a [Text] component using a remote string reference. */
@@ -101,8 +102,9 @@ public interface RcScope {
         modifier: Modifier = Modifier,
         color: Any = 0xFF000000.toInt(),
         fontSize: RcSp = 16.rsp,
-        fontWeight: Float = 400f,
-        textAlign: Int = 1, // LEFT
+        fontWeight: Float = RcFontWeight.Normal,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
     )
 
     /** Adds an [Image] component to the document. */
@@ -110,6 +112,7 @@ public interface RcScope {
         image: RcImage,
         modifier: Modifier = Modifier,
         contentDescription: String? = null,
+        contentScale: RcContentScale = RcContentScale.Fit,
         alpha: Float = 1f,
     )
 
@@ -129,50 +132,60 @@ public interface RcScope {
     public fun endGlobal()
 
     /** Registers a text resource and returns its reference. */
-    public fun addText(text: String): RcText
+    public fun remoteText(text: String): RcText
 
     /** Registers a named text resource and returns its reference. */
-    public fun addNamedText(name: String, text: String): RcText
+    public fun remoteNamedText(name: String, text: String): RcText
 
     /** Registers a string list resource and returns its reference. */
-    public fun addStringList(vararg strings: String): RcFloat
+    public fun remoteArrayOf(vararg strings: String): RcTextList
 
     /** Returns a remote text lookup from the specified data set and index. */
-    public fun textLookup(dataSetId: RcFloat, index: RcFloat): RcText
+    public fun textLookup(dataSetId: RcTextList, index: RcFloat): RcText
+
+    public operator fun RcTextList.get(index: RcFloat): RcText {
+        return textLookup(this, index)
+    }
 
     /** Returns a remote text lookup from the specified data set and index. */
-    public fun textLookup(dataSetId: RcFloat, indexId: RcInteger): RcText
+    public fun textLookup(dataSetId: RcTextList, indexId: RcInteger): RcText
 
     /** Merges two remote text references. */
     public fun textMerge(text1: RcText, text2: RcText): RcText
 
+    public operator fun RcText.plus(v: RcText): RcText = textMerge(this, v)
+
+    public operator fun String.plus(v: RcText): RcText = textMerge(remoteText(this), v)
+
+    public operator fun RcText.plus(v: String): RcText = textMerge(this, remoteText(v))
+
     /** Registers a color resource and returns its reference. */
-    public fun addColor(color: Int): RcColor
+    public fun remoteColor(color: Int): RcColor
 
     /** Registers a color resource from a Long and returns its reference. */
-    public fun addColor(color: Long): RcColor = addColor(color.toInt())
+    public fun remoteColor(color: Long): RcColor = remoteColor(color.toInt())
 
     /** Registers a named color resource and returns its reference. */
-    public fun addNamedColor(name: String, color: Int): RcColor
+    public fun remoteNamedColor(name: String, color: Int): RcColor
 
     /** Registers a named color resource from a Long and returns its reference. */
-    public fun addNamedColor(name: String, color: Long): RcColor =
-        addNamedColor(name, color.toInt())
+    public fun remoteNamedColor(name: String, color: Long): RcColor =
+        remoteNamedColor(name, color.toInt())
 
     /** Registers a themed color resource and returns its reference. */
-    public fun addThemedColor(light: Int, dark: Int): RcColor
+    public fun remoteThemedColor(light: Int, dark: Int): RcColor
 
     /** Registers a themed color resource from Longs and returns its reference. */
-    public fun addThemedColor(light: Long, dark: Long): RcColor =
-        addThemedColor(light.toInt(), dark.toInt())
+    public fun remoteThemedColor(light: Long, dark: Long): RcColor =
+        remoteThemedColor(light.toInt(), dark.toInt())
 
     /** Registers a themed color resource and returns its reference. */
-    public fun addThemedColor(light: RcColor, dark: RcColor): RcColor
+    public fun remoteThemedColor(light: RcColor, dark: RcColor): RcColor
 
     /**
      * Registers a themed color resource with names and default values and returns its reference.
      */
-    public fun addThemedColor(
+    public fun remoteThemedColor(
         light: String,
         lightDefault: Int,
         dark: String,
@@ -186,7 +199,7 @@ public interface RcScope {
     public fun createTextFromFloat(value: RcFloat, whole: Int, decimal: Int, flags: Int): RcText
 
     /** Registers a float array and returns its reference. */
-    public fun addFloatArray(array: FloatArray): RcFloat
+    public fun remoteFloatArray(array: FloatArray): RcFloat
 
     /** Returns an [RcFloat] representing the current animation time. */
     public fun animationTime(): RcFloat
@@ -195,19 +208,19 @@ public interface RcScope {
     public fun touchTime(): RcFloat
 
     /** Returns an [RcFloat] representing the current day of the week. */
-    @Suppress("FunctionName") public fun DayOfWeek(): RcFloat
+    @Suppress("FunctionName") public fun dayOfWeek(): RcFloat
 
     /** Returns an [RcFloat] representing the current day of the month. */
-    @Suppress("FunctionName") public fun DayOfMonth(): RcFloat
+    @Suppress("FunctionName") public fun dayOfMonth(): RcFloat
 
     /** Returns an [RcFloat] representing the current hour. */
-    @Suppress("FunctionName") public fun Hour(): RcFloat
+    @Suppress("FunctionName") public fun hour(): RcFloat
 
     /** Returns an [RcFloat] representing the current minutes. */
-    @Suppress("FunctionName") public fun Minutes(): RcFloat
+    @Suppress("FunctionName") public fun minutes(): RcFloat
 
     /** Returns an [RcFloat] representing the current seconds. */
-    @Suppress("FunctionName") public fun Seconds(): RcFloat
+    @Suppress("FunctionName") public fun seconds(): RcFloat
 
     /** Returns an [RcFloat] representing the maximum of [a] and [b]. */
     public fun max(a: RcFloat, b: RcFloat): RcFloat
@@ -236,6 +249,8 @@ public interface RcScope {
     /** Returns an [RcFloat] representing the cosine of [v]. */
     public fun cos(v: RcFloat): RcFloat
 
+    public fun abs(v: RcFloat): RcFloat
+
     /** Returns an [RcFloat] representing the maximum value in the [array]. */
     public fun arrayMax(array: RcFloat): RcFloat
 
@@ -248,6 +263,20 @@ public interface RcScope {
     /** Returns an [RcFloat] interpolated from [array] at [position]. */
     public fun arraySpline(array: RcFloat, position: Float): RcFloat
 
+    public fun arrayLength(a: RcFloat): RcFloat
+
+    public fun arraySum(a: RcFloat): RcFloat
+
+    public fun arraySum(a: RcFloat, index: RcFloat): RcFloat
+
+    public fun arraySumXY(a: RcFloat, b: RcFloat): RcFloat
+
+    public fun arraySumSqr(a: RcFloat): RcFloat
+
+    public fun arrayAvg(a: RcFloat): RcFloat
+
+    public operator fun RcFloat.get(index: RcFloat): RcFloat
+
     /**
      * Adds a polar path expression and returns its reference.
      *
@@ -259,14 +288,14 @@ public interface RcScope {
      * @param centerY the center y coordinate
      * @param type the path type (see [Rc.PathExpression])
      */
-    public fun addPolarPathExpression(
+    public fun remotePolarPath(
         expression: RcFloat,
         start: Float,
         end: Float,
         count: Int,
         centerX: RcFloat,
         centerY: RcFloat,
-        type: Int = Rc.PathExpression.SPLINE_PATH,
+        type: RcPathType = RcPathType.Spline,
     ): RcPath
 
     /**
@@ -283,56 +312,56 @@ public interface RcScope {
     public fun componentHeight(): RcFloat
 
     /** Registers a bitmap resource and returns its reference. */
-    public fun addBitmap(image: Any): RcImage
+    public fun remoteBitmap(image: Any): RcImage
 
     /** Registers a named bitmap resource and returns its reference. */
-    public fun addNamedBitmap(name: String, image: Any): RcImage
+    public fun remoteNamedBitmap(name: String, image: Any): RcImage
 
     /** Registers a bitmap URL resource and returns its reference. */
-    public fun addBitmapUrl(url: String): RcImage
+    public fun remoteBitmapUrl(url: String): RcImage
 
     /** Registers a named bitmap URL resource and returns its reference. */
-    public fun addNamedBitmapUrl(name: String, url: String): RcImage
+    public fun remoteNamedBitmapUrl(name: String, url: String): RcImage
 
     /** Registers a float variable and returns its reference. */
-    public fun addFloat(value: Float): RcFloat
+    public fun remoteFloat(value: Float): RcFloat
 
     /** Registers a named float variable and returns its reference. */
-    public fun addNamedFloat(name: String, value: Float): RcFloat
+    public fun remoteNamedFloat(name: String, value: Float): RcFloat
 
     /** Registers an integer variable and returns its reference. */
-    public fun addInteger(value: Int): RcInteger
+    public fun remoteInteger(value: Int): RcInteger
 
     /** Registers a named integer variable and returns its reference. */
-    public fun addNamedInteger(name: String, value: Int): RcInteger
+    public fun remoteNamedInteger(name: String, value: Int): RcInteger
 
     /** Registers a long constant and returns its reference. */
-    public fun addLong(value: Long): RcInteger
+    public fun remoteLong(value: Long): RcInteger
 
     /** Registers a boolean constant and returns its reference. */
-    public fun addBoolean(value: Boolean): RcInteger
+    public fun remoteBoolean(value: Boolean): RcInteger
 
     /** Registers a path data resource and returns its reference. */
-    public fun addPathData(path: Any): RcPath
+    public fun remotePathData(path: RcPlatformServices.RcPathArrayCreator): RcPath
 
     /** Registers a path string resource and returns its reference. */
-    public fun addPathString(path: String): RcPath
+    //    public fun remotePathString(path: String): RcPath
 
     /** Registers a text style resource and returns its reference. */
-    public fun addTextStyle(
+    public fun remoteTextStyle(
         fontSize: RcSp?,
         color: Int? = null,
         fontWeight: Float? = null,
-        textAlign: Int? = null,
+        textAlign: RcTextAlign? = null,
     ): RcTextStyle
 
     /** Registers a text style resource from a Long color and returns its reference. */
-    public fun addTextStyle(
+    public fun remoteTextStyle(
         fontSize: RcSp?,
         color: Long,
         fontWeight: Float? = null,
-        textAlign: Int? = null,
-    ): RcTextStyle = addTextStyle(fontSize, color.toInt(), fontWeight, textAlign)
+        textAlign: RcTextAlign? = null,
+    ): RcTextStyle = remoteTextStyle(fontSize, color.toInt(), fontWeight, textAlign)
 
     /** Draws a rectangle. */
     public fun drawRect(left: Float, top: Float, right: Float, bottom: Float)
@@ -581,10 +610,10 @@ public interface RcCanvasScope : RcScope {
     public fun clipRect(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat)
 
     /** Creates a new path starting at the specified position. */
-    public fun addPath(x: Float, y: Float): RcPath
+    public fun remotePath(x: Float, y: Float): RcPath
 
     /** Creates a new path starting at the specified position and populates it. */
-    public fun addPath(x: Float, y: Float, block: RcPathScope.() -> Unit): RcPath
+    public fun remotePath(x: Float, y: Float, block: RcPathScope.() -> Unit): RcPath
 
     /** Preconcat the current matrix with the specified scale. */
     public fun scale(scaleX: Float, scaleY: Float)
@@ -711,10 +740,11 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         color: Any,
         fontSize: RcSp,
         fontWeight: Float,
-        textAlign: Int,
+        textAlign: RcTextAlign,
+        overflow: RcTextOverflow,
     ) {
         val textId = writer.addText(text)
-        Text(RcText(textId), modifier, color, fontSize, fontWeight, textAlign)
+        Text(RcText(textId), modifier, color, fontSize, fontWeight, textAlign, overflow)
     }
 
     override fun Text(
@@ -723,7 +753,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         color: Any,
         fontSize: RcSp,
         fontWeight: Float,
-        textAlign: Int,
+        textAlign: RcTextAlign,
+        overflow: RcTextOverflow,
     ) {
         if (color is RcColor) {
             writer.textComponent(
@@ -738,8 +769,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 0, // fontStyle
                 fontWeight,
                 null, // fontFamily
-                textAlign,
-                1, // overflow
+                textAlign.value,
+                overflow.value,
                 Int.MAX_VALUE, // maxLines
                 0f, // letterSpacing
                 0f, // lineHeightAdd
@@ -769,8 +800,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 0,
                 fontWeight,
                 null,
-                textAlign,
-                1,
+                textAlign.value,
+                overflow.value,
                 1,
             ) {}
         }
@@ -780,9 +811,10 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         image: RcImage,
         modifier: Modifier,
         contentDescription: String?,
+        contentScale: RcContentScale,
         alpha: Float,
     ) {
-        writer.image(modifier.toRecordingModifier(), image.id, 1 /* FIT */, alpha)
+        writer.image(modifier.toRecordingModifier(), image.id, contentScale.value, alpha)
     }
 
     override fun Canvas(modifier: Modifier, content: RcCanvasScope.() -> Unit) {
@@ -810,42 +842,42 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.endGlobal()
     }
 
-    override fun addText(text: String): RcText = RcText(writer.addText(text))
+    override fun remoteText(text: String): RcText = RcText(writer.addText(text))
 
-    override fun addNamedText(name: String, text: String): RcText =
+    override fun remoteNamedText(name: String, text: String): RcText =
         RcText(writer.addNamedString(name, text))
 
-    override fun addStringList(vararg strings: String): RcFloat =
-        RcFloat(writer, floatArrayOf(writer.addStringList(*strings)))
+    override fun remoteArrayOf(vararg strings: String): RcTextList =
+        RcTextList(writer.addStringList(*strings))
 
-    override fun textLookup(dataSetId: RcFloat, index: RcFloat): RcText {
-        val arrayId: Float = dataSetId.withWriter(writer).toFloat()
+    override fun textLookup(dataSetId: RcTextList, index: RcFloat): RcText {
+        val arrayId: Float = dataSetId.id
         val indexVal: Float = index.withWriter(writer).toFloat()
         return RcText(writer.textLookup(arrayId, indexVal))
     }
 
-    override fun textLookup(dataSetId: RcFloat, indexId: RcInteger): RcText =
-        RcText(writer.textLookup(dataSetId.withWriter(writer).toFloat(), indexId.id.toInt()))
+    override fun textLookup(dataSetId: RcTextList, indexId: RcInteger): RcText =
+        RcText(writer.textLookup(dataSetId.id, indexId.id.toInt()))
 
     override fun textMerge(text1: RcText, text2: RcText): RcText =
         RcText(writer.textMerge(text1.id, text2.id))
 
-    override fun addColor(color: Int): RcColor = RcColor(writer.addColor(color))
+    override fun remoteColor(color: Int): RcColor = RcColor(writer.addColor(color))
 
-    override fun addNamedColor(name: String, color: Int): RcColor =
+    override fun remoteNamedColor(name: String, color: Int): RcColor =
         RcColor(writer.addNamedColor(name, color))
 
-    override fun addThemedColor(light: Int, dark: Int): RcColor =
+    override fun remoteThemedColor(light: Int, dark: Int): RcColor =
         RcColor(writer.addThemedColor(light.toShort(), dark.toShort()).toInt())
 
-    override fun addThemedColor(
+    override fun remoteThemedColor(
         light: String,
         lightDefault: Int,
         dark: String,
         darkDefault: Int,
     ): RcColor = RcColor(writer.addThemedColor(light, lightDefault, dark, darkDefault).toInt())
 
-    override fun addThemedColor(light: RcColor, dark: RcColor): RcColor =
+    override fun remoteThemedColor(light: RcColor, dark: RcColor): RcColor =
         RcColor(writer.addThemedColor(light.id.toShort(), dark.id.toShort()).toInt())
 
     override fun createTextFromFloat(value: Float, whole: Int, decimal: Int, flags: Int): RcText =
@@ -854,22 +886,22 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun createTextFromFloat(value: RcFloat, whole: Int, decimal: Int, flags: Int): RcText =
         value.withWriter(writer).format(whole, decimal, flags)
 
-    override fun addFloatArray(array: FloatArray): RcFloat =
+    override fun remoteFloatArray(array: FloatArray): RcFloat =
         RcFloat(writer, writer.addFloatArray(array))
 
     override fun animationTime(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.ANIMATION_TIME))
 
     override fun touchTime(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Touch.TOUCH_EVENT_TIME))
 
-    override fun DayOfWeek(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.WEEK_DAY))
+    override fun dayOfWeek(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.WEEK_DAY))
 
-    override fun DayOfMonth(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.DAY_OF_MONTH))
+    override fun dayOfMonth(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.DAY_OF_MONTH))
 
-    override fun Hour(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.TIME_IN_HR))
+    override fun hour(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.TIME_IN_HR))
 
-    override fun Minutes(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.TIME_IN_MIN))
+    override fun minutes(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.TIME_IN_MIN))
 
-    override fun Seconds(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.TIME_IN_SEC))
+    override fun seconds(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.TIME_IN_SEC))
 
     override fun max(a: RcFloat, b: RcFloat): RcFloat =
         RcFloat(writer, floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.MAX))
@@ -896,6 +928,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun cos(v: RcFloat): RcFloat = v.cos()
 
+    override fun abs(v: RcFloat): RcFloat = v.abs()
+
     override fun arrayMax(array: RcFloat): RcFloat =
         RcFloat(writer, floatArrayOf(*array.toArray(), Rc.FloatExpression.A_MAX))
 
@@ -911,14 +945,38 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun arraySpline(array: RcFloat, position: Float): RcFloat =
         RcFloat(writer, floatArrayOf(*array.toArray(), position, Rc.FloatExpression.A_SPLINE))
 
-    override fun addPolarPathExpression(
+    override fun arrayLength(a: RcFloat): RcFloat =
+        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_LEN))
+
+    override fun arraySum(a: RcFloat): RcFloat =
+        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_SUM))
+
+    override fun arraySum(a: RcFloat, index: RcFloat): RcFloat =
+        RcFloat(
+            writer,
+            floatArrayOf(*a.toArray(), *index.toArray(), Rc.FloatExpression.A_SUM_UNTIL),
+        )
+
+    override fun arraySumXY(a: RcFloat, b: RcFloat): RcFloat =
+        RcFloat(writer, floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.A_SUM_XY))
+
+    override fun arraySumSqr(a: RcFloat): RcFloat =
+        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_SUM_SQR))
+
+    override fun arrayAvg(a: RcFloat): RcFloat =
+        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_AVG))
+
+    override fun RcFloat.get(index: RcFloat): RcFloat =
+        RcFloat(writer, floatArrayOf(*this.toArray(), *index.toArray(), Rc.FloatExpression.A_DEREF))
+
+    override fun remotePolarPath(
         expression: RcFloat,
         start: Float,
         end: Float,
         count: Int,
         centerX: RcFloat,
         centerY: RcFloat,
-        type: Int,
+        type: RcPathType,
     ): RcPath =
         RcPath(
             writer.addPolarPathExpression(
@@ -928,7 +986,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 count.toFloat(),
                 centerX.withWriter(writer).toFloat(),
                 centerY.withWriter(writer).toFloat(),
-                type,
+                type.value,
             ),
             writer,
         )
@@ -942,40 +1000,43 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun componentHeight(): RcFloat = RcFloat(writer, writer.addComponentHeightValue())
 
-    override fun addBitmap(image: Any): RcImage = RcImage(writer.addBitmap(image))
+    override fun remoteBitmap(image: Any): RcImage = RcImage(writer.addBitmap(image))
 
-    override fun addNamedBitmap(name: String, image: Any): RcImage =
+    override fun remoteNamedBitmap(name: String, image: Any): RcImage =
         RcImage(writer.addNamedBitmap(name, image))
 
-    override fun addBitmapUrl(url: String): RcImage = RcImage(writer.addBitmapUrl(url))
+    override fun remoteBitmapUrl(url: String): RcImage = RcImage(writer.addBitmapUrl(url))
 
-    override fun addNamedBitmapUrl(name: String, url: String): RcImage =
+    override fun remoteNamedBitmapUrl(name: String, url: String): RcImage =
         RcImage(writer.addNamedBitmapUrl(name, url))
 
-    override fun addFloat(value: Float): RcFloat = RcFloat(writer, writer.addFloatConstant(value))
+    override fun remoteFloat(value: Float): RcFloat =
+        RcFloat(writer, writer.addFloatConstant(value))
 
-    override fun addNamedFloat(name: String, value: Float): RcFloat =
+    override fun remoteNamedFloat(name: String, value: Float): RcFloat =
         RcFloat(writer, writer.addNamedFloat(name, value))
 
-    override fun addInteger(value: Int): RcInteger = RcInteger(writer.addInteger(value))
+    override fun remoteInteger(value: Int): RcInteger = RcInteger(writer.addInteger(value))
 
-    override fun addNamedInteger(name: String, value: Int): RcInteger =
+    override fun remoteNamedInteger(name: String, value: Int): RcInteger =
         RcInteger(writer.addNamedInt(name, value))
 
-    override fun addLong(value: Long): RcInteger = RcInteger(writer.addLong(value).toLong())
+    override fun remoteLong(value: Long): RcInteger = RcInteger(writer.addLong(value).toLong())
 
-    override fun addBoolean(value: Boolean): RcInteger =
+    override fun remoteBoolean(value: Boolean): RcInteger =
         RcInteger(writer.addBoolean(value).toLong())
 
-    override fun addPathData(path: Any): RcPath = RcPath(writer.addPathData(path), writer)
+    override fun remotePathData(path: RcPlatformServices.RcPathArrayCreator): RcPath =
+        RcPath(writer.addPathData(path), writer)
 
-    override fun addPathString(path: String): RcPath = RcPath(writer.addPathString(path), writer)
+    //  override fun remotePathString(path: String): RcPath = RcPath(writer.addPathString(path),
+    // writer)
 
-    override fun addTextStyle(
+    override fun remoteTextStyle(
         fontSize: RcSp?,
         color: Int?,
         fontWeight: Float?,
-        textAlign: Int?,
+        textAlign: RcTextAlign?,
     ): RcTextStyle =
         RcTextStyle(
             writer.addTextStyle(
@@ -987,7 +1048,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 null,
                 fontWeight,
                 null,
-                textAlign,
+                textAlign?.value,
                 null,
                 null,
                 null,
@@ -1368,10 +1429,10 @@ private class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(write
         )
     }
 
-    override fun addPath(x: Float, y: Float): RcPath = RcPath(writer.pathCreate(x, y), writer)
+    override fun remotePath(x: Float, y: Float): RcPath = RcPath(writer.pathCreate(x, y), writer)
 
-    override fun addPath(x: Float, y: Float, block: RcPathScope.() -> Unit): RcPath {
-        val path = addPath(x, y)
+    override fun remotePath(x: Float, y: Float, block: RcPathScope.() -> Unit): RcPath {
+        val path = remotePath(x, y)
         path.block()
         path.close()
         return path
@@ -1446,65 +1507,6 @@ private class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(write
             },
         )
     }
-}
-
-/** Top-level builder for creating a serialized RemoteCompose document. */
-public fun createRcBuffer(
-    profile: RcProfile,
-    vararg tags: HTag,
-    experimental: Boolean = false,
-    content: RcScope.() -> Unit,
-): ByteArray {
-    val isExperimental = experimental || profile.experimental
-    val finalProfile =
-        if (isExperimental) {
-            androidx.compose.remote.creation.profile.Profile(
-                profile.profile.apiLevel,
-                profile.profile.operationsProfiles or RcProfiles.PROFILE_EXPERIMENTAL,
-                profile.profile.platform,
-                profile.profile.profileFactory,
-            )
-        } else {
-            profile.profile
-        }
-
-    val finalTags =
-        if (isExperimental) {
-            var profileTagFound = false
-            val modifiedTags =
-                tags
-                    .map { tag ->
-                        if (
-                            tag.tag == androidx.compose.remote.core.operations.Header.DOC_PROFILES
-                        ) {
-                            profileTagFound = true
-                            HTag(tag.tag, (tag.value as Int) or RcProfiles.PROFILE_EXPERIMENTAL)
-                        } else {
-                            tag
-                        }
-                    }
-                    .toMutableList()
-
-            if (!profileTagFound) {
-                modifiedTags.add(
-                    HTag(
-                        androidx.compose.remote.core.operations.Header.DOC_PROFILES,
-                        profile.profile.operationsProfiles or RcProfiles.PROFILE_EXPERIMENTAL,
-                    )
-                )
-            }
-            modifiedTags.toTypedArray()
-        } else {
-            tags
-        }
-
-    val writer = RemoteComposeWriter(finalProfile, *finalTags)
-    val scope = RcScopeImpl(writer)
-    writer.root { scope.content() }
-
-    val buffer = writer.buffer()
-    val size = writer.bufferSize()
-    return buffer.copyOfRange(0, size)
 }
 
 /** Internal helper to convert the new [Modifier] chain to the legacy [RecordingModifier]. */
