@@ -17,7 +17,12 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DatePickerDefaults.defaultDatePickerColors
 import androidx.compose.material3.internal.MillisecondsIn24Hours
 import androidx.compose.material3.internal.Strings
@@ -31,10 +36,15 @@ import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
@@ -48,7 +58,12 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.withKeyDown
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -971,6 +986,58 @@ class DateRangePickerTest {
         }
 
         rule.onNodeWithText("January ${currentYear + 1}").assertIsDisplayed()
+    }
+
+    @Test
+    fun dateRangePicker_keyboardNavigation() {
+        var currentYear = 0
+        rule.setMaterialContent(lightColorScheme()) {
+            LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
+            currentYear = createCalendarModel(LocalLocale.current.platformLocale).today.year
+            Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top) {
+                Box(Modifier.testTag("Above picker").size(10.dp).focusable()) {}
+                DateRangePicker(
+                    modifier = Modifier.testTag("picker").weight(1f),
+                    state =
+                        rememberDateRangePickerState(
+                            yearRange = IntRange(currentYear + 1, currentYear + 10)
+                        ),
+                    showModeToggle = false,
+                )
+                Box(Modifier.testTag("Below picker").size(10.dp).focusable()) {}
+            }
+        }
+
+        // Focus above picker then tab to enter it.
+        rule.onNodeWithTag("Above picker").requestFocus()
+        rule.onNodeWithTag("Above picker").performKeyInput { pressKey(Key.Tab) }
+
+        // Assert first focusable date is focused.
+        rule.onNodeWithText("January 1, ${currentYear + 1}", substring = true).assertIsFocused()
+        // Tab away from date.
+        rule.onNodeWithText("January 1, ${currentYear + 1}", substring = true).performKeyInput {
+            pressKey(Key.Tab)
+        }
+
+        // Assert element below picker is focused.
+        rule.onNodeWithTag("Below picker").assertIsFocused()
+
+        // Shift tab to go back to date picker
+        rule.onNodeWithTag("Below picker").performKeyInput {
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
+        }
+        rule.onNodeWithTag("Below picker").assertIsNotFocused()
+        rule.onNodeWithTag("Above picker").assertIsNotFocused()
+
+        // Focus on a random date.
+        rule.onNodeWithText("February 18, ${currentYear + 1}", substring = true).requestFocus()
+        // Shift tab from date.
+        rule.onNodeWithText("January 18, ${currentYear + 1}", substring = true).performKeyInput {
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
+        }
+
+        // Assert element above picker is focused.
+        rule.onNodeWithTag("Above picker").assertIsFocused()
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

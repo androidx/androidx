@@ -1368,6 +1368,8 @@ internal fun DateEntryContainer(
     colors: DatePickerColors,
     headlineTextStyle: TextStyle,
     headerMinHeight: Dp,
+    rangePickerTopFocusTargetFocusRequester: FocusRequester? = null,
+    rangePickerBottomFocusTargetFocusRequester: FocusRequester? = null,
     content: @Composable () -> Unit,
 ) {
     Column(
@@ -1382,6 +1384,7 @@ internal fun DateEntryContainer(
                 }
                 .background(colors.containerColor)
     ) {
+        val focusManager = LocalFocusManager.current
         DatePickerHeader(
             modifier = Modifier,
             title = title,
@@ -1414,7 +1417,18 @@ internal fun DateEntryContainer(
                 }
             }
         }
+        // For the range date picker:
+        // Surround the content with invisible dividers that will work as focus targets to be able
+        // to move the focus from the range date picker so that it doesn't stay trapped inside.
+        // Tabbing from a date will move focus forward/below the range date picker conent, and shift
+        // tabbing will move it previous/above.
+        if (rangePickerTopFocusTargetFocusRequester != null) {
+            InvisibleDivider(rangePickerTopFocusTargetFocusRequester, focusManager)
+        }
         content()
+        if (rangePickerBottomFocusTargetFocusRequester != null) {
+            InvisibleDivider(rangePickerBottomFocusTargetFocusRequester, focusManager)
+        }
     }
 }
 
@@ -2545,6 +2559,37 @@ private fun IconButtonWithTooltip(
             Icon(imageVector = icon, contentDescription = contentDescription)
         }
     }
+}
+
+@Composable
+private fun InvisibleDivider(focusRequester: FocusRequester, focusManager: FocusManager) {
+    HorizontalDivider(
+        color = Color.Transparent,
+        modifier =
+            Modifier.size(0.dp)
+                .focusRequester(focusRequester)
+                .onKeyEvent {
+                    if (
+                        it.key == Key.DirectionUp ||
+                            it.key == Key.NumPadDirectionUp ||
+                            (it.isShiftPressed && it.key == Key.Tab)
+                    ) {
+                        // If focus is coming from below, move back up.
+                        focusManager.moveFocus(FocusDirection.Previous)
+                        return@onKeyEvent true
+                    } else if (
+                        it.key == Key.DirectionDown ||
+                            it.key == Key.NumPadDirectionDown ||
+                            it.key == Key.Tab
+                    ) {
+                        // If focus is coming from above, move forward down.
+                        focusManager.moveFocus(FocusDirection.Next)
+                        return@onKeyEvent true
+                    }
+                    false
+                }
+                .focusTarget(),
+    )
 }
 
 private fun KeyEvent.isDirectionBackwards(isRtl: Boolean): Boolean =
