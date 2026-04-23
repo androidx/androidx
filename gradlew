@@ -321,13 +321,13 @@ elif [[ "${OS_NAME}" == "Darwin" ]]; then
 fi
 
 if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
-  MAX_MEMORY_OVERRIDE=48g
+  MAX_MEMORY_OVERRIDE=38g
 else
   # determine the memory total
   if (( TOTAL_MEM_KB >= MEDIUM_MEM_THRESHOLD_KB && TOTAL_MEM_KB < HIGH_MEM_THRESHOLD_KB )); then
     MAX_MEMORY_OVERRIDE=19g
   elif (( TOTAL_MEM_KB >= LARGE_MEM_THRESHOLD_KB )); then
-    MAX_MEMORY_OVERRIDE=48g
+    MAX_MEMORY_OVERRIDE=38g
   fi
 fi
 
