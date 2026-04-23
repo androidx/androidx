@@ -20,7 +20,6 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.assertModifierIsPure
@@ -41,7 +40,6 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.hasScrollableContainer
 import androidx.compose.foundation.hasSize
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.DragInteraction
@@ -106,7 +104,6 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
-import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.TraversableNode
@@ -2577,112 +2574,6 @@ class ScrollableTest {
     }
 
     @Test
-    fun scrollable_setsModifierLocalScrollableContainer() = runComposeUiTest {
-        if (isDelayPressesUsingGestureConsumptionEnabled) return@runComposeUiTest
-        val controller = ScrollableState { it }
-
-        var isOuterInScrollableContainer: Boolean? = null
-        var isInnerInScrollableContainer: Boolean? = null
-        setContent {
-            Box {
-                Box(
-                    modifier =
-                        Modifier.testTag(scrollableBoxTag)
-                            .size(100.dp)
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isOuterInScrollableContainer = it
-                                }
-                            )
-                            .scrollable(state = controller, orientation = Orientation.Horizontal)
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isInnerInScrollableContainer = it
-                                }
-                            )
-                )
-            }
-        }
-
-        runOnIdle {
-            assertThat(isOuterInScrollableContainer).isFalse()
-            assertThat(isInnerInScrollableContainer).isTrue()
-        }
-    }
-
-    @Test
-    fun scrollable_setsModifierLocalScrollableContainer_scrollDisabled() = runComposeUiTest {
-        if (isDelayPressesUsingGestureConsumptionEnabled) return@runComposeUiTest
-        val controller = ScrollableState { it }
-
-        var isOuterInScrollableContainer: Boolean? = null
-        var isInnerInScrollableContainer: Boolean? = null
-        setContent {
-            Box {
-                Box(
-                    modifier =
-                        Modifier.testTag(scrollableBoxTag)
-                            .size(100.dp)
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isOuterInScrollableContainer = it
-                                }
-                            )
-                            .scrollable(
-                                state = controller,
-                                orientation = Orientation.Horizontal,
-                                enabled = false,
-                            )
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isInnerInScrollableContainer = it
-                                }
-                            )
-                )
-            }
-        }
-
-        runOnIdle {
-            assertThat(isOuterInScrollableContainer).isFalse()
-            assertThat(isInnerInScrollableContainer).isFalse()
-        }
-    }
-
-    @Test
-    fun scrollable_setsModifierLocalScrollableContainer_scrollUpdates() = runComposeUiTest {
-        if (isDelayPressesUsingGestureConsumptionEnabled) return@runComposeUiTest
-        val controller = ScrollableState { it }
-
-        var isInnerInScrollableContainer: Boolean? = null
-        val enabled = mutableStateOf(true)
-        setContent {
-            Box {
-                Box(
-                    modifier =
-                        Modifier.testTag(scrollableBoxTag)
-                            .size(100.dp)
-                            .scrollable(
-                                state = controller,
-                                orientation = Orientation.Horizontal,
-                                enabled = enabled.value,
-                            )
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isInnerInScrollableContainer = it
-                                }
-                            )
-                )
-            }
-        }
-
-        runOnIdle { assertThat(isInnerInScrollableContainer).isTrue() }
-
-        runOnIdle { enabled.value = false }
-
-        runOnIdle { assertThat(isInnerInScrollableContainer).isFalse() }
-    }
-
-    @Test
     fun scrollable_scrollByWorksWithRepeatableAnimations() = runComposeUiTest {
         mainClock.autoAdvance = false
 
@@ -3568,10 +3459,26 @@ internal suspend fun savePointerInputEvents(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope,
 ) {
-    if (VelocityTrackerAddPointsFix) {
-        savePointerInputEventsWithFix(tracker, pointerInputScope)
-    } else {
-        savePointerInputEventsLegacy(tracker, pointerInputScope)
+    with(pointerInputScope) {
+        coroutineScope {
+            awaitPointerEventScope {
+                while (true) {
+                    var event: PointerInputChange? = awaitFirstDown()
+                    while (event != null && !event.changedToUpIgnoreConsumed()) {
+                        val currentEvent = awaitPointerEvent().changes.firstOrNull()
+
+                        if (currentEvent != null && !currentEvent.changedToUpIgnoreConsumed()) {
+                            currentEvent.historical.fastForEach {
+                                tracker.addPosition(it.uptimeMillis, it.position)
+                            }
+                            tracker.addPosition(currentEvent.uptimeMillis, currentEvent.position)
+                        }
+
+                        event = currentEvent
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -3630,44 +3537,3 @@ internal suspend fun savePointerInputEventsLegacy(
 }
 
 internal class TestScrollMotionDurationScale(override val scaleFactor: Float) : MotionDurationScale
-
-internal class ScrollableContainerReaderNodeElement(val hasScrollableBlock: (Boolean) -> Unit) :
-    ModifierNodeElement<ScrollableContainerReaderNode>() {
-    override fun create(): ScrollableContainerReaderNode {
-        return ScrollableContainerReaderNode(hasScrollableBlock)
-    }
-
-    override fun update(node: ScrollableContainerReaderNode) {
-        node.hasScrollableBlock = hasScrollableBlock
-        node.onUpdate()
-    }
-
-    override fun hashCode(): Int = hasScrollableBlock.hashCode()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other === null) return false
-        if (this::class != other::class) return false
-
-        other as ScrollableContainerReaderNodeElement
-
-        if (hasScrollableBlock !== other.hasScrollableBlock) return false
-
-        return true
-    }
-}
-
-internal class ScrollableContainerReaderNode(var hasScrollableBlock: (Boolean) -> Unit) :
-    Modifier.Node(), TraversableNode {
-    override val traverseKey: Any = TraverseKey
-
-    override fun onAttach() {
-        hasScrollableBlock.invoke(hasScrollableContainer())
-    }
-
-    fun onUpdate() {
-        hasScrollableBlock.invoke(hasScrollableContainer())
-    }
-
-    companion object TraverseKey
-}
