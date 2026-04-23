@@ -30,12 +30,11 @@ import java.nio.file.Path
  *
  * EXR and HDR images are supported by the [SpatialEnvironment].
  */
-// TODO(b/461909954): Add AutoCloseable interface when it is approved.
 public class ImageBasedLightingAsset
 internal constructor(
     internal val session: Session?,
     internal val image: RtImageBasedLightingAsset,
-) {
+) : AutoCloseable {
 
     /**
      * Closes the given [ImageBasedLightingAsset].
@@ -48,8 +47,7 @@ internal constructor(
      * @throws IllegalStateException if the resource has already been closed.
      */
     @MainThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun close() {
+    override public fun close() {
         session?.renderingRuntime?.destroyExrImage(image)
     }
 

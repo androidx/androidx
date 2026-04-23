@@ -312,7 +312,8 @@ package androidx.xr.scenecore {
     property public float speed;
   }
 
-  public final class GltfModel {
+  public final class GltfModel implements java.lang.AutoCloseable {
+    method @MainThread public void close();
     method @MainThread public static suspend Object? create(androidx.xr.runtime.Session session, android.net.Uri uri, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.GltfModel>);
     method @MainThread public static suspend Object? create(androidx.xr.runtime.Session session, java.nio.file.Path path, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.GltfModel>);
     field public static final androidx.xr.scenecore.GltfModel.Companion Companion;
@@ -402,7 +403,8 @@ package androidx.xr.scenecore {
     field public static final int UNKNOWN = 0; // 0x0
   }
 
-  public final class ImageBasedLightingAsset {
+  public final class ImageBasedLightingAsset implements java.lang.AutoCloseable {
+    method @MainThread public void close();
     method @MainThread public static suspend Object? createFromZip(androidx.xr.runtime.Session session, android.net.Uri uri, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ImageBasedLightingAsset>);
     method @MainThread public static suspend Object? createFromZip(androidx.xr.runtime.Session session, java.nio.file.Path path, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ImageBasedLightingAsset>);
     field public static final androidx.xr.scenecore.ImageBasedLightingAsset.Companion Companion;
