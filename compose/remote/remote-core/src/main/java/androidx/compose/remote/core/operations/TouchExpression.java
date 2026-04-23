@@ -114,16 +114,16 @@ public class TouchExpression extends Operation
     /**
      * create a touch expression
      *
-     * @param id           The float id the value is output to
-     * @param exp          the expression (containing TOUCH_* )
-     * @param defValue     the default value
-     * @param min          the minimum value
-     * @param max          the maximum value
+     * @param id The float id the value is output to
+     * @param exp the expression (containing TOUCH_* )
+     * @param defValue the default value
+     * @param min the minimum value
+     * @param max the maximum value
      * @param touchEffects the type of touch mode
-     * @param velocityId   the velocity (not used)
-     * @param stopMode     the behaviour on touch oup
-     * @param stopSpec     the parameters that affect the touch up behaviour
-     * @param easingSpec   the easing parameters for coming to a stop
+     * @param velocityId the velocity (not used)
+     * @param stopMode the behaviour on touch oup
+     * @param stopSpec the parameters that affect the touch up behaviour
+     * @param easingSpec the easing parameters for coming to a stop
      */
     public TouchExpression(
             int id,
@@ -625,17 +625,17 @@ public class TouchExpression extends Operation
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer       The buffer to write to
-     * @param id           the id of the resulting float
-     * @param value        the float expression array
-     * @param min          the minimum allowed value
-     * @param max          the maximum allowed value
-     * @param velocityId   the velocity id
+     * @param buffer The buffer to write to
+     * @param id the id of the resulting float
+     * @param value the float expression array
+     * @param min the minimum allowed value
+     * @param max the maximum allowed value
+     * @param velocityId the velocity id
      * @param touchEffects the type touch effect
-     * @param exp          the expression the maps touch drags to movement
-     * @param touchMode    the touch mode e.g. notch modes
-     * @param touchSpec    the spec of the touch modes
-     * @param easingSpec   the spec of when the object comes to an easing
+     * @param exp the expression the maps touch drags to movement
+     * @param touchMode the touch mode e.g. notch modes
+     * @param touchSpec the spec of the touch modes
+     * @param easingSpec the spec of when the object comes to an easing
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -683,7 +683,7 @@ public class TouchExpression extends Operation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -746,7 +746,9 @@ public class TouchExpression extends Operation
                 .field(FLOAT, "velocityId", "Reserved for velocity ID")
                 .field(INT, "touchEffects", "Haptic feedback and touch behavior flags")
                 .field(INT, "expression_length", "The length of the touch mapping expression")
-                .field(REPEATED_FLOAT, "expression",
+                .field(
+                        REPEATED_FLOAT,
+                        "expression",
                         "Sequence of floats representing touch mapping (RPN)")
                 .field(INT, "stopModeAndLen", "Encoded stop mode and length of stop spec")
                 .field(REPEATED_FLOAT, "stopSpec", "Parameters for stop behavior (e.g., notches)")

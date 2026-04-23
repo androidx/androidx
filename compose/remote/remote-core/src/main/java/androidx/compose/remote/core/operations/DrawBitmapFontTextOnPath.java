@@ -49,7 +49,12 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
     float mOutGlyphSpacing;
 
     public DrawBitmapFontTextOnPath(
-            int textID, int bitmapFontID, int pathID, int start, int end, float yAdj,
+            int textID,
+            int bitmapFontID,
+            int pathID,
+            int start,
+            int end,
+            float yAdj,
             float glyphSpacing) {
         if (textID < 0) {
             throw new IllegalArgumentException("textID must not be negative");
@@ -71,8 +76,10 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
         mOutYAdj = Float.isNaN(mYAdj) ? context.getFloat(Utils.idFromNan(mYAdj)) : mYAdj;
-        mOutGlyphSpacing = Float.isNaN(mGlyphSpacing)
-                ? context.getFloat(Utils.idFromNan(mGlyphSpacing)) : mGlyphSpacing;
+        mOutGlyphSpacing =
+                Float.isNaN(mGlyphSpacing)
+                        ? context.getFloat(Utils.idFromNan(mGlyphSpacing))
+                        : mGlyphSpacing;
     }
 
     @Override
@@ -199,10 +206,7 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
                 .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
                 .field(DocumentedOperation.INT, "bitmapFontId", "The ID of the bitmap font")
                 .field(DocumentedOperation.INT, "pathId", "The ID of the path to follow")
-                .field(
-                        DocumentedOperation.INT,
-                        "start",
-                        "The start index of the text to render")
+                .field(DocumentedOperation.INT, "start", "The start index of the text to render")
                 .field(DocumentedOperation.INT, "end", "The end index of the text to render")
                 .field(
                         DocumentedOperation.FLOAT,

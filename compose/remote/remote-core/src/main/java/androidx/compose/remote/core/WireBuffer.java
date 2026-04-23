@@ -68,7 +68,7 @@ public class WireBuffer {
     /**
      * set the system info
      *
-     * @param systemInfo  information that can be used during parsing of the buffer
+     * @param systemInfo information that can be used during parsing of the buffer
      */
     public void setSystemInfo(@NonNull SystemInfo systemInfo) {
         mSystemInfo = systemInfo;
@@ -402,7 +402,7 @@ public class WireBuffer {
     }
 
     /**
-     * overwrite an integer at a specific position  a int (4 byte) value
+     * overwrite an integer at a specific position a int (4 byte) value
      *
      * @param position position to write
      * @param value value to write
@@ -413,7 +413,6 @@ public class WireBuffer {
         mBuffer[position++] = (byte) (value >>> 8 & 0xFF);
         mBuffer[position] = (byte) (value & 0xFF);
     }
-
 
     /**
      * Write a long (8 byte) value
@@ -515,9 +514,8 @@ public class WireBuffer {
     }
 
     /**
-     * Move the commands from beyond to mSize to insertLocation.
-     * The support pushing commands to earlier in the buffer
-     * <code><br>
+     * Move the commands from beyond to mSize to insertLocation. The support pushing commands to
+     * earlier in the buffer <code><br>
      *  before:  0..... ........ xxxxxxxx mSize<br>
      *  insertLocation ^ beyond ^<br>
      *  after: 0..... xxxxxxxx ........  mSize>br>
@@ -539,8 +537,12 @@ public class WireBuffer {
             byte[] temp = new byte[lengthOfBlockB];
             System.arraycopy(mBuffer, beyond, temp, 0, lengthOfBlockB);
             // System.arraycopy handles overlapping regions safely.
-            System.arraycopy(mBuffer, insertLocation, mBuffer,
-                    insertLocation + lengthOfBlockB, lengthOfBlockA);
+            System.arraycopy(
+                    mBuffer,
+                    insertLocation,
+                    mBuffer,
+                    insertLocation + lengthOfBlockB,
+                    lengthOfBlockA);
             System.arraycopy(temp, 0, mBuffer, insertLocation, lengthOfBlockB);
 
         } else {

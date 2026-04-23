@@ -133,8 +133,9 @@ public class HostActionMetadataOperation extends Operation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Layout Operations", OP_CODE, "HostActionMetadata")
-                .description("Host action + metadata. This operation represents a host action"
-                        + " that can also provides some metadata")
+                .description(
+                        "Host action + metadata. This operation represents a host action"
+                                + " that can also provides some metadata")
                 .field(INT, "ACTION_ID", "Host Action ID")
                 .field(INT, "METADATA", "Host Action Text Metadata ID");
     }

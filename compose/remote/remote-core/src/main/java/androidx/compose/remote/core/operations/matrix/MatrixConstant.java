@@ -88,10 +88,10 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer   write command to this buffer
+     * @param buffer write command to this buffer
      * @param matrixId the id
-     * @param type     the type of matrix it is
-     * @param values   the value of the float
+     * @param type the type of matrix it is
+     * @param values the value of the float
      */
     public static void apply(
             @NonNull WireBuffer buffer, int matrixId, int type, float @NonNull [] values) {
@@ -107,7 +107,7 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

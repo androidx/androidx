@@ -87,8 +87,7 @@ public class TextLookup extends Operation implements VariableSupport, Serializab
     }
 
     private void registerForArray(@NonNull RemoteContext context) {
-        ArrayAccess array = context.getCollectionsAccess().getArray(
-                mDataSetId);
+        ArrayAccess array = context.getCollectionsAccess().getArray(mDataSetId);
         if (array != null) {
             for (int i = 0; i < array.getLength(); i++) {
                 int next = array.getId(i);
@@ -120,10 +119,10 @@ public class TextLookup extends Operation implements VariableSupport, Serializab
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer  buffer to write to
-     * @param textId  the id of the output text
+     * @param buffer buffer to write to
+     * @param textId the id of the output text
      * @param dataSet float pointer to the array/list to turn int a string
-     * @param index   index of element to return
+     * @param index index of element to return
      */
     public static void apply(@NonNull WireBuffer buffer, int textId, int dataSet, float index) {
         buffer.start(OP_CODE);
@@ -135,7 +134,7 @@ public class TextLookup extends Operation implements VariableSupport, Serializab
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

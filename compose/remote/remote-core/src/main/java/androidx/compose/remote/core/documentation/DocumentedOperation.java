@@ -42,11 +42,9 @@ public class DocumentedOperation {
     public static final int REPEATED_INT = 14;
     public static final int REPEATED_BYTE = 15;
 
-    @NonNull
-    final String mCategory;
+    @NonNull final String mCategory;
     int mId;
-    @NonNull
-    final String mName;
+    @NonNull final String mName;
     @NonNull String mDescription = "";
 
     boolean mWIP;
@@ -100,13 +98,13 @@ public class DocumentedOperation {
         public String toDoc() {
             StringBuilder builder = new StringBuilder();
             builder.append("<tr><td>" + mName + "</td><td colspan=\"2\">");
-//            builder.append("    | ");
-//            builder.append("REPEATED");
-//            builder.append(" | ");
-//            builder.append("REPEATED");
-//            builder.append(" | ");
-//            builder.append("REPEATED");
-//            builder.append("\n");
+            //            builder.append("    | ");
+            //            builder.append("REPEATED");
+            //            builder.append(" | ");
+            //            builder.append("REPEATED");
+            //            builder.append(" | ");
+            //            builder.append("REPEATED");
+            //            builder.append("\n");
             builder.append("<table>");
             builder.append("<tr><th>Type</th><th>Name</th><th>Description</th></tr>\n");
             for (DocumentedField field : mFields) {
@@ -118,9 +116,7 @@ public class DocumentedOperation {
         }
     }
 
-    /**
-     * Returns the string representation of a field type
-     */
+    /** Returns the string representation of a field type */
     @NonNull
     public static String getType(int type) {
         switch (type) {
@@ -252,45 +248,35 @@ public class DocumentedOperation {
         return mExamplesHeight;
     }
 
-    /**
-     * Set if the operation is experimental
-     */
+    /** Set if the operation is experimental */
     @NonNull
     public DocumentedOperation experimental(boolean experimental) {
         mExperimental = experimental;
         return this;
     }
 
-    /**
-     * Set the version when the operation was added
-     */
+    /** Set the version when the operation was added */
     @NonNull
     public DocumentedOperation addedVersion(int version) {
         mAddedVersion = version;
         return this;
     }
 
-    /**
-     * Set the name of the additional documentation file
-     */
+    /** Set the name of the additional documentation file */
     @NonNull
     public DocumentedOperation additionalDocumentation(@NonNull String additionalDocumentation) {
         mAdditionalDocumentation = additionalDocumentation;
         return this;
     }
 
-    /**
-     * Document a field of the operation
-     */
+    /** Document a field of the operation */
     @NonNull
     public DocumentedOperation field(int type, @NonNull String name, @NonNull String description) {
         mFields.add(new OperationField(type, name, description));
         return this;
     }
 
-    /**
-     * Document a field of the operation
-     */
+    /** Document a field of the operation */
     @NonNull
     public DocumentedOperation field(
             int type, @NonNull String name, @NonNull String varSize, @NonNull String description) {
@@ -298,9 +284,7 @@ public class DocumentedOperation {
         return this;
     }
 
-    /**
-     * Add possible values for the operation field
-     */
+    /** Add possible values for the operation field */
     @NonNull
     public DocumentedOperation possibleValues(@NonNull String name, int value) {
         ArrayList<DocumentedField> fields = mFields.getFields();
@@ -313,18 +297,14 @@ public class DocumentedOperation {
         return this;
     }
 
-    /**
-     * Add a description
-     */
+    /** Add a description */
     @NonNull
     public DocumentedOperation description(@NonNull String description) {
         mDescription = description;
         return this;
     }
 
-    /**
-     * Add arbitrary text as examples
-     */
+    /** Add arbitrary text as examples */
     @NonNull
     public DocumentedOperation examples(@NonNull String examples) {
         mTextExamples = examples;
@@ -334,7 +314,7 @@ public class DocumentedOperation {
     /**
      * Add an example image
      *
-     * @param name      the title of the image
+     * @param name the title of the image
      * @param imagePath the path of the image
      */
     @NonNull
@@ -343,9 +323,7 @@ public class DocumentedOperation {
         return this;
     }
 
-    /**
-     * Add examples with a given size
-     */
+    /** Add examples with a given size */
     @NonNull
     public DocumentedOperation examplesDimension(int width, int height) {
         mExamplesWidth = width;
@@ -353,9 +331,7 @@ public class DocumentedOperation {
         return this;
     }
 
-    /**
-     * Start a subsection
-     */
+    /** Start a subsection */
     @NonNull
     public DocumentedOperation startSubsection(@NonNull String name) {
         RepeatedField repeatedField = new RepeatedField(name, mFields);
@@ -364,9 +340,7 @@ public class DocumentedOperation {
         return this;
     }
 
-    /**
-     * End a subsection
-     */
+    /** End a subsection */
     @NonNull
     public DocumentedOperation endSubsection() {
         if (mFields.getParent() != null) {

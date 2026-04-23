@@ -106,8 +106,8 @@ public class MarqueeModifierOperation extends DecoratorModifierOperation impleme
     }
 
     @Override
-    public void applyEdgeEffect(@NonNull PaintContext context,
-            @NonNull Component component, int phase) {
+    public void applyEdgeEffect(
+            @NonNull PaintContext context, @NonNull Component component, int phase) {
         // nothing
     }
 

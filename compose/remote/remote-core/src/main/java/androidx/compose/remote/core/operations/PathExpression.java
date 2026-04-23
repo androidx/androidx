@@ -246,14 +246,14 @@ public class PathExpression extends Operation implements VariableSupport, Serial
     /**
      * add this operation to the buffer
      *
-     * @param buffer      the buffer to add to
-     * @param id          the id of the image
+     * @param buffer the buffer to add to
+     * @param id the id of the image
      * @param expressionX the x expression
      * @param expressionY the y expression
-     * @param min         the min value of the expression
-     * @param max         the max value of the expression
-     * @param count       the number of points in the expression
-     * @param flags       the flags
+     * @param min the min value of the expression
+     * @param max the max value of the expression
+     * @param count the number of points in the expression
+     * @param flags the flags
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -287,7 +287,7 @@ public class PathExpression extends Operation implements VariableSupport, Serial
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

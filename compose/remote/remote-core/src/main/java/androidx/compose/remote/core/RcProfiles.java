@@ -43,9 +43,8 @@ public class RcProfiles {
     public static final int PROFILE_EXPERIMENTAL = 0x1;
 
     /**
-     * Deprecated profile, operations which have been deprecated after some version and should
-     * not be used. These operations will have been removed from [PROFILE_BASELINE] after some
-     * version.
+     * Deprecated profile, operations which have been deprecated after some version and should not
+     * be used. These operations will have been removed from [PROFILE_BASELINE] after some version.
      */
     public static final int PROFILE_DEPRECATED = 0x2;
 
@@ -69,8 +68,8 @@ public class RcProfiles {
     public static final int PROFILE_WIDGETS = 0x100;
 
     /**
-     * AndroidX Profile, this is an extended set of operations beyond [PROFILE_BASELINE], known
-     * to be supported in the AndroidX Player.
+     * AndroidX Profile, this is an extended set of operations beyond [PROFILE_BASELINE], known to
+     * be supported in the AndroidX Player.
      */
     public static final int PROFILE_ANDROIDX = 0x200;
 

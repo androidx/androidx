@@ -23,9 +23,7 @@ import androidx.compose.remote.core.operations.layout.Component;
 
 import org.jspecify.annotations.NonNull;
 
-/**
- * Represents a scrolling edge effect (glow, stretch...)
- */
+/** Represents a scrolling edge effect (glow, stretch...) */
 @RestrictTo(LIBRARY_GROUP)
 public interface ScrollingEdgeEffect {
 
@@ -36,25 +34,23 @@ public interface ScrollingEdgeEffect {
     int PRE_DRAW = 0;
     int POST_DRAW = 1;
 
-    /**
-     * Reset the effect
-     */
+    /** Reset the effect */
     void reset();
 
     /**
      * Apply a pull the effect
+     *
      * @param value
      * @param distance
      */
     void pull(float value, float distance);
 
-    /**
-     * Release the pull
-     */
+    /** Release the pull */
     void release();
 
     /**
      * Set the size of the edge effect
+     *
      * @param width
      * @param height
      */
@@ -68,6 +64,9 @@ public interface ScrollingEdgeEffect {
      * @param contentDimension
      * @param phase 0 == pre-draw 1 == post-draw
      */
-    void apply(@NonNull PaintContext context, @NonNull Component component,
-            float contentDimension, int phase);
+    void apply(
+            @NonNull PaintContext context,
+            @NonNull Component component,
+            float contentDimension,
+            int phase);
 }

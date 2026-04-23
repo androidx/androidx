@@ -38,8 +38,7 @@ import java.util.List;
 public class Rem extends Operation implements SerializableToString, Serializable {
     private static final int OP_CODE = Operations.REM;
     private static final String CLASS_NAME = "Rem";
-    @NonNull
-    public String mText;
+    @NonNull public String mText;
 
     public Rem(@NonNull String text) {
         this.mText = text;
@@ -88,7 +87,7 @@ public class Rem extends Operation implements SerializableToString, Serializable
      * add a Rem data operation
      *
      * @param buffer buffer to add to
-     * @param text   the data to encode
+     * @param text the data to encode
      */
     public static void apply(@NonNull WireBuffer buffer, @NonNull String text) {
         buffer.start(OP_CODE);
@@ -98,7 +97,7 @@ public class Rem extends Operation implements SerializableToString, Serializable
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -119,8 +118,7 @@ public class Rem extends Operation implements SerializableToString, Serializable
     }
 
     @Override
-    public void apply(@NonNull RemoteContext context) {
-    }
+    public void apply(@NonNull RemoteContext context) {}
 
     @NonNull
     @Override

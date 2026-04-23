@@ -78,8 +78,7 @@ public class BitmapFontData extends Operation implements Serializable {
         public short mBitmapWidth;
         public short mBitmapHeight;
 
-        public Glyph() {
-        }
+        public Glyph() {}
 
         public Glyph(
                 @NonNull String chars,
@@ -104,9 +103,9 @@ public class BitmapFontData extends Operation implements Serializable {
     /**
      * create a bitmap font structure.
      *
-     * @param id         the id of the bitmap font
+     * @param id the id of the bitmap font
      * @param fontGlyphs the glyphs that define the bitmap font. The maximum number of glyphs is
-     *                   65535.
+     *     65535.
      */
     public BitmapFontData(int id, @NonNull Glyph[] fontGlyphs) {
         mId = id;
@@ -125,14 +124,13 @@ public class BitmapFontData extends Operation implements Serializable {
     /**
      * create a bitmap font structure.
      *
-     * @param id           the id of the bitmap font
-     * @param fontGlyphs   the glyphs that define the bitmap font. The maximum number of glyphs is
-     *                     65535.
-     * @param version      the Version number. 0 = no kerning table, 1 = has kerning table
+     * @param id the id of the bitmap font
+     * @param fontGlyphs the glyphs that define the bitmap font. The maximum number of glyphs is
+     *     65535.
+     * @param version the Version number. 0 = no kerning table, 1 = has kerning table
      * @param kerningTable The kerning table, where the key is pairs of glyphs (literally $1$2) and
-     *                     the value is the horizontal adjustment in pixels for that glyph pair.
-     *                     Can be empty. The
-     *                     maximum size of the kerning table is 65535 entries.
+     *     the value is the horizontal adjustment in pixels for that glyph pair. Can be empty. The
+     *     maximum size of the kerning table is 65535 entries.
      */
     public BitmapFontData(
             int id,
@@ -190,12 +188,11 @@ public class BitmapFontData extends Operation implements Serializable {
     /**
      * Add the image to the document
      *
-     * @param buffer       document to write to
-     * @param id           the id the bitmap font will be stored under
-     * @param glyphs       glyph metadata
+     * @param buffer document to write to
+     * @param id the id the bitmap font will be stored under
+     * @param glyphs glyph metadata
      * @param kerningTable The kerning table, where the key is pairs of glyphs (literally $1$2) and
-     *                     the value is the horizontal adjustment in pixels for that glyph pair.
-     *                     Can be empty.
+     *     the value is the horizontal adjustment in pixels for that glyph pair. Can be empty.
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -237,7 +234,7 @@ public class BitmapFontData extends Operation implements Serializable {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -282,22 +279,32 @@ public class BitmapFontData extends Operation implements Serializable {
         doc.operation("Text Operations", OP_CODE, CLASS_NAME)
                 .description("Define a bitmap font with glyph metadata and optional kerning")
                 .field(DocumentedOperation.INT, "id", "The ID of the bitmap font")
-                .field(DocumentedOperation.INT, "versionAndNumGlyphs",
+                .field(
+                        DocumentedOperation.INT,
+                        "versionAndNumGlyphs",
                         "Encoded version and number of glyphs")
                 .field(DocumentedOperation.UTF8, "chars[0..n]", "The characters for each glyph")
                 .field(DocumentedOperation.INT, "bitmapId[0..n]", "The bitmap ID for each glyph")
                 .field(DocumentedOperation.SHORT, "marginLeft[0..n]", "Left margin for each glyph")
                 .field(DocumentedOperation.SHORT, "marginTop[0..n]", "Top margin for each glyph")
-                .field(DocumentedOperation.SHORT, "marginRight[0..n]",
+                .field(
+                        DocumentedOperation.SHORT,
+                        "marginRight[0..n]",
                         "Right margin for each glyph")
-                .field(DocumentedOperation.SHORT, "marginBottom[0..n]",
+                .field(
+                        DocumentedOperation.SHORT,
+                        "marginBottom[0..n]",
                         "Bottom margin for each glyph")
                 .field(DocumentedOperation.SHORT, "width[0..n]", "Width for each glyph")
                 .field(DocumentedOperation.SHORT, "height[0..n]", "Height for each glyph")
-                .field(DocumentedOperation.SHORT, "kerningSize",
+                .field(
+                        DocumentedOperation.SHORT,
+                        "kerningSize",
                         "Number of entries in the kerning table")
                 .field(DocumentedOperation.UTF8, "glyphPair[0..n]", "Glyph pair for kerning")
-                .field(DocumentedOperation.SHORT, "adjustment[0..n]",
+                .field(
+                        DocumentedOperation.SHORT,
+                        "adjustment[0..n]",
                         "Horizontal adjustment for kerning pair");
     }
 

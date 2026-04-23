@@ -37,14 +37,14 @@ public class CommandParametersTest {
                         CommandParameters.param("textId", COLOR, CommandParameters.P_INT),
                         CommandParameters.param("fontSize", FONT_SIZE, CommandParameters.P_FLOAT),
                         CommandParameters.param("fontStyle", FONT_STYLE, CommandParameters.P_BYTE),
-                        CommandParameters.param("fontWeight", FONT_WEIGHT,
-                                CommandParameters.P_SHORT),
-                        CommandParameters.param("fontFamily", FONT_FAMILY,
-                                CommandParameters.P_BOOLEAN),
+                        CommandParameters.param(
+                                "fontWeight", FONT_WEIGHT, CommandParameters.P_SHORT),
+                        CommandParameters.param(
+                                "fontFamily", FONT_FAMILY, CommandParameters.P_BOOLEAN),
                         CommandParameters.param("strData", STR_DATA, CommandParameters.PA_STRING),
                         CommandParameters.param("intData", INT_DATA, CommandParameters.PA_INT),
-                        CommandParameters.param("floatData", FLOAT_DATA, CommandParameters.PA_FLOAT)
-                );
+                        CommandParameters.param(
+                                "floatData", FLOAT_DATA, CommandParameters.PA_FLOAT));
         WireBuffer buffer = new WireBuffer();
         buffer.writeShort(8);
         param.write(buffer, COLOR, 1);
@@ -53,75 +53,77 @@ public class CommandParametersTest {
         param.write(buffer, FONT_WEIGHT, (short) 4);
         param.write(buffer, FONT_FAMILY, true);
         param.write(buffer, STR_DATA, "Hello World");
-        param.write(buffer, INT_DATA, new int[]{1, 2, 3});
-        param.write(buffer, FLOAT_DATA, new float[]{1.0f, 2.0f, 3.0f});
+        param.write(buffer, INT_DATA, new int[] {1, 2, 3});
+        param.write(buffer, FLOAT_DATA, new float[] {1.0f, 2.0f, 3.0f});
         buffer.setIndex(0);
         final int[] data = new int[1];
-        int len =  buffer.readShort();
+        int len = buffer.readShort();
         for (int i = 0; i < len; i++) {
-            param.read(buffer, new CommandParameters.Callback() {
-                @Override
-                public void value(int id, int value) {
-                    assert id == COLOR;
-                    assert value == 1;
-                    data[0]++;
-                }
+            param.read(
+                    buffer,
+                    new CommandParameters.Callback() {
+                        @Override
+                        public void value(int id, int value) {
+                            assert id == COLOR;
+                            assert value == 1;
+                            data[0]++;
+                        }
 
-                @Override
-                public void value(int id, float value) {
-                    assert id == FONT_SIZE;
-                    assert value == 2.2f;
-                    data[0]++;
-                }
+                        @Override
+                        public void value(int id, float value) {
+                            assert id == FONT_SIZE;
+                            assert value == 2.2f;
+                            data[0]++;
+                        }
 
-                @Override
-                public void value(int id, short value) {
-                    assert id == FONT_WEIGHT;
-                    assert value == 4;
-                    data[0]++;
-                }
+                        @Override
+                        public void value(int id, short value) {
+                            assert id == FONT_WEIGHT;
+                            assert value == 4;
+                            data[0]++;
+                        }
 
-                @Override
-                public void value(int id, byte value) {
-                    assert id == FONT_STYLE;
-                    assert value == 3;
-                    data[0]++;
-                }
+                        @Override
+                        public void value(int id, byte value) {
+                            assert id == FONT_STYLE;
+                            assert value == 3;
+                            data[0]++;
+                        }
 
-                @Override
-                public void value(int id, boolean value) {
-                    assert id == FONT_FAMILY;
-                    assert value;
-                    data[0]++;
-                }
+                        @Override
+                        public void value(int id, boolean value) {
+                            assert id == FONT_FAMILY;
+                            assert value;
+                            data[0]++;
+                        }
 
-                @Override
-                public void value(int id, String value) {
-                    assert id == STR_DATA;
-                    assert value.equals("Hello World");
-                    data[0]++;
-                }
+                        @Override
+                        public void value(int id, String value) {
+                            assert id == STR_DATA;
+                            assert value.equals("Hello World");
+                            data[0]++;
+                        }
 
-                @Override
-                public void value(int id, int[] value) {
-                    assert id == INT_DATA;
-                    assert value.length == 3;
-                    assert value[0] == 1;
-                    assert value[1] == 2;
-                    assert value[2] == 3;
-                    data[0]++;
-                }
+                        @Override
+                        public void value(int id, int[] value) {
+                            assert id == INT_DATA;
+                            assert value.length == 3;
+                            assert value[0] == 1;
+                            assert value[1] == 2;
+                            assert value[2] == 3;
+                            data[0]++;
+                        }
 
-                @Override
-                public void value(int id, float[] value) {
-                    assert id == FLOAT_DATA;
-                    assert value.length == 3;
-                    assert value[0] == 1.0f;
-                    assert value[1] == 2.0f;
-                    assert value[2] == 3.0f;
-                    data[0]++;
-                }
-            });
+                        @Override
+                        public void value(int id, float[] value) {
+                            assert id == FLOAT_DATA;
+                            assert value.length == 3;
+                            assert value[0] == 1.0f;
+                            assert value[1] == 2.0f;
+                            assert value[2] == 3.0f;
+                            data[0]++;
+                        }
+                    });
         }
         assert data[0] == 8;
     }

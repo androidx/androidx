@@ -71,8 +71,7 @@ public class ValueFloatExpressionChangeActionOperation extends Operation
     }
 
     @Override
-    public void apply(@NonNull RemoteContext context) {
-    }
+    public void apply(@NonNull RemoteContext context) {}
 
     @NonNull
     @Override
@@ -81,8 +80,7 @@ public class ValueFloatExpressionChangeActionOperation extends Operation
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {
-    }
+    public void write(@NonNull WireBuffer buffer) {}
 
     @Override
     public void runAction(
@@ -97,9 +95,9 @@ public class ValueFloatExpressionChangeActionOperation extends Operation
     /**
      * Write the operation to the buffer
      *
-     * @param buffer  a WireBuffer
+     * @param buffer a WireBuffer
      * @param valueId the value id
-     * @param value   the value to set
+     * @param value the value to set
      */
     public static void apply(@NonNull WireBuffer buffer, int valueId, int value) {
         buffer.start(OP_CODE);
@@ -110,7 +108,7 @@ public class ValueFloatExpressionChangeActionOperation extends Operation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -125,7 +123,9 @@ public class ValueFloatExpressionChangeActionOperation extends Operation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Actions & Events Operations", OP_CODE,
+        doc.operation(
+                        "Actions & Events Operations",
+                        OP_CODE,
                         "ValueFloatExpressionChangeActionOperation")
                 .description("Action that updates a float variable via a dynamic expression")
                 .field(INT, "targetValueId", "The ID of the float variable to update")

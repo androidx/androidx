@@ -26,17 +26,14 @@ public class SystemInfo {
     private int mLibraryApiLevel = DOCUMENT_API_LEVEL;
     private int mProfile = PROFILE;
 
-    /**
-     * Constructor
-     */
-    public SystemInfo() {
-    }
+    /** Constructor */
+    public SystemInfo() {}
 
     /**
      * Constructor
      *
      * @param libraryApiLevel the library api level
-     * @param profile         the Profile this reader is assuming
+     * @param profile the Profile this reader is assuming
      */
     public SystemInfo(int libraryApiLevel, int profile) {
         mLibraryApiLevel = libraryApiLevel;
@@ -60,5 +57,4 @@ public class SystemInfo {
     public int getProfile() {
         return mProfile;
     }
-
 }

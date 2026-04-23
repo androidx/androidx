@@ -424,7 +424,11 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     @Override
     public void addDrawBitmap(
-            int imageId, float left, float top, float right, float bottom,
+            int imageId,
+            float left,
+            float top,
+            float right,
+            float bottom,
             int contentDescriptionId) {
         addOperation(new DrawBitmap(imageId, left, top, right, bottom, contentDescriptionId));
     }
@@ -572,14 +576,24 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     @Override
     public void addDrawBitmapFontTextRun(
-            int textId, int bitmapFontId, int start, int end, float x, float y,
+            int textId,
+            int bitmapFontId,
+            int start,
+            int end,
+            float x,
+            float y,
             float glyphSpacing) {
         addOperation(new DrawBitmapFontText(textId, bitmapFontId, start, end, x, y, glyphSpacing));
     }
 
     @Override
     public void addDrawBitmapFontTextRunOnPath(
-            int textId, int bitmapFontId, int pathId, int start, int end, float yAdj,
+            int textId,
+            int bitmapFontId,
+            int pathId,
+            int start,
+            int end,
+            float yAdj,
             float glyphSpacing) {
         addOperation(
                 new DrawBitmapFontTextOnPath(
@@ -1011,16 +1025,14 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     @Override
     public void addFitBoxStart(int componentId, int animationId, int horizontal, int vertical) {
         mLastComponentId = getComponentId(componentId);
-        addOperation(
-                new FitBoxLayout(null, mLastComponentId, animationId, horizontal, vertical));
+        addOperation(new FitBoxLayout(null, mLastComponentId, animationId, horizontal, vertical));
     }
 
     @Override
     public void addImage(
             int componentId, int animationId, int bitmapId, int scaleType, float alpha) {
         mLastComponentId = getComponentId(componentId);
-        addOperation(
-                new ImageLayout(null, componentId, animationId, bitmapId, scaleType, alpha));
+        addOperation(new ImageLayout(null, componentId, animationId, bitmapId, scaleType, alpha));
     }
 
     @Override
@@ -1253,11 +1265,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     @Override
     public void addTextComponentStart(
-            int componentId,
-            int animationId,
-            int textId,
-            int textStyleId,
-            int flags) {
+            int componentId, int animationId, int textId, int textStyleId, int flags) {
         mLastComponentId = getComponentId(componentId);
         addOperation(
                 new CoreText(
@@ -1496,7 +1504,9 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
-    public void setVersion(int documentApiLevel, int operationsProfiles,
+    public void setVersion(
+            int documentApiLevel,
+            int operationsProfiles,
             @NonNull Set<Integer> supportedOperations) {
         throw new UnsupportedOperationException("setVersion is not supported");
     }
@@ -1624,6 +1634,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     /**
      * Add a click modifier operation
+     *
      * @param clickType type of click (0=single, 1=long, 2=double)
      */
     @Override

@@ -45,13 +45,12 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
     private static final String CLASS_NAME = "FunctionDefine";
     private final int mId;
     private final int @NonNull [] mFloatVarId;
-    @NonNull
-    private ArrayList<Operation> mList = new ArrayList<>();
+    @NonNull private ArrayList<Operation> mList = new ArrayList<>();
 
     @NonNull AnimatedFloatExpression mExp = new AnimatedFloatExpression();
 
     /**
-     * @param id         The id of the function
+     * @param id The id of the function
      * @param floatVarId the ids of the variables
      */
     public FloatFunctionDefine(int id, int @NonNull [] floatVarId) {
@@ -66,8 +65,7 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
     }
 
     @Override
-    public void updateVariables(@NonNull RemoteContext context) {
-    }
+    public void updateVariables(@NonNull RemoteContext context) {}
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {
@@ -97,8 +95,8 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
      * Write the operation on the buffer
      *
      * @param buffer the buffer to write to
-     * @param id     the id of the function
-     * @param varId  the ids of the variables
+     * @param id the id of the function
+     * @param varId the ids of the variables
      */
     public static void apply(@NonNull WireBuffer buffer, int id, int @NonNull [] varId) {
         buffer.start(OP_CODE);
@@ -112,7 +110,7 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -156,8 +154,7 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
     }
 
     @Override
-    public void apply(@NonNull RemoteContext context) {
-    }
+    public void apply(@NonNull RemoteContext context) {}
 
     /**
      * Execute the function by applying the list of operations

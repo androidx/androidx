@@ -419,6 +419,7 @@ public abstract class RemoteContext {
 
     /**
      * Set the theme under which it will be painted
+     *
      * @param theme the theme
      */
     public void setPaintTheme(int theme) {
@@ -427,6 +428,7 @@ public abstract class RemoteContext {
 
     /**
      * Get the theme under which it will be painted
+     *
      * @return the paint theme
      */
     public int getPaintTheme() {
@@ -435,6 +437,7 @@ public abstract class RemoteContext {
 
     /**
      * Set the touch version
+     *
      * @param touchVersion
      */
     public void setTouchVersion(int touchVersion) {
@@ -443,6 +446,7 @@ public abstract class RemoteContext {
 
     /**
      * Get the touch version
+     *
      * @return
      */
     public int getTouchVersion() {
@@ -451,6 +455,7 @@ public abstract class RemoteContext {
 
     /**
      * Return true if the provided feature is enabled in the document
+     *
      * @param feature feature id
      * @return
      */
@@ -460,6 +465,7 @@ public abstract class RemoteContext {
 
     /**
      * Return the document density behavior
+     *
      * @return
      */
     public int getDensityBehavior() {
@@ -517,8 +523,7 @@ public abstract class RemoteContext {
     }
 
     /**
-     * Create an edge effect
-     * Used in scroll views when hitting start/end of the scroll area
+     * Create an edge effect Used in scroll views when hitting start/end of the scroll area
      *
      * @param direction : TOP/BOTTOM/LEFT/RIGHT
      * @return a platform-specific implementation or null
@@ -631,6 +636,7 @@ public abstract class RemoteContext {
 
     /**
      * Mark the variable as dirty
+     *
      * @param id
      */
     public void markVariableDirty(int id) {
@@ -779,7 +785,6 @@ public abstract class RemoteContext {
 
     /**
      * Notify commands with variables have changed
-     *
      *
      * @return the number of ms to next update
      */

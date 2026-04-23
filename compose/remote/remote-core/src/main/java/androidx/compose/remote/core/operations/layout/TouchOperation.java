@@ -18,9 +18,6 @@ package androidx.compose.remote.core.operations.layout;
 
 import androidx.annotation.RestrictTo;
 
-/**
- * Tagging interface for operations dealing with touch events
- */
+/** Tagging interface for operations dealing with touch events */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface TouchOperation {
-}
+public interface TouchOperation {}

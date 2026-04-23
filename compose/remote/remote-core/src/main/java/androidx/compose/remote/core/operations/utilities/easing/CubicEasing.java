@@ -20,9 +20,9 @@ import androidx.annotation.RestrictTo;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Cubic easing function similar to CSS cubic-bezier
- * given two control point x1,y1 and x2,y2 the function is defined as
- * f(x) = (1-x)^3 * x1 + 3 * (1-x)^2 * x * y1 + 3 * (1-x) * x^2 * y2 + x^3 * y2
+ * Cubic easing function similar to CSS cubic-bezier given two control point x1,y1 and x2,y2 the
+ * function is defined as f(x) = (1-x)^3 * x1 + 3 * (1-x)^2 * x * y1 + 3 * (1-x) * x^2 * y2 + x^3 *
+ * y2
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CubicEasing extends Easing {
@@ -38,9 +38,7 @@ public class CubicEasing extends Easing {
     private static final float[] ANTICIPATE = {0.36f, 0f, 0.66f, -0.56f};
     private static final float[] OVERSHOOT = {0.34f, 1.56f, 0.64f, 1f};
 
-    /**
-     *  a Standard CubicEasing function
-     */
+    /** a Standard CubicEasing function */
     public CubicEasing() {
         setup(STANDARD[0], STANDARD[1], STANDARD[2], STANDARD[3]);
     }
@@ -85,6 +83,7 @@ public class CubicEasing extends Easing {
 
     /**
      * Setup the cubic function
+     *
      * @param x1 the x value of the first point
      * @param y1 the y value of the first point
      * @param x2 the x value of the second point

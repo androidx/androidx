@@ -37,11 +37,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * A path append operation.
- * Works with PathCreate.
- * TODO implement winding rule
- */
+/** A path append operation. Works with PathCreate. TODO implement winding rule */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PathAppend extends PaintOperation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.PATH_ADD;

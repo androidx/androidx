@@ -130,24 +130,34 @@ public class RowLayout extends LayoutManager {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
             @NonNull Size size) {
-        computeWrapSize(context, minWidth, maxWidth, minHeight, maxHeight, horizontalWrap,
+        computeWrapSize(
+                context,
+                minWidth,
+                maxWidth,
+                minHeight,
+                maxHeight,
+                horizontalWrap,
                 verticalWrap,
-                measure, size, mChildrenComponents);
+                measure,
+                size,
+                mChildrenComponents);
     }
 
-    /**
-     * Compute the size of the component in wrap
-     */
+    /** Compute the size of the component in wrap */
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
@@ -237,8 +247,8 @@ public class RowLayout extends LayoutManager {
             float minHeight,
             float maxHeight,
             @NonNull MeasurePass measure) {
-        computeSize(context, minWidth, maxWidth, minHeight, maxHeight, measure,
-                mChildrenComponents);
+        computeSize(
+                context, minWidth, maxWidth, minHeight, maxHeight, measure, mChildrenComponents);
     }
 
     protected void computeSize(
@@ -267,8 +277,10 @@ public class RowLayout extends LayoutManager {
         return minIntrinsicWidth(context, mChildrenComponents, true);
     }
 
-    protected float minIntrinsicWidth(@NonNull RemoteContext context,
-            @NonNull ArrayList<Component> components, boolean isMin) {
+    protected float minIntrinsicWidth(
+            @NonNull RemoteContext context,
+            @NonNull ArrayList<Component> components,
+            boolean isMin) {
         float width = computeModifierDefinedWidth(context, isMin);
         float componentWidths = 0f;
         for (Component c : components) {
@@ -282,8 +294,10 @@ public class RowLayout extends LayoutManager {
         return minIntrinsicHeight(context, mChildrenComponents, true);
     }
 
-    protected float minIntrinsicHeight(@Nullable RemoteContext context,
-            @NonNull ArrayList<Component> components, boolean isMin) {
+    protected float minIntrinsicHeight(
+            @Nullable RemoteContext context,
+            @NonNull ArrayList<Component> components,
+            boolean isMin) {
         float height = computeModifierDefinedHeight(context, isMin);
         float componentHeights = 0f;
         for (Component c : components) {
@@ -332,14 +346,18 @@ public class RowLayout extends LayoutManager {
                     mComponentModifiers.getVerticalScrollDimension() - mPaddingTop - mPaddingBottom;
         }
 
-        internalLayoutMeasure(context, measure, mChildrenComponents, selfWidth, selfHeight, 0f, 0f,
-                null);
+        internalLayoutMeasure(
+                context, measure, mChildrenComponents, selfWidth, selfHeight, 0f, 0f, null);
     }
 
-    protected void internalLayoutMeasure(@NonNull PaintContext context,
+    protected void internalLayoutMeasure(
+            @NonNull PaintContext context,
             @NonNull MeasurePass measure,
-            @NonNull ArrayList<Component> components, float selfWidth, float selfHeight,
-            float positionX, float positionY,
+            @NonNull ArrayList<Component> components,
+            float selfWidth,
+            float selfHeight,
+            float positionX,
+            float positionY,
             @Nullable Size size) {
         if (components.isEmpty()) {
             DebugLog.e();
@@ -424,8 +442,8 @@ public class RowLayout extends LayoutManager {
             childrenWidth += childMeasure.getW();
             childrenHeight = Math.max(childrenHeight, childMeasure.getH());
             visibleChildrens++;
-            AlignByModifierOperation alignByModifier = child.selfOrModifier(
-                    AlignByModifierOperation.class);
+            AlignByModifierOperation alignByModifier =
+                    child.selfOrModifier(AlignByModifierOperation.class);
             if (alignByModifier != null) {
                 hasAlignBy = true;
                 alignByValue = Math.max(alignByValue, alignByModifier.getValue(context));
@@ -497,8 +515,8 @@ public class RowLayout extends LayoutManager {
             ComponentMeasure childMeasure = measure.get(child);
             float alignByOffset = 0f;
             if (hasAlignBy) {
-                AlignByModifierOperation alignByModifier = child.selfOrModifier(
-                        AlignByModifierOperation.class);
+                AlignByModifierOperation alignByModifier =
+                        child.selfOrModifier(AlignByModifierOperation.class);
                 if (alignByModifier != null) {
                     alignByOffset = alignByModifier.getValue(context);
                 }
@@ -546,8 +564,8 @@ public class RowLayout extends LayoutManager {
     }
 
     @Override
-    public void getLocationInWindow(@NonNull RemoteContext context, float @NonNull [] value,
-            boolean forSelf) {
+    public void getLocationInWindow(
+            @NonNull RemoteContext context, float @NonNull [] value, boolean forSelf) {
         super.getLocationInWindow(context, value, forSelf);
         if (context.getTouchVersion() != LayoutManager.FIX_TOUCH_EVENT) {
             if (!forSelf && mHorizontalScrollDelegate instanceof ScrollModifierOperation) {
@@ -580,12 +598,12 @@ public class RowLayout extends LayoutManager {
     /**
      * Write the operation to the buffer
      *
-     * @param buffer                wire buffer
-     * @param componentId           component id
-     * @param animationId           animation id (-1 if not set)
+     * @param buffer wire buffer
+     * @param componentId component id
+     * @param animationId animation id (-1 if not set)
      * @param horizontalPositioning horizontal positioning rules
-     * @param verticalPositioning   vertical positioning rules
-     * @param spacedBy              spaced by value
+     * @param verticalPositioning vertical positioning rules
+     * @param spacedBy spaced by value
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -605,7 +623,7 @@ public class RowLayout extends LayoutManager {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -644,10 +662,7 @@ public class RowLayout extends LayoutManager {
                 .exampleImage("SpaceAround", "layout-RowLayout-space-around-top.png")
                 .exampleImage("SpaceBetween", "layout-RowLayout-space-between-top.png")
                 .field(INT, "componentId", "Unique ID for this component")
-                .field(
-                        INT,
-                        "animationId",
-                        "ID used to match components for animation purposes")
+                .field(INT, "animationId", "ID used to match components for animation purposes")
                 .field(INT, "horizontalPositioning", "Horizontal positioning value")
                 .possibleValues("START", START)
                 .possibleValues("CENTER", CENTER)

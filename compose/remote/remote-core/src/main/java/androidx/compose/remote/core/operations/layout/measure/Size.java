@@ -16,6 +16,7 @@
 package androidx.compose.remote.core.operations.layout.measure;
 
 import androidx.annotation.RestrictTo;
+
 /** Basic data class representing a component size, used during layout computations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Size {
@@ -43,9 +44,7 @@ public class Size {
         return mHeight;
     }
 
-    /**
-     * Clear the size
-     */
+    /** Clear the size */
     public void clear() {
         mWidth = 0f;
         mHeight = 0f;

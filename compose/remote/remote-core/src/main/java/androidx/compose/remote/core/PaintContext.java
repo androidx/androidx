@@ -562,6 +562,7 @@ public abstract class PaintContext {
 
     /**
      * Set the measure version
+     *
      * @param measureVersion
      */
     public void setMeasureVersion(int measureVersion) {
@@ -570,6 +571,7 @@ public abstract class PaintContext {
 
     /**
      * Get the measure version
+     *
      * @return
      */
     public int getMeasureVersion() {
@@ -578,6 +580,7 @@ public abstract class PaintContext {
 
     /**
      * Return true if the provided feature is enabled in the document
+     *
      * @param feature feature id
      * @return
      */
@@ -587,6 +590,7 @@ public abstract class PaintContext {
 
     /**
      * Return current density
+     *
      * @return
      */
     public float getDensity() {
@@ -595,6 +599,7 @@ public abstract class PaintContext {
 
     /**
      * Return density behavior
+     *
      * @return
      */
     public int getDensityBehavior() {

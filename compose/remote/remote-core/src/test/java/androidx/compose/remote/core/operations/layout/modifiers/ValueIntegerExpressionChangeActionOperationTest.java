@@ -46,17 +46,22 @@ public class ValueIntegerExpressionChangeActionOperationTest {
         RemoteComposeState state = new RemoteComposeState();
 
         // mock context behavior using state
-        doAnswer(invocation -> {
-            int id = invocation.getArgument(0);
-            int value = invocation.getArgument(1);
-            state.overrideInteger(id, value);
-            return null;
-        }).when(context).overrideInteger(anyInt(), anyInt());
+        doAnswer(
+                        invocation -> {
+                            int id = invocation.getArgument(0);
+                            int value = invocation.getArgument(1);
+                            state.overrideInteger(id, value);
+                            return null;
+                        })
+                .when(context)
+                .overrideInteger(anyInt(), anyInt());
 
-        when(context.getInteger(anyInt())).thenAnswer(invocation -> {
-            int id = invocation.getArgument(0);
-            return state.getInteger(id);
-        });
+        when(context.getInteger(anyInt()))
+                .thenAnswer(
+                        invocation -> {
+                            int id = invocation.getArgument(0);
+                            return state.getInteger(id);
+                        });
 
         when(context.getAnimationTime()).thenReturn(0f);
         when(context.getCollectionsAccess()).thenReturn(state);
@@ -68,19 +73,19 @@ public class ValueIntegerExpressionChangeActionOperationTest {
         // create expression: targetId + 1
         int exprId = 10;
         int mask = 1 | (1 << 2); // bit 0 is ID, bit 2 is OP_ADD
-        int[] srcValue = new int[]{targetId, 1, IntegerExpressionEvaluator.I_ADD};
+        int[] srcValue = new int[] {targetId, 1, IntegerExpressionEvaluator.I_ADD};
 
         Field field = CoreDocument.class.getDeclaredField("mIntegerExpressions");
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
-        HashMap<Long, IntegerExpression> map = (HashMap<Long, IntegerExpression>) field.get(
-                document);
+        HashMap<Long, IntegerExpression> map =
+                (HashMap<Long, IntegerExpression>) field.get(document);
         map.put((long) exprId, new IntegerExpression(exprId, mask, srcValue));
 
         // Use targetId + 0x100000000L exactly as the remote compose engine does
         ValueIntegerExpressionChangeActionOperation op =
-                new ValueIntegerExpressionChangeActionOperation(targetId + 0x100000000L,
-                        exprId + 0x100000000L);
+                new ValueIntegerExpressionChangeActionOperation(
+                        targetId + 0x100000000L, exprId + 0x100000000L);
 
         Component comp = mock(Component.class);
 

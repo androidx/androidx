@@ -168,7 +168,8 @@ public class AnimationSpec extends Operation implements ModifierOperation {
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer,
+        apply(
+                buffer,
                 mAnimationId,
                 mMotionDuration,
                 mMotionEasingType,

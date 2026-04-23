@@ -46,17 +46,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a click modifier + actions
- * This modifier supports single click, double click as well as long press interactions.
- * It aims to replace ClickModifierOperation.
+ * Represents a click modifier + actions This modifier supports single click, double click as well
+ * as long press interactions. It aims to replace ClickModifierOperation.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MultiClickModifier extends PaintOperation
         implements Container,
-        ModifierOperation,
-        DecoratorComponent,
-        ClickHandler,
-        AccessibleComponent {
+                ModifierOperation,
+                DecoratorComponent,
+                ClickHandler,
+                AccessibleComponent {
     private static final int OP_CODE = Operations.MODIFIER_MULTI_CLICK;
 
     public static final int CLICK_TYPE_SINGLE = 0;
@@ -77,8 +76,7 @@ public class MultiClickModifier extends PaintOperation
 
     @NonNull PaintBundle mPaint = new PaintBundle();
 
-    public MultiClickModifier() {
-    }
+    public MultiClickModifier() {}
 
     public MultiClickModifier(int clickType) {
         mClickType = clickType;
@@ -112,8 +110,7 @@ public class MultiClickModifier extends PaintOperation
         mAnimateRippleY = y;
     }
 
-    @NonNull
-    public ArrayList<Operation> mList = new ArrayList<>();
+    @NonNull public ArrayList<Operation> mList = new ArrayList<>();
 
     @NonNull
     @Override
@@ -285,7 +282,8 @@ public class MultiClickModifier extends PaintOperation
             component.getLocationInWindow(context, locationInWindow);
             if (context.isAnimationEnabled()) {
                 animateRipple(
-                        x - locationInWindow[0], y - locationInWindow[1],
+                        x - locationInWindow[0],
+                        y - locationInWindow[1],
                         context.getClock().millis());
             }
         }
@@ -306,9 +304,7 @@ public class MultiClickModifier extends PaintOperation
         return "ClickModifier";
     }
 
-    /**
-     * Write the operation on the buffer
-     */
+    /** Write the operation on the buffer */
     public static void apply(@NonNull WireBuffer buffer, int clickType) {
         buffer.start(OP_CODE);
         buffer.writeInt(clickType);
@@ -317,7 +313,7 @@ public class MultiClickModifier extends PaintOperation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -343,7 +339,8 @@ public class MultiClickModifier extends PaintOperation
 
     @Override
     public void serialize(@NonNull MapSerializer serializer) {
-        serializer.addTags(SerializeTags.MODIFIER)
+        serializer
+                .addTags(SerializeTags.MODIFIER)
                 .addType("MultiClickModifier")
                 .add("clickType", mClickType);
     }
