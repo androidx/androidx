@@ -135,24 +135,6 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         super.testEmojiSnippet();
     }
 
-    // TODO(b/256022027) Remove this overridden test once the change to setMaxJoinedResultCount
-    // is synced over into framework.
-    @Override
-    @Test
-    public void testSimpleJoin() throws Exception { }
-
-    // TODO(b/256022027) Remove this overridden test once the change to rename
-    //  `this.childrenScores()` to `this.childrenRankingSignals()` is synced to udc-dev.
-    @Override
-    @Test
-    public void testQuery_invalidAdvancedRankingWithChildrenRankingSignals() throws Exception { }
-
-    // TODO(b/256022027) Remove this overridden test once the change to rename
-    //  `this.childrenScores()` to `this.childrenRankingSignals()` is synced to udc-dev.
-    @Override
-    @Test
-    public void testQuery_advancedRankingWithJoin() throws Exception { }
-
     // Remove when b/441557822 is fixed
     @Test
     @Override
