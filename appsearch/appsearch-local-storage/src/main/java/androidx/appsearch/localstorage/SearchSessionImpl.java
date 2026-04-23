@@ -231,8 +231,10 @@ class SearchSessionImpl implements AppSearchSession {
             // If some aren't we must throw an error, rather than proceeding and deleting those
             // types.
             long queryAndTransformLatencyStartMillis = SystemClock.elapsedRealtime();
-            SchemaMigrationUtil.checkDeletedAndIncompatibleAfterMigration(
-                    internalSetSchemaResponse, activeMigrators.keySet());
+            if (!request.isForceOverride()) {
+                SchemaMigrationUtil.checkDeletedAndIncompatibleAfterMigration(
+                        internalSetSchemaResponse, activeMigrators.keySet());
+            }
 
             try (AppSearchMigrationHelper migrationHelper = new AppSearchMigrationHelper(
                     mAppSearchImpl, mPackageName, mDatabaseName, request.getSchemas(), mLogger)) {
