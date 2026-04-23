@@ -24,7 +24,6 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
-import com.android.tools.lint.useFirUast
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -596,10 +595,8 @@ src/androidx/compose/material/foo/test.kt:22: Error: Conflicting 'on' color for 
                 ColorsStub.bytecode,
             )
             .run()
-            .run {
-                if (useFirUast()) {
-                    expect(
-                        """
+            .expect(
+                """
 src/androidx/compose/material/foo/test.kt:15: Error: Conflicting 'on' color for a given background [ConflictingOnColor]
                     Color.White,
                     ~~~~~~~~~~~
@@ -637,14 +634,8 @@ src/androidx/compose/material/foo/test.kt:55: Error: Conflicting 'on' color for 
                     yellow500,
                     ~~~~~~~~~
 12 errors
-                        """
-                    )
-                } else {
-                    // In K1, the constructor call to Colors cannot be resolved when
-                    // it is available as bytecode, so we don't see any errors.
-                    expectClean()
-                }
-            }
+                """
+            )
     }
 
     @Test
