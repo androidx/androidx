@@ -107,6 +107,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceAtMost
 import androidx.wear.compose.foundation.GestureInclusion
 import androidx.wear.compose.material3.ButtonDefaults.buttonColors
 import androidx.wear.compose.material3.RevealDirection.Companion.Bidirectional
@@ -307,11 +308,20 @@ public fun SwipeToReveal(
             }
         }
 
-    val revealedRatio: Float =
-        if (secondaryAction == null || anchorWidthPx / screenWidthPx == 1f) 0.5f
-        else
-            ((0.75f - anchorWidthPx / screenWidthPx) / (1f - anchorWidthPx / screenWidthPx))
-                .coerceAtLeast(0f)
+    var componentWidthPx by remember { mutableFloatStateOf(0f) }
+    val revealedRatio: Float by
+        remember(screenWidthPx, anchorWidthPx) {
+            derivedStateOf {
+                if (secondaryAction == null || anchorWidthPx / screenWidthPx == 1f) 0.5f
+                else {
+                    val revealingAnchorPx = (anchorWidthPx / screenWidthPx) * componentWidthPx
+                    ((FULL_SWIPE_THRESHOLD_FRACTION * screenWidthPx -
+                            (screenWidthPx - componentWidthPx) / 2f -
+                            revealingAnchorPx) / (screenWidthPx - revealingAnchorPx))
+                        .coerceAtLeast(0f)
+                }
+            }
+        }
 
     CustomTouchSlopProvider(
         newTouchSlop = LocalViewConfiguration.current.touchSlop * CustomTouchSlopMultiplier
@@ -374,6 +384,7 @@ public fun SwipeToReveal(
                     .onSizeChanged { size ->
                         // Update the total width which will be used to calculate the anchors
                         val width = size.width.toFloat()
+                        componentWidthPx = width
                         val draggableAnchors = DraggableAnchors {
                             for (anchor in anchors) {
                                 when (anchor) {
@@ -395,11 +406,9 @@ public fun SwipeToReveal(
                                                         WearComposeMaterial3Flags
                                                             .isSwipeToRevealDualFlingThresholdEnabled
                                                     ) {
-                                                        revealingAnchorPx +
-                                                            abs(
-                                                                revealedRatio *
-                                                                    (width - revealingAnchorPx)
-                                                            )
+                                                        FULL_SWIPE_THRESHOLD_FRACTION *
+                                                            screenWidthPx -
+                                                            (screenWidthPx - width) / 2f
                                                     } else {
                                                         abs(result)
                                                     }
@@ -410,7 +419,8 @@ public fun SwipeToReveal(
                                     }
                                     LeftRevealed,
                                     RightRevealed -> {
-                                        width * anchorSideMultiplier(anchor, direction)
+                                        // Revealed positions are outside of screen bounds
+                                        screenWidthPx * anchorSideMultiplier(anchor, direction)
                                     }
                                     else -> null
                                 }?.let { anchor at it }
@@ -449,13 +459,17 @@ public fun SwipeToReveal(
         ) {
             val canSwipeRight = revealDirection == Bidirectional
 
-            val swipingRight by remember { derivedStateOf { revealState.offset * direction > 0 } }
+            val swipingRight by
+                remember(direction) { derivedStateOf { revealState.offset * direction > 0 } }
 
             // Don't draw actions on the left side if the user cannot swipe right, and they are
             // currently swiping right
-            val shouldDrawActions by remember {
-                derivedStateOf { abs(revealState.offset) > 0 && (canSwipeRight || !swipingRight) }
-            }
+            val shouldDrawActions by
+                remember(canSwipeRight) {
+                    derivedStateOf {
+                        abs(revealState.offset) > 0 && (canSwipeRight || !swipingRight)
+                    }
+                }
 
             // Draw the buttons only when offset is greater than zero.
             if (shouldDrawActions) {
@@ -584,6 +598,9 @@ public fun SwipeToReveal(
                                                                     revealState.revealThreshold
                                                                 } else {
                                                                     abs(revealState.offset)
+                                                                        .fastCoerceAtMost(
+                                                                            componentWidthPx
+                                                                        )
                                                                 }
                                                                 .roundToInt()
                                                     )
@@ -1596,16 +1613,19 @@ private fun <T> DraggableAnchors<T>.computeTarget(
         val right = currentAnchors.closestAnchor(currentOffset, true)!!
         val rightAnchorPosition = currentAnchors.positionOf(right)
         val distance = abs(leftAnchorPosition - rightAnchorPosition)
+        // isCompleting is true when the swipe is transitioning between a "Revealing" state and
+        // its corresponding "Revealed" state.
+        // This transition uses a custom positional threshold (FULL_SWIPE_THRESHOLD_FRACTION).
         val isCompleting =
-            (velocity > 0 && left == LeftRevealing) || (velocity < 0 && right == RightRevealing)
+            (right == LeftRevealed && left == LeftRevealing) ||
+                (left == RightRevealed && right == RightRevealing)
         val relativeThreshold = abs(positionalThreshold(distance, isCompleting))
-
-        val closestAnchorFromStart =
-            if (isMovingForward) leftAnchorPosition else rightAnchorPosition
+        val isLeft = if (isCompleting) left == LeftRevealing else isMovingForward
+        val closestAnchorFromStart = if (isLeft) leftAnchorPosition else rightAnchorPosition
         val relativePosition = abs(closestAnchorFromStart - currentOffset)
         when (relativePosition >= relativeThreshold) {
-            true -> if (isMovingForward) right else left
-            false -> if (isMovingForward) left else right
+            true -> if (isLeft) right else left
+            false -> if (isLeft) left else right
         }
     }
 }
@@ -1691,6 +1711,8 @@ private const val SINGLE_ICON_FADE_IN_END_THRESHOLD_AS_SCREEN_WIDTH_PERCENTAGE =
 private const val DOUBLE_ICON_FADE_IN_END_THRESHOLD_AS_SCREEN_WIDTH_PERCENTAGE = 0.36f
 
 private const val FULL_SCREEN_PADDING_FRACTION = 0.0625f
+
+private const val FULL_SWIPE_THRESHOLD_FRACTION = 0.75f
 
 @SuppressLint("PrimitiveInCollection")
 private val BidirectionalAnchors: Set<RevealValue> =
