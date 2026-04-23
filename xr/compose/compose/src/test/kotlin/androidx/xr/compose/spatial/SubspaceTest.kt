@@ -1107,10 +1107,13 @@ class SubspaceTest {
         runTest(testDispatcher) {
             composeTestRule.session = configureSessionWithDeviceTracking()
             val session = assertNotNull(composeTestRule.session)
-            var forceRecompose by mutableStateOf(false)
+
+            val fakeSceneRuntime =
+                session.runtimes
+                    .filterIsInstance<androidx.xr.scenecore.testing.FakeSceneRuntime>()
+                    .first()
 
             composeTestRule.setContent {
-                val _forceRecompose = forceRecompose
                 FollowingSubspace(
                     target = FollowTarget.ArDevice(session),
                     behavior = FollowBehavior.Soft(),
@@ -1121,13 +1124,20 @@ class SubspaceTest {
             var spaceNode =
                 composeTestRule.onSubspaceNodeWithTag("FollowingSubspace").fetchSemanticsNode()
             val initialSpaceRoot = spaceNode.semanticsEntity?.parent?.parent
-            var expectedScale = spaceNode.semanticsEntity?.getScale(Space.ACTIVITY)
+            var expectedScale = spaceNode.semanticsEntity?.getScale(Space.ACTIVITY) ?: 1f
             assertNotNull(expectedScale)
             assertThat(initialSpaceRoot?.getScale(Space.ACTIVITY)).isEqualTo(expectedScale)
 
-            expectedScale += .1f
-            session.scene.keyEntity?.setScale(expectedScale, Space.ACTIVITY)
-            forceRecompose = !forceRecompose
+            expectedScale += 1.0f
+
+            composeTestRule.runOnIdle {
+                fakeSceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+                    recommendedPose = Pose.Identity,
+                    recommendedScale = Vector3(expectedScale, expectedScale, expectedScale),
+                )
+            }
+
+            composeTestRule.waitForIdle()
 
             spaceNode =
                 composeTestRule.onSubspaceNodeWithTag("FollowingSubspace").fetchSemanticsNode()
