@@ -563,8 +563,8 @@ internal class ScrollableNode(
         if (pointerEvent.changes.fastAny { canDrag.invoke(it.type) }) {
             super.onPointerEvent(pointerEvent, pass, bounds)
         }
-        initializeGestureCoordination()
         if (enabled) {
+            initializePointerInputGestureCoordination()
             if (pass == PointerEventPass.Initial && pointerEvent.type == PointerEventType.Scroll) {
                 ensureMouseWheelScrollingLogicInitialized()
             }

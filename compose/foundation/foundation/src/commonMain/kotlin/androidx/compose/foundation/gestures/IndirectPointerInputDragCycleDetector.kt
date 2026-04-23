@@ -22,6 +22,7 @@ import androidx.collection.mutableLongListOf
 import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.GestureState
 import androidx.compose.foundation.gestures.DragEvent.DragCancelled
 import androidx.compose.foundation.gestures.DragEvent.DragDelta
 import androidx.compose.foundation.gestures.DragEvent.DragStarted
@@ -46,7 +47,29 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.absoluteValue
 
-internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) {
+internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) :
+    DraggableGestureConnection {
+
+    override val orientationLock: Orientation?
+        get() = node.orientationLock
+
+    override fun getAccumulatedDelta(): Offset = node.getAccumulatedDelta()
+
+    override var gestureState: GestureState = GestureState.Idle
+        private set
+        get() {
+            return when (val state = currentDragState) {
+                is DragDetectionState.AwaitDown ->
+                    if (state.hasSeenInitialEvent) GestureState.Waiting else GestureState.Idle
+                is DragDetectionState.AwaitTouchSlop -> GestureState.Waiting
+                is DragDetectionState.AwaitGesturePickup -> GestureState.Waiting
+                is DragDetectionState.Dragging -> GestureState.Recognized
+                else -> {
+                    GestureState.Idle
+                }
+            }
+        }
+
     /** Store non-initialized states for re-use */
     private var _awaitDownState: DragDetectionState.AwaitDown? = null
     private val awaitDownState: DragDetectionState.AwaitDown
@@ -69,6 +92,7 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
                 ?: DragDetectionState.AwaitGesturePickup().also { _awaitGesturePickupState = it }
 
     private var currentDragState: DragDetectionState? = null
+
     private var velocityTracker: VelocityTracker? = null
     private var previousPositionOnScreen = Offset.Unspecified
     private var touchSlopDetector: TouchSlopDetector? = null
@@ -149,6 +173,7 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
             awaitDownState.apply {
                 awaitTouchSlop = DragDetectionState.AwaitDown.AwaitTouchSlop.NotInitialized
                 consumedOnInitial = false
+                hasSeenInitialEvent = false
             }
     }
 
@@ -199,6 +224,10 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
                 // behavior where dispatching only happened during the main pass
                 state.consumedOnInitial = true
             }
+
+            // Draggable should start reporting that is waiting for touch slop as soon as it gets
+            // the first down event.
+            state.hasSeenInitialEvent = true
         }
 
         if (pass == PointerEventPass.Main) {
@@ -583,6 +612,7 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
         class AwaitDown(
             var awaitTouchSlop: AwaitTouchSlop = AwaitTouchSlop.NotInitialized,
             var consumedOnInitial: Boolean = false,
+            var hasSeenInitialEvent: Boolean = false,
         ) : DragDetectionState() {
 
             enum class AwaitTouchSlop {
