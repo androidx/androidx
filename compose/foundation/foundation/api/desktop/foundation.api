@@ -1862,6 +1862,7 @@ public abstract interface class androidx/compose/foundation/style/StyleScope : a
 	public abstract fun bottom-0680j_4 (F)V
 	public abstract fun clip (Z)V
 	public static synthetic fun clip$default (Landroidx/compose/foundation/style/StyleScope;ZILjava/lang/Object;)V
+	public abstract fun colorFilter (Landroidx/compose/ui/graphics/ColorFilter;)V
 	public abstract fun contentBrush (Landroidx/compose/ui/graphics/Brush;)V
 	public abstract fun contentColor-8_81llA (J)V
 	public abstract fun contentPadding-0680j_4 (F)V
@@ -1925,6 +1926,7 @@ public abstract interface class androidx/compose/foundation/style/StyleScope : a
 	public abstract fun textDecoration (Landroidx/compose/ui/text/style/TextDecoration;)V
 	public abstract fun textDirection-Hejc4pk (I)V
 	public abstract fun textIndent (Landroidx/compose/ui/text/style/TextIndent;)V
+	public abstract fun textMotion (Landroidx/compose/ui/text/style/TextMotion;)V
 	public abstract fun textStyle (Landroidx/compose/ui/text/TextStyle;)V
 	public abstract fun top-0680j_4 (F)V
 	public abstract fun transformOrigin-__ExYCQ (J)V
@@ -1939,6 +1941,8 @@ public abstract interface class androidx/compose/foundation/style/StyleScope : a
 
 public final class androidx/compose/foundation/style/StyleScopeKt {
 	public static final fun apply (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun contentPadding (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/layout/PaddingValues;)V
+	public static final fun externalPadding (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/layout/PaddingValues;)V
 	public static final fun fillHeight (Landroidx/compose/foundation/style/StyleScope;)V
 	public static final fun fillSize (Landroidx/compose/foundation/style/StyleScope;)V
 	public static final fun fillWidth (Landroidx/compose/foundation/style/StyleScope;)V

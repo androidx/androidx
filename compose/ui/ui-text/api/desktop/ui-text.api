@@ -1006,6 +1006,7 @@ public final class androidx/compose/ui/text/font/FontVariation$Settings {
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getSettings ()Ljava/util/List;
 	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class androidx/compose/ui/text/font/FontWeight : java/lang/Comparable {
@@ -1258,13 +1259,29 @@ public final class androidx/compose/ui/text/input/KeyboardType {
 
 public final class androidx/compose/ui/text/input/KeyboardType$Companion {
 	public final fun getAscii-PjHm6EE ()I
+	public final fun getDate-PjHm6EE ()I
+	public final fun getDateTime-PjHm6EE ()I
 	public final fun getDecimal-PjHm6EE ()I
+	public final fun getDecimalPassword-PjHm6EE ()I
+	public final fun getDecimalPasswordSigned-PjHm6EE ()I
+	public final fun getDecimalSigned-PjHm6EE ()I
 	public final fun getEmail-PjHm6EE ()I
+	public final fun getEmailSubject-PjHm6EE ()I
+	public final fun getFilter-PjHm6EE ()I
+	public final fun getLongMessage-PjHm6EE ()I
 	public final fun getNumber-PjHm6EE ()I
 	public final fun getNumberPassword-PjHm6EE ()I
+	public final fun getNumberPasswordSigned-PjHm6EE ()I
+	public final fun getNumberSigned-PjHm6EE ()I
 	public final fun getPassword-PjHm6EE ()I
+	public final fun getPasswordVisible-PjHm6EE ()I
+	public final fun getPersonName-PjHm6EE ()I
 	public final fun getPhone-PjHm6EE ()I
+	public final fun getPhonetic-PjHm6EE ()I
+	public final fun getPostalAddress-PjHm6EE ()I
+	public final fun getShortMessage-PjHm6EE ()I
 	public final fun getText-PjHm6EE ()I
+	public final fun getTime-PjHm6EE ()I
 	public final fun getUnspecified-PjHm6EE ()I
 	public final fun getUri-PjHm6EE ()I
 }

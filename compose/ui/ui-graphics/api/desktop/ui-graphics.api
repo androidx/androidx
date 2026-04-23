@@ -468,6 +468,29 @@ public final class androidx/compose/ui/graphics/IntervalTree {
 	public final fun plusAssign (Landroidx/compose/ui/graphics/Interval;)V
 }
 
+public final class androidx/compose/ui/graphics/LayerOutsets {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/graphics/LayerOutsets$Companion;
+	public synthetic fun <init> (FFFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (FFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBottom-D9Ej5fM ()F
+	public final fun getLeft-D9Ej5fM ()F
+	public final fun getRight-D9Ej5fM ()F
+	public final fun getTop-D9Ej5fM ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/graphics/LayerOutsets$Companion {
+	public final fun getZero ()Landroidx/compose/ui/graphics/LayerOutsets;
+}
+
+public final class androidx/compose/ui/graphics/LayerOutsetsKt {
+	public static final fun LayerOutsets-0680j_4 (F)Landroidx/compose/ui/graphics/LayerOutsets;
+	public static final fun LayerOutsets-YgX7TsA (FF)Landroidx/compose/ui/graphics/LayerOutsets;
+}
+
 public final class androidx/compose/ui/graphics/LightingColorFilter : androidx/compose/ui/graphics/ColorFilter {
 	public static final field $stable I
 	public synthetic fun <init> (JJLkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1709,6 +1732,7 @@ public final class androidx/compose/ui/graphics/layer/GraphicsLayer {
 	public final fun setClip (Z)V
 	public final fun setColorFilter (Landroidx/compose/ui/graphics/ColorFilter;)V
 	public final fun setCompositingStrategy-Wpw9cng (I)V
+	public final fun setOutsets (IIII)V
 	public final fun setPathOutline (Landroidx/compose/ui/graphics/Path;)V
 	public final fun setPivotOffset-k-4lQ0M (J)V
 	public final fun setRectOutline-tz77jQw (JJ)V
