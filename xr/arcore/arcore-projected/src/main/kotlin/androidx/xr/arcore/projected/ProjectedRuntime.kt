@@ -64,7 +64,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 internal class ProjectedRuntime
 internal constructor(
     private val context: Context,
-    override val lifecycleManager: ProjectedManager,
     override val perceptionManager: ProjectedPerceptionManager,
     internal val timeSource: ProjectedTimeSource,
     private val testPerceptionService: IProjectedPerceptionService? = null,
@@ -138,7 +137,6 @@ internal constructor(
             stopServiceInternal()
         }
         perceptionManager.xrResources.config = config
-        lifecycleManager.configure(config)
     }
 
     override fun isSupported(configMode: ConfigMode): Boolean {

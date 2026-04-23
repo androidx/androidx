@@ -32,11 +32,6 @@ internal class ProjectedRuntimeFactory : PerceptionRuntimeFactory {
         val timeSource = ProjectedTimeSource()
         val perceptionManager = ProjectedPerceptionManager(timeSource)
 
-        return ProjectedRuntime(
-            context,
-            ProjectedManager(timeSource),
-            perceptionManager,
-            timeSource,
-        )
+        return ProjectedRuntime(context, perceptionManager, timeSource)
     }
 }

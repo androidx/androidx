@@ -1284,7 +1284,7 @@ class SubspaceTest {
 
             // TODO(b/491579552): Update unit test to use runCurrent instead of advanceTimeBy
             testDispatcher.scheduler.advanceTimeBy(subAnimationTime)
-            fakeRuntime.lifecycleManager.allowOneMoreCallToUpdate()
+            fakeRuntime.allowOneMoreCallToUpdate()
 
             // The first device pose should cause the subspace to instantly spawn at that location.
             // The animation durationMs parameter only affects subsequent movements.

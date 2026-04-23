@@ -18,7 +18,10 @@ package androidx.xr.runtime.internal
 
 import androidx.annotation.RestrictTo
 
-/** Custom class for exceptions that may be thrown by a [LifecycleManager]. */
+/**
+ * Custom class for exceptions that may be thrown by a
+ * [androidx.xr.arcore.runtime.PerceptionRuntime].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class LifecycleException(message: String, cause: Throwable? = null) :
     Exception(message, cause)

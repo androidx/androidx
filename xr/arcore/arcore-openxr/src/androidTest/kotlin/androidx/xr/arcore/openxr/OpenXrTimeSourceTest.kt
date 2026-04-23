@@ -97,9 +97,7 @@ class OpenXrTimeSourceTest {
 
     private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {
         activityRule.scenario.onActivity {
-            val lifecycleManager = OpenXrManager(underTest)
-            openXrRuntime =
-                OpenXrRuntime(it, lifecycleManager, OpenXrPerceptionManager(underTest), underTest)
+            openXrRuntime = OpenXrRuntime(it, OpenXrPerceptionManager(underTest), underTest)
             openXrRuntime.initialize()
             openXrRuntime.resume()
 

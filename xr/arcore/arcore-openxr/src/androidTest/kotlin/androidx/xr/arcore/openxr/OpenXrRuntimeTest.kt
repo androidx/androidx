@@ -434,9 +434,8 @@ class OpenXrRuntimeTest {
     private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {
         activityRule.scenario.onActivity {
             val timeSource = OpenXrTimeSource()
-            val lifecycleManager = OpenXrManager(timeSource)
             val perceptionManager = OpenXrPerceptionManager(timeSource)
-            underTest = OpenXrRuntime(it, lifecycleManager, perceptionManager, timeSource)
+            underTest = OpenXrRuntime(it, perceptionManager, timeSource)
 
             testBody()
 
