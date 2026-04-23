@@ -35,10 +35,10 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.AlphaMode
-import androidx.xr.scenecore.ExrImage
 import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.KhronosPbrMaterial
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.Texture
@@ -70,8 +70,8 @@ class EnvironmentActivity : AppCompatActivity() {
     private var currentPassthroughOpacity = MutableStateFlow(0.0f)
     private var passthroughOpacityPreference = MutableStateFlow(0.0f)
     private var geometryEntity: GltfModelEntity? = null
-    private lateinit var greyImageBasedLightingAsset: ExrImage
-    private lateinit var blueImageBasedLightingAsset: ExrImage
+    private lateinit var greyImageBasedLightingAsset: ImageBasedLightingAsset
+    private lateinit var blueImageBasedLightingAsset: ImageBasedLightingAsset
     private lateinit var groundGeometry: GltfModel
     private lateinit var rockGeometry: GltfModel
     private lateinit var dragonGeometry: GltfModel
@@ -160,10 +160,13 @@ class EnvironmentActivity : AppCompatActivity() {
         loadPathButton.setOnClickListener {
             lifecycleScope.launch {
                 greyImageBasedLightingAsset =
-                    ExrImage.createFromZip(session!!, Paths.get("skyboxes", "GreySkybox.zip"))
+                    ImageBasedLightingAsset.createFromZip(
+                        session!!,
+                        Paths.get("skyboxes", "GreySkybox.zip"),
+                    )
                 addEvent(
                     EventType.IMAGE_BASED_LIGHTING_CHANGED,
-                    "Grey Image Based Lighting Asset loaded from Path",
+                    "Grey Image Based Lighting loaded from Path",
                 )
                 findViewById<Button>(R.id.environment_button2_1).isEnabled = true
             }
@@ -177,10 +180,10 @@ class EnvironmentActivity : AppCompatActivity() {
                 val bytes = assets.open("skyboxes/BlueSkybox.zip").readBytes()
                 @SuppressLint("RestrictedApiAndroidX")
                 blueImageBasedLightingAsset =
-                    ExrImage.createFromZip(session!!, bytes, "BlueSkybox.zip")
+                    ImageBasedLightingAsset.createFromZip(session!!, bytes, "BlueSkybox.zip")
                 addEvent(
                     EventType.IMAGE_BASED_LIGHTING_CHANGED,
-                    "Blue Image Based Lighting Asset loaded from Bytes",
+                    "Blue Image Based Lighting loaded from Bytes",
                 )
                 findViewById<Button>(R.id.environment_button2_2).isEnabled = true
                 findViewById<Button>(R.id.environment_button4_1).isEnabled = true
@@ -195,15 +198,12 @@ class EnvironmentActivity : AppCompatActivity() {
             val currentGeometry = spatialEnvironmentPreference?.geometry
             val currentEntity = if (currentGeometry == null) geometryEntity else null
 
-            setImageBasedLightingAndGeometry(
+            setImageBasedLightingAssetAndGeometry(
                 greyImageBasedLightingAsset,
                 currentGeometry,
                 currentEntity,
             )
-            addEvent(
-                EventType.IMAGE_BASED_LIGHTING_CHANGED,
-                "Image Based Lighting Asset set to BAR",
-            )
+            addEvent(EventType.IMAGE_BASED_LIGHTING_CHANGED, "Image Based Lighting set to BAR")
         }
 
         // handle blue image based lighting
@@ -211,15 +211,12 @@ class EnvironmentActivity : AppCompatActivity() {
             val currentGeometry = spatialEnvironmentPreference?.geometry
             val currentEntity = if (currentGeometry == null) geometryEntity else null
 
-            setImageBasedLightingAndGeometry(
+            setImageBasedLightingAssetAndGeometry(
                 blueImageBasedLightingAsset,
                 currentGeometry,
                 currentEntity,
             )
-            addEvent(
-                EventType.IMAGE_BASED_LIGHTING_CHANGED,
-                "Image Based Lighting Asset set to BLUE",
-            )
+            addEvent(EventType.IMAGE_BASED_LIGHTING_CHANGED, "Image Based Lighting set to BLUE")
         }
 
         // handle unset image based lighting
@@ -227,10 +224,10 @@ class EnvironmentActivity : AppCompatActivity() {
             val currentGeometry = spatialEnvironmentPreference?.geometry
             val currentEntity = if (currentGeometry == null) geometryEntity else null
 
-            setImageBasedLightingAndGeometry(null, currentGeometry, currentEntity)
+            setImageBasedLightingAssetAndGeometry(null, currentGeometry, currentEntity)
             addEvent(
                 EventType.IMAGE_BASED_LIGHTING_CHANGED,
-                "Image Based Lighting Asset unset (set to black)",
+                "Image Based Lighting unset (set to black)",
             )
         }
     }
@@ -238,7 +235,7 @@ class EnvironmentActivity : AppCompatActivity() {
     private fun geometryHandlers() {
         // handle ground geometry
         findViewById<Button>(R.id.environment_button3_1).setOnClickListener {
-            setImageBasedLightingAndGeometry(
+            setImageBasedLightingAssetAndGeometry(
                 spatialEnvironmentPreference?.imageBasedLightingAsset,
                 groundGeometry,
             )
@@ -247,7 +244,7 @@ class EnvironmentActivity : AppCompatActivity() {
 
         // handle rock geometry
         findViewById<Button>(R.id.environment_button3_2).setOnClickListener {
-            setImageBasedLightingAndGeometry(
+            setImageBasedLightingAssetAndGeometry(
                 spatialEnvironmentPreference?.imageBasedLightingAsset,
                 rockGeometry,
             )
@@ -269,7 +266,7 @@ class EnvironmentActivity : AppCompatActivity() {
                 .find { it.name == "Fast_Flying" }
                 ?.start(GltfAnimationStartOptions(shouldLoop = true))
 
-            setImageBasedLightingAndGeometry(
+            setImageBasedLightingAssetAndGeometry(
                 spatialEnvironmentPreference?.imageBasedLightingAsset,
                 dragonGeometry,
                 dragonEntity,
@@ -279,7 +276,7 @@ class EnvironmentActivity : AppCompatActivity() {
 
         // handle unset geometry
         findViewById<Button>(R.id.environment_button3_4).setOnClickListener {
-            setImageBasedLightingAndGeometry(
+            setImageBasedLightingAssetAndGeometry(
                 spatialEnvironmentPreference?.imageBasedLightingAsset,
                 null,
                 null,
@@ -292,11 +289,11 @@ class EnvironmentActivity : AppCompatActivity() {
     private fun imageBasedLightingAssetAndGeometryHandlers() {
         // handle set image based lighting and geometry
         findViewById<Button>(R.id.environment_button4_1).setOnClickListener {
-            setImageBasedLightingAndGeometry(blueImageBasedLightingAsset, groundGeometry)
+            setImageBasedLightingAssetAndGeometry(blueImageBasedLightingAsset, groundGeometry)
             geometryEntity = null
             addEvent(
                 EventType.IMAGE_BASED_LIGHTING_AND_GEOMETRY_CHANGED,
-                "Image Based Lighting Asset set to BLUE and geometry to GROUND",
+                "Image Based Lighting set to BLUE and geometry to GROUND",
             )
         }
 
@@ -306,7 +303,7 @@ class EnvironmentActivity : AppCompatActivity() {
             geometryEntity = null
             addEvent(
                 EventType.IMAGE_BASED_LIGHTING_AND_GEOMETRY_CHANGED,
-                "Image Based Lighting Asset and Geometry reverted to Home Environment",
+                "Image Based Lighting and Geometry reverted to Home Environment",
             )
         }
     }
@@ -344,8 +341,8 @@ class EnvironmentActivity : AppCompatActivity() {
         this.khronosPbrMaterial.setBaseColorTexture(patternTexture, TextureSampler())
     }
 
-    private fun setImageBasedLightingAndGeometry(
-        imageBasedLightingAsset: ExrImage?,
+    private fun setImageBasedLightingAssetAndGeometry(
+        imageBasedLightingAsset: ImageBasedLightingAsset?,
         geometry: GltfModel?,
         geometryEntity: GltfModelEntity? = null,
     ) {

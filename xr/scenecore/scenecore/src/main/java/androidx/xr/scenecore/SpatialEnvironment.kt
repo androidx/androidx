@@ -52,6 +52,7 @@ import java.util.function.Consumer
  * preference that will be applied when the device enters a state where the XR background can be
  * changed.
  */
+@Suppress("DEPRECATION")
 public class SpatialEnvironment
 internal constructor(
     private val sceneRuntime: SceneRuntime,
@@ -62,54 +63,100 @@ internal constructor(
     /**
      * Represents the preferred spatial environment for the application.
      *
-     * @param imageBasedLightingAsset The preferred image based lighting for the environment based
-     *   on a pre-loaded [ExrImage]. If null, it will be all black.
-     * @param geometry The preferred geometry for the environment based on a pre-loaded [GltfModel].
-     *   We recommend that the geometry includes a skybox texture for the horizon of the
-     *   environment. If null, there will be no geometry.
+     * The [SpatialEnvironmentPreference] can consist of image-based lighting and geometry. Setting
+     * the image-based lighting to `null` will result in no lighting for the scene, and setting the
+     * geometry to `null` will result in black void environment.
      */
-    public class SpatialEnvironmentPreference(
-        public val imageBasedLightingAsset: ExrImage?,
-        public val geometry: GltfModel?,
-    ) {
+    public class SpatialEnvironmentPreference {
         /**
-         * The preferred geometry Entity for the environment. If null, there will be no geometry if
-         * no other geometry resource is passed.
+         * The preferred image-based lighting for the environment based on a pre-loaded
+         * [ImageBasedLightingAsset]. This lighting contributes to the overall illumination and
+         * reflections within the scene.
          */
+        public val imageBasedLightingAsset: ImageBasedLightingAsset?
+
+        /**
+         * Legacy property for the preferred image-based lighting for the environment based on a
+         * pre-loaded [ExrImage].
+         */
+        @Deprecated(
+            message = "ExrImage is being replaced by ImageBasedLightingAsset.",
+            replaceWith = ReplaceWith("imageBasedLightingAsset"),
+        )
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val exrImage: ExrImage?
+
+        /**
+         * The preferred geometry for the environment based on a pre-loaded [GltfModel]. The
+         * geometry can include a skybox texture for the horizon of the environment.
+         */
+        public val geometry: GltfModel?
+
+        /** The preferred geometry [GltfModelEntity] for the environment. */
         internal var geometryEntity: GltfModelEntity? = null
             private set
 
         /**
-         * Represents the preferred spatial environment for the application.
+         * Creates a preference for the [SpatialEnvironment].
          *
-         * @param imageBasedLightingAsset The preferred image based lighting for the environment.
-         * @param geometry The preferred geometry with optional skybox texture for the environment.
-         * @param geometryEntity The preferred geometry Entity for the environment.
+         * @param imageBasedLightingAsset The preferred image-based lighting for the environment.
+         * @param geometry The preferred geometry for the environment.
          */
+        public constructor(
+            imageBasedLightingAsset: ImageBasedLightingAsset?,
+            geometry: GltfModel?,
+        ) {
+            this.exrImage = null
+            this.imageBasedLightingAsset = imageBasedLightingAsset
+            this.geometry = geometry
+            this.geometryEntity = null
+        }
+
+        /**
+         * Legacy internal constructor for the spatial environment preference.
+         *
+         * @param exrImage The preferred image based lighting for the environment.
+         * @param geometry The preferred geometry with optional skybox texture for the environment.
+         */
+        @Deprecated(
+            message = "Use the constructor that takes an ImageBasedLightingAsset asset instead."
+        )
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public constructor(exrImage: ExrImage?, geometry: GltfModel?) {
+            this.imageBasedLightingAsset = null
+            this.exrImage = exrImage
+            this.geometry = geometry
+            this.geometryEntity = null
+        }
+
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
-            imageBasedLightingAsset: ExrImage?,
+            imageBasedLightingAsset: ImageBasedLightingAsset?,
             geometry: GltfModel?,
             geometryEntity: GltfModelEntity?,
-        ) : this(imageBasedLightingAsset, geometry) {
+        ) {
+            this.imageBasedLightingAsset = imageBasedLightingAsset
+            // Populate the legacy property too so old clients don't read 'null'.
+            this.exrImage = imageBasedLightingAsset?.image?.let { ExrImage(null, it) }
+            this.geometry = geometry
             this.geometryEntity = geometryEntity
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
-
             other as SpatialEnvironmentPreference
-
-            if (imageBasedLightingAsset != other.imageBasedLightingAsset) return false
-            if (geometry != other.geometry) return false
-
-            return true
+            return imageBasedLightingAsset == other.imageBasedLightingAsset &&
+                exrImage == other.exrImage &&
+                geometry == other.geometry &&
+                geometryEntity == other.geometryEntity
         }
 
         override fun hashCode(): Int {
             var result = imageBasedLightingAsset?.hashCode() ?: 0
+            result = 31 * result + (exrImage?.hashCode() ?: 0)
             result = 31 * result + (geometry?.hashCode() ?: 0)
+            result = 31 * result + (geometryEntity?.hashCode() ?: 0)
             return result
         }
     }
@@ -265,7 +312,8 @@ internal constructor(
         get() {
             val rtPreference = rtEnvironment.preferredSpatialEnvironment ?: return null
             // TODO(b/501462994): Update SpatialEnvironment runtime parameters.
-            val imageBasedLightingAsset = rtPreference.skybox?.let { ExrImage(null, it) }
+            val imageBasedLightingAsset =
+                rtPreference.skybox?.let { ImageBasedLightingAsset(null, it) }
             val geometry = rtPreference.geometry?.let { GltfModel(null, it) }
             val apiEntity =
                 rtPreference.geometryEntity?.let { rtEntity ->
@@ -385,10 +433,11 @@ internal constructor(
     }
 }
 
+@Suppress("DEPRECATION")
 internal fun SpatialEnvironment.SpatialEnvironmentPreference.toRtSpatialEnvironmentPreference():
     RtSpatialEnvironmentPreference {
     return RtSpatialEnvironmentPreference(
-        imageBasedLightingAsset?.image,
+        imageBasedLightingAsset?.image ?: exrImage?.image,
         geometry?.model,
         geometryEntity?.rtEntity,
     )

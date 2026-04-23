@@ -265,17 +265,6 @@ package androidx.xr.scenecore {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSurfaceEntityPixelDimensionsApi {
   }
 
-  public final class ExrImage {
-    method @MainThread public static suspend Object? createFromZip(androidx.xr.runtime.Session session, android.net.Uri uri, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
-    method @MainThread public static suspend Object? createFromZip(androidx.xr.runtime.Session session, java.nio.file.Path path, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
-    field public static final androidx.xr.scenecore.ExrImage.Companion Companion;
-  }
-
-  public static final class ExrImage.Companion {
-    method @MainThread public suspend Object? createFromZip(androidx.xr.runtime.Session session, android.net.Uri uri, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
-    method @MainThread public suspend Object? createFromZip(androidx.xr.runtime.Session session, java.nio.file.Path path, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
-  }
-
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class GltfAnimation {
     method public void addAnimationStateListener(java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.GltfAnimation.AnimationState> listener);
     method public void addAnimationStateListener(java.util.function.Consumer<androidx.xr.scenecore.GltfAnimation.AnimationState> listener);
@@ -419,6 +408,17 @@ package androidx.xr.scenecore {
     field public static final int OBJECT = 2; // 0x2
     field public static final int PLANE = 1; // 0x1
     field public static final int UNKNOWN = 0; // 0x0
+  }
+
+  public final class ImageBasedLightingAsset {
+    method @MainThread public static suspend Object? createFromZip(androidx.xr.runtime.Session session, android.net.Uri uri, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ImageBasedLightingAsset>);
+    method @MainThread public static suspend Object? createFromZip(androidx.xr.runtime.Session session, java.nio.file.Path path, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ImageBasedLightingAsset>);
+    field public static final androidx.xr.scenecore.ImageBasedLightingAsset.Companion Companion;
+  }
+
+  public static final class ImageBasedLightingAsset.Companion {
+    method @MainThread public suspend Object? createFromZip(androidx.xr.runtime.Session session, android.net.Uri uri, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ImageBasedLightingAsset>);
+    method @MainThread public suspend Object? createFromZip(androidx.xr.runtime.Session session, java.nio.file.Path path, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ImageBasedLightingAsset>);
   }
 
   public final class InputEvent {
@@ -1092,11 +1092,11 @@ package androidx.xr.scenecore {
   }
 
   public static final class SpatialEnvironment.SpatialEnvironmentPreference {
-    ctor public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.ExrImage? imageBasedLightingAsset, androidx.xr.scenecore.GltfModel? geometry);
+    ctor public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.ImageBasedLightingAsset? imageBasedLightingAsset, androidx.xr.scenecore.GltfModel? geometry);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.GltfModel? getGeometry();
-    method @InaccessibleFromKotlin public androidx.xr.scenecore.ExrImage? getImageBasedLightingAsset();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.ImageBasedLightingAsset? getImageBasedLightingAsset();
     property public androidx.xr.scenecore.GltfModel? geometry;
-    property public androidx.xr.scenecore.ExrImage? imageBasedLightingAsset;
+    property public androidx.xr.scenecore.ImageBasedLightingAsset? imageBasedLightingAsset;
   }
 
   public final class SpatialMediaPlayer {

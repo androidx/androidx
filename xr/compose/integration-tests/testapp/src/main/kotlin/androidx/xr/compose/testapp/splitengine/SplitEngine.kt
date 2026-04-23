@@ -63,11 +63,11 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.ExrImage
 import androidx.xr.scenecore.GltfAnimation
 import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MovableComponent
@@ -108,7 +108,7 @@ class SplitEngine : ComponentActivity() {
         }
     }
 
-    private fun setSkyboxAndGeometry(skybox: ExrImage?, geometry: GltfModel?) {
+    private fun setSkyboxAndGeometry(skybox: ImageBasedLightingAsset?, geometry: GltfModel?) {
         spatialEnvironmentPreference = SpatialEnvironmentPreference(skybox, geometry)
         session.scene.spatialEnvironment.preferredSpatialEnvironment = spatialEnvironmentPreference
     }
@@ -199,7 +199,7 @@ class SplitEngine : ComponentActivity() {
 
     @Composable
     fun SplitEngineSkyboxApisCard() {
-        val blueSkybox = remember { mutableStateOf<ExrImage?>(null) }
+        val blueSkybox = remember { mutableStateOf<ImageBasedLightingAsset?>(null) }
 
         Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -218,7 +218,7 @@ class SplitEngine : ComponentActivity() {
                     ApiButton("Load Skybox Blue", modifier) {
                         coroutineScope.launch {
                             blueSkybox.value =
-                                ExrImage.createFromZip(
+                                ImageBasedLightingAsset.createFromZip(
                                     session,
                                     Paths.get("skyboxes", "BlueSkybox.zip"),
                                 )
