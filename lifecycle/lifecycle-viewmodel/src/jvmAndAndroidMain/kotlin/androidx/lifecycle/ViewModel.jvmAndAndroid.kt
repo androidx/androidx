@@ -54,7 +54,7 @@ public actual abstract class ViewModel {
      * Construct a new ViewModel instance. Any [AutoCloseable] objects provided here will be closed
      * directly before [ViewModel.onCleared] is called.
      *
-     * You should **never** manually construct a ViewModel outside of a [ViewModelProvider.Factory].
+     * You should **never** manually construct a ViewModel outside a [ViewModelProvider.Factory].
      */
     @Deprecated(message = "Replaced by `AutoCloseable` overload.", level = DeprecationLevel.HIDDEN)
     public constructor(vararg closeables: Closeable) {

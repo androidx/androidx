@@ -117,8 +117,11 @@ internal val LocalSubspaceRootNode: ProvidableCompositionLocal<Entity?> =
  *
  * @param modifier The [SubspaceModifier] to be applied to the content of this Subspace.
  * @param allowUnboundedSubspace If true, the default recommended content box constraints will not
- *   be applied, allowing the Subspace to be infinite. Defaults to false, providing a safe, bounded
- *   space.
+ *   be applied, allowing the Subspace to be infinite. Unbounded Subspaces are considered unsafe
+ *   because they can lead to poor performance or even a crash as the content expands to the maximum
+ *   volume constraint size. In addition, content placed too far away may not be visible to the
+ *   user. Defaults to false, providing a safe, bounded space within the system's recommended
+ *   content box.
  * @param content The 3D content to render within this Subspace.
  */
 @Composable
@@ -421,8 +424,11 @@ public annotation class ExperimentalFollowingSubspaceApi
  *   will not be tracked. For example if translationY is not listed, this means the content will not
  *   move as the user moves vertically up and down.
  * @param allowUnboundedSubspace If true, the default recommended content box constraints will not
- *   be applied, allowing the Subspace to be infinite. Defaults to false, providing a safe, bounded
- *   space.
+ *   be applied, allowing the Subspace to be infinite. Unbounded subspaces are considered unsafe
+ *   because they can lead to poor performance or even a crash as the content expands to the maximum
+ *   volume constraint size. In addition, content placed too far away may not be visible to the
+ *   user. Defaults to false, providing a safe, bounded space within the system's recommended
+ *   content box.
  * @param content The 3D content to render within this Subspace.
  */
 // TODO(b/446871230): Add unit tests for FollowingSubspace.
