@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +44,7 @@ import androidx.xr.compose.platform.LocalComposeXrOwners
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialConfiguration
 import androidx.xr.compose.platform.SceneManager
+import androidx.xr.compose.platform.SessionSpatialConfiguration
 import androidx.xr.compose.platform.SpatialComposeScene
 import androidx.xr.compose.platform.disposableValueOf
 import androidx.xr.compose.platform.findNearestParentEntity
@@ -70,13 +70,16 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 
 internal val LocalSubspaceRootNode: ProvidableCompositionLocal<Entity?> =
     compositionLocalWithComputedDefaultOf {
         LocalComposeXrOwners.currentValue?.subspaceRootNode
     }
+
+private object SubspaceConstants {
+    const val FOLLOWING_SUBSPACE_ROOT_CONTAINER_NAME = "FollowingSubspaceRootContainer"
+}
 
 /**
  * Create a 3D area that the app can render spatial content into.
@@ -456,52 +459,59 @@ public fun FollowingSubspace(
         Subspace(
             modifier = modifier,
             subspaceRootNode = target.anchorEntity,
+            allowUnboundedSubspace = allowUnboundedSubspace,
             content = content,
-            allowUnboundedSubspace = allowUnboundedSubspace,
         )
-    } else {
-        val subspaceRoot by remember {
-            disposableValueOf(Entity.create(session, "subspaceRoot")) { it.parent = null }
-        }
-        // TODO(b/491504073): Use observers to update the scale instead of SideEffect.
-        SideEffect {
-            session.scene.keyEntity?.getScale(relativeTo = Space.ACTIVITY)?.let { scale ->
-                subspaceRoot.setScale(scale)
-            }
-        }
-        val subspaceRootNode by remember {
-            disposableValueOf(CoreGroupEntity(subspaceRoot).apply { enabled = false }) {
-                it.dispose()
-            }
-        }
+        return
+    }
 
-        LaunchedEffect(behavior, target, dimensions) {
-            behavior.configure(
-                session = session,
-                trailingEntity = subspaceRootNode,
-                target = target,
-                dimensions = dimensions,
-            )
-        }
-
-        val offsetPose = getInitialSubspaceOffset(target)
-
-        Subspace(
-            modifier = modifier,
-            allowUnboundedSubspace = allowUnboundedSubspace,
-            subspaceRootNode = subspaceRoot,
+    val subspaceRootNode by remember {
+        disposableValueOf(
+            Entity.create(session, SubspaceConstants.FOLLOWING_SUBSPACE_ROOT_CONTAINER_NAME)
         ) {
-            SpatialBox(
-                modifier =
-                    SubspaceModifier.offset(
-                            Meter(offsetPose.translation.x).toDp(),
-                            Meter(offsetPose.translation.y).toDp(),
-                            Meter(offsetPose.translation.z).toDp(),
-                        )
-                        .rotate(offsetPose.rotation),
-                content = content,
-            )
+            it.parent = null
         }
+    }
+
+    // Implicitly subscribes this Composable to scale changes.
+    val scale =
+        (LocalSpatialConfiguration.current as? SessionSpatialConfiguration)?.recommendedScale
+            ?: 1.0f
+
+    LaunchedEffect(scale) { subspaceRootNode.setScale(scale) }
+
+    val subspaceTrailingEntity by remember {
+        disposableValueOf(CoreGroupEntity(subspaceRootNode).apply { enabled = false }) {
+            it.dispose()
+        }
+    }
+
+    LaunchedEffect(behavior, target, dimensions) {
+        behavior.configure(
+            session = session,
+            trailingEntity = subspaceTrailingEntity,
+            target = target,
+            dimensions = dimensions,
+        )
+    }
+
+    val offsetPose = getInitialSubspaceOffset(target)
+
+    Subspace(
+        modifier = modifier,
+        allowUnboundedSubspace = allowUnboundedSubspace,
+        subspaceRootNode = subspaceRootNode,
+    ) {
+        SpatialBox(
+            modifier =
+                SubspaceModifier.offset(
+                        Meter(offsetPose.translation.x).toDp(),
+                        Meter(offsetPose.translation.y).toDp(),
+                        Meter(offsetPose.translation.z).toDp(),
+                    )
+                    .rotate(offsetPose.rotation),
+            content = content,
+        )
     }
 }
 
