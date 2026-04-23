@@ -1,0 +1,141 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.scenecore.testing.internal
+
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.ActivitySpace
+import androidx.xr.scenecore.runtime.Dimensions
+import androidx.xr.scenecore.runtime.HitTestResult
+import androidx.xr.scenecore.runtime.ScenePose
+import androidx.xr.scenecore.runtime.Space
+import androidx.xr.scenecore.runtime.SpaceValue
+import java.util.Collections
+import java.util.concurrent.atomic.AtomicReference
+
+/**
+ * A test double for [androidx.xr.scenecore.runtime.ActivitySpace], designed for use in unit or
+ * integration tests.
+ */
+internal class FakeActivitySpace : FakeSystemSpaceEntity(), ActivitySpace {
+
+    private val _bounds: AtomicReference<Dimensions> =
+        AtomicReference<Dimensions>(
+            Dimensions(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+        )
+
+    private val _onBoundsChangedListeners: MutableSet<ActivitySpace.OnBoundsChangedListener> =
+        Collections.synchronizedSet(
+            mutableSetOf(
+                ActivitySpace.OnBoundsChangedListener { newBounds -> _bounds.set(newBounds) }
+            )
+        )
+
+    /** Returns the bounds of this ActivitySpace. */
+    override val bounds: Dimensions
+        get() = _bounds.get()
+
+    /** Returns the pose for this ActivitySpace, relative to the given space. */
+    override fun getPose(@SpaceValue relativeTo: Int): Pose {
+        return when (relativeTo) {
+            Space.PARENT -> {
+                throw UnsupportedOperationException(
+                    "ActivitySpace is a root space and it does not have a parent."
+                )
+            }
+            Space.ACTIVITY -> {
+                Pose.Identity
+            }
+            else -> {
+                super<FakeSystemSpaceEntity>.getPose(relativeTo)
+            }
+        }
+    }
+
+    /**
+     * For test purposes only.
+     *
+     * The set of listeners to be called when the bounds of the primary Activity change.
+     *
+     * @param bounds The new bounds of the primary Activity in Meters
+     */
+    val onBoundsChangedListeners: Set<ActivitySpace.OnBoundsChangedListener>
+        get() = _onBoundsChangedListeners
+
+    /**
+     * For test purposes only.
+     *
+     * Simulates a bounds change event, invoking all registered listeners with the new bounds. This
+     * will also update the internal `bounds` property of this fake.
+     *
+     * @param bounds The new bounds to propagate to the listeners.
+     */
+    fun onBoundsChanged(bounds: Dimensions) {
+        val listeners =
+            synchronized(_onBoundsChangedListeners) { _onBoundsChangedListeners.toSet() }
+        listeners.forEach { it.onBoundsChanged(bounds) }
+    }
+
+    /**
+     * Adds a listener to be called when the bounds of the primary Activity change. If the same
+     * listener is added multiple times, it will only fire each event on time.
+     *
+     * @param listener The listener to register.
+     */
+    @Suppress("ExecutorRegistration")
+    override fun addOnBoundsChangedListener(listener: ActivitySpace.OnBoundsChangedListener) {
+        _onBoundsChangedListeners.add(listener)
+    }
+
+    /**
+     * Removes a listener to be called when the bounds of the primary Activity change. If the given
+     * listener was not added, this call does nothing.
+     *
+     * @param listener The listener to unregister.
+     */
+    override fun removeOnBoundsChangedListener(listener: ActivitySpace.OnBoundsChangedListener) {
+        _onBoundsChangedListeners.remove(listener)
+    }
+
+    /**
+     * The [androidx.xr.scenecore.runtime.HitTestResult] that will be returned by
+     * [hitTestRelativeToActivityPose]. This can be modified in tests to simulate different hit test
+     * outcomes.
+     */
+    var activitySpaceHitTestResult: HitTestResult =
+        HitTestResult(
+            hitPosition = null,
+            surfaceNormal = null,
+            surfaceType = HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN,
+            distance = 0f,
+        )
+
+    override suspend fun hitTestRelativeToActivityPose(
+        origin: Vector3,
+        direction: Vector3,
+        @ScenePose.HitTestFilterValue hitTestFilter: Int,
+        scenePose: ScenePose,
+    ): HitTestResult = activitySpaceHitTestResult
+
+    override val recommendedContentBoxInFullSpace: BoundingBox
+        get() =
+            BoundingBox.fromMinMax(
+                min = Vector3(-1.73f / 2, -1.61f / 2, -0.5f / 2),
+                max = Vector3(1.73f / 2, 1.61f / 2, 0.5f / 2),
+            )
+}
