@@ -1082,11 +1082,11 @@ package androidx.xr.scenecore {
   }
 
   public static final class SpatialEnvironment.SpatialEnvironmentPreference {
-    ctor public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.ExrImage? skybox, androidx.xr.scenecore.GltfModel? geometry);
+    ctor public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.ExrImage? imageBasedLightingAsset, androidx.xr.scenecore.GltfModel? geometry);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.GltfModel? getGeometry();
-    method @InaccessibleFromKotlin public androidx.xr.scenecore.ExrImage? getSkybox();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.ExrImage? getImageBasedLightingAsset();
     property public androidx.xr.scenecore.GltfModel? geometry;
-    property public androidx.xr.scenecore.ExrImage? skybox;
+    property public androidx.xr.scenecore.ExrImage? imageBasedLightingAsset;
   }
 
   public final class SpatialMediaPlayer {
