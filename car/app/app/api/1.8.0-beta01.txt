@@ -1982,6 +1982,7 @@ package androidx.car.app.model {
     ctor protected Section(androidx.car.app.model.Section.BaseBuilder<T,? extends java.lang.Object!>);
     method public androidx.car.app.model.CarText? getNoItemsMessage();
     method public androidx.car.app.model.OnItemVisibilityChangedDelegate? getOnItemVisibilityChangedDelegate();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.SectionHeader? getSectionHeader();
     method public androidx.car.app.model.CarText? getTitle();
   }
 
@@ -1993,8 +1994,28 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setNoItemsMessage(androidx.car.app.model.CarText?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setNoItemsMessage(CharSequence?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setOnItemVisibilityChangedListener(androidx.car.app.model.ItemList.OnItemVisibilityChangedListener?);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public B setSectionHeader(androidx.car.app.model.SectionHeader?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setTitle(androidx.car.app.model.CarText?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setTitle(CharSequence?);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SectionHeader {
+    method public androidx.car.app.model.CarIcon? getEndIcon();
+    method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
+    method public androidx.car.app.model.CarIcon? getStartIcon();
+    method public int getStartIconType();
+    method public androidx.car.app.model.CarText getTitle();
+    field public static final int IMAGE_TYPE_LARGE = 2; // 0x2
+    field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SectionHeader.Builder {
+    ctor public SectionHeader.Builder(androidx.car.app.model.CarText);
+    ctor public SectionHeader.Builder(CharSequence);
+    method public androidx.car.app.model.SectionHeader build();
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setEndIcon(androidx.car.app.model.CarIcon);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setStartIcon(androidx.car.app.model.CarIcon, int);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class SectionedItemList {
