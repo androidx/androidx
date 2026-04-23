@@ -18,13 +18,13 @@ package androidx.compose.remote.integration.view.demos.dsl
 
 import android.graphics.Color
 import androidx.compose.remote.creation.Rc
-import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcColor
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFlowScope
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
+import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPath
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
@@ -41,6 +41,7 @@ import androidx.compose.remote.creation.dsl.height
 import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rdp
 import androidx.compose.remote.creation.dsl.rsp
+import androidx.compose.remote.creation.dsl.setStyle
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.dsl.verticalScroll
 import androidx.compose.remote.creation.dsl.widthIn
@@ -64,12 +65,12 @@ private lateinit var fontSizes: RcTickerFontSizes
 @Preview
 @Suppress("RestrictedApiAndroidX")
 fun RcDslTickerPreview() {
-    RemoteDocPreview(RemoteDocument(RcDslTicker()))
+    RemoteDocPreview(RemoteDocument(dslTicker()))
 }
 
 /** Reimplementation of RcTicker using the new type-safe DSL. */
 @Suppress("RestrictedApiAndroidX")
-fun RcDslTicker(): ByteArray {
+fun dslTicker(): ByteArray {
     return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
         colors = RcTickerColors(this)
         fontSizes = RcTickerFontSizes(this)
@@ -207,10 +208,10 @@ private fun RcScope.StockGraph() {
         val rad = min(cx, cy).flush()
 
         val data = generateStockDataArray(101, 100f, 8000f, 2000f, 0.01f)
-        val stockValues = addFloatArray(data)
+        val stockValues = remoteFloatArray(data)
         val margin = (rad * 0.3f).flush()
         val lineBottom = (h - margin).flush()
-        val path = addPath(margin.toFloat(), lineBottom.toFloat())
+        val path = remotePath(margin.toFloat(), lineBottom.toFloat())
         val maxValue = arrayMax(stockValues).flush()
         val minValue = (arrayMin(stockValues) - 100f).flush()
         val xEnd = (w - margin).flush()
@@ -225,7 +226,7 @@ private fun RcScope.StockGraph() {
         path.close()
 
         paint
-            .setStyle(0 /* FILL */)
+            .setStyle(RcPaintStyle.Fill)
             .setLinearGradient(
                 0f,
                 0f,
@@ -248,7 +249,7 @@ private fun RcScope.StockGraph() {
             paint
                 .setShader(0)
                 .setColorId(colors.dotColor.id)
-                .setStyle(1 /* STROKE */)
+                .setStyle(RcPaintStyle.Stroke)
                 .setStrokeWidth(6f)
                 .commit()
             drawPath(path)
@@ -314,8 +315,7 @@ private fun RcScope.refreshPath(): RcPath {
             "440L520,360L688,360Q656,304 600.5,272Q545,240 480,240Q380,240 310,310Q240," +
             "380 240,480Q240,580 310,650Q380,720 480,720Q557,720 619,676Q681,632 706," +
             "560L790,560Q762,666 676,733Q590,800 480,800Z"
-    val pdata = RemotePath(refreshStr)
-    return addPathData(pdata)
+    return remotePathData(refreshStr.toPathData())
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -353,34 +353,34 @@ private class RcTickerColors(rc: RcScope) {
 
     init {
         rc.beginGlobal()
-        val accent2_800 = rc.addNamedColor("color.system_accent2_800", 0xFFFF0000.toInt())
-        val accent2_50 = rc.addNamedColor("color.system_accent2_50", 0xFF113311.toInt())
-        background = rc.addThemedColor(accent2_50, accent2_800)
+        val accent2_800 = rc.remoteNamedColor("color.system_accent2_800", 0xFFFF0000.toInt())
+        val accent2_50 = rc.remoteNamedColor("color.system_accent2_50", 0xFF113311.toInt())
+        background = rc.remoteThemedColor(accent2_50, accent2_800)
 
-        val surface_light = rc.addNamedColor("color.system_on_surface_light", 0xFF113311.toInt())
-        val surface_dark = rc.addNamedColor("color.system_on_surface_dark", 0xFFFF9966.toInt())
-        textColor = rc.addThemedColor(surface_light, surface_dark)
+        val surface_light = rc.remoteNamedColor("color.system_on_surface_light", 0xFF113311.toInt())
+        val surface_dark = rc.remoteNamedColor("color.system_on_surface_dark", 0xFFFF9966.toInt())
+        textColor = rc.remoteThemedColor(surface_light, surface_dark)
 
-        val accent3_600 = rc.addNamedColor("color.system_accent3_600", 0xFF113311.toInt())
-        val accent3_100 = rc.addNamedColor("color.system_accent3_100", 0xFFFF9966.toInt())
-        dotColor = rc.addThemedColor(accent3_600, accent3_100)
+        val accent3_600 = rc.remoteNamedColor("color.system_accent3_600", 0xFF113311.toInt())
+        val accent3_100 = rc.remoteNamedColor("color.system_accent3_100", 0xFFFF9966.toInt())
+        dotColor = rc.remoteThemedColor(accent3_600, accent3_100)
 
-        val accent2_10 = rc.addNamedColor("color.system_accent2_10", 0xFF113311.toInt())
-        val accent2_900 = rc.addNamedColor("color.system_accent2_900", 0xFFFF9966.toInt())
-        panels = rc.addThemedColor(accent2_10, accent2_900)
+        val accent2_10 = rc.remoteNamedColor("color.system_accent2_10", 0xFF113311.toInt())
+        val accent2_900 = rc.remoteNamedColor("color.system_accent2_900", 0xFFFF9966.toInt())
+        panels = rc.remoteThemedColor(accent2_10, accent2_900)
 
-        val accent1_200 = rc.addNamedColor("color.system_accent1_200", 0xFF222222.toInt())
-        followText = rc.addThemedColor(accent2_800, accent1_200)
+        val accent1_200 = rc.remoteNamedColor("color.system_accent1_200", 0xFF222222.toInt())
+        followText = rc.remoteThemedColor(accent2_800, accent1_200)
 
-        val neutral2_800 = rc.addNamedColor("color.system_neutral2_800", 0xFF113311.toInt())
-        val neutral2_200 = rc.addNamedColor("color.system_neutral2_400", 0xFFFF9966.toInt())
-        stockName = rc.addThemedColor(neutral2_800, neutral2_200)
+        val neutral2_800 = rc.remoteNamedColor("color.system_neutral2_800", 0xFF113311.toInt())
+        val neutral2_200 = rc.remoteNamedColor("color.system_neutral2_400", 0xFFFF9966.toInt())
+        stockName = rc.remoteThemedColor(neutral2_800, neutral2_200)
 
-        val accent1_900 = rc.addNamedColor("color.system_accent1_900", 0xFF113311.toInt())
-        val accent1_50 = rc.addNamedColor("color.system_accent1_50", 0xFFFF9966.toInt())
-        stockPrice = rc.addThemedColor(accent1_900, accent1_50)
+        val accent1_900 = rc.remoteNamedColor("color.system_accent1_900", 0xFF113311.toInt())
+        val accent1_50 = rc.remoteNamedColor("color.system_accent1_50", 0xFFFF9966.toInt())
+        stockPrice = rc.remoteThemedColor(accent1_900, accent1_50)
 
-        arrowColor = rc.addThemedColor(accent1_50, accent1_900)
+        arrowColor = rc.remoteThemedColor(accent1_50, accent1_900)
         rc.endGlobal()
     }
 }
@@ -394,7 +394,7 @@ private class RcTickerFontSizes(rc: RcScope) {
     val default: RcSp
 
     init {
-        val fontScale = rc.addNamedFloat("system.font_size", 37f) / 37f
+        val fontScale = rc.remoteNamedFloat("system.font_size", 37f) / 37f
         with(rc) {
             head1 = (42f.rf * fontScale).toSp()
             priceDollars = (64f.rf * fontScale).toSp()

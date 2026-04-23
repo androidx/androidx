@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.integration.view.demos;
 
+import static androidx.compose.remote.integration.view.demos.ExperimentRecyclerActivity.get;
 import static androidx.compose.remote.integration.view.demos.ExperimentRecyclerActivity.getp;
 import static androidx.compose.remote.integration.view.demos.ExperimentRecyclerActivity.getpc;
 import static androidx.compose.remote.integration.view.demos.examples.RcTickerKt.RcTicker;
@@ -24,6 +25,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
+import androidx.compose.remote.integration.view.demos.dsl.RcDslClockKt;
+import androidx.compose.remote.integration.view.demos.dsl.RcDslDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.RcDslTickerKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.DemoMemorySkipKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.MemoryKt;
 import androidx.compose.remote.integration.view.demos.examples.ColorCheckKt;
@@ -148,8 +152,12 @@ public abstract class DemosCreation {
      */
     public static @NonNull ArrayList<RCDoc> getDemos(@NonNull Activity activity) {
         Bitmap bitmap = simpleBitmap(100);
+
         return new ArrayList<>(Arrays.asList(
-                getp("0/0/00DemotSystemVarKt", DemotSystemVarKt::sysVar),
+                get("0/0/00dslClock", RcDslClockKt::dslClock),
+                get("0/0/00dslDemo", RcDslDemoKt::dslDemo),
+                get("0/0/00dslTickerPreview", RcDslTickerKt::dslTicker),
+                getp("0/0/0DemotSystemVarKt", DemotSystemVarKt::sysVar),
                 getp("0/0/skip", DemoMemorySkipKt::skip1),
                 getp("8/0/DemoTheme", DemoThemeKt::theme1),
                 getpc("0/0/0Shade1", SimpleShaderKt::createShaderDoc1),

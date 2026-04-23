@@ -16,13 +16,17 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColor
+import androidx.compose.remote.creation.dsl.RcPaintStyle
+import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
+import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
+import androidx.compose.remote.creation.dsl.setStrokeCap
+import androidx.compose.remote.creation.dsl.setStyle
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocPreview
@@ -34,19 +38,19 @@ import kotlin.math.PI
 @Composable
 @Preview
 fun RcDslClockPreview() {
-    RemoteDocPreview(RemoteDocument(RcDslClock()))
+    RemoteDocPreview(RemoteDocument(dslClock()))
 }
 
 /** Reimplementation of MClock using the new type-safe DSL. */
 @Suppress("RestrictedApiAndroidX")
-fun RcDslClock(): ByteArray {
+fun dslClock(): ByteArray {
     return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
         val color = RcDslClockColors(this)
 
-        val dayNamesId = addStringList("Mon ", "Tue ", "Wed ", "Thu ", "Fri ", "Sat ", "Sun ")
-        val day = textLookup(dayNamesId, (DayOfWeek() - 1f))
-        val dom = DayOfMonth().format(2, 0, 0)
-        val date = textMerge(day, dom)
+        val days = remoteArrayOf("Mon ", "Tue ", "Wed ", "Thu ", "Fri ", "Sat ", "Sun ")
+        val day = days[dayOfWeek() - 1f]
+        val dom = dayOfMonth().format(2, 0)
+        val date = day + ":" + dom
 
         Box(Modifier.fillMaxSize()) {
             Canvas(Modifier.fillMaxSize()) {
@@ -67,24 +71,24 @@ fun RcDslClock(): ByteArray {
                     setTextSize(textSize)
                 }
                 val path =
-                    addPolarPathExpression(
+                    remotePolarPath(
                         equ,
                         minX,
                         maxX,
                         64,
                         centerX = cx,
                         centerY = cy,
-                        Rc.PathExpression.SPLINE_PATH,
+                        RcPathType.Spline,
                     )
                 drawPath(path)
 
                 applyPaint {
                     setColor(color.hourHand)
                     setStrokeWidth(strokeWidth)
-                    setStrokeCap(1) // ROUND
+                    setStrokeCap(RcStrokeCap.Round)
                 }
 
-                val hrHand = (Hour() + (Minutes() % 60f) / 60f) * 30f
+                val hrHand = (hour() + (minutes() % 60f) / 60f) * 30f
                 save {
                     rotate(hrHand, cx, cy)
                     drawLine(cx, cy, cx, cy - rad / 3f)
@@ -93,29 +97,29 @@ fun RcDslClock(): ByteArray {
                 applyPaint {
                     setColor(color.minuteHand)
                     setStrokeWidth(strokeWidth)
-                    setStrokeCap(1) // ROUND
+                    setStrokeCap(RcStrokeCap.Round)
                 }
                 save {
-                    rotate(Minutes() * 6f, cx, cy)
+                    rotate(minutes() * 6f, cx, cy)
                     drawLine(cx, cy, cx, cy - rad * 0.6f)
                 }
 
                 val textPath =
-                    addPolarPathExpression(
+                    remotePolarPath(
                         rFun { rad * 0.7f },
                         minX,
                         maxX,
                         64,
                         centerX = cx,
                         centerY = cy,
-                        Rc.PathExpression.SPLINE_PATH,
+                        RcPathType.Spline,
                     )
 
                 save {
-                    rotate(Seconds() * 6f, cx, cy)
+                    rotate(seconds() * 6f, cx, cy)
                     val radius = rad * 0.1f
                     applyPaint {
-                        setStyle(0) // FILL
+                        setStyle(RcPaintStyle.Fill)
                         setColor(color.dot)
                     }
                     drawCircle(cx, cy - rad + (2f.rf * radius), radius)
@@ -125,7 +129,7 @@ fun RcDslClock(): ByteArray {
                     drawTextOnPath(date, textPath, 0.rf, 0.rf)
                 }
 
-                val versionId = addText("v1.2")
+                val versionId = remoteText("v1.2")
                 drawTextAnchored(versionId, cx, (cy + h) / 2f, 0.5f.rf, 0.5f.rf)
             }
         }
@@ -144,35 +148,35 @@ private class RcDslClockColors(scope: RcScope) {
         scope.apply {
             Global {
                 background =
-                    addThemedColor(
+                    remoteThemedColor(
                         light = "color.system_accent2_50",
                         lightDefault = 0xFF113311.toInt(),
                         dark = "color.system_accent2_800",
                         darkDefault = 0xFFFF9966.toInt(),
                     )
                 minuteHand =
-                    addThemedColor(
+                    remoteThemedColor(
                         light = "color.system_accent1_500",
                         lightDefault = 0xFF113311.toInt(),
                         dark = "color.system_accent1_100",
                         darkDefault = 0xFFFF9966.toInt(),
                     )
                 text =
-                    addThemedColor(
+                    remoteThemedColor(
                         light = "color.system_on_surface_light",
                         lightDefault = 0xFF113311.toInt(),
                         dark = "color.system_on_surface_dark",
                         darkDefault = 0xFFFF9966.toInt(),
                     )
                 dot =
-                    addThemedColor(
+                    remoteThemedColor(
                         light = "color.system_accent3_500",
                         lightDefault = 0xFF113311.toInt(),
                         dark = "color.system_accent3_100",
                         darkDefault = 0xFFFF9966.toInt(),
                     )
                 hourHand =
-                    addThemedColor(
+                    remoteThemedColor(
                         light = "color.system_accent2_700",
                         lightDefault = 0xFF113311.toInt(),
                         dark = "color.system_accent2_400",

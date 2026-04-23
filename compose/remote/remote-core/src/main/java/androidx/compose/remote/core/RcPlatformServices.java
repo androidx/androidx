@@ -60,6 +60,19 @@ public interface RcPlatformServices {
     interface RcPathArrayCreator {
         /** returns an array of float is remote compose format */
         float @NonNull [] createFloatArray();
+
+        /**
+         * Return the winding
+         * DEFAULT = 0
+         * EVEN_ODD  = 1
+         * INVERSE_EVEN_ODD = 2
+         * INVERSE_WINDING = 3
+         *
+         * @return winding number
+         */
+        default int winding() {
+            return 0;
+        }
     }
 
     /**

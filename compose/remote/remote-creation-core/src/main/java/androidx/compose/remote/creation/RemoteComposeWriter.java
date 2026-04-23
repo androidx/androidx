@@ -1554,6 +1554,21 @@ public class RemoteComposeWriter {
     public void drawTweenPath(int path1Id, int path2Id, float tween, float start, float stop) {
         mBuffer.addDrawTweenPath(path1Id, path2Id, tween, start, stop);
     }
+    /**
+     * Add an android Path object. (It is converted to internal path)
+     *
+     * @param path Android Path object
+     * @return id of the path object to be used by drawPath, etc.
+     */
+    public int addPathData(RcPlatformServices.@NonNull RcPathArrayCreator path) {
+        float[] pathData = mPlatform.pathToFloatArray(path);
+        int id = mState.cacheData(path);
+        if (pathData == null) {
+            throw new IllegalArgumentException("Invalid path data");
+        }
+        return mBuffer.addPathData(id, pathData);
+    }
+
 
     /**
      * Add an android Path object. (It is converted to internal path)
@@ -1664,7 +1679,8 @@ public class RemoteComposeWriter {
     }
 
     /**
-     * Add an Svg Path descriptions string. (It is converted to internal path)
+     * Add a Svg Path descriptions string. (It is converted to internal path)
+     * TODO this should be deleted deprecated
      *
      * @param path SVG style Path String
      * @return id of the path object to be used by drawPath, etc.

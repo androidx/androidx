@@ -41,10 +41,10 @@ class RcScopeTest {
         val writer = RemoteComposeWriter(testProfile)
         val scope = RcScopeImpl(writer)
 
-        val text = scope.addText("test")
-        val color = scope.addColor(0xFFFF0000.toInt())
-        val float = scope.addFloat(10f)
-        val int = scope.addInteger(5)
+        val text = scope.remoteText("test")
+        val color = scope.remoteColor(0xFFFF0000.toInt())
+        val float = scope.remoteFloat(10f)
+        val int = scope.remoteInteger(5)
 
         // Basic verification that IDs are assigned (starts from 0 or 1 usually)
         // We don't necessarily care about the exact ID in this unit test,
@@ -60,8 +60,8 @@ class RcScopeTest {
         val writer = RemoteComposeWriter(testProfile)
         val scope = RcScopeImpl(writer)
 
-        val namedFloat = scope.addNamedFloat("var1", 1.0f)
-        val namedInt = scope.addNamedInteger("var2", 2)
+        val namedFloat = scope.remoteNamedFloat("var1", 1.0f)
+        val namedInt = scope.remoteNamedInteger("var2", 2)
 
         assertEquals(true, java.lang.Float.isNaN(namedFloat.toFloat()))
         assertEquals(true, namedInt.id >= 0)
@@ -72,7 +72,7 @@ class RcScopeTest {
         val writer = RemoteComposeWriter(testProfile)
         val scope = RcScopeImpl(writer)
 
-        val f = scope.addFloat(12.34f)
+        val f = scope.remoteFloat(12.34f)
         val text = f.format(2, 2, 0)
 
         assertEquals(true, text.id >= 0)
@@ -97,7 +97,7 @@ class RcScopeTest {
 
         scope.apply {
             Canvas {
-                val path = addPath(0f, 0f)
+                val path = remotePath(0f, 0f)
                 path.lineTo(10f, 10f)
                 path.moveTo(20f, 20f)
                 path.close()
@@ -106,7 +106,7 @@ class RcScopeTest {
 
                 // Test the new lambda overload
                 val path2 =
-                    addPath(0f, 0f) {
+                    remotePath(0f, 0f) {
                         lineTo(100f, 100f)
                         quadTo(150f, 50f, 200f, 100f)
                     }
@@ -165,7 +165,7 @@ class RcScopeTest {
             drawCircle(50f, 50f, 25f)
             drawLine(0f, 0f, 100f, 100f)
 
-            val textId = addText("Hello")
+            val textId = remoteText("Hello")
             drawTextAnchored(textId, 50f, 50f, 0.5f, 0.5f)
         }
     }
@@ -176,7 +176,7 @@ class RcScopeTest {
         val scope = RcScopeImpl(writer)
 
         scope.apply {
-            val style = addTextStyle(fontSize = 20.rsp, color = 0xFF00FF00.toInt())
+            val style = remoteTextStyle(fontSize = 20.rsp, color = 0xFF00FF00.toInt())
             assertEquals(true, style.id >= 0)
             Text("Styled Text", fontSize = 20.rsp)
         }
@@ -188,9 +188,9 @@ class RcScopeTest {
         val scope = RcScopeImpl(writer)
 
         scope.apply {
-            val color = addColor(0xFFFF0000.toInt())
-            val themed = addThemedColor(0xFFFFFFFF.toInt(), 0xFF000000.toInt())
-            val named = addNamedColor("my_color", 0xFF00FF00.toInt())
+            val color = remoteColor(0xFFFF0000.toInt())
+            val themed = remoteThemedColor(0xFFFFFFFF.toInt(), 0xFF000000.toInt())
+            val named = remoteNamedColor("my_color", 0xFF00FF00.toInt())
 
             assertEquals(true, color.id >= 0)
             assertEquals(true, themed.id >= 0)
@@ -204,8 +204,8 @@ class RcScopeTest {
         val scope = RcScopeImpl(writer)
 
         scope.apply {
-            val bitmap = addBitmapUrl("https://example.com/image.png")
-            val namedBitmap = addNamedBitmapUrl("my_image", "https://example.com/image2.png")
+            val bitmap = remoteBitmapUrl("https://example.com/image.png")
+            val namedBitmap = remoteNamedBitmapUrl("my_image", "https://example.com/image2.png")
 
             assertEquals(true, bitmap.id >= 0)
             assertEquals(true, namedBitmap.id >= 0)
