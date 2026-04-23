@@ -143,8 +143,8 @@ class ToggleButtonTest {
             .captureToImage()
             .assertShape(
                 density = rule.density,
-                shape = DefaultCheckedShape,
-                shapeColor = expectedColors.backgroundCheckedColor,
+                shape = ToggleButtonDefaults.CheckedShape,
+                shapeColor = expectedColors.checkedBackgroundColor,
                 backgroundColor = Color.Black,
                 antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
@@ -158,14 +158,14 @@ class ToggleButtonTest {
         val expectedColors =
             ToggleButtonColors(
                 backgroundColor = Color.Red,
-                backgroundCheckedColor = Color.Green,
+                checkedBackgroundColor = Color.Green,
                 contentColor = Color.Black,
-                contentCheckedColor = Color.Black,
+                checkedContentColor = Color.Black,
             )
 
         rule.setGlimmerThemeContent {
             Box {
-                IconToggleButton(
+                ToggleButton(
                     checked = checked.value,
                     colors = expectedColors,
                     shape =
@@ -206,7 +206,7 @@ class ToggleButtonTest {
             .assertShape(
                 density = rule.density,
                 shape = expectedCheckedShape,
-                shapeColor = expectedColors.backgroundCheckedColor,
+                shapeColor = expectedColors.checkedBackgroundColor,
                 backgroundColor = Color.Black,
                 antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
@@ -216,7 +216,7 @@ class ToggleButtonTest {
     fun toggleButton_defaultAnimation_graduallyChangesCornerSizes() {
         rule.mainClock.autoAdvance = false
         val checked = mutableStateOf(false)
-        val backgroundCheckedColor = Color.Red
+        val checkedBackgroundColor = Color.Red
         val density = Density(1f)
 
         rule.setGlimmerThemeContent(density = density) {
@@ -224,9 +224,7 @@ class ToggleButtonTest {
                 checked = checked.value,
                 onCheckedChange = {},
                 colors =
-                    IconToggleButtonDefaults.colors(
-                        backgroundCheckedColor = backgroundCheckedColor
-                    ),
+                    ToggleButtonDefaults.colors(checkedBackgroundColor = checkedBackgroundColor),
                 modifier = Modifier.testTag("icon_toggle_button"),
                 border = null,
             ) {
@@ -276,7 +274,7 @@ class ToggleButtonTest {
             .assertShape(
                 density = density,
                 shape = expectedShape,
-                shapeColor = backgroundCheckedColor,
+                shapeColor = checkedBackgroundColor,
                 backgroundColor = Color.Black,
                 antiAliasingGap = with(density) { 1.5.dp.toPx() },
             )

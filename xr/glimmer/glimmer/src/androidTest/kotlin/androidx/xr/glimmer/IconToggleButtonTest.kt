@@ -106,7 +106,7 @@ class IconToggleButtonTest {
 
     @Test
     fun iconToggleButton_changesShapeAndColor_whenCheckedStateChanges() {
-        lateinit var expectedColors: ToggleButtonColors
+        lateinit var expectedColors: IconToggleButtonColors
         val checked = mutableStateOf(false)
 
         rule.setGlimmerThemeContent {
@@ -145,8 +145,8 @@ class IconToggleButtonTest {
             .captureToImage()
             .assertShape(
                 density = rule.density,
-                shape = DefaultCheckedShape,
-                shapeColor = expectedColors.backgroundCheckedColor,
+                shape = ToggleButtonDefaults.CheckedShape,
+                shapeColor = expectedColors.checkedBackgroundColor,
                 backgroundColor = Color.Black,
                 antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
@@ -158,11 +158,11 @@ class IconToggleButtonTest {
         val expectedCheckedShape = RoundedCornerShape(1)
         val expectedUncheckedShape = RoundedCornerShape(20)
         val expectedColors =
-            ToggleButtonColors(
+            IconToggleButtonColors(
                 backgroundColor = Color.Red,
-                backgroundCheckedColor = Color.Green,
+                checkedBackgroundColor = Color.Green,
                 contentColor = Color.Black,
-                contentCheckedColor = Color.Black,
+                checkedContentColor = Color.Black,
             )
 
         rule.setGlimmerThemeContent {
@@ -208,7 +208,7 @@ class IconToggleButtonTest {
             .assertShape(
                 density = rule.density,
                 shape = expectedCheckedShape,
-                shapeColor = expectedColors.backgroundCheckedColor,
+                shapeColor = expectedColors.checkedBackgroundColor,
                 backgroundColor = Color.Black,
                 antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
@@ -218,7 +218,7 @@ class IconToggleButtonTest {
     fun iconToggleButton_defaultAnimation_graduallyChangesCornerSizes() {
         rule.mainClock.autoAdvance = false
         val checked = mutableStateOf(false)
-        val backgroundCheckedColor = Color.Red
+        val checkedBackgroundColor = Color.Red
         val density = Density(1f)
 
         rule.setGlimmerThemeContent(density = density) {
@@ -227,7 +227,7 @@ class IconToggleButtonTest {
                 onCheckedChange = {},
                 colors =
                     IconToggleButtonDefaults.colors(
-                        backgroundCheckedColor = backgroundCheckedColor
+                        checkedBackgroundColor = checkedBackgroundColor
                     ),
                 modifier = Modifier.testTag("icon_toggle_button"),
                 border = null,
@@ -278,7 +278,7 @@ class IconToggleButtonTest {
             .assertShape(
                 density = density,
                 shape = expectedShape,
-                shapeColor = backgroundCheckedColor,
+                shapeColor = checkedBackgroundColor,
                 backgroundColor = Color.Black,
                 antiAliasingGap = with(density) { 1.5.dp.toPx() },
             )

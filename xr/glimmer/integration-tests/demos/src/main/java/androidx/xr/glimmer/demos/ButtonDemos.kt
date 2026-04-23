@@ -25,10 +25,8 @@ import androidx.xr.glimmer.list.VerticalList
 import androidx.xr.glimmer.samples.ButtonSampleUsage
 import androidx.xr.glimmer.samples.IconButtonSample
 import androidx.xr.glimmer.samples.IconToggleButtonSample
-import androidx.xr.glimmer.samples.IconToggleButtonWithAnimatableCustomShapeSample
 import androidx.xr.glimmer.samples.LargeToggleButtonSample
 import androidx.xr.glimmer.samples.ToggleButtonSample
-import androidx.xr.glimmer.samples.ToggleButtonWithAnimatableCustomShapeSample
 import androidx.xr.glimmer.samples.ToggleButtonWithLeadingIconSample
 import androidx.xr.glimmer.samples.ToggleButtonWithTrailingIconSample
 
@@ -36,12 +34,12 @@ internal val ButtonDemos =
     listOf(
         ComposableDemo("Buttons") { ButtonSampleUsage() },
         ComposableDemo("IconButton") { IconButtonSample() },
-        ComposableDemo("ToggleButtons") { ToggleButtons() },
-        ComposableDemo("IconToggleButton") { IconToggleButtons() },
+        ComposableDemo("ToggleButtons") { ToggleButtonsDemo() },
+        ComposableDemo("IconToggleButton") { IconToggleButtonsDemo() },
     )
 
 @Composable
-fun ToggleButtons() {
+fun ToggleButtonsDemo() {
     VerticalList(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
@@ -50,17 +48,15 @@ fun ToggleButtons() {
         item { LargeToggleButtonSample() }
         item { ToggleButtonWithLeadingIconSample() }
         item { ToggleButtonWithTrailingIconSample() }
-        item { ToggleButtonWithAnimatableCustomShapeSample() }
     }
 }
 
 @Composable
-fun IconToggleButtons() {
+fun IconToggleButtonsDemo() {
     VerticalList(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
     ) {
         item { IconToggleButtonSample() }
-        item { IconToggleButtonWithAnimatableCustomShapeSample() }
     }
 }

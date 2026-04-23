@@ -73,10 +73,6 @@ import androidx.compose.ui.util.lerp
  * size of this button, [buttonSize] affects default values and values internal to the button.
  *
  * @sample androidx.xr.glimmer.samples.LargeToggleButtonSample
- *
- * Custom [shape] and [colors] can be provided to this button.
- *
- * @sample androidx.xr.glimmer.samples.ToggleButtonWithCustomShapeAndColorSample
  * @param checked a boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange A callback to be invoked when this toggle button is clicked, receiving the
  *   inverted [checked] value.
@@ -193,13 +189,10 @@ public object ToggleButtonDefaults {
      * Chooses a [Shape] based on the [checked] state and can be used to override the default
      * Glimmer button shapes. Note that it simply switches shapes without animation.
      *
-     * @sample androidx.xr.glimmer.samples.ToggleButtonWithCustomShapeAndColorSample
-     *
      * If you require an animated version, please refer to [ToggleButtonDefaults.animateShape],
      * which uses default Glimmer animations and shapes, or consider creating a custom animated
      * shape.
      *
-     * @sample androidx.xr.glimmer.samples.ToggleButtonWithAnimatableCustomShapeSample
      * @param checked whether the button is in the checked state
      * @param checkedShape the shape of the button when it is checked
      * @param uncheckedShape the shape of the button when it is unchecked
@@ -207,7 +200,7 @@ public object ToggleButtonDefaults {
     @Composable
     public fun shape(
         checked: Boolean,
-        checkedShape: Shape = DefaultCheckedShape,
+        checkedShape: Shape = CheckedShape,
         uncheckedShape: Shape = GlimmerTheme.shapes.large,
     ): Shape = if (checked) checkedShape else uncheckedShape
 
@@ -216,7 +209,6 @@ public object ToggleButtonDefaults {
      * between states. If you require an animated transition between your own custom shapes, please
      * consider creating a custom animated shape.
      *
-     * @sample androidx.xr.glimmer.samples.ToggleButtonWithAnimatableCustomShapeSample
      * @param checked whether the button is in the checked state
      */
     @Composable
@@ -233,64 +225,66 @@ public object ToggleButtonDefaults {
      * Creates [ToggleButtonColors] with default values for a [ToggleButton].
      *
      * @param backgroundColor the background color when the button is unchecked
-     * @param backgroundCheckedColor the background color when the button is checked
+     * @param checkedBackgroundColor the background color when the button is checked
      * @param contentColor the content color when the button is unchecked
-     * @param contentCheckedColor the content color when the button is checked
+     * @param checkedContentColor the content color when the button is checked
      */
     @Composable
     public fun colors(
         backgroundColor: Color = GlimmerTheme.colors.surface,
-        backgroundCheckedColor: Color = GlimmerTheme.colors.outline,
+        checkedBackgroundColor: Color = GlimmerTheme.colors.outline,
         contentColor: Color = calculateContentColor(backgroundColor),
-        contentCheckedColor: Color = contentColor,
+        checkedContentColor: Color = calculateContentColor(checkedBackgroundColor),
     ): ToggleButtonColors =
         ToggleButtonColors(
             backgroundColor = backgroundColor,
-            backgroundCheckedColor = backgroundCheckedColor,
+            checkedBackgroundColor = checkedBackgroundColor,
             contentColor = contentColor,
-            contentCheckedColor = contentCheckedColor,
+            checkedContentColor = checkedContentColor,
         )
+
+    /** Default shape for [ToggleButton] and [IconToggleButton] in the checked state. */
+    public val CheckedShape: Shape = RoundedCornerShape(20.dp)
 }
 
 /**
- * Represents the colors used by toggleable buttons in different states. Shared between
- * [ToggleButton] and [IconToggleButton].
+ * Represents the colors used by a [ToggleButton] in different states.
  *
  * @property backgroundColor the background color when the button is unchecked
- * @property backgroundCheckedColor the background color when the button is checked
+ * @property checkedBackgroundColor the background color when the button is checked
  * @property contentColor the content color when the button is unchecked
- * @property contentCheckedColor the content color when the button is checked
+ * @property checkedContentColor the content color when the button is checked
  */
 @Immutable
 public class ToggleButtonColors(
     public val backgroundColor: Color,
-    public val backgroundCheckedColor: Color,
+    public val checkedBackgroundColor: Color,
     public val contentColor: Color,
-    public val contentCheckedColor: Color,
+    public val checkedContentColor: Color,
 ) {
 
     /** Chooses a content color of the button based on the [checked] state. */
-    public fun resolveContentColor(checked: Boolean): Color {
-        return if (checked) contentCheckedColor else contentColor
+    internal fun resolveContentColor(checked: Boolean): Color {
+        return if (checked) checkedContentColor else contentColor
     }
 
     /** Chooses a background color of the button based on the [checked] state. */
-    public fun resolveBackgroundColor(checked: Boolean): Color {
-        return if (checked) backgroundCheckedColor else backgroundColor
+    internal fun resolveBackgroundColor(checked: Boolean): Color {
+        return if (checked) checkedBackgroundColor else backgroundColor
     }
 
     /** Returns a copy of this [ToggleButtonColors], optionally overriding some of the values. */
     public fun copy(
         backgroundColor: Color = this.backgroundColor,
-        backgroundCheckedColor: Color = this.backgroundCheckedColor,
+        checkedBackgroundColor: Color = this.checkedBackgroundColor,
         contentColor: Color = this.contentColor,
-        contentCheckedColor: Color = this.contentCheckedColor,
+        checkedContentColor: Color = this.checkedContentColor,
     ): ToggleButtonColors =
         ToggleButtonColors(
             backgroundColor = backgroundColor,
-            backgroundCheckedColor = backgroundCheckedColor,
+            checkedBackgroundColor = checkedBackgroundColor,
             contentColor = contentColor,
-            contentCheckedColor = contentCheckedColor,
+            checkedContentColor = checkedContentColor,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -301,18 +295,18 @@ public class ToggleButtonColors(
         other as ToggleButtonColors
 
         if (backgroundColor != other.backgroundColor) return false
-        if (backgroundCheckedColor != other.backgroundCheckedColor) return false
+        if (checkedBackgroundColor != other.checkedBackgroundColor) return false
         if (contentColor != other.contentColor) return false
-        if (contentCheckedColor != other.contentCheckedColor) return false
+        if (checkedContentColor != other.checkedContentColor) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = backgroundColor.hashCode()
-        result = 31 * result + backgroundCheckedColor.hashCode()
+        result = 31 * result + checkedBackgroundColor.hashCode()
         result = 31 * result + contentColor.hashCode()
-        result = 31 * result + contentCheckedColor.hashCode()
+        result = 31 * result + checkedContentColor.hashCode()
         return result
     }
 }
@@ -354,10 +348,7 @@ internal class ToggleButtonAnimatedShape(private val checkedProgress: State<Floa
     }
 }
 
-/** Default shape for [ToggleButton] and [IconToggleButton] in the checked state. */
-public val DefaultCheckedShape: Shape = RoundedCornerShape(20.dp)
-
-/** Rounded corner size derived from [DefaultCheckedShape]. */
+/** Rounded corner size derived from [ToggleButtonDefaults.CheckedShape]. */
 internal val CheckedCornerSize: CornerSize = CornerSize(20.dp)
 
 /** Circle corner size derived from [Shapes.large]. */
