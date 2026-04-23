@@ -196,6 +196,7 @@ gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "inc
 gradleIncapHelperProcessor = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "incap" }
 intellijKotlinCompiler = { module = "com.android.tools.external.com-intellij:kotlin-compiler", version.ref = "androidLint" }
 kotlinAbiTools = { module = "org.jetbrains.kotlin:abi-tools", version.ref = "kotlin" }
+kotlinAbiToolsApi = { module = "org.jetbrains.kotlin:abi-tools-api", version.ref = "kotlin" }
 kotlinNativeUtils = { module = "org.jetbrains.kotlin:kotlin-native-utils", version.ref = "kotlinNativeUtils" }
 kotlinGradlePluginApi = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlinGradlePluginApi" }
 kotlinToolingCore = { module = "org.jetbrains.kotlin:kotlin-tooling-core", version.ref = "kotlinToolingCore" }
