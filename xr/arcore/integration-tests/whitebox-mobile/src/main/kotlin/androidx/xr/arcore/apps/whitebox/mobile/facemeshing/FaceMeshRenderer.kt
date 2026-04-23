@@ -65,6 +65,7 @@ class FaceMeshRenderer(val render: SampleRender, textureAssetPath: String) {
 
     @OptIn(ExperimentalFaceApi::class)
     @Suppress("RestrictedApiAndroidX")
+    // TODO(b/505135098) - Fix frame rate on face mesh rendering.
     fun draw(
         faceMesh: Face,
         viewMatrix: Matrix4,

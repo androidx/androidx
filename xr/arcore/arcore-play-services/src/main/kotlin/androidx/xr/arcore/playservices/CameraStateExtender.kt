@@ -49,6 +49,7 @@ internal class CameraStateExtender : StateExtender {
     private var isInitialized = false
     private var isPlayServicesEnvironment = false
     private var outputVerticesBuffer: FloatBuffer? = null
+    private var hasProvidedTransform = false
 
     override fun initialize(runtimes: List<JxrRuntime>) {
         isInitialized = true
@@ -71,46 +72,55 @@ internal class CameraStateExtender : StateExtender {
         cameraStateMap.clear()
         timeMarkQueue.clear()
         outputVerticesBuffer = null
+        hasProvidedTransform = false
     }
 
-    private fun getTransformCoordinates2DFunction(): ((FloatBuffer) -> FloatBuffer)? =
-        if (perceptionManager.displayChanged)
-            { inputVertices: FloatBuffer ->
-                val originalPosition = inputVertices.position()
-                inputVertices.rewind()
-                try {
-                    val requiredCapacity = inputVertices.limit()
-                    synchronized(perceptionManager.frameLock) {
-                        var outputVertices = outputVerticesBuffer
-                        if (
-                            outputVertices == null || outputVertices.capacity() < requiredCapacity
-                        ) {
-                            outputVertices =
-                                ByteBuffer.allocateDirect(requiredCapacity * 4)
-                                    .order(ByteOrder.nativeOrder())
-                                    .asFloatBuffer()
-                            outputVerticesBuffer = outputVertices
-                        }
-                        outputVertices.clear()
-                        outputVertices.limit(requiredCapacity)
-
-                        perceptionManager._latestFrame.transformCoordinates2d(
-                            Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
-                            inputVertices,
-                            Coordinates2d.TEXTURE_NORMALIZED,
-                            outputVertices,
-                        )
-                        perceptionManager.displayChanged = false
-                        outputVertices.rewind()
-                        outputVertices
-                    }
-                } finally {
-                    inputVertices.position(originalPosition)
-                }
-            }
-        else {
-            null
+    private fun getTransformCoordinates2DFunction(): ((FloatBuffer) -> FloatBuffer)? {
+        if (!perceptionManager.isSessionInitialized) {
+            return null
         }
+
+        // TODO(b/505484455): Monitor the CameraConfig and/or ImageStabilizationMode of the ARCore
+        // session to force coordinate transformation recalculation when the hardware or software
+        // configuration changes.
+
+        if (!perceptionManager.displayChanged && hasProvidedTransform) {
+            return null
+        }
+
+        return { inputVertices: FloatBuffer ->
+            val originalPosition = inputVertices.position()
+            inputVertices.rewind()
+            try {
+                val requiredCapacity = inputVertices.limit()
+                synchronized(perceptionManager.frameLock) {
+                    var outputVertices = outputVerticesBuffer
+                    if (outputVertices == null || outputVertices.capacity() < requiredCapacity) {
+                        outputVertices =
+                            ByteBuffer.allocateDirect(requiredCapacity * 4)
+                                .order(ByteOrder.nativeOrder())
+                                .asFloatBuffer()
+                        outputVerticesBuffer = outputVertices
+                    }
+                    outputVertices.clear()
+                    outputVertices.limit(requiredCapacity)
+
+                    perceptionManager._latestFrame.transformCoordinates2d(
+                        Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
+                        inputVertices,
+                        Coordinates2d.TEXTURE_NORMALIZED,
+                        outputVertices,
+                    )
+                    perceptionManager.displayChanged = false
+                    hasProvidedTransform = true
+                    outputVertices.rewind()
+                    outputVertices
+                }
+            } finally {
+                inputVertices.position(originalPosition)
+            }
+        }
+    }
 
     private fun getCameraState(coreState: CoreState): CameraState {
         val camera = perceptionManager._latestFrame.camera

@@ -76,6 +76,8 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     internal lateinit var _latestFrame: Frame
     internal var lastFrameTimestampNs: Long = -1L
     internal lateinit var session: Session
+    internal val isSessionInitialized: Boolean
+        get() = ::session.isInitialized
 
     private val timeProvider: TimeSource.WithComparableMarks = Monotonic
     private var lastFrameTimeMark: ComparableTimeMark? = null
