@@ -70,8 +70,8 @@ import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.fastSumBy
 
 /**
- * A [SplitButtonLayout] let user define a button group consisting of 2 buttons. The leading button
- * performs a primary action, and the trailing button performs a secondary action that is
+ * A [SplitButtonLayout] lets users define a button group consisting of 2 buttons. The leading
+ * button performs a primary action, and the trailing button performs a secondary action that is
  * contextually related to the primary action.
  *
  * @sample androidx.compose.material3.samples.FilledSplitButtonSample
@@ -104,13 +104,13 @@ import androidx.compose.ui.util.fastSumBy
  * such as when the button requires visual separation from patterned container.
  *
  * Use [SplitButtonDefaults.OutlinedLeadingButton] and [SplitButtonDefaults.OutlinedTrailingButton]
- * to construct a `outlined SplitButton`. Outlined split buttons are medium-emphasis buttons. They
+ * to construct an `outlined SplitButton`. Outlined split buttons are medium-emphasis buttons. They
  * contain actions that are important, but are not the primary action in an app. Outlined buttons
  * pair well with `filled SplitButton`s to indicate an alternative, secondary action.
  *
  * @param leadingButton the leading button. You can specify your own composable or construct a
  *   [SplitButtonDefaults.LeadingButton]
- * @param trailingButton the trailing button.You can specify your own composable or construct a
+ * @param trailingButton the trailing button. You can specify your own composable or construct a
  *   [SplitButtonDefaults.TrailingButton]
  * @param modifier the [Modifier] to be applied to this split button.
  * @param spacing The spacing between the [leadingButton] and [trailingButton]
@@ -125,7 +125,7 @@ fun SplitButtonLayout(
 ) {
     Layout(
         {
-            // Override min component size enforcement to avoid create extra padding internally
+            // Override min component size enforcement to avoid creating extra padding internally
             // Enforce it on the parent instead
             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                 Box(
@@ -353,13 +353,13 @@ object SplitButtonDefaults {
      */
     val ExtraSmallTrailingButtonIconSize = SplitButtonXSmallTokens.TrailingIconSize
 
-    /** The default size of the icon used inside of an small trailing button of a split button. */
+    /** The default size of the icon used inside of a small trailing button of a split button. */
     val SmallTrailingButtonIconSize = SplitButtonSmallTokens.TrailingIconSize
 
-    /** The default size of the icon used inside of an medium trailing button of a split button. */
+    /** The default size of the icon used inside of a medium trailing button of a split button. */
     val MediumTrailingButtonIconSize = SplitButtonMediumTokens.TrailingIconSize
 
-    /** The default size of the icon used inside of an large trailing button of a split button. */
+    /** The default size of the icon used inside of a large trailing button of a split button. */
     val LargeTrailingButtonIconSize = SplitButtonLargeTokens.TrailingIconSize
 
     /**
@@ -658,8 +658,7 @@ object SplitButtonDefaults {
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
      *   states. This controls the size of the shadow below the button. See
      *   [ButtonElevation.shadowElevation].
-     * @param border the border to draw around the container of this button contentPadding the
-     *   spacing values to apply internally between the container and the content
+     * @param border the border to draw around the container of this button
      * @param contentPadding the spacing values to apply internally between the container and the
      *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -740,8 +739,7 @@ object SplitButtonDefaults {
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
      *   states. This controls the size of the shadow below the button. See
      *   [ButtonElevation.shadowElevation].
-     * @param border the border to draw around the container of this button contentPadding the
-     *   spacing values to apply internally between the container and the content
+     * @param border the border to draw around the container of this button
      * @param contentPadding the spacing values to apply internally between the container and the
      *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -853,8 +851,7 @@ object SplitButtonDefaults {
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
      *   states. This controls the size of the shadow below the button. See
      *   [ButtonElevation.shadowElevation].
-     * @param border the border to draw around the container of this button contentPadding the
-     *   spacing values to apply internally between the container and the content
+     * @param border the border to draw around the container of this button
      * @param contentPadding the spacing values to apply internally between the container and the
      *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -976,8 +973,7 @@ object SplitButtonDefaults {
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
      *   states. This controls the size of the shadow below the button. See
      *   [ButtonElevation.shadowElevation].
-     * @param border the border to draw around the container of this button contentPadding the
-     *   spacing values to apply internally between the container and the content
+     * @param border the border to draw around the container of this button
      * @param contentPadding the spacing values to apply internally between the container and the
      *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -1038,8 +1034,7 @@ object SplitButtonDefaults {
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
      *   states. This controls the size of the shadow below the button. See
      *   [ButtonElevation.shadowElevation].
-     * @param border the border to draw around the container of this button contentPadding the
-     *   spacing values to apply internally between the container and the content
+     * @param border the border to draw around the container of this button
      * @param contentPadding the spacing values to apply internally between the container and the
      *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -1079,9 +1074,9 @@ object SplitButtonDefaults {
     }
 
     /**
-     * Create a elevated `leading` button that has the same visual as a [ElevatedButton]. To create
-     * a `filled`, `outlined`, or `elevated` version, the default value of [Button] params can be
-     * passed in. For example, [ElevatedButton].
+     * Create an elevated `leading button` that has the same visual as an [ElevatedButton]. To
+     * create a `filled`, `outlined`, or `elevated` version, the default value of [Button] params
+     * can be passed in. For example, [ElevatedButton].
      *
      * The default text style for internal [Text] components will be set to [Typography.labelLarge].
      *
@@ -1097,8 +1092,7 @@ object SplitButtonDefaults {
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
      *   states. This controls the size of the shadow below the button. See
      *   [ButtonElevation.shadowElevation].
-     * @param border the border to draw around the container of this button contentPadding the
-     *   spacing values to apply internally between the container and the content
+     * @param border the border to draw around the container of this button
      * @param contentPadding the spacing values to apply internally between the container and the
      *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -1136,7 +1130,7 @@ object SplitButtonDefaults {
     }
 
     /**
-     * Creates a outlined `trailing` button that has the same visual as a [OutlinedButton]. When
+     * Creates an outlined `trailing button` that has the same visual as an [OutlinedButton]. When
      * [checked] is updated from `false` to `true`, the buttons corners will morph to `full` by
      * default. Pressed shape and checked shape can be customized via [shapes] param.
      *
@@ -1159,8 +1153,7 @@ object SplitButtonDefaults {
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
      *   states. This controls the size of the shadow below the button. See
      *   [ButtonElevation.shadowElevation].
-     * @param border the border to draw around the container of this button contentPadding the
-     *   spacing values to apply internally between the container and the content
+     * @param border the border to draw around the container of this button
      * @param contentPadding the spacing values to apply internally between the container and the
      *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -1200,9 +1193,9 @@ object SplitButtonDefaults {
     }
 
     /**
-     * Create a elevated `leading` button that has the same visual as a [ElevatedButton]. To create
-     * a `filled`, `outlined`, or `elevated` version, the default value of [Button] params can be
-     * passed in. For example, [ElevatedButton].
+     * Create an elevated `leading button` that has the same visual as an [ElevatedButton]. To
+     * create a `filled`, `outlined`, or `elevated` version, the default value of [Button] params
+     * can be passed in. For example, [ElevatedButton].
      *
      * The default text style for internal [Text] components will be set to [Typography.labelLarge].
      *
@@ -1218,8 +1211,7 @@ object SplitButtonDefaults {
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
      *   states. This controls the size of the shadow below the button. See
      *   [ButtonElevation.shadowElevation].
-     * @param border the border to draw around the container of this button contentPadding the
-     *   spacing values to apply internally between the container and the content
+     * @param border the border to draw around the container of this button
      * @param contentPadding the spacing values to apply internally between the container and the
      *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -1257,7 +1249,7 @@ object SplitButtonDefaults {
     }
 
     /**
-     * Creates a elevated `trailing` button that has the same visual as a [ElevatedButton]. When
+     * Creates an elevated `trailing button` that has the same visual as an [ElevatedButton]. When
      * [checked] is updated from `false` to `true`, the buttons corners will morph to `full` by
      * default. Pressed shape and checked shape can be customized via [shapes] param.
      *
@@ -1280,8 +1272,7 @@ object SplitButtonDefaults {
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
      *   states. This controls the size of the shadow below the button. See
      *   [ButtonElevation.shadowElevation].
-     * @param border the border to draw around the container of this button contentPadding the
-     *   spacing values to apply internally between the container and the content
+     * @param border the border to draw around the container of this button
      * @param contentPadding the spacing values to apply internally between the container and the
      *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
