@@ -209,6 +209,14 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
     /**
      * A recommended box for content to be placed in when in Full Space Mode.
      *
+     * The recommended content box is a static 3D volume that uses the device's field of view (FOV)
+     * angles, the system's default launch distance from the user, and the default scale of the
+     * system to calculate a box size that is sized to encompass the user's primary field of view.
+     *
+     * This size does not change throughout the lifecycle of the application. Furthermore, the
+     * recommended content box does not have an independent concept of pose; its position is defined
+     * by the origin of this [ActivitySpace].
+     *
      * The box is relative to the ActivitySpace's coordinate system. It is not scaled by the
      * ActivitySpace's transform. The dimensions are always in meters. This provides a
      * device-specific default volume that developers can use to size their content appropriately.
