@@ -66,9 +66,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.internal.Strings
+import androidx.wear.compose.material3.internal.getString
 import androidx.wear.compose.material3.tokens.CheckboxButtonTokens
 import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitCheckboxButtonTokens
@@ -135,6 +138,12 @@ public fun CheckboxButton(
     label: @Composable RowScope.() -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
+    val currentStateDescription =
+        if (checked) {
+            getString(Strings.CheckedStateDescription)
+        } else {
+            getString(Strings.NotCheckedStateDescription)
+        }
 
     androidx.wear.compose.materialcore.ToggleButton(
         checked = checked,
@@ -169,7 +178,10 @@ public fun CheckboxButton(
             )
         },
         selectionControl = null,
-        modifier = modifier.defaultMinSize(minHeight = MIN_HEIGHT),
+        modifier =
+            modifier.defaultMinSize(minHeight = MIN_HEIGHT).semantics {
+                stateDescription = currentStateDescription
+            },
         icon =
             provideNullableScopeContent(
                 contentColor = colors.iconColor(enabled = enabled, checked),
@@ -287,6 +299,12 @@ public fun SplitCheckboxButton(
     label: @Composable RowScope.() -> Unit,
 ) {
     val containerColorState = colors.containerColor(enabled, checked)
+    val currentStateDescription =
+        if (checked) {
+            getString(Strings.CheckedStateDescription)
+        } else {
+            getString(Strings.NotCheckedStateDescription)
+        }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
@@ -379,7 +397,8 @@ public fun SplitCheckboxButton(
                     }
                     .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
                     .wrapContentHeight(align = Alignment.CenterVertically)
-                    .padding(contentPadding),
+                    .padding(contentPadding)
+                    .semantics { stateDescription = currentStateDescription },
         ) {
             Checkbox(
                 checked = checked,

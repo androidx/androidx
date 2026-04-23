@@ -46,4 +46,8 @@
     <string description="Content description of the Dismiss icon of AlertDialog components. It lets the user dismiss the dialog. [CHAR_LIMIT=NONE]" name="wear_m3c_alert_dialog_content_description_dismiss_button">Dismiss</string>
     <string description="A message which is used to indicate than the user should continue their action on their phone, used in OpenOnPhone component [CHAR_LIMIT=12]" name="wear_m3c_open_on_phone">Check your phone</string>
     <string description="Content description of the icon of OpenOnPhone component. [CHAR_LIMIT=NONE]" name="wear_m3c_open_on_phone_icon_content_description">Check your phone icon</string>
+    <string description="State description of Switch components when their state is on." name="wear_m3c_capital_on_state_description">ON</string>
+    <string description="State description of Switch components when their state is off." name="wear_m3c_capital_off_state_description">OFF</string>
+    <string description="State description of Checkbox components when their state is checked." name="wear_m3c_checked_state_description">checked</string>
+    <string description="State description of Checkbox components when their state is not checked." name="wear_m3c_not_checked_state_description">not checked</string>
 </resources>
