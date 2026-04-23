@@ -40,9 +40,9 @@ enum class EventType(val text: String) {
     BOUNDS_CHANGED("Bounds Changed"),
     OPACITY_CHANGED("Opacity Changed"),
     PASSTHROUGH_CHANGED("Passthrough Changed"),
-    SKYBOX_CHANGED("Skybox Changed"),
+    IMAGE_BASED_LIGHTING_CHANGED("Image Based Lighting Asset Changed"),
     GEOMETRY_CHANGED("Geometry Changed"),
-    SKYBOX_AND_GEOMETRY_CHANGED("Skybox and geometry Changed"),
+    IMAGE_BASED_LIGHTING_AND_GEOMETRY_CHANGED("Image Based Lighting Asset and Geometry Changed"),
 }
 
 @SuppressLint("SetTextI18n", "RestrictedApi")

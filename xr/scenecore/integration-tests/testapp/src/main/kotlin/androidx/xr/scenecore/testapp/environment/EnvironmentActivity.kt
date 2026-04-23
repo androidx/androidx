@@ -70,8 +70,8 @@ class EnvironmentActivity : AppCompatActivity() {
     private var currentPassthroughOpacity = MutableStateFlow(0.0f)
     private var passthroughOpacityPreference = MutableStateFlow(0.0f)
     private var geometryEntity: GltfModelEntity? = null
-    private lateinit var greySkybox: ExrImage
-    private lateinit var blueSkybox: ExrImage
+    private lateinit var greyImageBasedLightingAsset: ExrImage
+    private lateinit var blueImageBasedLightingAsset: ExrImage
     private lateinit var groundGeometry: GltfModel
     private lateinit var rockGeometry: GltfModel
     private lateinit var dragonGeometry: GltfModel
@@ -143,38 +143,45 @@ class EnvironmentActivity : AppCompatActivity() {
             // load environment resources
             loadResources()
 
-            // add skybox handlers
-            skyBoxButtonHandlers()
+            // add lighting handlers
+            imageBasedLightingAssetButtonHandlers()
 
             // add geometry handlers
             geometryHandlers()
 
-            // add geometry and skybox handlers
-            skyboxAndGeometryHandlers()
+            // add image based lighting and geometry handlers
+            imageBasedLightingAssetAndGeometryHandlers()
         }
     }
 
-    private fun skyBoxButtonHandlers() {
-        // Load skybox from a Path
+    private fun imageBasedLightingAssetButtonHandlers() {
+        // Load lighting from a Path
         val loadPathButton = findViewById<Button>(R.id.environment_load_path)
         loadPathButton.setOnClickListener {
             lifecycleScope.launch {
-                greySkybox =
+                greyImageBasedLightingAsset =
                     ExrImage.createFromZip(session!!, Paths.get("skyboxes", "GreySkybox.zip"))
-                addEvent(EventType.SKYBOX_CHANGED, "Grey Skybox loaded from Path")
+                addEvent(
+                    EventType.IMAGE_BASED_LIGHTING_CHANGED,
+                    "Grey Image Based Lighting Asset loaded from Path",
+                )
                 findViewById<Button>(R.id.environment_button2_1).isEnabled = true
             }
         }
         loadPathButton.isEnabled = true
 
-        // Load skybox from a bytes
+        // Load lighting from a bytes
         val loadBytesButton = findViewById<Button>(R.id.environment_load_bytes)
         loadBytesButton.setOnClickListener {
             lifecycleScope.launch {
                 val bytes = assets.open("skyboxes/BlueSkybox.zip").readBytes()
                 @SuppressLint("RestrictedApiAndroidX")
-                blueSkybox = ExrImage.createFromZip(session!!, bytes, "BlueSkybox.zip")
-                addEvent(EventType.SKYBOX_CHANGED, "Blue Skybox loaded from Bytes")
+                blueImageBasedLightingAsset =
+                    ExrImage.createFromZip(session!!, bytes, "BlueSkybox.zip")
+                addEvent(
+                    EventType.IMAGE_BASED_LIGHTING_CHANGED,
+                    "Blue Image Based Lighting Asset loaded from Bytes",
+                )
                 findViewById<Button>(R.id.environment_button2_2).isEnabled = true
                 findViewById<Button>(R.id.environment_button4_1).isEnabled = true
             }
@@ -183,44 +190,67 @@ class EnvironmentActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.environment_toggle_hsm_fsm).isEnabled = true
 
-        // handle grey skybox
+        // handle grey image based lighting
         findViewById<Button>(R.id.environment_button2_1).setOnClickListener {
             val currentGeometry = spatialEnvironmentPreference?.geometry
             val currentEntity = if (currentGeometry == null) geometryEntity else null
 
-            setGeoAndSkybox(greySkybox, currentGeometry, currentEntity)
-            addEvent(EventType.SKYBOX_CHANGED, "Skybox set to BAR")
+            setImageBasedLightingAndGeometry(
+                greyImageBasedLightingAsset,
+                currentGeometry,
+                currentEntity,
+            )
+            addEvent(
+                EventType.IMAGE_BASED_LIGHTING_CHANGED,
+                "Image Based Lighting Asset set to BAR",
+            )
         }
 
-        // handle blue skybox
+        // handle blue image based lighting
         findViewById<Button>(R.id.environment_button2_2).setOnClickListener {
             val currentGeometry = spatialEnvironmentPreference?.geometry
             val currentEntity = if (currentGeometry == null) geometryEntity else null
 
-            setGeoAndSkybox(blueSkybox, currentGeometry, currentEntity)
-            addEvent(EventType.SKYBOX_CHANGED, "Skybox set to BLUE")
+            setImageBasedLightingAndGeometry(
+                blueImageBasedLightingAsset,
+                currentGeometry,
+                currentEntity,
+            )
+            addEvent(
+                EventType.IMAGE_BASED_LIGHTING_CHANGED,
+                "Image Based Lighting Asset set to BLUE",
+            )
         }
 
-        // handle unset skybox
+        // handle unset image based lighting
         findViewById<Button>(R.id.environment_button2_3).setOnClickListener {
             val currentGeometry = spatialEnvironmentPreference?.geometry
             val currentEntity = if (currentGeometry == null) geometryEntity else null
 
-            setGeoAndSkybox(null, currentGeometry, currentEntity)
-            addEvent(EventType.SKYBOX_CHANGED, "Skybox unset (set to black)")
+            setImageBasedLightingAndGeometry(null, currentGeometry, currentEntity)
+            addEvent(
+                EventType.IMAGE_BASED_LIGHTING_CHANGED,
+                "Image Based Lighting Asset unset (set to black)",
+            )
         }
     }
 
     private fun geometryHandlers() {
         // handle ground geometry
         findViewById<Button>(R.id.environment_button3_1).setOnClickListener {
-            setGeoAndSkybox(spatialEnvironmentPreference?.skybox, groundGeometry)
+            setImageBasedLightingAndGeometry(
+                spatialEnvironmentPreference?.imageBasedLightingAsset,
+                groundGeometry,
+            )
             addEvent(EventType.GEOMETRY_CHANGED, "Geometry set to GROUND")
         }
 
         // handle rock geometry
         findViewById<Button>(R.id.environment_button3_2).setOnClickListener {
-            setGeoAndSkybox(spatialEnvironmentPreference?.skybox, rockGeometry)
+            setImageBasedLightingAndGeometry(
+                spatialEnvironmentPreference?.imageBasedLightingAsset,
+                rockGeometry,
+            )
             addEvent(EventType.GEOMETRY_CHANGED, "Geometry set to ROCKS")
         }
 
@@ -239,36 +269,44 @@ class EnvironmentActivity : AppCompatActivity() {
                 .find { it.name == "Fast_Flying" }
                 ?.start(GltfAnimationStartOptions(shouldLoop = true))
 
-            setGeoAndSkybox(spatialEnvironmentPreference?.skybox, dragonGeometry, dragonEntity)
+            setImageBasedLightingAndGeometry(
+                spatialEnvironmentPreference?.imageBasedLightingAsset,
+                dragonGeometry,
+                dragonEntity,
+            )
             addEvent(EventType.GEOMETRY_CHANGED, "Geometry set to DRAGON")
         }
 
         // handle unset geometry
         findViewById<Button>(R.id.environment_button3_4).setOnClickListener {
-            setGeoAndSkybox(spatialEnvironmentPreference?.skybox, null, null)
+            setImageBasedLightingAndGeometry(
+                spatialEnvironmentPreference?.imageBasedLightingAsset,
+                null,
+                null,
+            )
             geometryEntity = null
             addEvent(EventType.GEOMETRY_CHANGED, "Geometry unset (no Geometry visible)")
         }
     }
 
-    private fun skyboxAndGeometryHandlers() {
-        // handle set geometry and skybox
+    private fun imageBasedLightingAssetAndGeometryHandlers() {
+        // handle set image based lighting and geometry
         findViewById<Button>(R.id.environment_button4_1).setOnClickListener {
-            setGeoAndSkybox(blueSkybox, groundGeometry)
+            setImageBasedLightingAndGeometry(blueImageBasedLightingAsset, groundGeometry)
             geometryEntity = null
             addEvent(
-                EventType.SKYBOX_AND_GEOMETRY_CHANGED,
-                "Skybox set to BLUE and geometry to GROUND",
+                EventType.IMAGE_BASED_LIGHTING_AND_GEOMETRY_CHANGED,
+                "Image Based Lighting Asset set to BLUE and geometry to GROUND",
             )
         }
 
-        // handle unset geometry and skybox
+        // handle unset image based lighting geometry
         findViewById<Button>(R.id.environment_button4_2).setOnClickListener {
             session!!.scene.spatialEnvironment.preferredSpatialEnvironment = null
             geometryEntity = null
             addEvent(
-                EventType.SKYBOX_AND_GEOMETRY_CHANGED,
-                "Skybox and Geometry reverted to Home Environment",
+                EventType.IMAGE_BASED_LIGHTING_AND_GEOMETRY_CHANGED,
+                "Image Based Lighting Asset and Geometry reverted to Home Environment",
             )
         }
     }
@@ -306,18 +344,22 @@ class EnvironmentActivity : AppCompatActivity() {
         this.khronosPbrMaterial.setBaseColorTexture(patternTexture, TextureSampler())
     }
 
-    private fun setGeoAndSkybox(
-        skybox: ExrImage?,
+    private fun setImageBasedLightingAndGeometry(
+        imageBasedLightingAsset: ExrImage?,
         geometry: GltfModel?,
         geometryEntity: GltfModelEntity? = null,
     ) {
         if (geometryEntity == null) {
             spatialEnvironmentPreference =
-                SpatialEnvironment.SpatialEnvironmentPreference(skybox, geometry)
+                SpatialEnvironment.SpatialEnvironmentPreference(imageBasedLightingAsset, geometry)
         } else {
             @SuppressLint("RestrictedApiAndroidX")
             spatialEnvironmentPreference =
-                SpatialEnvironment.SpatialEnvironmentPreference(skybox, null, geometryEntity)
+                SpatialEnvironment.SpatialEnvironmentPreference(
+                    imageBasedLightingAsset,
+                    null,
+                    geometryEntity,
+                )
         }
         session!!.scene.spatialEnvironment.preferredSpatialEnvironment =
             spatialEnvironmentPreference

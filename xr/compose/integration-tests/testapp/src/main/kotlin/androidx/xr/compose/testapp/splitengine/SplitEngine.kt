@@ -270,14 +270,17 @@ class SplitEngine : ComponentActivity() {
                         ApiButton("Set Geometry Rocks", modifier) {
                             if (rocksGeometry.value != null) {
                                 setSkyboxAndGeometry(
-                                    spatialEnvironmentPreference?.skybox,
+                                    spatialEnvironmentPreference?.imageBasedLightingAsset,
                                     rocksGeometry.value,
                                 )
                             }
                         }
 
                         ApiButton("Remove Geometry Rocks", modifier) {
-                            setSkyboxAndGeometry(spatialEnvironmentPreference?.skybox, null)
+                            setSkyboxAndGeometry(
+                                spatialEnvironmentPreference?.imageBasedLightingAsset,
+                                null,
+                            )
                         }
                     }
                 }

@@ -456,7 +456,10 @@ private fun SpatialExternalSurfaceBaseSphere(
 
         if (session.scene.spatialEnvironment.preferredSpatialEnvironment == null) {
             session.scene.spatialEnvironment.preferredSpatialEnvironment =
-                SpatialEnvironment.SpatialEnvironmentPreference(skybox = null, geometry = null)
+                SpatialEnvironment.SpatialEnvironmentPreference(
+                    imageBasedLightingAsset = null,
+                    geometry = null,
+                )
             temporaryEnvironmentSet = true
         }
 
