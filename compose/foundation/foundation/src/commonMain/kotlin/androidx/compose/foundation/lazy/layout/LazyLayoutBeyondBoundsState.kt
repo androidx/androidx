@@ -54,9 +54,8 @@ internal fun LazyLayoutItemProvider.calculateLazyLayoutPinnedIndices(
             if (index !in 0 until itemCount) return@fastForEach
             pinnedItems.add(index)
         }
-        for (i in beyondBoundsRange) {
-            pinnedItems.add(i)
-        }
+        pinnedItems.addAll(beyondBoundsRange)
+        pinnedItems.sort()
         return pinnedItems
     }
 }

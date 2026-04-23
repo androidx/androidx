@@ -57,6 +57,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.collections.removeFirst as removeFirstKt
+import kotlin.random.Random
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -773,6 +774,62 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
         }
 
         rule.onNodeWithTag("1").assertExists().assertIsNotDisplayed().assertIsPlaced()
+    }
+
+    @Test
+    fun pinnedItemsAreLaidOutInOrderWhenScrolledOut() {
+        val state = LazyListState()
+        val pinnableContainerByIndex = mutableMapOf<Int, PinnableContainer>()
+        val pinHandlesByIndex = mutableMapOf<Int, PinnedHandle>()
+        val shuffelSeed = 0xCAFEBABE
+
+        val listSize = 20
+        val topPinRange = 0 until listSize / 2
+        val bottomPinRange = listSize / 2 until listSize
+
+        rule.setContentParameterized {
+            LazyColumn(Modifier.size(itemSize * 10), state = state) {
+                items(listSize) { index ->
+                    pinnableContainerByIndex[index] = LocalPinnableContainer.current!!
+                    Item(index)
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        fun validateLayoutOrder(pinRange: IntRange) {
+            var prevTop: Float? = null
+            for (i in pinRange) {
+                val top = rule.onNodeWithTag("$i").fetchSemanticsNode().positionInRoot.y
+                if (prevTop != null) {
+                    assertThat(top).isGreaterThan(prevTop)
+                }
+                prevTop = top
+            }
+        }
+
+        topPinRange
+            .toMutableList()
+            .apply { shuffle(Random(shuffelSeed)) }
+            .forEach { i -> pinHandlesByIndex[i] = pinnableContainerByIndex[i]!!.pin() }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(listSize - 1) } }
+        rule.waitForIdle()
+        validateLayoutOrder(topPinRange)
+
+        topPinRange.forEach { i -> pinHandlesByIndex[i]!!.release() }
+
+        pinHandlesByIndex.clear()
+
+        bottomPinRange
+            .toMutableList()
+            .apply { shuffle(Random(shuffelSeed)) }
+            .forEach { i -> pinHandlesByIndex[i] = pinnableContainerByIndex[i]!!.pin() }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(0) } }
+        rule.waitForIdle()
+        validateLayoutOrder(bottomPinRange)
     }
 }
 
