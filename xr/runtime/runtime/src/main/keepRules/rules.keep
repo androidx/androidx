@@ -5,8 +5,6 @@
 -keep class androidx.xr.runtime.interfaces.DisplayBlendMode { *; }
 # androidx.xr.runtime.FieldOfView is referenced by native code (legacy).
 -keep class androidx.xr.runtime.FieldOfView { *; }
-# androidx.xr.runtime.Log is referenced by native code.
--keep class androidx.xr.runtime.Log { *; }
 # androidx.xr.runtime.TrackingState is referenced by native code.
 -keep class androidx.xr.runtime.TrackingState { *; }
 -keep class androidx.xr.runtime.TrackingState$Companion { *; }
