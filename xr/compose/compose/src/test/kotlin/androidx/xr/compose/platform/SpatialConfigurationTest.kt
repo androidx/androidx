@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// TODO(b/502276582): Remove Suppression once the rest of aosp/4029203 are submitted
+@file:Suppress("DEPRECATION")
 
 package androidx.xr.compose.platform
 
@@ -25,9 +27,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.unit.DpVolumeSize
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testing.FakeSceneRuntime
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -165,5 +172,36 @@ class SpatialConfigurationTest {
         assertThat(bounds1.width).isEqualTo(320.dp)
         assertThat(bounds1.height).isEqualTo(470.dp)
         assertThat(bounds1.depth).isEqualTo(0.dp)
+    }
+
+    @Test
+    fun recommendedPoseAndScale_whenSpatialModeChanges_updatesReactively() {
+        val session = composeTestRule.configureFakeSession()
+        val fakeSceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().first()
+
+        val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
+        val expectedScale = 2.5f
+
+        var actualPose: Pose? = null
+        var actualScale: Float? = null
+
+        composeTestRule.setContent {
+            val config =
+                assertNotNull(LocalSpatialConfiguration.current as? SessionSpatialConfiguration)
+            actualPose = config.recommendedPose
+            actualScale = config.recommendedScale
+        }
+
+        composeTestRule.runOnIdle {
+            fakeSceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+                recommendedPose = expectedPose,
+                recommendedScale = Vector3(expectedScale, expectedScale, expectedScale),
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        assertThat(actualPose).isEqualTo(expectedPose)
+        assertThat(actualScale).isEqualTo(expectedScale)
     }
 }

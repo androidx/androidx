@@ -28,7 +28,6 @@ import androidx.xr.compose.subspace.layout.CoreMainPanelEntity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 
 /**
@@ -78,6 +77,10 @@ internal class ComposeXrOwnerLocals(
     }
 }
 
+private object ComposeXrOwnerLocalsConstants {
+    const val SUBSPACE_ROOT_CONTAINER_NAME = "SubspaceRootContainer"
+}
+
 @VisibleForTesting
 internal fun Activity.getOrCreateXrOwnerLocals(): ComposeXrOwnerLocals? =
     getXrOwnerLocals() ?: createXrOwnerLocals()
@@ -105,15 +108,16 @@ private fun Activity.createXrOwnerLocals(): ComposeXrOwnerLocals? {
         )
     }
 
-    val subspaceRootNode = Entity.create(session, "SubspaceRootContainer")
-    session.scene.setSpatialModeChangedListener { event ->
-        subspaceRootNode.setPose(event.recommendedPose, Space.ACTIVITY)
-        subspaceRootNode.setScale(event.recommendedScale, Space.ACTIVITY)
-    }
+    val subspaceRootNode =
+        Entity.create(
+            session = session,
+            name = ComposeXrOwnerLocalsConstants.SUBSPACE_ROOT_CONTAINER_NAME,
+        )
 
     return ComposeXrOwnerLocals(
             session = session,
-            spatialConfiguration = SessionSpatialConfiguration(session),
+            spatialConfiguration =
+                SessionSpatialConfiguration(session = session, subspaceRootNode = subspaceRootNode),
             spatialCapabilities = SessionSpatialCapabilities(session),
             coreMainPanelEntity = CoreMainPanelEntity(session),
             subspaceRootNode = subspaceRootNode,
