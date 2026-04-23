@@ -45,7 +45,7 @@ class AccessibilityTestActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
-        session!!.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
+        session!!.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // toolbar

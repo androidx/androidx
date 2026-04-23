@@ -65,7 +65,7 @@ internal class OpenXrRuntime(
                 HandTrackingMode.DISABLED,
                 HandTrackingMode.BOTH,
                 DeviceTrackingMode.DISABLED,
-                DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                DeviceTrackingMode.SPATIAL,
                 DepthEstimationMode.DISABLED,
                 DepthEstimationMode.RAW_ONLY,
                 DepthEstimationMode.SMOOTH_ONLY,
@@ -293,7 +293,7 @@ internal class OpenXrRuntime(
         }
 
         if (config.deviceTracking != this.config.deviceTracking) {
-            if (config.deviceTracking == DeviceTrackingMode.SPATIAL_LAST_KNOWN) {
+            if (config.deviceTracking == DeviceTrackingMode.SPATIAL) {
                 perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.arDevice)
             } else {
                 perceptionManager.xrResources.removeUpdatable(

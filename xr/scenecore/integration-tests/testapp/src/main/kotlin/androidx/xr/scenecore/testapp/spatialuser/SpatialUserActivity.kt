@@ -86,7 +86,7 @@ class SpatialUserActivity : AppCompatActivity() {
         session!!.configure(
             Config(
                 planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.SPATIAL,
             )
         )
         session?.scene?.keyEntity = null

@@ -96,7 +96,7 @@ class ProjectedRuntimeTest {
         expectedUpdateResult.devicePose = projectedPose
         `when`(mockPerceptionService.update()).thenReturn(expectedUpdateResult)
         underTest.initialize()
-        val config = Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN)
+        val config = Config(deviceTracking = DeviceTrackingMode.SPATIAL)
 
         underTest.configure(config)
         underTest.running.set(true)
@@ -115,10 +115,7 @@ class ProjectedRuntimeTest {
     fun configure_withGeospatialEnabled_startsService() {
         underTest.initialize()
         val config =
-            Config(
-                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
-                geospatial = GeospatialMode.SPATIAL,
-            )
+            Config(deviceTracking = DeviceTrackingMode.SPATIAL, geospatial = GeospatialMode.SPATIAL)
 
         underTest.configure(config)
 
@@ -133,10 +130,7 @@ class ProjectedRuntimeTest {
                 -21 /*ProjectedStatus.PROJECTED_ERROR_FINE_LOCATION_PERMISSION_NOT_GRANTED*/
             )
         val config =
-            Config(
-                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
-                geospatial = GeospatialMode.SPATIAL,
-            )
+            Config(deviceTracking = DeviceTrackingMode.SPATIAL, geospatial = GeospatialMode.SPATIAL)
 
         assertThrows(SecurityException::class.java) { underTest.configure(config) }
     }
@@ -171,10 +165,7 @@ class ProjectedRuntimeTest {
         underTest.initialize()
         underTest.running.set(true)
         val config =
-            Config(
-                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
-                geospatial = GeospatialMode.SPATIAL,
-            )
+            Config(deviceTracking = DeviceTrackingMode.SPATIAL, geospatial = GeospatialMode.SPATIAL)
 
         underTest.configure(config)
 
@@ -191,7 +182,7 @@ class ProjectedRuntimeTest {
         underTest.running.set(true)
         val config =
             Config(
-                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.SPATIAL,
                 geospatial = GeospatialMode.DISABLED,
             )
 
@@ -212,7 +203,7 @@ class ProjectedRuntimeTest {
         underTest.running.set(true)
         val config =
             Config(
-                deviceTracking = DeviceTrackingMode.INERTIAL_LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.INERTIAL,
                 geospatial = GeospatialMode.DISABLED,
             )
 
@@ -233,7 +224,7 @@ class ProjectedRuntimeTest {
         underTest.running.set(true)
         val config =
             Config(
-                deviceTracking = DeviceTrackingMode.INERTIAL_LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.INERTIAL,
                 geospatial = GeospatialMode.SPATIAL,
             )
 

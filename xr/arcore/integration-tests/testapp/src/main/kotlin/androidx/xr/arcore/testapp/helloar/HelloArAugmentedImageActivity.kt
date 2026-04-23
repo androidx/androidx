@@ -89,7 +89,7 @@ class HelloArAugmentedImageActivity : ComponentActivity() {
                 this,
                 Config(
                     augmentedImageDatabase = augmentedImageDatabase,
-                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL,
                 ),
                 onSessionAvailable = { session ->
                     this.session = session

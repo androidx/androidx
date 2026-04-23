@@ -73,7 +73,7 @@ class ArDeviceTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun pose_SpatialLastKnown_tracksTranslationAndRotation() {
-        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
+        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
         runTest(testDispatcher) {
             val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
             arCoreTestRule.device.pose = expectedPose
@@ -91,7 +91,7 @@ class ArDeviceTest {
     @OptIn(ExperimentalCoroutinesApi::class, PreviewSpatialApi::class)
     @Test
     fun pose_InertialLastKnown_onlyTracksRotation() {
-        session.configure(Config(deviceTracking = DeviceTrackingMode.INERTIAL_LAST_KNOWN))
+        session.configure(Config(deviceTracking = DeviceTrackingMode.INERTIAL))
         runTest(testDispatcher) {
             val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
             arCoreTestRule.device.pose = expectedPose

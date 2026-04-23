@@ -287,7 +287,7 @@ internal constructor(
                 CameraFacingDirection.WORLD,
                 CameraFacingDirection.USER,
                 DeviceTrackingMode.DISABLED,
-                DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                DeviceTrackingMode.SPATIAL,
                 FaceTrackingMode.DISABLED,
                 FaceTrackingMode.MESHES,
                 PlaneTrackingMode.DISABLED,

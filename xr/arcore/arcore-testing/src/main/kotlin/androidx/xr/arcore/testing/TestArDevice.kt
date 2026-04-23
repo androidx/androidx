@@ -35,13 +35,11 @@ public class TestArDevice internal constructor(private val arCoreTestRule: ArCor
     }
 
     private val isConfigured6Dof: Boolean
-        get() =
-            arCoreTestRule.runtime.config.deviceTracking == DeviceTrackingMode.SPATIAL_LAST_KNOWN
+        get() = arCoreTestRule.runtime.config.deviceTracking == DeviceTrackingMode.SPATIAL
 
     @OptIn(PreviewSpatialApi::class)
     private val isConfigured3Dof: Boolean
-        get() =
-            arCoreTestRule.runtime.config.deviceTracking == DeviceTrackingMode.INERTIAL_LAST_KNOWN
+        get() = arCoreTestRule.runtime.config.deviceTracking == DeviceTrackingMode.INERTIAL
 
     public var pose: Pose = Pose()
         set(value) {

@@ -100,7 +100,7 @@ class MainPanelEntityTest {
 
         assertThat(exception)
             .hasMessageThat()
-            .isEqualTo("Config.DeviceTrackingMode is not set to SpatialLastKnown.")
+            .isEqualTo("Config.DeviceTrackingMode is not set to Spatial.")
     }
 
     @Test

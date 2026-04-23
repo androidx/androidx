@@ -262,7 +262,7 @@ class SessionTest {
                     // Needs to contain at least one AugmentedObjectCategory to enable
                     augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
                     handTracking = HandTrackingMode.BOTH,
-                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL,
                     depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW,
                     anchorPersistence = AnchorPersistenceMode.LOCAL,
                 )

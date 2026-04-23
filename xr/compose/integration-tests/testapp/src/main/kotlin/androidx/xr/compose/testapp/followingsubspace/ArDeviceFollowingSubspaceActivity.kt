@@ -89,9 +89,7 @@ class FollowingSubspaceActivity : ComponentActivity() {
     @Composable
     private fun MainContent() {
         val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-        session.configure(
-            config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN)
-        )
+        session.configure(config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL))
 
         val todoItems = remember {
             mutableStateListOf(

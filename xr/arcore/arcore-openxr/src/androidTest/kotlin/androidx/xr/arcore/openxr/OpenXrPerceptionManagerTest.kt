@@ -501,7 +501,7 @@ class OpenXrPerceptionManagerTest {
             openXrRuntime.resume()
             openXrRuntime.configure(
                 Config(
-                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL,
                     planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
                     //                    handTracking = Config.HandTrackingMode.BOTH,
                     augmentedImageDatabase = augmentedImageDatabase,

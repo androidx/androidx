@@ -114,7 +114,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
         session.configure(
             Config(
-                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.SPATIAL,
                 handTracking = HandTrackingMode.BOTH,
             )
         )

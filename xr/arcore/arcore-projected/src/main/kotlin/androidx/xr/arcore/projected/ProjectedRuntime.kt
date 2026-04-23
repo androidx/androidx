@@ -293,8 +293,8 @@ internal constructor(
     private fun serviceRequired(config: Config): Boolean {
         // The service is required if tracking or geospatial are enabled.
         // I.E. if no features are needed from the service we don't require it.
-        return config.deviceTracking == DeviceTrackingMode.SPATIAL_LAST_KNOWN ||
-            config.deviceTracking == DeviceTrackingMode.INERTIAL_LAST_KNOWN ||
+        return config.deviceTracking == DeviceTrackingMode.SPATIAL ||
+            config.deviceTracking == DeviceTrackingMode.INERTIAL ||
             config.geospatial == GeospatialMode.SPATIAL
     }
 
@@ -310,7 +310,7 @@ internal constructor(
         } else {
             serviceConfig.geospatialMode = ProjectedGeospatialMode.DISABLED
             serviceConfig.trackingMode =
-                if (config.deviceTracking == DeviceTrackingMode.INERTIAL_LAST_KNOWN) {
+                if (config.deviceTracking == DeviceTrackingMode.INERTIAL) {
                     ProjectedTrackingMode.PROJECTED_TRACKING_3DOF
                 } else {
                     ProjectedTrackingMode.PROJECTED_TRACKING_6DOF
