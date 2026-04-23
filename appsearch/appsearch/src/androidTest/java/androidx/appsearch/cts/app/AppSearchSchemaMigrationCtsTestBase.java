@@ -260,6 +260,91 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     }
 
     @Test
+    public void testForceOverride_BackwardsIncompatible_Trigger_PartiallyMigrateIncompatibleTypes()
+            throws Exception {
+        // setup
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("testSchema")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        AppSearchSchema schema2 = new AppSearchSchema.Builder("testSchema2")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(schema1, schema2).setForceOverride(true).build()).get();
+        GenericDocument doc = new GenericDocument.Builder<>(
+                "namespace", "id1", "testSchema2")
+                .setPropertyString("subject", "testPut example1")
+                .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
+        assertThat(result.getSuccesses()).containsExactly("id1", null);
+        assertThat(result.getFailures()).isEmpty();
+
+        // create a backwards incompatible schema and update the version
+        AppSearchSchema backwardsIncompatibleTriggerSchema1 = new AppSearchSchema
+                .Builder("testSchema")
+                .build();
+        AppSearchSchema backwardsIncompatibleTriggerSchema2 = new AppSearchSchema
+                .Builder("testSchema2")
+                .build();
+
+        Migrator migrator = new Migrator() {
+            @Override
+            public boolean shouldMigrate(int currentVersion, int finalVersion) {
+                return currentVersion != finalVersion;
+            }
+
+            @NonNull
+            @Override
+            public GenericDocument onUpgrade(int currentVersion, int finalVersion,
+                    @NonNull GenericDocument document) {
+                return new GenericDocument.Builder<>(document.getNamespace(), document.getId(),
+                        document.getSchemaType())
+                        .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
+                        .build();
+            }
+
+            @NonNull
+            @Override
+            public GenericDocument onDowngrade(int currentVersion, int finalVersion,
+                    @NonNull GenericDocument document) {
+                throw new IllegalStateException("Downgrade should not be triggered for this test");
+            }
+        };
+
+        SetSchemaResponse response = mDb.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(
+                                backwardsIncompatibleTriggerSchema1,
+                                backwardsIncompatibleTriggerSchema2)
+                        .setMigrator("testSchema", migrator)
+                        .setMigrator("testSchema2", INACTIVE_MIGRATOR)
+                        .setForceOverride(true)
+                        .setVersion(2)     // upgrade version
+                        .build()).get();
+
+        assertThat(response.getMigratedTypes()).containsExactly("testSchema");
+        assertThat(response.getIncompatibleTypes()).containsExactly("testSchema", "testSchema2");
+        assertThat(response.getMigrationFailures()).isEmpty();
+
+        GenericDocument expectedDoc = new GenericDocument.Builder<>("namespace", "id0",
+                "testSchema").setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+
+        SearchResults searchResults = mDb.search("", new SearchSpec.Builder().build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(expectedDoc);
+    }
+
+    @Test
     public void testNoForceOverride_BackwardsCompatible_Trigger_MigrateIncompatibleType()
             throws Exception {
         // create a backwards compatible schema and update the version
