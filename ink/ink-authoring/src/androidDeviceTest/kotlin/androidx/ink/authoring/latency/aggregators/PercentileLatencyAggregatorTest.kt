@@ -576,75 +576,65 @@ class PercentileLatencyAggregatorTest {
     @Test
     fun percentileLatencyAggregator_factoryThrowsOnNonPositiveWindowDuration() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                PercentileLatencyAggregator.create(
-                    window = 0.seconds,
-                    percentiles = listOf(50f),
-                    expectedSamplesPerSecond = 30,
-                    testScope.backgroundScope,
-                ) { _: List<Long>, _: Int ->
-                    Unit
-                }
+            PercentileLatencyAggregator.create(
+                window = 0.seconds,
+                percentiles = listOf(50f),
+                expectedSamplesPerSecond = 30,
+                testScope.backgroundScope,
+            ) { _: List<Long>, _: Int ->
+            }
         }
     }
 
     @Test
     fun percentileLatencyAggregator_factoryThrowsOnEmptyPercentileList() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                PercentileLatencyAggregator.create(
-                    window = 1.seconds,
-                    percentiles = listOf<Float>(),
-                    expectedSamplesPerSecond = 30,
-                    testScope.backgroundScope,
-                ) { _: List<Long>, _: Int ->
-                    Unit
-                }
+            PercentileLatencyAggregator.create(
+                window = 1.seconds,
+                percentiles = listOf<Float>(),
+                expectedSamplesPerSecond = 30,
+                testScope.backgroundScope,
+            ) { _: List<Long>, _: Int ->
+            }
         }
     }
 
     @Test
     fun percentileLatencyAggregator_factoryThrowsOnNegativePercentileList() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                PercentileLatencyAggregator.create(
-                    window = 1.seconds,
-                    percentiles = listOf<Float>(-5f),
-                    expectedSamplesPerSecond = 30,
-                    testScope.backgroundScope,
-                ) { _: List<Long>, _: Int ->
-                    Unit
-                }
+            PercentileLatencyAggregator.create(
+                window = 1.seconds,
+                percentiles = listOf<Float>(-5f),
+                expectedSamplesPerSecond = 30,
+                testScope.backgroundScope,
+            ) { _: List<Long>, _: Int ->
+            }
         }
     }
 
     @Test
     fun percentileLatencyAggregator_factoryThrowsOnPercentileListAbove100() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                PercentileLatencyAggregator.create(
-                    window = 1.seconds,
-                    percentiles = listOf<Float>(105f),
-                    expectedSamplesPerSecond = 30,
-                    testScope.backgroundScope,
-                ) { _: List<Long>, _: Int ->
-                    Unit
-                }
+            PercentileLatencyAggregator.create(
+                window = 1.seconds,
+                percentiles = listOf<Float>(105f),
+                expectedSamplesPerSecond = 30,
+                testScope.backgroundScope,
+            ) { _: List<Long>, _: Int ->
+            }
         }
     }
 
     @Test
     fun percentileLatencyAggregator_factoryThrowsOnNonPositiveSamplesPerSecond() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                PercentileLatencyAggregator.create(
-                    window = 1.seconds,
-                    percentiles = listOf(50f),
-                    expectedSamplesPerSecond = 0,
-                    testScope.backgroundScope,
-                ) { _: List<Long>, _: Int ->
-                    Unit
-                }
+            PercentileLatencyAggregator.create(
+                window = 1.seconds,
+                percentiles = listOf(50f),
+                expectedSamplesPerSecond = 0,
+                testScope.backgroundScope,
+            ) { _: List<Long>, _: Int ->
+            }
         }
     }
 
