@@ -41,7 +41,7 @@ public class GltfModel
 internal constructor(
     internal val renderingRuntime: RenderingRuntime?,
     internal val model: RtGltfModel,
-) {
+) : AutoCloseable {
 
     /**
      * Closes the given [GltfModel].
@@ -53,8 +53,7 @@ internal constructor(
      * @throws IllegalStateException if the resource has already been closed.
      */
     @MainThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun close() {
+    override public fun close() {
         renderingRuntime?.destroyGltfModel(model)
     }
 
