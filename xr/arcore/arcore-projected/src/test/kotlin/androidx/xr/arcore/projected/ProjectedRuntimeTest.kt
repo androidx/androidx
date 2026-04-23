@@ -65,7 +65,6 @@ class ProjectedRuntimeTest {
         underTest =
             ProjectedRuntime(
                 mockActivity,
-                ProjectedManager(ProjectedTimeSource()),
                 perceptionManager,
                 ProjectedTimeSource(),
                 testPerceptionService = mockPerceptionService,

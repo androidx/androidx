@@ -169,8 +169,7 @@ class OpenXrDepthTest {
 
     private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {
         activityRule.scenario.onActivity { activity ->
-            val lifecycleManager = OpenXrManager(timeSource)
-            openXrRuntime = OpenXrRuntime(activity, lifecycleManager, perceptionManager, timeSource)
+            openXrRuntime = OpenXrRuntime(activity, perceptionManager, timeSource)
             openXrRuntime.initialize()
             openXrRuntime.resume()
 

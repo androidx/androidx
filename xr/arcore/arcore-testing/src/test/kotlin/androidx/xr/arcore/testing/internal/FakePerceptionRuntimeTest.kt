@@ -18,7 +18,6 @@ package androidx.xr.arcore.testing.internal
 
 import androidx.kruth.assertThat
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.FaceTrackingMode
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.runTest
@@ -77,13 +76,6 @@ class FakePerceptionRuntimeTest {
     }
 
     @Test
-    fun initialize_hasMissingPermission_throwsSecurityException() {
-        underTest.hasCreatePermission = false
-
-        assertFailsWith<SecurityException> { underTest.initialize() }
-    }
-
-    @Test
     fun configure_beforeCreate_doesNotThrowsIllegalStateException() {
         underTest.configure(Config())
     }
@@ -94,23 +86,6 @@ class FakePerceptionRuntimeTest {
         underTest.destroy()
 
         assertFailsWith<IllegalStateException> { underTest.configure(Config()) }
-    }
-
-    @Test
-    fun configure_hasMissingPermission_throwsSecurityException() {
-        underTest.initialize()
-        underTest.hasMissingPermission = true
-
-        assertFailsWith<SecurityException> { underTest.configure(Config()) }
-    }
-
-    @Test
-    fun configure_withFaceTrackingEnabled_doesNotSupportFaceTracking_throwsUnsupportedOperationException() {
-        underTest.initialize()
-        underTest.shouldSupportFaceTracking = false
-        assertFailsWith<UnsupportedOperationException> {
-            underTest.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
-        }
     }
 
     @Test

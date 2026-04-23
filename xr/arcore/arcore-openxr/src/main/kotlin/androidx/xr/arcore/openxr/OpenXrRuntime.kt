@@ -46,12 +46,10 @@ import kotlinx.coroutines.delay
 /**
  * Implementation of the [PerceptionRuntime] interface using OpenXR.
  *
- * @property lifecycleManager that manages the lifecycle of the OpenXR session
  * @property perceptionManager that manages the perception capabilities of a runtime using OpenXR
  */
 internal class OpenXrRuntime(
     private val context: Context,
-    override val lifecycleManager: OpenXrManager,
     override val perceptionManager: OpenXrPerceptionManager,
     val timeSource: OpenXrTimeSource,
 ) : PerceptionRuntime {
@@ -88,7 +86,6 @@ internal class OpenXrRuntime(
      */
     var nativePointer: Long = 0L
         private set(value) {
-            this.lifecycleManager.nativePointer = value
             field = value
         }
 
@@ -98,7 +95,6 @@ internal class OpenXrRuntime(
      */
     override var sessionPointer: Long = 0L
         private set(value) {
-            this.lifecycleManager.sessionPointer = value
             field = value
         }
 
@@ -108,7 +104,6 @@ internal class OpenXrRuntime(
      */
     var instancePointer: Long = 0L
         private set(value) {
-            this.lifecycleManager.instancePointer = value
             field = value
         }
 
@@ -125,7 +120,6 @@ internal class OpenXrRuntime(
             augmentedImageDatabase = null,
         )
         private set(value) {
-            lifecycleManager.configure(value)
             field = value
         }
 

@@ -226,8 +226,7 @@ class OpenXrPlaneTest {
     private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {
         activityRule.scenario.onActivity {
             val perceptionManager = OpenXrPerceptionManager(timeSource)
-            val lifecycleManager = OpenXrManager(timeSource)
-            openXrRuntime = OpenXrRuntime(it, lifecycleManager, perceptionManager, timeSource)
+            openXrRuntime = OpenXrRuntime(it, perceptionManager, timeSource)
             openXrRuntime.initialize()
             openXrRuntime.resume()
             openXrRuntime.configure(
