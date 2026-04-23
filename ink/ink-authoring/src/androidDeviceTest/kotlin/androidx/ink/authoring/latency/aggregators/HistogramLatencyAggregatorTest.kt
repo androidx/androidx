@@ -648,62 +648,52 @@ class HistogramLatencyAggregatorTest {
     @Test
     fun histogramLatencyAggregator_factoryThrowsOnNonPositiveWindowDuration() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                HistogramLatencyAggregator.create(
-                    window = 0.seconds,
-                    inclusiveLowerBoundsNanos = listOf(50L),
-                    scope = testScope.backgroundScope,
-                ) { _: IntArray ->
-                    Unit
-                }
+            HistogramLatencyAggregator.create(
+                window = 0.seconds,
+                inclusiveLowerBoundsNanos = listOf(50L),
+                scope = testScope.backgroundScope,
+            ) { _: IntArray ->
+            }
         }
     }
 
     @Test
     fun histogramLatencyAggregator_factoryThrowsOnOutOfOrderBucketBoundaries() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf<Long>(10, 30, 20, 40),
-                    scope = testScope.backgroundScope,
-                ) { _: IntArray ->
-                    Unit
-                }
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf<Long>(10, 30, 20, 40),
+                scope = testScope.backgroundScope,
+            ) { _: IntArray ->
+            }
         }
     }
 
     @Test
     fun histogramLatencyAggregator_factoryThrowsOnNonStrictlyIncreasingBucketBoundaries() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf<Long>(10, 10, 30, 40),
-                    scope = testScope.backgroundScope,
-                ) { _: IntArray ->
-                    Unit
-                }
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf<Long>(10, 10, 30, 40),
+                scope = testScope.backgroundScope,
+            ) { _: IntArray ->
+            }
         }
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf<Long>(10, 30, 30, 40),
-                    scope = testScope.backgroundScope,
-                ) { _: IntArray ->
-                    Unit
-                }
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf<Long>(10, 30, 30, 40),
+                scope = testScope.backgroundScope,
+            ) { _: IntArray ->
+            }
         }
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf<Long>(10, 30, 40, 40),
-                    scope = testScope.backgroundScope,
-                ) { _: IntArray ->
-                    Unit
-                }
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf<Long>(10, 30, 40, 40),
+                scope = testScope.backgroundScope,
+            ) { _: IntArray ->
+            }
         }
     }
 

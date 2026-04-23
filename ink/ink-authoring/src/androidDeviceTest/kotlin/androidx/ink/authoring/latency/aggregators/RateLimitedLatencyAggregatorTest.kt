@@ -345,13 +345,11 @@ class RateLimitedLatencyAggregatorTest {
     @Test
     fun percentileLatencyAggregator_throwsOnInvalidFactoryParams() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                RateLimitedLatencyAggregator.create(
-                    period = 0.seconds, // Must be positive.
-                    testScope.backgroundScope,
-                ) { _: Long, _: Long ->
-                    Unit
-                }
+            RateLimitedLatencyAggregator.create(
+                period = 0.seconds, // Must be positive.
+                testScope.backgroundScope,
+            ) { _: Long, _: Long ->
+            }
         }
     }
 

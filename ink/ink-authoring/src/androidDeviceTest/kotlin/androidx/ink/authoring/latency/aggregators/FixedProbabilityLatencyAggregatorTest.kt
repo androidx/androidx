@@ -255,22 +255,18 @@ class FixedProbabilityLatencyAggregatorTest {
     @Test
     fun fixedProbabilityLatencyAggregator_throwsOnInvalidFactoryParams() {
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                FixedProbabilityLatencyAggregator.create(
-                    sampleProbability = -0.1f, // Must be non-negative.
-                    testScope.backgroundScope,
-                ) { _: Long, _: Long ->
-                    Unit
-                }
+            FixedProbabilityLatencyAggregator.create(
+                sampleProbability = -0.1f, // Must be non-negative.
+                testScope.backgroundScope,
+            ) { _: Long, _: Long ->
+            }
         }
         assertFailsWith(IllegalStateException::class) {
-            val unused =
-                FixedProbabilityLatencyAggregator.create(
-                    sampleProbability = 1.1f, // Must be <= 1.0.
-                    testScope.backgroundScope,
-                ) { _: Long, _: Long ->
-                    Unit
-                }
+            FixedProbabilityLatencyAggregator.create(
+                sampleProbability = 1.1f, // Must be <= 1.0.
+                testScope.backgroundScope,
+            ) { _: Long, _: Long ->
+            }
         }
     }
 }
