@@ -31,9 +31,7 @@ public abstract class PaintPathEffects {
     public static final int SUM = 4;
     public static final int COMPOSE = 5;
 
-    /**
-     * Interface to register a path effect
-     */
+    /** Interface to register a path effect */
     public interface Register {
         /**
          * Register a path effect
@@ -43,12 +41,11 @@ public abstract class PaintPathEffects {
         void id(int id);
     }
 
-
     /**
      * Get the ids for the path effects
      *
-     * @param data     array of ids
-     * @param offset   offset into the array
+     * @param data array of ids
+     * @param offset offset into the array
      * @param register register the ids
      * @return the offset into the array after the ids have been processed
      */
@@ -72,9 +69,7 @@ public abstract class PaintPathEffects {
 
     abstract float @NonNull [] toFloatArray();
 
-    /**
-     * Parse a path effect from a float array
-     */
+    /** Parse a path effect from a float array */
     public static @NonNull PaintPathEffects parse(float @NonNull [] data, int offset) {
         switch (Float.floatToRawIntBits(data[offset++])) {
             case DASH:
@@ -114,8 +109,8 @@ public abstract class PaintPathEffects {
      * Fuze two path effects together
      *
      * @param type type of path effect
-     * @param a    first path effect
-     * @param b    second path effect
+     * @param a first path effect
+     * @param b second path effect
      * @return float array
      */
     public static float @NonNull [] fuze(int type, float @NonNull [] a, float @NonNull [] b) {
@@ -135,7 +130,7 @@ public abstract class PaintPathEffects {
         /**
          * Create a dash path effect
          *
-         * @param phase     phase offset
+         * @param phase phase offset
          * @param intervals dash intervals
          */
         public Dash(float phase, float @NonNull ... intervals) {
@@ -147,7 +142,7 @@ public abstract class PaintPathEffects {
         /**
          * Parse a dash path effect from a float array
          *
-         * @param data   float array
+         * @param data float array
          * @param offset offset into the array
          */
         public static @NonNull PaintPathEffects decode(float @NonNull [] data, int offset) {
@@ -162,8 +157,8 @@ public abstract class PaintPathEffects {
         /**
          * Get the ids for the path effects
          *
-         * @param data     array of ids
-         * @param offset   offset into the array
+         * @param data array of ids
+         * @param offset offset into the array
          * @param register register the ids
          * @return the offset into the array after the ids have been processed
          */
@@ -190,8 +185,8 @@ public abstract class PaintPathEffects {
     /**
      * Register an id if it is a NaN id
      *
-     * @param data     float array
-     * @param offset   offset into the array
+     * @param data float array
+     * @param offset offset into the array
      * @param register register the id
      */
     private static void registerIfId(int @NonNull [] data, int offset, @NonNull Register register) {
@@ -201,9 +196,7 @@ public abstract class PaintPathEffects {
         }
     }
 
-    /**
-     * Chop the path into lines of segmentLength, randomly deviating from the original path by
-     */
+    /** Chop the path into lines of segmentLength, randomly deviating from the original path by */
     public static class Discrete extends PaintPathEffects {
         public float mSegmentLength;
         public float mDeviation;
@@ -217,7 +210,7 @@ public abstract class PaintPathEffects {
         /**
          * Parse a discrete path effect from a float array
          *
-         * @param data   float array
+         * @param data float array
          * @param offset offset into the array
          * @return discrete path effect
          */
@@ -232,8 +225,8 @@ public abstract class PaintPathEffects {
         /**
          * Get the ids for the path effects
          *
-         * @param data     array of ids
-         * @param offset   offset into the array
+         * @param data array of ids
+         * @param offset offset into the array
          * @param register register the ids
          * @return the offset into the array after the ids have been processed
          */
@@ -254,9 +247,7 @@ public abstract class PaintPathEffects {
         }
     }
 
-    /**
-     * class represents a dash path effect
-     */
+    /** class represents a dash path effect */
     public static class PathDash extends PaintPathEffects {
         public int mShapeId;
         public float mAdvance;
@@ -268,8 +259,8 @@ public abstract class PaintPathEffects {
          *
          * @param shapeId id of the shape to use
          * @param advance advance
-         * @param phase   phase offset
-         * @param style   how to transform the shape at each position as it is stamped
+         * @param phase phase offset
+         * @param style how to transform the shape at each position as it is stamped
          */
         public PathDash(int shapeId, float advance, float phase, int style) {
             this.mShapeId = shapeId;
@@ -282,7 +273,7 @@ public abstract class PaintPathEffects {
         /**
          * Parse a dash path effect from a float array
          *
-         * @param data   float array
+         * @param data float array
          * @param offset offset into the array
          * @return dash path effect
          */
@@ -299,8 +290,8 @@ public abstract class PaintPathEffects {
         /**
          * Get the ids for the path effects
          *
-         * @param data     array of ids
-         * @param offset   offset into the array
+         * @param data array of ids
+         * @param offset offset into the array
          * @param register register the ids
          * @return the offset into the array after the ids have been processed
          */
@@ -311,18 +302,14 @@ public abstract class PaintPathEffects {
             return offset + 4;
         }
 
-        /**
-         * Convert a dash path effect to a float array
-         */
+        /** Convert a dash path effect to a float array */
         @Override
         float @NonNull [] toFloatArray() {
             return pathDash(mShapeId, mAdvance, mPhase, mStyle);
         }
     }
 
-    /**
-     * Sum two path effects together
-     */
+    /** Sum two path effects together */
     public static class Sum extends PaintPathEffects {
         public @NonNull PaintPathEffects mFirst;
         public @NonNull PaintPathEffects mSecond;
@@ -330,7 +317,7 @@ public abstract class PaintPathEffects {
         /**
          * `Sum` two path effects together
          *
-         * @param first  first path effect
+         * @param first first path effect
          * @param second second path effect
          */
         public Sum(@NonNull PaintPathEffects first, @NonNull PaintPathEffects second) {
@@ -342,7 +329,7 @@ public abstract class PaintPathEffects {
         /**
          * Parse a sum path effect from a float array
          *
-         * @param data   float array
+         * @param data float array
          * @param offset offset into the array
          * @return sum path effect
          */
@@ -357,8 +344,8 @@ public abstract class PaintPathEffects {
         /**
          * Get the ids for the path effects
          *
-         * @param data     array of ids
-         * @param offset   offset into the array
+         * @param data array of ids
+         * @param offset offset into the array
          * @param register register the ids
          * @return the offset into the array after the ids have been processed
          */
@@ -366,7 +353,6 @@ public abstract class PaintPathEffects {
             offset = PaintPathEffects.getIds(data, offset, register);
             offset = PaintPathEffects.getIds(data, offset, register);
             return offset;
-
         }
 
         /**
@@ -382,9 +368,7 @@ public abstract class PaintPathEffects {
         }
     }
 
-    /**
-     * Compose two path effects together
-     */
+    /** Compose two path effects together */
     public static class Compose extends PaintPathEffects {
         public @NonNull PaintPathEffects mOuterPE;
         public @NonNull PaintPathEffects mInnerPE;
@@ -404,7 +388,7 @@ public abstract class PaintPathEffects {
         /**
          * Parse a compose path effect from a float array
          *
-         * @param data   float array
+         * @param data float array
          * @param offset offset into the array
          * @return compose path effect
          */
@@ -419,8 +403,8 @@ public abstract class PaintPathEffects {
         /**
          * Get the ids for the path effects
          *
-         * @param data     array of ids
-         * @param offset   offset into the array
+         * @param data array of ids
+         * @param offset offset into the array
          * @param register register the ids
          * @return the offset into the array after the ids have been processed
          */
@@ -439,13 +423,12 @@ public abstract class PaintPathEffects {
             float[] s = encode(mInnerPE);
             return fuze(COMPOSE, f, s);
         }
-
     }
 
     /**
      * Create a dash path effect
      *
-     * @param phase     support phase offset
+     * @param phase support phase offset
      * @param intervals support dash intervals
      * @return dash path effect as a float array
      */
@@ -461,11 +444,11 @@ public abstract class PaintPathEffects {
     }
 
     /**
-     * Chop the path into lines of segmentLength, randomly deviating from the
-     * original path by deviation.
+     * Chop the path into lines of segmentLength, randomly deviating from the original path by
+     * deviation.
      *
      * @param segmentLength segment length
-     * @param deviation     deviation path
+     * @param deviation deviation path
      */
     public static float @NonNull [] discrete(float segmentLength, float deviation) {
         float[] ret = new float[3];
@@ -476,15 +459,14 @@ public abstract class PaintPathEffects {
     }
 
     /**
-     * Dash the drawn path by stamping it with the specified shape. This only
-     * applies to drawings when the paint's style is STROKE or STROKE_AND_FILL.
-     * If the paint's style is FILL, then this effect is ignored. The paint's
-     * strokeWidth does not affect the results.
+     * Dash the drawn path by stamping it with the specified shape. This only applies to drawings
+     * when the paint's style is STROKE or STROKE_AND_FILL. If the paint's style is FILL, then this
+     * effect is ignored. The paint's strokeWidth does not affect the results.
      *
      * @param shapeId The path to stamp along
      * @param advance spacing between each stamp of shape
-     * @param phase   amount to offset before the first shape is stamped
-     * @param style   how to transform the shape at each position as it is stamped
+     * @param phase amount to offset before the first shape is stamped
+     * @param style how to transform the shape at each position as it is stamped
      */
     public static float @NonNull [] pathDash(int shapeId, float advance, float phase, int style) {
         float[] ret = new float[5];
@@ -496,9 +478,7 @@ public abstract class PaintPathEffects {
         return ret;
     }
 
-    /**
-     * Sum two path effects together
-     */
+    /** Sum two path effects together */
     public static float @NonNull [] sum(float @NonNull [] first, float @NonNull [] second) {
         float[] ret = new float[first.length + second.length + 1];
         ret[0] = Float.intBitsToFloat(SUM);
@@ -511,9 +491,7 @@ public abstract class PaintPathEffects {
         return ret;
     }
 
-    /**
-     * Compose two path effects together
-     */
+    /** Compose two path effects together */
     public static float @NonNull [] compose(float @NonNull [] outerPE, float @NonNull [] innerPE) {
         float[] ret = new float[outerPE.length + innerPE.length + 1];
         ret[0] = Float.intBitsToFloat(COMPOSE);
@@ -525,5 +503,4 @@ public abstract class PaintPathEffects {
         }
         return ret;
     }
-
 }

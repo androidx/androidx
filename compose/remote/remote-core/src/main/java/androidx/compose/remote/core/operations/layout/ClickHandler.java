@@ -45,11 +45,11 @@ public interface ClickHandler extends TouchOperation {
     /**
      * callback for a long press event
      *
-     * @param context   the current context
-     * @param document  the current document
+     * @param context the current context
+     * @param document the current document
      * @param component the component on which the click has been received
-     * @param x         the x position of the click in document coordinates
-     * @param y         the y position of the click in document coordinates
+     * @param x the x position of the click in document coordinates
+     * @param y the y position of the click in document coordinates
      * @return true if the event has been handled
      */
     boolean onLongPress(
@@ -62,11 +62,11 @@ public interface ClickHandler extends TouchOperation {
     /**
      * callback for a double click event
      *
-     * @param context   the current context
-     * @param document  the current document
+     * @param context the current context
+     * @param document the current document
      * @param component the component on which the click has been received
-     * @param x         the x position of the click in document coordinates
-     * @param y         the y position of the click in document coordinates
+     * @param x the x position of the click in document coordinates
+     * @param y the y position of the click in document coordinates
      * @return true if the event has been handled
      */
     boolean onDoubleClick(

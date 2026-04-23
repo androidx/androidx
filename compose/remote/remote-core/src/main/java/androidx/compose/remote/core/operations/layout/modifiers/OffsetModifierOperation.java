@@ -38,8 +38,7 @@ import java.util.List;
 
 /** Represents an offset modifier. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class OffsetModifierOperation extends DecoratorModifierOperation implements
-        VariableSupport {
+public class OffsetModifierOperation extends DecoratorModifierOperation implements VariableSupport {
     private static final int OP_CODE = Operations.MODIFIER_OFFSET;
     public static final String CLASS_NAME = "OffsetModifierOperation";
 
@@ -82,7 +81,7 @@ public class OffsetModifierOperation extends DecoratorModifierOperation implemen
     /**
      * Serialize the string
      *
-     * @param indent     padding to display
+     * @param indent padding to display
      * @param serializer append the string
      */
     @Override
@@ -136,8 +135,8 @@ public class OffsetModifierOperation extends DecoratorModifierOperation implemen
      * Write the operation to the buffer
      *
      * @param buffer a WireBuffer
-     * @param x      x offset
-     * @param y      y offset
+     * @param x x offset
+     * @param y y offset
      */
     public static void apply(@NonNull WireBuffer buffer, float x, float y) {
         buffer.start(OP_CODE);
@@ -148,7 +147,7 @@ public class OffsetModifierOperation extends DecoratorModifierOperation implemen
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -175,8 +174,7 @@ public class OffsetModifierOperation extends DecoratorModifierOperation implemen
             @NonNull RemoteContext context,
             @NonNull Component component,
             float width,
-            float height) {
-    }
+            float height) {}
 
     @Override
     public void serialize(@NonNull MapSerializer serializer) {

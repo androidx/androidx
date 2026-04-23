@@ -184,6 +184,7 @@ public class RemoteComposeState implements CollectionsAccess {
 
     /**
      * Get the winding associated with the path id
+     *
      * @param id the id of the path
      * @return the winding
      */
@@ -193,6 +194,7 @@ public class RemoteComposeState implements CollectionsAccess {
 
     /**
      * Set the winding associated with the path id
+     *
      * @param id the id of the path
      * @param winding the winding
      */
@@ -678,10 +680,10 @@ public class RemoteComposeState implements CollectionsAccess {
 
     /**
      * Mark the variable with id to be dirty
+     *
      * @param id
      */
     public void markVariableDirty(int id) {
         updateListeners(id);
     }
-
 }

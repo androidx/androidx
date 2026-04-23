@@ -25,10 +25,8 @@ import java.util.ArrayList;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class OperationField implements DocumentedField {
     final int mType;
-    @NonNull
-    final String mName;
-    @NonNull
-    final String mDescription;
+    @NonNull final String mName;
+    @NonNull final String mDescription;
     @Nullable String mVarSize = null;
 
     @NonNull ArrayList<StringPair> mPossibleValues = new ArrayList<>();
@@ -66,9 +64,7 @@ public class OperationField implements DocumentedField {
         return mPossibleValues;
     }
 
-    /**
-     * Add possible values for a field
-     */
+    /** Add possible values for a field */
     public void possibleValue(@NonNull String name, @NonNull String value) {
         mPossibleValues.add(new StringPair(name, value));
     }
@@ -91,8 +87,13 @@ public class OperationField implements DocumentedField {
     @NonNull
     @Override
     public String toDoc() {
-        return "<tr><td>" + DocumentedOperation.getType(mType) + "</td><td>" + mName + "</td><td>"
-                + mDescription + "</td></tr>";
+        return "<tr><td>"
+                + DocumentedOperation.getType(mType)
+                + "</td><td>"
+                + mName
+                + "</td><td>"
+                + mDescription
+                + "</td></tr>";
     }
 
     /**

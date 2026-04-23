@@ -17,8 +17,8 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.PaintContext.TEXT_MEASURE_FONT_HEIGHT;
 import static androidx.compose.remote.core.PaintContext.TEXT_MEASURE_MONOSPACE_WIDTH;
-import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.operations.Utils.floatToString;
 
 import androidx.annotation.RestrictTo;
@@ -73,8 +73,10 @@ public class BitmapTextMeasure extends PaintOperation implements VariableSupport
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
-        mOutGlyphSpacing = Float.isNaN(mGlyphSpacing)
-                ? context.getFloat(Utils.idFromNan(mGlyphSpacing)) : mGlyphSpacing;
+        mOutGlyphSpacing =
+                Float.isNaN(mGlyphSpacing)
+                        ? context.getFloat(Utils.idFromNan(mGlyphSpacing))
+                        : mGlyphSpacing;
     }
 
     @Override
@@ -92,7 +94,9 @@ public class BitmapTextMeasure extends PaintOperation implements VariableSupport
 
     @Override
     public @NonNull String toString() {
-        return "FloatConstant[" + mId + "] = "
+        return "FloatConstant["
+                + mId
+                + "] = "
                 + mTextId
                 + " "
                 + mBitmapFontId
@@ -123,15 +127,19 @@ public class BitmapTextMeasure extends PaintOperation implements VariableSupport
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer       write command to this buffer
-     * @param id           the id
-     * @param textId       the id
+     * @param buffer write command to this buffer
+     * @param id the id
+     * @param textId the id
      * @param bitmapFontId the id of the bitmap font
-     * @param type         the value of the float
+     * @param type the value of the float
      * @param glyphSpacing spacing between glyphs in pixels
      */
     public static void apply(
-            @NonNull WireBuffer buffer, int id, int textId, int bitmapFontId, int type,
+            @NonNull WireBuffer buffer,
+            int id,
+            int textId,
+            int bitmapFontId,
+            int type,
             float glyphSpacing) {
         buffer.start(OP_CODE);
 
@@ -181,7 +189,9 @@ public class BitmapTextMeasure extends PaintOperation implements VariableSupport
                 .field(INT, "textId", "The ID of the text to measure")
                 .field(INT, "bitmapFontId", "The ID of the bitmap font")
                 .field(INT, "type", "The type of measurement (WIDTH, HEIGHT, etc.)")
-                .field(FLOAT, "glyphSpacing",
+                .field(
+                        FLOAT,
+                        "glyphSpacing",
                         "Horizontal spacing adjustment between glyphs in pixels");
     }
 

@@ -92,8 +92,8 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
                 float v = mEquations[i][j];
                 mOutEquations[i][j] =
                         (Float.isNaN(v)
-                                && !AnimatedFloatExpression.isMathOperator(v)
-                                && !NanMap.isDataVariable(v))
+                                        && !AnimatedFloatExpression.isMathOperator(v)
+                                        && !NanMap.isDataVariable(v))
                                 ? context.getFloat(Utils.idFromNan(v))
                                 : v;
             }
@@ -139,9 +139,7 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
         return str;
     }
 
-    /**
-     * Write the operation on the buffer
-     */
+    /** Write the operation on the buffer */
     public static void apply(
             @NonNull WireBuffer buffer,
             int id,
@@ -164,7 +162,7 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -205,7 +203,9 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
                 .field(INT, "particleCount", "Number of particles to create")
                 .field(INT, "varCount", "Number of variables associated with each particle")
                 .field(INT, "varId[0..n]", "The ID of each associated variable")
-                .field(INT, "equLen[0..n]",
+                .field(
+                        INT,
+                        "equLen[0..n]",
                         "The length of the initialization equation for each variable")
                 .field(FLOAT_ARRAY, "equations[0..n]", "The initialization equations (RPN)");
     }
@@ -248,6 +248,5 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
     }
 
     @Override
-    public void serialize(@NonNull MapSerializer serializer) {
-    }
+    public void serialize(@NonNull MapSerializer serializer) {}
 }

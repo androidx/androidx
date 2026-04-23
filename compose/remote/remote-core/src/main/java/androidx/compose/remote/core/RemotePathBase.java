@@ -26,9 +26,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 
-/**
- * Common RemotePath implementation that manages the path buffer.
- */
+/** Common RemotePath implementation that manages the path buffer. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemotePathBase {
     private static final int DEFAULT_BUFFER_SIZE = 1024;
@@ -82,9 +80,7 @@ public class RemotePathBase {
         }
     }
 
-    /**
-     * reserve space TODO: Do we need this function?
-     */
+    /** reserve space TODO: Do we need this function? */
     public void incReserve(int extraPtCount) {
         mSize = 0;
     }
@@ -180,9 +176,9 @@ public class RemotePathBase {
      * there is no previous contour, this is treated the same as moveTo().
      *
      * @param dx The amount to add to the x-coordinate of the end of the previous contour, to
-     *           specify the start of a new contour
+     *     specify the start of a new contour
      * @param dy The amount to add to the y-coordinate of the end of the previous contour, to
-     *           specify the start of a new contour
+     *     specify the start of a new contour
      */
     public void rMoveTo(float dx, float dy) {
         mCx += dx;
@@ -211,13 +207,13 @@ public class RemotePathBase {
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
      *
      * @param dx1 The amount to add to the x-coordinate of the last point on this contour, for the
-     *            control point of a quadratic curve
+     *     control point of a quadratic curve
      * @param dy1 The amount to add to the y-coordinate of the last point on this contour, for the
-     *            control point of a quadratic curve
+     *     control point of a quadratic curve
      * @param dx2 The amount to add to the x-coordinate of the last point on this contour, for the
-     *            end point of a quadratic curve
+     *     end point of a quadratic curve
      * @param dy2 The amount to add to the y-coordinate of the last point on this contour, for the
-     *            end point of a quadratic curve
+     *     end point of a quadratic curve
      */
     public void rQuadTo(float dx1, float dy1, float dx2, float dy2) {
         add(QUADRATIC, dx1 + mCx, dy1 + mCy, dx2 + mCx, dy2 + mCy);
@@ -234,14 +230,13 @@ public class RemotePathBase {
      * weight of 0 is equivalent to calling {@link #lineTo(float, float)} to <code>(x1, y1)</code>
      * followed by {@link #lineTo(float, float)} to <code>(x2, y2)</code>.
      *
-     * @param x1     The x-coordinate of the control point on a conic curve
-     * @param y1     The y-coordinate of the control point on a conic curve
-     * @param x2     The x-coordinate of the end point on a conic curve
-     * @param y2     The y-coordinate of the end point on a conic curve
+     * @param x1 The x-coordinate of the control point on a conic curve
+     * @param y1 The y-coordinate of the control point on a conic curve
+     * @param x2 The x-coordinate of the end point on a conic curve
+     * @param y2 The y-coordinate of the end point on a conic curve
      * @param weight The weight of the conic applied to the curve. A value of 1 is equivalent to a
-     *               quadratic with the given control and anchor points and a value of 0 is
-     *               equivalent to a
-     *               line to the first and another line to the second point.
+     *     quadratic with the given control and anchor points and a value of 0 is equivalent to a
+     *     line to the first and another line to the second point.
      */
     public void conicTo(float x1, float y1, float x2, float y2, float weight) {
         add(CONIC, x1, y1, x2, y2, weight);
@@ -253,22 +248,17 @@ public class RemotePathBase {
      * Same as conicTo, but the coordinates are considered relative to the last point on this
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
      *
-     * @param dx1    The amount to add to the x-coordinate of the last point on this contour, for
-     *              the
-     *               control point of a conic curve
-     * @param dy1    The amount to add to the y-coordinate of the last point on this contour, for
-     *              the
-     *               control point of a conic curve
-     * @param dx2    The amount to add to the x-coordinate of the last point on this contour, for
-     *              the
-     *               end point of a conic curve
-     * @param dy2    The amount to add to the y-coordinate of the last point on this contour, for
-     *              the
-     *               end point of a conic curve
+     * @param dx1 The amount to add to the x-coordinate of the last point on this contour, for the
+     *     control point of a conic curve
+     * @param dy1 The amount to add to the y-coordinate of the last point on this contour, for the
+     *     control point of a conic curve
+     * @param dx2 The amount to add to the x-coordinate of the last point on this contour, for the
+     *     end point of a conic curve
+     * @param dy2 The amount to add to the y-coordinate of the last point on this contour, for the
+     *     end point of a conic curve
      * @param weight The weight of the conic applied to the curve. A value of 1 is equivalent to a
-     *               quadratic with the given control and anchor points and a value of 0 is
-     *               equivalent to a
-     *               line to the first and another line to the second point.
+     *     quadratic with the given control and anchor points and a value of 0 is equivalent to a
+     *     line to the first and another line to the second point.
      */
     public void rConicTo(float dx1, float dy1, float dx2, float dy2, float weight) {
         add(CONIC, dx1 + mCx, dy1 + mCy, dx2 + mCx, dy2 + mCy, weight);
@@ -294,9 +284,9 @@ public class RemotePathBase {
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
      *
      * @param dx The amount to add to the x-coordinate of the previous point on this contour, to
-     *           specify a line
+     *     specify a line
      * @param dy The amount to add to the y-coordinate of the previous point on this contour, to
-     *           specify a line
+     *     specify a line
      */
     public void rLineTo(float dx, float dy) {
         add(LINE, mCx = dx + mCx, mCy = dy + mCy);
@@ -359,12 +349,12 @@ public class RemotePathBase {
     /**
      * Add the specified arc to the path as a new contour.
      *
-     * @param left        left most bounds of the oval
-     * @param top         top most bounds of the oval
-     * @param right       right most bounds of the oval
-     * @param bottom      lowest bound of the oval
-     * @param startAngle  Starting angle (in degrees) where the arc begins
-     * @param sweepAngle  Sweep angle (in degrees) measured clockwise
+     * @param left left most bounds of the oval
+     * @param top top most bounds of the oval
+     * @param right right most bounds of the oval
+     * @param bottom lowest bound of the oval
+     * @param startAngle Starting angle (in degrees) where the arc begins
+     * @param sweepAngle Sweep angle (in degrees) measured clockwise
      * @param forceMoveTo If true, always begin a new contour with the arc
      */
     public void arcTo(
@@ -381,10 +371,10 @@ public class RemotePathBase {
     /**
      * Add the specified arc to the path as a new contour.
      *
-     * @param left       left most bounds of the oval
-     * @param top        top most bounds of the oval
-     * @param right      right most bounds of the oval
-     * @param bottom     lowest bound of the oval
+     * @param left left most bounds of the oval
+     * @param top top most bounds of the oval
+     * @param right right most bounds of the oval
+     * @param bottom lowest bound of the oval
      * @param startAngle Starting angle (in degrees) where the arc begins
      * @param sweepAngle Sweep angle (in degrees) measured clockwise
      * @param forceMoveTo If true, always begin a new contour with the arc

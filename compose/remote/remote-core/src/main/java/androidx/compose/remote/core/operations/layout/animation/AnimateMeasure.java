@@ -60,8 +60,7 @@ public class AnimateMeasure {
             new FloatAnimation(
                     mVisibilityEasingType, mDurationVisibilityChange / 1000f, null, 0f, Float.NaN);
 
-    @Nullable
-    protected ParticleAnimation mParticleAnimation;
+    @Nullable protected ParticleAnimation mParticleAnimation;
 
     public AnimateMeasure(
             long startTime,
@@ -111,12 +110,9 @@ public class AnimateMeasure {
         mVp = mVisibilityEasing.get(visibilityProgress);
     }
 
-    @NonNull
-    public PaintBundle paint = new PaintBundle();
+    @NonNull public PaintBundle paint = new PaintBundle();
 
-    /**
-     * Apply the layout portion of the animation if any
-     */
+    /** Apply the layout portion of the animation if any */
     public void apply(@NonNull RemoteContext context) {
         update(context.currentTime);
         mComponent.setX(getX());
@@ -139,9 +135,7 @@ public class AnimateMeasure {
         }
     }
 
-    /**
-     * Paint the transition animation for the component owned
-     */
+    /** Paint the transition animation for the component owned */
     public void paint(@NonNull PaintContext context) {
         if (mOriginal.getVisibility() != mTarget.getVisibility()) {
             if (mTarget.isGone()) {
@@ -370,12 +364,12 @@ public class AnimateMeasure {
     /**
      * Set the target values from the given measure
      *
-     * @param context     the current context
-     * @param measure     the target measure
+     * @param context the current context
+     * @param measure the target measure
      * @param currentTime the current time
      */
-    public void updateTarget(@NonNull RemoteContext context, @NonNull ComponentMeasure measure,
-            long currentTime) {
+    public void updateTarget(
+            @NonNull RemoteContext context, @NonNull ComponentMeasure measure, long currentTime) {
         float currentX = getX();
         float currentY = getY();
         float currentW = getWidth();
@@ -411,4 +405,3 @@ public class AnimateMeasure {
         }
     }
 }
-

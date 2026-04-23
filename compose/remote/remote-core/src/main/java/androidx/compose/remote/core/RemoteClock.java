@@ -37,9 +37,7 @@ import org.jspecify.annotations.Nullable;
 public interface RemoteClock {
     RemoteClock SYSTEM = new CalendarSystemClock();
 
-    /**
-     * Return System.currentTimeMillis() or something with similar properties.
-     */
+    /** Return System.currentTimeMillis() or something with similar properties. */
     long millis();
 
     /**
@@ -48,14 +46,10 @@ public interface RemoteClock {
      */
     long nanoTime();
 
-    /**
-     * Return the current time zone ID.
-     */
+    /** Return the current time zone ID. */
     @NonNull String getZoneId();
 
-    /**
-     * Returns a snapshot of the given time, defaults to now.
-     */
+    /** Returns a snapshot of the given time, defaults to now. */
     @NonNull TimeSnapshot snapshot(@Nullable Long millis);
 
     /**
@@ -67,106 +61,80 @@ public interface RemoteClock {
      */
     interface TimeSnapshot {
         /**
-         * Returns the number of milliseconds since the Unix epoch.
-         * Used for {@link RemoteContext#ID_EPOCH_SECOND}.
+         * Returns the number of milliseconds since the Unix epoch. Used for {@link
+         * RemoteContext#ID_EPOCH_SECOND}.
          */
         long getMillis();
 
-        /**
-         * Returns the year.
-         * Used for {@link RemoteContext#ID_YEAR}.
-         */
+        /** Returns the year. Used for {@link RemoteContext#ID_YEAR}. */
         int getYear();
 
-        /**
-         * Returns the month (1-12).
-         * Used for {@link RemoteContext#ID_CALENDAR_MONTH}.
-         */
+        /** Returns the month (1-12). Used for {@link RemoteContext#ID_CALENDAR_MONTH}. */
         int getMonth();
 
-        /**
-         * Returns the day of the month (1-31).
-         * Used for {@link RemoteContext#ID_DAY_OF_MONTH}.
-         */
+        /** Returns the day of the month (1-31). Used for {@link RemoteContext#ID_DAY_OF_MONTH}. */
         int getDayOfMonth();
 
-        /**
-         * Returns the day of the year (1-366).
-         * Used for {@link RemoteContext#ID_DAY_OF_YEAR}.
-         */
+        /** Returns the day of the year (1-366). Used for {@link RemoteContext#ID_DAY_OF_YEAR}. */
         int getDayOfYear();
 
         /**
-         * Returns the hour of the day (0-23).
-         * Used for {@link RemoteContext#ID_TIME_IN_HR} and contributes to
-         * {@link RemoteContext#ID_TIME_IN_MIN}.
+         * Returns the hour of the day (0-23). Used for {@link RemoteContext#ID_TIME_IN_HR} and
+         * contributes to {@link RemoteContext#ID_TIME_IN_MIN}.
          */
         int getHour();
 
         /**
-         * Returns the minute of the hour (0-59).
-         * Contributes to {@link RemoteContext#ID_TIME_IN_MIN},
-         * {@link RemoteContext#ID_TIME_IN_SEC},
-         * and {@link RemoteContext#ID_CONTINUOUS_SEC}.
+         * Returns the minute of the hour (0-59). Contributes to {@link
+         * RemoteContext#ID_TIME_IN_MIN}, {@link RemoteContext#ID_TIME_IN_SEC}, and {@link
+         * RemoteContext#ID_CONTINUOUS_SEC}.
          */
         int getMinute();
 
         /**
-         * Returns the second of the minute (0-59).
-         * Contributes to {@link RemoteContext#ID_TIME_IN_SEC} and
-         * {@link RemoteContext#ID_CONTINUOUS_SEC}.
+         * Returns the second of the minute (0-59). Contributes to {@link
+         * RemoteContext#ID_TIME_IN_SEC} and {@link RemoteContext#ID_CONTINUOUS_SEC}.
          */
         int getSecond();
 
         /**
-         * Returns the millisecond of the second (0-999).
-         * Contributes to {@link RemoteContext#ID_CONTINUOUS_SEC}.
+         * Returns the millisecond of the second (0-999). Contributes to {@link
+         * RemoteContext#ID_CONTINUOUS_SEC}.
          */
         int getMillisOfSecond();
 
         /**
-         * Returns the day of the week (1 Monday to 7 Sunday).
-         * Used for {@link RemoteContext#ID_WEEK_DAY}.
+         * Returns the day of the week (1 Monday to 7 Sunday). Used for {@link
+         * RemoteContext#ID_WEEK_DAY}.
          */
         int getDayOfWeek();
 
         /**
-         * Returns the offset from UTC in seconds.
-         * Used for {@link RemoteContext#ID_OFFSET_TO_UTC}.
+         * Returns the offset from UTC in seconds. Used for {@link RemoteContext#ID_OFFSET_TO_UTC}.
          */
         int getOffsetSeconds();
 
-        /**
-         * Returns the seconds within the hour down to millis precision.
-         */
+        /** Returns the seconds within the hour down to millis precision. */
         default float getContinuousSeconds() {
             return getMinute() * 60 + getSecond() + getMillisOfSecond() * 1E-3f;
         }
 
-        /**
-         * Returns the number of seconds since the Unix epoch.
-         */
+        /** Returns the number of seconds since the Unix epoch. */
         default int getEpochSeconds() {
             return (int) (getMillis() / 1000L);
         }
 
-        /**
-         * Returns the second within the hour.
-         */
+        /** Returns the second within the hour. */
         default float getTimeInSec() {
             return getMinute() * 60 + getSecond();
         }
 
-        /**
-         * Returns the minute within the day.
-         */
+        /** Returns the minute within the day. */
         default float getTimeInMin() {
             return getHour() * 60 + getMinute();
         }
 
-        /**
-         * Get a time value by id.
-         */
+        /** Get a time value by id. */
         default float getTime(float value) {
             int id = Utils.idFromNan(value);
             switch (id) {

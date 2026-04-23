@@ -88,8 +88,10 @@ public class DrawBitmapTextAnchored extends PaintOperation implements VariableSu
         mOutPanY = Float.isNaN(mPanY) ? context.getFloat(Utils.idFromNan(mPanY)) : mPanY;
         mOutStart = Float.isNaN(mStart) ? context.getFloat(Utils.idFromNan(mStart)) : mStart;
         mOutEnd = Float.isNaN(mEnd) ? context.getFloat(Utils.idFromNan(mEnd)) : mEnd;
-        mOutGlyphSpacing = Float.isNaN(mGlyphSpacing)
-                ? context.getFloat(Utils.idFromNan(mGlyphSpacing)) : mGlyphSpacing;
+        mOutGlyphSpacing =
+                Float.isNaN(mGlyphSpacing)
+                        ? context.getFloat(Utils.idFromNan(mGlyphSpacing))
+                        : mGlyphSpacing;
     }
 
     @Override
@@ -193,15 +195,15 @@ public class DrawBitmapTextAnchored extends PaintOperation implements VariableSu
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer       write the command to the buffer
-     * @param textId       id of the text
+     * @param buffer write the command to the buffer
+     * @param textId id of the text
      * @param bitmapFontID id of the bitmap font
-     * @param start        Start position
-     * @param end          end position
-     * @param x            position of where to draw
-     * @param y            position of where to draw
-     * @param panX         panX
-     * @param panY         panY
+     * @param start Start position
+     * @param end end position
+     * @param x position of where to draw
+     * @param y position of where to draw
+     * @param panX panX
+     * @param panY panY
      * @param glyphSpacing spacing between glyphs in pixels
      */
     public static void apply(
@@ -243,19 +245,10 @@ public class DrawBitmapTextAnchored extends PaintOperation implements VariableSu
                 .description("Draw bitmap font text anchored to a point with alignment (pan)")
                 .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
                 .field(DocumentedOperation.INT, "bitmapFontId", "The ID of the bitmap font")
-                .field(
-                        DocumentedOperation.FLOAT,
-                        "start",
-                        "The start index of the text to render")
+                .field(DocumentedOperation.FLOAT, "start", "The start index of the text to render")
                 .field(DocumentedOperation.FLOAT, "end", "The end index of the text to render")
-                .field(
-                        DocumentedOperation.FLOAT,
-                        "x",
-                        "The x-position of the anchor point")
-                .field(
-                        DocumentedOperation.FLOAT,
-                        "y",
-                        "The y-position of the anchor point")
+                .field(DocumentedOperation.FLOAT, "x", "The x-position of the anchor point")
+                .field(DocumentedOperation.FLOAT, "y", "The y-position of the anchor point")
                 .field(
                         DocumentedOperation.FLOAT,
                         "panX",

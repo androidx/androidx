@@ -167,7 +167,8 @@ public class CollapsibleRowLayout extends RowLayout {
         if (!mChildrenComponents.isEmpty()) {
             Component c;
             if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
-                c = CollapsiblePriority.findLastStanding(
+                c =
+                        CollapsiblePriority.findLastStanding(
                                 mChildrenComponents, CollapsiblePriority.HORIZONTAL);
             } else {
                 c = mChildrenComponents.get(0);
@@ -185,7 +186,8 @@ public class CollapsibleRowLayout extends RowLayout {
         if (!mChildrenComponents.isEmpty()) {
             Component c;
             if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
-                c = CollapsiblePriority.findLastStanding(
+                c =
+                        CollapsiblePriority.findLastStanding(
                                 mChildrenComponents, CollapsiblePriority.HORIZONTAL);
             } else {
                 c = mChildrenComponents.get(0);
@@ -205,8 +207,10 @@ public class CollapsibleRowLayout extends RowLayout {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,

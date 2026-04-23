@@ -40,8 +40,8 @@ import java.util.List;
  * the decimal point
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TextFromFloat extends Operation implements VariableSupport, Serializable,
-        ComponentData {
+public class TextFromFloat extends Operation
+        implements VariableSupport, Serializable, ComponentData {
     private static final int OP_CODE = Operations.TEXT_FROM_FLOAT;
     private static final String CLASS_NAME = "TextFromFloat";
     public int mTextId;
@@ -66,14 +66,14 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     public static final int PAD_PRE_NONE = 4; // do not pad before number
     public static final int PAD_PRE_ZERO = 12; // pad before number with 0s
     public static final int GROUPING_NONE = 0; // e.g. 1234567890.12
-    public static final int GROUPING_BY3 = 1 << 4;   // e.g. 1,234,567,890.12
-    public static final int GROUPING_BY4 = 2 << 4;  // e.g. 12,3456,7890.12
+    public static final int GROUPING_BY3 = 1 << 4; // e.g. 1,234,567,890.12
+    public static final int GROUPING_BY4 = 2 << 4; // e.g. 12,3456,7890.12
     public static final int GROUPING_BY32 = 3 << 4; // e.g. 1,23,45,67,890.12
     public static final int SEPARATOR_COMMA_PERIOD = 0; // e.g. 123,456.12
     public static final int SEPARATOR_PERIOD_COMMA = 1 << 6; // e.g. 123.456,12
-    public static final int SEPARATOR_SPACE_COMMA = 2 << 6;  // e.g. 123 456,12
+    public static final int SEPARATOR_SPACE_COMMA = 2 << 6; // e.g. 123 456,12
     public static final int SEPARATOR_UNDER_PERIOD = 3 << 6; // e.g. 123_456.12
-    public static final int OPTIONS_NONE = 0;         // e.g. -890.12
+    public static final int OPTIONS_NONE = 0; // e.g. -890.12
     public static final int OPTIONS_NEGATIVE_PARENTHESES = 1 << 8; // e.g. (890.12)
     public static final int OPTIONS_ROUNDING = 2 << 8; // Default is simple clipping
     public static final int LEGACY_MODE = 1 << 10; // Default is simple clipping
@@ -88,7 +88,6 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     // L = legacy mode
     // F = full format
     // bit pattern for flags . F L O O _ S S G G _ P P A A
-
 
     public TextFromFloat(
             int textId, float value, short digitsBefore, short digitsAfter, int flags) {
@@ -214,12 +213,12 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer       buffer to write to
-     * @param textId       the id of the output text
-     * @param value        the float value to be turned into strings
+     * @param buffer buffer to write to
+     * @param textId the id of the output text
+     * @param value the float value to be turned into strings
      * @param digitsBefore the digits before the decimal point
-     * @param digitsAfter  the digits after the decimal point
-     * @param flags        flags that control if and how to fill the empty spots
+     * @param digitsAfter the digits after the decimal point
+     * @param flags flags that control if and how to fill the empty spots
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -238,7 +237,7 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -279,8 +278,16 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
         if (mLegacy) {
             s = StringUtils.floatToString(v, mDigitsBefore, mDigitsAfter, mPre, mAfter);
         } else {
-            s = StringUtils.floatToString(
-                    v, mDigitsBefore, mDigitsAfter, mPre, mAfter, mSeparator, mGroup, mOptions);
+            s =
+                    StringUtils.floatToString(
+                            v,
+                            mDigitsBefore,
+                            mDigitsAfter,
+                            mPre,
+                            mAfter,
+                            mSeparator,
+                            mGroup,
+                            mOptions);
         }
         context.loadText(mTextId, s);
     }

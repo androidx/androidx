@@ -120,11 +120,11 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer   write command to this buffer
-     * @param type     the type of the operation
-     * @param outputs  the ids to write the output vector
+     * @param buffer write command to this buffer
+     * @param type the type of the operation
+     * @param outputs the ids to write the output vector
      * @param matrixId the id
-     * @param inputs   input vector
+     * @param inputs input vector
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -149,7 +149,7 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -188,7 +188,9 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
                 .field(DocumentedOperation.INT, "matrixId", "The ID of the matrix")
                 .field(DocumentedOperation.SHORT, "opType", "The type of operation (0=multiply)")
                 .field(DocumentedOperation.INT, "outLength", "The length of the output vector")
-                .field(DocumentedOperation.INT_ARRAY, "outputs",
+                .field(
+                        DocumentedOperation.INT_ARRAY,
+                        "outputs",
                         "The IDs to write the output vector")
                 .field(DocumentedOperation.INT, "inLength", "The length of the input vector")
                 .field(DocumentedOperation.FLOAT_ARRAY, "inputs", "The input vector values");

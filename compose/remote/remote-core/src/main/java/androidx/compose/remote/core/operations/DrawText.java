@@ -188,10 +188,7 @@ public class DrawText extends PaintOperation implements VariableSupport {
                 .additionalDocumentation("draw_text")
                 .description("Draw a run of text, all in a single direction")
                 .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
-                .field(
-                        DocumentedOperation.INT,
-                        "start",
-                        "The start index of the text to render")
+                .field(DocumentedOperation.INT, "start", "The start index of the text to render")
                 .field(DocumentedOperation.INT, "end", "The end index of the text to render")
                 .field(
                         DocumentedOperation.INT,

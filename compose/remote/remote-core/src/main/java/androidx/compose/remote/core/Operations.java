@@ -185,8 +185,7 @@ import java.util.HashMap;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Operations {
 
-    private Operations() {
-    }
+    private Operations() {}
 
     ////////////////////////////////////////
     // Protocol
@@ -393,9 +392,7 @@ public class Operations {
     static UniqueIntMap<CompanionOperation> sMapV7WidgetsExperimental;
     static UniqueIntMap<CompanionOperation> sMapV7WidgetsDeprecated;
 
-    /**
-     * Returns true if the operation exists for the given api level
-     */
+    /** Returns true if the operation exists for the given api level */
     public static boolean valid(int opId, int apiLevel, int profiles) {
         switch (apiLevel) {
             case 6:
@@ -416,9 +413,7 @@ public class Operations {
         }
     }
 
-    /**
-     * Returns a map of operations for the given api level
-     */
+    /** Returns a map of operations for the given api level */
     public static @Nullable UniqueIntMap<CompanionOperation> getOperations(
             int apiLevel, int profiles) {
         switch (apiLevel) {
@@ -477,8 +472,8 @@ public class Operations {
             sMapV7AndroidXExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
             sMapV7AndroidXExperimental.put(LAYOUT_FLOW, FlowLayout::read);
             sMapV7AndroidXExperimental.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
-            sMapV7AndroidXExperimental.put(MODIFIER_DIMENSION_CONSTRAINTS,
-                    DimensionConstraintsModifierOperation::read);
+            sMapV7AndroidXExperimental.put(
+                    MODIFIER_DIMENSION_CONSTRAINTS, DimensionConstraintsModifierOperation::read);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -523,8 +518,8 @@ public class Operations {
             sMapV7WidgetsExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
             sMapV7WidgetsExperimental.put(LAYOUT_FLOW, FlowLayout::read);
             sMapV7WidgetsExperimental.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
-            sMapV7WidgetsExperimental.put(MODIFIER_DIMENSION_CONSTRAINTS,
-                    DimensionConstraintsModifierOperation::read);
+            sMapV7WidgetsExperimental.put(
+                    MODIFIER_DIMENSION_CONSTRAINTS, DimensionConstraintsModifierOperation::read);
         }
         return sMapV7WidgetsExperimental;
     }
@@ -537,9 +532,7 @@ public class Operations {
         return sMapV7WidgetsDeprecated;
     }
 
-    /**
-     * Returns a list of operation for the v7 using the given profiles
-     */
+    /** Returns a list of operation for the v7 using the given profiles */
     private static HashMap<Integer, UniqueIntMap<CompanionOperation>> createMapV7(
             HashMap<Integer, UniqueIntMap<CompanionOperation>> currentMapV7, int profiles) {
         UniqueIntMap<CompanionOperation> mapV7 = new UniqueIntMap<>();

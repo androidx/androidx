@@ -92,10 +92,10 @@ public class NamedVariable extends Operation implements Serializable {
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer  The buffer to write into
-     * @param varId   id to label
+     * @param buffer The buffer to write into
+     * @param varId id to label
      * @param varType The type of variable
-     * @param text    String
+     * @param text String
      */
     public static void apply(
             @NonNull WireBuffer buffer, int varId, int varType, @NonNull String text) {
@@ -108,7 +108,7 @@ public class NamedVariable extends Operation implements Serializable {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

@@ -17,8 +17,8 @@ package androidx.compose.remote.core.operations.layout;
 
 import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.HORIZONTAL_CONSTRAINTS;
 import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.REQUIRED_HORIZONTAL_CONSTRAINTS;
-import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.VERTICAL_CONSTRAINTS;
 import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.REQUIRED_VERTICAL_CONSTRAINTS;
+import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.VERTICAL_CONSTRAINTS;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
@@ -67,14 +67,10 @@ import java.util.HashMap;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LayoutComponent extends Component {
 
-    @Nullable
-    protected WidthModifierOperation mWidthModifier = null;
-    @Nullable
-    protected HeightModifierOperation mHeightModifier = null;
-    @Nullable
-    protected ZIndexModifierOperation mZIndexModifier = null;
-    @Nullable
-    protected GraphicsLayerModifierOperation mGraphicsLayerModifier = null;
+    @Nullable protected WidthModifierOperation mWidthModifier = null;
+    @Nullable protected HeightModifierOperation mHeightModifier = null;
+    @Nullable protected ZIndexModifierOperation mZIndexModifier = null;
+    @Nullable protected GraphicsLayerModifierOperation mGraphicsLayerModifier = null;
 
     protected float mPaddingLeft = 0f;
     protected float mPaddingRight = 0f;
@@ -84,13 +80,10 @@ public class LayoutComponent extends Component {
     float mScrollX = 0f;
     float mScrollY = 0f;
 
-    @Nullable
-    protected ScrollDelegate mHorizontalScrollDelegate = null;
-    @Nullable
-    protected ScrollDelegate mVerticalScrollDelegate = null;
+    @Nullable protected ScrollDelegate mHorizontalScrollDelegate = null;
+    @Nullable protected ScrollDelegate mVerticalScrollDelegate = null;
 
-    @NonNull
-    protected ComponentModifiers mComponentModifiers = new ComponentModifiers();
+    @NonNull protected ComponentModifiers mComponentModifiers = new ComponentModifiers();
 
     @NonNull
     protected ArrayList<Component> mChildrenComponents = new ArrayList<>(); // members are not null
@@ -98,16 +91,12 @@ public class LayoutComponent extends Component {
     protected boolean mChildrenHaveZIndex = false;
     private CanvasOperations mDrawContentOperations;
 
-    /**
-     * Get the horizontal scroll delegate
-     */
+    /** Get the horizontal scroll delegate */
     public @Nullable ScrollDelegate getHorizontalScrollDelegate() {
         return mHorizontalScrollDelegate;
     }
 
-    /**
-     * Get the vertical scroll delegate
-     */
+    /** Get the vertical scroll delegate */
     public @Nullable ScrollDelegate getVerticalScrollDelegate() {
         return mVerticalScrollDelegate;
     }
@@ -139,8 +128,7 @@ public class LayoutComponent extends Component {
         return mPaddingBottom;
     }
 
-    @Nullable
-    ArrayList<LayoutComputeOperation> mComputedLayoutModifiers = null;
+    @Nullable ArrayList<LayoutComputeOperation> mComputedLayoutModifiers = null;
 
     @Override
     public boolean hasComputedLayout() {
@@ -148,8 +136,11 @@ public class LayoutComponent extends Component {
     }
 
     @Override
-    public boolean applyComputedLayout(int type, @NonNull PaintContext context,
-            @NonNull ComponentMeasure m, @NonNull ComponentMeasure parent) {
+    public boolean applyComputedLayout(
+            int type,
+            @NonNull PaintContext context,
+            @NonNull ComponentMeasure m,
+            @NonNull ComponentMeasure parent) {
         if (mComputedLayoutModifiers != null) {
             boolean needsMeasure = false;
             for (LayoutComputeOperation modifier : mComputedLayoutModifiers) {
@@ -180,24 +171,19 @@ public class LayoutComponent extends Component {
         return mZIndex;
     }
 
-    @Nullable
-    protected LayoutComponentContent mContent = null;
+    @Nullable protected LayoutComponentContent mContent = null;
 
     // Should be removed after ImageLayout is in
     private static final boolean USE_IMAGE_TEMP_FIX = false;
 
-    /**
-     * Set canvas operations op on this component
-     */
+    /** Set canvas operations op on this component */
     public void setCanvasOperations(@Nullable CanvasOperations operations) {
         mDrawContentOperations = operations;
     }
 
-    /**
-     * Allow override of the behavior
-     */
-    protected void getComponentsData(@NonNull LayoutComponentContent content,
-            @NonNull ArrayList<Operation> data) {
+    /** Allow override of the behavior */
+    protected void getComponentsData(
+            @NonNull LayoutComponentContent content, @NonNull ArrayList<Operation> data) {
         content.getData(data);
     }
 
@@ -392,8 +378,8 @@ public class LayoutComponent extends Component {
     }
 
     @Override
-    public void getLocationInWindow(@NonNull RemoteContext context, float @NonNull [] value,
-            boolean forSelf) {
+    public void getLocationInWindow(
+            @NonNull RemoteContext context, float @NonNull [] value, boolean forSelf) {
         if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
             value[0] += mX;
             value[1] += mY;
@@ -449,11 +435,9 @@ public class LayoutComponent extends Component {
 
     protected final HashMap<Integer, Object> mCachedAttributes = new HashMap<>();
 
-    /**
-     * This allow subclasses to handle the list of operations differently
-     */
-    protected void handleOperations(@NonNull RemoteContext context,
-            @NonNull ArrayList<Operation> operations) {
+    /** This allow subclasses to handle the list of operations differently */
+    protected void handleOperations(
+            @NonNull RemoteContext context, @NonNull ArrayList<Operation> operations) {
         // nothing here
     }
 
@@ -507,13 +491,11 @@ public class LayoutComponent extends Component {
         handleOperations(remoteContext, mList);
         if (mHorizontalScrollDelegate != null) {
             context.save();
-            mHorizontalScrollDelegate.applyEdgeEffect(context, this,
-                    ScrollingEdgeEffect.PRE_DRAW);
+            mHorizontalScrollDelegate.applyEdgeEffect(context, this, ScrollingEdgeEffect.PRE_DRAW);
         }
         if (mVerticalScrollDelegate != null) {
             context.save();
-            mVerticalScrollDelegate.applyEdgeEffect(context, this,
-                    ScrollingEdgeEffect.PRE_DRAW);
+            mVerticalScrollDelegate.applyEdgeEffect(context, this, ScrollingEdgeEffect.PRE_DRAW);
         }
         if (mChildrenHaveZIndex) {
             // TODO -- should only sort when something has changed
@@ -541,13 +523,11 @@ public class LayoutComponent extends Component {
             context.endGraphicsLayer();
         }
         if (mHorizontalScrollDelegate != null) {
-            mHorizontalScrollDelegate.applyEdgeEffect(context, this,
-                    ScrollingEdgeEffect.POST_DRAW);
+            mHorizontalScrollDelegate.applyEdgeEffect(context, this, ScrollingEdgeEffect.POST_DRAW);
             context.restore();
         }
         if (mVerticalScrollDelegate != null) {
-            mVerticalScrollDelegate.applyEdgeEffect(context, this,
-                    ScrollingEdgeEffect.POST_DRAW);
+            mVerticalScrollDelegate.applyEdgeEffect(context, this, ScrollingEdgeEffect.POST_DRAW);
             context.restore();
         }
         context.translate(-tx, -ty);

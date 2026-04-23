@@ -75,7 +75,7 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
     /**
      * Serialize the string
      *
-     * @param indent     padding to display
+     * @param indent padding to display
      * @param serializer append the string
      */
     @Override
@@ -90,8 +90,7 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
     }
 
     @Override
-    public void paint(@NonNull PaintContext context) {
-    }
+    public void paint(@NonNull PaintContext context) {}
 
     @Override
     public String toString() {
@@ -131,7 +130,7 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -150,7 +149,9 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
                 .addedVersion(7)
                 .experimental(true)
                 .description("Align a component based on a specific baseline or anchor")
-                .field(DocumentedOperation.FLOAT, "line",
+                .field(
+                        DocumentedOperation.FLOAT,
+                        "line",
                         "The ID of the float variable or baseline ID to align by")
                 .field(DocumentedOperation.INT, "flags", "Alignment flags");
     }
@@ -160,8 +161,7 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
             @NonNull RemoteContext context,
             @NonNull Component component,
             float width,
-            float height) {
-    }
+            float height) {}
 
     @Override
     public void serialize(@NonNull MapSerializer serializer) {
@@ -185,9 +185,7 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
                 .add("line", value);
     }
 
-    /**
-     * Returns the offset
-     */
+    /** Returns the offset */
     public float getValue(@NonNull PaintContext context) {
         if (mParent == null) {
             return 0f;

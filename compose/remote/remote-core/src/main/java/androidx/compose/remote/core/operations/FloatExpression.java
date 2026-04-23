@@ -55,10 +55,8 @@ public class FloatExpression extends Operation
     public int mId;
     public float @NonNull [] mSrcValue;
     public float @Nullable [] mSrcAnimation;
-    @Nullable
-    public FloatAnimation mFloatAnimation;
-    @Nullable
-    private SpringStopEngine mSpring;
+    @Nullable public FloatAnimation mFloatAnimation;
+    @Nullable private SpringStopEngine mSpring;
     public float @Nullable [] mPreCalcValue;
     private float mLastChange = Float.NaN;
     private float mLastCalculatedValue = Float.NaN;
@@ -273,9 +271,9 @@ public class FloatExpression extends Operation
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer    The buffer to write to
-     * @param id        the id of the resulting float
-     * @param value     the float expression array
+     * @param buffer The buffer to write to
+     * @param id the id of the resulting float
+     * @param value the float expression array
      * @param animation the animation expression array
      */
     public static void apply(
@@ -308,7 +306,7 @@ public class FloatExpression extends Operation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

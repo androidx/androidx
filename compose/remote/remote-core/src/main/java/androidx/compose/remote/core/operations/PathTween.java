@@ -107,11 +107,11 @@ public class PathTween extends PaintOperation implements VariableSupport, Serial
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer  buffer to write to
-     * @param outId   id of the path
+     * @param buffer buffer to write to
+     * @param outId id of the path
      * @param pathId1 source path 1
      * @param pathId2 source path 2
-     * @param tween   interpolate between two paths
+     * @param tween interpolate between two paths
      */
     public static void apply(
             @NonNull WireBuffer buffer, int outId, int pathId1, int pathId2, float tween) {
@@ -125,7 +125,7 @@ public class PathTween extends PaintOperation implements VariableSupport, Serial
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -146,7 +146,9 @@ public class PathTween extends PaintOperation implements VariableSupport, Serial
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
                 .additionalDocumentation("path_tween")
                 .description("Interpolate between two paths and store the result in a new path ID")
-                .field(DocumentedOperation.INT, "outId",
+                .field(
+                        DocumentedOperation.INT,
+                        "outId",
                         "The ID of the resulting interpolated path")
                 .field(INT, "pathId1", "The ID of the first source path")
                 .field(INT, "pathId2", "The ID of the second source path")

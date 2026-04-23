@@ -63,19 +63,47 @@ public class FlowLayout extends RowLayout {
 
     public FlowLayout(
             @Nullable Component parent,
-            int componentId, int animationId, float x, float y, float width, float height,
-            int horizontalPositioning, int verticalPositioning, float spacedBy,
-            int maxItemsInEachRow, int maxLines) {
-        super(parent, componentId, animationId, x, y, width, height, horizontalPositioning,
-                verticalPositioning, spacedBy);
+            int componentId,
+            int animationId,
+            float x,
+            float y,
+            float width,
+            float height,
+            int horizontalPositioning,
+            int verticalPositioning,
+            float spacedBy,
+            int maxItemsInEachRow,
+            int maxLines) {
+        super(
+                parent,
+                componentId,
+                animationId,
+                x,
+                y,
+                width,
+                height,
+                horizontalPositioning,
+                verticalPositioning,
+                spacedBy);
         mMaxItemsInEachRow = maxItemsInEachRow;
         mMaxLines = maxLines;
     }
 
-    public FlowLayout(@Nullable Component parent, int componentId, int animationId,
-            int horizontalPositioning, int verticalPositioning, float spacedBy,
-            int maxItemsInEachRow, int maxLines) {
-        super(parent, componentId, animationId, horizontalPositioning, verticalPositioning,
+    public FlowLayout(
+            @Nullable Component parent,
+            int componentId,
+            int animationId,
+            int horizontalPositioning,
+            int verticalPositioning,
+            float spacedBy,
+            int maxItemsInEachRow,
+            int maxLines) {
+        super(
+                parent,
+                componentId,
+                animationId,
+                horizontalPositioning,
+                verticalPositioning,
                 spacedBy);
         mMaxItemsInEachRow = maxItemsInEachRow;
         mMaxLines = maxLines;
@@ -99,13 +127,13 @@ public class FlowLayout extends RowLayout {
     /**
      * Write the operation to the buffer
      *
-     * @param buffer                wire buffer
-     * @param componentId           component id
-     * @param animationId           animation id (-1 if not set)
+     * @param buffer wire buffer
+     * @param componentId component id
+     * @param animationId animation id (-1 if not set)
      * @param horizontalPositioning horizontal positioning rules
-     * @param verticalPositioning   vertical positioning rules
-     * @param spacedBy              spaced by value
-     * @param maxItemsInEachRow     maximum number of items in each row
+     * @param verticalPositioning vertical positioning rules
+     * @param spacedBy spaced by value
+     * @param maxItemsInEachRow maximum number of items in each row
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -129,7 +157,7 @@ public class FlowLayout extends RowLayout {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -173,14 +201,14 @@ public class FlowLayout extends RowLayout {
     }
 
     private boolean hasWeight(@NonNull Component c) {
-        if (c instanceof LayoutComponent
-                && ((LayoutComponent) c).getWidthModifier().hasWeight()) {
+        if (c instanceof LayoutComponent && ((LayoutComponent) c).getWidthModifier().hasWeight()) {
             return true;
         }
         return false;
     }
 
-    private ArrayList<ArrayList<Component>> segmentComponents(@NonNull PaintContext context,
+    private ArrayList<ArrayList<Component>> segmentComponents(
+            @NonNull PaintContext context,
             float maxWidth,
             float maxHeight,
             @NonNull MeasurePass measure) {
@@ -247,16 +275,25 @@ public class FlowLayout extends RowLayout {
             currentWidth += componentWidth + spacedBy;
             currentRowMaxHeight = Math.max(currentRowMaxHeight, componentHeight);
         }
-        DebugLog.s(() -> "COMPUTED " + rows.size() + " SEGMENTS OF ROWS for " + this + " ("
-                + mComponentId + ")");
+        DebugLog.s(
+                () ->
+                        "COMPUTED "
+                                + rows.size()
+                                + " SEGMENTS OF ROWS for "
+                                + this
+                                + " ("
+                                + mComponentId
+                                + ")");
         return rows;
     }
 
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
@@ -267,14 +304,23 @@ public class FlowLayout extends RowLayout {
                 c.measure(context, 0f, maxWidth, 0f, maxHeight, measure);
             }
         }
-        ArrayList<ArrayList<Component>> rows = segmentComponents(context, maxWidth, maxHeight,
-                measure);
+        ArrayList<ArrayList<Component>> rows =
+                segmentComponents(context, maxWidth, maxHeight, measure);
         Size rowSize = new Size(0f, 0f);
         float width = minWidth;
         float height = 0;
         for (ArrayList<Component> row : rows) {
-            super.computeWrapSize(context, minWidth, maxWidth, minHeight, maxHeight, horizontalWrap,
-                    verticalWrap, measure, rowSize, row);
+            super.computeWrapSize(
+                    context,
+                    minWidth,
+                    maxWidth,
+                    minHeight,
+                    maxHeight,
+                    horizontalWrap,
+                    verticalWrap,
+                    measure,
+                    rowSize,
+                    row);
             width = Math.max(width, rowSize.getWidth());
             height += rowSize.getHeight();
         }
@@ -293,15 +339,15 @@ public class FlowLayout extends RowLayout {
             float maxHeight,
             @NonNull MeasurePass measure) {
         DebugLog.s(() -> "COMPUTE SIZE in " + this + " (" + mComponentId + ")");
-        ArrayList<ArrayList<Component>> rows = segmentComponents(context, maxWidth,
-                maxHeight, measure);
+        ArrayList<ArrayList<Component>> rows =
+                segmentComponents(context, maxWidth, maxHeight, measure);
         for (ArrayList<Component> row : rows) {
             float mw = maxWidth;
             for (Component child : row) {
                 child.measure(context, minWidth, mw, minHeight, maxHeight, measure);
                 ComponentMeasure m = measure.get(child);
                 if (!m.isGone()) {
-//                    mw -= m.getW();
+                    //                    mw -= m.getW();
                 }
             }
         }
@@ -326,8 +372,8 @@ public class FlowLayout extends RowLayout {
             selfHeight =
                     mComponentModifiers.getVerticalScrollDimension() - mPaddingTop - mPaddingBottom;
         }
-        ArrayList<ArrayList<Component>> rows = segmentComponents(context, selfWidth, selfHeight,
-                measure);
+        ArrayList<ArrayList<Component>> rows =
+                segmentComponents(context, selfWidth, selfHeight, measure);
         float positionX = 0f;
         float positionY = 0f;
         Size rowSize = new Size(0f, 0f);
@@ -346,8 +392,8 @@ public class FlowLayout extends RowLayout {
 
         for (ArrayList<Component> row : rows) {
             float rowHeight = minIntrinsicHeight(context.getContext(), row, true);
-            internalLayoutMeasure(context, measure, row, rowWidth, rowHeight, positionX, positionY,
-                    rowSize);
+            internalLayoutMeasure(
+                    context, measure, row, rowWidth, rowHeight, positionX, positionY, rowSize);
             positionY += rowSize.getHeight();
         }
     }
@@ -362,8 +408,9 @@ public class FlowLayout extends RowLayout {
                 .addedVersion(7)
                 .experimental(true)
                 .additionalDocumentation("flow")
-                .description("Flow layout implementation. Positions components one after the"
-                        + " other horizontally and wraps to the next line if space is exhausted.")
+                .description(
+                        "Flow layout implementation. Positions components one after the other"
+                            + " horizontally and wraps to the next line if space is exhausted.")
                 .field(DocumentedOperation.INT, "componentId", "Unique ID for this component")
                 .field(DocumentedOperation.INT, "animationId", "ID for animation purposes")
                 .field(INT, "horizontalPositioning", "Horizontal positioning value")
@@ -381,5 +428,4 @@ public class FlowLayout extends RowLayout {
                 .field(INT, "maxItemsInEachRow", "Maximum number of items in each row")
                 .field(INT, "maxLines", "Maximum number of lines in the layout");
     }
-
 }

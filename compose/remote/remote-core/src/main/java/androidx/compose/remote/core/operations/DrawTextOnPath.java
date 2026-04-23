@@ -91,7 +91,7 @@ public class DrawTextOnPath extends PaintOperation implements VariableSupport, S
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -125,9 +125,9 @@ public class DrawTextOnPath extends PaintOperation implements VariableSupport, S
     /**
      * add a draw text on path operation to the buffer
      *
-     * @param buffer  the buffer to add to
-     * @param textId  the id of the text string
-     * @param pathId  the id of the path
+     * @param buffer the buffer to add to
+     * @param textId the id of the text string
+     * @param pathId the id of the path
      * @param hOffset the horizontal offset to position the string
      * @param vOffset the vertical offset to position the string
      */
@@ -152,7 +152,9 @@ public class DrawTextOnPath extends PaintOperation implements VariableSupport, S
                 .field(DocumentedOperation.INT, "textId", "The ID of the text")
                 .field(DocumentedOperation.INT, "pathId", "The ID of the path")
                 .field(DocumentedOperation.FLOAT, "hOffset", "Horizontal offset along the path")
-                .field(DocumentedOperation.FLOAT, "vOffset",
+                .field(
+                        DocumentedOperation.FLOAT,
+                        "vOffset",
                         "Vertical offset relative to the path");
     }
 

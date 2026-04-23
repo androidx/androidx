@@ -121,8 +121,11 @@ public abstract class ListActionsOperation extends PaintOperation
             return false;
         }
         if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
-            if (!force && (x < 0 || x >= component.getWidth() || y < 0
-                    || y >= component.getHeight())) {
+            if (!force
+                    && (x < 0
+                            || x >= component.getWidth()
+                            || y < 0
+                            || y >= component.getHeight())) {
                 return false;
             }
         } else {

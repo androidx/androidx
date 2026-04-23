@@ -123,7 +123,7 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -163,11 +163,11 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
      *
      * @param buffer The buffer to write to
      * @param textId The id of the text data
-     * @param x      The x-position of the anchor point
-     * @param y      The y-position of the anchor point
-     * @param panX   The pan from left(-1) to right(1) 0 being centered
-     * @param panY   The pan from top(-1) to bottom(1) 0 being centered
-     * @param flags  Change the behaviour
+     * @param x The x-position of the anchor point
+     * @param y The y-position of the anchor point
+     * @param panX The pan from left(-1) to right(1) 0 being centered
+     * @param panY The pan from top(-1) to bottom(1) 0 being centered
+     * @param flags Change the behaviour
      */
     public static void apply(
             @NonNull WireBuffer buffer,

@@ -71,7 +71,7 @@ public class DimensionConstraintsModifierOperation extends DimensionInModifierOp
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -108,11 +108,15 @@ public class DimensionConstraintsModifierOperation extends DimensionInModifierOp
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
                 .description("Add additional constraints to the dimensions")
-                .field(DocumentedOperation.BYTE, "type",
+                .field(
+                        DocumentedOperation.BYTE,
+                        "type",
                         "The type of constraint (Horizontal, Vertical, Required Horizontal, "
                                 + "Required Vertical)")
                 .field(DocumentedOperation.FLOAT, "min", "The minimum dimension, -1 if not applied")
-                .field(DocumentedOperation.FLOAT, "max",
+                .field(
+                        DocumentedOperation.FLOAT,
+                        "max",
                         "The maximum dimension, -1 if not applied");
     }
 
@@ -120,9 +124,9 @@ public class DimensionConstraintsModifierOperation extends DimensionInModifierOp
      * Writes out the DimensionConstraintsModifier to the buffer
      *
      * @param buffer buffer to write to
-     * @param min    minimum dimension
-     * @param max    maximum dimension
-     * @param type   type of constraint
+     * @param min minimum dimension
+     * @param max maximum dimension
+     * @param type type of constraint
      */
     public static void apply(@NonNull WireBuffer buffer, int type, float min, float max) {
         buffer.start(OP_CODE);
@@ -138,7 +142,8 @@ public class DimensionConstraintsModifierOperation extends DimensionInModifierOp
     @Override
     public void serializeToString(int indent, @NonNull StringSerializer serializer) {
         String typeStr = typeToString();
-        serializer.append(indent,
+        serializer.append(
+                indent,
                 "DIMENSION_CONSTRAINTS [" + typeStr + "] = [" + getMin() + ", " + getMax() + "]");
     }
 

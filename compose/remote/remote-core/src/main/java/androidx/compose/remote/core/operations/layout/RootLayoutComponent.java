@@ -187,11 +187,13 @@ public class RootLayoutComponent extends Component {
         }
     }
 
-    /**
-     * Measure the document and layout the components
-     */
-    public void measure(@NonNull RemoteContext context, float minWidth, float maxWidth,
-            float minHeight, float maxHeight) {
+    /** Measure the document and layout the components */
+    public void measure(
+            @NonNull RemoteContext context,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight) {
         mNeedsMeasure = false;
         context.mLastComponent = this;
         float newWidth = context.mWidth;
@@ -214,7 +216,12 @@ public class RootLayoutComponent extends Component {
                 if (firstComponent == null && op instanceof LayoutComponent) {
                     firstComponent = (LayoutComponent) op;
                 }
-                m.measure(context.getPaintContext(), minWidth, maxWidth, minHeight, maxHeight,
+                m.measure(
+                        context.getPaintContext(),
+                        minWidth,
+                        maxWidth,
+                        minHeight,
+                        maxHeight,
                         measurePass);
                 m.layout(context, measurePass);
             }
@@ -260,8 +267,9 @@ public class RootLayoutComponent extends Component {
                 float lastOriginX = mLastReportedOriginX;
                 float lastOriginY = mLastReportedOriginY;
                 boolean sizeChanged = mWidth != m.getW() || mHeight != m.getH();
-                boolean originChanged = !Float.isNaN(lastOriginX)
-                        && (lastOriginX != targetOriginX || lastOriginY != targetOriginY);
+                boolean originChanged =
+                        !Float.isNaN(lastOriginX)
+                                && (lastOriginX != targetOriginX || lastOriginY != targetOriginY);
 
                 if (sizeChanged && originChanged && context.useFeature(Header.FEATURE_LT_RESIZE)) {
                     mAnimateMeasure =
@@ -342,8 +350,8 @@ public class RootLayoutComponent extends Component {
     /**
      * Display the component hierarchy
      *
-     * @param component  the current component
-     * @param indent     the current indentation level
+     * @param component the current component
+     * @param indent the current indentation level
      * @param serializer the serializer we write to
      */
     public void displayHierarchy(
@@ -379,9 +387,7 @@ public class RootLayoutComponent extends Component {
         return Operations.LAYOUT_ROOT;
     }
 
-    /**
-     * Write the operation on the buffer
-     */
+    /** Write the operation on the buffer */
     public static void apply(@NonNull WireBuffer buffer, int componentId) {
         buffer.start(Operations.LAYOUT_ROOT);
         buffer.writeInt(componentId);
@@ -390,7 +396,7 @@ public class RootLayoutComponent extends Component {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

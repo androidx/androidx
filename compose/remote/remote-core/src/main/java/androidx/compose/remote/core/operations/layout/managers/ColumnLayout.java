@@ -132,8 +132,10 @@ public class ColumnLayout extends LayoutManager {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
@@ -482,8 +484,8 @@ public class ColumnLayout extends LayoutManager {
     }
 
     @Override
-    public void getLocationInWindow(@NonNull RemoteContext context, float @NonNull [] value,
-            boolean forSelf) {
+    public void getLocationInWindow(
+            @NonNull RemoteContext context, float @NonNull [] value, boolean forSelf) {
         super.getLocationInWindow(context, value, forSelf);
         if (context.getTouchVersion() != LayoutManager.FIX_TOUCH_EVENT) {
             if (!forSelf && mVerticalScrollDelegate instanceof ScrollModifierOperation) {
@@ -516,12 +518,12 @@ public class ColumnLayout extends LayoutManager {
     /**
      * Write the operation to the buffer
      *
-     * @param buffer                wire buffer
-     * @param componentId           component id
-     * @param animationId           animation id (-1 if not set)
+     * @param buffer wire buffer
+     * @param componentId component id
+     * @param animationId animation id (-1 if not set)
      * @param horizontalPositioning horizontal positioning rules
-     * @param verticalPositioning   vertical positioning rules
-     * @param spacedBy              spaced by value
+     * @param verticalPositioning vertical positioning rules
+     * @param spacedBy spaced by value
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -541,7 +543,7 @@ public class ColumnLayout extends LayoutManager {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -580,10 +582,7 @@ public class ColumnLayout extends LayoutManager {
                 .exampleImage("SpaceAround", "layout-ColumnLayout-start-space-around.png")
                 .exampleImage("SpaceBetween", "layout-ColumnLayout-start-space-between.png")
                 .field(INT, "componentId", "Unique ID for this component")
-                .field(
-                        INT,
-                        "animationId",
-                        "ID used to match components for animation purposes")
+                .field(INT, "animationId", "ID used to match components for animation purposes")
                 .field(INT, "horizontalPositioning", "Horizontal positioning value")
                 .possibleValues("START", START)
                 .possibleValues("CENTER", CENTER)

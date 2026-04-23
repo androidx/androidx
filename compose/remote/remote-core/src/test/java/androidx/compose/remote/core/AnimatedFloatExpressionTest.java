@@ -71,9 +71,9 @@ public class AnimatedFloatExpressionTest {
     public void simpleTest() {
         AnimatedFloatExpression e = new AnimatedFloatExpression();
         // (3+5)*(2-8) -> [3, 5, +, 2, 8, -, *]
-        float[] rpn = new float[]{3, 5, ADD, 2, 8, SUB, MUL};
+        float[] rpn = new float[] {3, 5, ADD, 2, 8, SUB, MUL};
         assertEquals(-48.0f, e.eval(rpn), 0f);
-        e.evalDB(new float[]{3, 5, ADD, 2, 8, SUB, MUL});
+        e.evalDB(new float[] {3, 5, ADD, 2, 8, SUB, MUL});
     }
 
     @Test
@@ -106,8 +106,7 @@ public class AnimatedFloatExpressionTest {
     }
 
     static long sLast;
-    @NonNull
-    static DecimalFormat sDf = new DecimalFormat("#.0000000");
+    @NonNull static DecimalFormat sDf = new DecimalFormat("#.0000000");
 
     private static void duration(@Nullable String str, float divide) {
         long now = System.nanoTime();
@@ -247,20 +246,20 @@ public class AnimatedFloatExpressionTest {
     @Test
     public void testRandom() {
         AnimatedFloatExpression e = new AnimatedFloatExpression();
-        System.out.println(e.eval(new float[]{RAND}));
-        System.out.println(e.eval(new float[]{RAND}));
-        System.out.println(e.eval(new float[]{RAND}));
-        System.out.println(e.eval(new float[]{RAND}));
-        float rand1 = e.eval(new float[]{12345f, RAND_SEED, RAND});
-        float rand2 = e.eval(new float[]{RAND});
-        float rand3 = e.eval(new float[]{RAND});
-        float rand4 = e.eval(new float[]{RAND});
+        System.out.println(e.eval(new float[] {RAND}));
+        System.out.println(e.eval(new float[] {RAND}));
+        System.out.println(e.eval(new float[] {RAND}));
+        System.out.println(e.eval(new float[] {RAND}));
+        float rand1 = e.eval(new float[] {12345f, RAND_SEED, RAND});
+        float rand2 = e.eval(new float[] {RAND});
+        float rand3 = e.eval(new float[] {RAND});
+        float rand4 = e.eval(new float[] {RAND});
         // ideally this is fixed (using the same random algorithm)
         // but if it should at least be consistent
-        assertEquals(rand1, e.eval(new float[]{12345f, RAND_SEED, RAND}), 0.0001);
-        assertEquals(rand2, e.eval(new float[]{RAND}), 0.0001);
-        assertEquals(rand3, e.eval(new float[]{RAND}), 0.0001);
-        assertEquals(rand4, e.eval(new float[]{RAND}), 0.0001);
+        assertEquals(rand1, e.eval(new float[] {12345f, RAND_SEED, RAND}), 0.0001);
+        assertEquals(rand2, e.eval(new float[] {RAND}), 0.0001);
+        assertEquals(rand3, e.eval(new float[] {RAND}), 0.0001);
+        assertEquals(rand4, e.eval(new float[] {RAND}), 0.0001);
         assertTrue(true);
     }
 
@@ -299,9 +298,11 @@ public class AnimatedFloatExpressionTest {
         assertEquals("deg", AnimatedFloatExpression.toMathName(AnimatedFloatExpression.DEG));
         assertEquals("rad", AnimatedFloatExpression.toMathName(AnimatedFloatExpression.RAD));
         assertEquals("ceil", AnimatedFloatExpression.toMathName(AnimatedFloatExpression.CEIL));
-        assertEquals("change_sign",
+        assertEquals(
+                "change_sign",
                 AnimatedFloatExpression.toMathName(AnimatedFloatExpression.CHANGE_SIGN));
-        assertEquals("a_spline_loop",
+        assertEquals(
+                "a_spline_loop",
                 AnimatedFloatExpression.toMathName(AnimatedFloatExpression.A_SPLINE_LOOP));
         assertEquals("cubic", AnimatedFloatExpression.toMathName(AnimatedFloatExpression.CUBIC));
     }
@@ -504,7 +505,6 @@ public class AnimatedFloatExpressionTest {
         // overshoot
         assertEquals(0f, eval(e, 0.4f, 0.0f, 0.2f, 1f, -2f, CUBIC), 0f);
         assertEquals(1f, eval(e, 0.4f, 0.0f, 0.2f, 1f, 22f, CUBIC), 0f);
-
     }
 
     @Test
@@ -514,7 +514,5 @@ public class AnimatedFloatExpressionTest {
         assertEquals(1f, eval(e, -1f, CHANGE_SIGN), 0f);
         assertEquals(0f, eval(e, 0f, CHANGE_SIGN), 0f);
         assertEquals(-123.321f, eval(e, 123.321f, CHANGE_SIGN), 0f);
-
     }
-
 }

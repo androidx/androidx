@@ -36,9 +36,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Text style implementation
- */
+/** Text style implementation */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TextStyle extends Operation implements ComponentData {
     public static final float DEFAULT_FONT_SIZE = 36f;
@@ -71,34 +69,34 @@ public class TextStyle extends Operation implements ComponentData {
     public static final byte P_MIN_FONT_SIZE = 25;
     public static final byte P_MAX_FONT_SIZE = 26;
 
-    public static final CommandParameters PARAMETERS = new CommandParameters(
-            param("id", P_ID, -1),
-            param("animationId", P_ANIMATION_ID, -1),
-            param("color", P_COLOR, 0xFF000000),
-            param("colorId", P_COLOR_ID, -1),
-            param("fontSize", P_FONT_SIZE, DEFAULT_FONT_SIZE),
-            param("fontStyle", P_FONT_STYLE, 0),
-            param("fontWeight", P_FONT_WEIGHT, DEFAULT_FONT_WEIGHT),
-            param("fontFamily", P_FONT_FAMILY, -1),
-            param("textAlign", P_TEXT_ALIGN, 1),
-            param("overflow", P_OVERFLOW, 1),
-            param("maxLines", P_MAX_LINES, Integer.MAX_VALUE),
-            param("letterSpacing", P_LETTER_SPACING, 0f),
-            param("lineHeightAdd", P_LINE_HEIGHT_ADD, 0f),
-            param("lineHeightMultiplier", P_LINE_HEIGHT_MULTIPLIER, 1f),
-            param("lineBreakStrategy", P_BREAK_STRATEGY, 0),
-            param("hyphenationFrequency", P_HYPHENATION_FREQUENCY, 0),
-            param("justificationMode", P_JUSTIFICATION_MODE, 0),
-            param("underline", P_UNDERLINE, false),
-            param("strikethrough", P_STRIKETHROUGH, false),
-            param("autosize", P_AUTOSIZE, false),
-            param("fontAxis", P_FONT_AXIS, PA_INT),
-            param("fontAxisValues", P_FONT_AXIS_VALUES, PA_FLOAT),
-            param("flags", P_FLAGS, 0),
-            param("parentId", P_PARENT_ID, -1),
-            param("minFontSize", P_MIN_FONT_SIZE, -1f),
-            param("maxFontSize", P_MAX_FONT_SIZE, -1f)
-    );
+    public static final CommandParameters PARAMETERS =
+            new CommandParameters(
+                    param("id", P_ID, -1),
+                    param("animationId", P_ANIMATION_ID, -1),
+                    param("color", P_COLOR, 0xFF000000),
+                    param("colorId", P_COLOR_ID, -1),
+                    param("fontSize", P_FONT_SIZE, DEFAULT_FONT_SIZE),
+                    param("fontStyle", P_FONT_STYLE, 0),
+                    param("fontWeight", P_FONT_WEIGHT, DEFAULT_FONT_WEIGHT),
+                    param("fontFamily", P_FONT_FAMILY, -1),
+                    param("textAlign", P_TEXT_ALIGN, 1),
+                    param("overflow", P_OVERFLOW, 1),
+                    param("maxLines", P_MAX_LINES, Integer.MAX_VALUE),
+                    param("letterSpacing", P_LETTER_SPACING, 0f),
+                    param("lineHeightAdd", P_LINE_HEIGHT_ADD, 0f),
+                    param("lineHeightMultiplier", P_LINE_HEIGHT_MULTIPLIER, 1f),
+                    param("lineBreakStrategy", P_BREAK_STRATEGY, 0),
+                    param("hyphenationFrequency", P_HYPHENATION_FREQUENCY, 0),
+                    param("justificationMode", P_JUSTIFICATION_MODE, 0),
+                    param("underline", P_UNDERLINE, false),
+                    param("strikethrough", P_STRIKETHROUGH, false),
+                    param("autosize", P_AUTOSIZE, false),
+                    param("fontAxis", P_FONT_AXIS, PA_INT),
+                    param("fontAxisValues", P_FONT_AXIS_VALUES, PA_FLOAT),
+                    param("flags", P_FLAGS, 0),
+                    param("parentId", P_PARENT_ID, -1),
+                    param("minFontSize", P_MIN_FONT_SIZE, -1f),
+                    param("maxFontSize", P_MAX_FONT_SIZE, -1f));
 
     @Nullable Integer mId = null;
     @Nullable Integer mColor = null;
@@ -125,19 +123,33 @@ public class TextStyle extends Operation implements ComponentData {
     @Nullable Boolean mAutosize = null;
     @Nullable Integer mParentId = null;
 
-    public TextStyle() {
-    }
+    public TextStyle() {}
 
     @SuppressWarnings("AutoBoxing")
-    public TextStyle(int id, @Nullable Integer color, @Nullable Integer colorId,
-            @Nullable Float fontSize, @Nullable Float minFontSize, @Nullable Float maxFontSize,
-            @Nullable Integer fontStyle, @Nullable Float fontWeight, @Nullable Integer fontFamilyId,
-            @Nullable Integer textAlign, @Nullable Integer overflow, @Nullable Integer maxLines,
-            @Nullable Float letterSpacing, @Nullable Float lineHeightAdd,
-            @Nullable Float lineHeightMultiplier, @Nullable Integer lineBreakStrategy,
-            @Nullable Integer hyphenationFrequency, @Nullable Integer justificationMode,
-            @Nullable Boolean underline, @Nullable Boolean strikethrough, int @Nullable [] fontAxis,
-            float @Nullable [] fontAxisValues, @Nullable Boolean autosize,
+    public TextStyle(
+            int id,
+            @Nullable Integer color,
+            @Nullable Integer colorId,
+            @Nullable Float fontSize,
+            @Nullable Float minFontSize,
+            @Nullable Float maxFontSize,
+            @Nullable Integer fontStyle,
+            @Nullable Float fontWeight,
+            @Nullable Integer fontFamilyId,
+            @Nullable Integer textAlign,
+            @Nullable Integer overflow,
+            @Nullable Integer maxLines,
+            @Nullable Float letterSpacing,
+            @Nullable Float lineHeightAdd,
+            @Nullable Float lineHeightMultiplier,
+            @Nullable Integer lineBreakStrategy,
+            @Nullable Integer hyphenationFrequency,
+            @Nullable Integer justificationMode,
+            @Nullable Boolean underline,
+            @Nullable Boolean strikethrough,
+            int @Nullable [] fontAxis,
+            float @Nullable [] fontAxisValues,
+            @Nullable Boolean autosize,
             @Nullable Integer parentId) {
         this.mId = id;
         this.mColor = color;
@@ -165,24 +177,81 @@ public class TextStyle extends Operation implements ComponentData {
         this.mParentId = parentId;
     }
 
-    public TextStyle(int id, int color, int colorId, float fontSize, float minFontSize,
-            float maxFontSize, int fontStyle, float fontWeight, int fontFamilyId, int textAlign,
-            int overflow, int maxLines, float letterSpacing, float lineHeightAdd,
-            float lineHeightMultiplier, int lineBreakStrategy, int hyphenationFrequency,
-            int justificationMode, boolean underline, boolean strikethrough,
-            int @Nullable [] fontAxis, float @Nullable [] fontAxisValues, boolean autosize) {
-        this(id, color, colorId, fontSize, minFontSize, maxFontSize, fontStyle, fontWeight,
-                fontFamilyId, textAlign, overflow, maxLines, letterSpacing, lineHeightAdd,
-                lineHeightMultiplier, lineBreakStrategy, hyphenationFrequency, justificationMode,
-                underline, strikethrough, fontAxis, fontAxisValues, autosize, -1);
+    public TextStyle(
+            int id,
+            int color,
+            int colorId,
+            float fontSize,
+            float minFontSize,
+            float maxFontSize,
+            int fontStyle,
+            float fontWeight,
+            int fontFamilyId,
+            int textAlign,
+            int overflow,
+            int maxLines,
+            float letterSpacing,
+            float lineHeightAdd,
+            float lineHeightMultiplier,
+            int lineBreakStrategy,
+            int hyphenationFrequency,
+            int justificationMode,
+            boolean underline,
+            boolean strikethrough,
+            int @Nullable [] fontAxis,
+            float @Nullable [] fontAxisValues,
+            boolean autosize) {
+        this(
+                id,
+                color,
+                colorId,
+                fontSize,
+                minFontSize,
+                maxFontSize,
+                fontStyle,
+                fontWeight,
+                fontFamilyId,
+                textAlign,
+                overflow,
+                maxLines,
+                letterSpacing,
+                lineHeightAdd,
+                lineHeightMultiplier,
+                lineBreakStrategy,
+                hyphenationFrequency,
+                justificationMode,
+                underline,
+                strikethrough,
+                fontAxis,
+                fontAxisValues,
+                autosize,
+                -1);
     }
 
-    public TextStyle(int id, int color, int colorId, float fontSize, float minFontSize,
-            float maxFontSize, int fontStyle, float fontWeight, int fontFamilyId, int textAlign,
-            int overflow, int maxLines, float letterSpacing, float lineHeightAdd,
-            float lineHeightMultiplier, int lineBreakStrategy, int hyphenationFrequency,
-            int justificationMode, boolean underline, boolean strikethrough,
-            int @Nullable [] fontAxis, float @Nullable [] fontAxisValues, boolean autosize,
+    public TextStyle(
+            int id,
+            int color,
+            int colorId,
+            float fontSize,
+            float minFontSize,
+            float maxFontSize,
+            int fontStyle,
+            float fontWeight,
+            int fontFamilyId,
+            int textAlign,
+            int overflow,
+            int maxLines,
+            float letterSpacing,
+            float lineHeightAdd,
+            float lineHeightMultiplier,
+            int lineBreakStrategy,
+            int hyphenationFrequency,
+            int justificationMode,
+            boolean underline,
+            boolean strikethrough,
+            int @Nullable [] fontAxis,
+            float @Nullable [] fontAxisValues,
+            boolean autosize,
             int parentId) {
         this.mId = id;
         this.mColor = color;
@@ -210,9 +279,7 @@ public class TextStyle extends Operation implements ComponentData {
         this.mParentId = parentId;
     }
 
-    /**
-     * Apply the style from another style
-     */
+    /** Apply the style from another style */
     public void applyStyle(@NonNull TextStyle style) {
         if (mColor == null) mColor = style.mColor;
         if (mColorId == null) mColorId = style.mColorId;
@@ -250,11 +317,32 @@ public class TextStyle extends Operation implements ComponentData {
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mId, mColor, mColorId, mFontSize, mMinFontSize, mMaxFontSize, mFontStyle,
-                mFontWeight, mFontFamilyId, mTextAlign, mOverflow, mMaxLines, mLetterSpacing,
-                mLineHeightAdd, mLineHeightMultiplier, mLineBreakStrategy, mHyphenationFrequency,
-                mJustificationMode, mUnderline, mStrikethrough, mFontAxis, mFontAxisValues,
-                mAutosize, mParentId != -1 ? mParentId : null);
+        apply(
+                buffer,
+                mId,
+                mColor,
+                mColorId,
+                mFontSize,
+                mMinFontSize,
+                mMaxFontSize,
+                mFontStyle,
+                mFontWeight,
+                mFontFamilyId,
+                mTextAlign,
+                mOverflow,
+                mMaxLines,
+                mLetterSpacing,
+                mLineHeightAdd,
+                mLineHeightMultiplier,
+                mLineBreakStrategy,
+                mHyphenationFrequency,
+                mJustificationMode,
+                mUnderline,
+                mStrikethrough,
+                mFontAxis,
+                mFontAxisValues,
+                mAutosize,
+                mParentId != -1 ? mParentId : null);
     }
 
     @Override
@@ -268,26 +356,37 @@ public class TextStyle extends Operation implements ComponentData {
         context.putObject(mId, this);
     }
 
-    /**
-     * Return the operation id
-     */
+    /** Return the operation id */
     public static int id() {
         return Operations.TEXT_STYLE;
     }
 
-    /**
-     * Apply the style to the text.
-     */
-    public static void apply(@NonNull WireBuffer buffer, int id, @Nullable Integer color,
-            @Nullable Integer colorId, @Nullable Float fontSize, @Nullable Float minFontSize,
-            @Nullable Float maxFontSize, @Nullable Integer fontStyle, @Nullable Float fontWeight,
-            @Nullable Integer fontFamilyId, @Nullable Integer textAlign, @Nullable Integer overflow,
-            @Nullable Integer maxLines, @Nullable Float letterSpacing,
-            @Nullable Float lineHeightAdd, @Nullable Float lineHeightMultiplier,
-            @Nullable Integer lineBreakStrategy, @Nullable Integer hyphenationFrequency,
-            @Nullable Integer justificationMode, @Nullable Boolean underline,
-            @Nullable Boolean strikethrough, int @Nullable [] fontAxis,
-            float @Nullable [] fontAxisValues, @Nullable Boolean autosize,
+    /** Apply the style to the text. */
+    public static void apply(
+            @NonNull WireBuffer buffer,
+            int id,
+            @Nullable Integer color,
+            @Nullable Integer colorId,
+            @Nullable Float fontSize,
+            @Nullable Float minFontSize,
+            @Nullable Float maxFontSize,
+            @Nullable Integer fontStyle,
+            @Nullable Float fontWeight,
+            @Nullable Integer fontFamilyId,
+            @Nullable Integer textAlign,
+            @Nullable Integer overflow,
+            @Nullable Integer maxLines,
+            @Nullable Float letterSpacing,
+            @Nullable Float lineHeightAdd,
+            @Nullable Float lineHeightMultiplier,
+            @Nullable Integer lineBreakStrategy,
+            @Nullable Integer hyphenationFrequency,
+            @Nullable Integer justificationMode,
+            @Nullable Boolean underline,
+            @Nullable Boolean strikethrough,
+            int @Nullable [] fontAxis,
+            float @Nullable [] fontAxisValues,
+            @Nullable Boolean autosize,
             @Nullable Integer parentId) {
         buffer.start(Operations.TEXT_STYLE);
         int count = 0;
@@ -465,9 +564,7 @@ public class TextStyle extends Operation implements ComponentData {
         }
     }
 
-    /**
-     * Read the style from the buffer.
-     */
+    /** Read the style from the buffer. */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int paramsLength = buffer.readShort();
         final Integer[] intAttributes = new Integer[15];
@@ -477,127 +574,126 @@ public class TextStyle extends Operation implements ComponentData {
         final ArrayList<Float> fontAxisValuesList = new ArrayList<>();
 
         for (int i = 0; i < paramsLength; i++) {
-            PARAMETERS.read(buffer, new CommandParameters.Callback() {
-                @Override
-                public void value(int id, int value) {
-                    switch (id) {
-                        case P_ID:
-                            intAttributes[0] = value;
-                            break;
-                        case P_COLOR:
-                            intAttributes[1] = value;
-                            break;
-                        case P_COLOR_ID:
-                            intAttributes[2] = value;
-                            break;
-                        case P_FONT_STYLE:
-                            intAttributes[3] = value;
-                            break;
-                        case P_FONT_FAMILY:
-                            intAttributes[4] = value;
-                            break;
-                        case P_TEXT_ALIGN:
-                            intAttributes[5] = value;
-                            break;
-                        case P_OVERFLOW:
-                            intAttributes[6] = value;
-                            break;
-                        case P_MAX_LINES:
-                            intAttributes[7] = value;
-                            break;
-                        case P_BREAK_STRATEGY:
-                            intAttributes[8] = value;
-                            break;
-                        case P_HYPHENATION_FREQUENCY:
-                            intAttributes[9] = value;
-                            break;
-                        case P_JUSTIFICATION_MODE:
-                            intAttributes[10] = value;
-                            break;
-                        case P_PARENT_ID:
-                            intAttributes[11] = value;
-                            break;
-                        case P_ANIMATION_ID:
-                            intAttributes[12] = value;
-                            break;
-                        case P_FLAGS:
-                            intAttributes[13] = value;
-                            break;
-                    }
-                }
-
-                @Override
-                public void value(int id, float value) {
-                    switch (id) {
-                        case P_FONT_SIZE:
-                            floatAttributes[0] = value;
-                            break;
-                        case P_MIN_FONT_SIZE:
-                            floatAttributes[1] = value;
-                            break;
-                        case P_MAX_FONT_SIZE:
-                            floatAttributes[2] = value;
-                            break;
-                        case P_FONT_WEIGHT:
-                            floatAttributes[3] = value;
-                            break;
-                        case P_LETTER_SPACING:
-                            floatAttributes[4] = value;
-                            break;
-                        case P_LINE_HEIGHT_ADD:
-                            floatAttributes[5] = value;
-                            break;
-                        case P_LINE_HEIGHT_MULTIPLIER:
-                            floatAttributes[6] = value;
-                            break;
-                    }
-                }
-
-                @Override
-                public void value(int id, short value) {
-                }
-
-                @Override
-                public void value(int id, byte value) {
-                }
-
-                @Override
-                public void value(int id, boolean value) {
-                    switch (id) {
-                        case P_UNDERLINE:
-                            boolAttributes[0] = value;
-                            break;
-                        case P_STRIKETHROUGH:
-                            boolAttributes[1] = value;
-                            break;
-                        case P_AUTOSIZE:
-                            boolAttributes[2] = value;
-                            break;
-                    }
-                }
-
-                @Override
-                public void value(int id, @NonNull String value) {
-                }
-
-                @Override
-                public void value(int id, int @NonNull [] value) {
-                    if (id == P_FONT_AXIS) {
-                        for (int axis : value) {
-                            fontAxisList.add(axis);
+            PARAMETERS.read(
+                    buffer,
+                    new CommandParameters.Callback() {
+                        @Override
+                        public void value(int id, int value) {
+                            switch (id) {
+                                case P_ID:
+                                    intAttributes[0] = value;
+                                    break;
+                                case P_COLOR:
+                                    intAttributes[1] = value;
+                                    break;
+                                case P_COLOR_ID:
+                                    intAttributes[2] = value;
+                                    break;
+                                case P_FONT_STYLE:
+                                    intAttributes[3] = value;
+                                    break;
+                                case P_FONT_FAMILY:
+                                    intAttributes[4] = value;
+                                    break;
+                                case P_TEXT_ALIGN:
+                                    intAttributes[5] = value;
+                                    break;
+                                case P_OVERFLOW:
+                                    intAttributes[6] = value;
+                                    break;
+                                case P_MAX_LINES:
+                                    intAttributes[7] = value;
+                                    break;
+                                case P_BREAK_STRATEGY:
+                                    intAttributes[8] = value;
+                                    break;
+                                case P_HYPHENATION_FREQUENCY:
+                                    intAttributes[9] = value;
+                                    break;
+                                case P_JUSTIFICATION_MODE:
+                                    intAttributes[10] = value;
+                                    break;
+                                case P_PARENT_ID:
+                                    intAttributes[11] = value;
+                                    break;
+                                case P_ANIMATION_ID:
+                                    intAttributes[12] = value;
+                                    break;
+                                case P_FLAGS:
+                                    intAttributes[13] = value;
+                                    break;
+                            }
                         }
-                    }
-                }
 
-                @Override
-                public void value(int id, float @NonNull [] value) {
-                    if (id == P_FONT_AXIS_VALUES) {
-                        for (float v : value) {
-                            fontAxisValuesList.add(v);
+                        @Override
+                        public void value(int id, float value) {
+                            switch (id) {
+                                case P_FONT_SIZE:
+                                    floatAttributes[0] = value;
+                                    break;
+                                case P_MIN_FONT_SIZE:
+                                    floatAttributes[1] = value;
+                                    break;
+                                case P_MAX_FONT_SIZE:
+                                    floatAttributes[2] = value;
+                                    break;
+                                case P_FONT_WEIGHT:
+                                    floatAttributes[3] = value;
+                                    break;
+                                case P_LETTER_SPACING:
+                                    floatAttributes[4] = value;
+                                    break;
+                                case P_LINE_HEIGHT_ADD:
+                                    floatAttributes[5] = value;
+                                    break;
+                                case P_LINE_HEIGHT_MULTIPLIER:
+                                    floatAttributes[6] = value;
+                                    break;
+                            }
                         }
-                    }
-                }
-            });
+
+                        @Override
+                        public void value(int id, short value) {}
+
+                        @Override
+                        public void value(int id, byte value) {}
+
+                        @Override
+                        public void value(int id, boolean value) {
+                            switch (id) {
+                                case P_UNDERLINE:
+                                    boolAttributes[0] = value;
+                                    break;
+                                case P_STRIKETHROUGH:
+                                    boolAttributes[1] = value;
+                                    break;
+                                case P_AUTOSIZE:
+                                    boolAttributes[2] = value;
+                                    break;
+                            }
+                        }
+
+                        @Override
+                        public void value(int id, @NonNull String value) {}
+
+                        @Override
+                        public void value(int id, int @NonNull [] value) {
+                            if (id == P_FONT_AXIS) {
+                                for (int axis : value) {
+                                    fontAxisList.add(axis);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void value(int id, float @NonNull [] value) {
+                            if (id == P_FONT_AXIS_VALUES) {
+                                for (float v : value) {
+                                    fontAxisValuesList.add(v);
+                                }
+                            }
+                        }
+                    });
         }
         int[] fontAxis = null;
         float[] fontAxisValues = null;
@@ -610,17 +706,36 @@ public class TextStyle extends Operation implements ComponentData {
             }
         }
         operations.add(
-                new TextStyle(intAttributes[0] == null ? -1 : intAttributes[0], intAttributes[1],
-                        intAttributes[2], floatAttributes[0], floatAttributes[1],
-                        floatAttributes[2], intAttributes[3], floatAttributes[3], intAttributes[4],
-                        intAttributes[5], intAttributes[6], intAttributes[7], floatAttributes[4],
-                        floatAttributes[5], floatAttributes[6], intAttributes[8], intAttributes[9],
-                        intAttributes[10], boolAttributes[0], boolAttributes[1], fontAxis,
-                        fontAxisValues, boolAttributes[2], intAttributes[11]));
+                new TextStyle(
+                        intAttributes[0] == null ? -1 : intAttributes[0],
+                        intAttributes[1],
+                        intAttributes[2],
+                        floatAttributes[0],
+                        floatAttributes[1],
+                        floatAttributes[2],
+                        intAttributes[3],
+                        floatAttributes[3],
+                        intAttributes[4],
+                        intAttributes[5],
+                        intAttributes[6],
+                        intAttributes[7],
+                        floatAttributes[4],
+                        floatAttributes[5],
+                        floatAttributes[6],
+                        intAttributes[8],
+                        intAttributes[9],
+                        intAttributes[10],
+                        boolAttributes[0],
+                        boolAttributes[1],
+                        fontAxis,
+                        fontAxisValues,
+                        boolAttributes[2],
+                        intAttributes[11]));
     }
 
     /**
      * Return the operation name
+     *
      * @return
      */
     @NonNull
@@ -636,33 +751,45 @@ public class TextStyle extends Operation implements ComponentData {
 
     /**
      * Documentation for the operation
+     *
      * @param doc
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Text Operations", id(), name()).description(
-                "Text style implementation").field(DocumentedOperation.INT, "id",
-                "The ID of the text style").field(DocumentedOperation.INT, "color",
-                "The text color (ARGB)").field(DocumentedOperation.INT, "colorId",
-                "The ID of the color variable").field(DocumentedOperation.FLOAT, "fontSize",
-                "The font size in pixels").field(DocumentedOperation.INT, "fontStyle",
-                "The font style (0=normal, 1=italic)").field(DocumentedOperation.FLOAT,
-                "fontWeight", "The font weight [1..1000]").field(DocumentedOperation.INT,
-                "fontFamilyId", "The ID of the font family name string").field(
-                DocumentedOperation.INT, "textAlign", "The text alignment and flags").field(
-                DocumentedOperation.INT, "overflow", "The text overflow strategy").field(
-                DocumentedOperation.INT, "maxLines",
-                "The maximum number of lines to display").field(DocumentedOperation.FLOAT,
-                "letterSpacing", "The letter spacing in ems").field(DocumentedOperation.FLOAT,
-                "lineHeightAdd", "The line height addition").field(DocumentedOperation.FLOAT,
-                "lineHeightMultiplier", "The line height multiplier").field(DocumentedOperation.INT,
-                "lineBreakStrategy", "The line break strategy").field(DocumentedOperation.INT,
-                "hyphenationFrequency", "The hyphenation frequency").field(DocumentedOperation.INT,
-                "justificationMode", "The justification mode").field(DocumentedOperation.BOOLEAN,
-                "underline", "Whether to underline the text").field(DocumentedOperation.BOOLEAN,
-                "strikethrough", "Whether to strike through the text").field(
-                DocumentedOperation.INT_ARRAY, "fontAxis", "Font axis tags").field(
-                DocumentedOperation.FLOAT_ARRAY, "fontAxisValues", "Font axis values").field(
-                DocumentedOperation.BOOLEAN, "autosize", "Whether to enable autosize").field(
-                DocumentedOperation.INT, "parentId", "The ID of the parent text style");
+        doc.operation("Text Operations", id(), name())
+                .description("Text style implementation")
+                .field(DocumentedOperation.INT, "id", "The ID of the text style")
+                .field(DocumentedOperation.INT, "color", "The text color (ARGB)")
+                .field(DocumentedOperation.INT, "colorId", "The ID of the color variable")
+                .field(DocumentedOperation.FLOAT, "fontSize", "The font size in pixels")
+                .field(DocumentedOperation.INT, "fontStyle", "The font style (0=normal, 1=italic)")
+                .field(DocumentedOperation.FLOAT, "fontWeight", "The font weight [1..1000]")
+                .field(
+                        DocumentedOperation.INT,
+                        "fontFamilyId",
+                        "The ID of the font family name string")
+                .field(DocumentedOperation.INT, "textAlign", "The text alignment and flags")
+                .field(DocumentedOperation.INT, "overflow", "The text overflow strategy")
+                .field(
+                        DocumentedOperation.INT,
+                        "maxLines",
+                        "The maximum number of lines to display")
+                .field(DocumentedOperation.FLOAT, "letterSpacing", "The letter spacing in ems")
+                .field(DocumentedOperation.FLOAT, "lineHeightAdd", "The line height addition")
+                .field(
+                        DocumentedOperation.FLOAT,
+                        "lineHeightMultiplier",
+                        "The line height multiplier")
+                .field(DocumentedOperation.INT, "lineBreakStrategy", "The line break strategy")
+                .field(DocumentedOperation.INT, "hyphenationFrequency", "The hyphenation frequency")
+                .field(DocumentedOperation.INT, "justificationMode", "The justification mode")
+                .field(DocumentedOperation.BOOLEAN, "underline", "Whether to underline the text")
+                .field(
+                        DocumentedOperation.BOOLEAN,
+                        "strikethrough",
+                        "Whether to strike through the text")
+                .field(DocumentedOperation.INT_ARRAY, "fontAxis", "Font axis tags")
+                .field(DocumentedOperation.FLOAT_ARRAY, "fontAxisValues", "Font axis values")
+                .field(DocumentedOperation.BOOLEAN, "autosize", "Whether to enable autosize")
+                .field(DocumentedOperation.INT, "parentId", "The ID of the parent text style");
     }
 }

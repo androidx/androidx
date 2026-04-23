@@ -19,9 +19,9 @@ import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExp
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_AVG;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_DEREF;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_LEN;
+import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_LERP;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_MAX;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_MIN;
-import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_LERP;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_SPLINE;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_SPLINE_LOOP;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_SUM;
@@ -49,38 +49,42 @@ public class AnimatedFloatArrayTest {
         AnimatedFloatExpression e = new AnimatedFloatExpression();
         float a = Utils.asNan(0x123 | ID_REGION_ARRAY);
         float b = Utils.asNan(0x124 | ID_REGION_ARRAY);
-        CollectionsAccess ca = new CollectionsAccess() {
-            @Override
-            public float getFloatValue(int id, int index) {
-                return (id == AnimatedFloatExpression.fromNaN(a)) ? (index + 1) : (index + 2);
-            }
+        CollectionsAccess ca =
+                new CollectionsAccess() {
+                    @Override
+                    public float getFloatValue(int id, int index) {
+                        return (id == AnimatedFloatExpression.fromNaN(a))
+                                ? (index + 1)
+                                : (index + 2);
+                    }
 
-            @Override
-            public float[] getFloats(int id) {
-                return (id == AnimatedFloatExpression.fromNaN(a)) ? new float[]{1, 2, 3, 4}
-                        : new float[]{2, 3, 4, 5};
-            }
+                    @Override
+                    public float[] getFloats(int id) {
+                        return (id == AnimatedFloatExpression.fromNaN(a))
+                                ? new float[] {1, 2, 3, 4}
+                                : new float[] {2, 3, 4, 5};
+                    }
 
-            @Override
-            public float @Nullable [] getDynamicFloats(int id) {
-                return getFloats(id);
-            }
+                    @Override
+                    public float @Nullable [] getDynamicFloats(int id) {
+                        return getFloats(id);
+                    }
 
-            @Override
-            public @Nullable ArrayAccess getArray(int id) {
-                return null;
-            }
+                    @Override
+                    public @Nullable ArrayAccess getArray(int id) {
+                        return null;
+                    }
 
-            @Override
-            public int getListLength(int id) {
-                return 4;
-            }
+                    @Override
+                    public int getListLength(int id) {
+                        return 4;
+                    }
 
-            @Override
-            public int getId(int listId, int index) {
-                return 0;
-            }
-        };
+                    @Override
+                    public int getId(int listId, int index) {
+                        return 0;
+                    }
+                };
 
         // A_SUM_TILL: array a till index 1 -> 1 + 2 = 3
         assertEquals(3f, eval(e, ca, a, 1, A_SUM_TILL), 0.001f);
@@ -133,6 +137,7 @@ public class AnimatedFloatArrayTest {
         assertEquals(2.5f, eval(e, ra(1, 2, 3, 4), a, 1.5f, A_SPLINE_LOOP), 0.002f);
         assertEquals(2.5f, eval(e, ra(1, 2, 3, 4), a, -0.5f, A_SPLINE_LOOP), 0.002f);
     }
+
     static CollectionsAccess ra(float... data) {
         return new CollectionsAccess() {
 

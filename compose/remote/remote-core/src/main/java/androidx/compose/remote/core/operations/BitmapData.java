@@ -78,9 +78,9 @@ public class BitmapData extends Operation implements SerializableToString, Seria
      * create a bitmap structure
      *
      * @param imageId the id to store the image
-     * @param width   the width of the image
-     * @param height  the height of the image
-     * @param bitmap  the data
+     * @param width the width of the image
+     * @param height the height of the image
+     * @param bitmap the data
      */
     public BitmapData(int imageId, int width, int height, byte @NonNull [] bitmap) {
         this.mImageId = imageId;
@@ -93,9 +93,9 @@ public class BitmapData extends Operation implements SerializableToString, Seria
      * create a bitmap structure
      *
      * @param imageId the id to store the image
-     * @param width   the width of the image
-     * @param height  the height of the image
-     * @param bitmap  the data
+     * @param width the width of the image
+     * @param height the height of the image
+     * @param bitmap the data
      */
     public BitmapData(
             int imageId,
@@ -145,7 +145,13 @@ public class BitmapData extends Operation implements SerializableToString, Seria
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mImageId, mType, (short) mImageWidth, mEncoding, (short) mImageHeight,
+        apply(
+                buffer,
+                mImageId,
+                mType,
+                (short) mImageWidth,
+                mEncoding,
+                (short) mImageHeight,
                 mBitmap);
     }
 
@@ -186,11 +192,11 @@ public class BitmapData extends Operation implements SerializableToString, Seria
     /**
      * Add the image to the document
      *
-     * @param buffer  document to write to
+     * @param buffer document to write to
      * @param imageId the id the image will be stored under
-     * @param width   the width of the image
-     * @param height  the height of the image
-     * @param bitmap  the data used to store/encode the image
+     * @param width the width of the image
+     * @param height the height of the image
+     * @param bitmap the data used to store/encode the image
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -208,13 +214,13 @@ public class BitmapData extends Operation implements SerializableToString, Seria
     /**
      * Add the image to the document (using the enhanced encoding)
      *
-     * @param buffer   document to write to
-     * @param imageId  the id the image will be stored under
-     * @param type     the type of image
-     * @param width    the width of the image
+     * @param buffer document to write to
+     * @param imageId the id the image will be stored under
+     * @param type the type of image
+     * @param width the width of the image
      * @param encoding the encoding
-     * @param height   the height of the image
-     * @param bitmap   the data used to store/encode the image
+     * @param height the height of the image
+     * @param bitmap the data used to store/encode the image
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -236,7 +242,7 @@ public class BitmapData extends Operation implements SerializableToString, Seria
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -286,7 +292,9 @@ public class BitmapData extends Operation implements SerializableToString, Seria
                 .description("Embed or reference bitmap image data")
                 .field(DocumentedOperation.INT, "imageId", "The ID of the bitmap")
                 .field(DocumentedOperation.INT, "widthAndType", "Encoded width and image type")
-                .field(DocumentedOperation.INT, "heightAndEncoding",
+                .field(
+                        DocumentedOperation.INT,
+                        "heightAndEncoding",
                         "Encoded height and data encoding")
                 .field(DocumentedOperation.BYTE_ARRAY, "bitmap", "The raw or encoded bitmap data");
     }

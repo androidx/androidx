@@ -33,9 +33,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-/**
- * This implement color theme. It supports two colors dark and light modes
- */
+/** This implement color theme. It supports two colors dark and light modes */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ColorTheme extends Operation implements Serializable, ComponentData {
     private static final int OP_CODE = Operations.COLOR_THEME;
@@ -51,7 +49,8 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
     public int mDarkMode;
     public int mLightMode;
 
-    public ColorTheme(int id,
+    public ColorTheme(
+            int id,
             int colorGroupId,
             short lightModeIndex,
             short darkModeIndex,
@@ -92,19 +91,33 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
         }
     }
 
-
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mId, mColorGroupId, mLightModeIndex, mDarkModeIndex, mLightModeFallback,
+        apply(
+                buffer,
+                mId,
+                mColorGroupId,
+                mLightModeIndex,
+                mDarkModeIndex,
+                mLightModeFallback,
                 mDarkModeFallback);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "ColorTheme;id=" + mId + ";group=" + mColorGroupName + ";lightId=" + mLightModeIndex
-                + ";darkId=" + mDarkModeIndex + ";lightFallback=" + mLightModeFallback
-                + ";darkFallback=" + mDarkModeFallback;
+        return "ColorTheme;id="
+                + mId
+                + ";group="
+                + mColorGroupName
+                + ";lightId="
+                + mLightModeIndex
+                + ";darkId="
+                + mDarkModeIndex
+                + ";lightFallback="
+                + mLightModeFallback
+                + ";darkFallback="
+                + mDarkModeFallback;
     }
 
     /**
@@ -126,10 +139,9 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
         return OP_CODE;
     }
 
-    /**
-     * Call to write a ColorExpression object on the buffer
-     */
-    public static void apply(@NonNull WireBuffer buffer,
+    /** Call to write a ColorExpression object on the buffer */
+    public static void apply(
+            @NonNull WireBuffer buffer,
             int id,
             int groupId,
             short lightMode,
@@ -148,7 +160,7 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -158,8 +170,14 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
         short darkModeIndex = (short) buffer.readShort();
         int lightModeFallback = buffer.readInt();
         int darkModeFallback = buffer.readInt();
-        operations.add(new ColorTheme(id, groupId, lightModeIndex, darkModeIndex, lightModeFallback,
-                darkModeFallback));
+        operations.add(
+                new ColorTheme(
+                        id,
+                        groupId,
+                        lightModeIndex,
+                        darkModeIndex,
+                        lightModeFallback,
+                        darkModeFallback));
     }
 
     /**
@@ -194,7 +212,5 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
         serializer.add("darkId", mDarkModeIndex);
         serializer.add("lightFallback", mLightModeFallback);
         serializer.add("darkFallback", mDarkModeFallback);
-
     }
-
 }

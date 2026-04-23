@@ -34,8 +34,8 @@ import java.util.List;
 
 /** Operation convert int index of a list to text */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TextLookupInt extends Operation implements VariableSupport, ComponentData,
-        Serializable {
+public class TextLookupInt extends Operation
+        implements VariableSupport, ComponentData, Serializable {
     private static final int OP_CODE = Operations.TEXT_LOOKUP_INT;
     private static final String CLASS_NAME = "TextLookupInt";
     public int mTextId;
@@ -98,8 +98,8 @@ public class TextLookupInt extends Operation implements VariableSupport, Compone
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer  buffer to write to
-     * @param textId  the id of the output text
+     * @param buffer buffer to write to
+     * @param textId the id of the output text
      * @param dataSet float pointer to the array/list to turn int a string
      * @param indexId index of element to return
      */
@@ -113,7 +113,7 @@ public class TextLookupInt extends Operation implements VariableSupport, Compone
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
