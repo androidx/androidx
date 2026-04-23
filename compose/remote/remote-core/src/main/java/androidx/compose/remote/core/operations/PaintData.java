@@ -40,11 +40,9 @@ public class PaintData extends PaintOperation
         implements ComponentData, VariableSupport, Serializable {
     private static final int OP_CODE = Operations.PAINT_VALUES;
     private static final String CLASS_NAME = "PaintData";
-    @NonNull
-    public PaintBundle mPaintData = new PaintBundle();
+    @NonNull public PaintBundle mPaintData = new PaintBundle();
 
-    public PaintData() {
-    }
+    public PaintData() {}
 
     public PaintData(@NonNull PaintBundle paintData) {
         mPaintData = paintData;
@@ -93,7 +91,7 @@ public class PaintData extends PaintOperation
     /**
      * add a paint data to the buffer
      *
-     * @param buffer      the buffer to add to
+     * @param buffer the buffer to add to
      * @param paintBundle the paint bundle
      */
     public static void apply(@NonNull WireBuffer buffer, @NonNull PaintBundle paintBundle) {
@@ -104,7 +102,7 @@ public class PaintData extends PaintOperation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

@@ -17,9 +17,7 @@ package androidx.compose.remote.core;
 
 import androidx.annotation.RestrictTo;
 
-/**
- * Constants defining the limits of the RemoteCompose player.
- */
+/** Constants defining the limits of the RemoteCompose player. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Limits {
     /** Maximum number of operations processed per frame */

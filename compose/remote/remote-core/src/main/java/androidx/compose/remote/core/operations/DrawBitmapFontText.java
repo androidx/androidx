@@ -50,7 +50,12 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
     float mOutGlyphSpacing;
 
     public DrawBitmapFontText(
-            int textId, int bitmapFontID, int start, int end, float x, float y,
+            int textId,
+            int bitmapFontID,
+            int start,
+            int end,
+            float x,
+            float y,
             float glyphSpacing) {
         if (textId < 0) {
             throw new IllegalArgumentException("textId must not be negative");
@@ -68,8 +73,10 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
     public void updateVariables(@NonNull RemoteContext context) {
         mOutX = Float.isNaN(mX) ? context.getFloat(Utils.idFromNan(mX)) : mX;
         mOutY = Float.isNaN(mY) ? context.getFloat(Utils.idFromNan(mY)) : mY;
-        mOutGlyphSpacing = Float.isNaN(mGlyphSpacing)
-                ? context.getFloat(Utils.idFromNan(mGlyphSpacing)) : mGlyphSpacing;
+        mOutGlyphSpacing =
+                Float.isNaN(mGlyphSpacing)
+                        ? context.getFloat(Utils.idFromNan(mGlyphSpacing))
+                        : mGlyphSpacing;
     }
 
     @Override
@@ -201,10 +208,7 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
                 .description("Draw text using a bitmap font")
                 .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
                 .field(DocumentedOperation.INT, "bitmapFontId", "The ID of the bitmap font")
-                .field(
-                        DocumentedOperation.INT,
-                        "start",
-                        "The start index of the text to render")
+                .field(DocumentedOperation.INT, "start", "The start index of the text to render")
                 .field(DocumentedOperation.INT, "end", "The end index of the text to render")
                 .field(DocumentedOperation.FLOAT, "x", "The x position at which to draw the text")
                 .field(DocumentedOperation.FLOAT, "y", "The y position at which to draw the text");

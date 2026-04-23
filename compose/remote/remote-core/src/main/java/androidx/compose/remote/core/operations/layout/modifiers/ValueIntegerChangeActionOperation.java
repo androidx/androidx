@@ -40,7 +40,6 @@ public class ValueIntegerChangeActionOperation extends Operation implements Acti
     private static final int OP_CODE = Operations.VALUE_INTEGER_CHANGE_ACTION;
     private static final String CLASS_NAME = "ValueIntegerChangeActionOperation";
 
-
     int mTargetValueId = -1;
     int mValue = -1;
 

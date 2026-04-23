@@ -56,9 +56,7 @@ public interface RcPlatformServices {
      */
     boolean isAlpha8Image(@NonNull Object image);
 
-    /**
-     * This defines the interface for path array creators.
-     */
+    /** This defines the interface for path array creators. */
     interface RcPathArrayCreator {
         /** returns an array of float is remote compose format */
         float @NonNull [] createFloatArray();
@@ -102,28 +100,27 @@ public interface RcPlatformServices {
      * pass.
      */
     interface ComputedTextLayout {
-        /**
-         * Horizontal dimension of this text layout
-         */
+        /** Horizontal dimension of this text layout */
         float getWidth();
 
-        /**
-         * Vertical dimension of this text layout
-         */
+        /** Vertical dimension of this text layout */
         float getHeight();
 
         /**
          * Returns the visible line count of this text layout
+         *
          * @return
          */
         int getVisibleLineCount();
 
         /**
          * Returns true if contains hyphenated text
+         *
          * @return
          */
         boolean isHyphenatedText();
     }
+
     RcPlatformServices None =
             new RcPlatformServices() {
                 @Override

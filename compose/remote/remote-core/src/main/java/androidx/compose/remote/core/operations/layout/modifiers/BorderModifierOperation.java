@@ -58,6 +58,7 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
     boolean mUseColorId = false;
     int mColorId;
     int mShapeType = ShapeType.RECTANGLE;
+
     /** Color is through and ID */
     public static final int COLOR_REF = 2;
 
@@ -129,19 +130,7 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(
-                buffer,
-                0,
-                0,
-                0,
-                0,
-                mBorderWidth,
-                mRoundedCorner,
-                mR,
-                mG,
-                mB,
-                mA,
-                mShapeType);
+        apply(buffer, 0, 0, 0, 0, mBorderWidth, mRoundedCorner, mR, mG, mB, mA, mShapeType);
     }
 
     @Override
@@ -263,8 +252,8 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
         // shape type
         int shapeType = buffer.readInt();
         operations.add(
-                new BorderModifierOperation(flags,
-                        colorId, reserve1, reserve2, bw, rc, r, g, b, a, shapeType));
+                new BorderModifierOperation(
+                        flags, colorId, reserve1, reserve2, bw, rc, r, g, b, a, shapeType));
     }
 
     @Override

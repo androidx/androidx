@@ -106,7 +106,7 @@ public class CanvasLayout extends BoxLayout {
     /**
      * Write the operation to the buffer
      *
-     * @param buffer      a WireBuffer
+     * @param buffer a WireBuffer
      * @param componentId the component id
      * @param animationId the component animation id
      */
@@ -119,7 +119,7 @@ public class CanvasLayout extends BoxLayout {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -138,36 +138,22 @@ public class CanvasLayout extends BoxLayout {
                 .additionalDocumentation("canvas_layout")
                 .description("Canvas implementation. Encapsulates drawing operations.")
                 .field(INT, "componentId", "Unique ID for this component")
-                .field(
-                        INT,
-                        "animationId",
-                        "ID used to match components for animation purposes");
+                .field(INT, "animationId", "ID used to match components for animation purposes");
     }
 
     /**
      * The structure of a CanvasLayout in previous versions (api <= 7) was:
      *
-     * CanvasLayout
-     * Modifiers
-     * LayoutComponentContent
-     * CanvasContent
-     * DrawInstructions
+     * <p>CanvasLayout Modifiers LayoutComponentContent CanvasContent DrawInstructions
      *
-     * In practice this prevented the use of other child components inside
-     * a Canvas, which is actually quite handy to support. The new structure now
-     * supports the following:
+     * <p>In practice this prevented the use of other child components inside a Canvas, which is
+     * actually quite handy to support. The new structure now supports the following:
      *
-     * CanvasLayout
-     * Modifiers
-     * LayoutComponentContent
-     * DrawInstructions
-     * ComponentsA
-     * ComponentsB
+     * <p>CanvasLayout Modifiers LayoutComponentContent DrawInstructions ComponentsA ComponentsB
      *
-     * Allowing you to position (via computeLayout modifier) components on top
-     * of a canvas.
+     * <p>Allowing you to position (via computeLayout modifier) components on top of a canvas.
      *
-     * This function check if CanvasContent is present or not.
+     * <p>This function check if CanvasContent is present or not.
      *
      * @return true if CanvasContent is present
      */
@@ -191,8 +177,8 @@ public class CanvasLayout extends BoxLayout {
     }
 
     @Override
-    protected void getComponentsData(@NonNull LayoutComponentContent content,
-            @NonNull ArrayList<Operation> data) {
+    protected void getComponentsData(
+            @NonNull LayoutComponentContent content, @NonNull ArrayList<Operation> data) {
         if (!mHasCanvasLayoutContent) {
             content.getData(data, true);
         } else {
@@ -220,8 +206,8 @@ public class CanvasLayout extends BoxLayout {
     }
 
     @Override
-    protected void handleOperations(@NonNull RemoteContext context,
-            @NonNull ArrayList<Operation> operations) {
+    protected void handleOperations(
+            @NonNull RemoteContext context, @NonNull ArrayList<Operation> operations) {
         if (!mHasCanvasLayoutContent) {
             for (Operation op : mList) {
                 if (op instanceof ComponentModifiers) {

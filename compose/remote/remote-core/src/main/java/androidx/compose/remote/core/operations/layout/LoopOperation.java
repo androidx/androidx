@@ -42,8 +42,7 @@ public class LoopOperation extends PaintOperation
 
     private static final int OP_CODE = Operations.LOOP_START;
 
-    @NonNull
-    public ArrayList<Operation> mList = new ArrayList<>();
+    @NonNull public ArrayList<Operation> mList = new ArrayList<>();
 
     int mIndexVariableId;
     float mUntil;
@@ -153,9 +152,7 @@ public class LoopOperation extends PaintOperation
         return "Loop";
     }
 
-    /**
-     * Write the operation on the buffer
-     */
+    /** Write the operation on the buffer */
     public static void apply(
             @NonNull WireBuffer buffer, int indexId, float from, float step, float until) {
         buffer.start(OP_CODE);
@@ -168,7 +165,7 @@ public class LoopOperation extends PaintOperation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -187,7 +184,9 @@ public class LoopOperation extends PaintOperation
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Logic & Expressions Operations", OP_CODE, name())
                 .description("Execute a list of operations in a loop")
-                .field(DocumentedOperation.INT, "indexId",
+                .field(
+                        DocumentedOperation.INT,
+                        "indexId",
                         "The ID of the variable to store the loop index")
                 .field(DocumentedOperation.FLOAT, "from", "Starting value")
                 .field(DocumentedOperation.FLOAT, "step", "Increment value")

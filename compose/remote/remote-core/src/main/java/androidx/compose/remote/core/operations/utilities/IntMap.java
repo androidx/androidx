@@ -106,15 +106,15 @@ public class IntMap<T> {
     }
 
     /**
-     * Returns a {@link Set} view of the keys contained in this map.
-     * The set is a copy; changes to the map are not reflected in the set, and vice-versa.
+     * Returns a {@link Set} view of the keys contained in this map. The set is a copy; changes to
+     * the map are not reflected in the set, and vice-versa.
      *
      * @return a set view of the keys contained in this map
      */
     public @NonNull Set<@NonNull Integer> keySet() {
         HashSet<Integer> result = new HashSet<>();
 
-        for (Integer value: mKeys) {
+        for (Integer value : mKeys) {
             if (value != NOT_PRESENT) {
                 result.add(value);
             }

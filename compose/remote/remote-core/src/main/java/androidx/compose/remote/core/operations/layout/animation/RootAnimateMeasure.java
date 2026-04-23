@@ -23,9 +23,7 @@ import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 
 import org.jspecify.annotations.NonNull;
 
-/**
- * Specialized AnimateMeasure for root components that handles document origin transitions.
- */
+/** Specialized AnimateMeasure for root components that handles document origin transitions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RootAnimateMeasure extends AnimateMeasure {
     protected float mOriginalOriginX;
@@ -50,10 +48,17 @@ public class RootAnimateMeasure extends AnimateMeasure {
             AnimationSpec.@NonNull ANIMATION exitAnimation,
             int motionEasingType,
             int visibilityEasingType) {
-        super(startTime, component, original, target,
-                duration, durationVisibilityChange,
-                enterAnimation, exitAnimation,
-                motionEasingType, visibilityEasingType);
+        super(
+                startTime,
+                component,
+                original,
+                target,
+                duration,
+                durationVisibilityChange,
+                enterAnimation,
+                exitAnimation,
+                motionEasingType,
+                visibilityEasingType);
         this.mOriginalOriginX = originalOriginX;
         this.mOriginalOriginY = originalOriginY;
         this.mTargetOriginX = targetOriginX;
@@ -78,8 +83,8 @@ public class RootAnimateMeasure extends AnimateMeasure {
     }
 
     @Override
-    public void updateTarget(@NonNull RemoteContext context, @NonNull ComponentMeasure measure,
-            long currentTime) {
+    public void updateTarget(
+            @NonNull RemoteContext context, @NonNull ComponentMeasure measure, long currentTime) {
         float currentOriginX = mOriginalOriginX * (1 - mP) + mTargetOriginX * mP;
         float currentOriginY = mOriginalOriginY * (1 - mP) + mTargetOriginY * mP;
 

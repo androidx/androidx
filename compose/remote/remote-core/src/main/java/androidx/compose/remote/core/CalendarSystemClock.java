@@ -26,7 +26,7 @@ import java.util.TimeZone;
 /**
  * Implementation of RemoteClock for API 23+.
  *
- * Uses a {@link Calendar} to get the current time.
+ * <p>Uses a {@link Calendar} to get the current time.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CalendarSystemClock implements RemoteClock {

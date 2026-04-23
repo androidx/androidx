@@ -55,8 +55,10 @@ public class DataDynamicListFloat extends Operation
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
-        mArrayLengthOut = Float.isNaN(mArrayLength)
-                ? context.getFloat(Utils.idFromNan(mArrayLength)) : mArrayLength;
+        mArrayLengthOut =
+                Float.isNaN(mArrayLength)
+                        ? context.getFloat(Utils.idFromNan(mArrayLength))
+                        : mArrayLength;
         if ((int) mArrayLengthOut != mValues.length) {
             mValues = new float[(int) mArrayLengthOut];
             Arrays.fill(mValues, 0f);
@@ -85,8 +87,8 @@ public class DataDynamicListFloat extends Operation
     /**
      * Write this operation to the buffer
      *
-     * @param buffer   the buffer to apply the operation to
-     * @param id       the id of the array
+     * @param buffer the buffer to apply the operation to
+     * @param id the id of the array
      * @param nbValues the number of values of the array
      */
     public static void apply(@NonNull WireBuffer buffer, int id, float nbValues) {
@@ -98,7 +100,7 @@ public class DataDynamicListFloat extends Operation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -150,9 +152,7 @@ public class DataDynamicListFloat extends Operation
         return mValues.length;
     }
 
-    /**
-     * Update the values
-     */
+    /** Update the values */
     public void updateValues(float @NonNull [] values) {
         mValues = Arrays.copyOf(values, values.length);
     }
@@ -163,9 +163,7 @@ public class DataDynamicListFloat extends Operation
         serializer.addType(CLASS_NAME).add("id", mId).add("values", Arrays.toString(mValues));
     }
 
-    /**
-     * Update the DataListFloat with values from a new one
-     */
+    /** Update the DataListFloat with values from a new one */
     public void update(@NonNull DataDynamicListFloat lc) {
         mValues = lc.mValues;
     }

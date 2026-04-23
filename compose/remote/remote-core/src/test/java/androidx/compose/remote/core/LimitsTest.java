@@ -54,9 +54,11 @@ public class LimitsTest {
             buffer.setIndex(0);
             buffer.readByte(); // consume OP_CODE
 
-            assertThrows(RuntimeException.class, () -> {
-                BitmapData.read(buffer, new ArrayList<>());
-            });
+            assertThrows(
+                    RuntimeException.class,
+                    () -> {
+                        BitmapData.read(buffer, new ArrayList<>());
+                    });
 
             // Test within limit
             WireBuffer buffer2 = new WireBuffer();

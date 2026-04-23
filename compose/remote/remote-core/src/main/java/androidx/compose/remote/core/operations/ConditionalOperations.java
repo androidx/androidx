@@ -42,8 +42,7 @@ public class ConditionalOperations extends PaintOperation
 
     private static final int OP_CODE = Operations.CONDITIONAL_OPERATIONS;
 
-    @NonNull
-    public ArrayList<Operation> mList = new ArrayList<>();
+    @NonNull public ArrayList<Operation> mList = new ArrayList<>();
 
     int mIndexVariableId;
     byte mType;
@@ -97,8 +96,8 @@ public class ConditionalOperations extends PaintOperation
      * Constructor
      *
      * @param type type of comparison
-     * @param a    first value
-     * @param b    second value
+     * @param a first value
+     * @param b second value
      */
     public ConditionalOperations(byte type, float a, float b) {
         mType = type;
@@ -200,9 +199,9 @@ public class ConditionalOperations extends PaintOperation
     /**
      * Write the operation on the buffer
      *
-     * @param type   type of operation
-     * @param a      first value
-     * @param b      second value
+     * @param type type of operation
+     * @param a first value
+     * @param b second value
      * @param buffer the buffer to write to
      */
     public static void apply(@NonNull WireBuffer buffer, byte type, float a, float b) {
@@ -215,7 +214,7 @@ public class ConditionalOperations extends PaintOperation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -233,7 +232,9 @@ public class ConditionalOperations extends PaintOperation
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Logic & Expressions Operations", OP_CODE, CLASS_NAME)
                 .description("Execute a list of operations if a condition is met")
-                .field(DocumentedOperation.BYTE, "type",
+                .field(
+                        DocumentedOperation.BYTE,
+                        "type",
                         "The type of comparison (EQ, NEQ, LT, etc.)")
                 .possibleValues("TYPE_EQ", TYPE_EQ)
                 .possibleValues("TYPE_NEQ", TYPE_NEQ)

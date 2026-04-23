@@ -48,15 +48,18 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
 
     /** converts to all lower case */
     public static final int TEXT_TO_LOWERCASE = 1;
+
     /** converts to all upper case */
     public static final int TEXT_TO_UPPERCASE = 2;
+
     /** trim white spaces from the ends */
     public static final int TEXT_TRIM = 3;
+
     /** converts to first letter of each word to upper case */
     public static final int TEXT_CAPITALIZE = 4;
+
     /** Makes the first character uppercase */
     public static final int TEXT_UPPERCASE_FIRST_CHAR = 5;
-
 
     public TextTransform(int textId, int srcId1, float start, float len, int op) {
         mTextId = textId;
@@ -74,8 +77,16 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
     @NonNull
     @Override
     public String toString() {
-        return "TextSubrange[" + mTextId + "] = ["
-                + mSrcId1 + " ] +  " + mStart + " - " + mLen + " " + mOperation;
+        return "TextSubrange["
+                + mTextId
+                + "] = ["
+                + mSrcId1
+                + " ] +  "
+                + mStart
+                + " - "
+                + mLen
+                + " "
+                + mOperation;
     }
 
     /**
@@ -103,11 +114,15 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
      * @param buffer buffer to write to
      * @param textId id of the text
      * @param srcId1 source text 1
-     * @param start  of the subrange
-     * @param len    of the subrange exclusive -1 for end of string
+     * @param start of the subrange
+     * @param len of the subrange exclusive -1 for end of string
      */
     public static void apply(
-            @NonNull WireBuffer buffer, int textId, int srcId1, float start, float len,
+            @NonNull WireBuffer buffer,
+            int textId,
+            int srcId1,
+            float start,
+            float len,
             int operation) {
         buffer.start(OP_CODE);
         buffer.writeInt(textId);
@@ -120,7 +135,7 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -143,7 +158,9 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
                 .addedVersion(7)
                 .experimental(true)
                 .description("Transform a string (case conversion, trimming, etc.)")
-                .field(DocumentedOperation.INT, "textId",
+                .field(
+                        DocumentedOperation.INT,
+                        "textId",
                         "The ID of the resulting transformed text")
                 .field(INT, "srcId1", "The ID of the source string")
                 .field(FLOAT, "start", "The start index of the transformation range")
@@ -209,7 +226,6 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
         return result.toString();
     }
 
-
     private static @NonNull String capitalizeFirstWord(@NonNull String input) {
         if (input.isEmpty()) {
             return input;
@@ -225,7 +241,6 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
 
         return input;
     }
-
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {

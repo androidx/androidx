@@ -114,8 +114,7 @@ public class TextLength extends Operation implements VariableSupport, ComponentD
     }
 
     @Override
-    public void updateVariables(@NonNull RemoteContext context) {
-    }
+    public void updateVariables(@NonNull RemoteContext context) {}
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {

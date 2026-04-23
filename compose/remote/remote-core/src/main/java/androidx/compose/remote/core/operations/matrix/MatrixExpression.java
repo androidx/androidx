@@ -99,8 +99,11 @@ public class MatrixExpression extends Operation
     @NonNull
     @Override
     public String toString() {
-        return "MatrixExpression[" + mMatrixId + "] = "
-                + MatrixOperations.toString(mExpression, null) + "-> "
+        return "MatrixExpression["
+                + mMatrixId
+                + "] = "
+                + MatrixOperations.toString(mExpression, null)
+                + "-> "
                 + Arrays.toString(mValues);
     }
 
@@ -126,9 +129,9 @@ public class MatrixExpression extends Operation
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer     write command to this buffer
-     * @param matrixId   the id
-     * @param type       the type of matrix it is
+     * @param buffer write command to this buffer
+     * @param matrixId the id
+     * @param type the type of matrix it is
      * @param expression the value of the float
      */
     public static void apply(
@@ -145,7 +148,7 @@ public class MatrixExpression extends Operation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

@@ -39,74 +39,46 @@ public interface PaintChanges {
     int CLEAR_COLOR_FILTER = 1 << (PaintBundle.COLOR_FILTER - 1);
     int VALID_BITS = 0x1FFF; // only the first 13 bit are valid now
 
-    /**
-     * Set the size of text
-     */
+    /** Set the size of text */
     void setTextSize(float size);
 
-    /**
-     * Set the width of lines
-     */
+    /** Set the width of lines */
     void setStrokeWidth(float width);
 
-    /**
-     * Set the color to use
-     */
+    /** Set the color to use */
     void setColor(int color);
 
-    /**
-     * Set the Stroke Cap
-     */
+    /** Set the Stroke Cap */
     void setStrokeCap(int cap);
 
-    /**
-     * Set the Stroke style FILL and/or STROKE
-     */
+    /** Set the Stroke style FILL and/or STROKE */
     void setStyle(int style);
 
-    /**
-     * Set the id of the shader to use
-     */
+    /** Set the id of the shader to use */
     void setShader(int shader);
 
-    /**
-     * Set the way image is interpolated
-     */
+    /** Set the way image is interpolated */
     void setImageFilterQuality(int quality);
 
-    /**
-     * Set the alpha to draw under
-     */
+    /** Set the alpha to draw under */
     void setAlpha(float a);
 
-    /**
-     * Set the Stroke Miter
-     */
+    /** Set the Stroke Miter */
     void setStrokeMiter(float miter);
 
-    /**
-     * Set the Stroke Join
-     */
+    /** Set the Stroke Join */
     void setStrokeJoin(int join);
 
-    /**
-     * Should bitmaps be interpolated
-     */
+    /** Should bitmaps be interpolated */
     void setFilterBitmap(boolean filter);
 
-    /**
-     * Set the blend mode can be porterduff + others
-     */
+    /** Set the blend mode can be porterduff + others */
     void setBlendMode(int mode);
 
-    /**
-     * Set the AntiAlias. Typically true Set to off when you need pixilated look (e.g. QR codes)
-     */
+    /** Set the AntiAlias. Typically true Set to off when you need pixilated look (e.g. QR codes) */
     void setAntiAlias(boolean aa);
 
-    /**
-     * Clear some sub set of the settings
-     */
+    /** Clear some sub set of the settings */
     void clear(long mask);
 
     /**
@@ -147,17 +119,15 @@ public interface PaintChanges {
             float centerX,
             float centerY);
 
-    /**
-     * Set Color filter mod
-     */
+    /** Set Color filter mod */
     void setColorFilter(int color, int mode);
 
     /**
      * Set TypeFace 0,1,2
      *
      * @param fontType the type of font 0,1,or 2
-     * @param weight   the weight of the font
-     * @param italic   if the font is italic
+     * @param weight the weight of the font
+     * @param italic if the font is italic
      */
     void setTypeFace(int fontType, int weight, boolean italic);
 
@@ -165,8 +135,8 @@ public interface PaintChanges {
      * Set TypeFace to be used as a fallback if the primary font is not available
      *
      * @param fontType the type of font 0,1,or 2
-     * @param weight   the weight of the font
-     * @param italic   if the font is italic
+     * @param weight the weight of the font
+     * @param italic if the font is italic
      */
     void setFallbackTypeFace(int fontType, int weight, boolean italic);
 
@@ -179,15 +149,15 @@ public interface PaintChanges {
 
     /**
      * @param fontType String to be looked up in system
-     * @param weight   the weight of the font
-     * @param italic   if the font is italic
+     * @param weight the weight of the font
+     * @param italic if the font is italic
      */
     void setTypeFace(@NonNull String fontType, int weight, boolean italic);
 
     /**
      * Set the font variation axes
      *
-     * @param tags   tags
+     * @param tags tags
      * @param values values
      */
     void setFontVariationAxes(@NonNull String[] tags, float @NonNull [] values);
@@ -195,15 +165,14 @@ public interface PaintChanges {
     /**
      * Set the texture shader
      *
-     * @param bitmapId      the id of the bitmap to use
-     * @param tileX         The tiling mode for x to draw the bitmap in.
-     * @param tileY         The tiling mode for y to draw the bitmap in.
-     * @param filterMode    the filter mode to be used when sampling from this shader.
+     * @param bitmapId the id of the bitmap to use
+     * @param tileX The tiling mode for x to draw the bitmap in.
+     * @param tileY The tiling mode for y to draw the bitmap in.
+     * @param filterMode the filter mode to be used when sampling from this shader.
      * @param maxAnisotropy The Anisotropy value to use for filtering. Must be greater than 0.
      */
     void setTextureShader(
             int bitmapId, short tileX, short tileY, short filterMode, short maxAnisotropy);
-
 
     /**
      * Set the path effect

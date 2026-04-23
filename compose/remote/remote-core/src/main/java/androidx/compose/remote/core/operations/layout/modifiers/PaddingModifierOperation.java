@@ -39,8 +39,8 @@ import java.util.List;
  * modifiers.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PaddingModifierOperation extends Operation implements ModifierOperation,
-        VariableSupport {
+public class PaddingModifierOperation extends Operation
+        implements ModifierOperation, VariableSupport {
     private static final int OP_CODE = Operations.MODIFIER_PADDING;
     public static final String CLASS_NAME = "PaddingModifierOperation";
     float mLeft;
@@ -104,13 +104,20 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
     @Override
     public void serializeToString(int indent, @NonNull StringSerializer serializer) {
         serializer.append(
-                indent, "PADDING = [" + mLeftValue + ", " + mTopValue + ", " + mRightValue + ", "
-                        + mBottomValue + "]");
+                indent,
+                "PADDING = ["
+                        + mLeftValue
+                        + ", "
+                        + mTopValue
+                        + ", "
+                        + mRightValue
+                        + ", "
+                        + mBottomValue
+                        + "]");
     }
 
     @Override
-    public void apply(@NonNull RemoteContext context) {
-    }
+    public void apply(@NonNull RemoteContext context) {}
 
     @NonNull
     @Override
@@ -155,9 +162,9 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
      * Write operation to the buffer
      *
      * @param buffer a WireBuffer
-     * @param left   left padding
-     * @param top    top padding
-     * @param right  right padding
+     * @param left left padding
+     * @param top top padding
+     * @param right right padding
      * @param bottom bottom padding
      */
     public static void apply(
@@ -172,7 +179,7 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -227,13 +234,10 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
-        mLeftValue = Float.isNaN(mLeft) ? context.getFloat(Utils.idFromNan(mLeft))
-                : mLeft;
+        mLeftValue = Float.isNaN(mLeft) ? context.getFloat(Utils.idFromNan(mLeft)) : mLeft;
         mTopValue = Float.isNaN(mTop) ? context.getFloat(Utils.idFromNan(mTop)) : mTop;
-        mRightValue = Float.isNaN(mRight) ? context.getFloat(Utils.idFromNan(mRight))
-                : mRight;
-        mBottomValue = Float.isNaN(mBottom) ? context.getFloat(Utils.idFromNan(mBottom))
-                : mBottom;
+        mRightValue = Float.isNaN(mRight) ? context.getFloat(Utils.idFromNan(mRight)) : mRight;
+        mBottomValue = Float.isNaN(mBottom) ? context.getFloat(Utils.idFromNan(mBottom)) : mBottom;
 
         if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
             float density = context.getDensity();
