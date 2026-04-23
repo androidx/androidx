@@ -64,7 +64,7 @@ public actual class SavedStateHandle {
 
     @MainThread public actual fun keys(): Set<String> = impl.keys()
 
-    @MainThread public actual operator fun <T> get(key: String): T? = impl.get(key)
+    @MainThread public actual operator fun <T> get(key: String): T? = impl[key]
 
     @MainThread
     public actual operator fun <T> set(key: String, value: T?): Unit = impl.set(key, value)
