@@ -31,8 +31,8 @@ public object LocalViewModelStoreOwner {
     /**
      * Returns current composition local value for the owner or `null` if one has not been provided.
      * On Android it will also try to get it via
-     * [androidx.lifecycle.findViewTreeViewModelStoreOwner] on the current
-     * [androidx.compose.ui.platform.LocalView].
+     * `androidx.lifecycle.findViewTreeViewModelStoreOwner` on the current
+     * `androidx.compose.ui.platform.LocalView`.
      */
     public val current: ViewModelStoreOwner?
         @Composable get() = LocalViewModelStoreOwner.current
