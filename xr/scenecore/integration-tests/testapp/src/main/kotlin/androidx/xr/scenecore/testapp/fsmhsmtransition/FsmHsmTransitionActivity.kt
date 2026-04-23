@@ -34,7 +34,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
-import androidx.xr.scenecore.ExrImage
+import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.ResizableComponent
@@ -62,7 +62,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
     private var resizableActive: Boolean = false
     private var movableActive: Boolean = false
     private var skyboxActive: Boolean = false
-    private var skybox: ExrImage? = null
+    private var skybox: ImageBasedLightingAsset? = null
     private var spatialEnvironmentPreference: SpatialEnvironment.SpatialEnvironmentPreference? =
         null
     private lateinit var defaultPanelSize: IntSize2d
@@ -299,7 +299,11 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            skybox = ExrImage.createFromZip(session!!, Paths.get("skyboxes", "BlueSkybox.zip"))
+            skybox =
+                ImageBasedLightingAsset.createFromZip(
+                    session!!,
+                    Paths.get("skyboxes", "BlueSkybox.zip"),
+                )
         }
     }
 

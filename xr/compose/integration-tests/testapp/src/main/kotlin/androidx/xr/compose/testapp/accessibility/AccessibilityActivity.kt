@@ -77,9 +77,9 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorEntity
-import androidx.xr.scenecore.ExrImage
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
@@ -227,7 +227,7 @@ class AccessibilityActivity : ComponentActivity() {
         }
     }
 
-    private fun setSkyboxAndGeometry(skybox: ExrImage?, geometry: GltfModel?) {
+    private fun setSkyboxAndGeometry(skybox: ImageBasedLightingAsset?, geometry: GltfModel?) {
         spatialEnvironmentPreference =
             if (skybox == null && geometry == null) {
                 null
@@ -250,7 +250,7 @@ class AccessibilityActivity : ComponentActivity() {
     @Composable
     fun GeometryUI() {
         var envGeometry by remember { mutableStateOf<GltfModel?>(null) }
-        var blueSkybox by remember { mutableStateOf<ExrImage?>(null) }
+        var blueSkybox by remember { mutableStateOf<ImageBasedLightingAsset?>(null) }
         val scope = rememberCoroutineScope()
 
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
@@ -260,7 +260,10 @@ class AccessibilityActivity : ComponentActivity() {
                         envGeometry =
                             GltfModel.create(session, Paths.get("models", "GroundGeometry.glb"))
                         blueSkybox =
-                            ExrImage.createFromZip(session, Paths.get("skyboxes", "BlueSkybox.zip"))
+                            ImageBasedLightingAsset.createFromZip(
+                                session,
+                                Paths.get("skyboxes", "BlueSkybox.zip"),
+                            )
                     }
                     setSkyboxAndGeometry(blueSkybox, envGeometry)
                 }

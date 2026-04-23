@@ -21,36 +21,29 @@ import android.net.Uri
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.runtime.ExrImageResource as RtExrImage
+import androidx.xr.scenecore.runtime.ExrImageResource as RtImageBasedLightingAsset
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import java.nio.file.Path
 
 /**
- * Represents an [EXR image](https://openexr.com/) in SceneCore.
+ * Represents an image based lighting asset which contains lighting information for the scene.
  *
- * EXR images are used by the [SpatialEnvironment] for drawing skyboxes.
+ * EXR and HDR images are supported by the [SpatialEnvironment].
  */
-// TODO(b/319269278): Make this and GltfModel derive from a common Resource base class which has
-//                    async helpers.
 // TODO(b/461909954): Add AutoCloseable interface when it is approved.
-// TODO(b/502251518): Remove restricted ExrImage once migration to ImageBasedLightingAsset is
-// complete.
-@Deprecated(
-    message = "ExrImage is being replaced by ImageBasedLightingAsset.",
-    replaceWith =
-        ReplaceWith("ImageBasedLightingAsset", "androidx.xr.scenecore.ImageBasedLightingAsset"),
-)
-@Suppress("DEPRECATION")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ExrImage
-internal constructor(internal val session: Session?, internal val image: RtExrImage) {
+public class ImageBasedLightingAsset
+internal constructor(
+    internal val session: Session?,
+    internal val image: RtImageBasedLightingAsset,
+) {
 
     /**
-     * Closes the given [ExrImage].
+     * Closes the given [ImageBasedLightingAsset].
      *
-     * The [ExrImage] can be explicitly closed at any time or garbage collected. When either
-     * happens, its resources are freed. If close() is not explicitly invoked by the client, the
-     * [ExrImage] will be automatically closed when the [ExrImage] is garbage collected.
+     * The [ImageBasedLightingAsset] can be explicitly closed at any time or garbage collected. When
+     * either happens, its resources are freed. If close() is not explicitly invoked by the client,
+     * the [ImageBasedLightingAsset] will be automatically closed when the [ImageBasedLightingAsset]
+     * is garbage collected.
      *
      * @throws IllegalStateException if the resource has already been closed.
      */
@@ -61,27 +54,27 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
     }
 
     /**
-     * Returns the reflection texture from a preprocessed EXR image.
+     * Returns the reflection texture from a preprocessed image based lighting asset.
      *
      * This method must be called from the main thread.
      * https://developer.android.com/guide/components/processes-and-threads
      *
      * @return a CubeMapTexture.
-     * @throws IllegalStateException if the reflection texture couldn't be retrieved or if the EXR
-     *   image was not preprocessed.
+     * @throws IllegalStateException if the reflection texture couldn't be retrieved or if the image
+     *   based lighting asset was not preprocessed.
      */
     @MainThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getReflectionTexture(): CubeMapTexture {
         if (session == null) {
             throw IllegalStateException(
-                "Can only retrieve reflection texture from preprocessed EXR images."
+                "Can only retrieve a reflection texture from preprocessed image based lighting assets."
             )
         }
         val reflectionTexture = session.renderingRuntime.getReflectionTextureFromIbl(image)
         if (reflectionTexture == null) {
             throw IllegalStateException(
-                "Failed to retrieve reflection texture from the preprocessed EXR image."
+                "Failed to retrieve a reflection texture from preprocessed image based lighting assets."
             )
         }
         return CubeMapTexture(reflectionTexture, session)
@@ -92,12 +85,15 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
             session: Session,
             renderingRuntime: RenderingRuntime,
             name: String,
-        ): ExrImage {
+        ): ImageBasedLightingAsset {
             require(name.endsWith(".zip", ignoreCase = true)) {
                 "Only preprocessed skybox files with the .zip extension are supported."
             }
 
-            return createExrImage(session, renderingRuntime.loadExrImageByAssetName(name))
+            return createImageBasedLightingAsset(
+                session,
+                renderingRuntime.loadExrImageByAssetName(name),
+            )
         }
 
         @SuppressWarnings("RestrictTo")
@@ -106,25 +102,25 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
             renderingRuntime: RenderingRuntime,
             byteArray: ByteArray,
             assetKey: String,
-        ): ExrImage {
-            return createExrImage(
+        ): ImageBasedLightingAsset {
+            return createImageBasedLightingAsset(
                 session,
                 renderingRuntime.loadExrImageByByteArray(byteArray, assetKey),
             )
         }
 
         /**
-         * Public factory for an ExrImage, asynchronously loading a preprocessed skybox from a
-         * [Path] relative to the application's `assets/` folder.
+         * Public factory for an [ImageBasedLightingAsset], asynchronously loading a preprocessed
+         * image based lighting asset from a [Path] relative to the application's `assets/` folder.
          *
          * The input `.zip` file should contain the preprocessed image-based lighting (IBL) data,
          * typically generated from an `.exr` or `.hdr` environment map using a tool like Filament's
          * `cmgen`. See: https://github.com/google/filament/tree/main/tools/cmgen
          *
          * @param session The [Session] to use for loading the asset.
-         * @param path The Path of the preprocessed `.zip` skybox file to be loaded, relative to the
-         *   application's `assets/` folder.
-         * @return a [ExrImage] upon completion.
+         * @param path The Path of the preprocessed `.zip` image based lighting asset file to be
+         *   loaded, relative to the application's `assets/` folder.
+         * @return a [ImageBasedLightingAsset] upon completion.
          * @throws IllegalArgumentException if [Path.isAbsolute] is true, as this method requires a
          *   relative path, or if the path does not specify a `.zip` file.
          */
@@ -132,43 +128,45 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
         @JvmStatic
         // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
         @SuppressLint("NewApi")
-        public suspend fun createFromZip(session: Session, path: Path): ExrImage {
+        public suspend fun createFromZip(session: Session, path: Path): ImageBasedLightingAsset {
             require(!path.isAbsolute) {
-                "ExrImage.createFromZip() expects a path relative to `assets/`, received absolute path $path."
+                "ImageBasedLightingAsset.createFromZip() expects a path relative to `assets/`, received absolute path $path."
             }
             return createFromZip(session, session.renderingRuntime, path.toString())
         }
 
         /**
-         * Public factory for an ExrImage, asynchronously loading a preprocessed skybox from a
-         * [Uri].
+         * Public factory for an [ImageBasedLightingAsset], asynchronously loading a preprocessed
+         * image based lighting asset from a [Uri].
          *
          * The input `.zip` file should contain the preprocessed image-based lighting (IBL) data,
          * typically generated from an `.exr` or `.hdr` environment map using a tool like Filament's
          * `cmgen`. See: https://github.com/google/filament/tree/main/tools/cmgen
          *
          * @param session The [Session] to use for loading the asset.
-         * @param uri The Uri of the preprocessed `.zip` skybox file to be loaded.
-         * @return a [ExrImage] upon completion.
+         * @param uri The Uri of the preprocessed `.zip` image based lighting asset file to be
+         *   loaded.
+         * @return a [ImageBasedLightingAsset] upon completion.
          * @throws IllegalArgumentException if the Uri does not specify a `.zip` file.
          */
         @MainThread
         @JvmStatic
-        public suspend fun createFromZip(session: Session, uri: Uri): ExrImage =
+        public suspend fun createFromZip(session: Session, uri: Uri): ImageBasedLightingAsset =
             createFromZip(session, session.renderingRuntime, uri.toString())
 
         /**
-         * Public factory function for a preprocessed EXRImage, where the preprocessed EXRImage is
-         * asynchronously loaded.
+         * Public factory function for a preprocessed [ImageBasedLightingAsset], where the
+         * preprocessed [ImageBasedLightingAsset] is asynchronously loaded.
          *
          * This method must be called from the main thread.
          * https://developer.android.com/guide/components/processes-and-threads
          *
          * @param session The [Session] to use for loading the asset.
-         * @param assetData The byte array of the preprocessed EXR image to be loaded.
-         * @param assetKey The key of the preprocessed EXR image to be loaded. This is used to
-         *   identify the asset in the SceneCore cache.
-         * @return a [ExrImage] upon completion.
+         * @param assetData The byte array of the preprocessed image based lighting asset to be
+         *   loaded.
+         * @param assetKey The key of the preprocessed image based lighting asset to be loaded. This
+         *   is used to identify the asset in the SceneCore cache.
+         * @return a [ImageBasedLightingAsset] upon completion.
          */
         @MainThread
         @JvmStatic
@@ -177,19 +175,21 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
             session: Session,
             assetData: ByteArray,
             assetKey: String,
-        ): ExrImage {
+        ): ImageBasedLightingAsset {
             return createFromZip(session, session.renderingRuntime, assetData, assetKey)
         }
 
-        private fun createExrImage(session: Session, exrImageResource: RtExrImage): ExrImage =
-            ExrImage(session, exrImageResource)
+        private fun createImageBasedLightingAsset(
+            session: Session,
+            imageBasedLightingResource: RtImageBasedLightingAsset,
+        ): ImageBasedLightingAsset = ImageBasedLightingAsset(session, imageBasedLightingResource)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as ExrImage
+        other as ImageBasedLightingAsset
 
         // Perform a structural equality check on the underlying image.
         if (image != other.image) return false
