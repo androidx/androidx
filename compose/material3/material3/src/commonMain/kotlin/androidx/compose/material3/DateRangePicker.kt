@@ -33,6 +33,8 @@ import androidx.compose.material3.internal.DaysInWeek
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
 import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.isShiftTab
+import androidx.compose.material3.internal.isTab
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
@@ -46,11 +48,14 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ScrollAxisRange
@@ -130,6 +135,8 @@ fun DateRangePicker(
                 createCalendarModel(state.locale)
             }
         }
+    val (topTargetFocusRequester, bottomTargetFocusRequester) =
+        remember { FocusRequester.createRefs() }
     DateEntryContainer(
         modifier = modifier,
         title = title,
@@ -151,6 +158,8 @@ fun DateRangePicker(
         headerMinHeight =
             DatePickerModalTokens.RangeSelectionHeaderContainerHeight - HeaderHeightOffset,
         colors = colors,
+        rangePickerTopFocusTargetFocusRequester = topTargetFocusRequester,
+        rangePickerBottomFocusTargetFocusRequester = bottomTargetFocusRequester,
     ) {
         SwitchableDateEntryContent(
             selectedStartDateMillis = state.selectedStartDateMillis,
@@ -177,6 +186,8 @@ fun DateRangePicker(
             selectableDates = state.selectableDates,
             colors = colors,
             focusRequester = focusRequester,
+            topTargetFocusRequester = topTargetFocusRequester,
+            bottomTargetFocusRequester = bottomTargetFocusRequester,
         )
     }
 }
@@ -706,6 +717,8 @@ private fun SwitchableDateEntryContent(
     selectableDates: SelectableDates,
     colors: DatePickerColors,
     focusRequester: FocusRequester?,
+    topTargetFocusRequester: FocusRequester,
+    bottomTargetFocusRequester: FocusRequester,
 ) {
     // TODO(b/266480386): Apply the motion spec for this once we have it. Consider replacing this
     //  with AnimatedContent when it's out of experimental.
@@ -732,6 +745,8 @@ private fun SwitchableDateEntryContent(
                     dateFormatter = dateFormatter,
                     selectableDates = selectableDates,
                     colors = colors,
+                    topTargetFocusRequester = topTargetFocusRequester,
+                    bottomTargetFocusRequester = bottomTargetFocusRequester,
                 )
             DisplayMode.Input ->
                 DateRangeInputContent(
@@ -762,6 +777,8 @@ private fun DateRangePickerContent(
     dateFormatter: DatePickerFormatter,
     selectableDates: SelectableDates,
     colors: DatePickerColors,
+    topTargetFocusRequester: FocusRequester,
+    bottomTargetFocusRequester: FocusRequester,
 ) {
     val displayedMonth = calendarModel.getMonth(displayedMonthMillis)
     val monthIndex = displayedMonth.indexIn(yearRange).coerceAtLeast(0)
@@ -775,8 +792,23 @@ private fun DateRangePickerContent(
             monthsListState.scrollToItem(monthIndex)
         }
     }
+    val focusManager = LocalFocusManager.current
 
-    Column(modifier = Modifier.padding(horizontal = DatePickerHorizontalPadding)) {
+    Column(
+        modifier =
+            Modifier.padding(horizontal = DatePickerHorizontalPadding).onPreviewKeyEvent {
+                if (it.isShiftTab) {
+                    topTargetFocusRequester.requestFocus()
+                    focusManager.moveFocus(FocusDirection.Previous)
+                    return@onPreviewKeyEvent true
+                } else if (it.isTab) {
+                    bottomTargetFocusRequester.requestFocus()
+                    focusManager.moveFocus(FocusDirection.Next)
+                    return@onPreviewKeyEvent true
+                }
+                return@onPreviewKeyEvent false
+            }
+    ) {
         WeekDays(colors, calendarModel)
         VerticalMonthsList(
             lazyListState = monthsListState,
