@@ -77,14 +77,14 @@ internal constructor(
      *   to the Consumer’s accept method is the new value for [IntSize2d] value for perceived
      *   resolution.
      * @throws [IllegalStateException] if [Session.config] is not set to
-     *   [androidx.xr.runtime.DeviceTrackingMode.SPATIAL_LAST_KNOWN].
+     *   [androidx.xr.runtime.DeviceTrackingMode.SPATIAL].
      */
     public fun addPerceivedResolutionChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<IntSize2d>,
     ): Unit {
-        check(perceptionRuntime.config.deviceTracking == DeviceTrackingMode.SPATIAL_LAST_KNOWN) {
-            "Config.DeviceTrackingMode is not set to SpatialLastKnown."
+        check(perceptionRuntime.config.deviceTracking == DeviceTrackingMode.SPATIAL) {
+            "Config.DeviceTrackingMode is not set to Spatial."
         }
         val rtListener =
             Consumer<RtPixelDimensions> { rtDimensions: RtPixelDimensions ->
@@ -121,7 +121,7 @@ internal constructor(
      *   to the Consumer’s accept method is the new value for [IntSize2d] value for perceived
      *   resolution.
      * @throws [IllegalStateException] if [Session.config] is not set to
-     *   [androidx.xr.runtime.DeviceTrackingMode.SPATIAL_LAST_KNOWN].
+     *   [androidx.xr.runtime.DeviceTrackingMode.SPATIAL].
      */
     public fun addPerceivedResolutionChangedListener(listener: Consumer<IntSize2d>): Unit =
         addPerceivedResolutionChangedListener(HandlerExecutor.mainThreadExecutor, listener)

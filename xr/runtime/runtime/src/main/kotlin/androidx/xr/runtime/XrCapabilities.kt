@@ -126,7 +126,7 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
          * Required permissions:
          * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
          */
-        @JvmField public val SPATIAL_LAST_KNOWN: DeviceTrackingMode = DeviceTrackingMode(1)
+        @JvmField public val SPATIAL: DeviceTrackingMode = DeviceTrackingMode(1)
 
         /**
          * The device pose will be tracked and the last known pose from the system at the time of
@@ -141,12 +141,13 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
          * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
          */
         // TODO: remove this once we've migrated all 1P apps.
-        @Deprecated(
-            "Use SPATIAL_LAST_KNOWN instead.",
-            replaceWith = ReplaceWith("SPATIAL_LAST_KNOWN"),
-        )
+        @Deprecated("Use SPATIAL instead.", replaceWith = ReplaceWith("SPATIAL"))
         @JvmField
-        public val LAST_KNOWN: DeviceTrackingMode = SPATIAL_LAST_KNOWN
+        public val LAST_KNOWN: DeviceTrackingMode = SPATIAL
+
+        @Deprecated("Use SPATIAL instead.", ReplaceWith("SPATIAL"))
+        @JvmField
+        public val SPATIAL_LAST_KNOWN: DeviceTrackingMode = SPATIAL
 
         /**
          * The device pose will be tracked with 3DoF (rotation only) and the last known pose from
@@ -159,7 +160,12 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @JvmField
-        public val INERTIAL_LAST_KNOWN: DeviceTrackingMode = DeviceTrackingMode(2)
+        public val INERTIAL: DeviceTrackingMode = DeviceTrackingMode(2)
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @Deprecated("Use INERTIAL instead.", ReplaceWith("INERTIAL"))
+        @JvmField
+        public val INERTIAL_LAST_KNOWN: DeviceTrackingMode = INERTIAL
     }
 }
 

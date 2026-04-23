@@ -109,7 +109,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
                 this,
                 Config(
                     anchorPersistence = AnchorPersistenceMode.LOCAL,
-                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL,
                 ),
                 onSessionAvailable = { session ->
                     this.session = session

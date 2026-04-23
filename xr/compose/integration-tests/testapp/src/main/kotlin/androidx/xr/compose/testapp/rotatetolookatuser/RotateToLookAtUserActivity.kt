@@ -104,9 +104,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
     @Composable
     private fun MainContent() {
         val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-        session.configure(
-            config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN)
-        )
+        session.configure(config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL))
 
         var isRotateToLookAtUserOn by remember { mutableStateOf(true) }
 

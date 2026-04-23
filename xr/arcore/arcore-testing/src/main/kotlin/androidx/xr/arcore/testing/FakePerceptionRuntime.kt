@@ -100,7 +100,7 @@ public data class FakePerceptionRuntime(
         Config(
             PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
             HandTrackingMode.BOTH,
-            DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+            DeviceTrackingMode.SPATIAL,
             DepthEstimationMode.SMOOTH_AND_RAW,
             AnchorPersistenceMode.LOCAL,
             augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),

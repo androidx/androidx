@@ -176,8 +176,8 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     internal fun updateTrackingStates(config: Config) {
         fakeArDevice.trackingState =
             when (config.deviceTracking) {
-                DeviceTrackingMode.SPATIAL_LAST_KNOWN -> TrackingState.TRACKING
-                DeviceTrackingMode.INERTIAL_LAST_KNOWN -> TrackingState.TRACKING_DEGRADED
+                DeviceTrackingMode.SPATIAL -> TrackingState.TRACKING
+                DeviceTrackingMode.INERTIAL -> TrackingState.TRACKING_DEGRADED
                 else -> TrackingState.PAUSED
             }
         if (config.planeTracking == PlaneTrackingMode.DISABLED) {

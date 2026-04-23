@@ -330,9 +330,7 @@ class RotateToLookAtUserTest {
         val sessionCreateResult = Session.create(composeTestRule.activity, testDispatcher)
         assertThat(sessionCreateResult).isInstanceOf(SessionCreateSuccess::class.java)
         val session = (sessionCreateResult as SessionCreateSuccess).session
-        session.configure(
-            config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN)
-        )
+        session.configure(config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL))
         composeTestRule.session = session
         val fakeRuntime =
             session.runtimes

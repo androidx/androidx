@@ -79,7 +79,7 @@ class HelloArPlaneActivity : ComponentActivity() {
                 this,
                 Config(
                     planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL,
                 ),
                 onSessionAvailable = { session ->
                     this.session = session

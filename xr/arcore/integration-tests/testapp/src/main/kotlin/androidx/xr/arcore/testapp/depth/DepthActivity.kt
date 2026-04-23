@@ -87,12 +87,12 @@ class DepthActivity : ComponentActivity(), GLSurfaceView.Renderer {
     private val rawConfig =
         Config(
             depthEstimation = DepthEstimationMode.RAW_ONLY,
-            deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+            deviceTracking = DeviceTrackingMode.SPATIAL,
         )
     private val smoothConfig =
         Config(
             depthEstimation = DepthEstimationMode.SMOOTH_ONLY,
-            deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+            deviceTracking = DeviceTrackingMode.SPATIAL,
         )
     private var configurationMutex = Mutex()
 

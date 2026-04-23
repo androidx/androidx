@@ -74,17 +74,17 @@ class ProjectedTestAppActivity : ComponentActivity() {
             "Geospatial On, 6DoF On" to
                 Config(
                     geospatial = GeospatialMode.SPATIAL,
-                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL,
                 ),
             "Geospatial Off, 6DoF On" to
                 Config(
                     geospatial = GeospatialMode.DISABLED,
-                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL,
                 ),
             "Geospatial Off, 3DoF On" to
                 Config(
                     geospatial = GeospatialMode.DISABLED,
-                    deviceTracking = DeviceTrackingMode.INERTIAL_LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.INERTIAL,
                 ),
             "Geospatial Off, Device Tracking Off" to
                 Config(

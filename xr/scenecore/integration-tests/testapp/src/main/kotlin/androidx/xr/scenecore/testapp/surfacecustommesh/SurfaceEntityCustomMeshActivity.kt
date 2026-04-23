@@ -392,7 +392,7 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val session = (Session.create(this) as SessionCreateSuccess).session
-        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
+        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
         checkExternalStoragePermission()

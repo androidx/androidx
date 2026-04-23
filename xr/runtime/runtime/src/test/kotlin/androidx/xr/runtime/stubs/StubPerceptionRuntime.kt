@@ -75,7 +75,7 @@ internal class StubPerceptionRuntime(internal var hasCreatePermission: Boolean =
         Config(
             PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
             HandTrackingMode.BOTH,
-            DeviceTrackingMode.SPATIAL_LAST_KNOWN,
+            DeviceTrackingMode.SPATIAL,
             DepthEstimationMode.SMOOTH_AND_RAW,
             AnchorPersistenceMode.LOCAL,
             // Needs to contain at least one AugmentedObjectCategory to enable

@@ -79,7 +79,7 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
-        session!!.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
+        session!!.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
         // Disable default scale overrides on key entity from Spatial Mode events
         session?.scene?.setSpatialModeChangedListener { event ->
             session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)

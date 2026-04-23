@@ -381,10 +381,10 @@ public annotation class ExperimentalFollowingSubspaceApi
  * content. For this API, it is required for device tracking to not be disabled in the session
  * configuration. If it is disabled, this API will not return anything. The session configuration
  * should resemble `session.configure( config = session.config.copy(deviceTracking =
- * Config.DeviceTrackingMode.SPATIAL_LAST_KNOWN) )` The [FollowTarget.ArDevice] is not compatible
- * with [FollowBehavior.Tight]. Combining these together will cause this composable to not be
- * displayed. For a near tight experience, use [FollowBehavior.Soft] with a low duration value such
- * as `FollowBehavior.Soft([FollowBehavior.Companion.MIN_SOFT_DURATION_MS])`
+ * DeviceTrackingMode.SPATIAL) )` The [FollowTarget.ArDevice] is not compatible with
+ * [FollowBehavior.Tight]. Combining these together will cause this composable to not be displayed.
+ * For a near tight experience, use [FollowBehavior.Soft] with a low duration value such as
+ * `FollowBehavior.Soft([FollowBehavior.Companion.MIN_SOFT_DURATION_MS])`
  *
  * When the target parameter is specified to be [FollowTarget.Anchor], the content will be
  * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
