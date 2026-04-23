@@ -66,11 +66,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.material3.internal.Strings
+import androidx.wear.compose.material3.internal.getString
 import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitSwitchButtonTokens
 import androidx.wear.compose.material3.tokens.SwitchButtonTokens
@@ -137,6 +140,12 @@ public fun SwitchButton(
     label: @Composable RowScope.() -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
+    val currentStateDescription =
+        if (checked) {
+            getString(Strings.OnStateDescription)
+        } else {
+            getString(Strings.OffStateDescription)
+        }
 
     androidx.wear.compose.materialcore.ToggleButton(
         checked = checked,
@@ -177,7 +186,10 @@ public fun SwitchButton(
             )
         },
         selectionControl = null,
-        modifier = modifier.defaultMinSize(minHeight = MIN_HEIGHT).height(IntrinsicSize.Min),
+        modifier =
+            modifier.defaultMinSize(minHeight = MIN_HEIGHT).height(IntrinsicSize.Min).semantics {
+                stateDescription = currentStateDescription
+            },
         icon =
             provideNullableScopeContent(
                 contentColor = colors.iconColor(enabled = enabled, checked),
@@ -303,6 +315,12 @@ public fun SplitSwitchButton(
     label: @Composable RowScope.() -> Unit,
 ) {
     val containerColorState = colors.containerColor(enabled, checked)
+    val currentStateDescription =
+        if (checked) {
+            getString(Strings.OnStateDescription)
+        } else {
+            getString(Strings.OffStateDescription)
+        }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
@@ -393,7 +411,8 @@ public fun SplitSwitchButton(
                     }
                     .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
                     .wrapContentHeight(align = Alignment.CenterVertically)
-                    .padding(contentPadding),
+                    .padding(contentPadding)
+                    .semantics { stateDescription = currentStateDescription },
         ) {
             Switch(
                 checked = checked,
