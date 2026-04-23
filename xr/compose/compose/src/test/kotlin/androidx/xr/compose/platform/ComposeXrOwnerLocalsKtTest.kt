@@ -23,8 +23,15 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.configureFakeSession
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.Space
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,14 +52,21 @@ class ComposeXrOwnerLocalsKtTest {
             CompositionLocalProvider(
                 LocalContext provides ApplicationProvider.getApplicationContext()
             ) {
-                assertThat(LocalComposeXrOwners.current).isNull()
+                assertNull(LocalComposeXrOwners.current)
             }
         }
     }
 
     @Test
     fun composeXrOwnerLocals_activityContext_returnsNonNull() {
-        composeTestRule.setContent { assertThat(LocalComposeXrOwners.current).isNotNull() }
+        composeTestRule.setContent { assertNotNull(LocalComposeXrOwners.current) }
+    }
+
+    @Test
+    fun composeXrOwnerLocals_nonXr_returnsNull() {
+        composeTestRule.activity.disableXr()
+
+        composeTestRule.setContent { assertNull(LocalComposeXrOwners.current) }
     }
 
     @Test
@@ -62,7 +76,7 @@ class ComposeXrOwnerLocalsKtTest {
             { null },
         )
 
-        composeTestRule.setContent { assertThat(LocalComposeXrOwners.current).isNull() }
+        composeTestRule.setContent { assertNull(LocalComposeXrOwners.current) }
     }
 
     @Test
@@ -72,7 +86,7 @@ class ComposeXrOwnerLocalsKtTest {
             { throw IllegalStateException() },
         )
 
-        composeTestRule.setContent { assertThat(LocalComposeXrOwners.current).isNull() }
+        composeTestRule.setContent { assertNull(LocalComposeXrOwners.current) }
     }
 
     @Test
@@ -97,13 +111,13 @@ class ComposeXrOwnerLocalsKtTest {
             scenario.recreate()
 
             // Verify that the cache has been cleared.
-            assertThat(decorView1.getTag(androidx.xr.compose.R.id.compose_xr_owner_locals)).isNull()
+            assertNull(decorView1.getTag(androidx.xr.compose.R.id.compose_xr_owner_locals))
 
             // Phase 3: Verify that a new, distinct instance is created for the new activity.
             scenario.onActivity { activity2 ->
                 // Check our understanding of the test infrastructure, that the activity is
                 // recreated.
-                assertThat(activity1.isDestroyed).isTrue()
+                assertTrue(activity1.isDestroyed)
                 assertThat(activity2).isNotSameInstanceAs(activity1)
 
                 val locals3 = assertNotNull(activity2.getOrCreateXrOwnerLocals())
@@ -111,5 +125,50 @@ class ComposeXrOwnerLocalsKtTest {
                 assertThat(locals3.session).isNotSameInstanceAs(locals1.session)
             }
         }
+    }
+
+    // TODO(b/502276582): Remove Suppression once the rest of aosp/4029203 are submitted
+    @Suppress("DEPRECATION")
+    @Test
+    fun getOrCreateXrOwnerLocals_spatialModeChanged_updatesStateAndNode() {
+        val session = composeTestRule.configureFakeSession()
+        val fakeSceneRuntime =
+            session.runtimes
+                .filterIsInstance<androidx.xr.scenecore.testing.FakeSceneRuntime>()
+                .first()
+
+        var locals: ComposeXrOwnerLocals? = null
+
+        composeTestRule.setContent { locals = LocalComposeXrOwners.current }
+        composeTestRule.waitForIdle()
+
+        val xrLocals = assertNotNull(locals)
+
+        val spatialConfiguration =
+            assertNotNull(xrLocals.spatialConfiguration as? SessionSpatialConfiguration)
+
+        assertThat(spatialConfiguration.recommendedScale).isEqualTo(1f)
+        assertThat(spatialConfiguration.recommendedPose).isEqualTo(Pose.Identity)
+
+        val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
+        val expectedScale = 2.5f
+
+        composeTestRule.runOnIdle {
+            fakeSceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+                recommendedPose = expectedPose,
+                recommendedScale = Vector3(expectedScale, expectedScale, expectedScale),
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        // Verify Compose State updated successfully
+        assertThat(spatialConfiguration.recommendedScale).isEqualTo(expectedScale)
+        assertThat(spatialConfiguration.recommendedPose).isEqualTo(expectedPose)
+
+        // Verify subspaceRootNode scaled and translated correctly in SceneCore
+        val rootNode = xrLocals.subspaceRootNode
+
+        assertThat(rootNode.getScale(Space.ACTIVITY)).isEqualTo(expectedScale)
+        assertThat(rootNode.getPose(Space.ACTIVITY)).isEqualTo(expectedPose)
     }
 }
