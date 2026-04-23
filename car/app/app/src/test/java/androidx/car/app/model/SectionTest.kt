@@ -61,6 +61,14 @@ class SectionTest {
     }
 
     @Test
+    fun getSectionHeader() {
+        val sectionHeader = SectionHeader.Builder("header").build()
+        val section = TestSection.Builder().setSectionHeader(sectionHeader).build()
+
+        assertThat(section.sectionHeader).isEqualTo(sectionHeader)
+    }
+
+    @Test
     fun getNoItemsMessage() {
         val message = CarText.create("No items!")
         val section = TestSection.Builder().setNoItemsMessage(message).build()
@@ -128,12 +136,14 @@ class SectionTest {
 
     @Test
     fun equals_isReflexive() {
+        val sectionHeader = SectionHeader.Builder("header").build()
         val section =
             TestSection.Builder()
                 .addItem(TestItem(1))
                 .addItem(TestItem(2))
                 .setNoItemsMessage("Some message")
                 .setTitle("some title")
+                .setSectionHeader(sectionHeader)
                 .setOnItemVisibilityChangedListener { _, _ -> }
                 .build()
 
@@ -142,12 +152,14 @@ class SectionTest {
 
     @Test
     fun equals_returnsTrue_whenSectionsHaveTheSameContent() {
+        val sectionHeader = SectionHeader.Builder("header").build()
         val section1 =
             TestSection.Builder()
                 .addItem(TestItem(1))
                 .addItem(TestItem(2))
                 .setNoItemsMessage("Some message")
                 .setTitle("some title")
+                .setSectionHeader(sectionHeader)
                 .setOnItemVisibilityChangedListener { _, _ -> }
                 .build()
         val section2 =
@@ -156,6 +168,7 @@ class SectionTest {
                 .addItem(TestItem(2))
                 .setNoItemsMessage("Some message")
                 .setTitle("some title")
+                .setSectionHeader(sectionHeader)
                 .setOnItemVisibilityChangedListener { _, _ -> }
                 .build()
 
@@ -166,12 +179,14 @@ class SectionTest {
 
     @Test
     fun equals_returnsFalse_whenNotEqual() {
+        val sectionHeader = SectionHeader.Builder("header").build()
         val sections =
             listOf(
                 TestSection.Builder().build(),
                 TestSection.Builder().addItem(TestItem(1)).build(),
                 TestSection.Builder().addItem(TestItem(2)).build(),
                 TestSection.Builder().setTitle("title").build(),
+                TestSection.Builder().setSectionHeader(sectionHeader).build(),
                 TestSection.Builder().setNoItemsMessage("no items").build(),
                 TestSection.Builder().setOnItemVisibilityChangedListener { _, _ -> }.build(),
             )

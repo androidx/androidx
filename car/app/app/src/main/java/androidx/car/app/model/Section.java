@@ -18,8 +18,10 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
@@ -46,9 +48,11 @@ import java.util.Objects;
 @KeepFields
 @CarProtocol
 @RequiresCarApi(8)
+@OptIn(markerClass = ExperimentalCarApi.class)
 public abstract class Section<T extends Item> {
     private final @NonNull ListDelegate<T> mItemsDelegate;
     private final @Nullable CarText mTitle;
+    private final @Nullable SectionHeader mSectionHeader;
     private final @Nullable CarText mNoItemsMessage;
     private final @Nullable OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
 
@@ -56,6 +60,7 @@ public abstract class Section<T extends Item> {
     protected Section() {
         mItemsDelegate = new ListDelegateImpl<>(Collections.emptyList());
         mTitle = null;
+        mSectionHeader = null;
         mNoItemsMessage = null;
         mOnItemVisibilityChangedDelegate = null;
     }
@@ -64,6 +69,7 @@ public abstract class Section<T extends Item> {
     protected Section(@NonNull BaseBuilder<T, ?> builder) {
         mItemsDelegate = new ListDelegateImpl<>(Collections.unmodifiableList(builder.mItems));
         mTitle = builder.mHeader;
+        mSectionHeader = builder.mSectionHeader;
         mNoItemsMessage = builder.mNoItemsMessage;
         mOnItemVisibilityChangedDelegate = builder.mOnItemVisibilityChangedDelegate;
     }
@@ -74,9 +80,25 @@ public abstract class Section<T extends Item> {
         return mItemsDelegate;
     }
 
-    /** Returns the optional text that should appear with the items in this section. */
+    /**
+     * Returns the optional text that should appear with the items in this section.
+     *
+     * <p>If {@link #getSectionHeader()} is set, it takes precedence and this title should be
+     * ignored.
+     */
     public @Nullable CarText getTitle() {
         return mTitle;
+    }
+
+    /**
+     * Returns the {@link SectionHeader} for this section, or {@code null} if not set.
+     *
+     * <p>If this is set, it takes precedence over {@link #getTitle()}.
+     */
+    @RequiresCarApi(9)
+    @ExperimentalCarApi
+    public @Nullable SectionHeader getSectionHeader() {
+        return mSectionHeader;
     }
 
     /**
@@ -106,6 +128,7 @@ public abstract class Section<T extends Item> {
 
         return Objects.equals(mItemsDelegate, section.mItemsDelegate)
                 && Objects.equals(mTitle, section.mTitle)
+                && Objects.equals(mSectionHeader, section.mSectionHeader)
                 && Objects.equals(mNoItemsMessage, section.mNoItemsMessage)
                 && Objects.equals(mOnItemVisibilityChangedDelegate == null,
                 section.mOnItemVisibilityChangedDelegate == null);
@@ -114,12 +137,14 @@ public abstract class Section<T extends Item> {
     @Override
     public int hashCode() {
         return Objects.hash(
-                mItemsDelegate, mTitle, mNoItemsMessage, mOnItemVisibilityChangedDelegate == null);
+                mItemsDelegate, mTitle, mSectionHeader, mNoItemsMessage,
+                mOnItemVisibilityChangedDelegate == null);
     }
 
     @Override
     public @NonNull String toString() {
         return "Section { title: " + mTitle
+                + ", sectionHeader: " + mSectionHeader
                 + ", noItemsMessage: " + mNoItemsMessage
                 + ", itemsDelegate: " + mItemsDelegate
                 + ", onItemVisibilityChangedDelegate: "
@@ -136,6 +161,7 @@ public abstract class Section<T extends Item> {
     protected abstract static class BaseBuilder<T extends Item, B> {
         @NonNull List<T> mItems = new ArrayList<>();
         @Nullable CarText mHeader;
+        @Nullable SectionHeader mSectionHeader;
         @Nullable CarText mNoItemsMessage;
         @Nullable OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
 
@@ -209,6 +235,9 @@ public abstract class Section<T extends Item> {
          * Sets or clears the optional title that appears above the items in this section. If not
          * set, no title shows up. The title must conform to {@link CarTextConstraints#TEXT_ONLY}
          * constraints.
+         *
+         * <p>Note: if {@link #setSectionHeader(SectionHeader)} is used, that header takes
+         * precedence and this title is ignored.
          */
         @CanIgnoreReturnValue
         @SuppressWarnings({"SetterReturnsThis", "unchecked"})
@@ -228,6 +257,9 @@ public abstract class Section<T extends Item> {
          * Sets or clears the optional title that appears above the items in this section. If not
          * set, no title shows up. The title must conform to {@link CarTextConstraints#TEXT_ONLY}
          * constraints.
+         *
+         * <p>Note: if {@link #setSectionHeader(SectionHeader)} is used, that header takes
+         * precedence and this title is ignored.
          */
         @CanIgnoreReturnValue
         @SuppressWarnings({"SetterReturnsThis", "unchecked"})
@@ -236,6 +268,21 @@ public abstract class Section<T extends Item> {
                 CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
             }
             mHeader = title;
+            return (B) this;
+        }
+
+        /**
+         * Sets the {@link SectionHeader} for this section.
+         *
+         * <p>If this is set, it takes precedence over the title set via
+         * {@link #setTitle(CharSequence)}.
+         */
+        @CanIgnoreReturnValue
+        @SuppressWarnings({"SetterReturnsThis", "unchecked"})
+        @RequiresCarApi(9)
+        @ExperimentalCarApi
+        public @NonNull B setSectionHeader(@Nullable SectionHeader sectionHeader) {
+            mSectionHeader = sectionHeader;
             return (B) this;
         }
 
