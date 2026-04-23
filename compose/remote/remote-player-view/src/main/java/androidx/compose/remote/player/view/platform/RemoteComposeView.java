@@ -259,6 +259,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
             mClock = newClock;
             mStart = mClock.nanoTime();
             mLastFrameCall = mClock.millis();
+            mARContext.setClock(mClock);
         }
 
         mDocument = value;
