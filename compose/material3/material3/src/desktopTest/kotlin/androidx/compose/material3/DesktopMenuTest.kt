@@ -23,8 +23,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.internal.DropdownMenuPositionProvider
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -53,7 +55,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(InternalComposeUiApi::class)
+@OptIn(InternalComposeUiApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @RunWith(JUnit4::class)
 class DesktopMenuTest {
 
@@ -70,8 +72,10 @@ class DesktopMenuTest {
         val popupSize = IntSize(80, 50)
 
         val position = DropdownMenuPositionProvider(
-            DpOffset.Zero,
-            Density(1f)
+            transformOriginState = mutableStateOf(TransformOrigin.Center),
+            contentOffset = DpOffset.Zero,
+            density = Density(1f),
+            dropdownMenuAnchorPosition = MenuAnchorPosition.Below
         ).calculatePosition(
             anchorBounds,
             windowSize,
