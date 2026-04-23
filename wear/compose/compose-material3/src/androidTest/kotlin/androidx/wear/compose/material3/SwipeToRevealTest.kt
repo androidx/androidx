@@ -52,6 +52,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -556,6 +557,26 @@ class SwipeToRevealTest {
 
         rule.waitForIdle()
         rule.onNodeWithTag(UNDO_PRIMARY_ACTION_TAG).assertExists()
+    }
+
+    @Test
+    fun onFullSwipeLeft_singleAction_hideMainButton() {
+        verifyFullSwipeShouldHideContent()
+    }
+
+    @Test
+    fun onFullSwipeRight_singleAction_hideMainButton() {
+        verifyFullSwipeShouldHideContent(swipeRight = true)
+    }
+
+    @Test
+    fun onFullSwipeLeft_twoActions_hideMainButton() {
+        verifyFullSwipeShouldHideContent(hasSecondAction = true)
+    }
+
+    @Test
+    fun onFullSwipeRight_twoActions_hideMainButton() {
+        verifyFullSwipeShouldHideContent(hasSecondAction = true, swipeRight = true)
     }
 
     @Test
@@ -1568,6 +1589,42 @@ class SwipeToRevealTest {
         assertEquals(expectedSwipeToDismissBoxDismissed, onSwipeToDismissBoxDismissed)
     }
 
+    private fun verifyFullSwipeShouldHideContent(
+        hasSecondAction: Boolean = false,
+        swipeRight: Boolean = false,
+    ) {
+        rule.setContent {
+            Box(modifier = Modifier.padding(16.dp)) {
+                SwipeToRevealWithDefaults(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    secondaryAction =
+                        if (hasSecondAction) {
+                            { DefaultSecondaryActionButton() }
+                        } else null,
+                    undoPrimaryAction = { DefaultUndoActionButton() },
+                    revealDirection = Bidirectional,
+                    enableTouchSlop = false,
+                ) {
+                    DefaultContent(modifier = Modifier.testTag(SWIPE_TO_REVEAL_CONTENT_TAG))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            if (swipeRight) swipeRight() else swipeLeft()
+        }
+
+        rule.waitForIdle()
+        val contentBounds =
+            rule.onNodeWithTag(SWIPE_TO_REVEAL_CONTENT_TAG).fetchSemanticsNode().boundsInRoot
+        if (swipeRight) {
+            val screenRight = rule.onRoot().fetchSemanticsNode().boundsInWindow.right
+            assertTrue(contentBounds.left > screenRight)
+        } else {
+            assertTrue(contentBounds.right < 0)
+        }
+    }
+
     private fun verifyStateMultipleSwipeToReveal(
         actions:
             ((revealStateOne: RevealState, revealStateTwo: RevealState, density: Float) -> Unit)? =
@@ -1734,6 +1791,7 @@ class SwipeToRevealTest {
     companion object {
         private const val SWIPE_TO_REVEAL_TAG = TEST_TAG
         private const val SWIPE_TO_REVEAL_SECOND_TAG = "SWIPE_TO_REVEAL_SECOND_TAG"
+        private const val SWIPE_TO_REVEAL_CONTENT_TAG = "SWIPE_TO_REVEAL_CONTENT_TAG"
         private const val PRIMARY_ACTION_TAG = "PRIMARY_ACTION_TAG"
         private const val SECONDARY_ACTION_TAG = "SECONDARY_ACTION_TAG"
         private const val UNDO_PRIMARY_ACTION_TAG = "UNDO_PRIMARY_ACTION_TAG"
