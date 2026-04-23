@@ -18,8 +18,6 @@
 
 package androidx.build.lint.replacewith
 
-import com.android.tools.lint.useFirUast
-import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -29,7 +27,6 @@ class ReplaceWithDetectorPropertyTest {
 
     @Test
     fun propertyUsage_isIgnored() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
