@@ -84,7 +84,9 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     @RestrictTo(LIBRARY_GROUP)
     public static final int THEME_DARK = Theme.DARK;
 
-    private RemoteComposeView mInner;
+    // Expose to subclasses to enable player extensibility.
+    @NonNull
+    protected RemoteComposeView mInner;
     private StateUpdater mStateUpdater;
 
     private final @NonNull ThemeSupport mThemeSupport = new ThemeSupport();
