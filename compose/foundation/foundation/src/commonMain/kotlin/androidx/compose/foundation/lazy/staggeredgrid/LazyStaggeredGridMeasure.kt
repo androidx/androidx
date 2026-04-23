@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItemProvider
+import androidx.compose.foundation.lazy.layout.placeablesCount
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.LaneFullSpan
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.LaneUnset
 import androidx.compose.ui.graphics.GraphicsContext
@@ -1304,8 +1305,8 @@ internal abstract class LazyStaggeredGridMeasureProvider(
 internal class LazyStaggeredGridMeasuredItem(
     override val index: Int,
     override val key: Any,
-    private val placeables: List<Placeable>,
-    override val isVertical: Boolean,
+    override val placeables: List<Placeable>,
+    val isVertical: Boolean,
     spacing: Int,
     override val lane: Int,
     override val span: Int,
@@ -1317,17 +1318,17 @@ internal class LazyStaggeredGridMeasuredItem(
 ) : LazyStaggeredGridItemInfo, LazyLayoutMeasuredItem {
     var isVisible = true
 
-    override val placeablesCount: Int
-        get() = placeables.size
-
-    override fun getParentData(index: Int) = placeables[index].parentData
+    fun getParentData(index: Int) = placeables[index].parentData
 
     val mainAxisSize: Int =
         placeables.fastMaxOfOrDefault(0) { placeable ->
             if (isVertical) placeable.height else placeable.width
         }
 
-    override val mainAxisSizeWithSpacings: Int = (mainAxisSize + spacing).coerceAtLeast(0)
+    override val horizontalAxisSize: Int
+    override val verticalAxisSize: Int
+    override val horizontalAxisSpacing: Int
+    override val verticalAxisSpacing: Int
 
     val crossAxisSize: Int =
         placeables.fastMaxOfOrDefault(0) { if (isVertical) it.width else it.height }
@@ -1336,11 +1337,35 @@ internal class LazyStaggeredGridMeasuredItem(
     private var minMainAxisOffset: Int = 0
     private var maxMainAxisOffset: Int = 0
 
+    init {
+        if (isVertical) {
+            verticalAxisSpacing = spacing
+            verticalAxisSize = mainAxisSize
+            horizontalAxisSize = crossAxisSize
+            horizontalAxisSpacing = 0
+        } else {
+            verticalAxisSpacing = 0
+            verticalAxisSize = crossAxisSize
+
+            horizontalAxisSize = mainAxisSize
+            horizontalAxisSpacing = spacing
+        }
+    }
+
     /**
      * True when this item is not supposed to react on scroll delta. for example items being
      * animated away out of the bounds are non scrollable.
      */
-    override var nonScrollableItem: Boolean = false
+    var nonScrollableItem: Boolean = false
+
+    val mainAxisSizeWithSpacings: Int
+        get() =
+            if (isVertical) {
+                    verticalAxisSize + verticalAxisSpacing
+                } else {
+                    horizontalAxisSize + horizontalAxisSpacing
+                }
+                .coerceAtLeast(0)
 
     override val size: IntSize =
         if (isVertical) {
@@ -1351,7 +1376,7 @@ internal class LazyStaggeredGridMeasuredItem(
     override var offset: IntOffset = IntOffset.Zero
         private set
 
-    override fun getOffset(index: Int): IntOffset = offset
+    override fun getOffset(placeableIndex: Int): IntOffset = offset
 
     fun position(mainAxis: Int, crossAxis: Int, mainAxisLayoutSize: Int) {
         this.mainAxisLayoutSize = mainAxisLayoutSize
@@ -1365,13 +1390,21 @@ internal class LazyStaggeredGridMeasuredItem(
             }
     }
 
+    override fun makeNonScrollable() {
+        nonScrollableItem = true
+    }
+
     override fun position(
-        mainAxisOffset: Int,
-        crossAxisOffset: Int,
+        horizontalAxisOffset: Int,
+        verticalAxisOffset: Int,
         layoutWidth: Int,
         layoutHeight: Int,
     ) {
-        position(mainAxisOffset, crossAxisOffset, if (isVertical) layoutHeight else layoutWidth)
+        position(
+            horizontalAxisOffset,
+            verticalAxisOffset,
+            if (isVertical) layoutHeight else layoutWidth,
+        )
     }
 
     val mainAxisOffset

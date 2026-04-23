@@ -20,6 +20,7 @@ import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation.Companion.NotInitialized
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
+import androidx.compose.foundation.lazy.layout.placeablesCount
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -35,7 +36,7 @@ import androidx.compose.ui.util.fastForEach
 internal class LazyGridMeasuredItem(
     override val index: Int,
     override val key: Any,
-    override val isVertical: Boolean,
+    val isVertical: Boolean,
     /**
      * Cross axis size is the same for all [placeables]. Take it as parameter for the case when
      * [placeables] is empty.
@@ -46,7 +47,7 @@ internal class LazyGridMeasuredItem(
     private val layoutDirection: LayoutDirection,
     private val beforeContentPadding: Int,
     private val afterContentPadding: Int,
-    private val placeables: List<Placeable>,
+    override val placeables: List<Placeable>,
     /**
      * The offset which shouldn't affect any calculations but needs to be applied for the final
      * value passed into the place() call.
@@ -61,17 +62,14 @@ internal class LazyGridMeasuredItem(
     /** Main axis size of the item - the max main axis size of the placeables. */
     val mainAxisSize: Int
 
-    /** The max main axis size of the placeables plus mainAxisSpacing. */
-    override val mainAxisSizeWithSpacings: Int
-
-    override val placeablesCount: Int
-        get() = placeables.size
+    override val horizontalAxisSize: Int
+    override val verticalAxisSize: Int
+    override val horizontalAxisSpacing: Int
+    override val verticalAxisSpacing: Int
 
     private var mainAxisLayoutSize: Int = Unset
     private var minMainAxisOffset: Int = 0
     private var maxMainAxisOffset: Int = 0
-
-    override fun getParentData(index: Int) = placeables[index].parentData
 
     init {
         var maxMainAxis = 0
@@ -79,8 +77,30 @@ internal class LazyGridMeasuredItem(
             maxMainAxis = maxOf(maxMainAxis, if (isVertical) it.height else it.width)
         }
         mainAxisSize = maxMainAxis
-        mainAxisSizeWithSpacings = (maxMainAxis + mainAxisSpacing).coerceAtLeast(0)
+
+        if (isVertical) {
+            verticalAxisSpacing = mainAxisSpacing
+            verticalAxisSize = maxMainAxis
+
+            horizontalAxisSize = crossAxisSize
+            horizontalAxisSpacing = 0
+        } else {
+            verticalAxisSpacing = 0
+            verticalAxisSize = crossAxisSize
+
+            horizontalAxisSize = maxMainAxis
+            horizontalAxisSpacing = mainAxisSpacing
+        }
     }
+
+    /** The max main axis size of the placeables plus mainAxisSpacing. */
+    val mainAxisSizeWithSpacings: Int
+        get() =
+            if (isVertical) {
+                verticalAxisSize + verticalAxisSpacing
+            } else {
+                horizontalAxisSize + horizontalAxisSpacing
+            }
 
     override val size: IntSize =
         if (isVertical) {
@@ -97,28 +117,32 @@ internal class LazyGridMeasuredItem(
     override var column: Int = LazyGridItemInfo.UnknownColumn
         private set
 
-    override fun getOffset(index: Int): IntOffset = offset
+    override fun getOffset(placeableIndex: Int): IntOffset = offset
 
     /**
      * True when this item is not supposed to react on scroll delta. for example items being
      * animated away out of the bounds are non scrollable.
      */
-    override var nonScrollableItem: Boolean = false
+    var nonScrollableItem: Boolean = false
 
     override fun position(
-        mainAxisOffset: Int,
-        crossAxisOffset: Int,
+        horizontalAxisOffset: Int,
+        verticalAxisOffset: Int,
         layoutWidth: Int,
         layoutHeight: Int,
     ) {
         position(
-            mainAxisOffset,
-            crossAxisOffset,
+            horizontalAxisOffset,
+            verticalAxisOffset,
             layoutWidth,
             layoutHeight,
             LazyGridItemInfo.UnknownRow,
             LazyGridItemInfo.UnknownColumn,
         )
+    }
+
+    override fun makeNonScrollable() {
+        nonScrollableItem = true
     }
 
     /**

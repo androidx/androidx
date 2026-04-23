@@ -123,6 +123,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                         graphicsContext,
                         layoutMinOffset,
                         layoutMaxOffset,
+                        isVertical,
                     )
                     keyToItemInfoMap[item.key] = newItemInfo
                     if (item.index != previousIndex && previousIndex != -1) {
@@ -135,8 +136,9 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     } else {
                         initializeAnimation(
                             item,
-                            item.getOffset(0).let { if (item.isVertical) it.y else it.x },
+                            item.getOffset(0).let { if (isVertical) it.y else it.x },
                             newItemInfo,
+                            isVertical,
                         )
                         if (shouldAnimateAppearance) {
                             newItemInfo.animations.forEach { it?.animateAppearance() }
@@ -150,6 +152,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                             graphicsContext,
                             layoutMinOffset,
                             layoutMaxOffset,
+                            isVertical,
                         )
                         itemInfo.animations.forEach { animation ->
                             if (
@@ -184,9 +187,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             if (movingInFromStartBound.isNotEmpty()) {
                 movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
                 movingInFromStartBound.fastForEach { item ->
-                    val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
+                    val accumulatedOffset =
+                        accumulatedOffsetPerLane.updateAndReturnOffsetFor(item, isVertical)
                     val mainAxisOffset = layoutMinOffset - accumulatedOffset
-                    initializeAnimation(item, mainAxisOffset)
+                    initializeAnimation(item, mainAxisOffset, isVertical = isVertical)
                     startPlacementAnimationsIfNeeded(item)
                 }
                 accumulatedOffsetPerLane.fill(0)
@@ -194,10 +198,12 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             if (movingInFromEndBound.isNotEmpty()) {
                 movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
                 movingInFromEndBound.fastForEach { item ->
-                    val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
+                    val accumulatedOffset =
+                        accumulatedOffsetPerLane.updateAndReturnOffsetFor(item, isVertical)
                     val mainAxisOffset =
-                        layoutMaxOffset + accumulatedOffset - item.mainAxisSizeWithSpacings
-                    initializeAnimation(item, mainAxisOffset)
+                        layoutMaxOffset + accumulatedOffset -
+                            item.mainAxisSizeWithSpacings(isVertical)
+                    initializeAnimation(item, mainAxisOffset, isVertical = isVertical)
                     startPlacementAnimationsIfNeeded(item)
                 }
                 accumulatedOffsetPerLane.fill(0)
@@ -256,7 +262,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                         span = info.span,
                     )
 
-                item.nonScrollableItem = true
+                item.makeNonScrollable()
                 // check if we have any active placement animation on the item
                 val inProgress = info.animations.any { it?.isPlacementAnimationInProgress == true }
                 if ((!inProgress && newIndex == previousKeyToIndexMap?.getIndex(key))) {
@@ -270,6 +276,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                         graphicsContext,
                         layoutMinOffset,
                         layoutMaxOffset,
+                        isVertical,
                         crossAxisOffset = info.crossAxisOffset,
                     )
                     if (newIndex < firstVisibleIndex) {
@@ -285,17 +292,18 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             movingAwayToStartBound.sortByDescending { keyIndexMap.getIndex(it.key) }
             movingAwayToStartBound.fastForEach { item ->
                 val itemInfo = keyToItemInfoMap[item.key]!!
-                val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
+                val accumulatedOffset =
+                    accumulatedOffsetPerLane.updateAndReturnOffsetFor(item, isVertical)
                 val mainAxisOffset =
                     if (isLookingAhead) {
-                        positionedItems.first().mainAxisOffset
+                        positionedItems.first().mainAxisOffset(isVertical)
                     } else {
                         itemInfo.layoutMinOffset
                     } - accumulatedOffset
 
                 item.position(
-                    mainAxisOffset = mainAxisOffset,
-                    crossAxisOffset = itemInfo.crossAxisOffset,
+                    horizontalAxisOffset = mainAxisOffset,
+                    verticalAxisOffset = itemInfo.crossAxisOffset,
                     layoutWidth = layoutWidth,
                     layoutHeight = layoutHeight,
                 )
@@ -310,13 +318,15 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             movingAwayToEndBound.sortBy { keyIndexMap.getIndex(it.key) }
             movingAwayToEndBound.fastForEach { item ->
                 val itemInfo = keyToItemInfoMap[item.key]!!
-                val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
+                val accumulatedOffset =
+                    accumulatedOffsetPerLane.updateAndReturnOffsetFor(item, isVertical)
                 val mainAxisOffset =
-                    itemInfo.layoutMaxOffset - item.mainAxisSizeWithSpacings + accumulatedOffset
+                    itemInfo.layoutMaxOffset - item.mainAxisSizeWithSpacings(isVertical) +
+                        accumulatedOffset
 
                 item.position(
-                    mainAxisOffset = mainAxisOffset,
-                    crossAxisOffset = itemInfo.crossAxisOffset,
+                    horizontalAxisOffset = mainAxisOffset,
+                    verticalAxisOffset = itemInfo.crossAxisOffset,
                     layoutWidth = layoutWidth,
                     layoutHeight = layoutHeight,
                 )
@@ -366,11 +376,12 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         item: T,
         mainAxisOffset: Int,
         itemInfo: ItemInfo = keyToItemInfoMap[item.key]!!,
+        isVertical: Boolean,
     ) {
         val firstPlaceableOffset = item.getOffset(0)
 
         val targetFirstPlaceableOffset =
-            if (item.isVertical) {
+            if (isVertical) {
                 firstPlaceableOffset.copy(y = mainAxisOffset)
             } else {
                 firstPlaceableOffset.copy(x = mainAxisOffset)
@@ -406,12 +417,12 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
     fun getAnimation(key: Any, placeableIndex: Int): LazyLayoutItemAnimation? =
         keyToItemInfoMap[key]?.animations?.get(placeableIndex)
 
-    private fun IntArray.updateAndReturnOffsetFor(item: T): Int {
+    private fun IntArray.updateAndReturnOffsetFor(item: T, isVertical: Boolean): Int {
         val lane = item.lane
         val span = item.span
         var maxOffset = 0
         for (i in lane until lane + span) {
-            this[i] += item.mainAxisSizeWithSpacings
+            this[i] += item.mainAxisSizeWithSpacings(isVertical)
             maxOffset = maxOf(maxOffset, this[i])
         }
         return maxOffset
@@ -444,11 +455,11 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             return false
         }
 
-    private val LazyLayoutMeasuredItem.mainAxisOffset
-        get() = getOffset(0).let { if (isVertical) it.y else it.x }
+    private fun LazyLayoutMeasuredItem.mainAxisOffset(isVertical: Boolean) =
+        getOffset(0).let { if (isVertical) it.y else it.x }
 
-    private val LazyLayoutMeasuredItem.crossAxisOffset
-        get() = getOffset(0).let { if (!isVertical) it.y else it.x }
+    private fun LazyLayoutMeasuredItem.crossAxisOffset(isVertical: Boolean) =
+        getOffset(0).let { if (!isVertical) it.y else it.x }
 
     private inner class ItemInfo {
         /**
@@ -478,7 +489,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             graphicsContext: GraphicsContext,
             layoutMinOffset: Int,
             layoutMaxOffset: Int,
-            crossAxisOffset: Int = positionedItem.crossAxisOffset,
+            isVertical: Boolean,
+            crossAxisOffset: Int = positionedItem.crossAxisOffset(isVertical),
         ) {
             if (!isRunningPlacement) {
                 this.layoutMinOffset = layoutMinOffset
