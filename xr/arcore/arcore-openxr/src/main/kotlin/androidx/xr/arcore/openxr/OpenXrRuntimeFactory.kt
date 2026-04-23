@@ -50,6 +50,6 @@ public class OpenXrRuntimeFactory() : PerceptionRuntimeFactory {
     ): PerceptionRuntime {
         val timeSource = OpenXrTimeSource()
         val perceptionManager = OpenXrPerceptionManager(timeSource)
-        return OpenXrRuntime(context, OpenXrManager(timeSource), perceptionManager, timeSource)
+        return OpenXrRuntime(context, perceptionManager, timeSource)
     }
 }

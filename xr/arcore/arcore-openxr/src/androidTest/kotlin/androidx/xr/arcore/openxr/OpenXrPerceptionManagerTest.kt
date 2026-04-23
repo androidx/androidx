@@ -496,8 +496,7 @@ class OpenXrPerceptionManagerTest {
                 Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
             )
 
-            val lifecycleManager = OpenXrManager(timeSource)
-            openXrRuntime = OpenXrRuntime(it, lifecycleManager, underTest, timeSource)
+            openXrRuntime = OpenXrRuntime(it, underTest, timeSource)
             openXrRuntime.initialize()
             openXrRuntime.resume()
             openXrRuntime.configure(

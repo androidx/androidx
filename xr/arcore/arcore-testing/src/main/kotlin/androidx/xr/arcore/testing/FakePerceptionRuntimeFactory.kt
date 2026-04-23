@@ -38,27 +38,12 @@ import kotlin.coroutines.EmptyCoroutineContext
 )
 public class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
     public companion object {
-        /** Will be passed to the [FakeLifecycleManager] constructor during testing. */
+        /** Will be passed to the [FakePerceptionRuntime] constructor during testing. */
         @JvmStatic
         @get:JvmName("hasCreatePermission")
         public var hasCreatePermission: Boolean = true
 
-        /**
-         * Exception that will be thrown when [FakePerceptionRuntime.initialize] is called.
-         *
-         * Setting this value will cause the next call to [FakePerceptionRuntime.initialize] to
-         * throw this exception. Setting this value to null will clear the exception and allow the
-         * next call to succeed.
-         */
         internal var createNewFakeRuntime: Boolean = false
-
-        public var lifecycleCreateException: Exception?
-            get() {
-                return InternalFactory.runtimeInitializeException
-            }
-            set(value) {
-                InternalFactory.runtimeInitializeException = value
-            }
     }
 
     override val requirements: Set<Feature> = emptySet()

@@ -655,19 +655,6 @@ package androidx.xr.runtime.internal {
     ctor @BytecodeOnly public LifecycleException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface LifecycleManager {
-    method public void configure(androidx.xr.runtime.Config config);
-    method public void create();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
-    method @InaccessibleFromKotlin public default Long? getSessionPointer();
-    method public void pause();
-    method public void resume();
-    method public void stop();
-    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark>);
-    property public abstract androidx.xr.runtime.Config config;
-    property public default Long? sessionPointer;
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface PerceptionRuntimeFactory extends androidx.xr.runtime.interfaces.Service {
     method public androidx.xr.runtime.internal.JxrRuntime createRuntime(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
   }

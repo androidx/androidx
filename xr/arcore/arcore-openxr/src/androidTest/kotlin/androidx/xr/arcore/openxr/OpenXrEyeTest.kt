@@ -113,9 +113,8 @@ class OpenXrEyeTest {
     private fun initOpenXrRuntimeAndRunTest(trackingMode: EyeTrackingMode, testBody: () -> Unit) {
         activityRule.scenario.onActivity {
             val timeSource = OpenXrTimeSource()
-            val lifecycleManager = OpenXrManager(timeSource)
             perceptionManager = OpenXrPerceptionManager(timeSource)
-            openXrRuntime = OpenXrRuntime(it, lifecycleManager, perceptionManager, timeSource)
+            openXrRuntime = OpenXrRuntime(it, perceptionManager, timeSource)
             openXrRuntime.initialize()
             openXrRuntime.resume()
             openXrRuntime.configure(Config(eyeTracking = trackingMode))

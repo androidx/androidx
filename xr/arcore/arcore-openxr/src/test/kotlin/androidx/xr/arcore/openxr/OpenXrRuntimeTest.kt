@@ -49,9 +49,8 @@ class OpenXrRuntimeTest {
         activity = activityController.get()
 
         timeSource = OpenXrTimeSource()
-        val lifecycleManager = OpenXrManager(timeSource)
         perceptionManager = OpenXrPerceptionManager(timeSource)
-        underTest = OpenXrRuntime(activity, lifecycleManager, perceptionManager, timeSource)
+        underTest = OpenXrRuntime(activity, perceptionManager, timeSource)
     }
 
     @Test

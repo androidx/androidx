@@ -25,8 +25,6 @@ import kotlin.coroutines.CoroutineContext
 internal class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
     companion object {
         @JvmStatic var arCoreTestRule: ArCoreTestRule? = null
-
-        var runtimeInitializeException: Exception? = null
     }
 
     override val requirements: Set<Feature> = emptySet()

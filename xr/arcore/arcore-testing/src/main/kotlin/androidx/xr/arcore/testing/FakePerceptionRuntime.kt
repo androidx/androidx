@@ -19,7 +19,6 @@ package androidx.xr.arcore.testing
 import android.graphics.Bitmap
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
-import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory as InternalFactory
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.AugmentedImageDatabase
 import androidx.xr.runtime.AugmentedImageDatabaseEntryMode
@@ -39,7 +38,6 @@ import kotlinx.coroutines.sync.Semaphore
 /**
  * Fake implementation of [PerceptionRuntime] for testing purposes.
  *
- * @property lifecycleManager the [FakeLifecycleManager] for this fake runtime
  * @property perceptionManager the [FakePerceptionManager] for this fake runtime
  * @property xrDevicePreferredDisplayBlendMode the value that will be returned by
  *   [androidx.xr.runtime.XrDevice.getPreferredDisplayBlendMode]
@@ -56,8 +54,6 @@ public data class FakePerceptionRuntime(
     /** If false, [initialize] will throw an exception during testing. */
     @get:JvmName("hasCreatePermission") public var hasCreatePermission: Boolean = true,
 ) : PerceptionRuntime {
-    @Suppress("DEPRECATION")
-    override val lifecycleManager: FakeLifecycleManager = FakeLifecycleManager(this)
     public var xrDevicePreferredDisplayBlendMode: DisplayBlendMode = DisplayBlendMode.NO_DISPLAY
 
     public companion object {
@@ -113,14 +109,6 @@ public data class FakePerceptionRuntime(
 
     override fun initialize() {
         check(state == State.NOT_INITIALIZED)
-        if (!hasCreatePermission) throw SecurityException()
-        if (InternalFactory.runtimeInitializeException != null) {
-            // FakeRuntimeFactory will continue to throw exception on subsequent tests unless
-            // cleared.
-            val exceptionToThrow = InternalFactory.runtimeInitializeException!!
-            InternalFactory.runtimeInitializeException = null
-            throw exceptionToThrow
-        }
         augmentedImageDatabase.addAugmentedImageDatabaseEntry(
             mode = AugmentedImageDatabaseEntryMode.DYNAMIC,
             bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),

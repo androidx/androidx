@@ -106,9 +106,8 @@ class OpenXrAugmentedObjectTest {
 
     private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {
         activityRule.scenario.onActivity {
-            val lifecycleManager = OpenXrManager(timeSource)
             val perceptionManager = OpenXrPerceptionManager(timeSource)
-            openXrRuntime = OpenXrRuntime(it, lifecycleManager, perceptionManager, timeSource)
+            openXrRuntime = OpenXrRuntime(it, perceptionManager, timeSource)
             openXrRuntime.initialize()
             openXrRuntime.resume()
             openXrRuntime.configure(

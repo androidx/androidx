@@ -34,6 +34,6 @@ public class ArCoreRuntimeFactory() : PerceptionRuntimeFactory {
         // b/396235304 -- Provide a way to configure the session.
         val timeSource = ArCoreTimeSource()
         val perceptionManager = ArCorePerceptionManager(timeSource)
-        return ArCoreRuntime(context, ArCoreManager(timeSource), perceptionManager, timeSource)
+        return ArCoreRuntime(context, perceptionManager, timeSource)
     }
 }

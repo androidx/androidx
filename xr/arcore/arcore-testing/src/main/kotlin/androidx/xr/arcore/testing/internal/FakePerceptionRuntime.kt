@@ -19,18 +19,12 @@ package androidx.xr.arcore.testing.internal
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DisplayBlendMode
-import androidx.xr.runtime.FaceTrackingMode
-import androidx.xr.runtime.PlaneTrackingMode
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
 import kotlinx.coroutines.sync.Semaphore
 
-internal class FakePerceptionRuntime(
-    override val perceptionManager: FakePerceptionManager,
-    /** If false, [initialize] will throw an exception during testing. */
-    @get:JvmName("hasCreatePermission") var hasCreatePermission: Boolean = true,
-) : PerceptionRuntime {
-    override val lifecycleManager: FakeLifecycleManager = FakeLifecycleManager(this)
+internal class FakePerceptionRuntime(override val perceptionManager: FakePerceptionManager) :
+    PerceptionRuntime {
     var xrDevicePreferredDisplayBlendMode: DisplayBlendMode = DisplayBlendMode.NO_DISPLAY
 
     companion object {
@@ -42,9 +36,6 @@ internal class FakePerceptionRuntime(
                 semaphore.release()
             }
         }
-
-        @JvmField
-        val TestPermissions: List<String> = listOf("android.permission.SCENE_UNDERSTANDING_COARSE")
     }
 
     /** Set of possible states of the runtime. */
@@ -63,30 +54,10 @@ internal class FakePerceptionRuntime(
     /** The time source used for this runtime. */
     val timeSource: TestTimeSource = TestTimeSource()
 
-    /** If true, [configure] will emulate the failure case for missing permissions. */
-    @get:JvmName("hasMissingPermission") var hasMissingPermission: Boolean = false
-
-    /** If false, [configure] will throw an Exception if the config enables PlaneTracking. */
-    @get:JvmName("shouldSupportPlaneTracking") var shouldSupportPlaneTracking: Boolean = true
-
-    /** If false, [configure] will throw an exception if the config enables FaceTracking */
-    @get:JvmName("shouldSupportFaceTracking") var shouldSupportFaceTracking: Boolean = true
-
-    /** If false, [configure] will throw an Exception if the config enables ImageTracking. */
-    @get:JvmName("shouldSupportImageTracking") var shouldSupportImageTracking: Boolean = true
-
     override var config: Config = Config()
 
     override fun initialize() {
         check(state == State.NOT_INITIALIZED)
-        if (!hasCreatePermission) throw SecurityException()
-        if (FakePerceptionRuntimeFactory.runtimeInitializeException != null) {
-            // FakeRuntimeFactory will continue to throw exception on subsequent tests unless
-            // cleared.
-            val exceptionToThrow = FakePerceptionRuntimeFactory.runtimeInitializeException!!
-            FakePerceptionRuntimeFactory.runtimeInitializeException = null
-            throw exceptionToThrow
-        }
         state = State.INITIALIZED
         allowOneMoreCallToUpdate()
     }
@@ -98,20 +69,6 @@ internal class FakePerceptionRuntime(
                 state == State.RESUMED ||
                 state == State.PAUSED
         )
-
-        if (!shouldSupportPlaneTracking && config.planeTracking != PlaneTrackingMode.DISABLED) {
-            throw UnsupportedOperationException()
-        }
-
-        if (!shouldSupportFaceTracking && config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
-            throw UnsupportedOperationException()
-        }
-
-        if (!shouldSupportImageTracking && config.augmentedImageDatabase != null) {
-            throw UnsupportedOperationException()
-        }
-
-        if (hasMissingPermission) throw SecurityException()
 
         this.config = config
         allowOneMoreCallToUpdate()

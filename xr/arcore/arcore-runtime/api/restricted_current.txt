@@ -223,13 +223,9 @@ package androidx.xr.arcore.runtime {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface PerceptionRuntime extends androidx.xr.runtime.internal.JxrRuntime {
     method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.internal.LifecycleManager getLifecycleManager();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.PerceptionManager getPerceptionManager();
-    method public default suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark?>);
     property public abstract androidx.xr.runtime.Config config;
-    property public abstract androidx.xr.runtime.internal.LifecycleManager lifecycleManager;
     property public abstract androidx.xr.arcore.runtime.PerceptionManager perceptionManager;
-    property public default Long? sessionPointer;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Plane extends androidx.xr.arcore.runtime.Anchorable {
