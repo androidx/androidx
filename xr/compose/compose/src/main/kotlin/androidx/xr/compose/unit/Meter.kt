@@ -24,7 +24,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isFinite
 import androidx.compose.ui.unit.isSpecified
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
+import androidx.xr.runtime.TypeHolder
+import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor
 import com.android.extensions.xr.XrExtensions
 import kotlin.math.roundToInt
 
@@ -210,7 +211,10 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
          *
          * @return an instance of [XrExtensions] if available, or `null` otherwise.
          */
-        private fun getXrExtensions(): XrExtensions? = XrExtensionsProvider.getXrExtensions()
+        private fun getXrExtensions(): XrExtensions? =
+            XrExtensionsHolderAccessor.holderLegacy?.let {
+                TypeHolder.safeCast(it, XrExtensions::class.java)?.value
+            }
 
         /**
          * Creates a [Meter] value from a given number of pixels.

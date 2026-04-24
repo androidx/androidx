@@ -1,9 +1,12 @@
 // Signature format: 4.0
 package androidx.xr.scenecore.runtime.extensions {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class XrExtensionsProvider {
-    method public static com.android.extensions.xr.XrExtensions? getXrExtensions();
-    field public static final androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider INSTANCE;
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class XrExtensionsHolderAccessor {
+    method @InaccessibleFromKotlin public static androidx.xr.runtime.XrExtensionsHolder<? extends java.lang.Object?>? getHolder();
+    method @InaccessibleFromKotlin public static androidx.xr.runtime.XrExtensionsHolder<? extends java.lang.Object?>? getHolderLegacy();
+    property public static androidx.xr.runtime.XrExtensionsHolder<? extends java.lang.Object?>? holder;
+    property public static androidx.xr.runtime.XrExtensionsHolder<? extends java.lang.Object?>? holderLegacy;
+    field public static final androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor INSTANCE;
   }
 
 }
