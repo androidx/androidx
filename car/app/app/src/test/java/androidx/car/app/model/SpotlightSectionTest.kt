@@ -16,7 +16,6 @@
 
 package androidx.car.app.model
 
-import androidx.car.app.OnDoneCallback
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -35,7 +34,6 @@ class SpotlightSectionTest {
 
         assertThat(section.image).isEqualTo(image)
         assertThat(section.title).isNull()
-        assertThat(section.imageOnClickDelegate).isNull()
         assertThat(section.noItemsMessage).isNull()
         assertThat(section.onItemVisibilityChangedDelegate).isNull()
     }
@@ -50,38 +48,6 @@ class SpotlightSectionTest {
 
         assertThat(section.title?.toString()).isEqualTo(title)
         assertThat(section.image).isEqualTo(image)
-    }
-
-    @Test
-    fun build_withOnClickListener() {
-        val item = CondensedItem.Builder().setTitle("Title").build()
-        val listener = OnClickListener {}
-
-        val section =
-            SpotlightSection.Builder(CarIcon.APP_ICON)
-                .addItem(item)
-                .setImageOnClickListener(listener)
-                .build()
-
-        assertThat(section.imageOnClickDelegate).isNotNull()
-    }
-
-    @Test
-    fun clickListener() {
-        val item = CondensedItem.Builder().setTitle("Title").build()
-        var clicked = false
-        val listener = OnClickListener { clicked = true }
-
-        val section =
-            SpotlightSection.Builder(CarIcon.APP_ICON)
-                .addItem(item)
-                .setImageOnClickListener(listener)
-                .build()
-
-        val callback = object : OnDoneCallback {}
-        section.imageOnClickDelegate?.sendClick(callback)
-
-        assertThat(clicked).isTrue()
     }
 
     @Test

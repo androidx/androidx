@@ -18,26 +18,14 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
-
-import androidx.annotation.IntDef;
-import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.utils.CollectionUtils;
-
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -52,18 +40,15 @@ import java.util.Objects;
 public final class SpotlightSection extends Section<CondensedItem> {
 
     private final @Nullable CarIcon mImage;
-    private final @Nullable OnClickDelegate mImageOnClickDelegate;
 
     private SpotlightSection() {
         super();
         mImage = null;
-        mImageOnClickDelegate = null;
     }
 
     private SpotlightSection(Builder builder) {
         super(builder);
         mImage = builder.mImage;
-        mImageOnClickDelegate = builder.mImageOnClickDelegate;
     }
 
     /** Returns the image associated with the section. */
@@ -71,15 +56,9 @@ public final class SpotlightSection extends Section<CondensedItem> {
         return requireNonNull(mImage);
     }
 
-    /** Returns the {@link OnClickDelegate} for the image, or {@code null} if not clickable. */
-    public @Nullable OnClickDelegate getImageOnClickDelegate() {
-        return mImageOnClickDelegate;
-    }
-
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), mImage,
-                mImageOnClickDelegate == null);
+        return Objects.hash(super.hashCode(), mImage);
     }
 
     @Override
@@ -94,10 +73,7 @@ public final class SpotlightSection extends Section<CondensedItem> {
             return false;
         }
         SpotlightSection that = (SpotlightSection) other;
-        return super.equals(that)
-                && Objects.equals(mImage, that.mImage)
-                && Objects.equals(mImageOnClickDelegate == null,
-                        that.mImageOnClickDelegate == null);
+        return super.equals(that) && Objects.equals(mImage, that.mImage);
     }
 
     @Override
@@ -108,23 +84,11 @@ public final class SpotlightSection extends Section<CondensedItem> {
     /** A builder of {@link SpotlightSection}. */
     public static final class Builder extends BaseBuilder<CondensedItem, Builder> {
         @NonNull CarIcon mImage;
-        @Nullable OnClickDelegate mImageOnClickDelegate;
 
         /** Creates a new {@link SpotlightSection} builder. */
         public Builder(@NonNull CarIcon image) {
             super();
             mImage = requireNonNull(image);
-        }
-
-        /**
-         * Sets the {@link OnClickListener} for the image. Setting this makes the image
-         * interactable.
-         */
-        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        @CanIgnoreReturnValue
-        public @NonNull Builder setImageOnClickListener(@NonNull OnClickListener onClickListener) {
-            mImageOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
-            return this;
         }
 
         /**
