@@ -23,6 +23,7 @@ import static androidx.camera.core.processing.util.GLUtils.checkInitializedOrThr
 import static androidx.camera.core.processing.util.GLUtils.create4x4IdentityMatrix;
 import static androidx.camera.core.processing.util.GLUtils.createTexture;
 
+import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.EGLExt;
@@ -63,6 +64,7 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
 
     private @NonNull CompositionSettings mPrimaryCompositionSettings;
     private @NonNull CompositionSettings mSecondaryCompositionSettings;
+    private final float[] mBorderColorArray = new float[4];
 
     public DualOpenGlRenderer(
             @NonNull CompositionSettings primaryCompositionSettings,
@@ -87,7 +89,8 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
     @Override
     public @NonNull GraphicDeviceInfo init(@NonNull DynamicRange dynamicRange,
             @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides) {
-        GraphicDeviceInfo graphicDeviceInfo = super.init(dynamicRange, shaderProviderOverrides);
+        GraphicDeviceInfo graphicDeviceInfo =
+                super.init(dynamicRange, shaderProviderOverrides, /* hasAdvancedStyling */ true);
         mPrimaryExternalTextureId = createTexture();
         mSecondaryExternalTextureId = createTexture();
         return graphicDeviceInfo;
@@ -204,8 +207,26 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
                 new Size(outputSurface.getWidth(), outputSurface.getHeight()),
                 compositionSettings);
         currentProgram.updateTransformMatrix(transTransform);
-
         currentProgram.updateAlpha(compositionSettings.getAlpha());
+
+        float cornerRadiusRatio = compositionSettings.getRoundedCornerRatio();
+        float borderWidthRatio = compositionSettings.getBorderWidthRatio();
+        float aspectRatio = 1.0f;
+        if (cornerRadiusRatio > 0 || borderWidthRatio > 0) {
+            float quadWidth =
+                    outputSurface.getWidth() * Math.abs(compositionSettings.getScale().first);
+            float quadHeight =
+                    outputSurface.getHeight() * Math.abs(compositionSettings.getScale().second);
+            aspectRatio = (quadWidth > 0 && quadHeight > 0) ? quadWidth / quadHeight : 1.0f;
+        }
+        currentProgram.updateCornerRadiusRatio(cornerRadiusRatio, aspectRatio);
+
+        int borderColor = compositionSettings.getBorderColor();
+        mBorderColorArray[0] = Color.red(borderColor) / 255.0f;
+        mBorderColorArray[1] = Color.green(borderColor) / 255.0f;
+        mBorderColorArray[2] = Color.blue(borderColor) / 255.0f;
+        mBorderColorArray[3] = Color.alpha(borderColor) / 255.0f;
+        currentProgram.updateBorderWidth(borderWidthRatio, mBorderColorArray);
 
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFuncSeparate(

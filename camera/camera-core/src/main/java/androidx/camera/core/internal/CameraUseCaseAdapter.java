@@ -242,20 +242,24 @@ public final class CameraUseCaseAdapter implements Camera {
 
     /**
      * Updates the composition settings.
+     *
+     * @throws IllegalStateException if the camera is not in concurrent camera composition mode.
+     * @throws IllegalArgumentException if the size of the composition settings list is not 2.
      */
     @Override
     public void setCompositionSettings(
             @NonNull List<CompositionSettings> compositionSettings) {
-        Preconditions.checkArgument(compositionSettings.size() >= 2,
-                "CompositionSettings list size should be >= 2.");
         synchronized (mLock) {
+            if (mSecondaryCameraInternal == null || mStreamSharing == null) {
+                throw new IllegalStateException("The camera is not in concurrent camera "
+                        + "composition mode.");
+            }
+            Preconditions.checkArgument(compositionSettings.size() == 2,
+                    "CompositionSettings list size should be 2.");
             mCompositionSettings = compositionSettings.get(0);
             mSecondaryCompositionSettings = compositionSettings.get(1);
-            // Update the composition settings only when in composition mode
-            if (mStreamSharing != null && mSecondaryCameraInternal != null) {
-                mStreamSharing.updateCompositionSettings(
-                        mCompositionSettings, mSecondaryCompositionSettings);
-            }
+            mStreamSharing.updateCompositionSettings(
+                    mCompositionSettings, mSecondaryCompositionSettings);
         }
     }
 

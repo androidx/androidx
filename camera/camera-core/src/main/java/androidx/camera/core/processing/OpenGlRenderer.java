@@ -112,7 +112,7 @@ public class OpenGlRenderer {
      * shader overrides. Default shaders will be used for the dynamic range specified.
      */
     public @NonNull GraphicDeviceInfo init(@NonNull DynamicRange dynamicRange) {
-        return init(dynamicRange, Collections.emptyMap());
+        return init(dynamicRange, Collections.emptyMap(), /* hasAdvancedStyling */ false);
     }
 
     /**
@@ -134,6 +134,30 @@ public class OpenGlRenderer {
      */
     public @NonNull GraphicDeviceInfo init(@NonNull DynamicRange dynamicRange,
             @NonNull Map<InputFormat, ShaderProvider> shaderOverrides) {
+        return init(dynamicRange, shaderOverrides, /* hasAdvancedStyling */ false);
+    }
+
+    /**
+     * Initializes the OpenGLRenderer with composition enabled
+     *
+     * <p>Initialization must be done before calling other methods, otherwise an
+     * {@link IllegalStateException} will be thrown. Following methods must run on the same
+     * thread as this method, so called GL thread, otherwise an {@link IllegalStateException}
+     * will be thrown.
+     *
+     * @param dynamicRange    the dynamic range used to select default shaders.
+     * @param shaderOverrides specific shader overrides for fragment shaders
+     *                        per {@link InputFormat}.
+     * @param hasAdvancedStyling to determine if advanced styling is enabled or not.
+     * @return Info about the initialized graphics device.
+     * @throws IllegalStateException    if the renderer is already initialized or failed to be
+     *                                  initialized.
+     * @throws IllegalArgumentException if the ShaderProvider fails to create shader or provides
+     *                                  invalid shader string.
+     */
+    public @NonNull GraphicDeviceInfo init(@NonNull DynamicRange dynamicRange,
+            @NonNull Map<InputFormat, ShaderProvider> shaderOverrides,
+            boolean hasAdvancedStyling) {
         checkInitializedOrThrow(mInitialized, false);
         GraphicDeviceInfo.Builder infoBuilder = GraphicDeviceInfo.builder();
         try {
@@ -153,7 +177,7 @@ public class OpenGlRenderer {
             createTempSurface();
             makeCurrent(mTempSurface);
             infoBuilder.setGlVersion(getGlVersionNumber());
-            mProgramHandles = createPrograms(dynamicRange, shaderOverrides);
+            mProgramHandles = createPrograms(dynamicRange, shaderOverrides, hasAdvancedStyling);
             mExternalTextureId = createTexture();
             useAndConfigureProgramWithTexture(mExternalTextureId);
         } catch (IllegalStateException | IllegalArgumentException e) {

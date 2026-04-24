@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.graphics.Color;
 import android.os.Build;
 
 import org.junit.Test;
@@ -39,6 +40,9 @@ public class CompositionSettingsTest {
         assertThat(settings.getOffset().second).isEqualTo(0.0f);
         assertThat(settings.getScale().first).isEqualTo(1.0f);
         assertThat(settings.getScale().second).isEqualTo(1.0f);
+        assertThat(settings.getRoundedCornerRatio()).isEqualTo(0.0f);
+        assertThat(settings.getBorderWidthRatio()).isEqualTo(0.0f);
+        assertThat(settings.getBorderColor()).isEqualTo(Color.WHITE);
         assertThat(settings.getZOrder()).isEqualTo(0);
     }
 
@@ -69,11 +73,40 @@ public class CompositionSettingsTest {
     }
 
     @Test
+    public void canSetCornerRadiusRatio() {
+        CompositionSettings settings = new CompositionSettings.Builder()
+                .setRoundedCornerRatio(0.5f)
+                .build();
+        assertThat(settings.getRoundedCornerRatio()).isEqualTo(0.5f);
+    }
+
+    @Test
+    public void canSetBorderWidthRatio() {
+        CompositionSettings settings = new CompositionSettings.Builder()
+                .setBorderWidthRatio(0.1f)
+                .build();
+        assertThat(settings.getBorderWidthRatio()).isEqualTo(0.1f);
+    }
+
+    @Test
+    public void canSetBorderColor() {
+        CompositionSettings settings = new CompositionSettings.Builder()
+                .setBorderColor(Color.RED)
+                .build();
+        assertThat(settings.getBorderColor()).isEqualTo(Color.RED);
+    }
+
+    @Test
     public void canSetZOrder() {
         CompositionSettings settings = new CompositionSettings.Builder()
                 .setZOrder(10)
                 .build();
         assertThat(settings.getZOrder()).isEqualTo(10);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setZOrderWithNegativeValue_throwsException() {
+        new CompositionSettings.Builder().setZOrder(-1);
     }
 
     @Test
@@ -84,6 +117,9 @@ public class CompositionSettingsTest {
         assertThat(settings.getOffset().second).isEqualTo(0.0f);
         assertThat(settings.getScale().first).isEqualTo(1.0f);
         assertThat(settings.getScale().second).isEqualTo(1.0f);
+        assertThat(settings.getRoundedCornerRatio()).isEqualTo(0.0f);
+        assertThat(settings.getBorderWidthRatio()).isEqualTo(0.0f);
+        assertThat(settings.getBorderColor()).isEqualTo(Color.WHITE);
         assertThat(settings.getZOrder()).isEqualTo(0);
     }
 }

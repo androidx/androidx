@@ -115,10 +115,10 @@ public interface Camera {
      * The first composition setting is for the primary camera, and the second is for the
      * secondary camera, etc.
      *
-     * <p>It is a no-op if the camera is not in concurrent camera composition mode.
-     *
      * @param compositionSettings A list of {@link CompositionSettings} for the concurrent
      *                                cameras.
+     * @throws IllegalStateException if the camera is not in concurrent camera composition mode.
+     * @throws IllegalArgumentException if the size of the composition settings list is not 2.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     default void setCompositionSettings(@NonNull List<CompositionSettings> compositionSettings) {

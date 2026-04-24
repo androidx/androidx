@@ -35,6 +35,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.camera2.CameraCharacteristics;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -187,9 +188,11 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                     .setAlpha(1.0f)
                     .setOffset(-0.3f, -0.4f)
                     .setScale(0.3f, 0.3f)
+                    .setRoundedCornerRatio(0.6f)
+                    .setBorderWidthRatio(0.05f)
+                    .setBorderColor(Color.argb(255, 0, 0, 0))
                     .setZOrder(1)
                     .build();
-
 
     @OptIn(markerClass = UnstableApi.class)
     @SuppressLint("RestrictedApiAndroidX")
