@@ -55,7 +55,7 @@ class SemanticsModifierTest {
 
     @Test
     fun semanticsModifier_recordsCorrectProperties() = runTest {
-        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
         val captured =
             captureSingleRemoteDocument(
                 creationDisplayInfo = displayInfo,
@@ -89,7 +89,7 @@ class SemanticsModifierTest {
 
     @Test
     fun clearAndSetSemantics_recordsCorrectMode() = runTest {
-        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
         val captured =
             captureSingleRemoteDocument(
                 creationDisplayInfo = displayInfo,

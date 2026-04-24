@@ -130,6 +130,7 @@ class BasicLayoutTest {
             (260 * 2.75).toInt(),
             (300 * 2.75).toInt(),
             ((2.75f * 160).toInt()),
+            1.0f,
         )
 
     @Before

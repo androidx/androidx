@@ -63,7 +63,7 @@ fun RemoteComposeDumper(
 
     val creationDisplayInfo =
         remember(sample, width, height) {
-            RemoteCreationDisplayInfo(width, height, config.densityDpi)
+            RemoteCreationDisplayInfo(width, height, config.densityDpi, config.fontScale)
         }
     val virtualDisplay = rememberVirtualDisplay(creationDisplayInfo)
 

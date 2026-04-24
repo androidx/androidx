@@ -62,6 +62,7 @@ class RemoteShapeTest {
             size.width.toInt(),
             size.height.toInt(),
             context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
         )
 
     private val creationDisplayInfoRtl =
@@ -69,6 +70,7 @@ class RemoteShapeTest {
             size.width.toInt(),
             size.height.toInt(),
             context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
         )
 
     @Test

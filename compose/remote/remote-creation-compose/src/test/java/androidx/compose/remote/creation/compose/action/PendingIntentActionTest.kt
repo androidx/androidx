@@ -61,7 +61,7 @@ class PendingIntentActionTest {
         val writerEvents = WriterEvents()
         val creationState =
             RemoteComposeCreationState(
-                creationDisplayInfo = RemoteCreationDisplayInfo(1, 1, 160),
+                creationDisplayInfo = RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
                 profile = RcPlatformProfiles.ANDROIDX,
                 writerEvents = writerEvents,
                 layoutDirection = LayoutDirection.Ltr,

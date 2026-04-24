@@ -16,8 +16,7 @@
 
 package androidx.wear.compose.remote.material3.samples
 
-import android.content.Context
-import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -26,6 +25,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -44,11 +44,7 @@ class RemoteAppCardSampleTest {
         RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
 
     private val creationDisplayInfo =
-        RemoteCreationDisplayInfo(
-            500,
-            500,
-            ApplicationProvider.getApplicationContext<Context>().resources.displayMetrics.densityDpi,
-        )
+        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(500f, 500f))
 
     @Test
     fun RemoteAppCardSampleTest() {

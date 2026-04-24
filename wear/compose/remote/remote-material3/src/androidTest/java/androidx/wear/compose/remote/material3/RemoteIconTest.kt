@@ -18,7 +18,7 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.border
@@ -27,9 +27,11 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toSize
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -50,12 +52,7 @@ class RemoteIconTest {
     @Test
     fun volumeUpRemoteIcon() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
-                RemoteCreationDisplayInfo(
-                    size.width,
-                    size.height,
-                    context.resources.displayMetrics.densityDpi,
-                ),
+            creationDisplayInfo = createCreationDisplayInfo(context, size.toSize()),
             backgroundColor = Color.Black,
         ) {
             RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
@@ -65,12 +62,7 @@ class RemoteIconTest {
     @Test
     fun volumeUpRemoteIcon_tintedRed() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
-                RemoteCreationDisplayInfo(
-                    size.width,
-                    size.height,
-                    context.resources.displayMetrics.densityDpi,
-                ),
+            creationDisplayInfo = createCreationDisplayInfo(context, size.toSize()),
             backgroundColor = Color.Black,
         ) {
             RemoteIcon(
@@ -84,12 +76,7 @@ class RemoteIconTest {
     @Test
     fun volumeUpRemoteIcon_rtl() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
-                RemoteCreationDisplayInfo(
-                    size.width,
-                    size.height,
-                    context.resources.displayMetrics.densityDpi,
-                ),
+            creationDisplayInfo = createCreationDisplayInfo(context, size.toSize()),
             backgroundColor = Color.Black,
             layoutDirection = LayoutDirection.Rtl,
         ) {
@@ -100,8 +87,7 @@ class RemoteIconTest {
     @Test
     fun volumeUpRemoteIcon_scaledUp() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
-                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+            creationDisplayInfo = createCreationDisplayInfo(context, Size(48f, 48f)),
             backgroundColor = Color.Black,
         ) {
             RemoteIcon(
@@ -115,8 +101,7 @@ class RemoteIconTest {
     @Test
     fun remoteIcon_fromImageVector() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
-                RemoteCreationDisplayInfo(48, 48, context.resources.displayMetrics.densityDpi),
+            creationDisplayInfo = createCreationDisplayInfo(context, Size(48f, 48f)),
             backgroundColor = Color.Black,
         ) {
             RemoteIcon(
@@ -130,8 +115,7 @@ class RemoteIconTest {
     @Test
     fun remoteIcon_setBorderSizeUnchanged() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
-                RemoteCreationDisplayInfo(200, 100, context.resources.displayMetrics.densityDpi),
+            creationDisplayInfo = createCreationDisplayInfo(context, Size(200f, 100f)),
             backgroundColor = Color.Black,
         ) {
             RemoteRow {

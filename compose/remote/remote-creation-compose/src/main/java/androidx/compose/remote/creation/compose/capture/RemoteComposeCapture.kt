@@ -89,6 +89,7 @@ public fun rememberRemoteDocument(
                 size.width.toInt(),
                 size.height.toInt(),
                 LocalConfiguration.current.densityDpi,
+                LocalConfiguration.current.fontScale,
             ),
         onCreate = onCreate,
         content = content,

@@ -58,6 +58,7 @@ class RemoteCanvasScreenshotTest {
                     width,
                     height,
                     context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
                 ),
             backgroundColor = Color.Black,
         ) {

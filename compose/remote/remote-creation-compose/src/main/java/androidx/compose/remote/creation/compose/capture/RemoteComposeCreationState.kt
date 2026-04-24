@@ -131,7 +131,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
                 },
             )
         this.creationDisplayInfo =
-            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
+            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160, 1.0f)
         document = RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
@@ -148,7 +148,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
                 },
             )
         this.creationDisplayInfo =
-            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
+            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160, 1f)
         if (apiLevel == CoreDocument.DOCUMENT_API_LEVEL && profiles == 0) {
             document =
                 RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
@@ -182,7 +182,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     public constructor(size: Size, profile: Profile) {
         this.profile = profile
         this.creationDisplayInfo =
-            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
+            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160, 1.0f)
         this.document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
@@ -202,7 +202,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class NoRemoteCompose :
     RemoteComposeCreationState(
-        RemoteCreationDisplayInfo(1, 1, 160),
+        RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
         null,
         RcPlatformProfiles.ANDROIDX,
     ) {
