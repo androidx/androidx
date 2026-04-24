@@ -88,7 +88,8 @@ public suspend fun captureSingleRemoteDocument(
 ): CapturedDocument {
     val layoutDirection = toLayoutDirection(context.resources.configuration.layoutDirection)
 
-    val remoteCreationDisplayInfo = creationDisplayInfo.toRemote()
+    val remoteCreationDisplayInfo =
+        creationDisplayInfo.toRemote(context.resources.configuration.fontScale)
     val remoteDensity =
         RemoteDensity(creationDisplayInfo.density.rf, context.resources.configuration.fontScale.rf)
 
@@ -213,7 +214,7 @@ public fun captureRemoteDocument(
     remoteDensity: RemoteDensity =
         RemoteDensity(
             creationDisplayInfo.density.density.rf,
-            context.resources.configuration.fontScale.rf,
+            creationDisplayInfo.density.fontScale.rf,
         ),
     layoutDirection: LayoutDirection? = null,
     writerEvents: WriterEvents,
@@ -260,7 +261,7 @@ public fun captureRemoteDocument(
                 LocalDensity provides
                     Density(
                         creationDisplayInfo.density.density,
-                        context.resources.configuration.fontScale,
+                        creationDisplayInfo.density.fontScale,
                     ),
                 LocalContext provides context,
                 LocalConfiguration provides context.resources.configuration,
@@ -307,9 +308,10 @@ public fun captureRemoteDocument(
     }
 }
 
-private fun CreationDisplayInfo.toRemote(): RemoteCreationDisplayInfo =
+private fun CreationDisplayInfo.toRemote(fontScale: Float): RemoteCreationDisplayInfo =
     RemoteCreationDisplayInfo(
         width = this.width,
         height = this.height,
         densityDpi = this.densityDpi,
+        fontScale = fontScale,
     )

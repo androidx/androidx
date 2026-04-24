@@ -46,7 +46,11 @@ class RemoteTypographyTest {
         RemoteCreationDisplayInfo(
             500,
             500,
-            ApplicationProvider.getApplicationContext<Context>().resources.displayMetrics.densityDpi,
+            ApplicationProvider.getApplicationContext<Context>()
+                .resources
+                .displayMetrics
+                .densityDpi,
+            ApplicationProvider.getApplicationContext<Context>().resources.configuration.fontScale,
         )
 
     @Test

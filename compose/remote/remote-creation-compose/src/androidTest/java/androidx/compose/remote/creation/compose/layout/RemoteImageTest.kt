@@ -21,7 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.test.R
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.remote.player.core.platform.BitmapLoader
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.asImageBitmap
@@ -62,7 +63,7 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                RemoteCreationDisplayInfo(size, size, context.resources.displayMetrics.densityDpi),
+                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
             backgroundColor = Color.Black,
         ) {
             val avatarImage =
@@ -84,7 +85,7 @@ class RemoteImageTest {
         val size = 227
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                RemoteCreationDisplayInfo(size, size, context.resources.displayMetrics.densityDpi),
+                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
             backgroundColor = Color.Black,
         ) {
             val backgroundImage =
@@ -106,7 +107,7 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                RemoteCreationDisplayInfo(size, size, context.resources.displayMetrics.densityDpi)
+                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat()))
         ) {
             // Without PlayerState API, will be blank
             val dummyImage =
@@ -129,7 +130,7 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo =
-                RemoteCreationDisplayInfo(size, size, context.resources.displayMetrics.densityDpi)
+                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat()))
         ) {
             val backgroundImage = createImage(size, size)
             RemoteImage(

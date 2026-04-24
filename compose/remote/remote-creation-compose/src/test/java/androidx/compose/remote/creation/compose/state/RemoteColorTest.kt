@@ -514,7 +514,7 @@ class RemoteColorTest {
 
     @Test
     fun writesOutColorOnce() = runTest {
-        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1)
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
 
         val document =
             captureSingleRemoteDocument(

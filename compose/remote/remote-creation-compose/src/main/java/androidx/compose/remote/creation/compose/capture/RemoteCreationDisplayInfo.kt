@@ -39,6 +39,8 @@ public class RemoteCreationDisplayInfo(public val size: Size, public val density
  * @param width The width of the display in pixels.
  * @param height The height of the display in pixels.
  * @param densityDpi The logical densityDpi of the display.
+ * @param fontScale The user preference for the scaling factor for fonts, relative to the base
+ *   density scaling.
  * @return A [RemoteCreationDisplayInfo] object containing the specified display metrics.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -46,10 +48,11 @@ public fun RemoteCreationDisplayInfo(
     width: Int,
     height: Int,
     densityDpi: Int,
+    fontScale: Float = 1.0f,
 ): RemoteCreationDisplayInfo {
     return RemoteCreationDisplayInfo(
         Size(width.toFloat(), height.toFloat()),
-        Density(densityDpi / baseDensity),
+        Density(densityDpi / baseDensity, fontScale),
     )
 }
 
@@ -62,6 +65,8 @@ public fun RemoteCreationDisplayInfo(
  * @param width The width of the display in pixels. Defaults to the system display width.
  * @param height The height of the display in pixels. Defaults to the system display height.
  * @param densityDpi The logical densityDpi of the display. Defaults to the system display density.
+ *     @param fontScale The user preference for the scaling factor for fonts, relative to the base
+ *       density scaling.
  * @return A [RemoteCreationDisplayInfo] object containing the specified display metrics.
  */
 @Composable
@@ -69,8 +74,9 @@ public fun createCreationDisplayInfo(
     width: Int = LocalResources.current.displayMetrics.widthPixels,
     height: Int = LocalResources.current.displayMetrics.heightPixels,
     densityDpi: Int = LocalConfiguration.current.densityDpi,
+    fontScale: Float = LocalConfiguration.current.fontScale,
 ): RemoteCreationDisplayInfo {
-    return RemoteCreationDisplayInfo(width, height, densityDpi)
+    return RemoteCreationDisplayInfo(width, height, densityDpi, fontScale)
 }
 
 /**
@@ -82,12 +88,20 @@ public fun createCreationDisplayInfo(
  * @param context The [Context] used to access display metrics.
  * @return A [RemoteCreationDisplayInfo] object containing the display metrics from the context.
  */
-public fun createCreationDisplayInfo(context: Context): RemoteCreationDisplayInfo {
+public fun createCreationDisplayInfo(
+    context: Context,
+    size: Size =
+        Size(
+            width = context.resources.displayMetrics.widthPixels.toFloat(),
+            height = context.resources.displayMetrics.heightPixels.toFloat(),
+        ),
+): RemoteCreationDisplayInfo {
     val resources = context.resources
     return RemoteCreationDisplayInfo(
-        width = resources.displayMetrics.widthPixels,
-        height = resources.displayMetrics.heightPixels,
-        densityDpi = context.resources.displayMetrics.densityDpi,
+        width = size.width.toInt(),
+        height = size.height.toInt(),
+        densityDpi = resources.displayMetrics.densityDpi,
+        fontScale = resources.configuration.fontScale,
     )
 }
 

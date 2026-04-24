@@ -16,9 +16,8 @@
 
 package androidx.wear.compose.remote.material3
 
-import android.content.Context
 import androidx.collection.buildObjectIntMap
-import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -31,6 +30,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.core.app.ApplicationProvider
@@ -49,11 +49,7 @@ class DynamicColorTest {
     val remoteComposeTestRule =
         RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
     private val creationDisplayInfo =
-        RemoteCreationDisplayInfo(
-            800,
-            2000,
-            ApplicationProvider.getApplicationContext<Context>().resources.displayMetrics.densityDpi,
-        )
+        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(800f, 2000f))
 
     @Test
     fun dynamic_color_grid() {

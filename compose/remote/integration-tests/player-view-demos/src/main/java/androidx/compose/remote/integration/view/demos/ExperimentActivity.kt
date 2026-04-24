@@ -273,7 +273,7 @@ fun getComposeDoc(
             context: Context,
             profile: Profile = DemoVersions.AndroidXCinnamonBun,
             creationDisplayInfo: RemoteCreationDisplayInfo =
-                RemoteCreationDisplayInfo(1000, 1000, 440),
+                RemoteCreationDisplayInfo(1000, 1000, 440, 1.0f),
             content: @Composable () -> Unit,
         ) {
             val result =
@@ -455,7 +455,7 @@ class ExperimentActivity : ComponentActivity() {
             @Composable
             override fun getDoc(): MutableState<CoreDocument?> {
                 val time = System.nanoTime()
-                val creationDisplayInfo = RemoteCreationDisplayInfo(1000, 1000, 160)
+                val creationDisplayInfo = RemoteCreationDisplayInfo(1000, 1000, 160, 1.0f)
                 val d =
                     rememberRemoteDocument(creationDisplayInfo = creationDisplayInfo) {
                         cRun.invoke()

@@ -72,7 +72,7 @@ class WearWidgetContainerScreenshotTest {
         const val DENSITY_DPI = 160
 
         private fun getCreationDisplayInfo(height: Int): RemoteCreationDisplayInfo {
-            return RemoteCreationDisplayInfo(WIDGET_WIDTH, height, DENSITY_DPI)
+            return RemoteCreationDisplayInfo(WIDGET_WIDTH, height, DENSITY_DPI, 1.0f)
         }
     }
 }

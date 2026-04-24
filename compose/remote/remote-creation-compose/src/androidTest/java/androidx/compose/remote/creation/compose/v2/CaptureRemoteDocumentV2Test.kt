@@ -66,7 +66,7 @@ class CaptureRemoteDocumentV2Test {
 
     @Test
     fun captureDocumentV2_withDefaultDensity() = runTest {
-        val creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160)
+        val creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f)
         val bytes =
             captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
@@ -97,7 +97,7 @@ class CaptureRemoteDocumentV2Test {
 
     @Test
     fun captureDocumentV2_withCustomDensity() = runTest {
-        val creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160)
+        val creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f)
         val bytes =
             captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
