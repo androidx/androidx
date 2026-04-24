@@ -679,8 +679,8 @@ public class UiDevice implements Searchable {
 
     /**
      * Performs a swipe from one coordinate to another on the default display using the number of
-     * steps to determine smoothness and speed. Each step execution is throttled to 5ms per step.
-     * So for a 100 steps, the swipe will take about 1/2 second to complete.
+     * steps to determine smoothness and speed. Each step execution is throttled to the length
+     * of a frame per step (throttled by VSync).
      *
      * @param startX X-axis value for the starting coordinate
      * @param startY Y-axis value for the starting coordinate
@@ -699,8 +699,7 @@ public class UiDevice implements Searchable {
     /**
      * Performs a swipe from one coordinate to another coordinate on the default display. You can
      * control the smoothness and speed of the swipe by specifying the number of steps. Each step
-     * execution is throttled to 5 milliseconds per step, so for a 100 steps, the swipe will take
-     * around 0.5 seconds to complete.
+     * execution is throttled to the length of a frame per step (throttled by VSync).
      *
      * @param startX X-axis value for the starting coordinate
      * @param startY Y-axis value for the starting coordinate
@@ -719,8 +718,7 @@ public class UiDevice implements Searchable {
 
     /**
      * Performs a swipe between points in the Point array on the default display. Each step
-     * execution is throttled to 5ms per step. So for a 100 steps, the swipe will take about 1/2
-     * second to complete.
+     * execution is throttled to the length of a frame per step (throttled by VSync).
      *
      * @param segments is Point array containing at least one Point object
      * @param segmentSteps steps to inject between two Points
