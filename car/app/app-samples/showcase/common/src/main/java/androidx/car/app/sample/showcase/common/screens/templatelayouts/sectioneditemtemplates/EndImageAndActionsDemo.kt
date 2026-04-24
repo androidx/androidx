@@ -24,6 +24,7 @@ import androidx.car.app.Screen
 import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.annotations.RequiresCarApi
 import androidx.car.app.model.Action
+import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.Header
 import androidx.car.app.model.Row
@@ -87,6 +88,12 @@ class EndImageAndActionsDemo(carContext: CarContext) : Screen(carContext) {
                     .setTitle(carContext.getString(R.string.end_image_and_action_demo_title))
                     .setStartHeaderAction(Action.BACK)
                     .build()
+            )
+            .setActions(
+                listOf(
+                    createAction("Primary button clicked"),
+                    createAction("Secondary button clicked"),
+                )
             )
             .build()
     }
@@ -184,6 +191,22 @@ class EndImageAndActionsDemo(carContext: CarContext) : Screen(carContext) {
         )
 
         return rowList
+    }
+
+    private fun createAction(toastString: String): Action {
+        return Action.Builder()
+            .setIcon(
+                CarIcon.Builder(
+                        IconCompat.createWithResource(
+                            carContext,
+                            R.drawable.baseline_question_mark_24,
+                        )
+                    )
+                    .build()
+            )
+            .setOnClickListener { showToast(toastString) }
+            .setBackgroundColor(CarColor.BLUE)
+            .build()
     }
 
     private fun showToast(text: String) {
