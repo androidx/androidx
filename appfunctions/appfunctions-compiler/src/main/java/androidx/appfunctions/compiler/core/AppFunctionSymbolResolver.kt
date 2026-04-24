@@ -55,15 +55,8 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
                             it.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME) != null
                         }
                         .toList()
-                val annotatedAppFunctions =
-                    if (appFunctionDeclarations.isNotEmpty()) {
-                        // TODO(b/463909015): Separate AppFunction from AnnotatedAppFunction
-                        AnnotatedAppFunctions(declaration, appFunctionDeclarations)
-                    } else {
-                        AnnotatedAppFunctions(declaration, emptyList())
-                    }
-
-                AnnotatedAppFunctionEntryPoint(declaration, annotatedAppFunctions)
+                val appFunctions = appFunctionDeclarations.map { AnnotatedAppFunction(it) }
+                AnnotatedAppFunctionEntryPoint(declaration, appFunctions)
             }
             .toList()
     }
@@ -126,7 +119,10 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
             .entries
             .sortedBy { it.key.qualifiedName?.asString() }
             .map { (classDeclaration, appFunctionsDeclarations) ->
-                AnnotatedAppFunctions(classDeclaration, appFunctionsDeclarations)
+                AnnotatedAppFunctions(
+                    classDeclaration,
+                    appFunctionsDeclarations.map { AnnotatedAppFunction(it) },
+                )
             }
     }
 
@@ -253,10 +249,13 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
             .entries
             .sortedBy { it.key.qualifiedName?.asString() }
             .map { (classDeclaration, appFunctionsDeclarations) ->
+                val docstringMap =
+                    filteredAppFunctionComponents.associate { it.qualifiedName to it.docString }
                 AnnotatedAppFunctions(
                         classDeclaration,
-                        appFunctionsDeclarations,
-                        filteredAppFunctionComponents.associate { it.qualifiedName to it.docString },
+                        appFunctionsDeclarations.map {
+                            AnnotatedAppFunction(it, docstringMap[it.ensureQualifiedName()])
+                        },
                     )
                     .validate()
             }

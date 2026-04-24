@@ -20,13 +20,14 @@ import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionEntryP
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceClass
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 
 /** Represents a class annotated with @AppFunctionEntryPoint. */
 class AnnotatedAppFunctionEntryPoint(
     val serviceDeclaration: KSClassDeclaration,
-    val annotatedAppFunctions: AnnotatedAppFunctions,
+    val appFunctions: List<AnnotatedAppFunction>,
 ) {
     private val appFunctionEntryPointAnnotation by lazy {
         serviceDeclaration.annotations.findAnnotation(AppFunctionEntryPointAnnotation.CLASS_NAME)
@@ -60,6 +61,21 @@ class AnnotatedAppFunctionEntryPoint(
         validateExecuteFunctionIsNotImplemented()
         validateAppFunctions()
         return this
+    }
+
+    /**
+     * Returns the set of files that need to be processed to obtain the complete information about
+     * the app function entry point.
+     */
+    fun getSourceFiles(): Set<KSFile> {
+        val sourceFileSet: MutableSet<KSFile> = mutableSetOf()
+
+        serviceDeclaration.containingFile?.let { sourceFileSet.add(it) }
+
+        for (appFunction in appFunctions) {
+            sourceFileSet.addAll(appFunction.getSourceFiles())
+        }
+        return sourceFileSet
     }
 
     private fun validateAnnotation() {
@@ -113,12 +129,14 @@ class AnnotatedAppFunctionEntryPoint(
     }
 
     private fun validateAppFunctions() {
-        if (annotatedAppFunctions.appFunctionDeclarations.isEmpty()) {
+        if (appFunctions.isEmpty()) {
             throw ProcessingException(
                 "Class must have at least one AppFunction",
                 serviceDeclaration,
             )
         }
-        annotatedAppFunctions.validate(skipFirstParameterValidation = true)
+        for (appFunction in appFunctions) {
+            appFunction.validate(skipFirstParameterValidation = true)
+        }
     }
 }

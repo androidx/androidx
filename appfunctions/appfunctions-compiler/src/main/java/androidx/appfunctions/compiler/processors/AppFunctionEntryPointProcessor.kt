@@ -108,7 +108,7 @@ class AppFunctionEntryPointProcessor(
     ) {
         val generator = AppFunctionXmlGenerator(codeGenerator, logger)
         generator.generateXml(
-            appFunctionsByClass = listOf(entryPoint.annotatedAppFunctions),
+            entryPoint = entryPoint,
             resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
             appFunctionSerializablesDescriptionMap = descriptionMap,
             packageName = XML_PACKAGE_NAME,
@@ -165,8 +165,9 @@ class AppFunctionEntryPointProcessor(
                 AppFunctionExecutionDispatcherClass.ExecuteAppFunctionMethod.METHOD_NAME,
             )
             beginControlFlow("when (request.functionIdentifier)")
-            for (function in entryPoint.annotatedAppFunctions.appFunctionDeclarations) {
-                val identifier = entryPoint.annotatedAppFunctions.getAppFunctionIdentifier(function)
+            for (appFunction in entryPoint.appFunctions) {
+                val function = appFunction.appFunctionDeclaration
+                val identifier = appFunction.getAppFunctionIdentifier(entryPoint.serviceDeclaration)
                 beginControlFlow("%S ->", identifier)
                 add("this.%N(\n", function.simpleName.asString())
                 indent()

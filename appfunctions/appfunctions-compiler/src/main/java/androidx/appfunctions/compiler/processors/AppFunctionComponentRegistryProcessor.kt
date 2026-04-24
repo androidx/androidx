@@ -139,13 +139,14 @@ class AppFunctionComponentRegistryProcessor(private val codeGenerator: CodeGener
         val functionComponents =
             annotatedAppFunctions.flatMap { annotatedAppFunction ->
                 buildList {
-                    for (function in annotatedAppFunction.appFunctionDeclarations) {
+                    for (appFunction in annotatedAppFunction.appFunctions) {
+                        val function = appFunction.appFunctionDeclaration
                         add(
                             AppFunctionComponent(
                                 qualifiedName = function.ensureQualifiedName(),
                                 sourceFiles = annotatedAppFunction.getSourceFiles(),
                                 docString =
-                                    if (annotatedAppFunction.isDescribedByKDoc(function)) {
+                                    if (appFunction.isDescribedByKDoc) {
                                         function.docString ?: ""
                                     } else {
                                         ""
