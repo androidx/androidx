@@ -16,12 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-// import android.content.Context
-// import androidx.test.core.app.ApplicationProvider
-// import androidx.xr.runtime.FEATURE_XR_API_OPENXR
-// import org.robolectric.Shadows.shadowOf
-// import org.robolectric.shadows.ShadowBuild
-
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -37,8 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 // TODO - b/382119583: Remove the @SdkSuppress annotation once "androidx.xr.arcore.openxr.test"
-// supports a
-// lower SDK version.
+// supports a lower SDK version.
 @SdkSuppress(minSdkVersion = 29)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
