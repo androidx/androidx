@@ -151,7 +151,7 @@ internal class Scrollable2DNode(
         canDrag = CanDragCalculation,
         enabled = enabled,
         interactionSource = interactionSource,
-        orientationLock = null,
+        orientation = null,
     ),
     SemanticsModifierNode {
 

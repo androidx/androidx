@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.GestureConnection
@@ -70,7 +71,6 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.atan2
-import kotlin.math.withSign
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
@@ -305,7 +305,7 @@ internal class DraggableElement(
 internal class DraggableNode(
     private var state: DraggableState,
     canDrag: (PointerType) -> Boolean,
-    private var orientation: Orientation,
+    orientation: Orientation,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
     private var startDragImmediately: Boolean,
@@ -317,10 +317,11 @@ internal class DraggableNode(
         canDrag = canDrag,
         enabled = enabled,
         interactionSource = interactionSource,
-        orientationLock = orientation,
+        orientation = orientation,
     ) {
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
+        val orientation = orientation ?: return
         state.drag(MutatePriority.UserInput) {
             forEachDelta { dragDelta ->
                 dragBy(dragDelta.delta.reverseIfNeeded().toFloat(orientation))
@@ -337,6 +338,7 @@ internal class DraggableNode(
 
     override fun onDragStopped(event: DragStopped) {
         if (!isAttached || onDragStopped == NoOpOnDragStopped) return
+        val orientation = orientation ?: return
         coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
             this@DraggableNode.onDragStopped(
                 this,
@@ -363,10 +365,6 @@ internal class DraggableNode(
             this.state = state
             resetPointerInputHandling = true
         }
-        if (this.orientation != orientation) {
-            this.orientation = orientation
-            resetPointerInputHandling = true
-        }
         if (this.reverseDirection != reverseDirection) {
             this.reverseDirection = reverseDirection
             resetPointerInputHandling = true
@@ -390,7 +388,7 @@ internal abstract class DragGestureNode(
     canDrag: (PointerType) -> Boolean,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    override var orientationLock: Orientation?,
+    override var orientation: Orientation?,
 ) :
     DelegatingNode(),
     PointerInputModifierNode,
@@ -550,10 +548,6 @@ internal abstract class DragGestureNode(
                 GestureState.Idle
             }
 
-    override fun getAccumulatedDelta(): Offset {
-        return dragAccumulator
-    }
-
     override fun onDetach() {
         isListeningForEvents = false
         disposeInteractionSource()
@@ -650,7 +644,7 @@ internal abstract class DragGestureNode(
         canDrag: (PointerType) -> Boolean = this.canDrag,
         enabled: Boolean = this.enabled,
         interactionSource: MutableInteractionSource? = this.interactionSource,
-        orientationLock: Orientation? = this.orientationLock,
+        orientation: Orientation? = this.orientation,
         shouldResetPointerInputHandling: Boolean = false,
     ) {
         var resetPointerInputHandling = shouldResetPointerInputHandling
@@ -670,8 +664,8 @@ internal abstract class DragGestureNode(
             this.interactionSource = interactionSource
         }
 
-        if (this.orientationLock != orientationLock) {
-            this.orientationLock = orientationLock
+        if (this.orientation != orientation) {
+            this.orientation = orientation
             resetPointerInputHandling = true
         }
 
@@ -718,9 +712,9 @@ internal abstract class DragGestureNode(
                 this.initialDown = initialDown
                 this.pointerId = pointerId
                 if (touchSlopDetector == null) {
-                    touchSlopDetector = TouchSlopDetector(orientationLock)
+                    touchSlopDetector = TouchSlopDetector(orientation)
                 } else {
-                    touchSlopDetector?.orientation = orientationLock
+                    touchSlopDetector?.orientation = orientation
                     touchSlopDetector?.reset(initialTouchSlopPositionChange)
                 }
                 this.verifyConsumptionInFinalPass = verifyConsumptionInFinalPass
@@ -877,76 +871,64 @@ internal abstract class DragGestureNode(
                     if (postSlopOffset.isSpecified) {
                         val delta = dragEvent.positionChange()
 
-                        dragAccumulator =
-                            when (orientationLock) {
-                                null -> {
-                                    val change = requireTouchSlopDetector().totalPositionChange
-                                    val distance = change.getDistance()
-                                    if (distance == 0f) {
-                                        Offset.Zero
-                                    } else {
-                                        change / distance * touchSlop
-                                    }
-                                }
-                                Orientation.Horizontal -> {
-                                    dragAccumulator.copy(
-                                        x =
-                                            touchSlop.withSign(
-                                                requireTouchSlopDetector().totalPositionChange.x
-                                            )
-                                    )
-                                }
-                                else -> {
-                                    dragAccumulator.copy(
-                                        y =
-                                            touchSlop.withSign(
-                                                requireTouchSlopDetector().totalPositionChange.y
-                                            )
-                                    )
-                                }
+                        dragAccumulator += delta
+
+                        /**
+                         * Represents the angle of the start of this gesture (the user intention).
+                         * For simplicity this uses the absolute gesture coordinates meaning an
+                         * angle between 0 and 90 will be used.
+                         */
+                        val gestureAngle =
+                            atan2(
+                                x = dragAccumulator.x.absoluteValue,
+                                y = dragAccumulator.y.absoluteValue,
+                            ) * (180.0f / PI).toFloat()
+
+                        /**
+                         * Represents the alignment of this gesture's accumulated delta until now
+                         * and this node's orientation.
+                         *
+                         * 2D children (orientation is null) have higher priority
+                         */
+                        val isDragAngleAlignedWithSelfOrientation =
+                            if (orientation == null) {
+                                true
+                            } else {
+                                isDragAngleAlignedWithOrientation(orientation!!, gestureAngle)
                             }
 
                         /**
-                         * Represents the interest given to the pre-slop offset of this gesture,
-                         * based on the node's orientation.
-                         */
-                        val isSelfInterested =
-                            isDeltaAtAngleOfInterest(
-                                orientationLock,
-                                requireTouchSlopDetector().totalPositionChange,
-                            )
-
-                        /**
-                         * The interest of the parent follows the criteria:
+                         * The alignment of the parent follows the criteria:
                          * 1) The parent is a drag gesture component (DragGestureConnection)
                          * 2) The parent is in a waiting state.
-                         * 3) The parent has a greater priority based on the gesture angle.
-                         *
-                         * We don't need to check the parent's ability to cross the touch slop:
-                         * 1) If the parent had a smaller touch slop it would have crossed before
-                         *    now.
-                         * 2) If the parent had a larger slop, then it doesn't have priority.
-                         * 3) If the parent has the slop, then only observing the angle will do.
+                         * 3) The parent has an angle aligment with the offsets accumulated so far.
                          */
-                        var hasInterestedParent = false
+                        var hasDragAngleAlignedWithParentOrientation = false
                         traverseParentDraggableGestures { coordinator ->
                             val isParentWaiting = coordinator.gestureState == GestureState.Waiting
-                            val isAtAngleOfInterestForParent =
-                                isDeltaAtAngleOfInterest(
-                                    coordinator.orientationLock,
-                                    coordinator.getAccumulatedDelta() + delta,
-                                )
-                            hasInterestedParent =
-                                hasInterestedParent ||
-                                    isParentWaiting && isAtAngleOfInterestForParent
-                            !hasInterestedParent
+                            val isDragAngleAlignedWithParentOrientation =
+                                if (coordinator.orientation == null) {
+                                    false
+                                } else {
+                                    isDragAngleAlignedWithOrientation(
+                                        coordinator.orientation!!,
+                                        gestureAngle,
+                                    )
+                                }
+                            hasDragAngleAlignedWithParentOrientation =
+                                hasDragAngleAlignedWithParentOrientation ||
+                                    isParentWaiting && isDragAngleAlignedWithParentOrientation
+                            !hasDragAngleAlignedWithParentOrientation
                         }
 
                         /**
-                         * We will only yield to the parent if the current node has less priority
+                         * We will only yield to any parent if the current node has less priority
                          * based on the angle of the gesture.
                          */
-                        if (!isSelfInterested && hasInterestedParent) {
+                        if (
+                            !isDragAngleAlignedWithSelfOrientation &&
+                                hasDragAngleAlignedWithParentOrientation
+                        ) {
                             state.verifyConsumptionInFinalPass = true
                         } else {
                             dragEvent.consume()
@@ -1241,42 +1223,14 @@ private sealed class DragDetectionState {
     class Dragging(var pointerId: PointerId = PointerId(Long.MAX_VALUE)) : DragDetectionState()
 }
 
-internal fun isDeltaAtAngleOfInterest(
-    orientationLock: Orientation?,
-    projectedPositionChange: Offset,
-): Boolean {
-    val angle =
-        atan2(
-            x = projectedPositionChange.x.absoluteValue,
-            y = projectedPositionChange.y.absoluteValue,
-        ) * 180 / PI
-    return when (orientationLock) {
-        Orientation.Horizontal -> {
-            angle < GestureAngleThreshold
-        }
-        Orientation.Vertical -> {
-            angle > GestureAngleThreshold
-        }
-        else -> {
-            false
-        }
-    }
-}
-
 /** A specialized [GestureConnection] to allow high level coordination between drag gestures. */
 internal interface DraggableGestureConnection : GestureConnection {
 
-    /** The [Orientation] where this gesture recognizes deltas. Null if both directions (2D). */
-    val orientationLock: Orientation?
-
     /**
-     * The amount of delta this draggable accumulated over its lifecycle. This should accumulate
-     * deltas as the gesture progresses from Down to Up in conjunction to the gesture state. This
-     * means if a gesture is idle this should return [Offset.Zero]. As the state progresses through
-     * the gesture cycle (Waiting -> Recognized -> Idle) the value should reflect the deltas at each
-     * milestone
+     * The orientation on which this connection recognizes events. If null this means this is a
+     * 2-dimensional draggable.
      */
-    fun getAccumulatedDelta(): Offset
+    val orientation: Orientation?
 }
 
 internal fun DelegatableNode.traverseParentDraggableGestures(
@@ -1291,5 +1245,52 @@ internal fun DelegatableNode.traverseParentDraggableGestures(
     }
 }
 
-// An angle in degrees where horizontal and vertical gestures are disambiguated.
-private const val GestureAngleThreshold = 30
+/**
+ * We compare the angle's gesture [dragAngle] with the angle represented here to show that a node is
+ * aligned with a given gesture. We also traverse the tree and compare the angle of aligment of the
+ * parents when run against this angle criteria. An angle is aligned when it is with an angle range
+ * for [orientation]. This allows for multi-orientation dragging hierarchies to coordinate and let
+ * the component that matches the direction the user is dragging to process the gesture, even if the
+ * user has crossed touch slop in both directions.
+ *
+ * The behavior will change from the regular hierarchical (pointer input) behavior when a node is
+ * not aligned but one of its parent is. This means the gesture performed up until now will not
+ * trigger the angle bound of the current node (is aligned with [orientation], but will trigger the
+ * angle bound of one of its parents. Here are a few examples:
+ *
+ * Example 1: Gesture is mostly horizontal (the angle of the gesture is < 30). In the case where we
+ * have a vertical detector as a parent and a horizontal detector as a child. The horizontal
+ * detector is aligned because the angle of the gesture is smaller than [HorizontalAngleUpperBounds]
+ * so the horizontal detector wins.
+ *
+ * Example 2: Gesture is mostly vertical (the angle of the gesture is > 30 and < 90). In the case
+ * where we have a vertical detector as a parent and a horizontal detector as a child. The
+ * horizontal detector is not aligned because the angle of the gesture is larger than
+ * [HorizontalAngleUpperBounds]. The vertical detector is aligned because the gesture angle is
+ * smaller than [VerticalAngleUpperBounds] and larger than [HorizontalAngleUpperBounds]. The
+ * vertical takes over.
+ *
+ * Example 3: In the case where we have a parent vertical detector and a 2D child. The 2D child will
+ * be aligned since it cares about both angles.
+ *
+ * Example 4: For cases where we have detectors on the same direction we will never find a case
+ * where the inner one is not aligned whilst the outer one is aligned so the previous behavior
+ * remains.
+ *
+ * Example 5: When the parent is a horizontal detector and the child is vertical. Whichever crosses
+ * the touch slop first wins: If the parent crosses the touch slop first, the child loses the
+ * gesture if the child crosses first, the child will be aligned in the gesture so it wins. Note
+ * that if the gesture is fully horizontal, it means the parent will cross the touch slop first.
+ */
+private fun isDragAngleAlignedWithOrientation(
+    orientation: Orientation,
+    @FloatRange(from = 0.0, to = 90.0) dragAngle: Float,
+): Boolean =
+    if (orientation == Orientation.Horizontal) {
+        dragAngle <= HorizontalAngleUpperBounds
+    } else {
+        dragAngle > HorizontalAngleUpperBounds && dragAngle <= VerticalAngleUpperBounds
+    }
+
+private const val HorizontalAngleUpperBounds = 30
+private const val VerticalAngleUpperBounds = 90

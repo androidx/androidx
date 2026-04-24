@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -881,50 +880,24 @@ class Draggable2DTest {
     }
 
     @Test
-    fun gestureNode_accumulatedDeltas_shouldReportCorrectValue() {
+    fun gestureNode_orientationLock_shouldReportCorrectValue() {
         var outerDrag = Offset.Zero
         val node = object : DelegatingNode() {}
 
         rule.setContent {
-            WithTouchSlop(10f) {
-                Box(
-                    modifier =
-                        Modifier.testTag(draggable2DBoxTag).size(300.dp).draggable2D {
-                            outerDrag += it
-                        }
-                ) {
-                    Box(Modifier.size(300.dp).elementFor(node))
-                }
+            Box(
+                modifier =
+                    Modifier.testTag(draggable2DBoxTag).size(300.dp).draggable2D { outerDrag += it }
+            ) {
+                Box(Modifier.size(300.dp).elementFor(node))
             }
-        }
-
-        // haven't received any input yet so node isn't initialized
-        rule.runOnIdle {
-            assertThat(node.getParentDraggableGestureConnection()?.getAccumulatedDelta()).isNull()
         }
 
         rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { down(center) }
 
-        assertThat(node.getParentDraggableGestureConnection()?.getAccumulatedDelta())
-            .isEqualTo(Offset.Zero)
-
-        // haven't crossed touch slop yet
-        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { moveBy(Offset(-5f, 5f)) }
-
-        assertThat(node.getParentDraggableGestureConnection()?.getAccumulatedDelta())
-            .isEqualTo(Offset(-5f, 5f))
-
-        // crossed touch slop
-        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { moveBy(Offset(-20f, 50f)) }
-
-        assertThat(node.getParentDraggableGestureConnection()?.getAccumulatedDelta())
-            .isEqualTo(Offset(-25f, 55f))
-
-        // crossed touch slop
-        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { up() }
-
-        assertThat(node.getParentDraggableGestureConnection()?.getAccumulatedDelta())
-            .isEqualTo(Offset.Zero)
+        rule.runOnIdle {
+            assertThat(node.getParentDraggableGestureConnection()?.orientation).isNull()
+        }
     }
 
     @Test

@@ -351,7 +351,7 @@ private class AnchoredDraggableElement<T>(
 
 private class AnchoredDraggableNode<T>(
     private var state: AnchoredDraggableState<T>,
-    private var orientation: Orientation,
+    orientation: Orientation,
     enabled: Boolean,
     private var reverseDirection: Boolean?,
     interactionSource: MutableInteractionSource?,
@@ -363,7 +363,7 @@ private class AnchoredDraggableNode<T>(
         canDrag = AlwaysDrag,
         enabled = enabled,
         interactionSource = interactionSource,
-        orientationLock = orientation,
+        orientation = orientation,
     ) {
 
     lateinit var resolvedFlingBehavior: FlingBehavior
@@ -513,7 +513,7 @@ private class AnchoredDraggableNode<T>(
             enabled = enabled,
             interactionSource = interactionSource,
             shouldResetPointerInputHandling = resetPointerInputHandling,
-            orientationLock = orientation,
+            orientation = orientation,
         )
     }
 
