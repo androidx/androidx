@@ -2076,13 +2076,11 @@ package androidx.car.app.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SpotlightSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
     method public androidx.car.app.model.CarIcon getImage();
-    method public androidx.car.app.model.OnClickDelegate? getImageOnClickDelegate();
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SpotlightSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.SpotlightSection.Builder!> {
     ctor public SpotlightSection.Builder(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.SpotlightSection build();
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SpotlightSection.Builder setImageOnClickListener(androidx.car.app.model.OnClickListener);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {
