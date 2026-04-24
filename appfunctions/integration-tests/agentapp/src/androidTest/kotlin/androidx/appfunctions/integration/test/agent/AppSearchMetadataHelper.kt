@@ -17,39 +17,28 @@
 package androidx.appfunctions.integration.test.agent
 
 import android.content.Context
+import android.util.Log
 import androidx.appsearch.app.GlobalSearchSession
 import androidx.appsearch.app.SearchSpec
 import androidx.appsearch.platformstorage.PlatformStorage
 import androidx.concurrent.futures.await
 
 internal object AppSearchMetadataHelper {
+    private const val TAG = "AppFunctionAppSearchHelper"
+
     /** Returns function IDs that belong to the given [targetPackage]. */
     suspend fun collectFunctionIds(context: Context, targetPackage: String): Set<String> {
-        val functionIds = mutableSetOf<String>()
-        createSearchSession(context).use { session ->
-            val searchResults =
-                session.search(
-                    "",
-                    SearchSpec.Builder()
-                        .addFilterNamespaces("app_functions_runtime")
-                        .addFilterPackageNames("android")
-                        .addFilterSchemas("AppFunctionRuntimeMetadata")
-                        .build(),
-                )
-            var nextPage = searchResults.nextPageAsync.await()
-            while (nextPage.isNotEmpty()) {
-                for (result in nextPage) {
-                    val packageName = result.genericDocument.getPropertyString("packageName")
-                    if (packageName != targetPackage) {
-                        continue
-                    }
-                    val functionId = result.genericDocument.getPropertyString("functionId")
-                    functionIds.add(checkNotNull(functionId))
-                }
-                nextPage = searchResults.nextPageAsync.await()
-            }
+        val staticIds = searchStaticMetadataIds(context, targetPackage)
+        val runtimeIds = searchRuntimeMetadataIds(context, targetPackage)
+        if (staticIds.size != runtimeIds.size) {
+            Log.w(
+                TAG,
+                "Static metadata size ${staticIds.size} doesn't matc runtime " +
+                    "metadata size ${runtimeIds.size}.",
+            )
+            return emptySet()
         }
-        return functionIds
+        return runtimeIds.toSet()
     }
 
     suspend fun isDynamicIndexerAvailable(
@@ -80,6 +69,68 @@ internal object AppSearchMetadataHelper {
             }
             throw IllegalStateException("No functions found for package $packageName")
         }
+
+    private suspend fun searchStaticMetadataIds(
+        context: Context,
+        packageName: String,
+    ): List<String> {
+        val functionIds = mutableListOf<String>()
+        createSearchSession(context).use { session ->
+            val searchResults =
+                session.search(
+                    "",
+                    SearchSpec.Builder()
+                        .addFilterNamespaces("app_functions")
+                        .addFilterPackageNames("android")
+                        .addFilterSchemas("AppFunctionStaticMetadata")
+                        .build(),
+                )
+            var nextPage = searchResults.nextPageAsync.await()
+            while (nextPage.isNotEmpty()) {
+                for (result in nextPage) {
+                    val packageNameProperty =
+                        result.genericDocument.getPropertyString("packageName")
+                    if (packageNameProperty != packageName) {
+                        continue
+                    }
+                    functionIds.add(result.genericDocument.id)
+                }
+                nextPage = searchResults.nextPageAsync.await()
+            }
+        }
+        return functionIds
+    }
+
+    private suspend fun searchRuntimeMetadataIds(
+        context: Context,
+        targetPackageName: String,
+    ): List<String> {
+        val functionIds = mutableListOf<String>()
+        createSearchSession(context).use { session ->
+            val searchResults =
+                session.search(
+                    "",
+                    SearchSpec.Builder()
+                        .addFilterNamespaces("app_functions_runtime")
+                        .addFilterPackageNames("android")
+                        .addFilterSchemas("AppFunctionRuntimeMetadata")
+                        .build(),
+                )
+            var nextPage = searchResults.nextPageAsync.await()
+            while (nextPage.isNotEmpty()) {
+                for (result in nextPage) {
+                    val packageName = result.genericDocument.getPropertyString("packageName")
+                    if (packageName != targetPackageName) {
+                        continue
+                    }
+                    val functionId = result.genericDocument.getPropertyString("functionId")
+                    functionIds.add(checkNotNull(functionId))
+                }
+                nextPage = searchResults.nextPageAsync.await()
+            }
+        }
+        return functionIds
+    }
 
     private suspend fun createSearchSession(context: Context): GlobalSearchSession {
         return PlatformStorage.createGlobalSearchSessionAsync(
