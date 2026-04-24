@@ -49,7 +49,11 @@ class AppFunctionEntryPointCompilerTest {
             expectGeneratedSourceFileName = "MySimpleService.kt",
             goldenFileName = "entrypoints/MySimpleService.KT",
         )
-
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "\$SimpleEntryPoint_AppFunctionInventory.kt",
+            goldenFileName = "inventory/\$SimpleEntryPoint_AppFunctionInventory.KT",
+        )
         compilationTestHelper.assertSuccessWithResourceContent(
             report = report,
             expectGeneratedResourceFileName = "my_simple_service.xml",

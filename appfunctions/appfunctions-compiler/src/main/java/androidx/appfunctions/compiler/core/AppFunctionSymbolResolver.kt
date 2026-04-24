@@ -56,7 +56,7 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
                         }
                         .toList()
                 val appFunctions = appFunctionDeclarations.map { AnnotatedAppFunction(it) }
-                AnnotatedAppFunctionEntryPoint(declaration, appFunctions)
+                AnnotatedAppFunctionEntryPoint(declaration, appFunctions).validate()
             }
             .toList()
     }

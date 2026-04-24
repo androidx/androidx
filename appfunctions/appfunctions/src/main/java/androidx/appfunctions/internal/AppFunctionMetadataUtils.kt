@@ -36,9 +36,9 @@ internal object AppFunctionMetadataUtils {
      */
     suspend fun getAppFunctionMetadata(
         context: Context,
+        inventory: AppFunctionInventory?,
         functionIdentifier: String,
     ): AppFunctionMetadata? {
-        val inventory = Dependencies.appFunctionInventory
         if (inventory != null) {
             val compileTimeAppFunctionMetadata =
                 inventory.functionIdToMetadataMap[functionIdentifier] ?: return null
