@@ -23,9 +23,9 @@ import androidx.annotation.RestrictTo
  *
  * @property trackingState the [TrackingState] of this trackable
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Trackable {
 
     /** The [TrackingState] of this trackable */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val trackingState: TrackingState
+    public val trackingState: TrackingState
 }

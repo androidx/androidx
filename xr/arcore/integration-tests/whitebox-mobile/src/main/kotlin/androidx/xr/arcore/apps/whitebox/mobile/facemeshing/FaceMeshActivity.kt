@@ -214,6 +214,7 @@ class FaceMeshActivity : ComponentActivity(), SampleRender.Companion.Renderer {
         backgroundRenderer.setUseOcclusion(render, false)
     }
 
+    @Suppress("RestrictedApiAndroidX")
     override fun onSurfaceChanged(render: SampleRender, width: Int, height: Int) {
         session.runtimes
             .filterIsInstance<PerceptionRuntime>()

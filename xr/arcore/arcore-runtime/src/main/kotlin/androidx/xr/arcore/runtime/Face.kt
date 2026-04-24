@@ -35,7 +35,7 @@ import androidx.xr.runtime.math.Pose
  * @property foreheadRightPose the [Pose] located on the right side of the forehead on the [mesh] if
  *   it exists, relative to perception space
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Face : Trackable {
     public val isValid: Boolean
     public val blendShapeValues: FloatArray?

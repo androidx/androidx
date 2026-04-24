@@ -109,6 +109,7 @@ private constructor(
          */
         @JvmOverloads
         @JvmStatic
+        @Suppress("RestrictedApiAndroidX")
         public fun create(
             session: Session,
             pixelDimensions: IntSize2d,

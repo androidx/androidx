@@ -27,7 +27,7 @@ import androidx.xr.runtime.internal.JxrRuntime
  * @property perceptionManager the [PerceptionManager] for this runtime
  * @property config the [Config] for this runtime
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface PerceptionRuntime : JxrRuntime {
 
     public val perceptionManager: PerceptionManager

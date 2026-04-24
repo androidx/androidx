@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
  * @property nativePointer a native pointer to this Anchor
  * @property anchorToken an [IBinder] reference with which to import the Anchor
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ExportableAnchor : Anchor {
     public val nativePointer: Long
     public val anchorToken: IBinder

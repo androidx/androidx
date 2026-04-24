@@ -19,7 +19,7 @@ package androidx.xr.arcore.runtime
 import androidx.annotation.RestrictTo
 
 /** Describes the state of the tracking performed. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TrackingState private constructor(private val value: Int) {
     public companion object {
         /** The trackable is currently tracked and its pose is current. */

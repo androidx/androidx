@@ -48,7 +48,7 @@ package androidx.xr.arcore.testing {
     property public androidx.xr.arcore.testing.TestRenderViewpoint rightRenderViewpoint;
   }
 
-  @Deprecated public final class FakeRuntimeAugmentedImage implements androidx.xr.arcore.runtime.Trackable {
+  @Deprecated public final class FakeRuntimeAugmentedImage {
     ctor @Deprecated public FakeRuntimeAugmentedImage();
     ctor @BytecodeOnly @Deprecated public FakeRuntimeAugmentedImage(androidx.xr.arcore.runtime.TrackingState!, androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.FloatSize2d!, int, java.util.Collection!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @Deprecated public FakeRuntimeAugmentedImage(optional androidx.xr.arcore.runtime.TrackingState trackingState, optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.FloatSize2d extents, optional int index, optional java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors);

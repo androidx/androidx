@@ -28,7 +28,7 @@ import java.util.UUID
  * @property persistenceState the [PersistenceState] for this anchor
  * @property uuid the [UUID] that identifies this Anchor if it is persisted
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Anchor {
 
     /** Describes the state of persistence for an [Anchor]. */

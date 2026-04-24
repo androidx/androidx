@@ -58,10 +58,12 @@ internal class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
         return true
     }
 
+    @Suppress("RestrictedApiAndroidX")
     override fun getPose(relativeTo: Int): Pose {
         return anchor?.runtimeAnchor?.pose ?: Pose.Identity
     }
 
+    @Suppress("RestrictedApiAndroidX")
     override fun dispose() {
         anchor?.runtimeAnchor?.detach()
     }

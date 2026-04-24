@@ -30,7 +30,7 @@ import java.nio.FloatBuffer
  * @property handJoints a map of [HandJointType] to [Pose] representing the current pose of each
  *   joint in the hand
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Hand : Trackable {
 
     public companion object {
@@ -43,16 +43,15 @@ public interface Hand : Trackable {
          *   the hand
          */
         @JvmStatic
-        @Suppress("UnavailableSymbol")
         public fun parseHandJoint(
-            @Suppress("HiddenTypeParameter") trackingState: TrackingState,
+            trackingState: TrackingState,
             handJointsBuffer: FloatBuffer,
         ): Map<HandJointType, Pose> {
-            if (trackingState != TrackingState.Companion.TRACKING) {
+            if (trackingState != TrackingState.TRACKING) {
                 return emptyMap()
             }
             val buffer = handJointsBuffer.duplicate()
-            val jointCount = HandJointType.values().size
+            val jointCount = HandJointType.entries.size
             val poses = mutableListOf<Pose>()
             repeat(jointCount) {
                 val qx = buffer.get()
@@ -64,11 +63,11 @@ public interface Hand : Trackable {
                 val pz = buffer.get()
                 poses.add(Pose(Vector3(px, py, pz), Quaternion(qx, qy, qz, qw)))
             }
-            return HandJointType.values().zip(poses).toMap()
+            return HandJointType.entries.toTypedArray().zip(poses).toMap()
         }
     }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public override val trackingState: TrackingState
+    public override val trackingState: TrackingState
 
     public val handJointsBuffer: FloatBuffer
 

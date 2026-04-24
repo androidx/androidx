@@ -26,13 +26,9 @@ import androidx.xr.runtime.math.Pose
  * @property pose the [Pose] of the eye
  * @property trackingState the [TrackingState] of the eye
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Eye : Trackable {
-    /**
-     * a flag indicating whether or not the eye is open. It's set to true if it's open, false if
-     * it's closed. *
-     */
     public val isOpen: Boolean
     public val pose: Pose
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public override val trackingState: TrackingState
+    public override val trackingState: TrackingState
 }
