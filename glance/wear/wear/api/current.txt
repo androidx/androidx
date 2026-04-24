@@ -1,6 +1,9 @@
 // Signature format: 4.0
 package androidx.glance.wear {
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearApi {
+  }
+
   public abstract class GlanceWearWidget {
     ctor public GlanceWearWidget();
     method @MainThread public suspend Object? onAdded(android.content.Context context, androidx.glance.wear.core.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
