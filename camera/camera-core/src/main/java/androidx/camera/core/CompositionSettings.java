@@ -16,20 +16,29 @@
 
 package androidx.camera.core;
 
+import android.graphics.Color;
+
+import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
+import androidx.annotation.IntRange;
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig;
 import androidx.core.util.Pair;
+import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
 
 /**
  * Composition settings for dual concurrent camera. It includes alpha value for blending,
- * offset in x, y coordinates, scale of width and height. The offset, and scale of width and height
- * are specified in normalized device coordinates(NDCs). The offset is applied after scale.
+ * offset in x, y coordinates, scale of width and height, and styling options like rounded corners
+ * and borders. The offset, and scale of width and height are specified in normalized device
+ * coordinates(NDCs). The offset is applied after scale.
  * The origin of normalized device coordinates is at the center of the viewing volume. The positive
  * X-axis extends to the right, the positive Y-axis extends upwards.The x, y values range from -1
  * to 1. E.g. scale with {@code (0.5f, 0.5f)} and offset with {@code (0.5f, 0.5f)} is the
  * bottom-right quadrant of the output device.
+ *
+ * <p>Styling options like rounded corner ratio and border width ratio are normalized from 0 to 1,
+ * where a ratio of 1 is relative to half of the smaller dimension of the frame.
  *
  * <p>Composited dual camera frames preview and recording can be supported using
  * {@link CompositionSettings} and {@link SingleCameraConfig}. The z-order of composition is
@@ -100,22 +109,34 @@ public class CompositionSettings {
             .setAlpha(1.0f)
             .setOffset(0.0f, 0.0f)
             .setScale(1.0f, 1.0f)
+            .setRoundedCornerRatio(0.0f)
+            .setBorderWidthRatio(0.0f)
+            .setBorderColor(Color.WHITE)
             .setZOrder(0)
             .build();
 
     private final float mAlpha;
     private final Pair<Float, Float> mOffset;
     private final Pair<Float, Float> mScale;
+    private final float mRoundedCornerRatio;
+    private final float mBorderWidthRatio;
+    private final int mBorderColor;
     private final int mZOrder;
 
     private CompositionSettings(
             float alpha,
             Pair<Float, Float> offset,
             Pair<Float, Float> scale,
+            float roundedCornerRatio,
+            float borderWidthRatio,
+            int borderColor,
             int zOrder) {
         mAlpha = alpha;
         mOffset = offset;
         mScale = scale;
+        mRoundedCornerRatio = roundedCornerRatio;
+        mBorderWidthRatio = borderWidthRatio;
+        mBorderColor = borderColor;
         mZOrder = zOrder;
     }
 
@@ -147,11 +168,47 @@ public class CompositionSettings {
     }
 
     /**
+     * Gets the rounded corner ratio.
+     *
+     * <p>The value is normalized from 0 to 1. 0 means no rounding (sharp corners). 1 means fully
+     * rounded (the radius of the rounded corners equals half of the smaller dimension of the
+     * frame, making the frame a circle if it's square, or pill-shaped if it's rectangular).
+     *
+     * @return rounded corner ratio value.
+     */
+    public @FloatRange(from = 0, to = 1) float getRoundedCornerRatio() {
+        return mRoundedCornerRatio;
+    }
+
+    /**
+     * Gets the border width as a normalized ratio from 0 to 1.
+     *
+     * <p>0 means no border. 1 means the border width equals half of the smaller dimension of
+     * the frame, which causes the borders to meet at the center and fill the smaller dimension.
+     * The ratio is relative to half of the smaller dimension of the frame, consistent with
+     * {@link #getRoundedCornerRatio()}.
+     *
+     * @return border width ratio value.
+     */
+    public @FloatRange(from = 0, to = 1) float getBorderWidthRatio() {
+        return mBorderWidthRatio;
+    }
+
+    /**
+     * Gets the border color.
+     *
+     * @return border color value.
+     */
+    public @ColorInt int getBorderColor() {
+        return mBorderColor;
+    }
+
+    /**
      * Gets the z-order.
      *
      * @return z-order value.
      */
-    public int getZOrder() {
+    public @IntRange(from = 0) int getZOrder() {
         return mZOrder;
     }
 
@@ -160,18 +217,25 @@ public class CompositionSettings {
         private float mAlpha;
         private Pair<Float, Float> mOffset;
         private Pair<Float, Float> mScale;
+        private float mRoundedCornerRatio;
+        private float mBorderWidthRatio;
+        private int mBorderColor;
         private int mZOrder;
 
         /**
          * Creates a new {@link Builder}.
          *
          * <p>The default alpha is 1.0f, the default offset is (0.0f, 0.0f), the default scale is
-         * (1.0f, 1.0f).
+         * (1.0f, 1.0f), the default rounded corner ratio is 0.0f, the default border width ratio
+         * is 0, and the default border color is {@link Color#WHITE}.
          */
         public Builder() {
             mAlpha = 1.0f;
             mOffset = Pair.create(0.0f, 0.0f);
             mScale = Pair.create(1.0f, 1.0f);
+            mRoundedCornerRatio = 0.0f;
+            mBorderWidthRatio = 0.0f;
+            mBorderColor = Color.WHITE;
             mZOrder = 0;
         }
 
@@ -213,12 +277,59 @@ public class CompositionSettings {
         }
 
         /**
-         * Sets the z-order. Larger z-order means rendered later (appears on top).
+         * Sets the rounded corner ratio as a normalized value from 0 to 1.
+         *
+         * <p>0 means no rounding (sharp corners). 1 means fully rounded (the radius of the rounded
+         * corners equals half of the smaller dimension of the frame, making the frame a circle
+         * if it's square, or pill-shaped if it's rectangular). Values in between provide partial
+         * rounding proportional to half of the smaller dimension of the frame.
+         *
+         * @param roundedCornerRatio rounded corner ratio value.
+         * @return Builder instance.
+         */
+        public @NonNull Builder setRoundedCornerRatio(
+                @FloatRange(from = 0, to = 1) float roundedCornerRatio) {
+            mRoundedCornerRatio = roundedCornerRatio;
+            return this;
+        }
+
+        /**
+         * Sets the border width as a normalized ratio from 0 to 1.
+         *
+         * <p>0 means no border. 1 means the border width equals half of the smaller dimension of
+         * the frame, which causes the borders to meet at the center and fill the smaller dimension.
+         * The ratio is relative to half of the smaller dimension of the frame, consistent with
+         * {@link #setRoundedCornerRatio(float)}.
+         *
+         * @param borderWidthRatio border width ratio value.
+         * @return Builder instance.
+         */
+        public @NonNull Builder setBorderWidthRatio(
+                @FloatRange(from = 0, to = 1) float borderWidthRatio) {
+            mBorderWidthRatio = borderWidthRatio;
+            return this;
+        }
+
+        /**
+         * Sets the border color.
+         *
+         * @param borderColor border color value.
+         * @return Builder instance.
+         */
+        public @NonNull Builder setBorderColor(@ColorInt int borderColor) {
+            mBorderColor = borderColor;
+            return this;
+        }
+
+        /**
+         * Sets the z-order. Larger z-order means rendered later (appears on top). Must be
+         * non-negative.
          *
          * @param zOrder z-order value.
          * @return Builder instance.
          */
-        public @NonNull Builder setZOrder(int zOrder) {
+        public @NonNull Builder setZOrder(@IntRange(from = 0) int zOrder) {
+            Preconditions.checkArgument(zOrder >= 0, "z-order must be non-negative.");
             mZOrder = zOrder;
             return this;
         }
@@ -233,6 +344,9 @@ public class CompositionSettings {
                     mAlpha,
                     mOffset,
                     mScale,
+                    mRoundedCornerRatio,
+                    mBorderWidthRatio,
+                    mBorderColor,
                     mZOrder);
         }
     }

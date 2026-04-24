@@ -374,6 +374,75 @@ class ConcurrentCameraTest {
         }
     }
 
+    @Test
+    fun setCompositionSettings_throwsIfSizeNotTwo(): Unit = runBlocking {
+        ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
+
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val useCase0 = Preview.Builder().build()
+        val useCase1 =
+            FakeUseCase(
+                FakeUseCaseConfig.Builder(CaptureType.VIDEO_CAPTURE).useCaseConfig,
+                CaptureType.VIDEO_CAPTURE,
+            )
+
+        val singleCameraConfig0 =
+            SingleCameraConfig(
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                UseCaseGroup.Builder().addUseCase(useCase0).addUseCase(useCase1).build(),
+                lifecycleOwner0,
+            )
+        val singleCameraConfig1 =
+            SingleCameraConfig(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                UseCaseGroup.Builder().addUseCase(useCase0).addUseCase(useCase1).build(),
+                lifecycleOwner1,
+            )
+
+        if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
+            val concurrentCamera =
+                provider.bindToLifecycle(listOf(singleCameraConfig0, singleCameraConfig1))
+
+            assertThrows<IllegalArgumentException> {
+                concurrentCamera.setCompositionSettings(listOf(CompositionSettings.DEFAULT))
+            }
+        }
+    }
+
+    @Test
+    fun setCompositionSettings_throwsIfNotInCompositionMode(): Unit = runBlocking {
+        ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
+
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val useCase0 = Preview.Builder().build()
+        val useCase1 = Preview.Builder().build()
+
+        val singleCameraConfig0 =
+            SingleCameraConfig(
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                UseCaseGroup.Builder().addUseCase(useCase0).build(),
+                lifecycleOwner0,
+            )
+        val singleCameraConfig1 =
+            SingleCameraConfig(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                UseCaseGroup.Builder().addUseCase(useCase1).build(),
+                lifecycleOwner1,
+            )
+
+        if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
+            val concurrentCamera =
+                provider.bindToLifecycle(listOf(singleCameraConfig0, singleCameraConfig1))
+
+            // Non-composition mode because different use cases
+            assertThrows<IllegalStateException> {
+                concurrentCamera.setCompositionSettings(
+                    listOf(CompositionSettings.DEFAULT, CompositionSettings.DEFAULT)
+                )
+            }
+        }
+    }
+
     private fun createConcurrentCameraAppConfig(): CameraXConfig {
         val combination0 =
             mapOf(

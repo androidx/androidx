@@ -74,6 +74,8 @@ public class ConcurrentCamera {
      * The first composition setting is for the primary camera, and the second is for the
      * secondary camera.
      *
+     * <p>Currently only 2 cameras are supported, so the size of the list must be 2.
+     *
      * <p>The following code snippet demonstrates how to swap the primary and secondary camera
      * positions:
      * <pre>
@@ -91,10 +93,10 @@ public class ConcurrentCamera {
      * }
      * </pre>
      *
-     * <p>It is a no-op if the camera is not in concurrent camera composition mode.
-     *
      * @param compositionSettings A list of {@link CompositionSettings} for the concurrent
      *                            cameras.
+     * @throws IllegalStateException if the camera is not in concurrent camera composition mode.
+     * @throws IllegalArgumentException if the size of the composition settings list is not 2.
      */
     public void setCompositionSettings(
             @NonNull List<CompositionSettings> compositionSettings) {

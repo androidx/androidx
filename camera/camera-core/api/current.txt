@@ -193,9 +193,12 @@ package androidx.camera.core {
 
   public class CompositionSettings {
     method public float getAlpha();
+    method @ColorInt public int getBorderColor();
+    method @FloatRange(from=0, to=1) public float getBorderWidthRatio();
     method public androidx.core.util.Pair<java.lang.Float!,java.lang.Float!> getOffset();
+    method @FloatRange(from=0, to=1) public float getRoundedCornerRatio();
     method public androidx.core.util.Pair<java.lang.Float!,java.lang.Float!> getScale();
-    method public int getZOrder();
+    method @IntRange(from=0) public int getZOrder();
     field public static final androidx.camera.core.CompositionSettings DEFAULT;
   }
 
@@ -203,9 +206,12 @@ package androidx.camera.core {
     ctor public CompositionSettings.Builder();
     method public androidx.camera.core.CompositionSettings build();
     method public androidx.camera.core.CompositionSettings.Builder setAlpha(@FloatRange(from=0, to=1) float);
+    method public androidx.camera.core.CompositionSettings.Builder setBorderColor(@ColorInt int);
+    method public androidx.camera.core.CompositionSettings.Builder setBorderWidthRatio(@FloatRange(from=0, to=1) float);
     method public androidx.camera.core.CompositionSettings.Builder setOffset(@FloatRange(from=0xffffffff, to=1) float, @FloatRange(from=0xffffffff, to=1) float);
+    method public androidx.camera.core.CompositionSettings.Builder setRoundedCornerRatio(@FloatRange(from=0, to=1) float);
     method public androidx.camera.core.CompositionSettings.Builder setScale(float, float);
-    method public androidx.camera.core.CompositionSettings.Builder setZOrder(int);
+    method public androidx.camera.core.CompositionSettings.Builder setZOrder(@IntRange(from=0) int);
   }
 
   public class ConcurrentCamera {
