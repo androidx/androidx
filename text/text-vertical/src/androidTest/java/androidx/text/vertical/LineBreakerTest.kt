@@ -21,7 +21,7 @@ import android.os.Build
 import android.text.SpannableString
 import android.text.TextPaint
 import androidx.test.filters.SdkSuppress
-import androidx.text.vertical.TextOrientationSpan.TextCombineUpright
+import androidx.text.vertical.TextOrientationSpan.CombineUpright
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -381,9 +381,9 @@ class LineBreakerTest {
         val jpEnd = jpStart + jpDateText.length
         val spanned =
             SpannableString(PREFIX + jpDateText + SUFFIX).apply {
-                setSpan(TextCombineUpright(), jpStart, jpStart + 4, SPAN_FLAG) // 2024
-                setSpan(TextCombineUpright(), jpStart + 5, jpStart + 7, SPAN_FLAG) // 12
-                setSpan(TextCombineUpright(), jpStart + 8, jpStart + 10, SPAN_FLAG) // 25
+                setSpan(CombineUpright(), jpStart, jpStart + 4, SPAN_FLAG) // 2024
+                setSpan(CombineUpright(), jpStart + 5, jpStart + 7, SPAN_FLAG) // 12
+                setSpan(CombineUpright(), jpStart + 8, jpStart + 10, SPAN_FLAG) // 25
             }
         val breakText: (Float) -> LineBreaker.Result = { heightConstraint ->
             LineBreaker.breakTextIntoLines(

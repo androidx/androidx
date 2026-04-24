@@ -150,7 +150,7 @@ class LineLayoutRunTest {
     fun lineLayout_SpanOverridesTextWithTateChuYoko() {
         val spanned =
             SpannableString(TEXT).apply {
-                setSpan(TextOrientationSpan.TextCombineUpright(), LATIN_START, LATIN_END, SPAN_FLAG)
+                setSpan(TextOrientationSpan.CombineUpright(), LATIN_START, LATIN_END, SPAN_FLAG)
             }
         createLineLayout(spanned, LATIN_START, JAPANESE_END, PAINT, TextOrientation.Mixed).run {
             assertThat(start).isEqualTo(LATIN_START)
