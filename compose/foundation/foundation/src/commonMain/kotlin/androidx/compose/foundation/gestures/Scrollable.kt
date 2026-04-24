@@ -293,7 +293,7 @@ internal class ScrollableNode(
         canDrag = CanDragCalculation,
         enabled = enabled,
         interactionSource = interactionSource,
-        orientationLock = orientation,
+        orientation = orientation,
     ),
     KeyInputModifierNode,
     SemanticsModifierNode,
@@ -470,7 +470,7 @@ internal class ScrollableNode(
             canDrag = CanDragCalculation,
             enabled = enabled,
             interactionSource = interactionSource,
-            orientationLock = if (scrollingLogic.isVertical()) Vertical else Horizontal,
+            orientation = if (scrollingLogic.isVertical()) Vertical else Horizontal,
             shouldResetPointerInputHandling = resetPointerInputHandling,
         )
 

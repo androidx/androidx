@@ -249,7 +249,7 @@ internal class Draggable2DNode(
         canDrag = canDrag,
         enabled = enabled,
         interactionSource = interactionSource,
-        orientationLock = null,
+        orientation = null,
     ) {
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
@@ -297,7 +297,7 @@ internal class Draggable2DNode(
             canDrag = canDrag,
             enabled = enabled,
             interactionSource = interactionSource,
-            orientationLock = null,
+            orientation = null,
             shouldResetPointerInputHandling = resetPointerInputHandling,
         )
     }
