@@ -17,7 +17,7 @@
 package androidx.xr.scenecore.runtime.extensions
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX
 import androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion
 import androidx.xr.runtime.XrExtensionsHolder
 import androidx.xr.runtime.loadProviders
@@ -30,7 +30,8 @@ import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor.holde
  * This helper object searches for a valid [XrExtensionsHolderProvider] on the classpath and exposes
  * its holders.
  */
-@RestrictTo(LIBRARY_GROUP)
+// TODO (b/502178246): Change to LIBRARY_GROUP once the Compose stop accessing this API.
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public object XrExtensionsHolderAccessor {
     /** A list of well-known [XrExtensionsHolderProvider] implementations. */
     private val PROVIDERS =

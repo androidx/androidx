@@ -19,8 +19,8 @@ package androidx.xr.compose.unit
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.testing.XrExtensionsProvider
 import androidx.xr.runtime.math.FloatSize3d
-import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
 import com.android.extensions.xr.ShadowConfig
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 class DpVolumeSizeTest {
     @Before
     fun setUp() {
-        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions()!!.config!!)
+        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions().config!!)
             .setDefaultDpPerMeter(1f)
     }
 

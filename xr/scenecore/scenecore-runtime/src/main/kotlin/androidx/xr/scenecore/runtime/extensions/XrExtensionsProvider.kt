@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,31 @@ import com.android.extensions.xr.XrExtensions
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
-/** Provides the OEM implementation of [XrExtensions]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used by XR Compose
+/**
+ * Provides the OEM implementation of [XrExtensions].
+ *
+ * @deprecated Avoid platform dependence in this library; use [XrExtensionsHolderAccessor] instead.
+ */
+@Deprecated(
+    message = "Avoid platform dependence; use XrExtensionsHolderAccessor instead.",
+    replaceWith = ReplaceWith("XrExtensionsHolderAccessor"),
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object XrExtensionsProvider {
     private const val TAG = "XrExtensionsProvider"
 
     /**
      * Returns the OEM implementation of [XrExtensions] or returns null if no implementation is
      * found.
+     *
+     * @deprecated Avoid platform dependence in this library; use
+     *   [XrExtensionsHolderAccessor.holder] instead.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use XrExtensionsHolderAccessor.holder instead.",
+        replaceWith = ReplaceWith("XrExtensionsHolderAccessor.holder"),
+    )
     public fun getXrExtensions(): XrExtensions? {
         try {
             return XrExtensionsHolder.INSTANCE
