@@ -24,5 +24,5 @@ import androidx.xr.arcore.Geospatial.State.Companion.RUNNING
  * If Geospatial has entered an error state other than [PAUSED], Geospatial must be disabled and
  * re-enabled to use Geospatial again.
  */
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION", "TypealiasDefinition")
 public typealias GeospatialState = Geospatial.State

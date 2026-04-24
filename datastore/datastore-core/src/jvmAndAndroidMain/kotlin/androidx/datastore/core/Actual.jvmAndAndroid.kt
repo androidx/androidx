@@ -26,7 +26,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
 /** Common IOException mapped to java.io.Exception in jvm code. */
-@Suppress("AcronymName")
+@Suppress("AcronymName", "TypealiasDefinition")
 actual typealias IOException = java.io.IOException
 
 internal actual class AtomicInt {

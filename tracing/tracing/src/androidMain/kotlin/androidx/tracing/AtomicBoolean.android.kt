@@ -18,4 +18,5 @@ package androidx.tracing
 
 import java.util.concurrent.atomic.AtomicBoolean
 
+@Suppress("TypealiasDefinition")
 public actual typealias AtomicBoolean = AtomicBoolean

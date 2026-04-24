@@ -19,6 +19,7 @@ package androidx.navigation3.runtime
 import android.net.Uri
 import androidx.core.net.toUri
 
+@Suppress("TypealiasDefinition")
 public actual typealias DeepLinkUri = Uri
 
 internal actual object DeepLinkUriUtils {

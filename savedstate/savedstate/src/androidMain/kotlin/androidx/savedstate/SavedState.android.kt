@@ -22,6 +22,7 @@ package androidx.savedstate
 
 import androidx.core.os.bundleOf
 
+@Suppress("TypealiasDefinition")
 public actual typealias SavedState = android.os.Bundle
 
 public actual inline fun savedState(

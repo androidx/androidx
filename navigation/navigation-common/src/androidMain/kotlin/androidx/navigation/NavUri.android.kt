@@ -18,6 +18,7 @@ package androidx.navigation
 
 import android.net.Uri
 
+@Suppress("TypealiasDefinition")
 public actual typealias NavUri = Uri
 
 internal actual object NavUriUtils {

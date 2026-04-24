@@ -23,6 +23,7 @@ import androidx.xr.runtime.TrackingState.Companion.TRACKING
 import androidx.xr.runtime.TrackingState.Companion.TRACKING_DEGRADED
 
 /** Describes the state of the tracking performed. */
+@Suppress("TypealiasDefinition")
 public typealias TrackingState = androidx.xr.runtime.TrackingState
 
 internal fun TrackingState.toRuntimeTrackingState(): RTTrackingState =

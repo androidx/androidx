@@ -15,5 +15,5 @@
  */
 package androidx.sqlite
 
-@Suppress("ACTUAL_ANNOTATIONS_NOT_MATCH_EXPECT")
+@Suppress("ACTUAL_ANNOTATIONS_NOT_MATCH_EXPECT", "TypealiasDefinition")
 public actual typealias SQLiteException = android.database.SQLException
