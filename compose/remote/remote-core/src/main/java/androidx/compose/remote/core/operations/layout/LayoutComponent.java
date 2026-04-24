@@ -429,7 +429,9 @@ public class LayoutComponent extends Component {
     public void drawContent(@NonNull PaintContext context) {
         context.save();
         context.translate(-mX, -mY);
-        internalPaintingComponent(context);
+        // Skip modifiers here because they are already applied in paintingComponent
+        // before calling mDrawContentOperations.
+        internalPaintingComponent(context, /* skipModifiers= */ true);
         context.restore();
     }
 
@@ -446,14 +448,15 @@ public class LayoutComponent extends Component {
         if (mDrawContentOperations != null) {
             context.save();
             context.translate(mX, mY);
+            mComponentModifiers.paint(context);
             mDrawContentOperations.paint(context);
             context.restore();
             return;
         }
-        internalPaintingComponent(context);
+        internalPaintingComponent(context, /* skipModifiers= */ false);
     }
 
-    private void internalPaintingComponent(@NonNull PaintContext context) {
+    private void internalPaintingComponent(@NonNull PaintContext context, boolean skipModifiers) {
         Component prev = context.getContext().mLastComponent;
         RemoteContext remoteContext = context.getContext();
 
@@ -484,7 +487,9 @@ public class LayoutComponent extends Component {
                 op.apply(remoteContext);
             }
         }
-        mComponentModifiers.paint(context);
+        if (!skipModifiers) {
+            mComponentModifiers.paint(context);
+        }
         float tx = mPaddingLeft + getScrollX();
         float ty = mPaddingTop + getScrollY();
         context.translate(tx, ty);
