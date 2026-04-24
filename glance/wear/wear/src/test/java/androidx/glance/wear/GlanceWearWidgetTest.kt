@@ -43,16 +43,6 @@ import org.robolectric.annotation.Config
 class GlanceWearWidgetTest {
 
     @Test
-    fun triggerUpdate_clientRequestsUpdateForAll() {
-        val mockUpdateClient = mock<WidgetUpdateClient>()
-        val widget = TestWidget(mockUpdateClient)
-
-        widget.triggerUpdate(getApplicationContext(), TEST_COMPONENT)
-
-        verify(mockUpdateClient).requestUpdate(any(), eq(TEST_COMPONENT), eq(null))
-    }
-
-    @Test
     fun triggerPullUpdate_withInstanceId_clientRequestsUpdateForInstance() {
         val mockUpdateClient = mock<WidgetUpdateClient>()
         val widget = TestWidget(mockUpdateClient)

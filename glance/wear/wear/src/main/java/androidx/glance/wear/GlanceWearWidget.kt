@@ -23,8 +23,6 @@ import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.util.Log
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.VisibleForTesting
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.cache.WearWidgetCache.WidgetCacheMissException
@@ -111,22 +109,6 @@ internal constructor(
      * @param events A list [WearWidgetEvent] representing interactions that occurred.
      */
     @MainThread public open suspend fun onEvents(context: Context, events: List<WearWidgetEvent>) {}
-
-    /**
-     * Trigger a content update for all widgets associated with the [provider] service component.
-     *
-     * @param context the context from which this method is called.
-     * @param provider the component name of the widget provider service to request an update for.
-     *
-     * TODO: Provide a default mechanism for storing instanceId
-     */
-    @RestrictTo(LIBRARY_GROUP) // TODO: b/446828899 - Remove after clients have migrated.
-    public fun triggerUpdate(context: Context, provider: ComponentName) {
-        triggerPullUpdate(context, provider)
-        if (context.isDebuggable()) {
-            updateClient.sendUpdateBroadcast(context, provider)
-        }
-    }
 
     /**
      * Triggers a content update for the given widget [instanceId], resulting in a call to
