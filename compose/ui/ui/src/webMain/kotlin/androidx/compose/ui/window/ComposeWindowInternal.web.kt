@@ -376,6 +376,7 @@ internal class ComposeWindow(
     }
 
     private fun initEvents(canvas: HTMLCanvasElement) {
+
         listOf(
             "pointerenter",
             "pointerdown",
@@ -385,6 +386,12 @@ internal class ComposeWindow(
             "pointercancel"
         ).forEach { name ->
             addTypedEvent<PointerEvent>(name, passive = false) { onPointerEvent(it) }
+        }
+
+        state.globalEvents.addDisposableEvent("dragend") {
+            // in Safari pointerup event is not firing when we drop or cancel drop
+            // see https://youtrack.jetbrains.com/issue/CMP-10102
+            actualActivePointerButtons = null
         }
 
         addTypedEvent<TouchEvent>("touchstart") { evt ->

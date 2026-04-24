@@ -67,7 +67,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 actual fun DragAndDropExample() {
     val exportedText = "Hello, DnD!"
 
-    var isTargetEnabled by remember { mutableStateOf(false) }
+    var isTargetEnabled by remember { mutableStateOf(true) }
 
 
     Box(
