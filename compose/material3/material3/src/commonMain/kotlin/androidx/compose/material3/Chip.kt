@@ -689,8 +689,9 @@ fun FilterChip(
  * Tapping on a filter chip toggles its selection state. A selection state [leadingIcon] can be
  * provided (e.g. a checkmark) to be appended at the starting edge of the chip's label.
  *
- * // TODO: Add samples
+ * Example of a FilterChip with corner morphing:
  *
+ * @sample androidx.compose.material3.samples.FilterChipWithCornerMorphingSample
  * @param selected whether this chip is selected or not
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
@@ -961,8 +962,9 @@ fun ElevatedFilterChip(
  * Tapping on a filter chip toggles its selection state. A selection state [leadingIcon] can be
  * provided (e.g. a checkmark) to be appended at the starting edge of the chip's label.
  *
- * // TODO: Add samples
+ * Example of an elevated FilterChip with corner morphing:
  *
+ * @sample androidx.compose.material3.samples.ElevatedFilterChipWithCornerMorphingSample
  * @param selected whether this chip is selected or not
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
@@ -1252,8 +1254,9 @@ fun InputChip(
  * An Input Chip can have a leading icon or an avatar at its start. In case both are provided, the
  * avatar will take precedence and will be displayed.
  *
- * // TODO: Add samples
+ * Example of an InputChip with corner morphing:
  *
+ * @sample androidx.compose.material3.samples.InputChipWithCornerMorphingSample
  * @param selected whether this chip is selected or not
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
