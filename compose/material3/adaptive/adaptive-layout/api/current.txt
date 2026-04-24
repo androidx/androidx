@@ -424,7 +424,7 @@ package androidx.compose.material3.adaptive.layout {
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective! calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth-A-ymEG0$default(androidx.compose.material3.adaptive.WindowAdaptiveInfo!, int, int, Object!);
   }
 
-  public sealed exhaustive interface PaneScaffoldHorizontalOrder<Role extends androidx.compose.material3.adaptive.layout.PaneScaffoldRole> {
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed exhaustive interface PaneScaffoldHorizontalOrder<Role extends androidx.compose.material3.adaptive.layout.PaneScaffoldRole> {
     method public void forEach(kotlin.jvm.functions.Function1<? super Role,kotlin.Unit> action);
     method public void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super Role,kotlin.Unit> action);
     method public void forEachIndexedReversed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super Role,kotlin.Unit> action);
@@ -550,7 +550,7 @@ package androidx.compose.material3.adaptive.layout {
     property public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane;
   }
 
-  @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldHorizontalOrder implements androidx.compose.material3.adaptive.layout.PaneScaffoldHorizontalOrder<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole> {
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldHorizontalOrder implements androidx.compose.material3.adaptive.layout.PaneScaffoldHorizontalOrder<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole> {
     method public void forEach(kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,kotlin.Unit> action);
     method public void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,kotlin.Unit> action);
     method public void forEachIndexedReversed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,kotlin.Unit> action);

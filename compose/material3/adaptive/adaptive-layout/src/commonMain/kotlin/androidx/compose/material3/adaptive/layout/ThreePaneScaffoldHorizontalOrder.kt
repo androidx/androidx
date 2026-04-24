@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.adaptive.layout
 
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * [SupportingPaneScaffoldDefaults.PaneOrder], which will be used internally by
  * [ListDetailPaneScaffold] and [SupportingPaneScaffold] respectively.
  */
+@ExperimentalMaterial3AdaptiveApi
 @Immutable
 class ThreePaneScaffoldHorizontalOrder
 internal constructor(
@@ -97,6 +99,7 @@ internal constructor(
  *
  * @param layoutDirection the current [LayoutDirection]
  */
+@ExperimentalMaterial3AdaptiveApi
 internal fun ThreePaneScaffoldHorizontalOrder.toLtrOrder(
     layoutDirection: LayoutDirection
 ): ThreePaneScaffoldHorizontalOrder {
