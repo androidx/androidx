@@ -21,8 +21,10 @@ package androidx.room3.concurrent
 
 import androidx.annotation.RestrictTo
 
+@Suppress("TypealiasDefinition")
 public actual typealias AtomicInt = java.util.concurrent.atomic.AtomicInteger
 
 internal typealias AtomicLong = java.util.concurrent.atomic.AtomicLong
 
+@Suppress("TypealiasDefinition")
 public actual typealias AtomicBoolean = java.util.concurrent.atomic.AtomicBoolean

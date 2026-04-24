@@ -30,6 +30,7 @@ import perfetto.protos.TrackDescriptor
 import perfetto.protos.TrackEvent
 import perfetto.protos.TrackEventDefaults
 
+@Suppress("TypealiasDefinition")
 typealias UuidProvider = () -> (Long)
 
 internal class ArtTrace(

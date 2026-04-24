@@ -125,6 +125,7 @@ actual class ClipMetadata(val clipDescription: ClipDescription)
 
 fun ClipDescription.toClipMetadata(): ClipMetadata = ClipMetadata(this)
 
+@Suppress("TypealiasDefinition")
 actual typealias NativeClipboard = android.content.ClipboardManager
 
 @RequiresApi(28)

@@ -224,8 +224,11 @@ private constructor(
     }
 }
 
+@Suppress("TypealiasDefinition")
 typealias HasCredentialResultsDelegate = (String) -> Boolean
 
+@Suppress("TypealiasDefinition")
 typealias HasAuthenticationResultsDelegate = () -> Boolean
 
+@Suppress("TypealiasDefinition")
 typealias HasRemoteResultsDelegate = () -> Boolean

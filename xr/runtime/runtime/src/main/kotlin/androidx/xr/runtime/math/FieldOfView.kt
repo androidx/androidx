@@ -17,4 +17,5 @@
 package androidx.xr.runtime.math
 
 /** Represents the field of view of a virtual (or rendering) camera. */
+@Suppress("TypealiasDefinition")
 public typealias FieldOfView = androidx.xr.runtime.FieldOfView

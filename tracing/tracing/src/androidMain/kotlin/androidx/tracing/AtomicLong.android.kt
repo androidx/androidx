@@ -18,4 +18,5 @@ package androidx.tracing
 
 import java.util.concurrent.atomic.AtomicLong
 
+@Suppress("TypealiasDefinition")
 public actual typealias AtomicLong = AtomicLong
