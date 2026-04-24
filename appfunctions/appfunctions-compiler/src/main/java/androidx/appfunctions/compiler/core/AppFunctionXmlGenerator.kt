@@ -38,6 +38,49 @@ class AppFunctionXmlGenerator(
     /**
      * Generates an XML file containing the AppFunction metadata.
      *
+     * @param entryPoint The [AnnotatedAppFunctionEntryPoint] containing the app functions to be
+     *   included in the XML.
+     * @param resolvedAnnotatedSerializableProxies A collection of resolved annotated serializable
+     *   proxies.
+     * @param appFunctionSerializablesDescriptionMap A map containing descriptions of AppFunction
+     *   serializables.
+     * @param packageName The package name where the XML file should be generated.
+     * @param fileName The name of the generated XML file.
+     * @param outputLocation An optional custom path to save the XML file in addition to the
+     *   standard KSP output.
+     */
+    fun generateXml(
+        entryPoint: AnnotatedAppFunctionEntryPoint,
+        resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
+        appFunctionSerializablesDescriptionMap: Map<String, String>,
+        packageName: String,
+        fileName: String,
+        outputLocation: String? = null,
+    ) {
+        val appFunctionMetadataList =
+            entryPoint.appFunctions.map {
+                it.createAppFunctionMetadata(
+                    enclosingClass = entryPoint.serviceDeclaration,
+                    resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
+                    sharedDataTypeDescriptionMap = appFunctionSerializablesDescriptionMap,
+                )
+            }
+        writeXml(
+            appFunctionMetadataList = appFunctionMetadataList,
+            dependencies =
+                Dependencies(
+                    aggregating = true,
+                    sources = entryPoint.getSourceFiles().toTypedArray(),
+                ),
+            packageName = packageName,
+            fileName = fileName,
+            outputLocation = outputLocation,
+        )
+    }
+
+    /**
+     * Generates an XML file containing the AppFunction metadata.
+     *
      * @param appFunctionsByClass A list of [AnnotatedAppFunctions] to be included in the XML.
      * @param resolvedAnnotatedSerializableProxies A collection of resolved annotated serializable
      *   proxies.
@@ -63,7 +106,27 @@ class AppFunctionXmlGenerator(
                     appFunctionSerializablesDescriptionMap,
                 )
             }
+        writeXml(
+            appFunctionMetadataList = appFunctionMetadataList,
+            dependencies =
+                Dependencies(
+                    aggregating = true,
+                    *appFunctionsByClass.flatMap { it.getSourceFiles() }.toTypedArray(),
+                ),
+            packageName = packageName,
+            fileName = fileName,
+            outputLocation = outputLocation,
+        )
+    }
 
+    private fun writeXml(
+        appFunctionMetadataList:
+            List<androidx.appfunctions.compiler.core.metadata.CompileTimeAppFunctionMetadata>,
+        dependencies: Dependencies,
+        packageName: String,
+        fileName: String,
+        outputLocation: String? = null,
+    ) {
         val xmlDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val xmlDocument = xmlDocumentBuilder.newDocument().apply { xmlStandalone = true }
 
@@ -125,17 +188,10 @@ class AppFunctionXmlGenerator(
             }
         }
 
-        codeGenerator
-            .createNewFile(
-                Dependencies(
-                    aggregating = true,
-                    *appFunctionsByClass.flatMap { it.getSourceFiles() }.toTypedArray(),
-                ),
-                packageName,
-                fileName,
-                XML_EXTENSION,
-            )
-            .use { stream -> transformer.transform(DOMSource(xmlDocument), StreamResult(stream)) }
+        codeGenerator.createNewFile(dependencies, packageName, fileName, XML_EXTENSION).use { stream
+            ->
+            transformer.transform(DOMSource(xmlDocument), StreamResult(stream))
+        }
     }
 
     companion object {
