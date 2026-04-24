@@ -139,8 +139,18 @@ class FromGenericDocumentCodeGenerator {
             AnnotatedGetterOrField getterOrField = entry.getKey();
             SetterOrField setterOrField = entry.getValue();
             if (setterOrField.isSetter()) {
+                // If the field is not a primitive, we need to add a nullness check before calling
+                // the setter to avoid NPEs
+                boolean isPrimitive = getterOrField.getJvmType().asTypeName().isPrimitive();
+                if (!isPrimitive) {
+                    methodBuilder.beginControlFlow("if ($NConv != null)",
+                            getterOrField.getJvmName());
+                }
                 methodBuilder.addStatement("$N.$N($NConv)",
                         variableName, setterOrField.getJvmName(), getterOrField.getJvmName());
+                if (!isPrimitive) {
+                    methodBuilder.endControlFlow();
+                }
             } else {
                 // field
                 methodBuilder.addStatement("$N.$N = $NConv",

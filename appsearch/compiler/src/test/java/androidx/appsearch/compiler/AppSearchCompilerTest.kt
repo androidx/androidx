@@ -3535,8 +3535,16 @@ class AppSearchCompilerTest : CompilerTestBase() {
             )
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings()
         checkResultContains("Gift.java", "GiftBuilder builder = Gift.getBuilder()")
-        checkResultContains("Gift.java", "builder.setNamespace(getNamespaceConv)")
-        checkResultContains("Gift.java", "builder.setId(getIdConv)")
+        checkResultContains(
+            "Gift.java",
+            "if (getNamespaceConv != null) {\n" +
+                "      builder.setNamespace(getNamespaceConv);\n" +
+                "    }",
+        )
+        checkResultContains(
+            "Gift.java",
+            "if (getIdConv != null) {\n      builder.setId(getIdConv);\n    }",
+        )
         checkResultContains("Gift.java", "builder.setPrice(getPriceConv)")
         checkResultContains("Gift.java", "builder.build()")
         checkEqualsGolden("Gift.java")
@@ -3641,8 +3649,16 @@ class AppSearchCompilerTest : CompilerTestBase() {
             )
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings()
         checkResultContains("Gift.java", "GiftBuilder builder = Gift.getBuilder(getPriceConv)")
-        checkResultContains("Gift.java", "builder.setNamespace(getNamespaceConv)")
-        checkResultContains("Gift.java", "builder.setId(getIdConv)")
+        checkResultContains(
+            "Gift.java",
+            "if (getNamespaceConv != null) {\n" +
+                "      builder.setNamespace(getNamespaceConv);\n" +
+                "    }",
+        )
+        checkResultContains(
+            "Gift.java",
+            "if (getIdConv != null) {\n      builder.setId(getIdConv);\n    }",
+        )
         checkResultContains("Gift.java", "builder.build()")
         checkEqualsGolden("Gift.java")
     }
@@ -3697,8 +3713,16 @@ class AppSearchCompilerTest : CompilerTestBase() {
             )
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings()
         checkResultContains("Gift.java", "Gift.GiftBuilder builder = new Gift.GiftBuilder()")
-        checkResultContains("Gift.java", "builder.setNamespace(getNamespaceConv)")
-        checkResultContains("Gift.java", "builder.setId(getIdConv)")
+        checkResultContains(
+            "Gift.java",
+            "if (getNamespaceConv != null) {\n" +
+                "      builder.setNamespace(getNamespaceConv);\n" +
+                "    }",
+        )
+        checkResultContains(
+            "Gift.java",
+            "if (getIdConv != null) {\n      builder.setId(getIdConv);\n    }",
+        )
         checkResultContains("Gift.java", "builder.setPrice(getPriceConv)")
         checkResultContains("Gift.java", "builder.build()")
         checkEqualsGolden("Gift.java")
@@ -3756,8 +3780,16 @@ class AppSearchCompilerTest : CompilerTestBase() {
             "Gift.java",
             "Gift.GiftBuilder builder = new Gift.GiftBuilder(getPriceConv)",
         )
-        checkResultContains("Gift.java", "builder.setNamespace(getNamespaceConv)")
-        checkResultContains("Gift.java", "builder.setId(getIdConv)")
+        checkResultContains(
+            "Gift.java",
+            "if (getNamespaceConv != null) {\n" +
+                "      builder.setNamespace(getNamespaceConv);\n" +
+                "    }",
+        )
+        checkResultContains(
+            "Gift.java",
+            "if (getIdConv != null) {\n      builder.setId(getIdConv);\n    }",
+        )
         checkResultContains("Gift.java", "builder.build()")
         checkEqualsGolden("Gift.java")
     }
@@ -3803,8 +3835,16 @@ class AppSearchCompilerTest : CompilerTestBase() {
             )
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings()
         checkResultContains("Gift.java", "GiftBuilder builder = Gift.getBuilder()")
-        checkResultContains("Gift.java", "builder.setNamespace(namespaceConv)")
-        checkResultContains("Gift.java", "builder.setId(idConv)")
+        checkResultContains(
+            "Gift.java",
+            "if (namespaceConv != null) {\n" +
+                "      builder.setNamespace(namespaceConv);\n" +
+                "    }",
+        )
+        checkResultContains(
+            "Gift.java",
+            "if (idConv != null) {\n      builder.setId(idConv);\n    }",
+        )
         checkResultContains("Gift.java", "builder.setPrice(priceConv)")
         checkResultContains("Gift.java", "builder.build()")
         checkEqualsGolden("Gift.java")
@@ -3853,8 +3893,16 @@ class AppSearchCompilerTest : CompilerTestBase() {
 
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings()
         checkResultContains("AutoValue_Gift.java", "GiftBuilder builder = Gift.getBuilder()")
-        checkResultContains("AutoValue_Gift.java", "builder.setNamespace(namespaceConv)")
-        checkResultContains("AutoValue_Gift.java", "builder.setId(idConv)")
+        checkResultContains(
+            "AutoValue_Gift.java",
+            "if (namespaceConv != null) {\n" +
+                "      builder.setNamespace(namespaceConv);\n" +
+                "    }",
+        )
+        checkResultContains(
+            "AutoValue_Gift.java",
+            "if (idConv != null) {\n      builder.setId(idConv);\n    }",
+        )
         checkResultContains("AutoValue_Gift.java", "builder.setPrice(priceConv)")
         checkResultContains("AutoValue_Gift.java", "builder.build()")
         checkEqualsGolden("AutoValue_Gift.java")
