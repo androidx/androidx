@@ -26,7 +26,7 @@ import androidx.xr.runtime.math.Pose
  * @property pose the [Pose] of the view camera
  * @property fieldOfView the [FieldOfView] of the view camera
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RenderViewpoint {
     public val pose: Pose
     public val fieldOfView: FieldOfView

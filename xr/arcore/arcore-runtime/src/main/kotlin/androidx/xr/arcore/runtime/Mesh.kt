@@ -28,7 +28,7 @@ import java.nio.ShortBuffer
  * @property normals a [FloatBuffer] of 3D normals in (x, y, z) packing
  * @property textureCoordinates a [FloatBuffer] of UV texture coordinates in (u, v) packing
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Mesh(
     public val triangleIndices: ShortBuffer?,
     public val vertices: FloatBuffer?,

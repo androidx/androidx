@@ -198,6 +198,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
         }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Suppress("RestrictedApiAndroidX")
     override fun initialize(runtimes: List<JxrRuntime>) {
         this.sceneRuntime = runtimes.filterIsInstance<SceneRuntime>().first()
         spatialEnvironment = SpatialEnvironment(sceneRuntime, entityRegistry)

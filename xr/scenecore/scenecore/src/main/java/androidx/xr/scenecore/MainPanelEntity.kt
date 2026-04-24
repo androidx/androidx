@@ -40,7 +40,7 @@ import java.util.function.Consumer
  */
 public class MainPanelEntity
 internal constructor(
-    private val perceptionRuntime: PerceptionRuntime,
+    @Suppress("RestrictedApiAndroidX") private val perceptionRuntime: PerceptionRuntime,
     private val sceneRuntime: SceneRuntime,
     perceptionSpace: PerceptionSpace,
     entityRegistry: EntityRegistry,
@@ -79,6 +79,7 @@ internal constructor(
      * @throws [IllegalStateException] if [Session.config] is not set to
      *   [androidx.xr.runtime.DeviceTrackingMode.SPATIAL].
      */
+    @Suppress("RestrictedApiAndroidX")
     public fun addPerceivedResolutionChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<IntSize2d>,
@@ -147,7 +148,7 @@ internal constructor(
     public companion object {
         /** Returns the MainPanelEntity backed by the main window for the Activity. */
         internal fun create(
-            perceptionRuntime: PerceptionRuntime,
+            @Suppress("RestrictedApiAndroidX") perceptionRuntime: PerceptionRuntime,
             sceneRuntime: SceneRuntime,
             perceptionSpace: PerceptionSpace,
             entityRegistry: EntityRegistry,

@@ -76,6 +76,7 @@ internal class AnchorEntityImpl(
             }
         })
 
+    @Suppress("RestrictedApiAndroidX")
     override fun setAnchor(anchor: Anchor): Boolean {
         synchronized(this) {
             if (_state == AnchorEntity.State.ERROR || anchor.runtimeAnchor !is ExportableAnchor) {

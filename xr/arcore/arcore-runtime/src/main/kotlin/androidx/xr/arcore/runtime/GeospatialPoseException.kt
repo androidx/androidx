@@ -19,11 +19,11 @@ package androidx.xr.arcore.runtime
 import androidx.annotation.RestrictTo
 
 /** Custom class for exceptions related to Geospatial Pose APIs. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-open public class GeospatialPoseException(message: String, cause: Throwable? = null) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public open class GeospatialPoseException(message: String, cause: Throwable? = null) :
     Exception(message, cause)
 
 /** Earth is not tracking when attempting to create a geospatial pose. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GeospatialPoseNotTrackingException(cause: Throwable? = null) :
     GeospatialPoseException("Unable to create geospatial pose. Earth is not tracking.", cause)

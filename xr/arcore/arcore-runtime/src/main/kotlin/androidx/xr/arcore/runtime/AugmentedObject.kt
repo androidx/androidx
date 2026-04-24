@@ -28,7 +28,7 @@ import androidx.xr.runtime.math.Pose
  * @property centerPose the [Pose] determined to represent the center of this object
  * @property extents a set of extents to used to determine the size of the object
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AugmentedObject : Trackable {
     public val category: AugmentedObjectCategory
     public val centerPose: Pose

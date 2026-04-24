@@ -32,7 +32,7 @@ import androidx.xr.runtime.math.Vector2
  *   into
  * @property vertices the [Vector2] vertices of a convex polygon approximating the detected plane
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Plane : Anchorable {
     public val type: Type
     public val label: Label
@@ -42,7 +42,7 @@ public interface Plane : Anchorable {
     public val vertices: List<Vector2>
 
     /** Simple summary of the normal vector of a plane, for filtering purposes. */
-    public class Type private constructor(private val name: Int) {
+    public class Type private constructor(private val value: Int) {
         public companion object {
             /** A horizontal plane facing upward (e.g. floor or tabletop). */
             @JvmField public val HORIZONTAL_UPWARD_FACING: Type = Type(0)
@@ -56,7 +56,7 @@ public interface Plane : Anchorable {
     }
 
     /** A semantic description of a [Plane]. */
-    public class Label private constructor(private val name: Int) {
+    public class Label private constructor(private val value: Int) {
         public companion object {
             /** A plane of unknown type. */
             @JvmField public val UNKNOWN: Label = Label(0)

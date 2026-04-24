@@ -19,7 +19,7 @@ package androidx.xr.arcore.runtime
 import androidx.annotation.RestrictTo
 
 /** Enum indicating whether an eye is open (gazing) or shut. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EyeStatus(private val value: Int) {
     public companion object {
         /** Value indicating information about the eye is unavailable, or invalid. */

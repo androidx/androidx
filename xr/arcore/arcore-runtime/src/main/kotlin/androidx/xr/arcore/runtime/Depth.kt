@@ -31,7 +31,7 @@ import java.nio.FloatBuffer
  * @property smoothDepthMap smooth depth values representing meters from the image plane
  * @property smoothConfidenceMap confidence values for the smooth depth map
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Depth {
     public val width: Int
     public val height: Int

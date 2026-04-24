@@ -95,6 +95,7 @@ class GeospatialRenderer(private val session: Session, private val anchors: List
         }
     }
 
+    @Suppress("RestrictedApiAndroidX")
     override fun onSurfaceChanged(render: SampleRender, width: Int, height: Int) {
         session.runtimes
             .filterIsInstance<PerceptionRuntime>()

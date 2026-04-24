@@ -146,6 +146,7 @@ class DepthActivity :
         }
     }
 
+    @Suppress("RestrictedApiAndroidX")
     override fun onSurfaceChanged(render: SampleRender, width: Int, height: Int) {
         session.runtimes
             .filterIsInstance<PerceptionRuntime>()

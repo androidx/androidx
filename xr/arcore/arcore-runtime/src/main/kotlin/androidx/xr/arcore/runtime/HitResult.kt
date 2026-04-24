@@ -26,7 +26,7 @@ import androidx.xr.runtime.math.Pose
  * @property hitPose the [Pose] of the intersection between a ray and detected real-world geometry
  * @property trackable the [Trackable] that was hit
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HitResult(
     public val distance: Float,
     public val hitPose: Pose,
