@@ -127,12 +127,12 @@ package androidx.text.vertical {
   public sealed exhaustive interface TextOrientationSpan {
   }
 
-  public static final class TextOrientationSpan.Sideways implements androidx.text.vertical.TextOrientationSpan {
-    ctor public TextOrientationSpan.Sideways();
+  public static final class TextOrientationSpan.CombineUpright implements androidx.text.vertical.TextOrientationSpan {
+    ctor public TextOrientationSpan.CombineUpright();
   }
 
-  public static final class TextOrientationSpan.TextCombineUpright implements androidx.text.vertical.TextOrientationSpan {
-    ctor public TextOrientationSpan.TextCombineUpright();
+  public static final class TextOrientationSpan.Sideways implements androidx.text.vertical.TextOrientationSpan {
+    ctor public TextOrientationSpan.Sideways();
   }
 
   public static final class TextOrientationSpan.Upright implements androidx.text.vertical.TextOrientationSpan {

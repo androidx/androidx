@@ -37,14 +37,16 @@ androidx {
 dependencies {
     api(project(":text:text-vertical"))
 
-    api("androidx.compose.ui:ui:1.7.8")
-    api("androidx.compose.ui:ui-graphics:1.7.8")
-    api("androidx.compose.ui:ui-text:1.7.8")
-    api("androidx.compose.runtime:runtime:1.7.8")
+    def composeVersion = "1.7.8"
+    api("androidx.compose.ui:ui:" + composeVersion)
+    api("androidx.compose.ui:ui-graphics:" + composeVersion)
+    api("androidx.compose.ui:ui-text:" + composeVersion)
+    api("androidx.compose.runtime:runtime:" + composeVersion)
 
-    androidTestImplementation("androidx.activity:activity-compose:1.8.2")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.11.0-rc01")
-    androidTestImplementation("androidx.compose.ui:ui-test-manifest:1.7.8")
+    def composeTestVersion = "1.11.0" // To use non-deprecated, v2 testing APIs
+    androidTestImplementation("androidx.activity:activity-compose:1.12.4")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:" + composeTestVersion)
+    debugImplementation("androidx.compose.ui:ui-test-manifest:" + composeTestVersion)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

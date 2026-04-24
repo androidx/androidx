@@ -1,9 +1,33 @@
 // Signature format: 4.0
 package androidx.text.vertical.compose {
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface VerticalTextDsl {
+  }
+
   public final class VerticalTextKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void VerticalText(CharSequence text, android.text.TextPaint paint, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.style.TextOverflow overflow, optional int maxColumns, optional int minColumns, optional androidx.text.vertical.TextOrientation orientation);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void VerticalText-RtHMXFc(CharSequence, android.text.TextPaint, androidx.compose.ui.Modifier?, int, int, int, androidx.text.vertical.TextOrientation?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.text.vertical.compose.VerticalTextDsl public interface VerticalTextScope {
+    method public void combineUpright(CharSequence text);
+    method public void sideways(CharSequence text);
+    method public void text(CharSequence text, optional java.util.Map<java.lang.String,java.lang.String> rubyMap);
+    method @BytecodeOnly public static void text$default(androidx.text.vertical.compose.VerticalTextScope!, CharSequence!, java.util.Map!, int, Object!);
+    method public void upright(CharSequence text);
+    method public <R> R withEmphasis(optional androidx.text.vertical.EmphasisStyle style, optional boolean filled, optional float scale, kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope,? extends R> block);
+    method @BytecodeOnly public static Object! withEmphasis$default(androidx.text.vertical.compose.VerticalTextScope!, androidx.text.vertical.EmphasisStyle!, boolean, float, kotlin.jvm.functions.Function1!, int, Object!);
+    method public <R> R withRuby(CharSequence ruby, optional androidx.text.vertical.AnnotationPosition position, optional androidx.text.vertical.TextOrientation orientation, optional float textScale, kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope,? extends R> block);
+    method @BytecodeOnly public static Object! withRuby$default(androidx.text.vertical.compose.VerticalTextScope!, CharSequence!, androidx.text.vertical.AnnotationPosition!, androidx.text.vertical.TextOrientation!, float, kotlin.jvm.functions.Function1!, int, Object!);
+    method @KotlinOnly public <R> R withStyle(optional androidx.compose.ui.unit.TextUnit fontSize, optional androidx.compose.ui.graphics.Color textColor, optional androidx.compose.ui.graphics.Color backgroundColor, optional float fontShear, kotlin.jvm.functions.Function1<androidx.text.vertical.compose.VerticalTextScope,R> block);
+    method @BytecodeOnly public <R> R withStyle-yqnEDAs(long, long, long, float, kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope!,? extends R>);
+    method @BytecodeOnly public static Object! withStyle-yqnEDAs$default(androidx.text.vertical.compose.VerticalTextScope!, long, long, long, float, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public final class VerticalTextUtilsKt {
+    method public static android.text.Spanned buildVerticalText(androidx.compose.ui.unit.Density density, kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope,kotlin.Unit> builder);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static android.text.Spanned buildVerticalText(kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static android.text.Spanned buildVerticalText(kotlin.jvm.functions.Function1<androidx.text.vertical.compose.VerticalTextScope,kotlin.Unit> builder);
   }
 
 }

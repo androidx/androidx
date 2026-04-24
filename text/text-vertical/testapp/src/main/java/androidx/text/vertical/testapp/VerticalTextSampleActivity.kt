@@ -52,12 +52,14 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.text.vertical.EmphasisStyle
-import androidx.text.vertical.VerticalTextLayout
+import androidx.text.vertical.FontShearSpan
+import androidx.text.vertical.compose.VerticalText
+import androidx.text.vertical.compose.buildVerticalText
 import java.util.Locale
-import kotlin.math.max
 
 class VerticalTextSampleActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -79,7 +81,10 @@ class VerticalTextSampleActivity : ComponentActivity() {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 Column(modifier = Modifier.padding(innerPadding)) {
                     var selectedTabIndex by remember { mutableIntStateOf(0) }
-                    PrimaryTabRow(selectedTabIndex = 0, modifier = Modifier.fillMaxWidth()) {
+                    PrimaryTabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
                         demos.forEachIndexed { index, (title, _) ->
                             Tab(
                                 selected = selectedTabIndex == index,
@@ -125,37 +130,13 @@ fun ZoomableVerticalText(content: @Composable (TextPaint) -> Unit) {
                 }
                 .pointerInput(Unit) {
                     detectTransformGestures { _, offsetChange, gestureZoom, _ ->
-                        zoom = zoom * gestureZoom
-                        offsetX = max(0f, offsetX + offsetChange.x)
+                        zoom = (zoom * gestureZoom).coerceIn(0.25f, 10f)
+                        offsetX += offsetChange.x
                     }
                 }
                 .graphicsLayer(translationX = offsetX)
     ) {
         content(paint)
-    }
-}
-
-@Composable
-fun VerticalText(text: Spanned, paint: TextPaint, modifier: Modifier = Modifier) {
-    var vTextLayout by remember { mutableStateOf<VerticalTextLayout?>(null) }
-    Layout(
-        modifier =
-            modifier.fillMaxSize().drawWithContent {
-                drawIntoCanvas { c ->
-                    vTextLayout?.draw(c.nativeCanvas, c.nativeCanvas.width.toFloat(), 0f)
-                }
-            },
-        content = {},
-    ) { _, constraints ->
-        vTextLayout =
-            VerticalTextLayout(
-                text = text,
-                start = 0,
-                end = text.length,
-                paint = paint,
-                height = constraints.maxHeight.toFloat(),
-            )
-        layout(constraints.maxWidth, constraints.maxHeight) {}
     }
 }
 
@@ -177,105 +158,113 @@ fun LegacyHorizontalText(text: Spanned, paint: TextPaint, modifier: Modifier = M
 
 @Composable
 fun LongText(paint: TextPaint, modifier: Modifier = Modifier) {
-    VerticalText(makeSampleText(), paint, modifier)
+    val density = LocalDensity.current
+    val text = remember(density) { makeSampleText(density) }
+    VerticalText(text, paint, modifier)
 }
 
 @Composable
 fun LongHorizontalText(paint: TextPaint, modifier: Modifier = Modifier) {
-    LegacyHorizontalText(makeSampleText(), paint, modifier)
+    val density = LocalDensity.current
+    val text = remember(density) { makeSampleText(density) }
+    LegacyHorizontalText(text, paint, modifier)
 }
 
 @Composable
 fun ComplexHorizontalText(paint: TextPaint, modifier: Modifier = Modifier) {
-    LegacyHorizontalText(
-        buildVerticalText {
-            withEmphasis { text("傍点も") }
-            text("Support")
-            withEmphasis(EmphasisStyle.Sesame) { text("されてます。") }
-        },
-        paint,
-        modifier,
-    )
+    val density = LocalDensity.current
+    val text =
+        remember(density) {
+            buildVerticalText(density) {
+                withEmphasis { text("傍点も") }
+                text("Support")
+                withEmphasis(EmphasisStyle.Sesame) { text("されてます。") }
+            }
+        }
+    LegacyHorizontalText(text, paint, modifier)
 }
 
-@Composable
-fun makeSampleText() = buildVerticalText {
-    text("吾輩は猫である。", mapOf("吾輩" to "わがはい", "猫" to "ねこ"))
-    text("名前はまだ無い。", mapOf("名前" to "なまえ", "無" to "な"))
-    text("\n")
-    text("どこで生まれたかとんと見当がつかぬ。", mapOf("見当" to "けんとう"))
-    text("何でも薄暗いじめじめしたところでニャーニャー泣いていた事だけは記憶している。")
-    text("吾輩はここで始めて人間というものを見た。")
-    text("しかもあとで聞くとそれは書生という人間中で一番獰悪な種族であったそうだ。", mapOf("獰悪" to "どうあく"))
-    text("この書生というのは時々我々を捕えて煮て食うという話である。", mapOf("捕" to "つかま", "煮" to "に"))
-    text("しかしその当時は何という考もなかったから別段恐しいとも思わなかった。")
-    text("ただ彼の掌に載せられてスーと持ち上げられた時何だかフワフワした感じがあったばかりである。", mapOf("掌" to "てのひら"))
-    text("掌の上で少し落ちついて書生の顔を見たのがいわゆる人間というものの見始であろう。", mapOf("見始" to "みはじめ"))
-    text("この時妙なものだと思った感じが今でも残っている。")
-    text("第一毛をもって装飾されべきはずの顔がつるつるしてまるで薬缶だ。", mapOf("薬缶" to "やかん"))
-    text("その後猫にもだいぶ逢ったがこんな片輪には一度も出会わした事がない。", mapOf("片端" to "かたわ", "出会" to "でく"))
-    text("のみならず顔の真中があまりに突起している。")
-    text("そうしてその穴の中から時々ぷうぷうと煙を吹く。", mapOf("煙" to "けむり"))
-    text("どうも咽せぽくて実に弱った。", mapOf("咽" to "む"))
-    text("これが人間の飲む煙草というものである事はようやくこの頃知った。", mapOf("煙草" to "たばこ"))
-    text("\n")
-}
+fun makeSampleText(density: Density) =
+    buildVerticalText(density) {
+        text("吾輩は猫である。", mapOf("吾輩" to "わがはい", "猫" to "ねこ"))
+        text("名前はまだ無い。", mapOf("名前" to "なまえ", "無" to "な"))
+        text("\n")
+        text("どこで生まれたかとんと見当がつかぬ。", mapOf("見当" to "けんとう"))
+        text("何でも薄暗いじめじめしたところでニャーニャー泣いていた事だけは記憶している。")
+        text("吾輩はここで始めて人間というものを見た。")
+        text("しかもあとで聞くとそれは書生という人間中で一番獰悪な種族であったそうだ。", mapOf("獰悪" to "どうあく"))
+        text("この書生というのは時々我々を捕えて煮て食うという話である。", mapOf("捕" to "つかま", "煮" to "に"))
+        text("しかしその当時は何という考もなかったから別段恐しいとも思わなかった。")
+        text("ただ彼の掌に載せられてスーと持ち上げられた時何だかフワフワした感じがあったばかりである。", mapOf("掌" to "てのひら"))
+        text("掌の上で少し落ちついて書生の顔を見たのがいわゆる人間というものの見始であろう。", mapOf("見始" to "みはじめ"))
+        text("この時妙なものだと思った感じが今でも残っている。")
+        text("第一毛をもって装飾されべきはずの顔がつるつるしてまるで薬缶だ。", mapOf("薬缶" to "やかん"))
+        text("その後猫にもだいぶ逢ったがこんな片輪には一度も出会わした事がない。", mapOf("片輪" to "かたわ", "出会" to "であ"))
+        text("のみならず顔の真中があまりに突起している。")
+        text("そうしてその穴の中から時々ぷうぷうと煙を吹く。", mapOf("煙" to "けむり"))
+        text("どうも咽せぽくて実に弱った。", mapOf("咽" to "む"))
+        text("これが人間の飲む煙草というものである事はようやくこの頃知った。", mapOf("煙草" to "たばこ"))
+        text("\n")
+    }
 
 @Composable
 fun ComplexText(paint: TextPaint, modifier: Modifier = Modifier) {
-    VerticalText(
-        buildVerticalText {
-            Upright("2024")
-            text("年の")
-            ruby("クリスマス") {
-                TateChuYoko("12")
-                text("月")
-                TateChuYoko("25")
-                text("日")
-            }
-            text("に")
-            Sideways("Google Pixel")
-            text("を買う。\n")
-
-            Upright("2024")
-            text("年は")
-            TateChuYoko("2024")
-            text("年ともかけるし")
-            Sideways("2024年")
-            text("ともかけるよ。\n")
-
-            text("もちろん")
-            withStyle(textColor = Color.Red) {
-                ruby(
-                    buildVerticalText {
-                        text("インライン")
-                        withStyle(fontSize = 1.5.em) { text("スタイリング") }
-                    }
-                ) {
-                    withStyle(fontSize = 0.8.em) { Sideways("inline ") }
-                    withStyle(backgroundColor = Color.Green) { Sideways("styling") }
-                }
-                withStyle(backgroundColor = Color.LightGray) {
-                    text("も")
-                    withStyle(fontSize = 2.em) { text("可能") }
-                    text("です。\n")
-                }
-            }
-
-            TateChuYoko(
-                buildVerticalText { // Tate Chu Yoko only respect styling.
-                    text("2")
-                    withStyle(backgroundColor = Color.Red) { text("0") }
-                    withStyle(backgroundColor = Color.Green) { text("2") }
-                    text("5")
-                }
-            )
-            text("年もよろしくお願いいたします。")
-
-            withFontShear { text("日本語の斜体はEnglishのItalicとは少し違います。") }
-            withEmphasis { text("傍点もSupportされてます。") }
-        },
-        paint,
-        modifier,
-    )
+    val density = LocalDensity.current
+    val text = remember(density) { buildComplexText(density) }
+    VerticalText(text, paint, modifier)
 }
+
+private fun buildComplexText(density: Density) =
+    buildVerticalText(density) {
+        upright("2024")
+        text("年の")
+        withRuby("クリスマス") {
+            combineUpright("12")
+            text("月")
+            combineUpright("25")
+            text("日")
+        }
+        text("に")
+        sideways("Google Pixel")
+        text("を買う。\n")
+
+        upright("2024")
+        text("年は")
+        combineUpright("2024")
+        text("年ともかけるし")
+        sideways("2024年")
+        text("ともかけるよ。\n")
+
+        text("もちろん")
+        withStyle(textColor = Color.Red) {
+            withRuby(
+                buildVerticalText(density) {
+                    text("インライン")
+                    withStyle(fontSize = 1.5.em) { text("スタイリング") }
+                }
+            ) {
+                withStyle(fontSize = 0.8.em) { sideways("inline ") }
+                withStyle(backgroundColor = Color.Green) { sideways("styling") }
+            }
+            withStyle(backgroundColor = Color.LightGray) {
+                text("も")
+                withStyle(fontSize = 2.em) { text("可能") }
+                text("です。\n")
+            }
+        }
+
+        combineUpright(
+            buildVerticalText(density) { // Tate Chu Yoko only respect styling.
+                text("2")
+                withStyle(backgroundColor = Color.Red) { text("0") }
+                withStyle(backgroundColor = Color.Green) { text("2") }
+                text("5")
+            }
+        )
+        text("年もよろしくお願いいたします。")
+
+        withStyle(fontShear = FontShearSpan.DEFAULT_FONT_SHEAR) {
+            text("日本語の斜体はEnglishのItalicとは少し違います。")
+        }
+        withEmphasis { text("傍点もSupportされてます。") }
+    }

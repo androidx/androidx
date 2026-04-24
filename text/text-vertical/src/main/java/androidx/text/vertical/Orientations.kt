@@ -108,7 +108,7 @@ public sealed interface TextOrientationSpan {
      *
      * @see VerticalTextLayout
      */
-    public class TextCombineUpright : TextOrientationSpan
+    public class CombineUpright : TextOrientationSpan
 }
 
 /** Represents the resolved orientation of a run of text. */
@@ -202,7 +202,7 @@ internal fun forEachOrientation(
             // If multiple TextOrientationSpans are attached, use the last one.
             val resolved =
                 when (spans.last()) {
-                    is TextOrientationSpan.TextCombineUpright -> ResolvedOrientation.TateChuYoko
+                    is TextOrientationSpan.CombineUpright -> ResolvedOrientation.TateChuYoko
                     is TextOrientationSpan.Upright -> ResolvedOrientation.Upright
                     is TextOrientationSpan.Sideways -> ResolvedOrientation.Rotate
                 }

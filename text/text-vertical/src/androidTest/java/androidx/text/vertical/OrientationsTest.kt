@@ -238,7 +238,7 @@ class OrientationsTest {
         var runs =
             resolve(
                 SpannableString("abcde").apply {
-                    setSpan(TextOrientationSpan.TextCombineUpright(), 1, 2, SPAN_FLAG)
+                    setSpan(TextOrientationSpan.CombineUpright(), 1, 2, SPAN_FLAG)
                 }
             )
         assertThat(runs.size).isEqualTo(3)
@@ -250,8 +250,8 @@ class OrientationsTest {
         runs =
             resolve(
                 SpannableString("abcde").apply {
-                    setSpan(TextOrientationSpan.TextCombineUpright(), 1, 2, SPAN_FLAG)
-                    setSpan(TextOrientationSpan.TextCombineUpright(), 2, 4, SPAN_FLAG)
+                    setSpan(TextOrientationSpan.CombineUpright(), 1, 2, SPAN_FLAG)
+                    setSpan(TextOrientationSpan.CombineUpright(), 2, 4, SPAN_FLAG)
                 }
             )
         assertThat(runs.size).isEqualTo(4)
