@@ -101,6 +101,8 @@ internal constructor(
         result = 31 * result + rightDepthState.hashCode()
         result = 31 * result + monoDepthState.hashCode()
         result = 31 * result + userFaceState.hashCode()
+        result = 31 * result + leftEyeState.hashCode()
+        result = 31 * result + rightEyeState.hashCode()
         return result
     }
 }

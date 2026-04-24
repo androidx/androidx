@@ -36,35 +36,45 @@ public class Eye internal constructor(internal val runtimeEye: RuntimeEye) :
 
     public companion object {
         /**
-         * Returns the left eye, if available.
+         * Returns the left eye.
          *
          * @param session the [Session] to retrieve the eye from
+         * @throws IllegalStateException if [androidx.xr.runtime.Config.eyeTracking] is set to
+         *   [EyeTrackingMode.DISABLED]
          * @sample androidx.xr.arcore.samples.getLeftEye
          */
         @JvmStatic
-        public fun left(session: Session): Eye? {
+        public fun left(session: Session): Eye {
             val perceptionStateExtender = getPerceptionStateExtender(session)
             val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
             check(config.eyeTracking != EyeTrackingMode.DISABLED) {
                 "Config.EyeTrackingMode is set to DISABLED."
             }
-            return perceptionStateExtender.xrResourcesManager.leftEye
+            check(perceptionStateExtender.xrResourcesManager.leftEye != null) {
+                "Left eye is not available."
+            }
+            return perceptionStateExtender.xrResourcesManager.leftEye!!
         }
 
         /**
-         * Returns the right eye, if available.
+         * Returns the right eye.
          *
          * @param session the [Session] to retrieve the eye from
+         * @throws IllegalStateException if [androidx.xr.runtime.Config.eyeTracking] is set to
+         *   [EyeTrackingMode.DISABLED]
          * @sample androidx.xr.arcore.samples.getRightEye
          */
         @JvmStatic
-        public fun right(session: Session): Eye? {
+        public fun right(session: Session): Eye {
             val perceptionStateExtender = getPerceptionStateExtender(session)
             val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
             check(config.eyeTracking != EyeTrackingMode.DISABLED) {
                 "Config.EyeTrackingMode is set to DISABLED."
             }
-            return perceptionStateExtender.xrResourcesManager.rightEye
+            check(perceptionStateExtender.xrResourcesManager.rightEye != null) {
+                "Right eye is not available."
+            }
+            return perceptionStateExtender.xrResourcesManager.rightEye!!
         }
 
         private fun getPerceptionStateExtender(session: Session): PerceptionStateExtender {

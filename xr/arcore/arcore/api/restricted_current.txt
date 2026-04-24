@@ -232,15 +232,15 @@ package androidx.xr.arcore {
 
   public final class Eye implements androidx.xr.arcore.Trackable<androidx.xr.arcore.Eye.State> {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Eye.State> getState();
-    method public static androidx.xr.arcore.Eye? left(androidx.xr.runtime.Session session);
-    method public static androidx.xr.arcore.Eye? right(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Eye left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Eye right(androidx.xr.runtime.Session session);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Eye.State> state;
     field public static final androidx.xr.arcore.Eye.Companion Companion;
   }
 
   public static final class Eye.Companion {
-    method public androidx.xr.arcore.Eye? left(androidx.xr.runtime.Session session);
-    method public androidx.xr.arcore.Eye? right(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Eye left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Eye right(androidx.xr.runtime.Session session);
   }
 
   public static final class Eye.State implements androidx.xr.arcore.Trackable.State {
