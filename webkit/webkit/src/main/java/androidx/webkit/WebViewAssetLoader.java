@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class to load local files including application's static assets and resources using
@@ -103,6 +104,16 @@ public final class WebViewAssetLoader {
      * It is used by default unless the user specified a different domain.
      */
     public static final String DEFAULT_DOMAIN = "appassets.androidplatform.net";
+
+    /**
+     * Adds a long duration cache for assets and resources to decrease repeated asset / resource
+     * load times.
+     * <p>
+     * This won't affect the HTTP cache, since shouldInterceptRequest responses bypass
+     * the HTTP cache, and will instead trigger resource caching in the blink renderer.
+     */
+    private static final Map<String, String> CACHE_CONTROL_HEADER =
+            Map.of("Cache-Control", "private, max-age=31536000");
 
     private final List<PathMatcher> mMatchers;
 
@@ -186,7 +197,7 @@ public final class WebViewAssetLoader {
             try {
                 InputStream is = mAssetHelper.openAsset(path);
                 String mimeType = AssetHelper.guessMimeType(path);
-                return new WebResourceResponse(mimeType, null, is);
+                return new WebResourceResponse(mimeType, null, 200, "OK", CACHE_CONTROL_HEADER, is);
             } catch (IOException e) {
                 Log.e(TAG, "Error opening asset path: " + path, e);
                 return new WebResourceResponse(null, null, null);
@@ -236,7 +247,7 @@ public final class WebViewAssetLoader {
             try {
                 InputStream is = mAssetHelper.openResource(path);
                 String mimeType = AssetHelper.guessMimeType(path);
-                return new WebResourceResponse(mimeType, null, is);
+                return new WebResourceResponse(mimeType, null, 200, "OK", CACHE_CONTROL_HEADER, is);
             } catch (Resources.NotFoundException e) {
                 Log.e(TAG, "Resource not found from the path: " + path, e);
             } catch (IOException e) {
@@ -362,7 +373,8 @@ public final class WebViewAssetLoader {
                 if (file != null) {
                     InputStream is = AssetHelper.openFile(file);
                     String mimeType = AssetHelper.guessMimeType(path);
-                    return new WebResourceResponse(mimeType, null, is);
+                    return new WebResourceResponse(
+                            mimeType, null, 200, "OK", CACHE_CONTROL_HEADER, is);
                 } else {
                     Log.e(TAG, String.format(
                             "The requested file: %s is outside the mounted directory: %s", path,
