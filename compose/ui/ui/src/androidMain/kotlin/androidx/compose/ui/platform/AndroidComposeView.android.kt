@@ -1029,6 +1029,13 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      */
     internal var composeViewContextIncrementedDuringInit = false
 
+    /**
+     * Guards against re-entering [onProvideAutofillVirtualStructure] while
+     * [dispatchProvideAutofillStructure] delegates to the framework to collect hosted Android
+     * views.
+     */
+    private var isDispatchingAutofillStructure = false
+
     init {
         addOnAttachStateChangeListener(contentCaptureManager)
         setWillNotDraw(false)
@@ -2412,10 +2419,33 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
-        if (autofillSupported() && structure != null) {
-            _autofillManager?.populateViewStructure(structure)
-            _autofill?.populateViewStructure(structure)
+        if (autofillSupported() && structure != null && !isDispatchingAutofillStructure) {
+            populateAutofillVirtualStructure(structure)
         }
+    }
+
+    override fun dispatchProvideAutofillStructure(structure: ViewStructure, flags: Int) {
+        if (!autofillSupported()) {
+            super.dispatchProvideAutofillStructure(structure, flags)
+            return
+        }
+
+        isDispatchingAutofillStructure = true
+        try {
+            // Let ViewGroup collect hosted AndroidView children before appending Compose virtual
+            // autofill nodes. Otherwise, the framework stops traversal once virtual children exist.
+            super.dispatchProvideAutofillStructure(structure, flags)
+        } finally {
+            isDispatchingAutofillStructure = false
+        }
+
+        populateAutofillVirtualStructure(structure)
+    }
+
+    @RequiresApi(O)
+    private fun populateAutofillVirtualStructure(structure: ViewStructure) {
+        _autofillManager?.populateViewStructure(structure)
+        _autofill?.populateViewStructure(structure)
     }
 
     override fun autofill(values: SparseArray<AutofillValue>) {
