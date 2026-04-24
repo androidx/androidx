@@ -28,6 +28,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.toCompatExecuteAppFunctionRequest
+import androidx.appfunctions.internal.AppFunctionInventoryProvider
 import androidx.appfunctions.internal.AppFunctionMetadataUtils.getAppFunctionMetadata
 import androidx.appfunctions.internal.Dispatchers
 import kotlinx.coroutines.CoroutineScope
@@ -54,7 +55,8 @@ import kotlinx.coroutines.withContext
  * @see [android.app.appfunctions.AppFunctionService]
  */
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-public abstract class AppFunctionService : PlatformAppFunctionService() {
+public abstract class AppFunctionService :
+    PlatformAppFunctionService(), AppFunctionInventoryProvider {
     private val workerCoroutineScope = CoroutineScope(Dispatchers.Worker)
 
     /**
@@ -88,6 +90,7 @@ public abstract class AppFunctionService : PlatformAppFunctionService() {
                         val appFunctionMetadata =
                             getAppFunctionMetadata(
                                 this@AppFunctionService,
+                                resolveInventory(),
                                 request.functionIdentifier,
                             )
                                 ?: throw AppFunctionFunctionNotFoundException(

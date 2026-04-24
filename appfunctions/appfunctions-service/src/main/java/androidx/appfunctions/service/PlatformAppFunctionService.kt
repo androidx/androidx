@@ -23,6 +23,7 @@ import androidx.appfunctions.AppFunctionException
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.internal.AppFunctionInventory
 import androidx.appfunctions.internal.Dependencies
 import androidx.appfunctions.internal.Dispatchers
 import androidx.appfunctions.service.internal.ServiceDependencies
@@ -56,4 +57,8 @@ public class PlatformAppFunctionService : AppFunctionService() {
         } catch (e: Exception) {
             ExecuteAppFunctionResponse.Error(AppFunctionAppUnknownException(e.message))
         }
+
+    override fun resolveInventory(): AppFunctionInventory? {
+        return Dependencies.aggregatedAppFunctionInventory
+    }
 }

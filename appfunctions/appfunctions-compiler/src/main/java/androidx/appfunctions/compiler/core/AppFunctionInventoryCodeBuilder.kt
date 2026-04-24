@@ -1292,4 +1292,11 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
     private fun getOneOfTypeMetadataPropertyNameForComponent(componentName: String): String {
         return "${componentName.uppercase().replace(Regex("[.<>$]"), "_")}_ONE_OF_DATA_TYPE"
     }
+
+    companion object {
+        /** Gets the name for generated AppFunctionInventory. */
+        fun getAppFunctionInventoryClassName(functionClassName: String): String {
+            return "$%s_AppFunctionInventory".format(functionClassName)
+        }
+    }
 }

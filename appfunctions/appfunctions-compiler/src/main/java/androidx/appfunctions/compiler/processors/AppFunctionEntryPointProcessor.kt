@@ -91,7 +91,6 @@ class AppFunctionEntryPointProcessor(
         val entryPoints = appFunctionSymbolResolver.resolveAnnotatedAppFunctionEntryPoints()
         for (entryPoint in entryPoints) {
             try {
-                entryPoint.validate()
                 generateAppFunctionService(entryPoint)
                 generateXml(entryPoint, resolvedAnnotatedSerializableProxies, descriptionMap)
             } catch (e: ProcessingException) {
