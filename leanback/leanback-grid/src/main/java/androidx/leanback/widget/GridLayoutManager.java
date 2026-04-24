@@ -2831,9 +2831,20 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         final boolean notSmoothScrolling = !isSmoothScrolling();
         if (notSmoothScrolling && !mBaseGridView.isLayoutRequested()
                 && view != null && getAdapterPositionByView(view) == position) {
-            mFlag |= PF_IN_SELECTION;
-            scrollToView(view, smooth);
-            mFlag &= ~PF_IN_SELECTION;
+            // Skip align in touch mode if the strategy is not "snap".  The use case is app setting
+            // selection on a hovered card without triggering alignment scroll.
+            final boolean skipAlign = mBaseGridView.isInTouchMode()
+                    && mFocusScrollStrategy != FOCUS_SCROLL_ALIGNED_AND_SNAP;
+            if (skipAlign) {
+                mFocusPosition = position;
+                mSubFocusPosition = subposition;
+                mFocusPositionOffset = Integer.MIN_VALUE;
+                dispatchChildSelected();
+            } else {
+                mFlag |= PF_IN_SELECTION;
+                scrollToView(view, smooth);
+                mFlag &= ~PF_IN_SELECTION;
+            }
         } else {
             if ((mFlag & PF_LAYOUT_ENABLED) == 0 || (mFlag & PF_SLIDING) != 0) {
                 mFocusPosition = position;
