@@ -23,6 +23,7 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SerializableToString;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -36,11 +37,22 @@ import java.util.List;
 
 /** Operation to deal with Text data */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TextData extends Operation implements SerializableToString, Serializable {
+public class TextData extends Operation
+        implements SerializableToString, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.DATA_TEXT;
     private static final String CLASS_NAME = "TextData";
-    public final int mTextId;
+    public int mTextId;
     @NonNull public String mText;
+
+    @Override
+    public int getId() {
+        return mTextId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mTextId = id;
+    }
 
     public TextData(int textId, @NonNull String text) {
         this.mTextId = textId;

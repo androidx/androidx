@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -31,11 +32,22 @@ import java.util.List;
 
 /** Operation to measure the length of the text */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TextLength extends Operation implements VariableSupport, ComponentData {
+public class TextLength extends Operation
+        implements VariableSupport, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.TEXT_LENGTH;
     private static final String CLASS_NAME = "TextLength";
     public int mLengthId;
     public int mTextId;
+
+    @Override
+    public int getId() {
+        return mLengthId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mLengthId = id;
+    }
 
     public TextLength(int lengthId, int textId) {
         this.mLengthId = lengthId;

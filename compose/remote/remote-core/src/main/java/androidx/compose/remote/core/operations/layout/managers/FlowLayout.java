@@ -410,7 +410,7 @@ public class FlowLayout extends RowLayout {
                 .additionalDocumentation("flow")
                 .description(
                         "Flow layout implementation. Positions components one after the other"
-                            + " horizontally and wraps to the next line if space is exhausted.")
+                                + " horizontally and wraps to the next line if space is exhausted.")
                 .field(DocumentedOperation.INT, "componentId", "Unique ID for this component")
                 .field(DocumentedOperation.INT, "animationId", "ID for animation purposes")
                 .field(INT, "horizontalPositioning", "Horizontal positioning value")

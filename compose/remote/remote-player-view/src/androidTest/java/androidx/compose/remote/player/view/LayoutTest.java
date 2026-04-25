@@ -70,7 +70,8 @@ public class LayoutTest {
 
     private static final boolean GENERATE_GOLD_FILES = false;
 
-    @Rule public TestName name = new TestName();
+    @Rule
+    public TestName name = new TestName();
 
     int mTw = 1000;
     int mTh = 1000;
@@ -216,7 +217,8 @@ public class LayoutTest {
             return mComponentId;
         }
 
-        public void apply(Component component) {}
+        public void apply(Component component) {
+        }
     }
 
     class TestComponentResizeOperation extends TestComponentOperation {
@@ -249,7 +251,8 @@ public class LayoutTest {
             for (int i = 0; i < ops.size(); i++) {
                 Operation op = ops.get(i);
                 if (op instanceof ComponentModifiers) {
-                    ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getList();
+                    ArrayList<ModifierOperation> mods =
+                            ((ComponentModifiers) op).getModifiersList();
                     for (int j = 0; j < mods.size(); j++) {
                         ModifierOperation m = mods.get(j);
                         if (mWidth != -1 && m instanceof WidthModifierOperation) {
@@ -277,7 +280,8 @@ public class LayoutTest {
             for (int i = 0; i < ops.size(); i++) {
                 Operation op = ops.get(i);
                 if (op instanceof ComponentModifiers) {
-                    ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getList();
+                    ArrayList<ModifierOperation> mods =
+                            ((ComponentModifiers) op).getModifiersList();
                     for (int j = 0; j < mods.size(); j++) {
                         ModifierOperation m = mods.get(j);
                         if (m instanceof ClickModifierOperation) {
@@ -303,7 +307,8 @@ public class LayoutTest {
             for (int i = 0; i < ops.size(); i++) {
                 Operation op = ops.get(i);
                 if (op instanceof ComponentModifiers) {
-                    ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getList();
+                    ArrayList<ModifierOperation> mods =
+                            ((ComponentModifiers) op).getModifiersList();
                     for (int j = 0; j < mods.size(); j++) {
                         ModifierOperation m = mods.get(j);
                         if (m instanceof ClickModifierOperation) {
@@ -332,7 +337,8 @@ public class LayoutTest {
             for (int i = 0; i < ops.size(); i++) {
                 Operation op = ops.get(i);
                 if (op instanceof ComponentModifiers) {
-                    ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getList();
+                    ArrayList<ModifierOperation> mods =
+                            ((ComponentModifiers) op).getModifiersList();
                     for (int j = 0; j < mods.size(); j++) {
                         ModifierOperation m = mods.get(j);
                         if (m instanceof TouchDownModifierOperation) {
@@ -362,7 +368,8 @@ public class LayoutTest {
             for (int i = 0; i < ops.size(); i++) {
                 Operation op = ops.get(i);
                 if (op instanceof ComponentModifiers) {
-                    ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getList();
+                    ArrayList<ModifierOperation> mods =
+                            ((ComponentModifiers) op).getModifiersList();
                     for (int j = 0; j < mods.size(); j++) {
                         ModifierOperation m = mods.get(j);
                         if (m instanceof TouchDownModifierOperation) {
@@ -391,7 +398,8 @@ public class LayoutTest {
             for (int i = 0; i < ops.size(); i++) {
                 Operation op = ops.get(i);
                 if (op instanceof ComponentModifiers) {
-                    ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getList();
+                    ArrayList<ModifierOperation> mods =
+                            ((ComponentModifiers) op).getModifiersList();
                     for (int j = 0; j < mods.size(); j++) {
                         ModifierOperation m = mods.get(j);
                         if (m instanceof TouchUpModifierOperation) {
@@ -421,7 +429,8 @@ public class LayoutTest {
             for (int i = 0; i < ops.size(); i++) {
                 Operation op = ops.get(i);
                 if (op instanceof ComponentModifiers) {
-                    ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getList();
+                    ArrayList<ModifierOperation> mods =
+                            ((ComponentModifiers) op).getModifiersList();
                     for (int j = 0; j < mods.size(); j++) {
                         ModifierOperation m = mods.get(j);
                         if (m instanceof TouchCancelModifierOperation) {

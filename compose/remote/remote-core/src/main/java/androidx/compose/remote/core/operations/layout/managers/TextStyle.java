@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -38,7 +39,8 @@ import java.util.List;
 
 /** Text style implementation */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TextStyle extends Operation implements ComponentData {
+public class TextStyle extends Operation implements ComponentData, VariableProvider {
+    public int mId;
     public static final float DEFAULT_FONT_SIZE = 36f;
     public static final float DEFAULT_FONT_WEIGHT = 400f;
 
@@ -98,7 +100,6 @@ public class TextStyle extends Operation implements ComponentData {
                     param("minFontSize", P_MIN_FONT_SIZE, -1f),
                     param("maxFontSize", P_MAX_FONT_SIZE, -1f));
 
-    @Nullable Integer mId = null;
     @Nullable Integer mColor = null;
     @Nullable Integer mColorId = null;
     @Nullable Float mFontSize = null;
@@ -122,6 +123,16 @@ public class TextStyle extends Operation implements ComponentData {
     float @Nullable [] mFontAxisValues;
     @Nullable Boolean mAutosize = null;
     @Nullable Integer mParentId = null;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public TextStyle() {}
 
@@ -342,7 +353,7 @@ public class TextStyle extends Operation implements ComponentData {
                 mFontAxis,
                 mFontAxisValues,
                 mAutosize,
-                mParentId != -1 ? mParentId : null);
+                (mParentId != null && mParentId != -1) ? mParentId : null);
     }
 
     @Override

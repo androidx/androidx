@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -34,13 +35,24 @@ import java.util.List;
 
 /** Operation to deal with Text data */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TextMerge extends Operation implements VariableSupport, ComponentData, Serializable {
+public class TextMerge extends Operation
+        implements VariableSupport, ComponentData, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.TEXT_MERGE;
     private static final int MAX_TEXT_LENGTH = 16 * 1024;
     private static final String CLASS_NAME = "TextMerge";
     public int mTextId;
     public int mSrcId1;
     public int mSrcId2;
+
+    @Override
+    public int getId() {
+        return mTextId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mTextId = id;
+    }
 
     public TextMerge(int textId, int srcId1, int srcId2) {
         this.mTextId = textId;

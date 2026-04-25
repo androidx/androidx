@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -34,11 +35,22 @@ import java.util.List;
 
 /** Used to represent a float */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FloatConstant extends Operation implements Serializable {
+public class FloatConstant extends Operation
+        implements Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.DATA_FLOAT;
     private static final String CLASS_NAME = "FloatConstant";
     public int mId;
     public float mValue;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public FloatConstant(int id, float value) {
         this.mId = id;

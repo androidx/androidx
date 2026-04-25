@@ -1144,7 +1144,7 @@ public class CoreDocument implements Serializable {
                 }
             }
             if (op instanceof ComponentModifiers) {
-                for (ModifierOperation modifier : ((ComponentModifiers) op).getList()) {
+                for (ModifierOperation modifier : ((ComponentModifiers) op).getModifiersList()) {
                     if (modifier instanceof VariableSupport) {
                         ((VariableSupport) modifier).registerListening(context);
                     }

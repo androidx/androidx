@@ -21,6 +21,7 @@ import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -35,7 +36,7 @@ import java.util.List;
 /** Operation to perform Color related calculation TODO support color update */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ColorAttribute extends PaintOperation
-        implements VariableSupport, Serializable, ComponentData {
+        implements VariableSupport, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.ATTRIBUTE_COLOR;
     private static final String CLASS_NAME = "ColorAttribute";
     public int mId;
@@ -62,6 +63,16 @@ public class ColorAttribute extends PaintOperation
 
     /** The alpha value of the color */
     public static final short COLOR_ALPHA = 6;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     /**
      * creates a new operation

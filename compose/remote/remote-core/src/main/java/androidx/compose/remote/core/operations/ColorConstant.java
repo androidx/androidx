@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -33,7 +34,8 @@ import java.util.List;
 
 /** Operation that defines a simple Color based on ID Mainly for colors in theming. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ColorConstant extends Operation implements Serializable, ComponentData {
+public class ColorConstant extends Operation
+        implements Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.COLOR_CONSTANT;
     private static final String CLASS_NAME = "ColorConstant";
 
@@ -43,8 +45,18 @@ public class ColorConstant extends Operation implements Serializable, ComponentD
     /** the color value (AARRGGBB) */
     public int mColor;
 
+    @Override
+    public int getId() {
+        return mColorId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mColorId = id;
+    }
+
     /**
-     * Creat a color constant
+     * Create a color constant
      *
      * @param colorId id of color
      * @param color AARRGGBB value

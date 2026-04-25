@@ -20,6 +20,7 @@ import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -39,7 +40,7 @@ import java.util.List;
 /** This is a matrix that is formed by an expression */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixExpression extends Operation
-        implements VariableSupport, MatrixAccess, Serializable {
+        implements VariableSupport, MatrixAccess, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.MATRIX_EXPRESSION;
     private static final String CLASS_NAME = "MatrixExpression";
     private int mMatrixId;
@@ -48,6 +49,16 @@ public class MatrixExpression extends Operation
     private final float @NonNull [] mExpression;
     private float @Nullable [] mOutExpression;
     MatrixOperations mMatrixOperations = new MatrixOperations();
+
+    @Override
+    public int getId() {
+        return mMatrixId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mMatrixId = id;
+    }
 
     public MatrixExpression(int matrixId, int type, float @NonNull [] expression) {
         this.mMatrixId = matrixId;

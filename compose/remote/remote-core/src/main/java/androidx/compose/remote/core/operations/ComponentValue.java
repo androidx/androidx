@@ -22,6 +22,7 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SerializableToString;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -35,7 +36,7 @@ import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComponentValue extends Operation
-        implements SerializableToString, Serializable, ComponentData {
+        implements SerializableToString, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.COMPONENT_VALUE;
     private static final String CLASS_NAME = "ComponentValue";
 
@@ -137,6 +138,16 @@ public class ComponentValue extends Operation
                 .possibleValues("CONTENT_HEIGHT", CONTENT_HEIGHT)
                 .field(INT, "componentId", "The ID of the component to reference")
                 .field(INT, "valueId", "The ID of the variable to store the value in");
+    }
+
+    @Override
+    public int getId() {
+        return mValueId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mValueId = id;
     }
 
     public ComponentValue(int type, int componentId, int valueId) {

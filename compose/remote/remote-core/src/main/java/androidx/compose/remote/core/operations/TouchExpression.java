@@ -25,6 +25,7 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.TouchListener;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -50,7 +51,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TouchExpression extends Operation
-        implements ComponentData, VariableSupport, TouchListener, Serializable {
+        implements ComponentData, VariableSupport, TouchListener, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.TOUCH_EXPRESSION;
     private static final String CLASS_NAME = "TouchExpression";
     private float mDefValue;
@@ -110,6 +111,16 @@ public class TouchExpression extends Operation
 
     /** Stop at evenly spaced single step notches */
     public static final int STOP_NOTCHES_SINGLE_EVEN = 7;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     /**
      * create a touch expression

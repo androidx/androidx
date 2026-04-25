@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -34,11 +35,22 @@ import java.util.List;
 
 /** Represents a single integer typically used for states or named for input into the system */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class IntegerConstant extends Operation implements Serializable, ComponentData {
+public class IntegerConstant extends Operation
+        implements Serializable, ComponentData, VariableProvider {
     private static final String CLASS_NAME = "IntegerConstant";
 
     private int mValue;
-    public final int mId;
+    public int mId;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public IntegerConstant(int id, int value) {
         mId = id;

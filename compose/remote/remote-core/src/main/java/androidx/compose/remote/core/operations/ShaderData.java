@@ -25,6 +25,7 @@ import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -45,7 +46,8 @@ import java.util.List;
  * compressed and saved in playback the image is decompressed
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ShaderData extends Operation implements VariableSupport, Serializable {
+public class ShaderData extends Operation
+        implements VariableSupport, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.DATA_SHADER;
     private static final String CLASS_NAME = "ShaderData";
     int mShaderTextId; // the actual text of a shader
@@ -55,6 +57,16 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
     @Nullable HashMap<String, int[]> mUniformIntMap;
     @Nullable HashMap<String, Integer> mUniformBitmapMap = null;
     private boolean mShaderValid = false;
+
+    @Override
+    public int getId() {
+        return mShaderID;
+    }
+
+    @Override
+    public void setId(int id) {
+        mShaderID = id;
+    }
 
     public ShaderData(
             int shaderID,

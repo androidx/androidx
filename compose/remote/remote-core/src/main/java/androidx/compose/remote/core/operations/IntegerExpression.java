@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -44,7 +45,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IntegerExpression extends Operation
-        implements VariableSupport, ComponentData, Serializable {
+        implements VariableSupport, ComponentData, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.INTEGER_EXPRESSION;
     private static final String CLASS_NAME = "IntegerExpression";
     public int mId;
@@ -55,6 +56,16 @@ public class IntegerExpression extends Operation
     private float mLastChange = Float.NaN;
     public static final int MAX_SIZE = 320;
     @NonNull IntegerExpressionEvaluator mExp = new IntegerExpressionEvaluator();
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public IntegerExpression(int id, int mask, int @NonNull [] value) {
         this.mId = id;

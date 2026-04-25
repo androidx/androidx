@@ -35,7 +35,7 @@ import java.util.List;
 
 /** Draw Text */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class DrawText extends PaintOperation implements VariableSupport {
+public class DrawText extends PaintOperation implements VariableSupport, ComponentData {
     private static final int OP_CODE = Operations.DRAW_TEXT_RUN;
     private static final String CLASS_NAME = "DrawText";
     int mTextID;

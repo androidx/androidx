@@ -23,6 +23,7 @@ import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.utilities.DataMap;
@@ -34,7 +35,7 @@ import java.util.List;
 
 /** This is a map of strings to type & Id */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class DataMapIds extends Operation {
+public class DataMapIds extends Operation implements VariableProvider {
     private static final int OP_CODE = Operations.ID_MAP;
     private static final String CLASS_NAME = "DataMapIds";
     int mId;
@@ -61,6 +62,16 @@ public class DataMapIds extends Operation {
                 return "Boolean";
         }
         return "?";
+    }
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
     }
 
     public DataMapIds(

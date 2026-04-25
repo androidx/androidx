@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
@@ -50,8 +51,21 @@ public class ComponentModifiers extends PaintOperation
                 Serializable {
     @NonNull ArrayList<ModifierOperation> mList = new ArrayList<>();
 
+    /**
+     * returns the list of modifiers
+     *
+     * @return
+     */
+    public @NonNull ArrayList<Operation> getList() {
+        ArrayList<Operation> list = new ArrayList<>(mList.size());
+        for (ModifierOperation op : mList) {
+            list.add((Operation) op);
+        }
+        return list;
+    }
+
     @NonNull
-    public ArrayList<ModifierOperation> getList() {
+    public ArrayList<ModifierOperation> getModifiersList() {
         return mList;
     }
 

@@ -23,6 +23,7 @@ import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SerializableToString;
 import androidx.compose.remote.core.TouchListener;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.operations.BitmapData;
@@ -51,7 +52,7 @@ import java.util.HashSet;
 /** Generic Component class */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Component extends PaintOperation
-        implements Container, Measurable, SerializableToString, Serializable {
+        implements Container, Measurable, SerializableToString, Serializable, VariableProvider {
 
     private static final boolean DEBUG = false;
 
@@ -261,6 +262,16 @@ public class Component extends PaintOperation
 
     public void setAnimationId(int id) {
         mAnimationId = id;
+    }
+
+    @Override
+    public int getId() {
+        return mComponentId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mComponentId = id;
     }
 
     public Component(

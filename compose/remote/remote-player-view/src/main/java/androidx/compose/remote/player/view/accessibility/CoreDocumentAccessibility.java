@@ -113,8 +113,8 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
             return root;
         }
 
-        return componentStream(root).filter(op -> op.getComponentId() == id).findFirst().orElse(
-                null);
+        return componentStream(root)
+                .filter(op -> op.getComponentId() == id).findFirst().orElse(null);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
         CoreSemantics.Mode result = CoreSemantics.Mode.SET;
 
         for (ModifierOperation modifier :
-                ((LayoutComponent) component).getComponentModifiers().getList()) {
+                ((LayoutComponent) component).getComponentModifiers().getModifiersList()) {
             if (modifier instanceof AccessibleComponent) {
                 AccessibleComponent semantics = (AccessibleComponent) modifier;
 
@@ -234,7 +234,7 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
         }
 
         List<ModifierOperation> modifiers =
-                ((LayoutComponent) component).getComponentModifiers().getList();
+                ((LayoutComponent) component).getComponentModifiers().getModifiersList();
 
         return modifiers.stream().filter(it -> {
             return it instanceof AccessibilitySemantics
@@ -285,7 +285,7 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
     static @NonNull Stream<@NonNull ModifierOperation> modifiersStream(
             @NonNull Component component) {
         return component.mList.stream().filter(it -> it instanceof ComponentModifiers).flatMap(
-                it -> ((ComponentModifiers) it).getList().stream());
+                it -> ((ComponentModifiers) it).getModifiersList().stream());
     }
 
     static boolean isInteresting(@NonNull Component component) {
@@ -311,7 +311,7 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
             return false;
         }
 
-        return ((LayoutComponent) component).getComponentModifiers().getList().stream().anyMatch(
-                CoreDocumentAccessibility::isModifierWithSemantics);
+        return ((LayoutComponent) component).getComponentModifiers().getModifiersList()
+                .stream().anyMatch(CoreDocumentAccessibility::isModifierWithSemantics);
     }
 }

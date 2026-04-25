@@ -482,7 +482,6 @@ public class MockRemoteContext extends RemoteContext {
 
     @Override
     public void addCollection(int id, @NonNull ArrayAccess collection) {
-        Utils.log("add collection **** " + Integer.toHexString(id));
         mRemoteComposeState.addCollection(id, collection);
     }
 

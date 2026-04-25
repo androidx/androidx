@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -35,13 +36,23 @@ import java.util.List;
 /** Operation convert int index of a list to text */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TextLookupInt extends Operation
-        implements VariableSupport, ComponentData, Serializable {
+        implements VariableSupport, ComponentData, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.TEXT_LOOKUP_INT;
     private static final String CLASS_NAME = "TextLookupInt";
     public int mTextId;
     public int mDataSetId;
     public int mOutIndex;
     public int mIndex;
+
+    @Override
+    public int getId() {
+        return mTextId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mTextId = id;
+    }
 
     public TextLookupInt(int textId, int dataSetId, int indexId) {
         this.mTextId = textId;

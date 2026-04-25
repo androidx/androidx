@@ -126,7 +126,7 @@ class ClickInteractionTest {
             .filterIsInstance<
                 androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
             >()
-            .forEach { clickOps.addAll(it.list.filterIsInstance<MultiClickModifier>()) }
+            .forEach { clickOps.addAll(it.modifiersList.filterIsInstance<MultiClickModifier>()) }
 
         assertThat(clickOps).hasSize(2)
 
@@ -187,7 +187,7 @@ class ClickInteractionTest {
             .filterIsInstance<
                 androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
             >()
-            .forEach { clickOps.addAll(it.list.filterIsInstance<MultiClickModifier>()) }
+            .forEach { clickOps.addAll(it.modifiersList.filterIsInstance<MultiClickModifier>()) }
         assertThat(clickOps).hasSize(0)
     }
 

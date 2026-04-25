@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -37,12 +38,23 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class DataListFloat extends Operation implements VariableSupport, ArrayAccess, Serializable {
+public class DataListFloat extends Operation
+        implements VariableSupport, VariableProvider, ArrayAccess, Serializable {
     private static final int OP_CODE = Operations.FLOAT_LIST;
     private static final String CLASS_NAME = "IdListData";
-    public final int mId;
+    public int mId;
     private float @NonNull [] mValues;
     private static final int MAX_FLOAT_ARRAY = 2000;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public DataListFloat(int id, float @NonNull [] values) {
         mId = id;

@@ -76,7 +76,8 @@ class SemanticsModifierTest {
         val coreDoc = makeAndUpdateCoreDocument(captured)
 
         val boxLayout = coreDoc.getComponent(-3) as BoxLayout
-        val semantics = boxLayout.componentModifiers.list.filterIsInstance<CoreSemantics>().first()
+        val semantics =
+            boxLayout.componentModifiers.modifiersList.filterIsInstance<CoreSemantics>().first()
 
         assertThat(semantics).isNotNull()
         assertThat(context.getText(semantics.contentDescriptionId)).isEqualTo("test description")
@@ -101,7 +102,8 @@ class SemanticsModifierTest {
         val coreDoc = makeAndUpdateCoreDocument(captured)
 
         val boxLayout = coreDoc.getComponent(-3) as BoxLayout
-        val semantics = boxLayout.componentModifiers.list.filterIsInstance<CoreSemantics>().first()
+        val semantics =
+            boxLayout.componentModifiers.modifiersList.filterIsInstance<CoreSemantics>().first()
 
         assertThat(semantics).isNotNull()
         assertThat(semantics.mode).isEqualTo(AccessibleComponent.Mode.CLEAR_AND_SET)

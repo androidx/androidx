@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -33,17 +34,27 @@ import java.util.List;
 
 /** Used to represent a long */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LongConstant extends Operation implements Serializable {
+public class LongConstant extends Operation implements Serializable, VariableProvider {
     private static final String CLASS_NAME = "LongConstant";
 
     private static final int OP_CODE = Operations.DATA_LONG;
     private long mValue;
-    public final int mId;
+    public int mId;
 
     /**
      * @param id the id of the constant
      * @param value the value of the constant
      */
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
+
     public LongConstant(int id, long value) {
         mId = id;
         mValue = value;

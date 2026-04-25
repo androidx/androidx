@@ -21,6 +21,7 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SerializableToString;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -37,10 +38,11 @@ import java.util.List;
  * compressed and saved in playback the image is decompressed
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BitmapData extends Operation implements SerializableToString, Serializable {
+public class BitmapData extends Operation
+        implements SerializableToString, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.DATA_BITMAP;
     private static final String CLASS_NAME = "BitmapData";
-    public final int mImageId;
+    public int mImageId;
     int mImageWidth;
     int mImageHeight;
     short mType;
@@ -73,6 +75,16 @@ public class BitmapData extends Operation implements SerializableToString, Seria
 
     /** The data is encoded as PNG_8888 but decoded as ALPHA_8 */
     public static final short TYPE_PNG_ALPHA_8 = 4;
+
+    @Override
+    public int getId() {
+        return mImageId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mImageId = id;
+    }
 
     /**
      * create a bitmap structure

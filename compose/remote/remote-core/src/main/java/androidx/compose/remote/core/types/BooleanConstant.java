@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -33,12 +34,22 @@ import java.util.List;
 
 /** Used to represent a boolean */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BooleanConstant extends Operation implements Serializable {
+public class BooleanConstant extends Operation implements Serializable, VariableProvider {
     private static final String CLASS_NAME = "BooleanConstant";
 
     private static final int OP_CODE = Operations.DATA_BOOLEAN;
     private boolean mValue = false;
     private int mId;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public BooleanConstant(int id, boolean value) {
         mId = id;

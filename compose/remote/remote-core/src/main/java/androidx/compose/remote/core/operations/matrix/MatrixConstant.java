@@ -20,6 +20,7 @@ import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -33,12 +34,23 @@ import java.util.List;
 
 /** This is for a constant matrix */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class MatrixConstant extends Operation implements Serializable, MatrixAccess {
+public class MatrixConstant extends Operation
+        implements Serializable, MatrixAccess, VariableProvider {
     private static final int OP_CODE = Operations.MATRIX_CONSTANT;
     private static final String CLASS_NAME = "MatrixConstant";
-    private final int mMatrixId;
+    private int mMatrixId;
     private final int mType;
     private float @NonNull [] mValues;
+
+    @Override
+    public int getId() {
+        return mMatrixId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mMatrixId = id;
+    }
 
     public MatrixConstant(int matrixId, int type, float @NonNull [] values) {
         this.mMatrixId = matrixId;
