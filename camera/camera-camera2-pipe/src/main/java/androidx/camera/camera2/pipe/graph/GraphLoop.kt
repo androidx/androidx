@@ -66,7 +66,7 @@ internal class GraphLoop(
     @Volatile private var closed = false
     @GuardedBy("lock") private var _requestProcessor: GraphRequestProcessor? = null
     @GuardedBy("lock") private var _repeatingRequest: Request? = null
-    @GuardedBy("lock") private var _graphParameters: Map<*, Any?> = emptyMap<Any, Any?>()
+    @GuardedBy("lock") private var _graphParameters: GraphParameters = GraphParameters()
     @GuardedBy("lock") private var _graph3AParameters: Map<*, Any?> = emptyMap<Any, Any?>()
     @GuardedBy("lock") private var _requestListeners: List<Request.Listener> = emptyList()
 
@@ -126,7 +126,7 @@ internal class GraphLoop(
             }
         }
 
-    var graphParameters: Map<*, Any?>
+    var graphParameters: GraphParameters
         get() = synchronized(lock) { _graphParameters }
         set(value) =
             synchronized(lock) {
@@ -209,11 +209,13 @@ internal class GraphLoop(
     }
 
     private var currentRepeatingRequest: Request? = null
-    private var currentGraphParameters: Map<*, Any?> = emptyMap<Any, Any?>()
+    private var currentGraphParameters: GraphParameters = GraphParameters()
     private var currentGraph3AParameters: Map<*, Any?> = emptyMap<Any, Any?>()
     private var currentRequiredParameters: Map<*, Any?> = requiredParameters
     private var currentRequestListeners: List<Request.Listener> = requiredListeners
     private var currentRequestProcessor: GraphRequestProcessor? = null
+    private val currentActiveListeners: List<Request.Listener>
+        get() = currentRequestListeners + currentGraphParameters.listeners
 
     private suspend fun process(commands: MutableList<GraphCommand>) {
         // The GraphLoop is responsible for bridging the core interactions with a camera so that
@@ -448,7 +450,6 @@ internal class GraphLoop(
                     putAllMetadata(requiredParameters)
                 }
             }
-
         commands.removeAt(idx)
         commands.removeUpTo(idx) { it is GraphCommand.Parameters }
         reissueRepeatingRequest()
@@ -550,7 +551,7 @@ internal class GraphLoop(
 
     private suspend fun processShutdown(commands: MutableList<GraphCommand>) {
         currentRepeatingRequest = null
-        currentGraphParameters = emptyMap<Any, Any>()
+        currentGraphParameters = GraphParameters()
         currentGraph3AParameters = emptyMap<Any, Any>()
 
         // Abort and remove all commands during shutdown.
@@ -588,9 +589,9 @@ internal class GraphLoop(
                     isRepeating = true,
                     requests = listOf(request),
                     defaultParameters = defaultParameters,
-                    graphParameters = currentGraphParameters,
+                    graphParameters = currentGraphParameters.parameters,
                     requiredParameters = currentRequiredParameters,
-                    listeners = currentRequestListeners,
+                    listeners = currentActiveListeners,
                 )
             }
         } == true
@@ -603,8 +604,8 @@ internal class GraphLoop(
         // Internal listeners
         for (rIdx in requests.indices) {
             val request = requests[rIdx]
-            for (listenerIdx in currentRequestListeners.indices) {
-                currentRequestListeners[listenerIdx].onAborted(request)
+            for (listenerIdx in currentActiveListeners.indices) {
+                currentActiveListeners[listenerIdx].onAborted(request)
             }
         }
 
@@ -649,7 +650,7 @@ internal class GraphLoop(
                 isRepeating = isRepeating,
                 requests = requests,
                 defaultParameters = defaultParameters,
-                graphParameters = currentGraphParameters,
+                graphParameters = currentGraphParameters.parameters,
                 requiredParameters =
                     if (oneTimeRequiredParameters.isEmpty()) {
                         currentRequiredParameters
@@ -660,7 +661,7 @@ internal class GraphLoop(
                             this.putAllMetadata(requiredParameters)
                         }
                     },
-                listeners = currentRequestListeners,
+                listeners = currentActiveListeners,
             )
 
         if (!success) {
@@ -717,7 +718,7 @@ internal sealed interface GraphCommand {
     class RequestProcessor(val old: GraphRequestProcessor?, val new: GraphRequestProcessor?) :
         GraphCommand
 
-    class Parameters(val graphParameters: Map<*, Any?>, val graph3AParameters: Map<*, Any?>) :
+    class Parameters(val graphParameters: GraphParameters, val graph3AParameters: Map<*, Any?>) :
         GraphCommand
 
     class Listeners(val listeners: List<Request.Listener>) : GraphCommand
@@ -728,3 +729,8 @@ internal sealed interface GraphCommand {
 
     class Trigger(val triggerParameters: Map<*, Any?>) : GraphCommand
 }
+
+internal data class GraphParameters(
+    val parameters: Map<*, Any?> = emptyMap<Any, Any?>(),
+    val listeners: List<Request.Listener> = emptyList(),
+)

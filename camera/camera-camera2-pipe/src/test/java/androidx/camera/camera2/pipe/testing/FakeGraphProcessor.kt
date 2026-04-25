@@ -183,8 +183,12 @@ internal class FakeGraphProcessor(
         updateRepeatingRequest()
     }
 
-    override fun updateGraphParameters(parameters: Map<*, Any?>) {
+    override fun updateGraphParameters(
+        parameters: Map<*, Any?>,
+        listeners: List<Request.Listener>,
+    ) {
         graphParameters = parameters
+        requestListeners = requestListeners + listeners
         updateRepeatingRequest()
     }
 
