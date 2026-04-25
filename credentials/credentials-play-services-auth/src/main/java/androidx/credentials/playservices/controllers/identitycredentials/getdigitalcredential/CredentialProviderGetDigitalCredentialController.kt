@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
+import android.os.Process
 import android.os.ResultReceiver
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.BundleCompat.getParcelable
@@ -43,6 +44,7 @@ import androidx.credentials.playservices.controllers.CredentialProviderControlle
 import androidx.credentials.playservices.controllers.ResponseUtils
 import androidx.credentials.playservices.controllers.identitycredentials.IdentityCredentialApiHiddenActivity
 import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER
+import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_RP_PID
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.identitycredentials.CredentialOption
@@ -189,6 +191,7 @@ internal class CredentialProviderGetDigitalCredentialController(context: Context
                     EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER,
                     toIpcFriendlyResultReceiver(largePayloadResultReceiver),
                 )
+                requestData.putInt(EXTRA_RP_PID, Process.myPid())
                 credOptions.add(
                     CredentialOption(
                         option.type,

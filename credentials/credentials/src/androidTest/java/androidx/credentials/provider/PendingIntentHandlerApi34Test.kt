@@ -20,6 +20,7 @@ import android.content.pm.SigningInfo
 import android.credentials.CredentialOption
 import android.os.Binder
 import android.os.Bundle
+import android.os.Process
 import android.service.credentials.CallingAppInfo
 import android.service.credentials.CreateCredentialRequest
 import android.service.credentials.GetCredentialRequest
@@ -36,6 +37,7 @@ import androidx.credentials.exceptions.domerrors.ConstraintError
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
 import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER
 import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_PASS_IT_BY_RESULT_RECEIVER
+import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_RP_PID
 import androidx.credentials.provider.PendingIntentHandler.Companion.setCreateCredentialResponse
 import androidx.credentials.setUpCreatePasswordRequest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -43,6 +45,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlin.random.Random
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -532,14 +535,21 @@ class PendingIntentHandlerApi34Test {
     fun test_credentialResponse_largePayload_usesResultReceiver() {
         val intent = Intent()
         val largeData = Bundle()
-        val byteArray = ByteArray(205000)
+        val byteArray = Random.nextBytes(1024 * 1024 + 100)
         largeData.putByteArray("large_array", byteArray)
         val customCredential = androidx.credentials.CustomCredential("type", largeData)
         val initialResponse = GetCredentialResponse(customCredential)
 
         val requestData = Bundle()
-        val receiver = object : android.os.ResultReceiver(null) {}
+        var receivedIntent: Intent? = null
+        val receiver =
+            object : android.os.ResultReceiver(null) {
+                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                    receivedIntent = resultData?.getParcelable("RESULT_DATA", Intent::class.java)
+                }
+            }
         requestData.putParcelable(EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER, receiver)
+        requestData.putInt(EXTRA_RP_PID, Process.myPid())
         val option =
             androidx.credentials.GetCustomCredentialOption(
                 "type",
@@ -557,6 +567,11 @@ class PendingIntentHandlerApi34Test {
         PendingIntentHandler.setGetCredentialResponse(intent, initialResponse, request)
 
         assertThat(intent.getBooleanExtra(EXTRA_PASS_IT_BY_RESULT_RECEIVER, false)).isTrue()
+        assertThat(receivedIntent).isNotNull()
+        // Verify that the GetCredentialResponse can be successfully retrieved from the same
+        // process.
+        val finalResponse = PendingIntentHandler.retrieveGetCredentialResponse(receivedIntent!!)
+        assertThat(finalResponse!!.credential.data.getByteArray("large_array")).isEqualTo(byteArray)
     }
 
     @Test

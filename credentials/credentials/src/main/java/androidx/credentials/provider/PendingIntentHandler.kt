@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.ParcelFileDescriptor
+import android.os.Process
 import android.os.ResultReceiver
 import android.service.credentials.BeginCreateCredentialResponse
 import android.service.credentials.CreateCredentialRequest
@@ -71,6 +72,7 @@ class PendingIntentHandler {
         private const val FAILURE_RESPONSE_TAG = "FAILURE_RESPONSE"
         private const val RESULT_DATA_TAG = "RESULT_DATA"
         private const val CONTROLLER_REQUEST_CODE: Int = 1
+        private const val ILLEGAL_PID: Int = -1
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val EXTRA_PASS_IT_BY_RESULT_RECEIVER =
             "androidx.credentials.provider.EXTRA_PASS_IT_BY_RESULT_RECEIVER"
@@ -78,6 +80,9 @@ class PendingIntentHandler {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER =
             "androidx.credentials.provider.EXTRA_LARGE_PAYLOAD_RESULT_RECEIVER"
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        const val EXTRA_RP_PID = "androidx.credentials.provider.EXTRA_RP_PID"
 
         /**
          * Extracts the [ProviderCreateCredentialRequest] from the provider's [PendingIntent]
@@ -382,7 +387,7 @@ class PendingIntentHandler {
             } catch (t: Throwable) {
                 Log.e(TAG, "decode exception", t)
             }
-            // returns an empty Bundle to
+            // returns null if decoding fails
             return null
         }
 
@@ -398,14 +403,16 @@ class PendingIntentHandler {
             }
         }
 
-        private fun closePfd(data: Bundle) {
+        private fun closePfd(data: Bundle, rpPid: Int) {
             val pfd =
                 BundleCompat.getParcelable(
                     data,
                     EXTRA_LARGE_PAYLOAD,
                     ParcelFileDescriptor::class.java,
                 )
-            pfd?.close()
+            if (rpPid != Process.myPid()) {
+                pfd?.close()
+            }
         }
     }
 
@@ -540,6 +547,10 @@ class PendingIntentHandler {
                             ResultReceiver::class.java,
                         )
                     }
+                val rpPid: Int =
+                    request?.credentialOptions?.firstNotNullOfOrNull {
+                        it.requestData.getInt(EXTRA_RP_PID)
+                    } ?: ILLEGAL_PID
                 // If the ResultReceiver is not found, fallback to setting it on the intent
                 // directly. This ensures that existing flows are not impacted if the
                 // ResultReceiver optimization is not available.
@@ -553,7 +564,7 @@ class PendingIntentHandler {
                 setGetCredentialResponseExtra(passIntent, data)
                 intent.putExtra(EXTRA_PASS_IT_BY_RESULT_RECEIVER, true)
                 resultReceiver.reportResult(CONTROLLER_REQUEST_CODE, Activity.RESULT_OK, passIntent)
-                closePfd(data)
+                closePfd(data, rpPid)
             }
 
             /**
@@ -835,6 +846,10 @@ class PendingIntentHandler {
                             ResultReceiver::class.java,
                         )
                     }
+                val rpPid: Int =
+                    request?.credentialOptions?.firstNotNullOfOrNull {
+                        it.requestData.getInt(EXTRA_RP_PID)
+                    } ?: ILLEGAL_PID
                 // If the ResultReceiver is not found, fallback to setting it on the intent
                 // directly. This ensures that existing flows are not impacted if the
                 // ResultReceiver optimization is not available.
@@ -852,7 +867,7 @@ class PendingIntentHandler {
                 setGetCredentialResponseExtra(passIntent, response.credential.type, data)
                 intent.putExtra(EXTRA_PASS_IT_BY_RESULT_RECEIVER, true)
                 resultReceiver.reportResult(CONTROLLER_REQUEST_CODE, Activity.RESULT_OK, passIntent)
-                closePfd(data)
+                closePfd(data, rpPid)
             }
 
             /**
