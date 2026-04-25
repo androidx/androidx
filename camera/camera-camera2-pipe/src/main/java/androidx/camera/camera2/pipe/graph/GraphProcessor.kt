@@ -78,7 +78,10 @@ internal interface GraphProcessor {
     fun trigger(parameters: Map<*, Any?>): Boolean
 
     /** Update [androidx.camera.camera2.pipe.Parameters] changes to current repeating request. */
-    fun updateGraphParameters(parameters: Map<*, Any?>)
+    fun updateGraphParameters(
+        parameters: Map<*, Any?>,
+        listeners: List<Request.Listener> = emptyList(),
+    )
 
     /** Update [androidx.camera.camera2.pipe.Parameters] changes to current repeating request. */
     fun update3AParameters(parameters: Map<*, Any?>)
@@ -246,8 +249,11 @@ constructor(
      */
     override fun trigger(parameters: Map<*, Any?>): Boolean = graphLoop.trigger(parameters)
 
-    override fun updateGraphParameters(parameters: Map<*, Any?>) {
-        graphLoop.graphParameters = parameters
+    override fun updateGraphParameters(
+        parameters: Map<*, Any?>,
+        listeners: List<Request.Listener>,
+    ) {
+        graphLoop.graphParameters = GraphParameters(parameters, listeners)
     }
 
     override fun update3AParameters(parameters: Map<*, Any?>) {
