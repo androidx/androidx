@@ -250,6 +250,11 @@ internal data class FakeViewStructure(
         webDomain = domain
     }
 
+    override fun setChildCount(num: Int) {
+        children.clear()
+        repeat(num) { children.add(FakeViewStructure()) }
+    }
+
     // Unimplemented methods.
     override fun asyncCommit() {
         TODO("not implemented")
@@ -268,10 +273,6 @@ internal data class FakeViewStructure(
     }
 
     override fun newHtmlInfoBuilder(tagName: String): HtmlInfo.Builder {
-        TODO("not implemented")
-    }
-
-    override fun setChildCount(num: Int) {
         TODO("not implemented")
     }
 
