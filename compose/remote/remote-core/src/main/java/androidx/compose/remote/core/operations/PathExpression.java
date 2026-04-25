@@ -24,6 +24,7 @@ import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -42,11 +43,12 @@ import java.util.Objects;
 
 /** Generates a path from expressions */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PathExpression extends Operation implements VariableSupport, Serializable {
+public class PathExpression extends Operation
+        implements VariableSupport, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.PATH_EXPRESSION;
     private static final String CLASS_NAME = "PathExpression";
     private final PathGenerator mPathGenerator = new PathGenerator();
-    private final int mInstanceId;
+    private int mInstanceId;
     private float[] mOutputPath = new float[0];
     private final float[] mExpressionX;
     private final float[] mExpressionY;
@@ -68,11 +70,21 @@ public class PathExpression extends Operation implements VariableSupport, Serial
     public static final int POLAR = 8;
     public static final int WINDING_MASK = 0x3000000;
 
+    @Override
+    public int getId() {
+        return mInstanceId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mInstanceId = id;
+    }
+
     @SuppressWarnings("UnknownNullness") // Annotations on a primitive array are compile error.
     public PathExpression(
             int instanceId,
-            float[] expressionX,
-            float[] expressionY,
+            float @NonNull [] expressionX,
+            float @NonNull [] expressionY,
             float min,
             float max,
             float count,

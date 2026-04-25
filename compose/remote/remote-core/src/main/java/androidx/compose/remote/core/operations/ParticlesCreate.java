@@ -25,6 +25,7 @@ import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -43,10 +44,10 @@ import java.util.List;
  * for constructing the particles
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ParticlesCreate extends PaintOperation implements VariableSupport {
+public class ParticlesCreate extends PaintOperation implements VariableSupport, VariableProvider {
     private static final int OP_CODE = Operations.PARTICLE_DEFINE;
     private static final String CLASS_NAME = "ParticlesCreate";
-    private final int mId;
+    private int mId;
     private final float[][] mEquations;
     private final float[][] mOutEquations;
     private final float[][] mParticles;
@@ -56,6 +57,16 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
     private static final int MAX_FLOAT_ARRAY = 2000;
     private static final int MAX_EQU_LENGTH = 32;
     @NonNull AnimatedFloatExpression mExp = new AnimatedFloatExpression();
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public ParticlesCreate(
             int id, int @NonNull [] varId, float @NonNull [][] values, int particleCount) {

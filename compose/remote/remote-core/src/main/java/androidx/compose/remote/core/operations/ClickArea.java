@@ -20,6 +20,7 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteComposeOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -35,7 +36,12 @@ import java.util.List;
 /** Add a click area to the document */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickArea extends Operation
-        implements RemoteComposeOperation, AccessibleComponent, VariableSupport, Serializable {
+        implements RemoteComposeOperation,
+                AccessibleComponent,
+                VariableSupport,
+                VariableProvider,
+                Serializable,
+                ComponentData {
     private static final int OP_CODE = Operations.CLICK_AREA;
     private static final String CLASS_NAME = "ClickArea";
     int mId;
@@ -49,6 +55,16 @@ public class ClickArea extends Operation
     float mOutRight;
     float mOutBottom;
     int mMetadata;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     /**
      * Add a click area to the document

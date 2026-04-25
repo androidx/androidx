@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -38,7 +39,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ColorExpression extends Operation
-        implements VariableSupport, Serializable, ComponentData {
+        implements VariableSupport, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.COLOR_EXPRESSIONS;
     private static final String CLASS_NAME = "ColorExpression";
     public int mId;
@@ -95,6 +96,16 @@ public class ColorExpression extends Operation
 
     /** ARGB mode with a being an id */
     public static final byte IDARGB_MODE = 6;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     /**
      * Create a new ColorExpression object

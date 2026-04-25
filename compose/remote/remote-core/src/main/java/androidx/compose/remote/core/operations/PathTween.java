@@ -25,6 +25,7 @@ import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -38,7 +39,8 @@ import java.util.List;
 
 /** Operation to deal with Path data */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PathTween extends PaintOperation implements VariableSupport, Serializable {
+public class PathTween extends PaintOperation
+        implements VariableSupport, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.PATH_TWEEN;
     private static final String CLASS_NAME = "PathTween";
     public int mOutId;
@@ -46,6 +48,16 @@ public class PathTween extends PaintOperation implements VariableSupport, Serial
     public int mPathId2;
     public float mTween;
     public float mTweenOut;
+
+    @Override
+    public int getId() {
+        return mOutId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mOutId = id;
+    }
 
     public PathTween(int outId, int pathId1, int pathId2, float tween) {
         this.mOutId = outId;

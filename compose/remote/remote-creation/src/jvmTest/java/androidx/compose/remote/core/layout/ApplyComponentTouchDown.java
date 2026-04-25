@@ -45,7 +45,7 @@ public class ApplyComponentTouchDown extends TestComponentOperation {
         for (int i = 0; i < ops.size(); i++) {
             Operation op = ops.get(i);
             if (op instanceof ComponentModifiers) {
-                ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getList();
+                ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getModifiersList();
                 for (int j = 0; j < mods.size(); j++) {
                     ModifierOperation m = mods.get(j);
                     if (m instanceof TouchDownModifierOperation) {

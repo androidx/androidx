@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -38,12 +39,22 @@ import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DataListIds extends Operation
-        implements VariableSupport, ArrayAccess, ComponentData, Serializable {
+        implements VariableSupport, ArrayAccess, ComponentData, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.ID_LIST;
     private static final String CLASS_NAME = "IdListData";
-    private final int mId;
+    private int mId;
     private final int @NonNull [] mIds;
     private static final int MAX_LIST = 2000;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public DataListIds(int id, int @NonNull [] ids) {
         mId = id;

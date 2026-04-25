@@ -25,6 +25,7 @@ import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -49,7 +50,7 @@ import java.util.Objects;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FloatExpression extends Operation
-        implements ComponentData, VariableSupport, Serializable {
+        implements ComponentData, VariableSupport, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.ANIMATED_FLOAT;
     private static final String CLASS_NAME = "FloatExpression";
     public int mId;
@@ -61,6 +62,16 @@ public class FloatExpression extends Operation
     private float mLastChange = Float.NaN;
     private float mLastCalculatedValue = Float.NaN;
     @NonNull AnimatedFloatExpression mExp = new AnimatedFloatExpression();
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public FloatExpression(int id, float @NonNull [] value, float @Nullable [] animation) {
         this.mId = id;

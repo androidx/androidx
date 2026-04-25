@@ -56,7 +56,9 @@ public class CanvasOperations extends PaintOperation
             }
             if (operation instanceof ComponentValue) {
                 ComponentValue v = (ComponentValue) operation;
-                mComponent.addComponentValue(v);
+                if (mComponent != null) {
+                    mComponent.addComponentValue(v);
+                }
             }
         }
     }

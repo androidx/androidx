@@ -19,6 +19,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -35,14 +36,24 @@ import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DataDynamicListFloat extends Operation
-        implements VariableSupport, ArrayAccess, Serializable {
+        implements VariableSupport, VariableProvider, ArrayAccess, Serializable {
     private static final int OP_CODE = Operations.DYNAMIC_FLOAT_LIST;
     private static final String CLASS_NAME = "DataDynamicListFloat";
-    public final int mId;
+    public int mId;
     private final float mArrayLength;
     private float mArrayLengthOut;
     private float @NonNull [] mValues;
     private static final int MAX_FLOAT_ARRAY = 2000;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public DataDynamicListFloat(int id, float nbValues) {
         mId = id;

@@ -62,11 +62,7 @@ public interface RcPlatformServices {
         float @NonNull [] createFloatArray();
 
         /**
-         * Return the winding
-         * DEFAULT = 0
-         * EVEN_ODD  = 1
-         * INVERSE_EVEN_ODD = 2
-         * INVERSE_WINDING = 3
+         * Return the winding DEFAULT = 0 EVEN_ODD = 1 INVERSE_EVEN_ODD = 2 INVERSE_WINDING = 3
          *
          * @return winding number
          */

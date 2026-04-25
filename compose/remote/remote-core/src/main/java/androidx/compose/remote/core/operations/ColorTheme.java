@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -35,10 +36,10 @@ import java.util.List;
 
 /** This implement color theme. It supports two colors dark and light modes */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ColorTheme extends Operation implements Serializable, ComponentData {
+public class ColorTheme extends Operation implements Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.COLOR_THEME;
     private static final String CLASS_NAME = "ColorTheme";
-    public final int mId;
+    public int mId;
     public @Nullable String mColorGroupName;
     public int mColorGroupId; // The id of the name of the color group
     public short mDarkModeIndex;
@@ -48,6 +49,16 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
     private int mCurrentTheme = Theme.UNSPECIFIED;
     public int mDarkMode;
     public int mLightMode;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public ColorTheme(
             int id,

@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -41,7 +42,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TextFromFloat extends Operation
-        implements VariableSupport, Serializable, ComponentData {
+        implements VariableSupport, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.TEXT_FROM_FLOAT;
     private static final String CLASS_NAME = "TextFromFloat";
     public int mTextId;
@@ -88,6 +89,16 @@ public class TextFromFloat extends Operation
     // L = legacy mode
     // F = full format
     // bit pattern for flags . F L O O _ S S G G _ P P A A
+
+    @Override
+    public int getId() {
+        return mTextId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mTextId = id;
+    }
 
     public TextFromFloat(
             int textId, float value, short digitsBefore, short digitsAfter, int flags) {

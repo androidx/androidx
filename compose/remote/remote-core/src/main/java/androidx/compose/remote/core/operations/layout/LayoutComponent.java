@@ -181,6 +181,11 @@ public class LayoutComponent extends Component {
         mDrawContentOperations = operations;
     }
 
+    /** Returns the canvas operations for draw content if defined */
+    public @Nullable CanvasOperations getCanvasOperations() {
+        return mDrawContentOperations;
+    }
+
     /** Allow override of the behavior */
     protected void getComponentsData(
             @NonNull LayoutComponentContent content, @NonNull ArrayList<Operation> data) {
@@ -192,11 +197,20 @@ public class LayoutComponent extends Component {
         ArrayList<Operation> data = new ArrayList<>();
         ArrayList<Operation> supportedOperations = new ArrayList<>();
 
+        mChildrenComponents.clear();
+        mComponentModifiers.getModifiersList().clear();
+        mWidthModifier = null;
+        mHeightModifier = null;
+        mZIndexModifier = null;
+        mGraphicsLayerModifier = null;
+        mComputedLayoutModifiers = null;
+        mHorizontalScrollDelegate = null;
+        mVerticalScrollDelegate = null;
+
         for (Operation op : mList) {
             if (op instanceof LayoutComponentContent) {
                 mContent = (LayoutComponentContent) op;
                 mContent.mParent = this;
-                mChildrenComponents.clear();
                 LayoutComponentContent content = (LayoutComponentContent) op;
                 content.getComponents(mChildrenComponents);
                 if (USE_IMAGE_TEMP_FIX) {
@@ -249,6 +263,27 @@ public class LayoutComponent extends Component {
                     ((ScrollModifierOperation) op).inflate(this);
                 }
                 mComponentModifiers.add((ModifierOperation) op);
+            } else if (op instanceof ComponentModifiers) {
+                ComponentModifiers collapsedModifiers = (ComponentModifiers) op;
+                for (ModifierOperation modifier : collapsedModifiers.getModifiersList()) {
+                    if (modifier instanceof ComponentVisibilityOperation) {
+                        ((ComponentVisibilityOperation) modifier).setParent(this);
+                    }
+                    if (modifier instanceof AlignByModifierOperation) {
+                        ((AlignByModifierOperation) modifier).setParent(this);
+                    }
+                    if (modifier instanceof LayoutComputeOperation) {
+                        if (mComputedLayoutModifiers == null) {
+                            mComputedLayoutModifiers = new ArrayList<>();
+                        }
+                        ((LayoutComputeOperation) modifier).setParent(this);
+                        mComputedLayoutModifiers.add((LayoutComputeOperation) modifier);
+                    }
+                    if (modifier instanceof ScrollModifierOperation) {
+                        ((ScrollModifierOperation) modifier).inflate(this);
+                    }
+                    mComponentModifiers.add(modifier);
+                }
             } else if (op instanceof ComponentData) {
                 supportedOperations.add(op);
                 // TODO: remove
@@ -257,6 +292,10 @@ public class LayoutComponent extends Component {
                 }
                 if (op instanceof LayoutComputeOperation) {
                     ((LayoutComputeOperation) op).setParent(this);
+                }
+            } else if (op instanceof Component) {
+                if (!mChildrenComponents.contains(op)) {
+                    mChildrenComponents.add((Component) op);
                 }
             } else {
                 // nothing
@@ -298,7 +337,7 @@ public class LayoutComponent extends Component {
         DimensionInModifierOperation widthInConstraints = null;
         DimensionInModifierOperation heightInConstraints = null;
 
-        for (OperationInterface op : mComponentModifiers.getList()) {
+        for (OperationInterface op : mComponentModifiers.getModifiersList()) {
             if (op instanceof PaddingModifierOperation) {
                 // We are accumulating padding modifiers to compute the margin
                 // until we hit a dimension; the computed padding for the
@@ -472,6 +511,7 @@ public class LayoutComponent extends Component {
             mGraphicsLayerModifier.fillInAttributes(mCachedAttributes);
             context.setGraphicsLayer(mCachedAttributes);
         }
+        mComponentModifiers.layout(remoteContext, this, getWidth(), getHeight());
         // Canvas already does its own handling of internal operations
         if (!(this instanceof CanvasLayout)) {
             for (Operation op : mList) {
@@ -542,13 +582,16 @@ public class LayoutComponent extends Component {
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
+        Component prev = context.mLastComponent;
+        context.mLastComponent = this;
         super.updateVariables(context);
-        for (ModifierOperation op : mComponentModifiers.getList()) {
+        for (ModifierOperation op : mComponentModifiers.getModifiersList()) {
             if (op instanceof VariableSupport) {
                 ((VariableSupport) op).updateVariables(context);
             }
         }
         updatePadding();
+        context.mLastComponent = prev;
     }
 
     private void updatePadding() {
@@ -556,7 +599,7 @@ public class LayoutComponent extends Component {
         mPaddingTop = 0f;
         mPaddingRight = 0f;
         mPaddingBottom = 0f;
-        for (ModifierOperation op : mComponentModifiers.getList()) {
+        for (ModifierOperation op : mComponentModifiers.getModifiersList()) {
             if (op instanceof PaddingModifierOperation) {
                 PaddingModifierOperation padding = (PaddingModifierOperation) op;
                 mPaddingLeft += padding.getLeft();
@@ -578,7 +621,7 @@ public class LayoutComponent extends Component {
         float e = 0f;
         float w = 0f;
         boolean dirty = false;
-        for (OperationInterface c : mComponentModifiers.getList()) {
+        for (OperationInterface c : mComponentModifiers.getModifiersList()) {
             if (context != null && c.isDirty() && c instanceof VariableSupport) {
                 ((VariableSupport) c).updateVariables(context);
                 c.markNotDirty();
@@ -642,7 +685,7 @@ public class LayoutComponent extends Component {
     public float computeModifierDefinedPaddingWidth(float @NonNull [] padding) {
         float s = 0f;
         float e = 0f;
-        for (OperationInterface c : mComponentModifiers.getList()) {
+        for (OperationInterface c : mComponentModifiers.getModifiersList()) {
             if (c instanceof PaddingModifierOperation) {
                 PaddingModifierOperation pop = (PaddingModifierOperation) c;
                 s += pop.getLeft();
@@ -665,7 +708,7 @@ public class LayoutComponent extends Component {
         float b = 0f;
         float h = 0f;
         boolean dirty = false;
-        for (OperationInterface c : mComponentModifiers.getList()) {
+        for (OperationInterface c : mComponentModifiers.getModifiersList()) {
             if (context != null && c.isDirty() && c instanceof VariableSupport) {
                 ((VariableSupport) c).updateVariables(context);
                 c.markNotDirty();
@@ -707,7 +750,7 @@ public class LayoutComponent extends Component {
     public float computeModifierDefinedPaddingHeight(float @NonNull [] padding) {
         float t = 0f;
         float b = 0f;
-        for (OperationInterface c : mComponentModifiers.getList()) {
+        for (OperationInterface c : mComponentModifiers.getModifiersList()) {
             if (c instanceof PaddingModifierOperation) {
                 PaddingModifierOperation pop = (PaddingModifierOperation) c;
                 t += pop.getTop();
@@ -746,7 +789,7 @@ public class LayoutComponent extends Component {
             return operationClass.cast(this);
         }
 
-        for (ModifierOperation op : mComponentModifiers.getList()) {
+        for (ModifierOperation op : mComponentModifiers.getModifiersList()) {
             if (operationClass.isInstance(op)) {
                 return operationClass.cast(op);
             }
