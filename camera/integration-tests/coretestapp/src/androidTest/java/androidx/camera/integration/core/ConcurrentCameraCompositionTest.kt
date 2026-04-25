@@ -101,6 +101,10 @@ class ConcurrentCameraCompositionTest {
             "Test fails on cuttlefish b/467708340",
             Build.MODEL.contains("Cuttlefish", ignoreCase = true),
         )
+        assumeFalse(
+            "Test fails on FTL emulator",
+            Build.MODEL.contains("sdk_gphone64_arm64", ignoreCase = true),
+        )
         assumeTrue(
             "No concurrent cameras available",
             cameraProvider.availableConcurrentCameraInfos.isNotEmpty(),
