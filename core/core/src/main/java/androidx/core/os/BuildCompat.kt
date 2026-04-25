@@ -300,6 +300,13 @@ public object BuildCompat {
      */
     @JvmStatic
     @ChecksSdkIntAtLeast(api = 36, codename = "Baklava")
+    @Deprecated(
+        message =
+            "Android Baklava is a finalized release and this method is no longer " +
+                "necessary. It will be removed in a future release of this library. Instead, use " +
+                "`Build.VERSION.SDK_INT >= 36`.",
+        ReplaceWith("android.os.Build.VERSION.SDK_INT >= 36"),
+    )
     public fun isAtLeastB(): Boolean =
         Build.VERSION.SDK_INT >= 36 ||
             (Build.VERSION.SDK_INT >= 35 &&
@@ -313,6 +320,15 @@ public object BuildCompat {
      */
     @JvmStatic
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Deprecated(
+        message =
+            "Android Baklava minor release 1 is a finalized release and this method is no longer " +
+                "necessary. It will be removed in a future release of this library. Instead, use " +
+                "`Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1`.",
+        ReplaceWith(
+            "android.os.Build.VERSION.SDK_INT_FULL >= android.os.Build.VERSION_CODES_FULL.BAKLAVA_1"
+        ),
+    )
     public fun isAtLeastB_1(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
             Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1
