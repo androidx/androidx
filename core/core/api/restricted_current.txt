@@ -2850,8 +2850,8 @@ package androidx.core.os {
   }
 
   public final class BuildCompat {
-    method @ChecksSdkIntAtLeast(api=36, codename="Baklava") public static boolean isAtLeastB();
-    method @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES_FULL.BAKLAVA_1) public static boolean isAtLeastB_1();
+    method @Deprecated @ChecksSdkIntAtLeast(api=36, codename="Baklava") public static boolean isAtLeastB();
+    method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES_FULL.BAKLAVA_1) public static boolean isAtLeastB_1();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.N) public static boolean isAtLeastN();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.N_MR1) public static boolean isAtLeastNMR1();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.O) public static boolean isAtLeastO();
