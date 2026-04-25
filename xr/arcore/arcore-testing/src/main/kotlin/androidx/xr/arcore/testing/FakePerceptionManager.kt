@@ -61,7 +61,6 @@ public class FakePerceptionManager : PerceptionManager, AnchorHolder {
     override val trackables: MutableList<Trackable> = mutableListOf<Trackable>()
 
     override val leftEye: Eye? = FakeRuntimeEye()
-
     override val rightEye: Eye? = FakeRuntimeEye()
 
     override val leftHand: Hand? = FakeRuntimeHand()

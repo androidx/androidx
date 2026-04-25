@@ -24,11 +24,14 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.CoreState
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.manifest.EYE_TRACKING_COARSE
+import androidx.xr.runtime.manifest.EYE_TRACKING_FINE
 import androidx.xr.runtime.manifest.FACE_TRACKING
 import androidx.xr.runtime.manifest.HAND_TRACKING
 import androidx.xr.runtime.manifest.HEAD_TRACKING
@@ -90,6 +93,8 @@ class PerceptionStateExtenderTest {
                 HAND_TRACKING,
                 HEAD_TRACKING,
                 FACE_TRACKING,
+                EYE_TRACKING_COARSE,
+                EYE_TRACKING_FINE,
             )
 
         activityController.create().start().resume()
@@ -103,6 +108,7 @@ class PerceptionStateExtenderTest {
                 handTracking = HandTrackingMode.BOTH,
                 faceTracking = FaceTrackingMode.BLEND_SHAPES,
                 depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW,
+                eyeTracking = EyeTrackingMode.FINE_TRACKING,
             )
         )
 
@@ -236,6 +242,50 @@ class PerceptionStateExtenderTest {
             rightHandState = perceptionStateMap[timeMark]!!.rightHandState!!
             assertThat(rightHandState.trackingState).isEqualTo(TrackingState.TRACKING)
             assertThat(rightHandState.handJoints[HandJointType.THUMB_TIP]).isNotNull()
+        }
+
+    @Test
+    fun extend_twice_leftEyeStatesUpdated() =
+        runTest(testDispatcher) {
+            arCoreTestRule.leftEye.isOpen = false
+            advanceUntilIdle()
+
+            var timeMark = timeSource.markNow()
+            underTest.extend(CoreState(timeMark))
+
+            var leftEyeState = perceptionStateMap[timeMark]!!.leftEyeState
+            assertThat(leftEyeState!!.isOpen).isFalse()
+
+            arCoreTestRule.leftEye.isOpen = true
+            advanceUntilIdle()
+
+            timeMark = timeSource.markNow()
+            underTest.extend(CoreState(timeMark))
+
+            leftEyeState = perceptionStateMap[timeMark]!!.leftEyeState
+            assertThat(leftEyeState!!.isOpen).isTrue()
+        }
+
+    @Test
+    fun extend_twice_rightEyeStatesUpdated() =
+        runTest(testDispatcher) {
+            arCoreTestRule.rightEye.isOpen = false
+            advanceUntilIdle()
+
+            var timeMark = timeSource.markNow()
+            underTest.extend(CoreState(timeMark))
+
+            var rightEyeState = perceptionStateMap[timeMark]!!.rightEyeState
+            assertThat(rightEyeState!!.isOpen).isFalse()
+
+            arCoreTestRule.rightEye.isOpen = true
+            advanceUntilIdle()
+
+            timeMark = timeSource.markNow()
+            underTest.extend(CoreState(timeMark))
+
+            rightEyeState = perceptionStateMap[timeMark]!!.rightEyeState
+            assertThat(rightEyeState!!.isOpen).isTrue()
         }
 
     @Test

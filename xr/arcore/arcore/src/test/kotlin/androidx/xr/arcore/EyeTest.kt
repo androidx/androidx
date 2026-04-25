@@ -80,7 +80,7 @@ class EyeTest {
     @Test
     fun left_trackingStateMatchesRuntime() =
         runTest(testDispatcher) {
-            val underTest = Eye.left(session)!!
+            val underTest = Eye.left(session)
             advanceUntilIdle()
 
             assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
@@ -98,7 +98,7 @@ class EyeTest {
             val expectedPose = Pose(Vector3.Left, Quaternion.Identity)
             arCoreTestRule.leftEye.pose = expectedPose
             advanceUntilIdle()
-            val underTest = Eye.left(session)!!
+            val underTest = Eye.left(session)
             advanceUntilIdle()
 
             assertThat(underTest.state.value.isOpen).isTrue()
@@ -113,7 +113,7 @@ class EyeTest {
             arCoreTestRule.leftEye.isOpen = false
             arCoreTestRule.leftEye.pose = expectedPose
             advanceUntilIdle()
-            val underTest = Eye.left(session)!!
+            val underTest = Eye.left(session)
             advanceUntilIdle()
 
             assertThat(underTest.state.value.isOpen).isFalse()
@@ -131,7 +131,7 @@ class EyeTest {
     @Test
     fun right_trackingStateMatchesRuntime() =
         runTest(testDispatcher) {
-            val underTest = Eye.right(session)!!
+            val underTest = Eye.right(session)
             advanceUntilIdle()
 
             assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
@@ -149,7 +149,7 @@ class EyeTest {
             val expectedPose = Pose(Vector3.Right, Quaternion.Identity)
             arCoreTestRule.rightEye.pose = expectedPose
             advanceUntilIdle()
-            val underTest = Eye.right(session)!!
+            val underTest = Eye.right(session)
             advanceUntilIdle()
 
             assertThat(underTest.state.value.isOpen).isTrue()
@@ -164,7 +164,7 @@ class EyeTest {
             arCoreTestRule.rightEye.isOpen = false
             arCoreTestRule.rightEye.pose = expectedPose
             advanceUntilIdle()
-            val underTest = Eye.right(session)!!
+            val underTest = Eye.right(session)
             advanceUntilIdle()
 
             assertThat(underTest.state.value.isOpen).isFalse()

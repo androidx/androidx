@@ -104,6 +104,26 @@ class XrResourcesManagerTest {
     }
 
     @Test
+    fun initiateEyes_setsAvailableEyes() {
+        val leftRuntimeEye = StubRuntimeEye()
+        val rightRuntimeEye = StubRuntimeEye()
+        underTest.initiateEyes(leftRuntimeEye, rightRuntimeEye)
+
+        assertThat(underTest.leftEye).isNotNull()
+        assertThat(underTest.leftEye!!.runtimeEye).isEqualTo(leftRuntimeEye)
+        assertThat(underTest.rightEye).isNotNull()
+        assertThat(underTest.rightEye!!.runtimeEye).isEqualTo(rightRuntimeEye)
+    }
+
+    @Test
+    fun initiateEyes_setsWithNull() {
+        underTest.initiateEyes(leftRuntimeEye = null, rightRuntimeEye = null)
+
+        assertThat(underTest.leftEye).isNull()
+        assertThat(underTest.rightEye).isNull()
+    }
+
+    @Test
     fun initiateHands_setsWithNull() {
         underTest.initiateHands(leftRuntimeHand = null, rightRuntimeHand = null)
 
@@ -310,6 +330,12 @@ class XrResourcesManagerTest {
         val bufferSize = HandJointType.entries.size * 7 * Float.SIZE_BYTES
         override val trackingState = TrackingState.TRACKING
         override val handJointsBuffer: FloatBuffer = ByteBuffer.allocate(bufferSize).asFloatBuffer()
+    }
+
+    private class StubRuntimeEye : androidx.xr.arcore.runtime.Eye {
+        override val isOpen = true
+        override val pose = Pose()
+        override val trackingState = TrackingState.TRACKING
     }
 
     private class StubRuntimePlane : RuntimePlane {
