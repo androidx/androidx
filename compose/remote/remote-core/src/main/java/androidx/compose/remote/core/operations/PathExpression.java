@@ -44,7 +44,7 @@ import java.util.Objects;
 /** Generates a path from expressions */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PathExpression extends Operation
-        implements VariableSupport, Serializable, VariableProvider {
+        implements VariableSupport, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.PATH_EXPRESSION;
     private static final String CLASS_NAME = "PathExpression";
     private final PathGenerator mPathGenerator = new PathGenerator();
@@ -54,9 +54,9 @@ public class PathExpression extends Operation
     private final float[] mExpressionY;
     private final float[] mOutExpressionX;
     private final float[] mOutExpressionY;
-    private final float mMin;
+    private float mMin;
     private float mOutMin;
-    private final float mMax;
+    private float mMax;
     private float mOutMax;
     private float mCount;
     private float mOutCount;
@@ -303,18 +303,18 @@ public class PathExpression extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int imageId = buffer.readInt();
+        int imageId = buffer.readId();
         int flags = buffer.readInt();
-        float min = buffer.readFloat();
-        float max = buffer.readFloat();
-        float count = buffer.readFloat();
+        float min = buffer.readNanId();
+        float max = buffer.readNanId();
+        float count = buffer.readNanId();
         int len = buffer.readInt();
         if (len > Limits.MAX_EXPRESSION_SIZE) {
             throw new RuntimeException("Path too long");
         }
         float[] expressionX = new float[len];
         for (int i = 0; i < len; i++) {
-            expressionX[i] = buffer.readFloat();
+            expressionX[i] = buffer.readNanId();
         }
 
         len = buffer.readInt();
@@ -323,7 +323,7 @@ public class PathExpression extends Operation
         }
         float[] expressionY = new float[len];
         for (int i = 0; i < len; i++) {
-            expressionY[i] = buffer.readFloat();
+            expressionY[i] = buffer.readNanId();
         }
         operations.add(
                 new PathExpression(imageId, expressionX, expressionY, min, max, count, flags));

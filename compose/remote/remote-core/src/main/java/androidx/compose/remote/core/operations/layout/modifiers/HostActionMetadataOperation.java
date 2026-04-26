@@ -85,7 +85,9 @@ public class HostActionMetadataOperation extends Operation
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mActionId, mMetadataId);
+    }
 
     @Override
     public void runAction(
@@ -121,8 +123,8 @@ public class HostActionMetadataOperation extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int actionId = buffer.readInt();
-        int metadataId = buffer.readInt();
+        int actionId = buffer.readId();
+        int metadataId = buffer.readId();
         operations.add(new HostActionMetadataOperation(actionId, metadataId));
     }
 

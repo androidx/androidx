@@ -112,12 +112,12 @@ public class DrawTextOnCircle extends PaintOperation implements VariableSupport,
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        float centerX = buffer.readFloat();
-        float centerY = buffer.readFloat();
-        float radius = buffer.readFloat();
-        float startAngle = buffer.readFloat();
-        float warpRadiusOffset = buffer.readFloat();
+        int textId = buffer.readId();
+        float centerX = buffer.readNanId();
+        float centerY = buffer.readNanId();
+        float radius = buffer.readNanId();
+        float startAngle = buffer.readNanId();
+        float warpRadiusOffset = buffer.readNanId();
         Alignment alignment = Alignment.values()[buffer.readByte()];
         Placement placement = Placement.values()[buffer.readByte()];
 

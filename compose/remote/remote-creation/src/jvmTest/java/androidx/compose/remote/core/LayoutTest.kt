@@ -39,8 +39,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import org.junit.Ignore
 import org.junit.Test
 
-open class LayoutTest : BaseLayoutTest() {
-
+class LayoutTest : BaseLayoutTest() {
     init {
         GENERATE_GOLD_FILES = false
     }

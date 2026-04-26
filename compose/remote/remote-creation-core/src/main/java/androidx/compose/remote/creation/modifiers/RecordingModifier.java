@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.modifiers;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.creation.Rc;
@@ -66,6 +67,61 @@ public class RecordingModifier {
         return this;
     }
 
+    /**
+     * Include a set of operations previously defined.
+     *
+     * @param id the id of the referenced operations container
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier include(int id) {
+        mList.add(new IncludeReferencedOperationsModifier(id));
+        return this;
+    }
+
+    /**
+     * Include a macro call as a modifier.
+     *
+     * @param id the id of the macro
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier includeMacro(int id) {
+        mList.add(new MacroCallModifier(id));
+        return this;
+    }
+
+    /**
+     * Include a macro call as a modifier.
+     *
+     * @param id     the id of the macro
+     * @param argIds the arguments for the macro
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier includeMacro(int id, int @NonNull [] argIds) {
+        mList.add(new MacroCallModifier(id, argIds));
+        return this;
+    }
+
+    /**
+     * Add a drawContent modifier
+     *
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier drawContent() {
+        mList.add(new DrawWithContentModifier());
+        return this;
+    }
+
+    /**
+     * Add a drawWithContent modifier
+     *
+     * @return RecordingModifier
+     */
+    public @NonNull RecordingModifier drawWithContent(
+            CanvasModifier.@NonNull CanvasCallback callback) {
+        mList.add(new CanvasModifier(callback));
+        return this;
+    }
+
 
     /**
      * Write the modifier to the buffer
@@ -89,6 +145,40 @@ public class RecordingModifier {
      */
     public @NonNull RecordingModifier visibility(int id) {
         mList.add(new VisibilityModifier(id));
+        return this;
+    }
+
+    /**
+     * Add an animation spec modifier
+     *
+     * @param animationId the animation id
+     */
+    public @NonNull RecordingModifier animationSpec(int animationId) {
+        mList.add(new AnimateSpecModifier(animationId));
+        return this;
+    }
+
+    /**
+     * Add an animation spec modifier
+     *
+     * @param animationId          the animation id
+     * @param motionDuration       the motion duration
+     * @param motionEasingType     the motion easing type
+     * @param visibilityDuration   the visibility duration
+     * @param visibilityEasingType the visibility easing type
+     * @param enterAnimation       the enter animation
+     * @param exitAnimation        the exit animation
+     */
+    public @NonNull RecordingModifier animationSpec(int animationId,
+            float motionDuration,
+            int motionEasingType,
+            float visibilityDuration,
+            int visibilityEasingType,
+            @NonNull ANIMATION enterAnimation,
+            @NonNull ANIMATION exitAnimation) {
+        mList.add(new AnimateSpecModifier(animationId,
+                motionDuration, motionEasingType, visibilityDuration, visibilityEasingType,
+                enterAnimation, exitAnimation));
         return this;
     }
 

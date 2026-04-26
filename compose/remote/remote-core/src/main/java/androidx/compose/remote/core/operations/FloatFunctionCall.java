@@ -141,7 +141,7 @@ public class FloatFunctionCall extends PaintOperation implements VariableSupport
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int argLen = buffer.readInt();
         if (argLen > MAX_FLOAT_ARRAY_SIZE) {
             throw new RuntimeException("array too big " + argLen);
@@ -150,7 +150,7 @@ public class FloatFunctionCall extends PaintOperation implements VariableSupport
         if (argLen > 0) {
             args = new float[argLen];
             for (int i = 0; i < argLen; i++) {
-                args[i] = buffer.readFloat();
+                args[i] = buffer.readNanId();
             }
         }
 

@@ -117,7 +117,7 @@ public class RootContentDescription extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int contentDescription = buffer.readInt();
+        int contentDescription = buffer.readId();
         RootContentDescription header = new RootContentDescription(contentDescription);
         operations.add(header);
     }

@@ -39,6 +39,7 @@ import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.operations.utilities.touch.CommandParameters;
@@ -1021,7 +1022,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
+        int textId = buffer.readId();
         int paramsLength = buffer.readShort();
         final int[] intAttributes = {
             -1, -1, 0xFF000000, -1, 0, -1, 1, 1, Integer.MAX_VALUE, 0, 0, 0, 0, 0, 0, 0, -1
@@ -1039,22 +1040,50 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                         public void value(int id, int value) {
                             switch (id) {
                                 case TextStyle.P_ID:
-                                    intAttributes[0] = value;
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[0] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[0] = value;
+                                    }
                                     break;
                                 case TextStyle.P_ANIMATION_ID:
-                                    intAttributes[1] = value;
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[1] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[1] = value;
+                                    }
                                     break;
                                 case TextStyle.P_COLOR:
                                     intAttributes[2] = value;
                                     break;
                                 case TextStyle.P_COLOR_ID:
-                                    intAttributes[3] = value;
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[3] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[3] = value;
+                                    }
                                     break;
                                 case TextStyle.P_FONT_STYLE:
                                     intAttributes[4] = value;
                                     break;
                                 case TextStyle.P_FONT_FAMILY:
-                                    intAttributes[5] = value;
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[5] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[5] = value;
+                                    }
                                     break;
                                 case TextStyle.P_TEXT_ALIGN:
                                     intAttributes[6] = value;
@@ -1078,7 +1107,14 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                                     intAttributes[15] = value;
                                     break;
                                 case TextStyle.P_PARENT_ID:
-                                    intAttributes[16] = value;
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[16] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[16] = value;
+                                    }
                                     break;
                             }
                         }
@@ -1147,12 +1183,10 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
 
                         @Override
                         public void value(int id, float @NonNull [] value) {
-                            switch (id) {
-                                case TextStyle.P_FONT_AXIS_VALUES:
-                                    for (float v : value) {
-                                        fontAxisValuesList.add(v);
-                                    }
-                                    break;
+                            if (id == TextStyle.P_FONT_AXIS_VALUES) {
+                                for (float v : value) {
+                                    fontAxisValuesList.add(v);
+                                }
                             }
                         }
                     });

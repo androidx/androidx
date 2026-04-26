@@ -28,9 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A test operation that advances time and captures the animated state.
- */
+/** A test operation that advances time and captures the animated state. */
 public class CaptureAnimatedState extends TestOperation {
     private final long mTimeMs;
 

@@ -25,10 +25,10 @@ import java.io.InputStream;
 
 /**
  * BitmapLoader able to take URLs and return an InputStream. This interface provides an abstraction
- * for loading bitmaps from URLs, allowing different environments or platforms to provide their
- * own implementation based on available network and image loading stacks. This is necessary
- * because standard URL/image loading mechanisms can vary significantly across different Java
- * environments (e.g., Android, Desktop, Web).
+ * for loading bitmaps from URLs, allowing different environments or platforms to provide their own
+ * implementation based on available network and image loading stacks. This is necessary because
+ * standard URL/image loading mechanisms can vary significantly across different Java environments
+ * (e.g., Android, Desktop, Web).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface BitmapLoader {
@@ -40,10 +40,9 @@ public interface BitmapLoader {
      */
     @NonNull InputStream loadBitmap(@NonNull String url) throws IOException;
 
-    /**
-     * A default loader that does not support loading bitmaps.
-     */
-    @NonNull BitmapLoader UNSUPPORTED = url -> {
-        throw new IOException("BitmapLoader not supported");
-    };
+    /** A default loader that does not support loading bitmaps. */
+    @NonNull BitmapLoader UNSUPPORTED =
+            url -> {
+                throw new IOException("BitmapLoader not supported");
+            };
 }

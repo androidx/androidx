@@ -137,10 +137,10 @@ public class ColorAttribute extends PaintOperation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int textId = buffer.readInt();
+        int id = buffer.readId();
+        int colorId = buffer.readId();
         short type = (short) buffer.readShort();
-        operations.add(new ColorAttribute(id, textId, type));
+        operations.add(new ColorAttribute(id, colorId, type));
     }
 
     /**

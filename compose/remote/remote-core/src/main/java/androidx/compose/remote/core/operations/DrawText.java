@@ -38,16 +38,16 @@ import java.util.List;
 public class DrawText extends PaintOperation implements VariableSupport, ComponentData {
     private static final int OP_CODE = Operations.DRAW_TEXT_RUN;
     private static final String CLASS_NAME = "DrawText";
-    int mTextID;
-    int mStart = 0;
-    int mEnd = 0;
-    int mContextStart = 0;
-    int mContextEnd = 0;
-    float mX = 0f;
-    float mY = 0f;
-    float mOutX = 0f;
-    float mOutY = 0f;
-    boolean mRtl = false;
+    public int mTextID;
+    public int mStart = 0;
+    public int mEnd = 0;
+    public int mContextStart = 0;
+    public int mContextEnd = 0;
+    public float mX = 0f;
+    public float mY = 0f;
+    public float mOutX = 0f;
+    public float mOutY = 0f;
+    public boolean mRtl = false;
 
     public DrawText(
             int textId,
@@ -66,6 +66,11 @@ public class DrawText extends PaintOperation implements VariableSupport, Compone
         mOutX = mX = x;
         mOutY = mY = y;
         mRtl = rtl;
+    }
+
+    @Override
+    public void paint(@NonNull PaintContext context) {
+        context.drawTextRun(mTextID, mStart, mEnd, mContextStart, mContextEnd, mOutX, mOutY, mRtl);
     }
 
     @Override
@@ -106,56 +111,17 @@ public class DrawText extends PaintOperation implements VariableSupport, Compone
     }
 
     /**
-     * Read this operation and add it to the list of operations
+     * write DrawText to the buffer
      *
-     * @param buffer the buffer to read
-     * @param operations the list of operations that will be added to
-     */
-    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int text = buffer.readInt();
-        int start = buffer.readInt();
-        int end = buffer.readInt();
-        int contextStart = buffer.readInt();
-        int contextEnd = buffer.readInt();
-        float x = buffer.readFloat();
-        float y = buffer.readFloat();
-        boolean rtl = buffer.readBoolean();
-        DrawText op = new DrawText(text, start, end, contextStart, contextEnd, x, y, rtl);
-
-        operations.add(op);
-    }
-
-    /**
-     * The name of the class
-     *
-     * @return the name
-     */
-    @NonNull
-    public static String name() {
-        return CLASS_NAME;
-    }
-
-    /**
-     * The OP_CODE for this command
-     *
-     * @return the opcode
-     */
-    public static int id() {
-        return OP_CODE;
-    }
-
-    /**
-     * Writes out the operation to the buffer
-     *
-     * @param buffer write the command to the buffer
-     * @param textId id of the text
-     * @param start Start position
-     * @param end end position
-     * @param contextStart start of the context
-     * @param contextEnd end of the context
-     * @param x position of where to draw
-     * @param y position of where to draw
-     * @param rtl is it Right to Left text
+     * @param buffer
+     * @param textId
+     * @param start
+     * @param end
+     * @param contextStart
+     * @param contextEnd
+     * @param x
+     * @param y
+     * @param rtl
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -167,7 +133,7 @@ public class DrawText extends PaintOperation implements VariableSupport, Compone
             float x,
             float y,
             boolean rtl) {
-        buffer.start(Operations.DRAW_TEXT_RUN);
+        buffer.start(OP_CODE);
         buffer.writeInt(textId);
         buffer.writeInt(start);
         buffer.writeInt(end);
@@ -179,9 +145,28 @@ public class DrawText extends PaintOperation implements VariableSupport, Compone
     }
 
     /**
-     * Populate the documentation with a description of this operation
+     * Read this operation and add it to the list of operations
      *
-     * @param doc to append the description to.
+     * @param buffer the buffer to read
+     * @param operations the list of operations that will be added to the remap context
+     */
+    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
+        int text = buffer.readId();
+        int start = buffer.readInt();
+        int end = buffer.readInt();
+        int contextStart = buffer.readInt();
+        int contextEnd = buffer.readInt();
+        float x = buffer.readNanId();
+        float y = buffer.readNanId();
+        boolean rtl = buffer.readBoolean();
+        DrawText op = new DrawText(text, start, end, contextStart, contextEnd, x, y, rtl);
+        operations.add(op);
+    }
+
+    /**
+     * Documentation of the operation
+     *
+     * @param doc
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Text Operations", OP_CODE, CLASS_NAME)
@@ -204,21 +189,13 @@ public class DrawText extends PaintOperation implements VariableSupport, Compone
     }
 
     @Override
-    public void paint(@NonNull PaintContext context) {
-        context.drawTextRun(mTextID, mStart, mEnd, mContextStart, mContextEnd, mOutX, mOutY, mRtl);
-    }
-
-    @Override
     public void serialize(@NonNull MapSerializer serializer) {
         serializer
                 .addType(CLASS_NAME)
                 .add("textId", mTextID)
                 .add("start", mStart)
                 .add("end", mEnd)
-                .add("contextStart", mContextStart)
-                .add("contextEnd", mContextEnd)
-                .add("x", mX, mOutX)
-                .add("y", mY, mOutY)
-                .add("rtl", mRtl);
+                .add("x", mX)
+                .add("y", mY);
     }
 }

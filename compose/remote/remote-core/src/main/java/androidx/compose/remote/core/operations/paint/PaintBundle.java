@@ -23,6 +23,7 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.operations.Utils;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -41,6 +42,122 @@ public class PaintBundle implements Serializable {
     int @NonNull [] mArray = new int[200];
     int @Nullable [] mOutArray = null;
     int mPos = 0;
+
+    /** Resolve ids in the paint bundle as they are read off the wire. */
+    public void resolveIds(@NonNull WireBuffer buffer) {
+        int i = 0;
+        while (i < mPos) {
+            int cmd = mArray[i++];
+            int type = cmd & 0xFFFF;
+            switch (type) {
+                case STROKE_MITER:
+                case STROKE_WIDTH:
+                case ALPHA:
+                case TEXT_SIZE:
+                case SHADER_MATRIX:
+                    mArray[i] = resolveFloatId(mArray[i], buffer);
+                    i++;
+                    break;
+                case COLOR_FILTER_ID:
+                case COLOR_ID:
+                case SHADER:
+                case TYPEFACE:
+                case FALLBACK_TYPEFACE:
+                case TEXTURE:
+                    if (buffer instanceof LoomWireBuffer) {
+                        mArray[i] =
+                                ((LoomWireBuffer) buffer).getRemapContext().resolveId(mArray[i]);
+                    }
+                    i++;
+                    break;
+                case COLOR:
+                case COLOR_FILTER:
+                    i++;
+                    break;
+                case STROKE_JOIN:
+                case FILTER_BITMAP:
+                case STROKE_CAP:
+                case STYLE:
+                case IMAGE_FILTER_QUALITY:
+                case BLEND_MODE:
+                case ANTI_ALIAS:
+                case CLEAR_COLOR_FILTER:
+                    break;
+                case FONT_AXIS:
+                    int count = cmd >> 16;
+                    for (int j = 0; j < count; j++) {
+                        if (buffer instanceof LoomWireBuffer) {
+                            mArray[i] =
+                                    ((LoomWireBuffer) buffer)
+                                            .getRemapContext()
+                                            .resolveId(mArray[i]);
+                        }
+                        i++;
+                        mArray[i] = resolveFloatId(mArray[i], buffer);
+                        i++;
+                    }
+                    break;
+                case GRADIENT:
+                    i = resolveGradientIds(cmd, mArray, i, buffer);
+                    break;
+                case PATH_EFFECT:
+                    count = cmd >> 16;
+                    for (int j = 0; j < count; j++) {
+                        mArray[i] = resolveFloatId(mArray[i], buffer);
+                        i++;
+                    }
+                    break;
+            }
+        }
+    }
+
+    private int resolveFloatId(int val, @NonNull WireBuffer buffer) {
+        float f = Float.intBitsToFloat(val);
+        if (Float.isNaN(f)) {
+            if (buffer instanceof LoomWireBuffer) {
+                return Float.floatToRawIntBits(
+                        ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(f));
+            }
+        }
+        return val;
+    }
+
+    private int resolveGradientIds(int cmd, int[] array, int i, @NonNull WireBuffer buffer) {
+        int ret = i;
+        int type = (cmd >> 16);
+        int control = array[ret++];
+        int len = 0xFF & control;
+        int register = 0xFFFF & (control >> 16);
+        for (int j = 0; j < len; j++) {
+            if ((register & (1 << j)) != 0) {
+                if (buffer instanceof LoomWireBuffer) {
+                    array[ret] = ((LoomWireBuffer) buffer).getRemapContext().resolveId(array[ret]);
+                }
+            }
+            ret++;
+        }
+        len = array[ret++]; // stops
+        for (int j = 0; j < len; j++) {
+            array[ret] = resolveFloatId(array[ret], buffer);
+            ret++;
+        }
+        // center/radius/etc
+        array[ret] = resolveFloatId(array[ret], buffer);
+        ret++;
+        array[ret] = resolveFloatId(array[ret], buffer);
+        ret++;
+        if (type == LINEAR_GRADIENT) {
+            array[ret] = resolveFloatId(array[ret], buffer);
+            ret++;
+            array[ret] = resolveFloatId(array[ret], buffer);
+            ret++;
+        } else if (type == RADIAL_GRADIENT) {
+            array[ret] = resolveFloatId(array[ret], buffer);
+            ret++;
+        }
+        ret++; // tileMode
+        return ret;
+    }
 
     /** Apply changes to a PaintChanges interface */
     public void applyPaintChange(@NonNull PaintContext paintContext, @NonNull PaintChanges p) {
@@ -615,14 +732,20 @@ public class PaintBundle implements Serializable {
      */
     public void readBundle(@NonNull WireBuffer buffer) {
         int len = buffer.readInt();
-        if (len <= 0 || len > 1024) {
+        if (len < 0 || len > 1024) {
             throw new RuntimeException("buffer corrupt paint len = " + len);
+        }
+        if (len == 0) {
+            mArray = new int[0];
+            mPos = 0;
+            return;
         }
         mArray = new int[len];
         for (int i = 0; i < mArray.length; i++) {
             mArray[i] = buffer.readInt();
         }
         mPos = len;
+        resolveIds(buffer);
     }
 
     public static final int TEXT_SIZE = 1; // float

@@ -51,7 +51,6 @@ import androidx.compose.remote.core.operations.DrawRoundRect
 import androidx.compose.remote.core.operations.DrawSector
 import androidx.compose.remote.core.operations.DrawText
 import androidx.compose.remote.core.operations.DrawTextAnchored
-import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.DrawTextOnPath
 import androidx.compose.remote.core.operations.DrawToBitmap
 import androidx.compose.remote.core.operations.DrawTweenPath
@@ -438,7 +437,7 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
         operationsMap.put(Operations.DRAW_TEXT_RUN, DrawText::documentation)
         operationsMap.put(Operations.DRAW_TEXT_ANCHOR, DrawTextAnchored::documentation)
         operationsMap.put(Operations.DRAW_TEXT_ON_PATH, DrawTextOnPath::documentation)
-        operationsMap.put(Operations.DRAW_TEXT_ON_CIRCLE, DrawTextOnCircle::documentation)
+        // operationsMap.put(Operations.DRAW_TEXT_ON_CIRCLE, DrawTextOnCircle::documentation)
         operationsMap.put(Operations.DRAW_BITMAP_FONT_TEXT_RUN, DrawBitmapFontText::documentation)
         operationsMap.put(
             Operations.DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH,

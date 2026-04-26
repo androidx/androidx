@@ -241,9 +241,10 @@ public class BoxLayout extends LayoutManager {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
         int horizontalPositioning = buffer.readInt();
+
         int verticalPositioning = buffer.readInt();
         operations.add(
                 new BoxLayout(

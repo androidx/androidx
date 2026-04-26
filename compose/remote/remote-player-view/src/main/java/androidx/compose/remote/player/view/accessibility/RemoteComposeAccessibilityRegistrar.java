@@ -46,12 +46,11 @@ public interface RemoteComposeAccessibilityRegistrar {
      * assistive technologies to interact with the UI elements rendered by the player.
      *
      * @param remoteComposePlayer The View representing the remote compose player.
-     * @param document            The CoreDocument containing the accessibility information for
-     *                            the UI
-     *                            elements.
+     * @param document The CoreDocument containing the accessibility information for the UI
+     *     elements.
      */
-    void setAccessibilityDelegate(@NonNull View remoteComposePlayer,
-            @NonNull CoreDocument document);
+    void setAccessibilityDelegate(
+            @NonNull View remoteComposePlayer, @NonNull CoreDocument document);
 
     /**
      * Clears the accessibility delegate for the given remote compose player. Used when the document
@@ -64,7 +63,6 @@ public interface RemoteComposeAccessibilityRegistrar {
      */
     void clearAccessibilityDelegate(@NonNull View remoteComposePlayer);
 
-
     /**
      * Dispatch a hover event.
      *
@@ -72,7 +70,6 @@ public interface RemoteComposeAccessibilityRegistrar {
      * @return true if the event was handled by the view, false otherwise.
      */
     boolean dispatchHoverEvent(@NonNull View remoteComposePlayer, @NonNull MotionEvent event);
-
 
     /**
      * Dispatch a key event to the next view on the focus path.
@@ -82,18 +79,20 @@ public interface RemoteComposeAccessibilityRegistrar {
      */
     boolean dispatchKeyEvent(@NonNull View remoteComposePlayer, @NonNull KeyEvent event);
 
-
     /**
-     * Called by the view system when the focus state of this view changes.
-     * When the focus change event is caused by directional navigation, direction
-     * and previouslyFocusedRect provide insight into where the focus is coming from.
+     * Called by the view system when the focus state of this view changes. When the focus change
+     * event is caused by directional navigation, direction and previouslyFocusedRect provide
+     * insight into where the focus is coming from.
      *
-     * @param gainFocus             true if the View has focus; false otherwise.
-     * @param direction             the direction focus has moved when requestFocus()
-     *                              is called to give this view focus.
-     * @param previouslyFocusedRect the rectangle, in this view's coordinate
-     *                              system, of the previously focused view.
+     * @param gainFocus true if the View has focus; false otherwise.
+     * @param direction the direction focus has moved when requestFocus() is called to give this
+     *     view focus.
+     * @param previouslyFocusedRect the rectangle, in this view's coordinate system, of the
+     *     previously focused view.
      */
-    void onFocusChanged(@NonNull View remoteComposePlayer, boolean gainFocus, int direction,
+    void onFocusChanged(
+            @NonNull View remoteComposePlayer,
+            boolean gainFocus,
+            int direction,
             @Nullable Rect previouslyFocusedRect);
 }

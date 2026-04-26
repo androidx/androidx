@@ -139,10 +139,10 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        int srcId1 = buffer.readInt();
-        float start = buffer.readFloat();
-        float len = buffer.readFloat();
+        int textId = buffer.declareId();
+        int srcId1 = buffer.readId();
+        float start = buffer.readNanId();
+        float len = buffer.readNanId();
         int operation = buffer.readInt();
 
         operations.add(new TextTransform(textId, srcId1, start, len, operation));

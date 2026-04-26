@@ -119,8 +119,8 @@ public class TextMeasure extends PaintOperation implements VariableSupport {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int textId = buffer.readInt();
+        int id = buffer.declareId();
+        int textId = buffer.readId();
         int type = buffer.readInt();
         operations.add(new TextMeasure(id, textId, type));
     }

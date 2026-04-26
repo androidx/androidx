@@ -32,7 +32,6 @@ import androidx.compose.remote.core.operations.utilities.IntIntMap;
 import androidx.compose.remote.core.operations.utilities.IntMap;
 import androidx.compose.remote.core.types.LongConstant;
 
-
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -54,318 +53,557 @@ public class MockRemoteContext extends RemoteContext {
     @SuppressWarnings("unchecked")
     public MockRemoteContext() {
         super();
-        mPaintContext = new PaintContext(this) {
-            @Override
-            public void drawBitmap(int imageId, int srcLeft, int srcTop, int srcRight,
-                    int srcBottom, int dstLeft, int dstTop, int dstRight, int dstBottom, int cdId) {
-                stringBuilder.append("drawBitmap <").append(imageId).append(">\n");
-            }
+        mPaintContext =
+                new PaintContext(this) {
+                    @Override
+                    public void drawBitmap(
+                            int imageId,
+                            int srcLeft,
+                            int srcTop,
+                            int srcRight,
+                            int srcBottom,
+                            int dstLeft,
+                            int dstTop,
+                            int dstRight,
+                            int dstBottom,
+                            int cdId) {
+                        stringBuilder.append("drawBitmap <").append(imageId).append(">\n");
+                    }
 
-            @Override
-            public void drawBitmap(int id, float left, float top, float right, float bottom) {
-                stringBuilder.append("drawBitmap (").append(id).append(", ").append(left).append(
-                        ", ").append(top).append(", ").append(right).append(", ").append(
-                        bottom).append(")\n");
-            }
+                    @Override
+                    public void drawBitmap(
+                            int id, float left, float top, float right, float bottom) {
+                        stringBuilder
+                                .append("drawBitmap (")
+                                .append(id)
+                                .append(", ")
+                                .append(left)
+                                .append(", ")
+                                .append(top)
+                                .append(", ")
+                                .append(right)
+                                .append(", ")
+                                .append(bottom)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void scale(float scaleX, float scaleY) {
-                stringBuilder.append("scale (").append(scaleX).append(", ").append(scaleY).append(
-                        ")\n");
-            }
+                    @Override
+                    public void scale(float scaleX, float scaleY) {
+                        stringBuilder
+                                .append("scale (")
+                                .append(scaleX)
+                                .append(", ")
+                                .append(scaleY)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void translate(float translateX, float translateY) {
-                stringBuilder.append("translate (").append(translateX).append(", ").append(
-                        translateY).append(")\n");
-            }
+                    @Override
+                    public void translate(float translateX, float translateY) {
+                        stringBuilder
+                                .append("translate (")
+                                .append(translateX)
+                                .append(", ")
+                                .append(translateY)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void drawArc(float left, float top, float right, float bottom, float startAngle,
-                    float sweepAngle) {
-                stringBuilder.append("drawArc(").append(left).append(", ").append(top).append(
-                        ", ").append(right).append(", ").append(bottom).append(", ").append(
-                        startAngle).append(", ").append(sweepAngle).append(")\n");
-            }
+                    @Override
+                    public void drawArc(
+                            float left,
+                            float top,
+                            float right,
+                            float bottom,
+                            float startAngle,
+                            float sweepAngle) {
+                        stringBuilder
+                                .append("drawArc(")
+                                .append(left)
+                                .append(", ")
+                                .append(top)
+                                .append(", ")
+                                .append(right)
+                                .append(", ")
+                                .append(bottom)
+                                .append(", ")
+                                .append(startAngle)
+                                .append(", ")
+                                .append(sweepAngle)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void drawSector(float left, float top, float right, float bottom,
-                    float startAngle, float sweepAngle) {
-                stringBuilder.append("drawSector(").append(left).append(", ").append(top).append(
-                        ", ").append(right).append(", ").append(bottom).append(", ").append(
-                        startAngle).append(", ").append(sweepAngle).append(")\n");
-            }
+                    @Override
+                    public void drawSector(
+                            float left,
+                            float top,
+                            float right,
+                            float bottom,
+                            float startAngle,
+                            float sweepAngle) {
+                        stringBuilder
+                                .append("drawSector(")
+                                .append(left)
+                                .append(", ")
+                                .append(top)
+                                .append(", ")
+                                .append(right)
+                                .append(", ")
+                                .append(bottom)
+                                .append(", ")
+                                .append(startAngle)
+                                .append(", ")
+                                .append(sweepAngle)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void drawCircle(float centerX, float centerY, float radius) {
-                stringBuilder.append("drawCircle(").append(centerX).append(", ").append(
-                        centerY).append(", ").append(radius).append(")\n");
-            }
+                    @Override
+                    public void drawCircle(float centerX, float centerY, float radius) {
+                        stringBuilder
+                                .append("drawCircle(")
+                                .append(centerX)
+                                .append(", ")
+                                .append(centerY)
+                                .append(", ")
+                                .append(radius)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void drawLine(float x1, float y1, float x2, float y2) {
-                stringBuilder.append("drawLine(").append(x1).append(", ").append(y1).append(
-                        ", ").append(x2).append(", ").append(y2).append(")\n");
-            }
+                    @Override
+                    public void drawLine(float x1, float y1, float x2, float y2) {
+                        stringBuilder
+                                .append("drawLine(")
+                                .append(x1)
+                                .append(", ")
+                                .append(y1)
+                                .append(", ")
+                                .append(x2)
+                                .append(", ")
+                                .append(y2)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void drawOval(float left, float top, float right, float bottom) {
-                stringBuilder.append("drawOval(").append(left).append(", ").append(top).append(
-                        ", ").append(right).append(", ").append(bottom).append(")\n");
-            }
+                    @Override
+                    public void drawOval(float left, float top, float right, float bottom) {
+                        stringBuilder
+                                .append("drawOval(")
+                                .append(left)
+                                .append(", ")
+                                .append(top)
+                                .append(", ")
+                                .append(right)
+                                .append(", ")
+                                .append(bottom)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void drawPath(int id, float start, float end) {
-                stringBuilder.append("drawPath(").append(id).append(", ").append(start).append(
-                        ", ").append(end).append(")\n");
-            }
+                    @Override
+                    public void drawPath(int id, float start, float end) {
+                        stringBuilder
+                                .append("drawPath(")
+                                .append(id)
+                                .append(", ")
+                                .append(start)
+                                .append(", ")
+                                .append(end)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void drawRect(float left, float top, float right, float bottom) {
-                stringBuilder.append("drawRect(").append(left).append(", ").append(top).append(
-                        ", ").append(right).append(", ").append(bottom).append(")\n");
-            }
+                    @Override
+                    public void drawRect(float left, float top, float right, float bottom) {
+                        stringBuilder
+                                .append("drawRect(")
+                                .append(left)
+                                .append(", ")
+                                .append(top)
+                                .append(", ")
+                                .append(right)
+                                .append(", ")
+                                .append(bottom)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void savePaint() {
-                stringBuilder.append("savePaint\n");
-            }
+                    @Override
+                    public void savePaint() {
+                        stringBuilder.append("savePaint\n");
+                    }
 
-            @Override
-            public void restorePaint() {
-                stringBuilder.append("restorePaint\n");
-            }
+                    @Override
+                    public void restorePaint() {
+                        stringBuilder.append("restorePaint\n");
+                    }
 
-            @Override
-            public void replacePaint(@NonNull PaintBundle paint) {
-                stringBuilder.append("replacePaint\n");
-            }
+                    @Override
+                    public void replacePaint(@NonNull PaintBundle paint) {
+                        stringBuilder.append("replacePaint\n");
+                    }
 
-            @Override
-            public void drawRoundRect(float left, float top, float right, float bottom,
-                    float radiusX, float radiusY) {
-                stringBuilder.append("drawRoundRect(").append(left).append(", ").append(top).append(
-                        ", ").append(right).append(", ").append(bottom).append(", ").append(
-                        radiusX).append(", ").append(radiusY).append(")\n");
-            }
+                    @Override
+                    public void drawRoundRect(
+                            float left,
+                            float top,
+                            float right,
+                            float bottom,
+                            float radiusX,
+                            float radiusY) {
+                        stringBuilder
+                                .append("drawRoundRect(")
+                                .append(left)
+                                .append(", ")
+                                .append(top)
+                                .append(", ")
+                                .append(right)
+                                .append(", ")
+                                .append(bottom)
+                                .append(", ")
+                                .append(radiusX)
+                                .append(", ")
+                                .append(radiusY)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void drawTextOnPath(int textId, int pathId, float hOffset, float vOffset) {
-                stringBuilder.append("drawTextOnPath(").append(textId).append(", ").append(
-                        pathId).append(", ").append(hOffset).append(", ").append(vOffset).append(
-                        ")\n");
-            }
+                    @Override
+                    public void drawTextOnPath(
+                            int textId, int pathId, float hOffset, float vOffset) {
+                        stringBuilder
+                                .append("drawTextOnPath(")
+                                .append(textId)
+                                .append(", ")
+                                .append(pathId)
+                                .append(", ")
+                                .append(hOffset)
+                                .append(", ")
+                                .append(vOffset)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void getTextBounds(int textId, int start, int end, int flags,
-                    float @NonNull [] bounds) {
-                bounds[0] = 0f;
-                bounds[1] = 0f;
-                bounds[2] = 100f;
-                bounds[3] = 10f;
-                stringBuilder.append("getTextBounds(").append(textId).append(", ").append(
-                        start).append(", ").append(end).append(")\n");
-            }
+                    @Override
+                    public void getTextBounds(
+                            int textId, int start, int end, int flags, float @NonNull [] bounds) {
+                        bounds[0] = 0f;
+                        bounds[1] = 0f;
+                        bounds[2] = 100f;
+                        bounds[3] = 10f;
+                        stringBuilder
+                                .append("getTextBounds(")
+                                .append(textId)
+                                .append(", ")
+                                .append(start)
+                                .append(", ")
+                                .append(end)
+                                .append(")\n");
+                    }
 
-            class MockComputedTextLayout implements
-                    RcPlatformServices.ComputedTextLayout {
-                private int mWidth;
-                private int mHeight;
-                MockComputedTextLayout(int width, int height) {
-                    mWidth = width;
-                    mHeight = height;
-                }
-                @Override
-                public float getWidth() {
-                    return mWidth;
-                }
+                    class MockComputedTextLayout implements RcPlatformServices.ComputedTextLayout {
+                        private int mWidth;
+                        private int mHeight;
 
-                @Override
-                public float getHeight() {
-                    return mHeight;
-                }
+                        MockComputedTextLayout(int width, int height) {
+                            mWidth = width;
+                            mHeight = height;
+                        }
 
-                @Override
-                public int getVisibleLineCount() {
-                    return 1;
-                }
+                        @Override
+                        public float getWidth() {
+                            return mWidth;
+                        }
 
-                @Override
-                public boolean isHyphenatedText() {
-                    return false;
-                }
-            }
+                        @Override
+                        public float getHeight() {
+                            return mHeight;
+                        }
 
-            @Override
-            public RcPlatformServices.ComputedTextLayout layoutComplexText(int textId, int start,
-                    int end, int alignment, int overflow, int maxLines,
-                    float maxWidth, float maxHeight,
-                    float letterSpacing, float lineHeightAdd, float lineHeightMultiplier,
-                    int lineBreakStrategy, int hyphenationFrequency, int justificationMode,
-                    boolean useUnderline, boolean strikethrough, int flags) {
-                stringBuilder.append("layoutComplexText(").append(textId).append(", ").append(
-                        start).append(", ").append(end).append(")\n");
-                String text = getText(textId);
-                int width = text.length() * 30;
-                int height = 40;
-                return new MockComputedTextLayout(width, height);
-            }
+                        @Override
+                        public int getVisibleLineCount() {
+                            return 1;
+                        }
 
-            @Override
-            public void drawTextRun(int textId, int start, int end, int contextStart,
-                    int contextEnd, float x, float y, boolean rtl) {
-                stringBuilder.append("drawTextRun(").append(textId).append(", ").append(
-                        start).append(", ").append(end).append(", ").append(contextStart).append(
-                        ", ").append(contextEnd).append(", ").append(x).append(", ").append(
-                        y).append(")\n");
-            }
+                        @Override
+                        public boolean isHyphenatedText() {
+                            return false;
+                        }
+                    }
 
-            @Override
-            public void drawComplexText(RcPlatformServices.ComputedTextLayout computedTextLayout) {
-                stringBuilder.append("drawComplexText");
-            }
+                    @Override
+                    public RcPlatformServices.ComputedTextLayout layoutComplexText(
+                            int textId,
+                            int start,
+                            int end,
+                            int alignment,
+                            int overflow,
+                            int maxLines,
+                            float maxWidth,
+                            float maxHeight,
+                            float letterSpacing,
+                            float lineHeightAdd,
+                            float lineHeightMultiplier,
+                            int lineBreakStrategy,
+                            int hyphenationFrequency,
+                            int justificationMode,
+                            boolean useUnderline,
+                            boolean strikethrough,
+                            int flags) {
+                        stringBuilder
+                                .append("layoutComplexText(")
+                                .append(textId)
+                                .append(", ")
+                                .append(start)
+                                .append(", ")
+                                .append(end)
+                                .append(")\n");
+                        String text = getText(textId);
+                        int width = text.length() * 30;
+                        int height = 40;
+                        return new MockComputedTextLayout(width, height);
+                    }
 
-            @Override
-            public void drawTweenPath(int path1Id, int path2Id, float tween, float start,
-                    float stop) {
-                stringBuilder.append("drawTweenPath(").append(path1Id).append(", ").append(
-                        path2Id).append(", ").append(tween).append(", ").append(start).append(
-                        ", ").append(stop).append(")\n");
-            }
+                    @Override
+                    public void drawTextRun(
+                            int textId,
+                            int start,
+                            int end,
+                            int contextStart,
+                            int contextEnd,
+                            float x,
+                            float y,
+                            boolean rtl) {
+                        stringBuilder
+                                .append("drawTextRun(")
+                                .append(textId)
+                                .append(", ")
+                                .append(start)
+                                .append(", ")
+                                .append(end)
+                                .append(", ")
+                                .append(contextStart)
+                                .append(", ")
+                                .append(contextEnd)
+                                .append(", ")
+                                .append(x)
+                                .append(", ")
+                                .append(y)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void tweenPath(int out, int path1, int path2, float tween) {
-                stringBuilder.append("tweenPath(").append(out).append(", ").append(path1).append(
-                        ", ").append(path2).append(", ").append(tween).append(")\n");
-            }
+                    @Override
+                    public void drawComplexText(
+                            RcPlatformServices.ComputedTextLayout computedTextLayout) {
+                        stringBuilder.append("drawComplexText");
+                    }
 
-            @Override
-            public void combinePath(int out, int path1, int path2, byte operation) {
-                stringBuilder.append("combinePath(").append(out).append(", ").append(path1).append(
-                        ", ").append(path2).append(", ").append(operation).append(")\n");
-            }
+                    @Override
+                    public void drawTweenPath(
+                            int path1Id, int path2Id, float tween, float start, float stop) {
+                        stringBuilder
+                                .append("drawTweenPath(")
+                                .append(path1Id)
+                                .append(", ")
+                                .append(path2Id)
+                                .append(", ")
+                                .append(tween)
+                                .append(", ")
+                                .append(start)
+                                .append(", ")
+                                .append(stop)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void applyPaint(@NonNull PaintBundle paintData) {
-                stringBuilder.append("paintData(").append(paintData).append(")\n");
-            }
+                    @Override
+                    public void tweenPath(int out, int path1, int path2, float tween) {
+                        stringBuilder
+                                .append("tweenPath(")
+                                .append(out)
+                                .append(", ")
+                                .append(path1)
+                                .append(", ")
+                                .append(path2)
+                                .append(", ")
+                                .append(tween)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void matrixScale(float scaleX, float scaleY, float centerX, float centerY) {
-                if (Float.isNaN(centerX)) {
-                    stringBuilder.append("scale(").append(scaleX).append(", ").append(
-                            scaleY).append(")\n");
-                } else {
-                    stringBuilder.append("scale(").append(scaleX).append(", ").append(
-                            scaleY).append(", ").append(centerX).append(", ").append(
-                            centerY).append(")\n");
-                }
-            }
+                    @Override
+                    public void combinePath(int out, int path1, int path2, byte operation) {
+                        stringBuilder
+                                .append("combinePath(")
+                                .append(out)
+                                .append(", ")
+                                .append(path1)
+                                .append(", ")
+                                .append(path2)
+                                .append(", ")
+                                .append(operation)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void matrixTranslate(float translateX, float translateY) {
-                stringBuilder.append("translate(").append(translateX).append(", ").append(
-                        translateY).append(")\n");
-            }
+                    @Override
+                    public void applyPaint(@NonNull PaintBundle paintData) {
+                        stringBuilder.append("paintData(").append(paintData).append(")\n");
+                    }
 
-            @Override
-            public void matrixSkew(float skewX, float skewY) {
-                stringBuilder.append("skew(").append(skewX).append(", ").append(skewY).append(
-                        ")\n");
-            }
+                    @Override
+                    public void matrixScale(
+                            float scaleX, float scaleY, float centerX, float centerY) {
+                        if (Float.isNaN(centerX)) {
+                            stringBuilder
+                                    .append("scale(")
+                                    .append(scaleX)
+                                    .append(", ")
+                                    .append(scaleY)
+                                    .append(")\n");
+                        } else {
+                            stringBuilder
+                                    .append("scale(")
+                                    .append(scaleX)
+                                    .append(", ")
+                                    .append(scaleY)
+                                    .append(", ")
+                                    .append(centerX)
+                                    .append(", ")
+                                    .append(centerY)
+                                    .append(")\n");
+                        }
+                    }
 
-            @Override
-            public void matrixRotate(float rotate, float pivotX, float pivotY) {
-                if (Float.isNaN(pivotX)) {
-                    stringBuilder.append("rotate(").append(rotate).append(")\n");
-                } else {
-                    stringBuilder.append("rotate(").append(rotate).append(", ").append(
-                            pivotX).append(", ").append(pivotY).append(")\n");
-                }
-            }
+                    @Override
+                    public void matrixTranslate(float translateX, float translateY) {
+                        stringBuilder
+                                .append("translate(")
+                                .append(translateX)
+                                .append(", ")
+                                .append(translateY)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void matrixSave() {
-                stringBuilder.append("matrixSave()\n");
-            }
+                    @Override
+                    public void matrixSkew(float skewX, float skewY) {
+                        stringBuilder
+                                .append("skew(")
+                                .append(skewX)
+                                .append(", ")
+                                .append(skewY)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void matrixRestore() {
-                stringBuilder.append("matrixRestore()\n");
-            }
+                    @Override
+                    public void matrixRotate(float rotate, float pivotX, float pivotY) {
+                        if (Float.isNaN(pivotX)) {
+                            stringBuilder.append("rotate(").append(rotate).append(")\n");
+                        } else {
+                            stringBuilder
+                                    .append("rotate(")
+                                    .append(rotate)
+                                    .append(", ")
+                                    .append(pivotX)
+                                    .append(", ")
+                                    .append(pivotY)
+                                    .append(")\n");
+                        }
+                    }
 
-            @Override
-            public void clipRect(float left, float top, float right, float bottom) {
-                stringBuilder.append("clipRect(").append(left).append(", ").append(top).append(
-                        ", ").append(right).append(", ").append(bottom).append(")\n");
-            }
+                    @Override
+                    public void matrixSave() {
+                        stringBuilder.append("matrixSave()\n");
+                    }
 
-            @Override
-            public void clipPath(int pathId, int regionOp) {
-                stringBuilder.append("clipPath(").append(pathId).append(")\n");
-            }
+                    @Override
+                    public void matrixRestore() {
+                        stringBuilder.append("matrixRestore()\n");
+                    }
 
-            @Override
-            public void reset() {
-            }
+                    @Override
+                    public void clipRect(float left, float top, float right, float bottom) {
+                        stringBuilder
+                                .append("clipRect(")
+                                .append(left)
+                                .append(", ")
+                                .append(top)
+                                .append(", ")
+                                .append(right)
+                                .append(", ")
+                                .append(bottom)
+                                .append(")\n");
+                    }
 
-            @Override
-            public void startGraphicsLayer(int w, int h) {
-                stringBuilder.append("startGraphicsLayer(").append(w).append(" x ").append(
-                        h).append(")\n");
-            }
+                    @Override
+                    public void clipPath(int pathId, int regionOp) {
+                        stringBuilder.append("clipPath(").append(pathId).append(")\n");
+                    }
 
-            @Override
-            public void setGraphicsLayer(@NonNull HashMap<Integer, Object> attributes) {
-                stringBuilder.append("setGraphicsLayer()\n");
-            }
+                    @Override
+                    public void reset() {}
 
-            @Override
-            public void endGraphicsLayer() {
-                stringBuilder.append("endGraphicsLayer()\n");
-            }
+                    @Override
+                    public void startGraphicsLayer(int w, int h) {
+                        stringBuilder
+                                .append("startGraphicsLayer(")
+                                .append(w)
+                                .append(" x ")
+                                .append(h)
+                                .append(")\n");
+                    }
 
-            @Override
-            public String getText(int textID) {
-                stringBuilder.append("getText(").append(textID).append(")\n");
-                return "<TEST" + textID + ">";
-            }
+                    @Override
+                    public void setGraphicsLayer(@NonNull HashMap<Integer, Object> attributes) {
+                        stringBuilder.append("setGraphicsLayer()\n");
+                    }
 
-            @Override
-            public void roundedClipRect(float width, float height, float topStart, float topEnd,
-                    float bottomStart, float bottomEnd) {
-                stringBuilder.append("rounded clipRect\n");
-            }
+                    @Override
+                    public void endGraphicsLayer() {
+                        stringBuilder.append("endGraphicsLayer()\n");
+                    }
 
-            @Override
-            public void log(@NonNull String content) {
-                stringBuilder.append("log: ").append(content).append("\n");
-            }
+                    @Override
+                    public String getText(int textID) {
+                        stringBuilder.append("getText(").append(textID).append(")\n");
+                        return "<TEST" + textID + ">";
+                    }
 
-            @Override
-            public void matrixFromPath(int pathId, float fraction, float vOffset, int flags) {
-                stringBuilder.append("matrixFromPath(").append(pathId).append(", ").append(
-                        fraction).append(", ").append(vOffset).append(", ").append(flags).append(
-                        ")");
-            }
+                    @Override
+                    public void roundedClipRect(
+                            float width,
+                            float height,
+                            float topStart,
+                            float topEnd,
+                            float bottomStart,
+                            float bottomEnd) {
+                        stringBuilder.append("rounded clipRect\n");
+                    }
 
-            @Override
-            public void drawToBitmap(int bitmapId, int mode, int color) {
-                stringBuilder.append("drawToBitmap(").append(bitmapId).append(")\n");
-            }
-        };
+                    @Override
+                    public void log(@NonNull String content) {
+                        stringBuilder.append("log: ").append(content).append("\n");
+                    }
+
+                    @Override
+                    public void matrixFromPath(
+                            int pathId, float fraction, float vOffset, int flags) {
+                        stringBuilder
+                                .append("matrixFromPath(")
+                                .append(pathId)
+                                .append(", ")
+                                .append(fraction)
+                                .append(", ")
+                                .append(vOffset)
+                                .append(", ")
+                                .append(flags)
+                                .append(")");
+                    }
+
+                    @Override
+                    public void drawToBitmap(int bitmapId, int mode, int color) {
+                        stringBuilder.append("drawToBitmap(").append(bitmapId).append(")\n");
+                    }
+                };
         mVariableSupport = new ArrayList[400];
     }
 
-    /**
-     * Clear debug results
-     */
+    /** Clear debug results */
     public void clearResults() {
         stringBuilder.setLength(0);
     }
 
     /**
      * Get debug results
+     *
      * @return
      */
     public String getTestResults() {
@@ -379,11 +617,21 @@ public class MockRemoteContext extends RemoteContext {
     @Override
     public void loadPathData(int instanceId, int winding, float @NonNull [] floatPath) {
         if (winding == 0) {
-            stringBuilder.append("loadPathData(").append(instanceId).append(")=").append(
-                    pathString(floatPath)).append("\n");
+            stringBuilder
+                    .append("loadPathData(")
+                    .append(instanceId)
+                    .append(")=")
+                    .append(pathString(floatPath))
+                    .append("\n");
         } else {
-            stringBuilder.append("loadPathData(").append(instanceId).append(")= [").append(
-                    winding).append("]").append(pathString(floatPath)).append("\n");
+            stringBuilder
+                    .append("loadPathData(")
+                    .append(instanceId)
+                    .append(")= [")
+                    .append(winding)
+                    .append("]")
+                    .append(pathString(floatPath))
+                    .append("\n");
         }
         mPathDataMap.put(instanceId, floatPath);
         mPathWindingMap.put(instanceId, winding);
@@ -398,21 +646,35 @@ public class MockRemoteContext extends RemoteContext {
     @Override
     public void loadVariableName(@NonNull String varName, int varId, int varType) {
         varNamesMap.put(varName, varId);
-        stringBuilder.append("loadVariableName(").append(varName).append(")= [").append(
-                varId).append("] ").append(varType).append("\n");
+        stringBuilder
+                .append("loadVariableName(")
+                .append(varName)
+                .append(")= [")
+                .append(varId)
+                .append("] ")
+                .append(varType)
+                .append("\n");
     }
 
     @Override
     public void loadColor(int id, int color) {
         colorCache[id] = color;
-        stringBuilder.append("loadColor([").append(id).append("])= ").append(
-                Utils.colorInt(color)).append("\n");
+        stringBuilder
+                .append("loadColor([")
+                .append(id)
+                .append("])= ")
+                .append(Utils.colorInt(color))
+                .append("\n");
     }
 
     @Override
     public void setNamedColorOverride(@NonNull String colorName, int color) {
-        stringBuilder.append("setNamedColorOverride([").append(colorName).append("])= ").append(
-                Utils.colorInt(color)).append("\n");
+        stringBuilder
+                .append("setNamedColorOverride([")
+                .append(colorName)
+                .append("])= ")
+                .append(Utils.colorInt(color))
+                .append("\n");
     }
 
     @Override
@@ -421,14 +683,22 @@ public class MockRemoteContext extends RemoteContext {
         if (lc != null) {
             lc.setValue(value);
         }
-        stringBuilder.append("setNamedLong([").append(name).append("])= ").append(value).append(
-                "\n");
+        stringBuilder
+                .append("setNamedLong([")
+                .append(name)
+                .append("])= ")
+                .append(value)
+                .append("\n");
     }
 
     @Override
     public void setNamedStringOverride(@NonNull String stringName, @NonNull String value) {
-        stringBuilder.append("setNamedStringOverride([").append(stringName).append("])= ").append(
-                value).append("\n");
+        stringBuilder
+                .append("setNamedStringOverride([")
+                .append(stringName)
+                .append("])= ")
+                .append(value)
+                .append("\n");
     }
 
     @Override
@@ -438,8 +708,12 @@ public class MockRemoteContext extends RemoteContext {
 
     @Override
     public void setNamedBooleanOverride(@NonNull String booleanName, boolean value) {
-        stringBuilder.append("setNamedBooleanOverride([").append(booleanName).append("])= ").append(
-                value).append("\n");
+        stringBuilder
+                .append("setNamedBooleanOverride([")
+                .append(booleanName)
+                .append("])= ")
+                .append(value)
+                .append("\n");
     }
 
     @Override
@@ -449,8 +723,12 @@ public class MockRemoteContext extends RemoteContext {
 
     @Override
     public void setNamedIntegerOverride(@NonNull String integerName, int value) {
-        stringBuilder.append("setNamedIntegerOverride([").append(integerName).append("])= ").append(
-                value).append("\n");
+        stringBuilder
+                .append("setNamedIntegerOverride([")
+                .append(integerName)
+                .append("])= ")
+                .append(value)
+                .append("\n");
     }
 
     @Override
@@ -460,8 +738,12 @@ public class MockRemoteContext extends RemoteContext {
 
     @Override
     public void setNamedFloatOverride(@NonNull String floatName, float value) {
-        stringBuilder.append("setNamedFloatOverride([").append(floatName).append("])= ").append(
-                value).append("\n");
+        stringBuilder
+                .append("setNamedFloatOverride([")
+                .append(floatName)
+                .append("])= ")
+                .append(value)
+                .append("\n");
     }
 
     @Override
@@ -471,8 +753,12 @@ public class MockRemoteContext extends RemoteContext {
 
     @Override
     public void setNamedDataOverride(@NonNull String dataName, @NonNull Object value) {
-        stringBuilder.append("setNamedDataOverride([").append(dataName).append("])= ").append(
-                value).append("\n");
+        stringBuilder
+                .append("setNamedDataOverride([")
+                .append(dataName)
+                .append("])= ")
+                .append(value)
+                .append("\n");
     }
 
     @Override
@@ -503,8 +789,7 @@ public class MockRemoteContext extends RemoteContext {
     }
 
     @Override
-    public void runNamedAction(int textId, Object value) {
-    }
+    public void runNamedAction(int textId, Object value) {}
 
     @Override
     public void putObject(int key, @NonNull Object command) {
@@ -523,6 +808,7 @@ public class MockRemoteContext extends RemoteContext {
 
     /**
      * Utility to convert a path of float to a string
+     *
      * @param path
      * @return
      */
@@ -586,19 +872,42 @@ public class MockRemoteContext extends RemoteContext {
     }
 
     @Override
-    public void header(int majorVersion, int minorVersion, int patchVersion, int width, int height,
-            long capabilities, IntMap<Object> map) {
+    public void header(
+            int majorVersion,
+            int minorVersion,
+            int patchVersion,
+            int width,
+            int height,
+            long capabilities,
+            IntMap<Object> map) {
         loadInteger(ID_WINDOW_WIDTH, width);
         loadInteger(ID_WINDOW_HEIGHT, height);
 
-        stringBuilder.append("header(").append(majorVersion).append(", ").append(
-                minorVersion).append(", ").append(patchVersion).append(")");
-        stringBuilder.append(" ").append(width).append(" x ").append(height).append(", ").append(
-                capabilities).append("\n");
+        stringBuilder
+                .append("header(")
+                .append(majorVersion)
+                .append(", ")
+                .append(minorVersion)
+                .append(", ")
+                .append(patchVersion)
+                .append(")");
+        stringBuilder
+                .append(" ")
+                .append(width)
+                .append(" x ")
+                .append(height)
+                .append(", ")
+                .append(capabilities)
+                .append("\n");
     }
 
     @Override
-    public void loadBitmap(int imageId, short encoding, short type, int width, int height,
+    public void loadBitmap(
+            int imageId,
+            short encoding,
+            short type,
+            int width,
+            int height,
             byte @NonNull [] bitmap) {
         stringBuilder.append("loadImage(").append(imageId).append(")\n");
     }
@@ -620,8 +929,12 @@ public class MockRemoteContext extends RemoteContext {
 
     @Override
     public String getText(int id) {
-        stringBuilder.append("getText[").append(id).append("]= ").append(
-                stringCache.get(id)).append("\n");
+        stringBuilder
+                .append("getText[")
+                .append(id)
+                .append("]= ")
+                .append(stringCache.get(id))
+                .append("\n");
         return stringCache.get(id);
     }
 
@@ -685,8 +998,12 @@ public class MockRemoteContext extends RemoteContext {
     @Override
     public void loadAnimatedFloat(int id, @NonNull FloatExpression animatedFloat) {
         animatedFloatCache[id] = animatedFloat;
-        stringBuilder.append("animatedFloat(").append(id).append(")=").append(animatedFloat).append(
-                "\n");
+        stringBuilder
+                .append("animatedFloat(")
+                .append(id)
+                .append(")=")
+                .append(animatedFloat)
+                .append("\n");
     }
 
     @Override
@@ -742,17 +1059,42 @@ public class MockRemoteContext extends RemoteContext {
     }
 
     @Override
-    public void addClickArea(int id, int contentDescription, float left, float top, float right,
-            float bottom, int metadataId) {
-        stringBuilder.append("clickArea(").append(id).append(", ").append(left).append(", ").append(
-                top).append(", ").append(right).append(", ").append(bottom).append(", ").append(
-                metadataId).append(")\n");
+    public void addClickArea(
+            int id,
+            int contentDescription,
+            float left,
+            float top,
+            float right,
+            float bottom,
+            int metadataId) {
+        stringBuilder
+                .append("clickArea(")
+                .append(id)
+                .append(", ")
+                .append(left)
+                .append(", ")
+                .append(top)
+                .append(", ")
+                .append(right)
+                .append(", ")
+                .append(bottom)
+                .append(", ")
+                .append(metadataId)
+                .append(")\n");
     }
 
     @Override
     public void setRootContentBehavior(int scroll, int alignment, int sizing, int mode) {
-        stringBuilder.append("rootContentBehavior ").append(scroll).append(", ").append(
-                alignment).append(", ").append(sizing).append(", ").append(mode).append("\n");
+        stringBuilder
+                .append("rootContentBehavior ")
+                .append(scroll)
+                .append(", ")
+                .append(alignment)
+                .append(", ")
+                .append(sizing)
+                .append(", ")
+                .append(mode)
+                .append("\n");
         super.setRootContentBehavior(scroll, alignment, sizing, mode);
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.operations.utilities.NanMap;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -177,7 +178,7 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport, 
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int particleCount = buffer.readInt();
         int varLen = buffer.readInt();
         if (varLen > MAX_FLOAT_ARRAY) {
@@ -186,7 +187,7 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport, 
         int[] varId = new int[varLen];
         float[][] equations = new float[varLen][];
         for (int i = 0; i < varId.length; i++) {
-            varId[i] = buffer.readInt();
+            varId[i] = buffer.readId();
             int equLen = buffer.readInt();
             if (equLen > MAX_EQU_LENGTH) {
                 throw new RuntimeException(
@@ -194,7 +195,20 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport, 
             }
             equations[i] = new float[equLen];
             for (int j = 0; j < equations[i].length; j++) {
-                equations[i][j] = buffer.readFloat();
+                float v = buffer.readFloat();
+                if (Float.isNaN(v)
+                        && !AnimatedFloatExpression.isMathOperator(v)
+                        && !NanMap.isDataVariable(v)) {
+                    // Manual remapping since we already read it
+                    if (buffer instanceof LoomWireBuffer) {
+                        equations[i][j] =
+                                ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(v);
+                    } else {
+                        equations[i][j] = v;
+                    }
+                } else {
+                    equations[i][j] = v;
+                }
             }
         }
         ParticlesCreate data = new ParticlesCreate(id, varId, equations, particleCount);

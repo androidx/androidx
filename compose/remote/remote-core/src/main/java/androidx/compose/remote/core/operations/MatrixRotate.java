@@ -41,14 +41,7 @@ public class MatrixRotate extends DrawBase3 {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        Maker m =
-                new Maker() {
-                    @NonNull
-                    @Override
-                    public DrawBase3 create(float v1, float v2, float v3) {
-                        return new MatrixRotate(v1, v2, v3);
-                    }
-                };
+        Maker m = MatrixRotate::new;
         read(buffer, operations, m);
     }
 

@@ -28,7 +28,6 @@ import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
 import androidx.compose.remote.core.operations.ConditionalOperations
-import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
@@ -878,6 +877,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         )
     }
 
+    /*
     public fun drawTextOnCircle(
         text: RemoteString,
         centerX: RemoteFloat,
@@ -901,6 +901,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
             placement,
         )
     }
+    */
 
     override fun drawArc(
         left: Float,

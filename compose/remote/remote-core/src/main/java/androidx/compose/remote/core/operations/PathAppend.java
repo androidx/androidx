@@ -28,6 +28,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -158,17 +159,34 @@ public class PathAppend extends PaintOperation implements VariableSupport, Seria
      * Read this operation and add it to the list of operations
      *
      * @param buffer the buffer to read
-     * @param operations the list of operations that will be added to
+     * @param operations the list of operations that will be added to mapping context for remapping
+     *     IDs
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int len = buffer.readInt();
         if (len > MAX_PATH_BUFFER) {
             throw new RuntimeException("path too long");
         }
         float[] data = new float[len];
         for (int i = 0; i < data.length; i++) {
-            data[i] = buffer.readFloat();
+            float v = buffer.peekInt(); // Peek as int to check NaN-ness
+            if (Float.isNaN(Float.intBitsToFloat((int) v))) {
+                float fv = buffer.readFloat();
+                int vid = Utils.idFromNan(fv);
+                if (vid > RESET) {
+                    // Manual remapping
+                    if (buffer instanceof LoomWireBuffer) {
+                        data[i] = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(fv);
+                    } else {
+                        data[i] = fv;
+                    }
+                } else {
+                    data[i] = fv;
+                }
+            } else {
+                data[i] = buffer.readFloat();
+            }
         }
         operations.add(new PathAppend(id, data));
     }

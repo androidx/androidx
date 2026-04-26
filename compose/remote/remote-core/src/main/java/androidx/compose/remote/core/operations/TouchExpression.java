@@ -698,11 +698,11 @@ public class TouchExpression extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        float startValue = buffer.readFloat();
-        float min = buffer.readFloat();
-        float max = buffer.readFloat();
-        float velocityId = buffer.readFloat(); // TODO future support
+        int id = buffer.readId();
+        float startValue = buffer.readNanId();
+        float min = buffer.readNanId();
+        float max = buffer.readNanId();
+        float velocityId = buffer.readNanId(); // TODO future support
         int touchEffects = buffer.readInt();
         int len = buffer.readInt();
         int valueLen = len & 0xFFFF;
@@ -711,7 +711,7 @@ public class TouchExpression extends Operation
         }
         float[] exp = new float[valueLen];
         for (int i = 0; i < exp.length; i++) {
-            exp[i] = buffer.readFloat();
+            exp[i] = buffer.readNanId();
         }
         int stopLogic = buffer.readInt();
         int stopLen = stopLogic & 0xFFFF;
@@ -719,13 +719,13 @@ public class TouchExpression extends Operation
 
         float[] stopsData = new float[stopLen];
         for (int i = 0; i < stopsData.length; i++) {
-            stopsData[i] = buffer.readFloat();
+            stopsData[i] = buffer.readNanId();
         }
         int easingLen = buffer.readInt();
 
         float[] easingData = new float[easingLen];
         for (int i = 0; i < easingData.length; i++) {
-            easingData[i] = buffer.readFloat();
+            easingData[i] = buffer.readNanId();
         }
 
         operations.add(

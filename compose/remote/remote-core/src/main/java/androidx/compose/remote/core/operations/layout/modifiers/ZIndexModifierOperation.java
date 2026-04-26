@@ -127,7 +127,7 @@ public class ZIndexModifierOperation extends DecoratorModifierOperation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        float value = buffer.readFloat();
+        float value = buffer.readNanId();
         operations.add(new ZIndexModifierOperation(value));
     }
 

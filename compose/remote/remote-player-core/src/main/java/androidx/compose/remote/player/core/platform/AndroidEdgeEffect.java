@@ -29,9 +29,7 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent;
 
 import org.jspecify.annotations.NonNull;
 
-/**
- * Implement a scrolling edge effect on Android
- */
+/** Implement a scrolling edge effect on Android */
 class AndroidEdgeEffect implements ScrollingEdgeEffect {
     EdgeEffect mEffect;
     int mDirection;
@@ -72,8 +70,11 @@ class AndroidEdgeEffect implements ScrollingEdgeEffect {
     }
 
     @Override
-    public void apply(@NonNull PaintContext context, @NonNull Component component,
-            float contentDimension, int phase) {
+    public void apply(
+            @NonNull PaintContext context,
+            @NonNull Component component,
+            float contentDimension,
+            int phase) {
         if (!mEffect.isFinished()) {
             AndroidPaintContext paintContext = (AndroidPaintContext) context;
             if (phase == PRE_DRAW) {
@@ -82,20 +83,26 @@ class AndroidEdgeEffect implements ScrollingEdgeEffect {
                     if (distance > 0) {
                         switch (mDirection) {
                             case TOP:
-                                context.matrixScale(1f, 1f + distance,
-                                        component.getWidth() / 2f, 0f);
+                                context.matrixScale(
+                                        1f, 1f + distance, component.getWidth() / 2f, 0f);
                                 break;
                             case BOTTOM:
-                                context.matrixScale(1f, 1f + distance,
-                                        component.getWidth() / 2f, contentDimension);
+                                context.matrixScale(
+                                        1f,
+                                        1f + distance,
+                                        component.getWidth() / 2f,
+                                        contentDimension);
                                 break;
                             case LEFT:
-                                context.matrixScale(1f + distance, 1f,
-                                        0f, component.getHeight() / 2f);
+                                context.matrixScale(
+                                        1f + distance, 1f, 0f, component.getHeight() / 2f);
                                 break;
                             case RIGHT:
-                                context.matrixScale(1f + distance, 1f,
-                                        contentDimension, component.getHeight() / 2f);
+                                context.matrixScale(
+                                        1f + distance,
+                                        1f,
+                                        contentDimension,
+                                        component.getHeight() / 2f);
                                 break;
                         }
                         // if we switch to render nodes for scroll areas
@@ -116,10 +123,10 @@ class AndroidEdgeEffect implements ScrollingEdgeEffect {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                     mEffect.setColor(Color.BLACK);
                     LayoutComponent layoutComponent = (LayoutComponent) component;
-                    float horizontalPadding = layoutComponent.getPaddingLeft()
-                            + layoutComponent.getPaddingRight();
-                    float verticalPadding = layoutComponent.getPaddingTop()
-                            + layoutComponent.getPaddingBottom();
+                    float horizontalPadding =
+                            layoutComponent.getPaddingLeft() + layoutComponent.getPaddingRight();
+                    float verticalPadding =
+                            layoutComponent.getPaddingTop() + layoutComponent.getPaddingBottom();
                     switch (mDirection) {
                         case TOP:
                             mEffect.draw(paintContext.mCanvas);

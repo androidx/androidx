@@ -116,9 +116,9 @@ public class ColorConstant extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int colorId = buffer.readInt();
+        int id = buffer.declareId();
         int color = buffer.readInt();
-        operations.add(new ColorConstant(colorId, color));
+        operations.add(new ColorConstant(id, color));
     }
 
     /**

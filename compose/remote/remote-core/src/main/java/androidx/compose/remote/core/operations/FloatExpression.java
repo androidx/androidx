@@ -321,23 +321,24 @@ public class FloatExpression extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int len = buffer.readInt();
         int valueLen = len & 0xFFFF;
+        int animLen = (len >> 16) & 0xFFFF;
+
         if (valueLen > Limits.MAX_EXPRESSION_SIZE) {
             throw new RuntimeException("Float expression too long");
         }
-        int animLen = (len >> 16) & 0xFFFF;
         float[] values = new float[valueLen];
         for (int i = 0; i < values.length; i++) {
-            values[i] = buffer.readFloat();
+            values[i] = buffer.readNanId();
         }
 
         float[] animation;
         if (animLen != 0) {
             animation = new float[animLen];
             for (int i = 0; i < animation.length; i++) {
-                animation[i] = buffer.readFloat();
+                animation[i] = buffer.readNanId();
             }
         } else {
             animation = null;

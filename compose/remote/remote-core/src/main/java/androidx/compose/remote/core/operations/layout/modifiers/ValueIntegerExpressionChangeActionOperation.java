@@ -81,7 +81,9 @@ public class ValueIntegerExpressionChangeActionOperation extends Operation
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTargetValueId, mValueExpressionId);
+    }
 
     @Override
     public void runAction(
@@ -114,8 +116,8 @@ public class ValueIntegerExpressionChangeActionOperation extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        long valueId = buffer.readLong();
-        long value = buffer.readLong();
+        long valueId = buffer.readLongNanId();
+        long value = buffer.readLongNanId();
         operations.add(new ValueIntegerExpressionChangeActionOperation(valueId, value));
     }
 

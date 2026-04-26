@@ -154,14 +154,14 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         short type = (short) buffer.readShort();
-        int matrixId = buffer.readInt();
+        int matrixId = buffer.readId();
         int lenOut = buffer.readInt();
         if (lenOut > 4 || lenOut < 1) {
             throw new IllegalArgumentException("Invalid Length " + lenOut + " corrupt buffer");
         }
         int[] out = new int[lenOut];
         for (int i = 0; i < out.length; i++) {
-            out[i] = buffer.readInt();
+            out[i] = buffer.readId();
         }
 
         int lenIn = buffer.readInt();
@@ -170,7 +170,7 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
         }
         float[] in = new float[lenIn];
         for (int i = 0; i < in.length; i++) {
-            in[i] = buffer.readFloat();
+            in[i] = buffer.readNanId();
         }
 
         operations.add(new MatrixVectorMath(type, out, matrixId, in));

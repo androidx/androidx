@@ -157,6 +157,11 @@ import androidx.compose.remote.core.operations.layout.modifiers.ValueStringChang
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation;
+import androidx.compose.remote.core.operations.loom.PatternArgument;
+import androidx.compose.remote.core.operations.loom.PatternBlock;
+import androidx.compose.remote.core.operations.loom.PatternDefine;
+import androidx.compose.remote.core.operations.loom.PatternForEach;
+import androidx.compose.remote.core.operations.loom.PatternInflation;
 import androidx.compose.remote.core.operations.matrix.MatrixConstant;
 import androidx.compose.remote.core.operations.matrix.MatrixExpression;
 import androidx.compose.remote.core.operations.matrix.MatrixVectorMath;
@@ -319,7 +324,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     private interface OperationBlock {
-        void run(WireBuffer buffer, ArrayList<Operation> operations);
+        void run(WireBuffer buffer, List<Operation> operations);
     }
 
     private void addOperation(int id, @NonNull OperationBlock block) {
@@ -895,6 +900,61 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     public void addComponentStart(int type, int id) {
         mLastComponentId = getComponentId(id);
         addOperation(new ComponentStart(type, mLastComponentId, 0f, 0f));
+    }
+
+    @Override
+    public int definePattern(@NonNull String name, int @NonNull [] paramIds) {
+        int id = name.hashCode();
+        addText(id, name);
+        addOperation(new PatternDefine(id, paramIds));
+        return id;
+    }
+
+    @Override
+    public int definePatternParameter(@NonNull String name) {
+        int id = name.hashCode();
+        addText(id, name);
+        return id;
+    }
+
+    @Override
+    public void inflatePattern(int id, int @NonNull [] argIds) {
+        addOperation(new PatternInflation(id, argIds));
+    }
+
+    @Override
+    public void addPatternBlock(int paramIndex) {
+        addOperation(new PatternBlock(paramIndex));
+    }
+
+    @Override
+    public void addPatternArgument(int paramIndex) {
+        addOperation(new PatternArgument(paramIndex));
+    }
+
+    @Override
+    public void addPatternForEach(int collectionId, int localItemId) {
+        addOperation(new PatternForEach(collectionId, localItemId));
+    }
+
+    @Override
+    public void endPatternForEach() {
+        addContainerEnd();
+    }
+
+    @Override
+    public void endPatternDefine() {
+        addContainerEnd();
+    }
+
+    @Override
+    public void endPatternInflation() {
+        addContainerEnd();
+    }
+
+    @Override
+    public void endPatternBlock() {
+        addContainerEnd();
     }
 
     @Override

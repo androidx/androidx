@@ -110,12 +110,12 @@ public class DrawBitmap extends PaintOperation implements VariableSupport {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        float sLeft = buffer.readFloat();
-        float srcTop = buffer.readFloat();
-        float srcRight = buffer.readFloat();
-        float srcBottom = buffer.readFloat();
-        int descriptionId = buffer.readInt();
+        int id = buffer.readId();
+        float sLeft = buffer.readNanId();
+        float srcTop = buffer.readNanId();
+        float srcRight = buffer.readNanId();
+        float srcBottom = buffer.readNanId();
+        int descriptionId = buffer.readId();
 
         DrawBitmap op = new DrawBitmap(id, sLeft, srcTop, srcRight, srcBottom, descriptionId);
         operations.add(op);

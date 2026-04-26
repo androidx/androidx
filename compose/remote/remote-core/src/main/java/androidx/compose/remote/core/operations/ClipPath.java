@@ -23,6 +23,7 @@ import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -82,6 +83,10 @@ public class ClipPath extends PaintOperation implements Serializable {
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int pack = buffer.readInt();
         int id = pack & 0xFFFFF;
+        // Manual remapping since we extracted it from a packed int
+        if (buffer instanceof LoomWireBuffer) {
+            id = ((LoomWireBuffer) buffer).getRemapContext().resolveId(id);
+        }
         int regionOp = pack >> 24;
         ClipPath op = new ClipPath(id, regionOp);
         operations.add(op);

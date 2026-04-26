@@ -25,9 +25,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A test operation that resizes the document and sets a new origin.
- */
+/** A test operation that resizes the document and sets a new origin. */
 public class ResizeWithOrigin extends TestOperation {
     private final int mWidth;
     private final int mHeight;

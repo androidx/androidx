@@ -78,7 +78,7 @@ public class CollapsiblePriorityModifierOperation extends Operation
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int orientation = buffer.readInt();
-        float priority = buffer.readFloat();
+        float priority = buffer.readNanId();
         operations.add(new CollapsiblePriorityModifierOperation(orientation, priority));
     }
 

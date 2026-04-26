@@ -27,6 +27,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
@@ -127,16 +128,25 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
         int text = buffer.readInt();
         float glyphSpacing;
         if ((text & 0x80000000) != 0) {
-            text = text & 0xFFFF;
-            glyphSpacing = buffer.readFloat();
+            // Manual remapping
+            if (buffer instanceof LoomWireBuffer) {
+                text = ((LoomWireBuffer) buffer).getRemapContext().resolveId(text & 0x7FFFFFFF);
+            } else {
+                text = text & 0x7FFFFFFF;
+            }
+            glyphSpacing = buffer.readNanId();
         } else {
+            // Manual remapping
+            if (buffer instanceof LoomWireBuffer) {
+                text = ((LoomWireBuffer) buffer).getRemapContext().resolveId(text);
+            }
             glyphSpacing = 0f;
         }
-        int bitmapFont = buffer.readInt();
+        int bitmapFont = buffer.readId();
         int start = buffer.readInt();
         int end = buffer.readInt();
-        float x = buffer.readFloat();
-        float y = buffer.readFloat();
+        float x = buffer.readNanId();
+        float y = buffer.readNanId();
         DrawBitmapFontText op =
                 new DrawBitmapFontText(text, bitmapFont, start, end, x, y, glyphSpacing);
 

@@ -95,10 +95,10 @@ public class DrawTextOnPath extends PaintOperation implements VariableSupport, S
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        int pathId = buffer.readInt();
-        float vOffset = buffer.readFloat();
-        float hOffset = buffer.readFloat();
+        int textId = buffer.readId();
+        int pathId = buffer.readId();
+        float vOffset = buffer.readNanId();
+        float hOffset = buffer.readNanId();
         DrawTextOnPath op = new DrawTextOnPath(textId, pathId, hOffset, vOffset);
         operations.add(op);
     }

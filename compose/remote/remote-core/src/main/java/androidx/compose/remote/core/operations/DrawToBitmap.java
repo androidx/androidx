@@ -59,11 +59,10 @@ public class DrawToBitmap extends PaintOperation implements Serializable {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int bitmapId = buffer.readInt();
+        int bitmapId = buffer.readId();
         int mode = buffer.readInt();
         int color = buffer.readInt();
-        DrawToBitmap op = new DrawToBitmap(bitmapId, mode, color);
-        operations.add(op);
+        operations.add(new DrawToBitmap(bitmapId, mode, color));
     }
 
     @NonNull

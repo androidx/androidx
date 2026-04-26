@@ -50,16 +50,16 @@ import java.util.stream.Stream;
  * Java Player implementation of the {@link RemoteComposeDocumentAccessibility} interface. Each item
  * in the semantic tree is a {@link Component} from the remote Compose UI. Each Component can have a
  * list of modifiers that must be tagged with {@link AccessibilitySemantics} either incidentally
- * (see {@link ClickModifierOperation} and {@link MultiClickModifier}) or explicitly (see
- * {@link CoreSemantics}).
+ * (see {@link ClickModifierOperation} and {@link MultiClickModifier}) or explicitly (see {@link
+ * CoreSemantics}).
  */
 @RestrictTo(LIBRARY_GROUP)
 public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibility {
     private final CoreDocument mDocument;
     private final RemoteContextActions mRemoteContextActions;
 
-    public CoreDocumentAccessibility(@NonNull CoreDocument document,
-            @NonNull RemoteContextActions mRemoteContextActions) {
+    public CoreDocumentAccessibility(
+            @NonNull CoreDocument document, @NonNull RemoteContextActions mRemoteContextActions) {
         this.mDocument = document;
         this.mRemoteContextActions = mRemoteContextActions;
     }
@@ -79,17 +79,16 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
         return RootId;
     }
 
-    private int getComponentIdAt(Component component, @NonNull PointF point,
-            int @NonNull [] boundsInParent) {
-        List<Integer> children = semanticallyRelevantChildComponents(
-                component, false);
+    private int getComponentIdAt(
+            Component component, @NonNull PointF point, int @NonNull [] boundsInParent) {
+        List<Integer> children = semanticallyRelevantChildComponents(component, false);
 
         for (Integer childId : children) {
             Component childComponent = findComponentById(childId);
 
             if (childComponent != null) {
-                childComponent.getBoundsInSemanticParent(boundsInParent,
-                        component.getComponentId());
+                childComponent.getBoundsInSemanticParent(
+                        boundsInParent, component.getComponentId());
 
                 if (contains(boundsInParent, point.x, point.y)) {
                     point.offset(-boundsInParent[0], -boundsInParent[1]);
@@ -143,13 +142,13 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
      * Performs the given accessibility action on the specified component.
      *
      * @param component The component on which to perform the action.
-     * @param action    The accessibility action to perform.
+     * @param action The accessibility action to perform.
      * @param arguments Optional arguments for the action.
      * @return True if the action was successfully performed, false otherwise.
      */
     @Override
-    public boolean performAction(@NonNull Component component, int action,
-            @Nullable Bundle arguments) {
+    public boolean performAction(
+            @NonNull Component component, int action, @Nullable Bundle arguments) {
         boolean needsRepaint = true;
 
         try {
@@ -196,24 +195,18 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
         return mRemoteContextActions.showOnScreen(component);
     }
 
-    /**
-     * scroll content by the given offset
-     */
+    /** scroll content by the given offset */
     public int scrollByOffset(@NonNull Component component, int pixels) {
         return mRemoteContextActions.scrollByOffset(component, pixels);
     }
 
-    /**
-     * scroll content in a given direction
-     */
-    public boolean scrollDirection(@NonNull Component component,
-            @NonNull ScrollDirection direction) {
+    /** scroll content in a given direction */
+    public boolean scrollDirection(
+            @NonNull Component component, @NonNull ScrollDirection direction) {
         return mRemoteContextActions.scrollDirection(component, direction);
     }
 
-    /**
-     * Perform a click on the given component
-     */
+    /** Perform a click on the given component */
     public boolean performClick(@NonNull Component component) {
         return mRemoteContextActions.performClick(mDocument, component, "");
     }
@@ -236,10 +229,14 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
         List<ModifierOperation> modifiers =
                 ((LayoutComponent) component).getComponentModifiers().getModifiersList();
 
-        return modifiers.stream().filter(it -> {
-            return it instanceof AccessibilitySemantics
-                    && ((AccessibilitySemantics) it).isInterestingForSemantics();
-        }).map(i -> (AccessibilitySemantics) i).collect(Collectors.toList());
+        return modifiers.stream()
+                .filter(
+                        it -> {
+                            return it instanceof AccessibilitySemantics
+                                    && ((AccessibilitySemantics) it).isInterestingForSemantics();
+                        })
+                .map(i -> (AccessibilitySemantics) i)
+                .collect(Collectors.toList());
     }
 
     @SuppressWarnings("MixedMutabilityReturnType")
@@ -251,8 +248,8 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
         }
 
         CoreSemantics.Mode mergeMode = mergeMode(component);
-        if (mergeMode == CoreSemantics.Mode.CLEAR_AND_SET || (!useUnmergedTree
-                && mergeMode == CoreSemantics.Mode.MERGE)) {
+        if (mergeMode == CoreSemantics.Mode.CLEAR_AND_SET
+                || (!useUnmergedTree && mergeMode == CoreSemantics.Mode.MERGE)) {
             return Collections.emptyList();
         }
 
@@ -263,8 +260,9 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
                 if (isInteresting((Component) child)) {
                     result.add(((Component) child).getComponentId());
                 } else {
-                    result.addAll(semanticallyRelevantChildComponents((Component) child,
-                            useUnmergedTree));
+                    result.addAll(
+                            semanticallyRelevantChildComponents(
+                                    (Component) child, useUnmergedTree));
                 }
             }
         }
@@ -273,13 +271,17 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
     }
 
     static @NonNull Stream<@NonNull Component> componentStream(@NonNull Component root) {
-        return Stream.concat(Stream.of(root), root.mList.stream().flatMap(op -> {
-            if (op instanceof Component) {
-                return componentStream((Component) op);
-            } else {
-                return Stream.empty();
-            }
-        }));
+        return Stream.concat(
+                Stream.of(root),
+                root.mList.stream()
+                        .flatMap(
+                                op -> {
+                                    if (op instanceof Component) {
+                                        return componentStream((Component) op);
+                                    } else {
+                                        return Stream.empty();
+                                    }
+                                }));
     }
 
     static @NonNull Stream<@NonNull ModifierOperation> modifiersStream(
@@ -293,8 +295,9 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
             return false;
         }
 
-        return isContainerWithSemantics(component) || modifiersStream(component).anyMatch(
-                CoreDocumentAccessibility::isModifierWithSemantics);
+        return isContainerWithSemantics(component)
+                || modifiersStream(component)
+                        .anyMatch(CoreDocumentAccessibility::isModifierWithSemantics);
     }
 
     static boolean isModifierWithSemantics(@NonNull ModifierOperation modifier) {

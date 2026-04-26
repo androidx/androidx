@@ -16,14 +16,36 @@
 package androidx.compose.remote.core;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.layout.Container;
+import androidx.compose.remote.core.operations.layout.ContainerEnd;
+import androidx.compose.remote.core.operations.loom.ExpansionContext;
+import androidx.compose.remote.core.operations.loom.LoomManager;
 
 import org.jspecify.annotations.NonNull;
+
+import java.util.ArrayList;
 
 /** Base interface for RemoteCompose operations */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class Operation {
 
     private static final boolean ENABLE_DIRTY_FLAG_OPTIMIZATION = true;
+
+    /**
+     * Recursively write an operation and its children to a buffer
+     *
+     * @param op the operation to write
+     * @param buffer the target buffer
+     */
+    public static void writeRecursive(@NonNull Operation op, @NonNull WireBuffer buffer) {
+        op.write(buffer);
+        if (op instanceof Container) {
+            for (Operation child : ((Container) op).getList()) {
+                writeRecursive(child, buffer);
+            }
+            ContainerEnd.apply(buffer);
+        }
+    }
 
     /** add the operation to the buffer */
     public abstract void write(@NonNull WireBuffer buffer);
@@ -34,6 +56,28 @@ public abstract class Operation {
      * @param context the paint context used to paint the operation
      */
     public abstract void apply(@NonNull RemoteContext context);
+
+    /**
+     * Materialize the operation into the results list during expansion. The default implementation
+     * adds the operation to the result list. Macro-specific operations should override this to
+     * provide custom behavior.
+     *
+     * @param context the expansion context
+     * @param result the list to add materialized operations to
+     * @param loomManager the macro manager
+     */
+    public void materialize(
+            @NonNull ExpansionContext context,
+            @NonNull ArrayList<Operation> result,
+            @NonNull LoomManager loomManager) {
+        result.add(this);
+        if (this instanceof Container) {
+            Container container = (Container) this;
+            context.expandRecursive(container.getList(), result, loomManager);
+            container.getList().clear();
+            result.add(new ContainerEnd());
+        }
+    }
 
     /** Debug utility to display an operation + indentation */
     @NonNull

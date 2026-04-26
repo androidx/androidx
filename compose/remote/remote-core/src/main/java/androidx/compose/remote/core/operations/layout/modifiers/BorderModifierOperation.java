@@ -29,6 +29,7 @@ import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -241,14 +242,20 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int flags = buffer.readInt();
         int colorId = buffer.readInt();
+        if ((flags & COLOR_REF) != 0) {
+            // Manual remapping since we already read it
+            if (buffer instanceof LoomWireBuffer) {
+                colorId = ((LoomWireBuffer) buffer).getRemapContext().resolveId(colorId);
+            }
+        }
         int reserve1 = buffer.readInt();
         int reserve2 = buffer.readInt();
-        float bw = buffer.readFloat();
-        float rc = buffer.readFloat();
-        float r = buffer.readFloat();
-        float g = buffer.readFloat();
-        float b = buffer.readFloat();
-        float a = buffer.readFloat();
+        float bw = buffer.readNanId();
+        float rc = buffer.readNanId();
+        float r = buffer.readNanId();
+        float g = buffer.readNanId();
+        float b = buffer.readNanId();
+        float a = buffer.readNanId();
         // shape type
         int shapeType = buffer.readInt();
         operations.add(

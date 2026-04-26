@@ -114,8 +114,7 @@ public class AndroidPaintContext extends PaintContext {
                 }
             };
     private final LinkedHashMap<String, Font.Builder> mFontBuilderCache =
-            new LinkedHashMap<String, Font.Builder>(Limits.MAX_CACHE_ENTRIES + 1, 0.75F,
-                    true) {
+            new LinkedHashMap<String, Font.Builder>(Limits.MAX_CACHE_ENTRIES + 1, 0.75F, true) {
                 @Override
                 protected boolean removeEldestEntry(Map.Entry<String, Font.Builder> eldest) {
                     return size() > Limits.MAX_CACHE_ENTRIES;
@@ -153,16 +152,16 @@ public class AndroidPaintContext extends PaintContext {
     /**
      * Draw an image onto the canvas
      *
-     * @param imageId   the id of the image
-     * @param srcLeft   left coordinate of the source area
-     * @param srcTop    top coordinate of the source area
-     * @param srcRight  right coordinate of the source area
+     * @param imageId the id of the image
+     * @param srcLeft left coordinate of the source area
+     * @param srcTop top coordinate of the source area
+     * @param srcRight right coordinate of the source area
      * @param srcBottom bottom coordinate of the source area
-     * @param dstLeft   left coordinate of the destination area
-     * @param dstTop    top coordinate of the destination area
-     * @param dstRight  right coordinate of the destination area
+     * @param dstLeft left coordinate of the destination area
+     * @param dstTop top coordinate of the destination area
+     * @param dstRight right coordinate of the destination area
      * @param dstBottom bottom coordinate of the destination area
-     * @param cdId      the id of the content description
+     * @param cdId the id of the content description
      */
     @Override
     public void drawBitmap(
@@ -570,7 +569,8 @@ public class AndroidPaintContext extends PaintContext {
             boolean isHyphenatedText = getTightBoundingBox(staticLayout, bounds);
             int visibleLines = staticLayout.getLineCount();
             if (bounds.height() > maxHeight
-                    && useEllipses && staticLayout.getLineCount() >= maxLines) {
+                    && useEllipses
+                    && staticLayout.getLineCount() >= maxLines) {
                 // let's measure how many lines we can actually fit
                 int lineCount = staticLayout.getLineCount();
                 visibleLines = 0;
@@ -590,20 +590,20 @@ public class AndroidPaintContext extends PaintContext {
                 }
             }
             return new AndroidComputedTextLayout(
-                    staticLayout, bounds.width(), bounds.height(),
-                    visibleLines, isHyphenatedText);
+                    staticLayout, bounds.width(), bounds.height(), visibleLines, isHyphenatedText);
         } else {
             return new AndroidComputedTextLayout(
-                    staticLayout, staticLayout.getWidth(), staticLayout.getHeight(),
-                    staticLayout.getLineCount(), false);
+                    staticLayout,
+                    staticLayout.getWidth(),
+                    staticLayout.getHeight(),
+                    staticLayout.getLineCount(),
+                    false);
         }
     }
 
-    /**
-     * Returns true if a line is hyphenated.
-     */
-    public boolean isLineHyphenated(@NonNull StaticLayout layout,
-            @NonNull CharSequence originalText, int lineIndex) {
+    /** Returns true if a line is hyphenated. */
+    public boolean isLineHyphenated(
+            @NonNull StaticLayout layout, @NonNull CharSequence originalText, int lineIndex) {
         if (lineIndex >= layout.getLineCount() - 1) {
             return false;
         }
@@ -616,9 +616,7 @@ public class AndroidPaintContext extends PaintContext {
         return false;
     }
 
-    /**
-     * Returns the bounding box of the static layout
-     */
+    /** Returns the bounding box of the static layout */
     public boolean getTightBoundingBox(@NonNull StaticLayout layout, @NonNull Rect bounds) {
         int lineCount = layout.getLineCount();
         if (lineCount == 0) {
@@ -903,8 +901,8 @@ public class AndroidPaintContext extends PaintContext {
 
                 /**
                  * @param fontType String to be looked up in system
-                 * @param weight   the weight of the font
-                 * @param italic   if the font is italic
+                 * @param weight the weight of the font
+                 * @param italic if the font is italic
                  */
                 @Override
                 public void setTypeFace(@NonNull String fontType, int weight, boolean italic) {
@@ -945,9 +943,14 @@ public class AndroidPaintContext extends PaintContext {
                         return mTypefaceCache.get(key);
                     }
 
-
-                    Typeface typeface = createTypeface(fontType, weight, italic, mFallbackTypeFace,
-                            mFallbackWeight, mFallbackItalic);
+                    Typeface typeface =
+                            createTypeface(
+                                    fontType,
+                                    weight,
+                                    italic,
+                                    mFallbackTypeFace,
+                                    mFallbackWeight,
+                                    mFallbackItalic);
                     mTypefaceCache.put(key, typeface);
                     return typeface;
                 }
@@ -962,8 +965,10 @@ public class AndroidPaintContext extends PaintContext {
 
                     Typeface basePrimary = Typeface.create(fontType, Typeface.NORMAL);
 
-                    boolean primaryFound = !basePrimary.equals(Typeface.DEFAULT)
-                            || (fontType != null && fontType.equalsIgnoreCase("sans-serif"));
+                    boolean primaryFound =
+                            !basePrimary.equals(Typeface.DEFAULT)
+                                    || (fontType != null
+                                            && fontType.equalsIgnoreCase("sans-serif"));
 
                     if (primaryFound) {
                         try {
@@ -998,7 +1003,6 @@ public class AndroidPaintContext extends PaintContext {
                     setAxis(null);
                     mFontBuilderCache.put(key, fb);
                     return fb;
-
                 }
 
                 private Font.Builder createFontBuilder(byte[] data, int weight, boolean italic) {
@@ -1039,9 +1043,7 @@ public class AndroidPaintContext extends PaintContext {
                     mPaint.setTypeface(typeface);
                 }
 
-                /**
-                 * This caches the result of queries. (including null results)
-                 */
+                /** This caches the result of queries. (including null results) */
                 private String getFontPath(String fontName) {
                     if (mPathCache.containsKey(fontName)) {
                         return mPathCache.get(fontName);
@@ -1160,33 +1162,37 @@ public class AndroidPaintContext extends PaintContext {
                             break;
                         case PaintPathEffects.DISCRETE_PATH:
                             PaintPathEffects.Discrete discrete = (PaintPathEffects.Discrete) pe;
-                            ret = new DiscretePathEffect(discrete.mSegmentLength,
-                                    discrete.mDeviation);
+                            ret =
+                                    new DiscretePathEffect(
+                                            discrete.mSegmentLength, discrete.mDeviation);
                             break;
                         case PaintPathEffects.PATH_DASH:
                             PaintPathEffects.PathDash pathDash = (PaintPathEffects.PathDash) pe;
-                            ret = new PathDashPathEffect(
-                                    getPath(pathDash.mShapeId, 0f, 1f),
-                                    pathDash.mAdvance,
-                                    pathDash.mPhase,
-                                    PathDashPathEffect.Style.values()[pathDash.mStyle]);
+                            ret =
+                                    new PathDashPathEffect(
+                                            getPath(pathDash.mShapeId, 0f, 1f),
+                                            pathDash.mAdvance,
+                                            pathDash.mPhase,
+                                            PathDashPathEffect.Style.values()[pathDash.mStyle]);
                             break;
                         case PaintPathEffects.SUM:
                             PaintPathEffects.Sum sum = (PaintPathEffects.Sum) pe;
-                            ret = new SumPathEffect(getPathEffect(sum.mFirst),
-                                    getPathEffect(sum.mSecond));
+                            ret =
+                                    new SumPathEffect(
+                                            getPathEffect(sum.mFirst), getPathEffect(sum.mSecond));
                             break;
                         case PaintPathEffects.COMPOSE:
                             PaintPathEffects.Compose compose = (PaintPathEffects.Compose) pe;
-                            ret = new ComposePathEffect(getPathEffect(compose.mOuterPE),
-                                    getPathEffect(compose.mInnerPE));
+                            ret =
+                                    new ComposePathEffect(
+                                            getPathEffect(compose.mOuterPE),
+                                            getPathEffect(compose.mInnerPE));
                             break;
                         default:
                             ret = null;
                     }
                     return ret;
                 }
-
 
                 @Override
                 public void setStrokeWidth(float width) {
@@ -1227,8 +1233,9 @@ public class AndroidPaintContext extends PaintContext {
                         float[] val = data.getUniformFloats(name);
                         if (val.length == 1 && Float.isNaN(val[0])) {
                             // check if dynamic array
-                            float[] values = mContext.getCollectionsAccess().getDynamicFloats(
-                                    Utils.idFromNan(val[0]));
+                            float[] values =
+                                    mContext.getCollectionsAccess()
+                                            .getDynamicFloats(Utils.idFromNan(val[0]));
                             shader.setFloatUniform(name, values);
                         } else {
                             shader.setFloatUniform(name, val);
@@ -1297,10 +1304,8 @@ public class AndroidPaintContext extends PaintContext {
                 }
 
                 Shader.TileMode[] mTileModes =
-                        new Shader.TileMode[]{
-                                Shader.TileMode.CLAMP,
-                                Shader.TileMode.REPEAT,
-                                Shader.TileMode.MIRROR
+                        new Shader.TileMode[] {
+                            Shader.TileMode.CLAMP, Shader.TileMode.REPEAT, Shader.TileMode.MIRROR
                         };
 
                 @Override
@@ -1417,15 +1422,15 @@ public class AndroidPaintContext extends PaintContext {
             float bottomEnd) {
         Path roundedPath = new Path();
         float[] radii =
-                new float[]{
-                        topStart,
-                        topStart,
-                        topEnd,
-                        topEnd,
-                        bottomEnd,
-                        bottomEnd,
-                        bottomStart,
-                        bottomStart
+                new float[] {
+                    topStart,
+                    topStart,
+                    topEnd,
+                    topEnd,
+                    bottomEnd,
+                    bottomEnd,
+                    bottomStart,
+                    bottomStart
                 };
 
         roundedPath.addRoundRect(0f, 0f, width, height, radii, android.graphics.Path.Direction.CW);
@@ -1454,11 +1459,11 @@ public class AndroidPaintContext extends PaintContext {
         Path p1 = getPath(path1, 0, 1);
         Path p2 = getPath(path2, 0, 1);
         Path.Op[] op = {
-                Path.Op.DIFFERENCE,
-                Path.Op.INTERSECT,
-                Path.Op.REVERSE_DIFFERENCE,
-                Path.Op.UNION,
-                Path.Op.XOR,
+            Path.Op.DIFFERENCE,
+            Path.Op.INTERSECT,
+            Path.Op.REVERSE_DIFFERENCE,
+            Path.Op.UNION,
+            Path.Op.XOR,
         };
         Path p = new Path(p1);
         p.op(p2, op[operation]);

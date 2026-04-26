@@ -25,6 +25,7 @@ import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
 import androidx.compose.remote.core.operations.layout.AnimatableValue;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.SerializeTags;
@@ -183,7 +184,8 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
         }
 
         public void write(WireBuffer buffer) {
-            buffer.writeInt(mId);
+            int tag = mId | (mType == FLOAT_VALUE ? DATA_TYPE_FLOAT << 10 : DATA_TYPE_INT << 10);
+            buffer.writeInt(tag);
             if (mType == FLOAT_VALUE) {
                 buffer.writeFloat(getValue());
             } else if (mType == INT_VALUE) {
@@ -209,8 +211,14 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
+        int count = 0;
+        for (int i = 0; i < mValues.length; i++) {
+            if (mValues[i].needsToWrite()) {
+                count++;
+            }
+        }
         buffer.start(OP_CODE);
-        buffer.writeInt(mValues.length);
+        buffer.writeInt(count);
         for (int i = 0; i < mValues.length; i++) {
             AttributeValue value = mValues[i];
             if (value.needsToWrite()) {
@@ -332,10 +340,16 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
             mValues[HAS_BLUR].setValue(1);
         }
         if (dataType == DATA_TYPE_FLOAT) {
-            float value = buffer.readFloat();
+            float value = buffer.readNanId();
             mValues[index].setValue(value);
         } else if (dataType == DATA_TYPE_INT) {
             int value = buffer.readInt();
+            if (index == SPOT_SHADOW_COLOR || index == AMBIENT_SHADOW_COLOR) {
+                // Manual remapping since we already read it
+                if (buffer instanceof LoomWireBuffer) {
+                    value = ((LoomWireBuffer) buffer).getRemapContext().resolveId(value);
+                }
+            }
             mValues[index].setValue(value);
         }
     }

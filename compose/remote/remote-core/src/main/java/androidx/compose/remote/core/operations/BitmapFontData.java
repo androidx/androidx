@@ -238,7 +238,7 @@ public class BitmapFontData extends Operation implements Serializable {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int versionAndNumGlyphElements = buffer.readInt();
         // The version is encoded in the top 16 bits to maintain backwards compatibility.
         short version = (short) (versionAndNumGlyphElements >>> 16);
@@ -247,7 +247,7 @@ public class BitmapFontData extends Operation implements Serializable {
         for (int i = 0; i < numGlyphElements; i++) {
             glyphs[i] = new Glyph();
             glyphs[i].mChars = buffer.readUTF8();
-            glyphs[i].mBitmapId = buffer.readInt();
+            glyphs[i].mBitmapId = buffer.readId();
             glyphs[i].mMarginLeft = (short) buffer.readShort();
             glyphs[i].mMarginTop = (short) buffer.readShort();
             glyphs[i].mMarginRight = (short) buffer.readShort();

@@ -48,19 +48,37 @@ public class InteractionTest {
     public void testNoClickOnScroll() {
         int w = 1000;
         int h = 1000;
-        RemoteComposeWriter writer = new RemoteComposeWriter(w, h, "Test",
-                7, RcProfiles.PROFILE_ANDROIDX, new AndroidxRcPlatformServices());
+        RemoteComposeWriter writer =
+                new RemoteComposeWriter(
+                        w,
+                        h,
+                        "Test",
+                        7,
+                        RcProfiles.PROFILE_ANDROIDX,
+                        new AndroidxRcPlatformServices());
 
-        writer.root(() -> {
-            int id = writer.addNamedString("status", "idle");
-            writer.column(new RecordingModifier().fillMaxSize().verticalScroll(), 0, 0, () -> {
-                // Button at (0,0) to (200,200)
-                writer.box(new RecordingModifier().size(200).background(Color.RED)
-                        .onClick(new ValueStringChange(id, "clicked")));
-                // Long spacer to allow scrolling
-                writer.box(new RecordingModifier().width(200).height(2000).background(Color.BLUE));
-            });
-        });
+        writer.root(
+                () -> {
+                    int id = writer.addNamedString("status", "idle");
+                    writer.column(
+                            new RecordingModifier().fillMaxSize().verticalScroll(),
+                            0,
+                            0,
+                            () -> {
+                                // Button at (0,0) to (200,200)
+                                writer.box(
+                                        new RecordingModifier()
+                                                .size(200)
+                                                .background(Color.RED)
+                                                .onClick(new ValueStringChange(id, "clicked")));
+                                // Long spacer to allow scrolling
+                                writer.box(
+                                        new RecordingModifier()
+                                                .width(200)
+                                                .height(2000)
+                                                .background(Color.BLUE));
+                            });
+                });
 
         byte[] bytes = writer.encodeToByteArray();
         RemoteDocument remoteDoc = new RemoteDocument(new ByteArrayInputStream(bytes));
@@ -87,12 +105,24 @@ public class InteractionTest {
 
         // 2. Drag up (scroll down) - distance > touch slop
         float slop = android.view.ViewConfiguration.get(sAppContext).getScaledTouchSlop();
-        view.onTouchEvent(MotionEvent.obtain(downTime, downTime + 10, MotionEvent.ACTION_MOVE, 100f,
-                100f - slop - 10f, 0));
+        view.onTouchEvent(
+                MotionEvent.obtain(
+                        downTime,
+                        downTime + 10,
+                        MotionEvent.ACTION_MOVE,
+                        100f,
+                        100f - slop - 10f,
+                        0));
 
         // 3. Touch up
-        view.onTouchEvent(MotionEvent.obtain(downTime, downTime + 20, MotionEvent.ACTION_UP, 100f,
-                100f - slop - 10f, 0));
+        view.onTouchEvent(
+                MotionEvent.obtain(
+                        downTime,
+                        downTime + 20,
+                        MotionEvent.ACTION_UP,
+                        100f,
+                        100f - slop - 10f,
+                        0));
 
         // Status should still be "idle" because we scrolled
         assertEquals("idle", context.getStringVariableName("status"));

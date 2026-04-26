@@ -35,8 +35,8 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class DrawBase2 extends PaintOperation implements VariableSupport, Serializable {
     @NonNull protected String mName = "DrawRectBase";
-    float mV1;
-    float mV2;
+    protected float mV1;
+    protected float mV2;
     float mValue1;
     float mValue2;
 
@@ -89,8 +89,8 @@ public abstract class DrawBase2 extends PaintOperation implements VariableSuppor
      */
     public static void read(
             @NonNull WireBuffer buffer, @NonNull List<Operation> operations, @NonNull Maker maker) {
-        float v1 = buffer.readFloat();
-        float v2 = buffer.readFloat();
+        float v1 = buffer.readNanId();
+        float v2 = buffer.readNanId();
 
         Operation op = maker.create(v1, v2);
         operations.add(op);

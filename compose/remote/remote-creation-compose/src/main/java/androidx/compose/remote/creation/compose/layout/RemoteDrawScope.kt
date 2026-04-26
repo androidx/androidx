@@ -17,8 +17,7 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.DrawTextOnCircle.Alignment
-import androidx.compose.remote.core.operations.DrawTextOnCircle.Placement
+import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
@@ -327,7 +326,7 @@ internal constructor(
      * @param radius The radius of the circle.
      * @param startAngle The starting angle for the text.
      * @param warpRadiusOffset the offset of the text from the circle.
-     * @param paint The [RemotePaint] to use for drawing.
+     * @param paint paint of the text
      */
     public fun drawTextOnCircle(
         text: RemoteString,
@@ -345,8 +344,8 @@ internal constructor(
             radius,
             startAngle,
             warpRadiusOffset,
-            Alignment.CENTER,
-            Placement.OUTSIDE,
+            DrawTextOnCircle.Alignment.CENTER,
+            DrawTextOnCircle.Placement.OUTSIDE,
             paint,
         )
     }

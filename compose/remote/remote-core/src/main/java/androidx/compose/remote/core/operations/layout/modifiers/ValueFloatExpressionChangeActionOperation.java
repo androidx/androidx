@@ -80,7 +80,9 @@ public class ValueFloatExpressionChangeActionOperation extends Operation
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTargetValueId, mValueExpressionId);
+    }
 
     @Override
     public void runAction(
@@ -112,8 +114,8 @@ public class ValueFloatExpressionChangeActionOperation extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int valueId = buffer.readInt();
-        int value = buffer.readInt();
+        int valueId = buffer.readId();
+        int value = buffer.readId();
         operations.add(new ValueFloatExpressionChangeActionOperation(valueId, value));
     }
 

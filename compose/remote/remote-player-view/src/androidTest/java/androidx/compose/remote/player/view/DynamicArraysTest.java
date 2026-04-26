@@ -162,31 +162,31 @@ public class DynamicArraysTest {
 
         System.out.println(result);
 
-        String expected = "\n"
-                + "CoreDocument width= 0 height= 0 \n"
-                + "  DataDynamicListFloat   id= 2097194   values= [300.0, 400.0, 42.0]   arrayId="
-                + " 2097194   index=      0.0        300.0   arrayId= 2097194   index=      1.0  "
-                + "      400.0   arrayId= 2097194   index=      2.0        42.0 \n"
-                + "  FloatExpression   id= 42   srcValues= \n"
-                + "    Variable     id= 42          0.0 \n"
-                + "    Instruction     instruction= A_DEREF   animation= null \n"
-                + "  FloatExpression   id= 43   srcValues= \n"
-                + "    Variable     id= 42          1.0 \n"
-                + "    Instruction     instruction= A_DEREF   animation= null \n"
-                + "  FloatExpression   id= 44   srcValues= \n"
-                + "    Variable     id= 42          2.0 \n"
-                + "    Instruction     instruction= A_DEREF   animation= null \n"
-                + "  DrawCircle   cx= \n"
-                + "  Variable   id= 42   300.0   cy= \n"
-                + "  Variable   id= 43   400.0   radius= \n"
-                + "  Variable   id= 44   42.0 ";
+        String expected =
+                "\n"
+                    + "CoreDocument width= 0 height= 0 \n"
+                    + "  DataDynamicListFloat   id= 2097194   values= [300.0, 400.0, 42.0]  "
+                    + " arrayId= 2097194   index=      0.0        300.0   arrayId= 2097194   index="
+                    + "      1.0        400.0   arrayId= 2097194   index=      2.0        42.0 \n"
+                    + "  FloatExpression   id= 42   srcValues= \n"
+                    + "    Variable     id= 42          0.0 \n"
+                    + "    Instruction     instruction= A_DEREF   animation= null \n"
+                    + "  FloatExpression   id= 43   srcValues= \n"
+                    + "    Variable     id= 42          1.0 \n"
+                    + "    Instruction     instruction= A_DEREF   animation= null \n"
+                    + "  FloatExpression   id= 44   srcValues= \n"
+                    + "    Variable     id= 42          2.0 \n"
+                    + "    Instruction     instruction= A_DEREF   animation= null \n"
+                    + "  DrawCircle   cx= \n"
+                    + "  Variable   id= 42   300.0   cy= \n"
+                    + "  Variable   id= 43   400.0   radius= \n"
+                    + "  Variable   id= 44   42.0 ";
         if (TestUtils.diff(expected, result)) {
             TestUtils.dumpDifference(expected, result);
         }
         assertEquals("not equals", expected, result);
 
-        RemoteDocument doc =
-                new RemoteDocument(new ByteArrayInputStream(rawDoc, 0, rawDoc.length));
+        RemoteDocument doc = new RemoteDocument(new ByteArrayInputStream(rawDoc, 0, rawDoc.length));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.mWidth = 1000;
@@ -197,11 +197,10 @@ public class DynamicArraysTest {
                 debugContext.getTestResults(); // doc.getDocument().getRootLayoutComponent()
         // .displayHierarchy();
 
-        String expectedPaint = "header(1, 1, 0) 600 x 600, 0\n"
-                + "setTheme(-1)\n"
-                + "drawCircle(300.0, 400.0, 42.0)\n";
+        String expectedPaint =
+                "header(1, 1, 0) 600 x 600, 0\n"
+                        + "setTheme(-1)\n"
+                        + "drawCircle(300.0, 400.0, 42.0)\n";
         assertEquals("not equals", expectedPaint, resultPaint);
-
     }
-
 }

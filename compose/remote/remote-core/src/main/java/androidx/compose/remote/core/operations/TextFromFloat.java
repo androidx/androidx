@@ -46,6 +46,7 @@ public class TextFromFloat extends Operation
     private static final int OP_CODE = Operations.TEXT_FROM_FLOAT;
     private static final String CLASS_NAME = "TextFromFloat";
     public int mTextId;
+
     public float mValue;
     public float mOutValue;
     public short mDigitsBefore;
@@ -252,8 +253,8 @@ public class TextFromFloat extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        float value = buffer.readFloat();
+        int textId = buffer.declareId();
+        float value = buffer.readNanId();
         int tmp = buffer.readInt();
         short post = (short) (tmp & 0xFFFF);
         short pre = (short) ((tmp >> 16) & 0xFFFF);
@@ -279,6 +280,7 @@ public class TextFromFloat extends Operation
 
     @Override
     public void apply(@NonNull RemoteContext context) {
+        updateVariables(context);
         float v = mOutValue;
         String s;
         if (mFullFormat) {

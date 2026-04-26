@@ -65,7 +65,7 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
      */
     @NonNull
     public String serializedName() {
-        return "VALUE_CHANGE";
+        return "VALUE_STRING_CHANGE";
     }
 
     @Override
@@ -83,7 +83,9 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTargetValueId, mValueId);
+    }
 
     @Override
     public void runAction(
@@ -115,8 +117,8 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int valueId = buffer.readInt();
-        int value = buffer.readInt();
+        int valueId = buffer.readId();
+        int value = buffer.readId();
         operations.add(new ValueStringChangeActionOperation(valueId, value));
     }
 
@@ -136,7 +138,7 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
     public void serialize(@NonNull MapSerializer serializer) {
         serializer
                 .addTags(SerializeTags.MODIFIER, SerializeTags.ACTION)
-                .addType("ValueIntegerExpressionChangeActionOperation")
+                .addType(CLASS_NAME)
                 .add("targetValueId", mTargetValueId)
                 .add("valueId", mValueId);
     }

@@ -29,6 +29,7 @@ import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
 import androidx.compose.remote.core.operations.ComponentData;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.touch.CommandParameters;
 
 import org.jspecify.annotations.NonNull;
@@ -592,19 +593,40 @@ public class TextStyle extends Operation implements ComponentData, VariableProvi
                         public void value(int id, int value) {
                             switch (id) {
                                 case P_ID:
-                                    intAttributes[0] = value;
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[0] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[0] = value;
+                                    }
                                     break;
                                 case P_COLOR:
                                     intAttributes[1] = value;
                                     break;
                                 case P_COLOR_ID:
-                                    intAttributes[2] = value;
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[2] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[2] = value;
+                                    }
                                     break;
                                 case P_FONT_STYLE:
                                     intAttributes[3] = value;
                                     break;
                                 case P_FONT_FAMILY:
-                                    intAttributes[4] = value;
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[4] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[4] = value;
+                                    }
                                     break;
                                 case P_TEXT_ALIGN:
                                     intAttributes[5] = value;
@@ -625,7 +647,14 @@ public class TextStyle extends Operation implements ComponentData, VariableProvi
                                     intAttributes[10] = value;
                                     break;
                                 case P_PARENT_ID:
-                                    intAttributes[11] = value;
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[11] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[11] = value;
+                                    }
                                     break;
                                 case P_ANIMATION_ID:
                                     intAttributes[12] = value;

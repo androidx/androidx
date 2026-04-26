@@ -78,7 +78,7 @@ public class HeightModifierOperation extends DimensionModifierOperation {
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         Type type = Type.fromInt(buffer.readInt());
-        float value = buffer.readFloat();
+        float value = buffer.readNanId();
         Operation op = new HeightModifierOperation(type, value);
         operations.add(op);
     }

@@ -27,6 +27,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -176,13 +177,35 @@ public class PathData extends Operation implements VariableSupport, Serializable
         int imageId = buffer.readInt();
         int winding = imageId >> 24;
         imageId &= 0xffffff;
+        // Since we need to resolve a modified int, we use the RemapContext directly
+        // if available via the buffer.
+        if (buffer instanceof LoomWireBuffer) {
+            imageId = ((LoomWireBuffer) buffer).getRemapContext().resolveId(imageId);
+        }
+
         int len = buffer.readInt();
         if (len > MAX_PATH_LENGTH) {
             throw new RuntimeException("Path too long");
         }
         float[] data = new float[len];
         for (int i = 0; i < data.length; i++) {
-            data[i] = buffer.readFloat();
+            float v = buffer.peekInt(); // Peeking as int to check NaN-ness
+            if (Float.isNaN(Float.intBitsToFloat((int) v))) {
+                float fv = buffer.readFloat();
+                int vid = Utils.idFromNan(fv);
+                if (vid > DONE) {
+                    // Manual remapping since we already read it
+                    if (buffer instanceof LoomWireBuffer) {
+                        data[i] = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(fv);
+                    } else {
+                        data[i] = fv;
+                    }
+                } else {
+                    data[i] = fv;
+                }
+            } else {
+                data[i] = buffer.readFloat();
+            }
         }
         operations.add(new PathData(imageId, data, winding));
     }

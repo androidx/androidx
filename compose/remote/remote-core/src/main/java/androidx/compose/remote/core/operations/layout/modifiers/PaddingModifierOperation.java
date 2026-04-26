@@ -183,10 +183,10 @@ public class PaddingModifierOperation extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        float left = buffer.readFloat();
-        float top = buffer.readFloat();
-        float right = buffer.readFloat();
-        float bottom = buffer.readFloat();
+        float left = buffer.readNanId();
+        float top = buffer.readNanId();
+        float right = buffer.readNanId();
+        float bottom = buffer.readNanId();
         operations.add(new PaddingModifierOperation(left, top, right, bottom));
     }
 

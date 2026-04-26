@@ -287,7 +287,7 @@ public class AnimationSpec extends Operation implements ModifierOperation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int animationId = buffer.readInt();
+        int animationId = buffer.readId();
         float motionDuration = buffer.readFloat();
         int motionEasingType = buffer.readInt();
         float visibilityDuration = buffer.readFloat();

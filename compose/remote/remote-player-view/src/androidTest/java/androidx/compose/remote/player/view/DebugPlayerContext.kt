@@ -576,6 +576,14 @@ class DebugPlayerContext : RemoteContext() {
 
     override fun overrideFloat(id: Int, value: Float) {
         stringBuilder.append("overrideFloat($id)$value\n")
+        floatCache.put(id, value)
+        integerCache.put(id, value.toInt())
+        val list = mVariableSupport[id]
+        if (list != null) {
+            for (v in list) {
+                v.markDirty()
+            }
+        }
     }
 
     override fun loadInteger(id: Int, value: Int) {
@@ -584,11 +592,24 @@ class DebugPlayerContext : RemoteContext() {
         if (!hideString) {
             stringBuilder.append("loadInteger[$id]=$value\n")
         }
+        val list = mVariableSupport[id]
+        if (list != null) {
+            for (v in list) {
+                v.markDirty()
+            }
+        }
     }
 
     override fun overrideInteger(id: Int, value: Int) {
         stringBuilder.append("overrideInteger($id)$value\n")
         integerCache.put(id, value)
+        floatCache.put(id, value.toFloat())
+        val list = mVariableSupport[id]
+        if (list != null) {
+            for (v in list) {
+                v.markDirty()
+            }
+        }
     }
 
     override fun overrideText(id: Int, valueId: Int) {

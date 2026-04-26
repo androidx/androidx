@@ -169,10 +169,10 @@ public class LoopOperation extends PaintOperation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int indexId = buffer.readInt();
-        float from = buffer.readFloat();
-        float step = buffer.readFloat();
-        float until = buffer.readFloat();
+        int indexId = buffer.readId();
+        float from = buffer.readNanId();
+        float step = buffer.readNanId();
+        float until = buffer.readNanId();
         operations.add(new LoopOperation(indexId, from, step, until));
     }
 

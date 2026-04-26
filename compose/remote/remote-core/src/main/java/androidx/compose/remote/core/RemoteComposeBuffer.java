@@ -83,6 +83,7 @@ import androidx.compose.remote.core.operations.PathCreate;
 import androidx.compose.remote.core.operations.PathData;
 import androidx.compose.remote.core.operations.PathExpression;
 import androidx.compose.remote.core.operations.PathTween;
+import androidx.compose.remote.core.operations.ReferencedOperations;
 import androidx.compose.remote.core.operations.Rem;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.RootContentDescription;
@@ -158,6 +159,12 @@ import androidx.compose.remote.core.operations.layout.modifiers.ValueStringChang
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation;
+import androidx.compose.remote.core.operations.loom.PatternArgument;
+import androidx.compose.remote.core.operations.loom.PatternBlock;
+import androidx.compose.remote.core.operations.loom.PatternDefine;
+import androidx.compose.remote.core.operations.loom.PatternForEach;
+import androidx.compose.remote.core.operations.loom.PatternInflation;
+import androidx.compose.remote.core.operations.loom.RemapContext;
 import androidx.compose.remote.core.operations.matrix.MatrixConstant;
 import androidx.compose.remote.core.operations.matrix.MatrixExpression;
 import androidx.compose.remote.core.operations.matrix.MatrixVectorMath;
@@ -197,21 +204,28 @@ public class RemoteComposeBuffer {
     public static final int EASING_EASE_OUT_BOUNCE = FloatAnimation.EASE_OUT_BOUNCE;
     public static final int EASING_EASE_OUT_ELASTIC = FloatAnimation.EASE_OUT_ELASTIC;
     private @NonNull WireBuffer mBuffer = new WireBuffer();
-    private static final boolean DEBUG = false;
 
     protected int mLastComponentId = 0;
     private int mGeneratedComponentId = -1;
     protected int mApiLevel = CoreDocument.DOCUMENT_API_LEVEL;
+    private final java.util.Stack<Integer> mPatternDefineOffsets = new java.util.Stack<>();
     protected int mProfileMask = 0;
 
     Operations.UniqueIntMap<CompanionOperation> mMap = new Operations.UniqueIntMap<>();
 
     public RemoteComposeBuffer() {
-        // nothing
+        mMap = Operations.getOperations(mApiLevel, mProfileMask);
     }
 
     public RemoteComposeBuffer(int apiLevel) {
         mApiLevel = apiLevel;
+        mMap = Operations.getOperations(mApiLevel, mProfileMask);
+    }
+
+    /** Apply profile directly */
+    public void setProfileMask(int mask) {
+        mProfileMask = mask;
+        mMap = Operations.getOperations(mApiLevel, mProfileMask);
     }
 
     /**
@@ -589,11 +603,7 @@ public class RemoteComposeBuffer {
         PathAppend.apply(mBuffer, id, path);
     }
 
-    /**
-     * Draw the specified path
-     *
-     * @param pathId
-     */
+    /** Draw the specified path */
     public void addDrawPath(int pathId) {
         DrawPath.apply(mBuffer, pathId);
     }
@@ -887,13 +897,111 @@ public class RemoteComposeBuffer {
         return id;
     }
 
-    /**
-     * Adds a paint Bundle to the doc
-     *
-     * @param paint
-     */
+    /** Adds a paint Bundle to the doc */
     public void addPaint(@NonNull PaintBundle paint) {
         PaintData.apply(mBuffer, paint);
+    }
+
+    /**
+     * Define a pattern
+     *
+     * @param name the name of the macro
+     * @param paramIds the IDs of the parameters
+     * @return the ID of the macro
+     */
+    public int definePattern(@NonNull String name, int @NonNull [] paramIds) {
+        int id = name.hashCode();
+        addText(id, name);
+        int offset = PatternDefine.apply(mBuffer, id, paramIds);
+        mPatternDefineOffsets.push(offset);
+        return id;
+    }
+
+    /**
+     * Define a pattern
+     *
+     * @param id id of a name
+     * @param paramIds
+     * @return
+     */
+    public int definePattern(int id, int @NonNull [] paramIds) {
+        int offset = PatternDefine.apply(mBuffer, id, paramIds);
+        mPatternDefineOffsets.push(offset);
+        return id;
+    }
+
+    /**
+     * Define a macro parameter
+     *
+     * @param name the name of the parameter
+     * @return the ID of the parameter
+     */
+    public int definePatternParameter(@NonNull String name) {
+        int id = name.hashCode();
+        addText(id, name);
+        return id;
+    }
+
+    /**
+     * Inflate a pattern
+     *
+     * @param id the ID of the macro
+     * @param argIds the IDs of the arguments
+     */
+    public void inflatePattern(int id, int @NonNull [] argIds) {
+        PatternInflation.apply(mBuffer, id, argIds);
+    }
+
+    /**
+     * Add a macro block
+     *
+     * @param paramIndex the index of the parameter
+     */
+    public void addPatternBlock(int paramIndex) {
+        PatternBlock.apply(mBuffer, paramIndex);
+    }
+
+    /**
+     * Add a macro argument
+     *
+     * @param paramIndex the index of the parameter
+     */
+    public void addPatternArgument(int paramIndex) {
+        PatternArgument.apply(mBuffer, paramIndex);
+    }
+
+    /**
+     * Add a macro for-each
+     *
+     * @param collectionId the ID of the collection
+     * @param localItemId the local ID of the item
+     */
+    public void addPatternForEach(int collectionId, int localItemId) {
+        PatternForEach.apply(mBuffer, collectionId, localItemId);
+    }
+
+    /** End a macro for-each */
+    public void endPatternForEach() {
+        addContainerEnd();
+    }
+
+    /** End a macro definition */
+    public void endPatternDefine() {
+        if (!mPatternDefineOffsets.isEmpty()) {
+            int offset = mPatternDefineOffsets.pop();
+            PatternDefine.applyEnd(mBuffer, offset);
+        }
+        addContainerEnd();
+    }
+
+    /** End a macro call */
+    public void endPatternInflation() {
+        addContainerEnd();
+    }
+
+    /** End a macro block */
+    public void endPatternBlock() {
+        addContainerEnd();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -904,40 +1012,48 @@ public class RemoteComposeBuffer {
      * @param operations the operations list to add to
      */
     public void inflateFromBuffer(@NonNull ArrayList<Operation> operations) {
+        inflateFromBuffer(operations, RemapContext.identity());
+    }
+
+    /**
+     * inflate the buffer into a list of operations
+     *
+     * @param operations the operations list to add to
+     */
+    public void inflateFromBuffer(
+            @NonNull ArrayList<Operation> operations, @NonNull RemapContext ctx) {
         mBuffer.setIndex(0);
-        mApiLevel = Header.peekApiLevel(mBuffer);
-        int profiles = 0;
-        if (mApiLevel >= 7) {
-            try {
-                Header header = Header.readDirect(mBuffer);
-                profiles = header.getProfiles();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        if (mBuffer.available() && (mBuffer.mBuffer[mBuffer.mIndex] & 0xFF) == Operations.HEADER) {
+            mApiLevel = Header.peekApiLevel(mBuffer);
+            int profiles = 0;
+            if (mApiLevel >= 7) {
+                try {
+                    Header header = Header.readDirect(mBuffer);
+                    profiles = header.getProfiles();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
+            mBuffer.setIndex(0);
+            if (mApiLevel == -1) {
+                // Invalid API level (or invalid Header)
+                return;
+            }
+            mMap = Operations.getOperations(mApiLevel, profiles);
         }
-        mBuffer.setIndex(0);
-        if (mApiLevel == -1) {
-            // Invalid API level (or invalid Header)
-            return;
-        }
-        Operations.UniqueIntMap<CompanionOperation> map =
-                Operations.getOperations(mApiLevel, profiles);
-        if (map == null) {
+        if (mMap == null) {
             // Invalid operations map
             return;
         }
-        mMap = map;
         mBuffer.setSystemInfo(getBuffer().mSystemInfo);
-        while (mBuffer.available()) {
-            int opId = mBuffer.readByte();
-            if (DEBUG) {
-                Utils.log(">> " + opId);
-            }
-            CompanionOperation operation = mMap.get(opId);
-            if (operation == null) {
+        WireBuffer wrapped = ctx.wrap(mBuffer);
+        while (wrapped.available()) {
+            int opId = wrapped.readByte() & 0xFF;
+            CompanionOperation companion = mMap.get(opId);
+            if (companion == null) {
                 throw new RuntimeException("Unknown operation encountered " + opId);
             }
-            operation.read(mBuffer, operations);
+            companion.read(wrapped, operations);
         }
     }
 
@@ -972,7 +1088,6 @@ public class RemoteComposeBuffer {
      *
      * @param path the file path
      * @return the RemoteComposeBuffer
-     * @throws IOException
      */
     @NonNull
     public static RemoteComposeBuffer fromFile(@NonNull String path) throws IOException {
@@ -1065,6 +1180,7 @@ public class RemoteComposeBuffer {
             buffer.reset(bytes.length);
             System.arraycopy(bytes, 0, buffer.mBuffer.mBuffer, 0, bytes.length);
             buffer.mBuffer.mSize = bytes.length;
+            buffer.mBuffer.setIndex(0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1075,7 +1191,6 @@ public class RemoteComposeBuffer {
      *
      * @param is the input stream
      * @return a byte buffer containing the input stream content
-     * @throws IOException
      */
     private static byte[] readAllBytes(@NonNull InputStream is) throws IOException {
         byte[] buff = new byte[32 * 1024]; // moderate size buff to start
@@ -1381,7 +1496,6 @@ public class RemoteComposeBuffer {
      * for @hoford - add a unit test for this method
      *
      * @param id id of the text
-     * @param dataSet
      * @param index index as a float variable
      */
     public void textLookup(int id, float dataSet, float index) {
@@ -1542,7 +1656,6 @@ public class RemoteComposeBuffer {
      * @param spec the parameters of the animation if any
      * @param initialValue the initial value if it animates to a start
      * @param wrap the wraps value so (e.g 360 so angles 355 would animate to 5)
-     * @return
      */
     public static float @NonNull [] packAnimation(
             float duration, int type, float @Nullable [] spec, float initialValue, float wrap) {
@@ -1774,23 +1887,12 @@ public class RemoteComposeBuffer {
                 velocity);
     }
 
-    /**
-     * Add a graphics layer
-     *
-     * @param attributes
-     */
+    /** Add a graphics layer */
     public void addModifierGraphicsLayer(@NonNull HashMap<Integer, Object> attributes) {
         GraphicsLayerModifierOperation.apply(mBuffer, attributes);
     }
 
-    /**
-     * Sets the clip based on rounded clip rect
-     *
-     * @param topStart
-     * @param topEnd
-     * @param bottomStart
-     * @param bottomEnd
-     */
+    /** Sets the clip based on rounded clip rect */
     public void addRoundClipRectModifier(
             float topStart, float topEnd, float bottomStart, float bottomEnd) {
         RoundedClipRectModifierOperation.apply(mBuffer, topStart, topEnd, bottomStart, bottomEnd);
@@ -2490,11 +2592,6 @@ public class RemoteComposeBuffer {
     /**
      * Create a bitmap of given id, width and height Bitmap contains no data, It's only use is to
      * draw to
-     *
-     * @param imageId
-     * @param imageWidth
-     * @param imageHeight
-     * @return
      */
     public int createBitmap(int imageId, short imageWidth, short imageHeight) {
         BitmapData.apply(
@@ -2508,11 +2605,7 @@ public class RemoteComposeBuffer {
         return imageId;
     }
 
-    /**
-     * @param imageId
-     * @param mode
-     * @param color
-     */
+    /** */
     public void drawOnBitmap(int imageId, int mode, int color) {
         DrawToBitmap.apply(mBuffer, imageId, mode, color);
     }
@@ -2573,11 +2666,7 @@ public class RemoteComposeBuffer {
         PathCombine.apply(mBuffer, id, path1, path2, op);
     }
 
-    /**
-     * Perform a haptic feedback
-     *
-     * @param feedbackConstant
-     */
+    /** Perform a haptic feedback */
     public void performHaptic(int feedbackConstant) {
         HapticFeedback.apply(mBuffer, feedbackConstant);
     }
@@ -2613,9 +2702,7 @@ public class RemoteComposeBuffer {
      * Return a color attribute value on the given color
      *
      * @param id the color attribute id
-     * @param baseColor
      * @param type type of attribute
-     * @return
      */
     public void getColorAttribute(int id, int baseColor, short type) {
         ColorAttribute.apply(mBuffer, id, baseColor, type);
@@ -2664,9 +2751,7 @@ public class RemoteComposeBuffer {
      * @param id the id of the resulting measure
      * @param textId the input text
      * @param bmFontId the bitmap font
-     * @param type
      * @param glyphSpacing horizontal spacing adjustment in pixels between glyphs
-     * @return
      */
     public void bitmapTextMeasure(int id, int textId, int bmFontId, int type, float glyphSpacing) {
         if (mApiLevel < 8 && glyphSpacing != 0f) {
@@ -2697,12 +2782,7 @@ public class RemoteComposeBuffer {
         Skip.applyEndSkip(mBuffer, offset);
     }
 
-    /**
-     * Set current version of the buffer (typically for writing)
-     *
-     * @param documentApiLevel
-     * @param profiles
-     */
+    /** Set current version of the buffer (typically for writing) */
     public void setVersion(int documentApiLevel, int profiles) {
         mApiLevel = documentApiLevel;
         mProfileMask = profiles;
@@ -2721,8 +2801,6 @@ public class RemoteComposeBuffer {
      * Add a matrix constant
      *
      * @param id the id of the resulting matrix
-     * @param values
-     * @return
      */
     public void addMatrixConst(int id, float @NonNull [] values) {
         MatrixConstant.apply(mBuffer, id, 0, values);
@@ -3001,6 +3079,15 @@ public class RemoteComposeBuffer {
      */
     public void addValueFloatExpressionChangeActionOperation(int mValueId, int mValue) {
         ValueFloatExpressionChangeActionOperation.apply(mBuffer, mValueId, mValue);
+    }
+
+    /**
+     * Add a referenced operations container
+     *
+     * @param id the id of the container
+     */
+    public void addReferencedOperations(int id) {
+        ReferencedOperations.apply(mBuffer, id);
     }
 
     /**

@@ -91,7 +91,9 @@ public class HostNamedActionOperation extends Operation implements ActionOperati
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTextId, mType, mValueId);
+    }
 
     @Override
     public void runAction(
@@ -137,9 +139,9 @@ public class HostNamedActionOperation extends Operation implements ActionOperati
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
+        int textId = buffer.readId();
         int type = buffer.readInt();
-        int valueId = buffer.readInt();
+        int valueId = buffer.readId();
         operations.add(new HostNamedActionOperation(textId, type, valueId));
     }
 

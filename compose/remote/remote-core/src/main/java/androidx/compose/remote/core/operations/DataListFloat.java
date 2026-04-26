@@ -110,14 +110,14 @@ public class DataListFloat extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int len = buffer.readInt();
         if (len > MAX_FLOAT_ARRAY) {
             throw new RuntimeException(len + " map entries more than max = " + MAX_FLOAT_ARRAY);
         }
         float[] values = new float[len];
         for (int i = 0; i < values.length; i++) {
-            values[i] = buffer.readFloat();
+            values[i] = buffer.readNanId();
         }
         DataListFloat data = new DataListFloat(id, values);
         operations.add(data);

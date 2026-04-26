@@ -127,11 +127,11 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        float x = buffer.readFloat();
-        float y = buffer.readFloat();
-        float panX = buffer.readFloat();
-        float panY = buffer.readFloat();
+        int textId = buffer.readId();
+        float x = buffer.readNanId();
+        float y = buffer.readNanId();
+        float panX = buffer.readNanId();
+        float panY = buffer.readNanId();
         int flags = buffer.readInt();
 
         DrawTextAnchored op = new DrawTextAnchored(textId, x, y, panX, panY, flags);

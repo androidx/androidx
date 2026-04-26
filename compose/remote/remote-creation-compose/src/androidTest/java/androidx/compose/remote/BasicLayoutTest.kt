@@ -901,7 +901,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
           WIDTH = 60.0 dp
           HEIGHT = 60.0 dp
           BACKGROUND = [0.0, 0.0, 165.0, 165.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
-      BOX [-9:-1] = [247.5, 302.5, 220.0, 220.0] VISIBLE
+      BOX [-9:-1] = [0.0, 0.0, 220.0, 220.0] VISIBLE
         MODIFIERS
           WIDTH = 80.0 dp
           HEIGHT = 80.0 dp

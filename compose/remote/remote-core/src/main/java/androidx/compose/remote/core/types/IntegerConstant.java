@@ -127,8 +127,7 @@ public class IntegerConstant extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-
+        int id = buffer.declareId();
         int value = buffer.readInt();
         operations.add(new IntegerConstant(id, value));
     }

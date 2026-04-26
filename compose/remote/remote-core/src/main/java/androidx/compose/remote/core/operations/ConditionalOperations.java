@@ -219,8 +219,8 @@ public class ConditionalOperations extends PaintOperation
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         byte type = (byte) buffer.readByte();
-        float a = buffer.readFloat();
-        float b = buffer.readFloat();
+        float a = buffer.readNanId();
+        float b = buffer.readNanId();
         operations.add(new ConditionalOperations(type, a, b));
     }
 
