@@ -25,7 +25,9 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.operations.Utils;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.Matrix;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -40,7 +42,7 @@ import java.util.List;
 /** This is a matrix that is formed by an expression */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixExpression extends Operation
-        implements VariableSupport, MatrixAccess, Serializable, VariableProvider {
+        implements VariableSupport, MatrixAccess, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.MATRIX_EXPRESSION;
     private static final String CLASS_NAME = "MatrixExpression";
     private int mMatrixId;
@@ -160,10 +162,11 @@ public class MatrixExpression extends Operation
      * Read this operation and add it to the list of operations
      *
      * @param buffer the buffer to read
-     * @param operations the list of operations that will be added to
+     * @param operations the list of operations that will be added to mapping context for remapping
+     *     IDs
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int type = buffer.readInt();
         int len = buffer.readInt();
         if (len > 32 || len < 0) {
@@ -171,7 +174,17 @@ public class MatrixExpression extends Operation
         }
         float[] exp = new float[len];
         for (int i = 0; i < exp.length; i++) {
-            exp[i] = buffer.readFloat();
+            float v = buffer.readFloat();
+            if (Float.isNaN(v) && !MatrixOperations.isOperator(v)) {
+                // Manual remapping since we already read it
+                if (buffer instanceof LoomWireBuffer) {
+                    exp[i] = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(v);
+                } else {
+                    exp[i] = v;
+                }
+            } else {
+                exp[i] = v;
+            }
         }
 
         operations.add(new MatrixExpression(id, type, exp));

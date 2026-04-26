@@ -114,21 +114,22 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        // TODO this should write its start
-        buffer.writeInt(mContentDescriptionId);
-        buffer.writeByte((mRole != null) ? mRole.ordinal() : -1);
-        buffer.writeInt(mTextId);
-        buffer.writeInt(mStateDescriptionId);
-        buffer.writeByte(mMode.ordinal());
-        buffer.writeBoolean(mEnabled);
-        buffer.writeBoolean(mClickable);
+        apply(
+                buffer,
+                mContentDescriptionId,
+                mRole != null ? (byte) mRole.ordinal() : -1,
+                mTextId,
+                mStateDescriptionId,
+                mMode.ordinal(),
+                mEnabled,
+                mClickable);
     }
 
-    private void read(WireBuffer buffer) {
-        mContentDescriptionId = buffer.readInt();
+    private void read(@NonNull WireBuffer buffer) {
+        mContentDescriptionId = buffer.declareId();
         mRole = Role.fromInt(buffer.readByte());
-        mTextId = buffer.readInt();
-        mStateDescriptionId = buffer.readInt();
+        mTextId = buffer.declareId();
+        mStateDescriptionId = buffer.declareId();
         mMode = Mode.values()[buffer.readByte()];
         mEnabled = buffer.readBoolean();
         mClickable = buffer.readBoolean();

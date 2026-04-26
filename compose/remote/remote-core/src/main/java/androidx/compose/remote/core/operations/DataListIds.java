@@ -101,14 +101,14 @@ public class DataListIds extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int len = buffer.readInt();
         if (len > MAX_LIST) {
             throw new RuntimeException(len + " list entries more than max = " + MAX_LIST);
         }
         int[] ids = new int[len];
         for (int i = 0; i < ids.length; i++) {
-            ids[i] = buffer.readInt();
+            ids[i] = buffer.readId();
         }
         DataListIds data = new DataListIds(id, ids);
         operations.add(data);

@@ -38,7 +38,7 @@ import java.util.List;
 /** Operation to deal with Text data */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TextData extends Operation
-        implements SerializableToString, Serializable, VariableProvider {
+        implements SerializableToString, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.DATA_TEXT;
     private static final String CLASS_NAME = "TextData";
     public int mTextId;
@@ -118,10 +118,9 @@ public class TextData extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-
+        int id = buffer.declareId();
         String text = buffer.readUTF8(Limits.MAX_STRING_SIZE);
-        operations.add(new TextData(textId, text));
+        operations.add(new TextData(id, text));
     }
 
     /**

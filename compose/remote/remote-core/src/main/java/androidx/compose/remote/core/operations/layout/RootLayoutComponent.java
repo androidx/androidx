@@ -134,11 +134,11 @@ public class RootLayoutComponent extends Component {
     }
 
     private void assignId(@NonNull Component component) {
-        if (component.mComponentId == -1) {
+        if (component.getId() == -1) {
             mCurrentId--;
-            component.mComponentId = mCurrentId;
+            component.setId(mCurrentId);
         }
-        for (Operation op : component.mList) {
+        for (Operation op : component.getList()) {
             if (op instanceof Component) {
                 assignId((Component) op);
             }
@@ -400,7 +400,7 @@ public class RootLayoutComponent extends Component {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
+        int componentId = buffer.declareId();
         operations.add(new RootLayoutComponent(componentId, 0, 0, 0, 0, null, -1));
     }
 

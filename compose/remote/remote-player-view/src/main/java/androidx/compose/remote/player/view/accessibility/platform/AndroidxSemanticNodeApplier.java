@@ -34,8 +34,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 @RestrictTo(LIBRARY_GROUP)
-public class AndroidxSemanticNodeApplier extends
-        BaseSemanticNodeApplier<AccessibilityNodeInfoCompat> {
+public class AndroidxSemanticNodeApplier
+        extends BaseSemanticNodeApplier<AccessibilityNodeInfoCompat> {
     private final View mPlayer;
 
     public AndroidxSemanticNodeApplier(@NonNull View player) {
@@ -64,14 +64,14 @@ public class AndroidxSemanticNodeApplier extends
     }
 
     @Override
-    protected void setStateDescription(@NonNull AccessibilityNodeInfoCompat nodeInfo,
-            @NonNull CharSequence description) {
+    protected void setStateDescription(
+            @NonNull AccessibilityNodeInfoCompat nodeInfo, @NonNull CharSequence description) {
         nodeInfo.setStateDescription(description);
     }
 
     @Override
-    protected void setRoleDescription(@NonNull AccessibilityNodeInfoCompat nodeInfo,
-            @NonNull String description) {
+    protected void setRoleDescription(
+            @NonNull AccessibilityNodeInfoCompat nodeInfo, @NonNull String description) {
         nodeInfo.setRoleDescription(description);
     }
 
@@ -81,8 +81,8 @@ public class AndroidxSemanticNodeApplier extends
     }
 
     @Override
-    protected void setText(@NonNull AccessibilityNodeInfoCompat nodeInfo,
-            @NonNull CharSequence text) {
+    protected void setText(
+            @NonNull AccessibilityNodeInfoCompat nodeInfo, @NonNull CharSequence text) {
         nodeInfo.setText(text);
     }
 
@@ -93,14 +93,15 @@ public class AndroidxSemanticNodeApplier extends
     }
 
     @Override
-    protected void setContentDescription(@NonNull AccessibilityNodeInfoCompat nodeInfo,
-            @Nullable CharSequence description) {
+    protected void setContentDescription(
+            @NonNull AccessibilityNodeInfoCompat nodeInfo, @Nullable CharSequence description) {
         nodeInfo.setContentDescription(description);
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    protected void setBoundsInParentOrScreen(@NonNull AccessibilityNodeInfoCompat nodeInfo,
+    protected void setBoundsInParentOrScreen(
+            @NonNull AccessibilityNodeInfoCompat nodeInfo,
             @NonNull Component component,
             @Nullable Integer parentId) {
         int[] bounds = new int[4];
@@ -119,8 +120,10 @@ public class AndroidxSemanticNodeApplier extends
     }
 
     @Override
-    protected void applyScrollable(@NonNull AccessibilityNodeInfoCompat nodeInfo,
-            ScrollableComponent.@NonNull ScrollAxisRange scrollAxis, int scrollDirection) {
+    protected void applyScrollable(
+            @NonNull AccessibilityNodeInfoCompat nodeInfo,
+            ScrollableComponent.@NonNull ScrollAxisRange scrollAxis,
+            int scrollDirection) {
         nodeInfo.setScrollable(true);
         nodeInfo.addAction(AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION);
         nodeInfo.addAction(AccessibilityActionCompat.ACTION_SET_PROGRESS);
@@ -175,7 +178,8 @@ public class AndroidxSemanticNodeApplier extends
     }
 
     @Override
-    public void addChildren(@NonNull AccessibilityNodeInfoCompat nodeInfo,
+    public void addChildren(
+            @NonNull AccessibilityNodeInfoCompat nodeInfo,
             @NonNull List<@NonNull Integer> childIds) {
         for (int id : childIds) {
             nodeInfo.addChild(mPlayer, id);

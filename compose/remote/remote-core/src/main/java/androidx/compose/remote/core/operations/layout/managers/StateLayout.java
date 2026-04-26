@@ -22,7 +22,6 @@ import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
-import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -222,6 +221,8 @@ public class StateLayout extends LayoutManager {
         // selected component that this being laid out.
         ComponentMeasure layoutMeasure = measure.get(layout.getComponentId());
         layoutMeasure.copyFrom(self);
+        layoutMeasure.setX(0f);
+        layoutMeasure.setY(0f);
 
         layout.layout(context, measure);
 
@@ -503,25 +504,7 @@ public class StateLayout extends LayoutManager {
         // We paint all the components and operations of the current layout
         context.save();
         context.translate(currentLayout.getX(), currentLayout.getY());
-        for (Operation op : currentLayout.getList()) {
-            if (op instanceof Component && ((Component) op).getAnimationId() != -1) {
-                Component[] stateComponents =
-                        statePaintedComponents.get(((Component) op).getAnimationId());
-                Component component = stateComponents[measuredLayoutIndex];
-                if (needsToPaintTransition) {
-                    // We might have two components to paint, as in case two different
-                    // components share the same id, we'll fade the previous components out
-                    // and fade in the new one
-                    Component previousComponent = stateComponents[previousLayoutIndex];
-                    if (previousComponent != null && component != previousComponent) {
-                        previousComponent.paint(context);
-                    }
-                }
-                component.paint(context);
-            } else if (op instanceof PaintOperation) {
-                ((PaintOperation) op).paint(context);
-            }
-        }
+        currentLayout.paint(context);
         context.restore();
 
         if (needsToPaintTransition) {
@@ -610,14 +593,24 @@ public class StateLayout extends LayoutManager {
      * Read this operation and add it to the list of operations
      *
      * @param buffer the buffer to read
-     * @param operations the list of operations that will be added to
+     */
+    @Override
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mComponentId, mAnimationId, 0, 0, mIndexId);
+    }
+
+    /**
+     * Read this operation and add it to the list of operations
+     *
+     * @param buffer the buffer to read
+     * @param operations the list of operations that will be added to the remap context
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
         buffer.readInt(); // horizontalPositioning
         buffer.readInt(); // verticalPositioning
-        int indexId = buffer.readInt();
+        int indexId = buffer.readId();
         operations.add(
                 new StateLayout(null, componentId, animationId, 0f, 0f, 100f, 100f, indexId));
     }

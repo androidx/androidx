@@ -115,8 +115,8 @@ public class DataDynamicListFloat extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        float len = buffer.readFloat();
+        int id = buffer.declareId();
+        float len = buffer.readNanId();
         if (len > MAX_FLOAT_ARRAY) {
             throw new RuntimeException(len + " map entries more than max = " + MAX_FLOAT_ARRAY);
         }

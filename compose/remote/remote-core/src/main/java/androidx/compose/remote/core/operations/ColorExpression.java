@@ -26,6 +26,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -437,7 +438,7 @@ public class ColorExpression extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int param1 = buffer.readInt();
         int param2 = buffer.readInt();
         int param3 = buffer.readInt();
@@ -449,37 +450,59 @@ public class ColorExpression extends Operation
         float blue;
         switch (mode) {
             case IDARGB_MODE:
-                alpha = Utils.asNan(param1 >> 16);
-                red = Float.intBitsToFloat(param2);
-                green = Float.intBitsToFloat(param3);
-                blue = Float.intBitsToFloat(param4);
+                int alphaId = param1 >> 16;
+                if (buffer instanceof LoomWireBuffer) {
+                    alphaId = ((LoomWireBuffer) buffer).getRemapContext().resolveId(alphaId);
+                }
+                alpha = Utils.asNan(alphaId);
+                red = resolveFloat(buffer, Float.intBitsToFloat(param2));
+                green = resolveFloat(buffer, Float.intBitsToFloat(param3));
+                blue = resolveFloat(buffer, Float.intBitsToFloat(param4));
                 operations.add(new ColorExpression(id, (byte) ARGB_MODE, alpha, red, green, blue));
                 break;
             case ARGB_MODE:
                 alpha = (param1 >> 16) / 1024.0f;
-                red = Float.intBitsToFloat(param2);
-                green = Float.intBitsToFloat(param3);
-                blue = Float.intBitsToFloat(param4);
+                red = resolveFloat(buffer, Float.intBitsToFloat(param2));
+                green = resolveFloat(buffer, Float.intBitsToFloat(param3));
+                blue = resolveFloat(buffer, Float.intBitsToFloat(param4));
                 operations.add(new ColorExpression(id, (byte) ARGB_MODE, alpha, red, green, blue));
                 break;
             case HSV_MODE:
                 alpha = (param1 >> 16) / 1024.0f;
-                float hue = Float.intBitsToFloat(param2);
-                float sat = Float.intBitsToFloat(param3);
-                float value = Float.intBitsToFloat(param4);
+                float hue = resolveFloat(buffer, Float.intBitsToFloat(param2));
+                float sat = resolveFloat(buffer, Float.intBitsToFloat(param3));
+                float value = resolveFloat(buffer, Float.intBitsToFloat(param4));
                 operations.add(new ColorExpression(id, HSV_MODE, (param1 >> 16), hue, sat, value));
                 break;
             case COLOR_ID_INTERPOLATE:
             case ID_COLOR_INTERPOLATE:
             case ID_ID_INTERPOLATE:
             case COLOR_COLOR_INTERPOLATE:
-                operations.add(
-                        new ColorExpression(
-                                id, mode, param2, param3, Float.intBitsToFloat(param4)));
+                int c1 = param2;
+                if ((mode & 1) == 1) {
+                    if (buffer instanceof LoomWireBuffer) {
+                        c1 = ((LoomWireBuffer) buffer).getRemapContext().resolveId(param2);
+                    }
+                }
+                int c2 = param3;
+                if ((mode & 2) == 2) {
+                    if (buffer instanceof LoomWireBuffer) {
+                        c2 = ((LoomWireBuffer) buffer).getRemapContext().resolveId(param3);
+                    }
+                }
+                float tween = resolveFloat(buffer, Float.intBitsToFloat(param4));
+                operations.add(new ColorExpression(id, mode, c1, c2, tween));
                 break;
             default:
                 throw new RuntimeException("Invalid mode " + mode);
         }
+    }
+
+    private static float resolveFloat(@NonNull WireBuffer buffer, float v) {
+        if (buffer instanceof LoomWireBuffer) {
+            return ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(v);
+        }
+        return v;
     }
 
     /**

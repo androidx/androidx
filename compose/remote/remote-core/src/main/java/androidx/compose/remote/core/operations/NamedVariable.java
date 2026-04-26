@@ -112,7 +112,7 @@ public class NamedVariable extends Operation implements Serializable {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int type = buffer.readInt();
         String name = buffer.readUTF8(Limits.MAX_STRING_SIZE);
         operations.add(new NamedVariable(id, type, name));

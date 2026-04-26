@@ -185,6 +185,44 @@ public class WireBuffer {
         return mSize - mIndex > 0;
     }
 
+    /**
+     * Declare an ID read from the buffer. Default implementation just returns readInt().
+     *
+     * @return the declared ID
+     */
+    public int declareId() {
+        return readInt();
+    }
+
+    /**
+     * Resolve an ID read from the buffer. Default implementation just returns readInt().
+     *
+     * @return the resolved ID
+     */
+    public int readId() {
+        return readInt();
+    }
+
+    /**
+     * Resolve an ID encoded as a NaN float read from the buffer. Default implementation returns
+     * readFloat().
+     *
+     * @return the resolved float value
+     */
+    public float readNanId() {
+        return readFloat();
+    }
+
+    /**
+     * Resolve an ID encoded as a NaN long read from the buffer. Default implementation returns
+     * readLong().
+     *
+     * @return the resolved long value
+     */
+    public long readLongNanId() {
+        return readLong();
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Read values
     ///////////////////////////////////////////////////////////////////////////
@@ -462,6 +500,18 @@ public class WireBuffer {
         for (int i = 0; i < b.length; i++) {
             mBuffer[mIndex++] = b[i];
         }
+        mSize += b.length;
+    }
+
+    /**
+     * Write a byte array to the wirebuffer
+     *
+     * @param b byte array
+     */
+    public void write(byte @NonNull [] b) {
+        resize(b.length);
+        System.arraycopy(b, 0, mBuffer, mIndex, b.length);
+        mIndex += b.length;
         mSize += b.length;
     }
 

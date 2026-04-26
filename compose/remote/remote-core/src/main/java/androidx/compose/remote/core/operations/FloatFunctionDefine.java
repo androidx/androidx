@@ -114,14 +114,14 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int varLen = buffer.readInt();
         if (varLen > Limits.MAX_FUNCTION_ARGUMENTS) {
             throw new IllegalArgumentException("Too many arguments");
         }
         int[] varId = new int[varLen];
         for (int i = 0; i < varId.length; i++) {
-            varId[i] = buffer.readInt();
+            varId[i] = buffer.readId();
         }
         FloatFunctionDefine data = new FloatFunctionDefine(id, varId);
         operations.add(data);

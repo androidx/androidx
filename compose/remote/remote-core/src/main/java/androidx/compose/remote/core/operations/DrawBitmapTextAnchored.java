@@ -27,6 +27,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
@@ -153,18 +154,27 @@ public class DrawBitmapTextAnchored extends PaintOperation implements VariableSu
         int text = buffer.readInt();
         float glyphSpacing;
         if ((text & 0x80000000) != 0) {
-            text = text & 0xFFFF;
-            glyphSpacing = buffer.readFloat();
+            // Manual remapping
+            if (buffer instanceof LoomWireBuffer) {
+                text = ((LoomWireBuffer) buffer).getRemapContext().resolveId(text & 0xFFFF);
+            } else {
+                text = text & 0xFFFF;
+            }
+            glyphSpacing = buffer.readNanId();
         } else {
+            // Manual remapping
+            if (buffer instanceof LoomWireBuffer) {
+                text = ((LoomWireBuffer) buffer).getRemapContext().resolveId(text);
+            }
             glyphSpacing = 0f;
         }
-        int bitmapFont = buffer.readInt();
-        float start = buffer.readFloat();
-        float end = buffer.readFloat();
-        float x = buffer.readFloat();
-        float y = buffer.readFloat();
-        float panX = buffer.readFloat();
-        float panY = buffer.readFloat();
+        int bitmapFont = buffer.readId();
+        float start = buffer.readNanId();
+        float end = buffer.readNanId();
+        float x = buffer.readNanId();
+        float y = buffer.readNanId();
+        float panX = buffer.readNanId();
+        float panY = buffer.readNanId();
 
         DrawBitmapTextAnchored op =
                 new DrawBitmapTextAnchored(

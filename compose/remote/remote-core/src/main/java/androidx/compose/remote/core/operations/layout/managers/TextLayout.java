@@ -100,6 +100,14 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
         return mTextId;
     }
 
+    public float getFontSize() {
+        return mFontSize;
+    }
+
+    public float getFontSizeValue() {
+        return mFontSizeValue;
+    }
+
     @Override
     public void registerListening(@NonNull RemoteContext context) {
         if (mTextId != -1) {
@@ -607,14 +615,14 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
-        int textId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
+        int textId = buffer.readId();
         int color = buffer.readInt();
-        float fontSize = buffer.readFloat();
+        float fontSize = buffer.readNanId();
         int fontStyle = buffer.readInt();
-        float fontWeight = buffer.readFloat();
-        int fontFamilyId = buffer.readInt();
+        float fontWeight = buffer.readNanId();
+        int fontFamilyId = buffer.readId();
         int textAlign = buffer.readInt();
         int overflow = buffer.readInt();
         int maxLines = buffer.readInt();

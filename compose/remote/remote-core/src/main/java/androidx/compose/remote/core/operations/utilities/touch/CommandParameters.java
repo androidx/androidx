@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.utilities.touch;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 
 import org.jspecify.annotations.NonNull;
 
@@ -470,7 +471,11 @@ public class CommandParameters {
                 callback.value(id, buffer.readInt());
                 break;
             case P_FLOAT:
-                callback.value(id, Float.intBitsToFloat(buffer.readInt()));
+                float fv = Float.intBitsToFloat(buffer.readInt());
+                if (buffer instanceof LoomWireBuffer) {
+                    fv = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(fv);
+                }
+                callback.value(id, fv);
                 break;
             case P_SHORT:
                 callback.value(id, (short) buffer.readShort());
@@ -493,7 +498,11 @@ public class CommandParameters {
                 count = buffer.readShort();
                 float[] floats = new float[count];
                 for (int i = 0; i < count; i++) {
-                    floats[i] = buffer.readFloat();
+                    float fav = buffer.readFloat();
+                    if (buffer instanceof LoomWireBuffer) {
+                        fav = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(fav);
+                    }
+                    floats[i] = fav;
                 }
                 callback.value(id, floats);
                 break;

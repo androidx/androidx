@@ -134,7 +134,7 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        float line = buffer.readFloat();
+        float line = buffer.readNanId();
         int flags = buffer.readInt();
         operations.add(new AlignByModifierOperation(line, flags));
     }

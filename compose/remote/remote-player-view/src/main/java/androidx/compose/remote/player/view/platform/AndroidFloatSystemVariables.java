@@ -40,8 +40,9 @@ public class AndroidFloatSystemVariables implements RemoteComposePlayer.FloatSys
         for (int i = 0; i < var.length; i++) {
             switch (var[i]) {
                 case BACKGROUND_RADIUS:
-                    resId = res.getIdentifier("system_app_widget_background_radius", "dimen",
-                            "android");
+                    resId =
+                            res.getIdentifier(
+                                    "system_app_widget_background_radius", "dimen", "android");
                     if (resId != 0) {
                         // 2. If found (Android 12+), return the pixel value
                         player.setLocalFloat(BACKGROUND_RADIUS, res.getDimension(resId));
@@ -51,11 +52,10 @@ public class AndroidFloatSystemVariables implements RemoteComposePlayer.FloatSys
                         float density = res.getDisplayMetrics().density;
                         player.setLocalFloat(BACKGROUND_RADIUS, 28 * density);
                     }
-                break;
+                    break;
 
                 case INNER_RADIUS:
-                    resId = res.getIdentifier("system_app_widget_inner_radius", "dimen",
-                            "android");
+                    resId = res.getIdentifier("system_app_widget_inner_radius", "dimen", "android");
                     if (resId != 0) {
                         player.setLocalFloat(INNER_RADIUS, res.getDimension(resId));
                     } else {
@@ -63,16 +63,15 @@ public class AndroidFloatSystemVariables implements RemoteComposePlayer.FloatSys
                         float density = res.getDisplayMetrics().density;
                         player.setLocalFloat(INNER_RADIUS, 8 * density);
                     }
-                break;
+                    break;
                 case FONT_WEIGHT:
                     float baseWeight = 400; // Normal
                     int userAdjustment = 0;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {  // REMOVE IN PLATFORM
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // REMOVE IN PLATFORM
                         userAdjustment = res.getConfiguration().fontWeightAdjustment;
                     } // REMOVE IN PLATFORM
                     player.setLocalFloat(FONT_WEIGHT, (baseWeight + userAdjustment));
             }
         }
-
     }
 }

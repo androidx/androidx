@@ -64,6 +64,7 @@ public class RemoteComposeState implements CollectionsAccess {
     private final boolean[] mFloatOverride = new boolean[Limits.MAX_STATE_DATA];
 
     private int mNextId = START_ID;
+    private int mNextLocalId = 0x4000;
     private final int @NonNull [] mIdMaps =
             new int[] {START_ID, NanMap.START_VAR, NanMap.START_ARRAY};
     @Nullable private RemoteContext mRemoteContext = null;
@@ -449,6 +450,15 @@ public class RemoteComposeState implements CollectionsAccess {
             return mNextId++;
         }
         return mIdMaps[type]++;
+    }
+
+    /**
+     * Get the next available macro-local id
+     *
+     * @return next available local id
+     */
+    public int createNextLocalId() {
+        return mNextLocalId++;
     }
 
     /**

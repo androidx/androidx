@@ -25,6 +25,7 @@ import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -34,11 +35,12 @@ import java.util.List;
 
 /** Used to represent a boolean */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BooleanConstant extends Operation implements Serializable, VariableProvider {
+public class BooleanConstant extends Operation
+        implements Serializable, VariableProvider, ComponentData {
     private static final String CLASS_NAME = "BooleanConstant";
-
     private static final int OP_CODE = Operations.DATA_BOOLEAN;
-    private boolean mValue = false;
+
+    private boolean mValue;
     private int mId;
 
     @Override
@@ -124,8 +126,7 @@ public class BooleanConstant extends Operation implements Serializable, Variable
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-
+        int id = buffer.declareId();
         boolean value = buffer.readBoolean();
         operations.add(new BooleanConstant(id, value));
     }

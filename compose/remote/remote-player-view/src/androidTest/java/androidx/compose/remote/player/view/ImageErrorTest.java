@@ -87,8 +87,7 @@ public class ImageErrorTest {
         return Arrays.copyOf(buffer, bufferSize);
     }
 
-    private RemoteDocument createDocument(
-            byte[] buffer, int bufferSize, RemoteContext context) {
+    private RemoteDocument createDocument(byte[] buffer, int bufferSize, RemoteContext context) {
         RemoteDocument recreatedDocument =
                 new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
         recreatedDocument.initializeContext(context);

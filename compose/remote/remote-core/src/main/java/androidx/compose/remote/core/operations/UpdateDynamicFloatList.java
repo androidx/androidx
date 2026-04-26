@@ -142,9 +142,9 @@ public class UpdateDynamicFloatList extends Operation implements VariableSupport
      * @param operations the list of operations to add to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        float index = buffer.readFloat();
-        float value = buffer.readFloat();
+        int id = buffer.readId();
+        float index = buffer.readNanId();
+        float value = buffer.readNanId();
 
         Operation op = new UpdateDynamicFloatList(id, index, value);
         operations.add(op);

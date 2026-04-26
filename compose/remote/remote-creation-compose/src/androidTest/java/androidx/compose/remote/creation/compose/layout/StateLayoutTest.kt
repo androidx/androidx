@@ -135,7 +135,6 @@ class StateLayoutTest {
                     LayoutState.First -> {
                         content(layoutState)
                     }
-
                     LayoutState.Second -> {
                         content(layoutState)
                     }

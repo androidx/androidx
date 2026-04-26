@@ -38,7 +38,7 @@ import java.util.List;
 /** Operation to perform Constructive area geometry operations, combining two Paths */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PathCombine extends PaintOperation
-        implements VariableSupport, Serializable, VariableProvider {
+        implements VariableSupport, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.PATH_COMBINE;
     private static final String CLASS_NAME = "PathCombine";
     public int mOutId;
@@ -147,9 +147,9 @@ public class PathCombine extends PaintOperation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int outId1 = buffer.readInt();
-        int pathId1 = buffer.readInt();
-        int pathId2 = buffer.readInt();
+        int outId1 = buffer.readId();
+        int pathId1 = buffer.readId();
+        int pathId2 = buffer.readId();
         byte op = (byte) buffer.readByte();
         operations.add(new PathCombine(outId1, pathId1, pathId2, op));
     }

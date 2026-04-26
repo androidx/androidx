@@ -88,8 +88,8 @@ public class DebugMessage extends Operation implements VariableSupport {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int text = buffer.readInt();
-        float floatValue = buffer.readFloat();
+        int text = buffer.readId();
+        float floatValue = buffer.readNanId();
         int flags = buffer.readInt();
         DebugMessage op = new DebugMessage(text, floatValue, flags);
         operations.add(op);

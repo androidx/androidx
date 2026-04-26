@@ -128,10 +128,10 @@ public class TextLookupInt extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        int dataSetId = buffer.readInt();
-        int indexId = buffer.readInt();
-        operations.add(new TextLookupInt(textId, dataSetId, indexId));
+        int id = buffer.declareId();
+        int listId = buffer.readId();
+        int indexId = buffer.readId();
+        operations.add(new TextLookupInt(id, listId, indexId));
     }
 
     /**

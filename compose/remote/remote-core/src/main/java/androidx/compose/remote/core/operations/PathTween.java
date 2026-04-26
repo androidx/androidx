@@ -40,7 +40,7 @@ import java.util.List;
 /** Operation to deal with Path data */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PathTween extends PaintOperation
-        implements VariableSupport, Serializable, VariableProvider {
+        implements VariableSupport, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.PATH_TWEEN;
     private static final String CLASS_NAME = "PathTween";
     public int mOutId;
@@ -141,10 +141,10 @@ public class PathTween extends PaintOperation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int outId1 = buffer.readInt();
-        int pathId1 = buffer.readInt();
-        int pathId2 = buffer.readInt();
-        float tween = buffer.readFloat();
+        int outId1 = buffer.readId();
+        int pathId1 = buffer.readId();
+        int pathId2 = buffer.readId();
+        float tween = buffer.readNanId();
 
         operations.add(new PathTween(outId1, pathId1, pathId2, tween));
     }

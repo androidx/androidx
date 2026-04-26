@@ -56,7 +56,7 @@ public class LayoutComputeOperation extends Operation
     public static final int TYPE_POSITION = 1;
 
     private final int mType;
-    private final int mBoundsId;
+    private int mBoundsId;
     private final boolean mAnimateChanges;
     private LayoutComponent mParent;
 
@@ -174,7 +174,7 @@ public class LayoutComputeOperation extends Operation
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int type = buffer.readInt();
-        int boundsId = buffer.readInt();
+        int boundsId = buffer.readId();
         boolean animateChanges = buffer.readBoolean();
         operations.add(new LayoutComputeOperation(type, boundsId, animateChanges));
     }

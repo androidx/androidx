@@ -37,6 +37,7 @@ public class TextLength extends Operation
     private static final int OP_CODE = Operations.TEXT_LENGTH;
     private static final String CLASS_NAME = "TextLength";
     public int mLengthId;
+
     public int mTextId;
 
     @Override
@@ -103,9 +104,9 @@ public class TextLength extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int lengthId = buffer.readInt();
-        int textId = buffer.readInt();
-        operations.add(new TextLength(lengthId, textId));
+        int id = buffer.declareId();
+        int textId = buffer.readId();
+        operations.add(new TextLength(id, textId));
     }
 
     /**

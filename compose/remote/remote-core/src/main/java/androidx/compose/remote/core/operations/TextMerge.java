@@ -51,7 +51,7 @@ public class TextMerge extends Operation
 
     @Override
     public void setId(int id) {
-        mTextId = id;
+        this.mTextId = id;
     }
 
     public TextMerge(int textId, int srcId1, int srcId2) {
@@ -112,11 +112,10 @@ public class TextMerge extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        int srcId1 = buffer.readInt();
-        int srcId2 = buffer.readInt();
-
-        operations.add(new TextMerge(textId, srcId1, srcId2));
+        int id = buffer.declareId();
+        int leftId = buffer.readId();
+        int rightId = buffer.readId();
+        operations.add(new TextMerge(id, leftId, rightId));
     }
 
     /**

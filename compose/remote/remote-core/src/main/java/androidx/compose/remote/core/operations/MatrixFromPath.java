@@ -98,9 +98,9 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
 
-        int pathId = buffer.readInt();
-        float percent = buffer.readFloat();
-        float vOffset = buffer.readFloat();
+        int pathId = buffer.readId();
+        float percent = buffer.readNanId();
+        float vOffset = buffer.readNanId();
         int flags = buffer.readInt();
         MatrixFromPath op = new MatrixFromPath(pathId, percent, vOffset, flags);
         operations.add(op);

@@ -25,7 +25,6 @@ import org.jspecify.annotations.NonNull;
 
 /** Thread utility methods. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 public class ThreadUtil {
     private ThreadUtil() {}
 

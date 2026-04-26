@@ -28,6 +28,7 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.ScrollingEdgeEffect;
 import androidx.compose.remote.core.TouchListener;
 import androidx.compose.remote.core.VariableSupport;
+import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.operations.ComponentValue;
@@ -62,6 +63,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /** Component with modifiers and children */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -194,6 +196,11 @@ public class LayoutComponent extends Component {
 
     @Override
     public void inflate() {
+        for (Operation op : mList) {
+            if (op instanceof ComponentModifiers) {
+                return;
+            }
+        }
         ArrayList<Operation> data = new ArrayList<>();
         ArrayList<Operation> supportedOperations = new ArrayList<>();
 
@@ -586,7 +593,7 @@ public class LayoutComponent extends Component {
         context.mLastComponent = this;
         super.updateVariables(context);
         for (ModifierOperation op : mComponentModifiers.getModifiersList()) {
-            if (op instanceof VariableSupport) {
+            if (op.isDirty() && op instanceof VariableSupport) {
                 ((VariableSupport) op).updateVariables(context);
             }
         }
@@ -798,21 +805,19 @@ public class LayoutComponent extends Component {
         return null;
     }
 
-    @Override
-    public void registerVariables(@NonNull RemoteContext context) {
-        if (mDrawContentOperations != null) {
-            mDrawContentOperations.registerListening(context);
-        }
-
-        for (Operation operation : mList) {
-            if (operation instanceof VariableSupport) {
-                VariableSupport variableSupport = (VariableSupport) operation;
-                variableSupport.registerListening(context);
-            }
-            if (operation instanceof ComponentValue) {
-                ComponentValue v = (ComponentValue) operation;
-                this.addComponentValue(v);
-            }
-        }
+    /**
+     * Read the operation from the buffer
+     *
+     * @param buffer
+     * @param operations
+     */
+    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
+        float x = buffer.readFloat();
+        float y = buffer.readFloat();
+        float width = buffer.readFloat();
+        float height = buffer.readFloat();
+        operations.add(new LayoutComponent(null, componentId, animationId, x, y, width, height));
     }
 }

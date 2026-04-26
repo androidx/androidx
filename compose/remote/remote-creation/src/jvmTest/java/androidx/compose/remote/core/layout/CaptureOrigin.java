@@ -27,9 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A test operation that captures the component tree and origin.
- */
+/** A test operation that captures the component tree and origin. */
 public class CaptureOrigin extends TestOperation {
     @Override
     @SuppressWarnings("unchecked")

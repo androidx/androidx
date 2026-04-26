@@ -138,10 +138,10 @@ public class TextLookup extends Operation implements VariableSupport, Serializab
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        int dataSetId = buffer.readInt();
-        float index = buffer.readFloat();
-        operations.add(new TextLookup(textId, dataSetId, index));
+        int id = buffer.declareId();
+        int listId = buffer.readId();
+        float index = buffer.readNanId();
+        operations.add(new TextLookup(id, listId, index));
     }
 
     /**

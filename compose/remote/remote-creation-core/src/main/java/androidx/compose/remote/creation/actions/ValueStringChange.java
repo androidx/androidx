@@ -27,14 +27,24 @@ public class ValueStringChange implements Action {
     @NonNull
     String mValue = "";
 
+    int mValueStringId = -1;
     public ValueStringChange(int id, @NonNull String value) {
         mValueId = id;
         mValue = value;
     }
 
+    public ValueStringChange(int id, int stringId) {
+        mValueId = id;
+        mValueStringId = stringId;
+    }
+
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        int newValueId = writer.addText(mValue);
-        writer.addValueStringChangeActionOperation(mValueId, newValueId);
+        if (mValueStringId != -1) {
+            writer.addValueStringChangeActionOperation(mValueId, mValueStringId);
+        } else {
+            int newValueId = writer.addText(mValue);
+            writer.addValueStringChangeActionOperation(mValueId, newValueId);
+        }
     }
 }

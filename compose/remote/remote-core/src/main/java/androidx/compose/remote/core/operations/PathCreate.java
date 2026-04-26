@@ -170,10 +170,9 @@ public class PathCreate extends PaintOperation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-
-        int id = buffer.readInt();
-        float startX = buffer.readFloat();
-        float startY = buffer.readFloat();
+        int id = buffer.declareId();
+        float startX = buffer.readNanId();
+        float startY = buffer.readNanId();
         operations.add(new PathCreate(id, startX, startY));
     }
 

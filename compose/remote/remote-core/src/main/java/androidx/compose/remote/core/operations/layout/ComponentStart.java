@@ -222,7 +222,7 @@ public class ComponentStart extends Operation implements Container {
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int type = buffer.readInt();
-        int componentId = buffer.readInt();
+        int componentId = buffer.readId();
         float width = buffer.readFloat();
         float height = buffer.readFloat();
         operations.add(new ComponentStart(type, componentId, width, height));

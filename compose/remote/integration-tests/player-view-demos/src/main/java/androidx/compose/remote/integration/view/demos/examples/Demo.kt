@@ -317,3 +317,5 @@ fun plot4(): RemoteComposeWriter {
 @Preview @Composable private fun Plot3Preview() = RemoteDocPreview(plot3())
 
 @Preview @Composable private fun Plot4Preview() = RemoteDocPreview(plot4())
+
+@Preview @Composable private fun RcMacroDemoPreview() = RemoteDocPreview(RcMacroDemo())

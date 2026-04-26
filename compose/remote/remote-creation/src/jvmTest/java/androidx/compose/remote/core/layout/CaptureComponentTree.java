@@ -32,7 +32,8 @@ public class CaptureComponentTree extends TestOperation {
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean apply(@NonNull RemoteContext context,
+    public boolean apply(
+            @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull TestParameters testParameters,
             @Nullable List<Map<String, Object>> commands) {

@@ -112,8 +112,8 @@ public class ComponentValue extends Operation
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int type = buffer.readInt();
-        int componentId = buffer.readInt();
-        int valueId = buffer.readInt();
+        int componentId = buffer.readId();
+        int valueId = buffer.readId();
         ComponentValue op = new ComponentValue(type, componentId, valueId);
         operations.add(op);
     }

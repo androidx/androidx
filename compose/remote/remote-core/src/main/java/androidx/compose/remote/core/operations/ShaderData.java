@@ -47,11 +47,12 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ShaderData extends Operation
-        implements VariableSupport, Serializable, VariableProvider {
+        implements VariableSupport, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.DATA_SHADER;
     private static final String CLASS_NAME = "ShaderData";
     int mShaderTextId; // the actual text of a shader
     int mShaderID; // allows shaders to be referenced by number
+
     @Nullable HashMap<String, float[]> mUniformRawFloatMap = null;
     @Nullable HashMap<String, float[]> mUniformFloatMap = null;
     @Nullable HashMap<String, int[]> mUniformIntMap;
@@ -316,8 +317,8 @@ public class ShaderData extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int shaderID = buffer.readInt();
-        int shaderTextId = buffer.readInt();
+        int shaderID = buffer.declareId();
+        int shaderTextId = buffer.readId();
         HashMap<String, float[]> floatMap = null;
         HashMap<String, int[]> intMap = null;
         HashMap<String, Integer> bitmapMap = null;
@@ -336,7 +337,7 @@ public class ShaderData extends Operation
                 float[] val = new float[len];
 
                 for (int j = 0; j < len; j++) {
-                    val[j] = buffer.readFloat();
+                    val[j] = buffer.readNanId();
                 }
 
                 floatMap.put(name, val);
@@ -366,7 +367,7 @@ public class ShaderData extends Operation
             bitmapMap = new HashMap<>();
             for (int i = 0; i < bitmapMapSize; i++) {
                 String name = buffer.readUTF8();
-                int val = buffer.readInt();
+                int val = buffer.readId();
                 bitmapMap.put(name, val);
             }
         }

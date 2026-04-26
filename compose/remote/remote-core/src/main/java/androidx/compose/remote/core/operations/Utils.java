@@ -205,11 +205,26 @@ public class Utils {
     }
 
     /**
-     * print a color in the familiar 0xAARRGGBB pattern
+     * Returns true if the id is a system global id (Tier 1)
      *
-     * @param color
-     * @return
+     * @param id the id to check
+     * @return true if system global
      */
+    public static boolean isSystemGlobal(int id) {
+        return id >= 0 && id <= 41;
+    }
+
+    /**
+     * Returns true if the id is a macro-local id (Tier 2)
+     *
+     * @param id the id to check
+     * @return true if macro-local
+     */
+    public static boolean isMacroLocal(int id) {
+        return id >= 0x4000 && id <= 0x4FFF;
+    }
+
+    /** print a color in the familiar 0xAARRGGBB pattern */
     @NonNull
     public static String colorInt(int color) {
         String str = "000000000000" + Integer.toHexString(color);

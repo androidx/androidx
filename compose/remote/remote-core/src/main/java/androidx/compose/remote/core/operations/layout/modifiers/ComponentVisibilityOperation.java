@@ -104,7 +104,7 @@ public class ComponentVisibilityOperation extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int valueId = buffer.readInt();
+        int valueId = buffer.readId();
         operations.add(new ComponentVisibilityOperation(valueId));
     }
 

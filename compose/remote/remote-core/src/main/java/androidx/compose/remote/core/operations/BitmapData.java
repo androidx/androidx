@@ -258,7 +258,7 @@ public class BitmapData extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int imageId = buffer.readInt();
+        int imageId = buffer.readId();
         int width = buffer.readInt();
         int height = buffer.readInt();
         int type;

@@ -123,8 +123,8 @@ public class CanvasLayout extends BoxLayout {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
         operations.add(new CanvasLayout(null, componentId, animationId));
     }
 
@@ -172,6 +172,11 @@ public class CanvasLayout extends BoxLayout {
 
     @Override
     public void inflate() {
+        for (Operation op : mList) {
+            if (op instanceof ComponentModifiers) {
+                return;
+            }
+        }
         mHasCanvasLayoutContent = hasCanvasContent();
         super.inflate();
     }

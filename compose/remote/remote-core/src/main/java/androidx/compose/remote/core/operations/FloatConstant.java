@@ -119,9 +119,8 @@ public class FloatConstant extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-
-        float value = buffer.readFloat();
+        int id = buffer.declareId();
+        float value = buffer.readNanId();
         operations.add(new FloatConstant(id, value));
     }
 

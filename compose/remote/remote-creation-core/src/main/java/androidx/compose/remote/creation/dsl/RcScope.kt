@@ -21,7 +21,6 @@ package androidx.compose.remote.creation.dsl
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.operations.DrawTextOnCircle
-import androidx.compose.remote.creation.RFloat
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.RemoteComposeWriter

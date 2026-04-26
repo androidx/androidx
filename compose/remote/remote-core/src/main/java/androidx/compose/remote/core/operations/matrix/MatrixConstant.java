@@ -24,6 +24,7 @@ import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -35,7 +36,7 @@ import java.util.List;
 /** This is for a constant matrix */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixConstant extends Operation
-        implements Serializable, MatrixAccess, VariableProvider {
+        implements Serializable, MatrixAccess, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.MATRIX_CONSTANT;
     private static final String CLASS_NAME = "MatrixConstant";
     private int mMatrixId;
@@ -123,7 +124,7 @@ public class MatrixConstant extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int type = buffer.readInt();
         int len = buffer.readInt();
         if (len > 16 || len < 0) {
@@ -131,7 +132,7 @@ public class MatrixConstant extends Operation
         }
         float[] matrix = new float[len];
         for (int i = 0; i < len; i++) {
-            matrix[i] = buffer.readFloat();
+            matrix[i] = buffer.readNanId();
         }
         operations.add(new MatrixConstant(id, type, matrix));
     }

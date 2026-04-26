@@ -22,8 +22,8 @@ import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.BitmapFontData
-import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.TouchExpression
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
@@ -133,6 +133,24 @@ public open class RemoteComposeContext {
 
     public val writer: RemoteComposeWriter
         get() = mRemoteWriter
+
+    public fun stateLayout(
+        modifier: RecordingModifier = Modifier,
+        indexId: Int,
+        content: RemoteComposeContext.() -> Unit,
+    ) {
+        mRemoteWriter.startStateLayout(modifier, indexId)
+        content()
+        mRemoteWriter.endStateLayout()
+    }
+
+    public fun stateLayout(
+        modifier: RecordingModifier = Modifier,
+        indexId: Long,
+        content: RemoteComposeContext.() -> Unit,
+    ) {
+        stateLayout(modifier, Utils.idFromLong(indexId).toInt(), content)
+    }
 
     public val TIME_IN_SEC: Float = RemoteContext.FLOAT_CONTINUOUS_SEC
     public val FONT_TYPE_DEFAULT: Int = PaintBundle.FONT_TYPE_DEFAULT
@@ -456,6 +474,75 @@ public open class RemoteComposeContext {
         return ret
     }
 
+    public fun definePattern(
+        name: String,
+        vararg paramIds: Int,
+        content: RemoteComposeContext.() -> Unit,
+    ): Int {
+        val id = mRemoteWriter.definePattern(name, paramIds)
+        content()
+        mRemoteWriter.endPatternDefine()
+        return id
+    }
+
+    public fun definePatternParameter(name: String): Int {
+        return mRemoteWriter.definePatternParameter(name)
+    }
+
+    public fun inflatePattern(
+        id: Int,
+        vararg argIds: Int,
+        content: RemoteComposeContext.() -> Unit,
+    ) {
+        mRemoteWriter.patternInflation(id, argIds)
+        content()
+        mRemoteWriter.endPatternInflation()
+    }
+
+    public fun patternBlock(paramIndex: Int, content: RemoteComposeContext.() -> Unit) {
+        mRemoteWriter.addPatternBlock(paramIndex)
+        content()
+        mRemoteWriter.endPatternBlock()
+    }
+
+    public fun patternArgument(paramIndex: Int) {
+        mRemoteWriter.addPatternArgument(paramIndex)
+    }
+
+    public fun patternForEach(
+        collectionId: Int,
+        localItemId: Int,
+        content: RemoteComposeContext.() -> Unit,
+    ) {
+        mRemoteWriter.addPatternForEach(collectionId, localItemId)
+        content()
+        mRemoteWriter.endPatternForEach()
+    }
+
+    public fun textId(text: String): Int {
+        return mRemoteWriter.textCreateId(text)
+    }
+
+    public fun floatId(id: Int): Float {
+        return Utils.asNan(id)
+    }
+
+    /**
+     * Allocate a macro-local ID (Tier 2, 0x4000-0x4FFF range). These IDs are automatically
+     * unique-ified for every macro expansion.
+     */
+    public fun localId(): Int {
+        return mRemoteWriter.nextLocalId()
+    }
+
+    public fun addDataListIds(ids: IntArray): Int {
+        return Utils.idFromNan(mRemoteWriter.addList(ids))
+    }
+
+    public fun addFloat(value: Float): Int {
+        return Utils.idFromNan(mRemoteWriter.addFloatConstant(value))
+    }
+
     public fun drawTextOnPath(text: String, path: Any, hOffset: Float, vOffset: Float) {
         mRemoteWriter.drawTextOnPath(text, path, hOffset, vOffset)
     }
@@ -468,6 +555,7 @@ public open class RemoteComposeContext {
         mRemoteWriter.drawTextOnPath(textId, pathId, hOffset, vOffset)
     }
 
+    /*
     public fun drawTextOnCircle(
         textId: Int,
         centerX: Float,
@@ -489,6 +577,7 @@ public open class RemoteComposeContext {
             placement,
         )
     }
+    */
 
     public fun drawTextRun(
         text: String,
@@ -1856,6 +1945,65 @@ public open class RemoteComposeContext {
     /** The height of the document on screen */
     public fun windowHeight(): RFloat {
         return mRemoteWriter.windowHeight()
+    }
+
+    /**
+     * Define a set of operations that can be referenced later.
+     *
+     * @param id the id of the container
+     * @param block the block of operations
+     */
+    public fun referencedOperations(id: Int, block: RemoteComposeContext.() -> Unit) {
+        mRemoteWriter.startReferencedOperations(id)
+        block()
+        mRemoteWriter.endReferencedOperations()
+    }
+
+    /**
+     * Define a set of operations that can be referenced later.
+     *
+     * @param block the block of operations
+     * @return the id of the container
+     */
+    public fun referencedOperations(block: RemoteComposeContext.() -> Unit): Int {
+        val id = nextId()
+        mRemoteWriter.startReferencedOperations(id)
+        block()
+        mRemoteWriter.endReferencedOperations()
+        return id
+    }
+
+    /**
+     * Include a set of operations previously defined.
+     *
+     * @param id the id of the container to include
+     */
+    public fun include(id: Int) {
+        mRemoteWriter.addIncludeReferencedOperations(id)
+    }
+
+    /**
+     * Define a set of modifiers that can be referenced later.
+     *
+     * @param modifier the modifiers to include
+     */
+    public fun referencedModifiers(modifier: RecordingModifier): Int {
+        val id = nextId()
+        mRemoteWriter.startReferencedOperations(id)
+        modifier(modifier)
+        mRemoteWriter.endReferencedOperations()
+        return id
+    }
+
+    /**
+     * Emit the modifiers directly into the current container.
+     *
+     * @param modifier the modifiers to emit
+     */
+    public fun modifier(modifier: RecordingModifier) {
+        for (m in modifier.getList()) {
+            m.write(mRemoteWriter)
+        }
     }
 }
 

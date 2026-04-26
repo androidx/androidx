@@ -43,8 +43,8 @@ import org.jspecify.annotations.Nullable;
  * androidx.core.view.AccessibilityDelegateCompat} to provide accessibility services.
  */
 @RestrictTo(LIBRARY_GROUP)
-public class AndroidxRemoteComposeAccessibilityRegistrar implements
-        RemoteComposeAccessibilityRegistrar {
+public class AndroidxRemoteComposeAccessibilityRegistrar
+        implements RemoteComposeAccessibilityRegistrar {
     /**
      * Creates an {@link AndroidxRemoteComposeTouchHelper} instance for a given {@link View} player
      * and {@link CoreDocument}.
@@ -52,14 +52,16 @@ public class AndroidxRemoteComposeAccessibilityRegistrar implements
      * <p>This helper will manage accessibility for the remote Compose content displayed in the
      * player.
      *
-     * @param player       The View that is displaying the remote Compose content.
+     * @param player The View that is displaying the remote Compose content.
      * @param coreDocument The CoreDocument representing the remote Compose UI.
      * @return A new instance of AndroidxRemoteComposeTouchHelper.
      */
-    public @NonNull AndroidxRemoteComposeTouchHelper<AccessibilityNodeInfoCompat, Component,
-            AccessibilitySemantics> forRemoteComposePlayer(
-            @NonNull View player, @NonNull CoreDocument coreDocument) {
-        return new AndroidxRemoteComposeTouchHelper<>(player,
+    public @NonNull
+            AndroidxRemoteComposeTouchHelper<
+                    AccessibilityNodeInfoCompat, Component, AccessibilitySemantics>
+            forRemoteComposePlayer(@NonNull View player, @NonNull CoreDocument coreDocument) {
+        return new AndroidxRemoteComposeTouchHelper<>(
+                player,
                 new CoreDocumentAccessibility(coreDocument, ((RemoteContextActions) player)),
                 new AndroidxSemanticNodeApplier(player));
     }
@@ -68,15 +70,14 @@ public class AndroidxRemoteComposeAccessibilityRegistrar implements
      * Set the accessibility delegate on the player
      *
      * @param remoteComposePlayer The View representing the remote compose player.
-     * @param document            The CoreDocument containing the accessibility information for
-     *                            the UI
-     *                            elements.
+     * @param document The CoreDocument containing the accessibility information for the UI
+     *     elements.
      */
     @Override
-    public void setAccessibilityDelegate(@NonNull View remoteComposePlayer,
-            @NonNull CoreDocument document) {
-        ViewCompat.setAccessibilityDelegate(remoteComposePlayer,
-                forRemoteComposePlayer(remoteComposePlayer, document));
+    public void setAccessibilityDelegate(
+            @NonNull View remoteComposePlayer, @NonNull CoreDocument document) {
+        ViewCompat.setAccessibilityDelegate(
+                remoteComposePlayer, forRemoteComposePlayer(remoteComposePlayer, document));
     }
 
     /**
@@ -90,16 +91,16 @@ public class AndroidxRemoteComposeAccessibilityRegistrar implements
     }
 
     /**
-     * Gets the accessibility delegate from the player if it is an instance of
-     * {@link ExploreByTouchHelper}.
+     * Gets the accessibility delegate from the player if it is an instance of {@link
+     * ExploreByTouchHelper}.
      *
      * @param remoteComposePlayer The View representing the remote compose player.
      * @return The ExploreByTouchHelper delegate, or null if it's not set or not of that type.
      */
     public @Nullable ExploreByTouchHelper getAccessibilityDelegate(
             @NonNull View remoteComposePlayer) {
-        AccessibilityDelegateCompat accessibilityDelegate = ViewCompat.getAccessibilityDelegate(
-                remoteComposePlayer);
+        AccessibilityDelegateCompat accessibilityDelegate =
+                ViewCompat.getAccessibilityDelegate(remoteComposePlayer);
         return accessibilityDelegate instanceof ExploreByTouchHelper
                 ? (ExploreByTouchHelper) accessibilityDelegate
                 : null;
@@ -112,12 +113,11 @@ public class AndroidxRemoteComposeAccessibilityRegistrar implements
      * @return true if the event was handled by the view, false otherwise.
      */
     @Override
-    public boolean dispatchHoverEvent(@NonNull View remoteComposePlayer,
-            @NonNull MotionEvent event) {
+    public boolean dispatchHoverEvent(
+            @NonNull View remoteComposePlayer, @NonNull MotionEvent event) {
         ExploreByTouchHelper exploreByTouchHelper = getAccessibilityDelegate(remoteComposePlayer);
         return (exploreByTouchHelper != null && exploreByTouchHelper.dispatchHoverEvent(event));
     }
-
 
     /**
      * Dispatch a key event to the next view on the focus path.
@@ -131,20 +131,22 @@ public class AndroidxRemoteComposeAccessibilityRegistrar implements
         return (exploreByTouchHelper != null && exploreByTouchHelper.dispatchKeyEvent(event));
     }
 
-
     /**
-     * Called by the view system when the focus state of this view changes.
-     * When the focus change event is caused by directional navigation, direction
-     * and previouslyFocusedRect provide insight into where the focus is coming from.
+     * Called by the view system when the focus state of this view changes. When the focus change
+     * event is caused by directional navigation, direction and previouslyFocusedRect provide
+     * insight into where the focus is coming from.
      *
-     * @param gainFocus             true if the View has focus; false otherwise.
-     * @param direction             the direction focus has moved when requestFocus()
-     *                              is called to give this view focus.
-     * @param previouslyFocusedRect the rectangle, in this view's coordinate
-     *                              system, of the previously focused view.
+     * @param gainFocus true if the View has focus; false otherwise.
+     * @param direction the direction focus has moved when requestFocus() is called to give this
+     *     view focus.
+     * @param previouslyFocusedRect the rectangle, in this view's coordinate system, of the
+     *     previously focused view.
      */
     @Override
-    public void onFocusChanged(@NonNull View remoteComposePlayer, boolean gainFocus, int direction,
+    public void onFocusChanged(
+            @NonNull View remoteComposePlayer,
+            boolean gainFocus,
+            int direction,
             @Nullable Rect previouslyFocusedRect) {
         ExploreByTouchHelper exploreByTouchHelper = getAccessibilityDelegate(remoteComposePlayer);
         if (exploreByTouchHelper != null) {

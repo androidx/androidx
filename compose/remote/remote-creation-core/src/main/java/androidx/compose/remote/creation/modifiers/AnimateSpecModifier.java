@@ -33,6 +33,14 @@ public class AnimateSpecModifier implements RecordingModifier.Element {
     AnimationSpec.@NonNull ANIMATION mEnterAnimation;
     AnimationSpec.@NonNull ANIMATION mExitAnimation;
 
+    public AnimateSpecModifier(int animationId) {
+        this(animationId,
+                300, androidx.compose.remote.core.operations.utilities.easing.Easing.CUBIC_STANDARD,
+                300, androidx.compose.remote.core.operations.utilities.easing.Easing.CUBIC_STANDARD,
+                AnimationSpec.ANIMATION.FADE_IN,
+                AnimationSpec.ANIMATION.FADE_OUT);
+    }
+
     public AnimateSpecModifier(
             int animationId,
             float motionDuration,

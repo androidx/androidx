@@ -134,7 +134,7 @@ public class DataMapIds extends Operation implements VariableProvider {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int len = buffer.readInt();
         if (len > Limits.MAX_DATA_MAP_SIZE) {
             throw new RuntimeException(
@@ -146,7 +146,7 @@ public class DataMapIds extends Operation implements VariableProvider {
         for (int i = 0; i < names.length; i++) {
             names[i] = buffer.readUTF8();
             types[i] = (byte) buffer.readByte();
-            ids[i] = buffer.readInt();
+            ids[i] = buffer.readId();
         }
         DataMapIds data = new DataMapIds(id, names, types, ids);
         operations.add(data);

@@ -29,14 +29,18 @@ import java.util.Map;
 public class ApplyClick extends TestOperation {
     private final float mX;
     private final float mY;
+
     public ApplyClick(float x, float y) {
         mX = x;
         mY = y;
     }
 
     @Override
-    public boolean apply(@NonNull RemoteContext context, @NonNull CoreDocument document,
-            @NonNull TestParameters testParameters, @Nullable List<Map<String, Object>> commands) {
+    public boolean apply(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull TestParameters testParameters,
+            @Nullable List<Map<String, Object>> commands) {
         if (commands != null) {
             Map<String, Object> applyClick = new LinkedHashMap<>();
             applyClick.put("x", mX);

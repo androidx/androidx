@@ -30,6 +30,7 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
@@ -165,13 +166,22 @@ public class BitmapTextMeasure extends PaintOperation implements VariableSupport
         int id = buffer.readInt();
         float glyphSpacing;
         if ((id & 0x80000000) != 0) {
-            id = id & 0xFFFF;
-            glyphSpacing = buffer.readFloat();
+            // Manual remapping
+            if (buffer instanceof LoomWireBuffer) {
+                id = ((LoomWireBuffer) buffer).getRemapContext().resolveId(id & 0x7FFFFFFF);
+            } else {
+                id = id & 0x7FFFFFFF;
+            }
+            glyphSpacing = buffer.readNanId();
         } else {
+            // Manual remapping
+            if (buffer instanceof LoomWireBuffer) {
+                id = ((LoomWireBuffer) buffer).getRemapContext().resolveId(id);
+            }
             glyphSpacing = 0f;
         }
-        int textId = buffer.readInt();
-        int bitmapFontId = buffer.readInt();
+        int textId = buffer.readId();
+        int bitmapFontId = buffer.readId();
         int type = buffer.readInt();
         operations.add(new BitmapTextMeasure(id, textId, bitmapFontId, type, glyphSpacing));
     }

@@ -29,6 +29,7 @@ import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
 import androidx.compose.remote.core.operations.layout.Container;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
 import androidx.compose.remote.core.operations.utilities.NanMap;
@@ -219,8 +220,7 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
     @NonNull
     @Override
     public String toString() {
-        String str = "ParticlesLoop[" + Utils.idString(mId) + "] ";
-        return str;
+        return "ParticlesLoop[" + Utils.idString(mId) + "] ";
     }
 
     /**
@@ -295,10 +295,10 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         short flags = (short) buffer.readShort();
-        float min = buffer.readFloat();
-        float max = buffer.readFloat();
+        float min = buffer.readNanId();
+        float max = buffer.readNanId();
         float[] exp = readFloats(buffer);
 
         int result1Len = buffer.readInt();
@@ -333,7 +333,19 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
         }
         float[] ret = new float[len];
         for (int i = 0; i < len; i++) {
-            ret[i] = buffer.readFloat();
+            float v = buffer.readFloat();
+            if (Float.isNaN(v)
+                    && !AnimatedFloatExpression.isMathOperator(v)
+                    && !NanMap.isDataVariable(v)) {
+                // Manual remapping
+                if (buffer instanceof LoomWireBuffer) {
+                    ret[i] = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(v);
+                } else {
+                    ret[i] = v;
+                }
+            } else {
+                ret[i] = v;
+            }
         }
         return ret;
     }

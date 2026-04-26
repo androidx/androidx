@@ -23,6 +23,7 @@ import android.graphics.PathIterator;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.operations.PathData;
@@ -104,8 +105,7 @@ public class AndroidRcPlatformServices implements RcPlatformServices {
         }
     }
 
-    @androidx.annotation.RequiresApi(// REMOVE IN PLATFORM
-            api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE) // REMOVE IN PLATFORM
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE) // REMOVE IN PLATFORM
     private float @NonNull [] androidPathToFloatArray(@NonNull Path path) {
         PathIterator i = path.getPathIterator();
         int estimatedSize = 0;

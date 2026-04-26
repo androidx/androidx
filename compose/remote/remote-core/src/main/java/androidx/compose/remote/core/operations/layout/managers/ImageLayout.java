@@ -296,11 +296,11 @@ public class ImageLayout extends LayoutManager implements VariableSupport {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
-        int bitmapId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
+        int bitmapId = buffer.readId();
         int scaleType = buffer.readInt();
-        float alpha = buffer.readFloat();
+        float alpha = buffer.readNanId();
         operations.add(new ImageLayout(null, componentId, animationId, bitmapId, scaleType, alpha));
     }
 

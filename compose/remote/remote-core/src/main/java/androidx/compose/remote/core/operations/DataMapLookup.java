@@ -105,9 +105,9 @@ public class DataMapLookup extends Operation {
      * @param operations the created command is added to the list
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int mapId = buffer.readInt();
-        int stringId = buffer.readInt();
+        int id = buffer.readId();
+        int mapId = buffer.readId();
+        int stringId = buffer.readId();
         operations.add(new DataMapLookup(id, mapId, stringId));
     }
 

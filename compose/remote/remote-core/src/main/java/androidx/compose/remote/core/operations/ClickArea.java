@@ -222,13 +222,13 @@ public class ClickArea extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int contentDescription = buffer.readInt();
-        float left = buffer.readFloat();
-        float top = buffer.readFloat();
-        float right = buffer.readFloat();
-        float bottom = buffer.readFloat();
-        int metadata = buffer.readInt();
+        int id = buffer.declareId();
+        int contentDescription = buffer.readId();
+        float left = buffer.readNanId();
+        float top = buffer.readNanId();
+        float right = buffer.readNanId();
+        float bottom = buffer.readNanId();
+        int metadata = buffer.readId();
         ClickArea clickArea =
                 new ClickArea(id, contentDescription, left, top, right, bottom, metadata);
         operations.add(clickArea);

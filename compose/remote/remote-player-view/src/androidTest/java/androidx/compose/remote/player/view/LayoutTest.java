@@ -139,8 +139,7 @@ public class LayoutTest {
     void baseTest(RemoteComposeWriter writer, int tw, int th) {
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteDocument doc =
-                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc = new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.mWidth = tw;
@@ -178,8 +177,7 @@ public class LayoutTest {
     void baseTestResize(RemoteComposeWriter writer, int tw1, int th1, int tw2, int th2) {
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteDocument doc =
-                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc = new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setAnimationEnabled(false);
@@ -507,8 +505,10 @@ public class LayoutTest {
 
         @Override
         public void apply(Component component) {
-            assertEquals("for component " + component.getComponentId(),
-                    mVisibilityCheck, component.mVisibility);
+            assertEquals(
+                    "for component " + component.getComponentId(),
+                    mVisibilityCheck,
+                    component.mVisibility);
         }
     }
 
@@ -582,8 +582,7 @@ public class LayoutTest {
             boolean forceRepaint) {
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteDocument doc =
-                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc = new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setAnimationEnabled(false);
@@ -637,8 +636,7 @@ public class LayoutTest {
             boolean forceRepaint) {
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteDocument doc =
-                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc = new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setAnimationEnabled(false);
@@ -729,8 +727,7 @@ public class LayoutTest {
 
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteDocument doc =
-                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc = new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setAnimationEnabled(animationEnabled);
@@ -3522,8 +3519,10 @@ public class LayoutTest {
                                                 .componentId(3)
                                                 .size(100)
                                                 .background(Color.RED)
-                                                .onClick(new ValueIntegerChange((int) visibilityId,
-                                                        Component.Visibility.VISIBLE)));
+                                                .onClick(
+                                                        new ValueIntegerChange(
+                                                                (int) visibilityId,
+                                                                Component.Visibility.VISIBLE)));
                             });
                 });
         ArrayList<TestComponentOperation> ops = new ArrayList<>();
@@ -3560,8 +3559,10 @@ public class LayoutTest {
                                                 .componentId(3)
                                                 .size(100)
                                                 .background(Color.RED)
-                                                .onClick(new ValueIntegerChange((int) visibilityId,
-                                                        Component.Visibility.GONE)));
+                                                .onClick(
+                                                        new ValueIntegerChange(
+                                                                (int) visibilityId,
+                                                                Component.Visibility.GONE)));
                             });
                 });
         ArrayList<TestComponentOperation> ops = new ArrayList<>();
@@ -3571,7 +3572,6 @@ public class LayoutTest {
         ops2.add(new TestComponentVisibility(2, Component.Visibility.GONE));
         baseTestComponent(writer, 400, 400, ops, ops2);
     }
-
 
     @Test
     public void testClickVisibilityChange3() {
@@ -3589,10 +3589,9 @@ public class LayoutTest {
                             RowLayout.TOP,
                             () -> {
                                 writer.row(
-                                        new RecordingModifier()
-                                                .componentId(4)
-                                                .padding(8),
-                                        RowLayout.CENTER, RowLayout.CENTER,
+                                        new RecordingModifier().componentId(4).padding(8),
+                                        RowLayout.CENTER,
+                                        RowLayout.CENTER,
                                         () -> {
                                             writer.box(
                                                     new RecordingModifier()
@@ -3607,8 +3606,10 @@ public class LayoutTest {
                                                 .componentId(3)
                                                 .size(100)
                                                 .background(Color.RED)
-                                                .onClick(new ValueIntegerChange((int) visibilityId,
-                                                        Component.Visibility.GONE)));
+                                                .onClick(
+                                                        new ValueIntegerChange(
+                                                                (int) visibilityId,
+                                                                Component.Visibility.GONE)));
                             });
                 });
         ArrayList<TestComponentOperation> ops = new ArrayList<>();
@@ -3639,8 +3640,10 @@ public class LayoutTest {
                                                 .componentId(3)
                                                 .size(100)
                                                 .background(Color.RED)
-                                                .onClick(new ValueIntegerChange((int) visibilityId,
-                                                        Component.Visibility.VISIBLE)));
+                                                .onClick(
+                                                        new ValueIntegerChange(
+                                                                (int) visibilityId,
+                                                                Component.Visibility.VISIBLE)));
                                 writer.box(
                                         new RecordingModifier()
                                                 .componentId(2)
@@ -3679,8 +3682,10 @@ public class LayoutTest {
                                                 .componentId(3)
                                                 .size(100)
                                                 .background(Color.RED)
-                                                .onClick(new ValueIntegerChange((int) visibilityId,
-                                                        Component.Visibility.VISIBLE)));
+                                                .onClick(
+                                                        new ValueIntegerChange(
+                                                                (int) visibilityId,
+                                                                Component.Visibility.VISIBLE)));
                                 writer.addDebugMessage("End Box 1");
                                 writer.addDebugMessage("Start Box 2");
                                 writer.box(
@@ -3727,14 +3732,15 @@ public class LayoutTest {
                                                 .componentId(3)
                                                 .size(100)
                                                 .background(Color.RED)
-                                                .onTouchDown(new ValueIntegerChange(
-                                                        (int) visibilityId,
-                                                        Component.Visibility.VISIBLE)));
+                                                .onTouchDown(
+                                                        new ValueIntegerChange(
+                                                                (int) visibilityId,
+                                                                Component.Visibility.VISIBLE)));
                             });
                 });
         ArrayList<TestComponentOperation> ops = new ArrayList<>();
         ops.add(new TestComponentVisibility(2, Component.Visibility.GONE));
-        //ops.add(new TestComponentClickNoInvalOperation(3));
+        // ops.add(new TestComponentClickNoInvalOperation(3));
         ops.add(new TestComponentTouchDownNoInvalOperation(3, 50, 50));
         ArrayList<TestComponentOperation> ops2 = new ArrayList<>();
         ops2.add(new TestComponentVisibility(2, Component.Visibility.VISIBLE));
@@ -3767,9 +3773,10 @@ public class LayoutTest {
                                                 .componentId(3)
                                                 .size(100)
                                                 .background(Color.RED)
-                                                .onTouchDown(new ValueIntegerChange(
-                                                        (int) visibilityId,
-                                                        Component.Visibility.GONE)));
+                                                .onTouchDown(
+                                                        new ValueIntegerChange(
+                                                                (int) visibilityId,
+                                                                Component.Visibility.GONE)));
                             });
                 });
         ArrayList<TestComponentOperation> ops = new ArrayList<>();
@@ -3807,13 +3814,17 @@ public class LayoutTest {
                                                 .size(100)
                                                 .background(Color.RED));
 
-                                writer.canvas(new RecordingModifier().size(1), () -> {
-                                    writer.startRunActions();
-                                    Action action = new ValueIntegerChange((int) visibilityId,
-                                            Component.Visibility.GONE);
-                                    action.write(writer);
-                                    writer.endRunActions();
-                                });
+                                writer.canvas(
+                                        new RecordingModifier().size(1),
+                                        () -> {
+                                            writer.startRunActions();
+                                            Action action =
+                                                    new ValueIntegerChange(
+                                                            (int) visibilityId,
+                                                            Component.Visibility.GONE);
+                                            action.write(writer);
+                                            writer.endRunActions();
+                                        });
                             });
                 });
         ArrayList<TestComponentOperation> ops = new ArrayList<>();
@@ -3850,13 +3861,17 @@ public class LayoutTest {
                                                 .size(100)
                                                 .background(Color.RED));
 
-                                writer.canvas(new RecordingModifier().size(1), () -> {
-                                    writer.startRunActions();
-                                    Action action = new ValueIntegerChange((int) visibilityId,
-                                            Component.Visibility.VISIBLE);
-                                    action.write(writer);
-                                    writer.endRunActions();
-                                });
+                                writer.canvas(
+                                        new RecordingModifier().size(1),
+                                        () -> {
+                                            writer.startRunActions();
+                                            Action action =
+                                                    new ValueIntegerChange(
+                                                            (int) visibilityId,
+                                                            Component.Visibility.VISIBLE);
+                                            action.write(writer);
+                                            writer.endRunActions();
+                                        });
                             });
                 });
         ArrayList<TestComponentOperation> ops = new ArrayList<>();

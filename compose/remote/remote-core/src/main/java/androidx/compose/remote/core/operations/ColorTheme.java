@@ -40,6 +40,7 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
     private static final int OP_CODE = Operations.COLOR_THEME;
     private static final String CLASS_NAME = "ColorTheme";
     public int mId;
+
     public @Nullable String mColorGroupName;
     public int mColorGroupId; // The id of the name of the color group
     public short mDarkModeIndex;
@@ -175,8 +176,8 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int groupId = buffer.readInt();
+        int id = buffer.readId();
+        int groupId = buffer.readId();
         short lightModeIndex = (short) buffer.readShort();
         short darkModeIndex = (short) buffer.readShort();
         int lightModeFallback = buffer.readInt();

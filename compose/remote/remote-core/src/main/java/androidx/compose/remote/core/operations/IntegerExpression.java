@@ -27,6 +27,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
@@ -51,7 +52,7 @@ public class IntegerExpression extends Operation
     public int mId;
     private int mMask;
     private int mPreMask;
-    public final int @NonNull [] mSrcValue;
+    public int @NonNull [] mSrcValue;
     public int @Nullable [] mPreCalcValue;
     private float mLastChange = Float.NaN;
     public static final int MAX_SIZE = 320;
@@ -197,15 +198,26 @@ public class IntegerExpression extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int mask = buffer.readInt();
-        int len = buffer.readInt();
-        if (len > MAX_SIZE) {
-            throw new RuntimeException("buffer corrupt integer expression " + len);
+        int valueLen = buffer.readInt();
+
+        if (valueLen > MAX_SIZE) {
+            throw new RuntimeException("buffer corrupt integer expression " + valueLen);
         }
-        int[] values = new int[len];
-        for (int i = 0; i < values.length; i++) {
-            values[i] = buffer.readInt();
+        int[] values = new int[valueLen];
+        for (int i = 0; i < valueLen; i++) {
+            int v = buffer.readInt();
+            if (isId(mask, i, v)) {
+                // Manual remapping since we already read it
+                if (buffer instanceof LoomWireBuffer) {
+                    values[i] = ((LoomWireBuffer) buffer).getRemapContext().resolveId(v);
+                } else {
+                    values[i] = v;
+                }
+            } else {
+                values[i] = v;
+            }
         }
 
         operations.add(new IntegerExpression(id, mask, values));
@@ -252,7 +264,7 @@ public class IntegerExpression extends Operation
                 .addTags(SerializeTags.EXPRESSION)
                 .addType(CLASS_NAME)
                 .add("id", mId)
-                .add("mask", mId)
+                .add("mask", mMask)
                 .addIntExpressionSrc("srcValues", mSrcValue, mMask);
     }
 }

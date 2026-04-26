@@ -76,8 +76,8 @@ public class DimensionConstraintsModifierOperation extends DimensionInModifierOp
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int type = buffer.readByte();
-        float v1 = buffer.readFloat();
-        float v2 = buffer.readFloat();
+        float v1 = buffer.readNanId();
+        float v2 = buffer.readNanId();
         operations.add(new DimensionConstraintsModifierOperation(type, v1, v2));
     }
 

@@ -72,7 +72,7 @@ class TextStyleTest {
         val operations = mutableListOf<Operation>()
         buffer.reset(0)
         val opCode = buffer.readByte()
-        Truth.assertThat(opCode).isEqualTo(242) // Operations.TEXT_STYLE
+        assertThat(opCode).isEqualTo(242) // Operations.TEXT_STYLE
 
         TextStyle.read(buffer, operations)
         Truth.assertThat(operations).hasSize(1)
