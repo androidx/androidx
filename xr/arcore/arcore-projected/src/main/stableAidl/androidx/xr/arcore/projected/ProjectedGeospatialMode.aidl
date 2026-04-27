@@ -21,6 +21,23 @@ package androidx.xr.arcore.projected;
 enum ProjectedGeospatialMode {
   /** Geospatial mode is disabled. */
   DISABLED,
-  /** Geospatial mode is enabled. */
-  ENABLED
+  /**
+   * Geospatial mode is enabled.
+   * @deprecated This value is deprecated. Use {@link #SPATIAL} for behavior
+   * equivalent to the previous ENABLED state, or {@link #INERTIAL} for the
+   * new low-power mode.
+   */
+  ENABLED,
+  /**
+   * Geospatial mode is enabled in a low power mode.
+   * This mode consumes less power, but may offer lower accuracy compared to
+   * SPATIAL.
+   */
+  INERTIAL,
+  /**
+   * Geospatial mode is enabled in a high power mode.
+   * This mode provides the highest accuracy but consumes more power.
+   * This mode is equivalent to the old ENABLED behavior.
+   */
+  SPATIAL
 }
