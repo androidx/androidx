@@ -77,6 +77,8 @@ class RemoteTextTest {
             val left = "LEFT".rs
             val center = "CENTER".rs
             val right = "RIGHT".rs
+            val start = "START".rs
+            val end = "END".rs
             val color = rememberNamedRemoteColor("TestColor5_rtl", Color.Green)
 
             RemoteColumn(RemoteModifier.fillMaxSize()) {
@@ -100,6 +102,27 @@ class RemoteTextTest {
                     fontSize = 32.rsp,
                     color = color,
                     textAlign = TextAlign.Right,
+                )
+                RemoteText(
+                    text = start,
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 32.rsp,
+                    color = color,
+                    textAlign = TextAlign.Start,
+                )
+                RemoteText(
+                    text = center,
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 32.rsp,
+                    color = color,
+                    textAlign = TextAlign.Center,
+                )
+                RemoteText(
+                    text = end,
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 32.rsp,
+                    color = color,
+                    textAlign = TextAlign.End,
                 )
             }
         }
