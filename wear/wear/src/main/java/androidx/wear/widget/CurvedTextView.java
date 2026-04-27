@@ -894,6 +894,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
      *              null.
      */
     public void setFontFeatureSettings(@Nullable String value) {
+        mPaint.setFontFeatureSettings(value);
         mFontFeatureSettings = value;
         doUpdate();
     }
@@ -910,6 +911,9 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
      *              settings. This value may be null
      */
     public void setFontVariationSettings(@Nullable String value) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            Api26Impl.paintSetFontVariationSettings(mPaint, value);
+        }
         mFontVariationSettings = value;
         doUpdate();
     }
