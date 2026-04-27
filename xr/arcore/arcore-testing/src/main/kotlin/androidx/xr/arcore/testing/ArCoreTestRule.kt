@@ -73,7 +73,7 @@ public class ArCoreTestRule : ExternalResource() {
      * via [androidx.xr.runtime.Session.configure] in order for an added object to be ingested by
      * the runtime.
      */
-    public val augmentableObjects: List<TestAugmentedObject>
+    public val augmentedObjects: List<TestAugmentedObject>
         get() = _objects.toList()
 
     /**
@@ -81,7 +81,7 @@ public class ArCoreTestRule : ExternalResource() {
      * via [androidx.xr.runtime.Session.configure] in order for an added object to be ingested by
      * the runtime.
      */
-    public val augmentableImages: List<TestAugmentedImage>
+    public val augmentedImages: List<TestAugmentedImage>
         get() = _images.toList()
 
     /**

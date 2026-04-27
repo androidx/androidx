@@ -7,8 +7,8 @@ package androidx.xr.arcore.testing {
     method protected void before();
     method public void clearPersistedAnchors();
     method @InaccessibleFromKotlin public int getAnchorResourceLimit();
-    method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> getAugmentableImages();
-    method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> getAugmentableObjects();
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> getAugmentedImages();
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> getAugmentedObjects();
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.TestConversationSceneSignal getConversationSceneSignal();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestArDevice getDevice();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestFace getFace();
@@ -28,8 +28,8 @@ package androidx.xr.arcore.testing {
     method public java.util.UUID persistAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public void setAnchorResourceLimit(int);
     property public int anchorResourceLimit;
-    property public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> augmentableImages;
-    property public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> augmentableObjects;
+    property public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> augmentedImages;
+    property public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> augmentedObjects;
     property @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.TestConversationSceneSignal conversationSceneSignal;
     property public androidx.xr.arcore.testing.TestArDevice device;
     property public androidx.xr.arcore.testing.TestFace face;
