@@ -955,17 +955,17 @@ object ButtonDefaults {
         get() =
             PaddingValues(
                 start = SmallStartPadding,
-                top = SmallVerticalPadding,
+                top = smallVerticalPadding,
                 end = SmallEndPadding,
-                bottom = SmallVerticalPadding,
+                bottom = smallVerticalPadding,
             )
 
     private fun getSmallContentPadding(hasStartIcon: Boolean, hasEndIcon: Boolean) =
         PaddingValues(
-            start = if (hasStartIcon) IconSmallHorizontalPadding else SmallStartPadding,
-            top = SmallVerticalPadding,
-            end = if (hasEndIcon) IconSmallHorizontalPadding else SmallEndPadding,
-            bottom = SmallVerticalPadding,
+            start = if (hasStartIcon) iconSmallHorizontalPadding else SmallStartPadding,
+            top = smallVerticalPadding,
+            end = if (hasEndIcon) iconSmallHorizontalPadding else SmallEndPadding,
+            bottom = smallVerticalPadding,
         )
 
     /** Default content padding for an extra small button. */
@@ -1073,12 +1073,13 @@ object ButtonDefaults {
      * The default min height applied for small buttons. Note that you can override it by applying
      * Modifier.heightIn directly on the button composable.
      */
-    val MinHeight =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            36.dp
-        } else {
-            ButtonSmallTokens.ContainerHeight
-        }
+    val MinHeight
+        get() =
+            if (shouldUsePrecisionPointerComponentSizing.value) {
+                36.dp
+            } else {
+                ButtonSmallTokens.ContainerHeight
+            }
 
     /** The default height for a extra small button container. */
     @ExperimentalMaterial3ExpressiveApi
@@ -1695,10 +1696,12 @@ object ButtonDefaults {
         }
     }
 
-    private val SmallVerticalPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) 8.dp else 10.dp
-    private val IconSmallHorizontalPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else SmallStartPadding
+    private val smallVerticalPadding
+        get() = if (shouldUsePrecisionPointerComponentSizing.value) 8.dp else 10.dp
+
+    private val iconSmallHorizontalPadding
+        get() = if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else SmallStartPadding
+
     private val MediumLeadingPadding = ButtonMediumTokens.LeadingSpace
     private val MediumTrailingPadding = ButtonMediumTokens.TrailingSpace
     private val MediumVerticalPadding = 16.dp

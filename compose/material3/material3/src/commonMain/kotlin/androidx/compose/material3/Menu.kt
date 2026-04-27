@@ -1406,7 +1406,7 @@ internal fun DropdownMenuItemContent(
                                 .padding(
                                     end =
                                         if (hasTrailingIcon) {
-                                            DropdownMenuIconTextPadding
+                                            MenuDefaults.dropdownMenuIconTextPadding
                                         } else {
                                             0.dp
                                         }
@@ -1662,7 +1662,7 @@ private fun WrappedLeadingIcon(content: @Composable BoxScope.() -> Unit) {
     Box(
         modifier =
             Modifier.defaultMinSize(minWidth = SegmentedMenuTokens.ItemLeadingIconSize)
-                .padding(end = DropdownMenuIconTextPadding),
+                .padding(end = MenuDefaults.dropdownMenuIconTextPadding),
         content = content,
     )
 }
@@ -1895,8 +1895,6 @@ internal val DropdownMenuGroupVerticalPadding = 2.dp
 private val DropdownMenuSelectableItemPadding = PaddingValues(horizontal = 4.dp)
 private val DropdownMenuSelectableItemWithSupportTexPadding =
     PaddingValues(horizontal = 4.dp, vertical = 2.dp)
-private val DropdownMenuIconTextPadding =
-    if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 8.dp
 internal val DropdownMenuVerticalPadding = 8.dp
 internal val DropdownMenuItemDefaultMinWidth = 112.dp
 internal val DropdownMenuItemDefaultMaxWidth = 280.dp
