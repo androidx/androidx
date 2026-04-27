@@ -89,6 +89,11 @@ class VisibilityActivity : AppCompatActivity() {
         session?.scene?.setSpatialModeChangedListener { event ->
             session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
         }
+        session!!.scene.activitySpace.addBoundsChangedListener { dimensions ->
+            spatialMode =
+                if (dimensions.width == Float.POSITIVE_INFINITY) SpatialMode.FSM
+                else SpatialMode.HSM
+        }
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // Toolbar action
