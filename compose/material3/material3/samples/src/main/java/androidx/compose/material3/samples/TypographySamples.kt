@@ -48,30 +48,20 @@ fun TypographySample() {
 @Sampled
 @Composable
 fun TypographyCustomFontFamilySample() {
-    val typography = Typography(fontFamily = FontFamily.Cursive)
-
-    MaterialTheme(typography = typography) {
-        Column {
-            Text(text = "Display Large", style = MaterialTheme.typography.displayLarge)
-            Text(text = "Label Large", style = MaterialTheme.typography.labelLarge)
-            Text(text = "Body Large", style = MaterialTheme.typography.bodyLarge)
-        }
-    }
-}
-
-@Sampled
-@Composable
-fun TypographyCustomFontFamilyOverrideSample() {
     val typography =
         Typography(
             fontFamily = FontFamily.Cursive,
-            displayLarge = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 40.sp),
+            // font family is not defined, so the font family supplied to the typography is used
+            displayLarge = TextStyle(fontSize = 40.sp),
+            // font family is defined on the text style, so this will be used as it explicitly
+            // overrides the font family defined on the typography
+            labelLarge = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 14.sp),
         )
 
     MaterialTheme(typography = typography) {
         Column {
-            Text(text = "Monospace Display Large", style = MaterialTheme.typography.displayLarge)
-            Text(text = "Cursive Label Large", style = MaterialTheme.typography.labelLarge)
+            Text(text = "Cursive Display Large", style = MaterialTheme.typography.displayLarge)
+            Text(text = "Monospace Label Large", style = MaterialTheme.typography.labelLarge)
             Text(text = "Cursive Body Large", style = MaterialTheme.typography.bodyLarge)
         }
     }

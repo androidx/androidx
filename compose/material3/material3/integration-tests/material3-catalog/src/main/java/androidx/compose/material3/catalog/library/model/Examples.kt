@@ -292,7 +292,6 @@ import androidx.compose.material3.samples.TonalToggleButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxRoundedStrokesSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
-import androidx.compose.material3.samples.TypographyCustomFontFamilyOverrideSample
 import androidx.compose.material3.samples.TypographyCustomFontFamilySample
 import androidx.compose.material3.samples.TypographySample
 import androidx.compose.material3.samples.VerticalButtonGroupSample
@@ -1193,14 +1192,6 @@ val TypographyExamples =
             isExpressive = false,
         ) {
             TypographyCustomFontFamilySample()
-        },
-        Example(
-            name = "TypographyCustomFontFamilyOverrideSample",
-            description = TypographyExampleDescription,
-            sourceUrl = TypographyExampleSourceUrl,
-            isExpressive = false,
-        ) {
-            TypographyCustomFontFamilyOverrideSample()
         },
     )
 
