@@ -1251,9 +1251,10 @@ public object AlertDialogDefaults {
                 OneHandedGestureDefaults.GestureIndicator(
                     gestureIndicatorVisible,
                     { gestureIndicatorVisible = false },
-                    Modifier.size(OneHandedGestureDefaults.GestureIndicatorSmallSize),
                 ) {
-                    content()
+                    // wrap content() in a Row because EdgeButton's content parameter is as
+                    // RowScope.() -> Unit.
+                    Row(content = content)
                 }
             },
         )
