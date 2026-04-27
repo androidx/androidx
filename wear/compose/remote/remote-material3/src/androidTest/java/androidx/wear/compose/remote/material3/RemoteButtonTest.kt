@@ -48,12 +48,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.wear.compose.remote.material3.Material3ImageTest.Companion.createImage
 import androidx.wear.compose.remote.material3.previews.RemoteButtonEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithBorder
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIcon
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIconAndSecondaryLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithSecondaryLabel
+import androidx.wear.compose.remote.material3.previews.utils.createImage
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
