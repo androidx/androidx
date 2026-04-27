@@ -21,6 +21,11 @@
 namespace androidx_inspection {
 
     jobjectArray FindInstances(JNIEnv *env, jlong nativePtr, jclass jclass) {
+        // Insecure Native Pointer Handling
+        // Validate that the provided native pointer is not null to prevent a crash.
+        if (nativePtr == 0) {
+            return env->NewObjectArray(0, jclass, NULL);
+        }
         ArtToolingImpl *inspector =
                 reinterpret_cast<ArtToolingImpl *>(nativePtr);
         return inspector->FindInstances(env, jclass);
@@ -28,6 +33,11 @@ namespace androidx_inspection {
 
     void AddEntryTransformation(JNIEnv *env, jlong nativePtr, jclass origin_class,
                                 jstring method_name) {
+        // Insecure Native Pointer Handling
+        // Validate that the provided native pointer is not null.
+        if (nativePtr == 0 || origin_class == nullptr || method_name == nullptr) {
+            return;
+        }
         ArtToolingImpl *inspector =
                 reinterpret_cast<ArtToolingImpl *>(nativePtr);
         JStringWrapper method_str(env, method_name);
@@ -45,6 +55,11 @@ namespace androidx_inspection {
 
     void AddExitTransformation(JNIEnv *env, jlong nativePtr, jclass origin_class,
                                jstring method_name) {
+        // Insecure Native Pointer Handling
+        // Validate that the provided native pointer is not null.
+        if (nativePtr == 0 || origin_class == nullptr || method_name == nullptr) {
+            return;
+        }
         ArtToolingImpl *inspector =
                 reinterpret_cast<ArtToolingImpl *>(nativePtr);
         JStringWrapper method_str(env, method_name);
