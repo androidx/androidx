@@ -34,6 +34,7 @@ import kotlin.time.ComparableTimeMark
 /** [StateExtender] in charge of extending [CoreState] with [CameraState]. */
 // TODO(b/500400207): Dynamically load if play-services runtime is loaded and CAMERA feature
 // detected.
+@Suppress("NotCloseable")
 internal class CameraStateExtender : StateExtender {
 
     internal companion object {
@@ -68,7 +69,7 @@ internal class CameraStateExtender : StateExtender {
         synchronized(perceptionManager.frameLock) { updateCameraStateMap(coreState) }
     }
 
-    internal fun close() {
+    override fun close() {
         cameraStateMap.clear()
         timeMarkQueue.clear()
         outputVerticesBuffer = null

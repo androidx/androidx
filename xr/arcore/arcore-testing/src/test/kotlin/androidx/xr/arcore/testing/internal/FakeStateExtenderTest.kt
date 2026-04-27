@@ -65,6 +65,15 @@ class FakeStateExtenderTest {
         assertThat(underTest.extended).containsExactly(state)
     }
 
+    @Test
+    fun close_setsIsClosedToTrue() {
+        check(!underTest.isClosed)
+
+        underTest.close()
+
+        assertThat(underTest.isClosed).isTrue()
+    }
+
     private fun createStubCoreState(timeMark: ComparableTimeMark): CoreState {
         return CoreState(timeMark)
     }

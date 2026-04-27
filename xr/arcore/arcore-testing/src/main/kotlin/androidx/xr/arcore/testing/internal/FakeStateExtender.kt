@@ -23,6 +23,7 @@ import androidx.xr.runtime.internal.JxrRuntime
 internal class FakeStateExtender : StateExtender {
 
     var isInitialized: Boolean = false
+    var isClosed: Boolean = false
 
     val extended: MutableList<CoreState> = mutableListOf<CoreState>()
 
@@ -33,11 +34,17 @@ internal class FakeStateExtender : StateExtender {
     override suspend fun extend(coreState: CoreState) {
         extended.add(coreState)
     }
+
+    override fun close() {
+        isInitialized = false
+        isClosed = true
+    }
 }
 
 internal class AnotherFakeStateExtender() : StateExtender {
 
     var isInitialized: Boolean = false
+    var isClosed: Boolean = false
 
     val extended: MutableList<CoreState> = mutableListOf()
 
@@ -47,5 +54,10 @@ internal class AnotherFakeStateExtender() : StateExtender {
 
     override suspend fun extend(coreState: CoreState) {
         extended.add(coreState)
+    }
+
+    override fun close() {
+        isInitialized = false
+        isClosed = true
     }
 }

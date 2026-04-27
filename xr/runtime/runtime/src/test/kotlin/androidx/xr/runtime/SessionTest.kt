@@ -17,7 +17,6 @@
 package androidx.xr.runtime
 
 import android.Manifest
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.Looper
 import androidx.activity.ComponentActivity
@@ -56,7 +55,6 @@ class SessionTest {
     private lateinit var underTest: Session
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
-    private lateinit var application: Context
     private lateinit var testDispatcher: TestDispatcher
 
     @Before
@@ -270,7 +268,7 @@ class SessionTest {
         val newConfig =
             Config(
                 planeTracking = PlaneTrackingMode.DISABLED,
-                augmentedObjectCategories = setOf<AugmentedObjectCategory>(),
+                augmentedObjectCategories = setOf(),
                 handTracking = HandTrackingMode.DISABLED,
                 deviceTracking = DeviceTrackingMode.DISABLED,
                 depthEstimation = DepthEstimationMode.DISABLED,
@@ -455,7 +453,7 @@ class SessionTest {
         activityController.destroy()
 
         val stubRuntime = getStubRuntime()
-        // This should not be stopped because there is still an active activity but it will update
+        // This should not be stopped because there is still an active activity, but it will update
         // to PAUSED.
         assertThat(stubRuntime.state).isEqualTo(StubPerceptionRuntime.State.PAUSED)
 
@@ -525,6 +523,17 @@ class SessionTest {
     }
 
     @Test
+    fun destroy_closesSessionExtender() {
+        activityController.create()
+        underTest = createSession()
+        val stateExtender = getStubStateExtender()
+
+        activityController.destroy()
+
+        assertThat(stateExtender.isClosed).isTrue()
+    }
+
+    @Test
     fun destroy_callsCleanupsInReverseOrder() {
         val callOrder = mutableListOf<String>()
         val runtime1 =
@@ -552,6 +561,10 @@ class SessionTest {
                 override fun initialize(runtimes: List<JxrRuntime>) {}
 
                 override suspend fun extend(coreState: CoreState) {}
+
+                override fun close() {
+                    callOrder.add("extender1")
+                }
             }
         val session =
             Session(
@@ -566,7 +579,9 @@ class SessionTest {
 
         activityController.create().start().resume().pause().stop().destroy()
 
-        assertThat(callOrder).containsExactly("connector1", "runtime2", "runtime1").inOrder()
+        assertThat(callOrder)
+            .containsExactly("connector1", "extender1", "runtime2", "runtime1")
+            .inOrder()
     }
 
     private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher): Session {
@@ -579,10 +594,12 @@ class SessionTest {
         return underTest.runtimes.filterIsInstance<StubPerceptionRuntime>().first()
     }
 
-    private fun getStubSessionConnector(): androidx.xr.runtime.StubSessionConnector {
-        return underTest.sessionConnectors
-            .filterIsInstance<androidx.xr.runtime.StubSessionConnector>()
-            .first()
+    private fun getStubSessionConnector(): StubSessionConnector {
+        return underTest.sessionConnectors.filterIsInstance<StubSessionConnector>().first()
+    }
+
+    private fun getStubStateExtender(): StubStateExtender {
+        return underTest.stateExtenders.filterIsInstance<StubStateExtender>().first()
     }
 
     private companion object {

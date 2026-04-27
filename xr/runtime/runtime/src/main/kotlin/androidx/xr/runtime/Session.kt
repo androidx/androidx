@@ -28,7 +28,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config.ConfigMode
-import androidx.xr.runtime.Session.Companion.create
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
@@ -511,6 +510,9 @@ public constructor(
         coroutineScope.cancel()
         for (sessionConnector in sessionConnectors.asReversed()) {
             sessionConnector.close()
+        }
+        for (stateExtender in stateExtenders.asReversed()) {
+            stateExtender.close()
         }
         for (runtime in runtimes.asReversed()) {
             runtime.destroy()
