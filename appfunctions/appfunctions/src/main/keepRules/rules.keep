@@ -31,3 +31,7 @@
 # TODO: b/440484133 - Remove once AppSearch updates their rules
 -if class androidx.appsearch.app.DocumentClassFactoryRegistry {}
 -keep,allowshrinking @androidx.appsearch.annotation.Document class ** {}
+
+# TODO: b/506032409 - Checks why AppSearch keep rule doesn't apply
+# Keeps all metadata document converter classes
+-keep class androidx.appfunctions.metadata.$$__AppSearch__* implements androidx.appsearch.app.DocumentClassFactory { *; }
