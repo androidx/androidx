@@ -16,7 +16,9 @@
 
 package androidx.compose.material3.catalog.library.ui.common
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -38,8 +40,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,8 +86,9 @@ fun CatalogScaffold(
                 onLicensesClick = { context.openUrl(licensesUrl) },
             )
         },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        content = content,
+        content = { paddingValues ->
+            Box(Modifier.padding(paddingValues)) { content(PaddingValues(0.dp)) }
+        },
     )
 
     if (openThemePicker) {
