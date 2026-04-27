@@ -27,7 +27,7 @@ private const val START_RESTART_GROUP = "startRestartGroup(I)Landroidx/compose/r
 private const val SKIP_TO_GROUP_END = "skipToGroupEnd()V"
 
 /** Detection of recompose counts and skips from installing runtime hooks. */
-open class RecompositionHandler<T : RecompositionData>(
+internal open class RecompositionHandler<T : RecompositionData>(
     protected val artTooling: ArtTooling,
     protected val anchorMap: AnchorMap,
     protected val createRecompositionData: () -> T,
@@ -58,6 +58,27 @@ open class RecompositionHandler<T : RecompositionData>(
         currentHandler = null
     }
 
+    /**
+     * True, if any recompositions happened since the last call tof the [getCounts] function. A
+     * value of false can be used to determine that there is no new data to report about.
+     */
+    var hasNewRecompositions: Boolean = true
+        get() {
+            synchronized(lock) {
+                // The hooks must be installed to detect recompositions. If this is the first use,
+                // install them. [getCounts] is always called during GetComposablesCommand
+                // processing. Installing the hooks ensures that hasNewRecompositions still works
+                // even when recomposition counts are not being recorded.
+                if (!hooksInstalled) {
+                    installHooks(artTooling)
+                }
+                return field
+            }
+        }
+        set(value) {
+            synchronized(lock) { field = value }
+        }
+
     fun changeCollectionMode(startCollecting: Boolean, keepCounts: Boolean) {
         synchronized(lock) {
             if (startCollecting != collectingRecompositionCounts) {
@@ -75,6 +96,7 @@ open class RecompositionHandler<T : RecompositionData>(
     // Return the recomposition counts and skips
     fun getCounts(anchorHash: Int): RecompositionData? {
         synchronized(lock) {
+            hasNewRecompositions = false
             return anchorMap[anchorHash]?.let { counts[it] }
         }
     }
@@ -119,6 +141,7 @@ private fun installHooks(artTooling: ArtTooling) {
 
     composerImplementationClasses().forEach { composer ->
         artTooling.registerExitHook(composer, START_RESTART_GROUP) { composer: Composer ->
+            currentHandler?.hasNewRecompositions = true
             composer.recomposeScopeIdentity?.let { anchor ->
                 currentHandler?.incrementRecompositionCount(anchor)
             }

@@ -222,6 +222,8 @@ message StateReadGroup {
     int32 recomposition_number = 1;
     // The StateReads for this recomposition.
     repeated StateRead read = 2;
+    // The parameters that were changed.
+    repeated Parameter parameter_changes = 3;
 }
 
 // A single StateRead observation.
@@ -277,6 +279,8 @@ message StateReadSettings {
   message All {
       // Limit the number of state reads kept on the device. The default is 5000.
       int32 max_state_reads = 1;
+      // Include parameter changes with the state reads.
+      bool include_parameter_changes = 2;
   }
 
   // The agent should start recording State Reads for the specified composable.
@@ -286,6 +290,9 @@ message StateReadSettings {
 
       // The anchor hash of the composable to observe recompose state reads for.
       repeated sint32 composable_to_observe = 2;
+
+      // Include parameter changes with the state reads.
+      bool include_parameter_changes = 3;
   }
 }
 
@@ -308,12 +315,17 @@ message GetComposablesCommand {
   int32 generation = 3;
   // If true, extract all parameters even if `delayParameterExtractions` is off.
   bool extract_all_parameters = 4;
+  // If true, return an empty response if no changes were detected since the last request.
+  bool allow_empty_if_unchanged = 5;
 }
 
 message GetComposablesResponse {
     // A collection of all text referenced by other fields in this message
     repeated StringEntry strings = 1;
+    // A collection of all root notes found.
     repeated ComposableRoot roots = 2;
+    // If true, no changes were detected since the last request and the strings and roots are empty.
+    bool unchanged = 3;
 }
 
 message GetParametersCommand {

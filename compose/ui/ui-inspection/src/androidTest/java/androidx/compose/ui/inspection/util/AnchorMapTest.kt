@@ -31,22 +31,23 @@ class AnchorMapTest {
         val anchor2 = Anchor(2)
         val anchor3 = Anchor(3)
         val anchor4 = Anchor(1)
-        check(map, anchor0, 1)
-        check(map, anchor1, 2)
-        check(map, anchor2, 3)
-        check(map, anchor3, 4)
-        check(map, anchor4, 5)
-        check(map, anchor0, 1)
-        check(map, anchor1, 2)
-        check(map, anchor2, 3)
-        check(map, anchor3, 4)
-        check(map, anchor4, 5)
+        check(map, anchor0, 1, 117)
+        check(map, anchor1, 2, 118)
+        check(map, anchor2, 3, 217)
+        check(map, anchor3, 4, 218)
+        check(map, anchor4, 5, 317)
+        check(map, anchor0, 1, 117)
+        check(map, anchor1, 2, 118)
+        check(map, anchor2, 3, 217)
+        check(map, anchor3, 4, 218)
+        check(map, anchor4, 5, 317)
     }
 
-    private fun check(map: AnchorMap, anchor: Anchor, expectedId: Int) {
-        val id = map[anchor]
+    private fun check(map: AnchorMap, anchor: Anchor, expectedId: Int, expectedKey: Int) {
+        val id = map[anchor, expectedKey]
         assertThat(id).isEqualTo(expectedId)
         assertThat(map[id]).isSameInstanceAs(anchor)
+        assertThat(map.getKey(anchor)).isEqualTo(expectedKey)
     }
 
     private class Anchor(private val hash: Int) {
