@@ -18,6 +18,7 @@ package androidx.compose.material3.catalog.library.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -100,13 +101,15 @@ fun Component(
                 }
             }
             item {
-                Text(
-                    text = stringResource(id = R.string.description),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Spacer(modifier = Modifier.height(ComponentPadding))
-                Text(text = component.description, style = MaterialTheme.typography.bodyMedium)
-                Spacer(modifier = Modifier.height(ComponentDescriptionPadding))
+                Column {
+                    Text(
+                        text = stringResource(id = R.string.description),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Spacer(modifier = Modifier.height(ComponentPadding))
+                    Text(text = component.description, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(ComponentDescriptionPadding))
+                }
             }
             item {
                 Text(
