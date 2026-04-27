@@ -16,6 +16,7 @@
 #ifndef ART_TOOLING_TRANSFORM_H
 #define ART_TOOLING_TRANSFORM_H
 
+#include <mutex>
 #include "array_params_entry_hook.h"
 #include "slicer/dex_ir.h"
 #include "slicer/dex_ir_builder.h"
@@ -30,11 +31,18 @@ namespace androidx_inspection {
 
         void AddTransform(const char* class_name, const char* method_name,
                           const char* signature, bool isEntry) {
+            // Thread Safety / Race Condition
+            // The transforms list can be accessed concurrently by JNI calls and JVMTI callbacks.
+            // Added std::lock_guard to prevent data corruption.
+            std::lock_guard<std::mutex> lock(transforms_mutex_);
             transforms.push_back(
                     TransformDescription(class_name, method_name, signature, isEntry));
         }
 
         void Apply(std::shared_ptr<ir::DexFile> dex_ir) {
+            // Thread Safety / Race Condition
+            // Protect concurrent reads during class transformation.
+            std::lock_guard<std::mutex> lock(transforms_mutex_);
             for (auto transform : transforms) {
                 slicer::MethodInstrumenter mi(dex_ir);
                 if (transform.isEntry()) {
@@ -79,7 +87,11 @@ namespace androidx_inspection {
 
             const char* GetSignature() { return signature_.c_str(); }
 
-            bool HasPrimitiveOrVoidReturnType() { return signature_.back() != ';'; }
+            bool HasPrimitiveOrVoidReturnType() {
+                // Undefined behavior
+                // back() on empty string is UB. Added length check.
+                return !signature_.empty() && signature_.back() != ';';
+            }
 
             bool isEntry() { return isEntry_; }
 
@@ -92,6 +104,7 @@ namespace androidx_inspection {
 
         std::string class_name_;
         std::list<TransformDescription> transforms;
+        std::mutex transforms_mutex_;
     };
 
 }  // namespace androidx_inspection
