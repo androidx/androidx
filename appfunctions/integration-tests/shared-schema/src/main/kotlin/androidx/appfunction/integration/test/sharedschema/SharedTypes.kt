@@ -17,13 +17,18 @@
 package androidx.appfunction.integration.test.sharedschema
 
 import android.app.PendingIntent
+import android.net.Uri
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionResourceContainer
 import androidx.appfunctions.AppFunctionSchemaCapability
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
+import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 
 // TODO: b/463375632 - We should write tests in Agent app to not use these since they're not part of
 // schema.
@@ -89,6 +94,16 @@ interface AppFunctionOpenable {
 }
 
 @AppFunctionSerializable data class DateTime(val localDateTime: LocalDateTime)
+
+@AppFunctionSerializable
+data class ProxyTypesWrapper(
+    val localDateTime: LocalDateTime,
+    val localDate: LocalDate,
+    val localTime: LocalTime,
+    val uri: Uri,
+    val instant: Instant,
+    val zoneId: ZoneId,
+)
 
 @AppFunctionSerializable
 data class ClassWithOptionalValues(

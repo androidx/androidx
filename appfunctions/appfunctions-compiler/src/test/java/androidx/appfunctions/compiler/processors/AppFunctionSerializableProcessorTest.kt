@@ -34,6 +34,8 @@ class AppFunctionSerializableProcessorTest {
                 stubSourceFileNames =
                     listOf(
                         "androidx/appfunctions/internal/serializableproxies/AppFunctionLocalDateTime.KT",
+                        "androidx/appfunctions/internal/serializableproxies/AppFunctionLocalDate.KT",
+                        "androidx/appfunctions/internal/serializableproxies/AppFunctionLocalTime.KT",
                         "androidx/appfunctions/internal/serializableproxies/AppFunctionUri.KT",
                     ),
                 symbolProcessorProviders = listOf(AppFunctionSerializableProcessor.Provider()),
@@ -224,6 +226,16 @@ class AppFunctionSerializableProcessorTest {
             report = report,
             expectGeneratedSourceFileName = "\$LocalDateTimeFactory.kt",
             goldenFileName = "factory/\$LocalDateTimeFactory.KT",
+        )
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "\$LocalDateFactory.kt",
+            goldenFileName = "factory/\$LocalDateFactory.KT",
+        )
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "\$LocalTimeFactory.kt",
+            goldenFileName = "factory/\$LocalTimeFactory.KT",
         )
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,

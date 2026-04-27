@@ -9,7 +9,7 @@ For target apps, this library simplifies implementation using KSP code generatio
 ## General Instructions
 
 - Run commands from `frameworks/support/`.
-- When modifying any `.kt` file, format it by running `./gradlew :ktCheckFile --format --file <file_1> [--file <file_2> ...]`
+- Run `./gradlew :appfunctions:<module>:ktFormat` to format code whenever you edited a file.
 - If you change a published public API, run `./gradlew :appfunctions:<module>:updateApi` for the affected published module.
 - In unit tests, prefer robolectric to mock.
 

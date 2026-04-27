@@ -44,7 +44,9 @@ import com.squareup.kotlinpoet.LONG
 import com.squareup.kotlinpoet.LONG_ARRAY
 import com.squareup.kotlinpoet.TypeName
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 
 /** Represents a type that is supported by AppFunction and AppFunctionSerializable. */
@@ -368,6 +370,8 @@ class AppFunctionTypeReference(val selfTypeReference: KSTypeReference) {
                 ANDROID_URI,
                 ZoneId::class.ensureQualifiedName(),
                 Instant::class.ensureQualifiedName(),
+                LocalDate::class.ensureQualifiedName(),
+                LocalTime::class.ensureQualifiedName(),
             )
 
         private val SUPPORTED_PRIMITIVE_TYPES_IN_LIST = setOf(String::class.ensureQualifiedName())

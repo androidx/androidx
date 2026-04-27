@@ -28,7 +28,6 @@ import androidx.appfunction.integration.test.sharedschema.BSubclass
 import androidx.appfunction.integration.test.sharedschema.ClassWithOptionalValues
 import androidx.appfunction.integration.test.sharedschema.CreateNoteAppFunction
 import androidx.appfunction.integration.test.sharedschema.CreateNoteParams
-import androidx.appfunction.integration.test.sharedschema.DateTime
 import androidx.appfunction.integration.test.sharedschema.FilesData
 import androidx.appfunction.integration.test.sharedschema.IntEnumSerializable
 import androidx.appfunction.integration.test.sharedschema.Note
@@ -36,6 +35,7 @@ import androidx.appfunction.integration.test.sharedschema.OneOfSealedInterface
 import androidx.appfunction.integration.test.sharedschema.OneOfSealedNestedSerializable
 import androidx.appfunction.integration.test.sharedschema.OpenableNote
 import androidx.appfunction.integration.test.sharedschema.Owner
+import androidx.appfunction.integration.test.sharedschema.ProxyTypesWrapper
 import androidx.appfunction.integration.test.sharedschema.SetField
 import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
 import androidx.appfunctions.AppFunctionData
@@ -74,7 +74,11 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 import kotlin.test.assertIs
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -180,7 +184,7 @@ class IntegrationTest {
                 it.appFunctions
             }
 
-        val aggregatedFunctionCount = 23
+        val aggregatedFunctionCount = 20
         val multiServiceFunctionCount = 1
         if (Build.VERSION.SDK_INT >= 37) {
             assertThat(appFunctions).hasSize(aggregatedFunctionCount + multiServiceFunctionCount)
@@ -637,13 +641,21 @@ class IntegrationTest {
     }
 
     @Test
-    fun executeAppFunction_serializableProxyParam_dateTime_success() = doBlocking {
+    fun testProxyTypes() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
             findAppFunctionMetadata(
-                "androidx.appfunctions.integration.testapp.TestFunctions#logLocalDateTime"
+                "androidx.appfunctions.integration.testapp.TestFunctions#echoProxyTypes"
             )
-        val localDateTimeClass = DateTime(LocalDateTime.now())
+        val value =
+            ProxyTypesWrapper(
+                localDateTime = LocalDateTime.of(2026, 4, 25, 22, 0),
+                localDate = LocalDate.of(2026, 4, 25),
+                localTime = LocalTime.of(22, 0),
+                uri = Uri.parse("https://www.google.com/"),
+                instant = Instant.ofEpochMilli(1000),
+                zoneId = ZoneId.of("UTC"),
+            )
 
         val response =
             appFunctionCaller.executeAppFunction(
@@ -654,104 +666,26 @@ class IntegrationTest {
                         functionParameters =
                             AppFunctionData.Builder(metadata.parameters, metadata.components)
                                 .setAppFunctionData(
-                                    "dateTime",
-                                    AppFunctionData.serialize(
-                                        localDateTimeClass,
-                                        DateTime::class.java,
-                                    ),
+                                    "value",
+                                    AppFunctionData.serialize(value, ProxyTypesWrapper::class.java),
                                 )
-                                .build(),
-                    )
-            )
-        assertIs<ExecuteAppFunctionResponse.Success>(response)
-    }
-
-    @Test
-    fun executeAppFunction_serializableProxyParam_androidUri_success() = doBlocking {
-        assumeTrue(isDynamicIndexerAvailable(targetContext))
-        val metadata =
-            findAppFunctionMetadata(
-                "androidx.appfunctions.integration.testapp.library.TestFunctions2#logUri"
-            )
-
-        val androidUri = Uri.parse("https://www.google.com/")
-        val response =
-            appFunctionCaller.executeAppFunction(
-                request =
-                    ExecuteAppFunctionRequest(
-                        targetPackageName = metadata.packageName,
-                        functionIdentifier = metadata.id,
-                        functionParameters =
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
-                                .setAppFunctionData(
-                                    "androidUri",
-                                    AppFunctionData.serialize(androidUri, Uri::class.java),
-                                )
-                                .build(),
-                    )
-            )
-
-        assertIs<ExecuteAppFunctionResponse.Success>(response)
-    }
-
-    @Test
-    fun executeAppFunction_serializableProxyResponse_dateTime_success() = doBlocking {
-        assumeTrue(isDynamicIndexerAvailable(targetContext))
-        val metadata =
-            findAppFunctionMetadata(
-                "androidx.appfunctions.integration.testapp.TestFunctions#getLocalDate"
-            )
-
-        val response =
-            appFunctionCaller.executeAppFunction(
-                request =
-                    ExecuteAppFunctionRequest(
-                        targetPackageName = metadata.packageName,
-                        functionIdentifier = metadata.id,
-                        functionParameters =
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
                                 .build(),
                     )
             )
 
         val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
-
-        assertIs<LocalDateTime>(
+        val result =
             successResponse.returnValue
                 .getAppFunctionData(PROPERTY_RETURN_VALUE)
-                ?.deserialize(DateTime::class.java)
-                ?.localDateTime
-        )
-    }
+                ?.deserialize(ProxyTypesWrapper::class.java)
 
-    @Test
-    fun executeAppFunction_serializableProxyResponse_androidUri_success() = doBlocking {
-        assumeTrue(isDynamicIndexerAvailable(targetContext))
-        val metadata =
-            findAppFunctionMetadata(
-                "androidx.appfunctions.integration.testapp.library.TestFunctions2#getUri"
-            )
-
-        val response =
-            appFunctionCaller.executeAppFunction(
-                request =
-                    ExecuteAppFunctionRequest(
-                        targetPackageName = metadata.packageName,
-                        functionIdentifier = metadata.id,
-                        functionParameters =
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
-                                .build(),
-                    )
-            )
-
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
-        val androidUriResult =
-            assertIs<Uri>(
-                successResponse.returnValue
-                    .getAppFunctionData(PROPERTY_RETURN_VALUE)
-                    ?.deserialize(Uri::class.java)
-            )
-        assertThat(androidUriResult.toString()).isEqualTo("https://www.google.com/")
+        assertThat(result).isNotNull()
+        assertThat(result!!.localDateTime).isEqualTo(value.localDateTime)
+        assertThat(result.localDate).isEqualTo(value.localDate)
+        assertThat(result.localTime).isEqualTo(value.localTime)
+        assertThat(result.uri.toString()).isEqualTo(value.uri.toString())
+        assertThat(result.instant).isEqualTo(value.instant)
+        assertThat(result.zoneId).isEqualTo(value.zoneId)
     }
 
     @Test
