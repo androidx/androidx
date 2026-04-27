@@ -244,6 +244,17 @@ object AlertDialogDefaults {
 
     /** The default tonal elevation for alert dialogs */
     val TonalElevation: Dp = 0.dp
+
+    // Container padding.
+    internal val dialogPadding = PaddingValues(all = dialogPaddingValue)
+    // Text padding.
+    internal val textPadding = PaddingValues(bottom = textPaddingValue)
+
+    private val dialogPaddingValue
+        get() = if (shouldUsePrecisionPointerComponentSizing.value) 20.dp else 24.dp
+
+    private val textPaddingValue
+        get() = if (shouldUsePrecisionPointerComponentSizing.value) 16.dp else 24.dp
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -325,7 +336,7 @@ internal fun AlertDialogContent(
         color = containerColor,
         tonalElevation = tonalElevation,
     ) {
-        Column(modifier = Modifier.padding(DialogPadding)) {
+        Column(modifier = Modifier.padding(AlertDialogDefaults.dialogPadding)) {
             icon?.let {
                 CompositionLocalProvider(LocalContentColor provides iconContentColor) {
                     Box(Modifier.padding(IconPadding).align(Alignment.CenterHorizontally)) {
@@ -370,7 +381,7 @@ internal fun AlertDialogContent(
                 ) {
                     Box(
                         Modifier.weight(weight = 1f, fill = false)
-                            .padding(TextPadding)
+                            .padding(AlertDialogDefaults.textPadding)
                             .align(Alignment.Start)
                     ) {
                         text()
@@ -426,15 +437,8 @@ internal val DialogMaxWidth = 560.dp
 private val ButtonsMainAxisSpacing = 8.dp
 private val ButtonsCrossAxisSpacing = 8.dp
 
-private val DialogPaddingValue =
-    if (shouldUsePrecisionPointerComponentSizing.value) 20.dp else 24.dp
-private val TextPaddingValue = if (shouldUsePrecisionPointerComponentSizing.value) 16.dp else 24.dp
-
-// Paddings for each of the dialog's parts.
-private val DialogPadding = PaddingValues(all = DialogPaddingValue)
 private val IconPadding = PaddingValues(bottom = 16.dp)
 private val TitlePadding = PaddingValues(bottom = 16.dp)
-private val TextPadding = PaddingValues(bottom = TextPaddingValue)
 
 /**
  * Interface that allows libraries to override the behavior of the [BasicAlertDialog] component.

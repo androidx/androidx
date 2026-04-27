@@ -56,12 +56,13 @@ object MenuDefaults {
     val LeadingIconSize = SegmentedMenuTokens.ItemLeadingIconSize
 
     /** The default trailing icon size for a menu item. */
-    val TrailingIconSize =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            24.dp
-        } else {
-            SegmentedMenuTokens.ItemTrailingIconSize
-        }
+    val TrailingIconSize
+        get() =
+            if (shouldUsePrecisionPointerComponentSizing.value) {
+                24.dp
+            } else {
+                SegmentedMenuTokens.ItemTrailingIconSize
+            }
 
     /** The default shape for a menu. */
     val shape
@@ -342,12 +343,13 @@ object MenuDefaults {
      * [MenuDefaults.DropdownMenuItemTrailingLabel].
      */
     @ExperimentalMaterial3ExpressiveApi
-    val DropdownMenuItemTrailingLabelHorizontalPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            PaddingValues(start = 0.dp, end = 6.dp)
-        } else {
-            PaddingValues(all = 0.dp)
-        }
+    val DropdownMenuItemTrailingLabelHorizontalPadding
+        get() =
+            if (shouldUsePrecisionPointerComponentSizing.value) {
+                PaddingValues(start = 0.dp, end = 6.dp)
+            } else {
+                PaddingValues(all = 0.dp)
+            }
 
     /**
      * The default trailing label recommended to be used within a [DropdownMenuItem] which can be
@@ -646,24 +648,28 @@ object MenuDefaults {
     private val SelectableItemVerticalPadding = 12.dp
 
     /** Default padding used for [DropdownMenuItem] that are selectable. */
-    val DropdownMenuSelectableItemContentPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            PaddingValues(
-                start = 16.dp,
-                end = 10.dp,
-                top = SelectableItemVerticalPadding,
-                bottom = SelectableItemVerticalPadding,
-            )
-        } else {
-            PaddingValues(
-                horizontal = DropdownMenuItemHorizontalPadding,
-                vertical = SelectableItemVerticalPadding,
-            )
-        }
+    val DropdownMenuSelectableItemContentPadding
+        get() =
+            if (shouldUsePrecisionPointerComponentSizing.value) {
+                PaddingValues(
+                    start = 16.dp,
+                    end = 10.dp,
+                    top = SelectableItemVerticalPadding,
+                    bottom = SelectableItemVerticalPadding,
+                )
+            } else {
+                PaddingValues(
+                    horizontal = DropdownMenuItemHorizontalPadding,
+                    vertical = SelectableItemVerticalPadding,
+                )
+            }
 
     /** Default padding used for [DropdownMenuGroup]. */
     val DropdownMenuGroupContentPadding =
         PaddingValues(horizontal = 0.dp, vertical = DropdownMenuGroupVerticalPadding)
+
+    internal val dropdownMenuIconTextPadding
+        get() = if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 8.dp
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultMenuStandaloneItemShapes: MenuItemShapes
