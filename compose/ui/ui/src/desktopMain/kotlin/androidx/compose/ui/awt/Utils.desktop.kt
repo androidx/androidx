@@ -26,13 +26,10 @@ import java.awt.EventQueue
 import java.awt.Graphics
 import java.awt.Rectangle
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.swing.JComponent
-import javax.swing.JDialog
-import javax.swing.JFrame
 import javax.swing.JLayeredPane
+import javax.swing.RootPaneContainer
 import kotlin.math.ceil
 import kotlin.math.floor
-import kotlin.math.roundToInt
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 
@@ -87,26 +84,14 @@ internal fun Rect.toAwtRectangleRounded(density: Density): Rectangle {
 
 internal fun Color.toAwtColor() = java.awt.Color(red, green, blue, alpha)
 
+/**
+ * Determines whether the window has a shadow on macOS.
+ */
 // See https://developer.apple.com/library/archive/technotes/tn2007/tn2196.html#WINDOW_SHADOW
-private var JComponent.hasMacOsShadow: Boolean
-    get() = getClientProperty("Window.shadow") as? Boolean? ?: false
-    set(value) { putClientProperty("Window.shadow", value) }
-
-/**
- * Determines if the window has a shadow on macOS.
- */
-internal var JFrame.hasMacOsShadow: Boolean
+internal var RootPaneContainer.hasMacOsShadow: Boolean
     // Delegated properties don't work for extensions https://youtrack.jetbrains.com/issue/KT-6643
-    get() = rootPane.hasMacOsShadow
-    set(value) { rootPane.hasMacOsShadow = value }
-
-/**
- * Determines if the window has a shadow on macOS.
- */
-internal var JDialog.hasMacOsShadow: Boolean
-    // Delegated properties don't work for extensions https://youtrack.jetbrains.com/issue/KT-6643
-    get() = rootPane.hasMacOsShadow
-    set(value) { rootPane.hasMacOsShadow = value }
+    get() = rootPane.getClientProperty("Window.shadow") as? Boolean? ?: false
+    set(value) { rootPane.putClientProperty("Window.shadow", value) }
 
 /**
  * Windows makes clicks on transparent pixels fall through, but it doesn't work
