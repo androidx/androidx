@@ -487,8 +487,8 @@ fun LegacyRangeSliderSample() {
         Text(text = "$rangeStart .. $rangeEnd")
         RangeSlider(
             state = rangeSliderState,
-            startInteractionSource = startInteractionSource,
-            endInteractionSource = endInteractionSource,
+            startThumbInteractionSource = startInteractionSource,
+            endThumbInteractionSource = endInteractionSource,
             modifier = Modifier.requiredSizeIn(minWidth = thumbSize.width, minHeight = trackHeight),
             startThumb = {
                 val modifier =
@@ -575,8 +575,8 @@ fun RangeSliderWithCustomComponents() {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         RangeSlider(
             state = rangeSliderState,
-            startInteractionSource = startInteractionSource,
-            endInteractionSource = endInteractionSource,
+            startThumbInteractionSource = startInteractionSource,
+            endThumbInteractionSource = endInteractionSource,
             startThumb = {
                 Label(
                     label = {
