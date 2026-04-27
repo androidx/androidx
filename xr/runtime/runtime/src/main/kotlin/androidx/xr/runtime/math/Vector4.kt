@@ -182,7 +182,7 @@ constructor(
             // Would cause acos to return NaN.
             val cos = clamp(dot / magnitude, -1.0f, 1.0f)
 
-            return acos(cos)
+            return toDegrees(acos(cos))
         }
 
         /**
