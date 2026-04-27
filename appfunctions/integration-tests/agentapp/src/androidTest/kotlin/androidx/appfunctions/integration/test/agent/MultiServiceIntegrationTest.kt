@@ -18,7 +18,11 @@ package androidx.appfunctions.integration.test.agent
 
 import android.Manifest
 import android.content.Context
+import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.ExecuteAppFunctionRequest
+import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.PROPERTY_RETURN_VALUE
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.retryAssert
@@ -98,6 +102,39 @@ class MultiServiceIntegrationTest {
         // assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         // val successResponse = response as ExecuteAppFunctionResponse.Success
         // assertThat(successResponse.returnValue.getLong(PROPERTY_RETURN_VALUE)).isEqualTo(3)
+    }
+
+    @Test
+    fun searchAndInvokeCustomServiceFunction_success() = doBlocking {
+        val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
+
+        val appFunctions: List<AppFunctionMetadata> =
+            appFunctionCaller.observeAppFunctions(searchFunctionSpec).first().flatMap {
+                it.appFunctions
+            }
+        val targetFunction =
+            appFunctions.single {
+                it.id == "androidx.appfunctions.integration.testapp.CustomAppFunctionService#add"
+            }
+        val response =
+            appFunctionCaller.executeAppFunction(
+                request =
+                    ExecuteAppFunctionRequest(
+                        targetFunction.packageName,
+                        targetFunction.id,
+                        AppFunctionData.Builder(
+                                targetFunction.parameters,
+                                targetFunction.components,
+                            )
+                            .setInt("a", 1)
+                            .setInt("b", 2)
+                            .build(),
+                    )
+            )
+
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
+        assertThat(successResponse.returnValue.getInt(PROPERTY_RETURN_VALUE)).isEqualTo(3)
     }
 
     private suspend fun Context.awaitAppFunctionsIndexed(targetPackage: String) {
