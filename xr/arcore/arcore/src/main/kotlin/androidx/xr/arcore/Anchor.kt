@@ -46,7 +46,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @SuppressWarnings("HiddenSuperclass")
 public class Anchor
 internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val runtimeAnchor: RuntimeAnchor,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val runtimeAnchor: RuntimeAnchor,
     private val xrResourceManager: XrResourcesManager,
 ) : Updatable() {
     public companion object {
@@ -180,7 +180,7 @@ internal constructor(
 
     // TODO(b/482642212): This constructor is only used for testing. Remove it once tests have been
     // refactored to use ArCoreTestRule.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(runtimeAnchor: RuntimeAnchor) : this(runtimeAnchor, XrResourcesManager())
 
     /**
