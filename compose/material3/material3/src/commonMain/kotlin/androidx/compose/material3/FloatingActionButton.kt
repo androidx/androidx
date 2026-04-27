@@ -95,7 +95,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.lerp
-import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -1199,25 +1198,26 @@ internal class FabVisibleNode(
                 // Use a larger layer size to make sure the elevation shadow doesn't get clipped
                 // and offset via layer.topLeft and DrawScope.inset to preserve the visual
                 // position of the FAB.
-                val layerInsetSize = 16.dp.toPx()
+                val layerInsetInt = 16.dp.toPx().toInt()
+                val layerInsetFloat = layerInsetInt.toFloat()
                 val layerSize =
-                    Size(size.width + layerInsetSize * 2f, size.height + layerInsetSize * 2f)
+                    Size(size.width + layerInsetInt * 2f, size.height + layerInsetInt * 2f)
                         .toIntSize()
                 val nodeSize = size.toIntSize()
 
                 layer.apply {
-                    topLeft = IntOffset(-layerInsetSize.roundToInt(), -layerInsetSize.roundToInt())
+                    topLeft = IntOffset(-layerInsetInt, -layerInsetInt)
 
                     alpha = alphaAnimatable.value
 
                     // Scale towards the direction of the provided alignment
                     val alignOffset = alignment.align(IntSize(1, 1), nodeSize, layoutDirection)
-                    pivotOffset = alignOffset.toOffset() + Offset(layerInsetSize, layerInsetSize)
+                    pivotOffset = alignOffset.toOffset() + Offset(layerInsetFloat, layerInsetFloat)
                     scaleX = lerp(targetScale, 1f, scaleAnimatable.value)
                     scaleY = lerp(targetScale, 1f, scaleAnimatable.value)
 
                     record(size = layerSize) {
-                        inset(layerInsetSize, layerInsetSize) { this@record.drawContent() }
+                        inset(layerInsetFloat, layerInsetFloat) { this@record.drawContent() }
                     }
                 }
 

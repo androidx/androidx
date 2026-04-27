@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -71,6 +72,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
@@ -1080,6 +1082,63 @@ class FloatingActionButtonTest {
                 )
             }
         }
+
+        rule.onNodeWithTag(AnimateFloatingActionButtonTestTag).performClick()
+
+        assertThat(contentBoxClicked).isTrue()
+        assertThat(fabBoxClicked).isFalse()
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun animateFloatingActionButton_hide_doesNotCrashWithDensityRounding() {
+        val visible = mutableStateOf(true)
+        var contentBoxClicked = false
+        var fabBoxClicked = false
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalDensity provides Density(1.1f)) {
+                Box(
+                    modifier =
+                        Modifier.background(Color.Red)
+                            .size(100.dp)
+                            .testTag(AnimateFloatingActionButtonTestTag)
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.background(Color.Green)
+                                .fillMaxSize()
+                                .clickable(onClick = { contentBoxClicked = true })
+                    )
+
+                    Box(
+                        modifier =
+                            Modifier.size(0.dp)
+                                .animateFloatingActionButton(
+                                    visible = visible.value,
+                                    alignment = Alignment.BottomEnd,
+                                    targetScale = 0.2f,
+                                    scaleAnimationSpec = tween(100, easing = LinearEasing),
+                                    alphaAnimationSpec = tween(100, easing = LinearEasing),
+                                )
+                                .background(Color.Blue)
+                                .clickable(onClick = { fabBoxClicked = true })
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { visible.value = false }
+
+        // Wait for initial recomposition / measure after state change
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Run full animation
+        rule.mainClock.advanceTimeBy(100)
 
         rule.onNodeWithTag(AnimateFloatingActionButtonTestTag).performClick()
 
