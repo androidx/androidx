@@ -17,10 +17,8 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -95,13 +93,9 @@ public fun PickerGroup(
         modifier =
             modifier.then(
                 if (touchExplorationServicesEnabled && selectedPickerState != null) {
-                    // When touch exploration services are enabled, send the scroll events on the
-                    // parent composable to selected picker
-                    Modifier.scrollable(
-                        state = selectedPickerState,
-                        orientation = Orientation.Vertical,
-                        reverseDirection = true,
-                    )
+                    // When touch exploration services are enabled,
+                    // Apply scrollable modifier for the selected picker
+                    Modifier.scrollableForTouchExploration(selectedPickerState)
                 } else if (!touchExplorationServicesEnabled && autoCenter) {
                     // Apply the single-pointer input filter only when touch exploration is OFF
                     // and autoCenter is TRUE.

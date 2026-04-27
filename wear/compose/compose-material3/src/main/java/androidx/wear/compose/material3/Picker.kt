@@ -26,8 +26,10 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -191,7 +193,21 @@ public fun Picker(
             )
         }
 
-    Box(modifier = modifier.semantics(mergeDescendants = true) {}) {
+    val touchExplorationServicesEnabled by
+        LocalTouchExplorationStateProvider.current.touchExplorationState()
+
+    Box(
+        modifier =
+            modifier
+                .semantics(mergeDescendants = true) {}
+                .then(
+                    if (touchExplorationServicesEnabled) {
+                        Modifier.scrollableForTouchExploration(state)
+                    } else {
+                        Modifier
+                    }
+                )
+    ) {
         ScalingLazyColumn(
             modifier =
                 Modifier.clearAndSetSemantics {
@@ -668,5 +684,21 @@ internal fun pickerTextOption(
             )
         }
     }
+
+/**
+ * Returns a Modifier.scrollable() configured to handle scroll events from accessibility services
+ * like TalkBack, ensuring the picker's fling behavior and snapping is engaged.
+ */
+@Composable
+internal fun Modifier.scrollableForTouchExploration(state: PickerState): Modifier {
+    return this.then(
+        Modifier.scrollable(
+            state = state,
+            orientation = Orientation.Vertical,
+            reverseDirection = true,
+            flingBehavior = pickerFlingBehavior(state),
+        )
+    )
+}
 
 private const val LARGE_NUMBER_OF_ITEMS = 100_000_000
