@@ -23,8 +23,11 @@ import androidx.appsearch.stats.BaseStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
 
 import com.google.android.icing.proto.PersistType;
+import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
+
+import java.util.Set;
 
 public class AppSearchStatsTest {
     static final String TEST_PACKAGE_NAME = "com.google.test";
@@ -650,6 +653,7 @@ public class AppSearchStatsTest {
         int lastBlockingOperation = 222;
         int lastBlockingOperationLatencyMillis = 223;
         int getVmLatencyMillis = 224;
+        Set<String> resultSchemas = ImmutableSet.of("Type1", "Type2", "Type3");
 
         final QueryStats.Builder qStatsBuilder = new QueryStats.Builder(visibilityScope,
                 TEST_PACKAGE_NAME)
@@ -685,7 +689,8 @@ public class AppSearchStatsTest {
                 .setFirstNativeCallLatency(firstNativeCallLatencyMillis)
                 .setLastBlockingOperation(lastBlockingOperation)
                 .setLastBlockingOperationLatencyMillis(lastBlockingOperationLatencyMillis)
-                .addGetVmLatencyMillis(getVmLatencyMillis);
+                .addGetVmLatencyMillis(getVmLatencyMillis)
+                .setResultSchemas(resultSchemas);
         final QueryStats qStats = qStatsBuilder.build();
 
         assertThat(qStats.getEnabledFeatures()).isEqualTo(enabledFeatures);
@@ -738,6 +743,8 @@ public class AppSearchStatsTest {
         assertThat(qStats.getLastBlockingOperation()).isEqualTo(lastBlockingOperation);
         assertThat(qStats.getLastBlockingOperationLatencyMillis())
                 .isEqualTo(lastBlockingOperationLatencyMillis);
+        assertThat(qStats.getResultSchemas()).containsExactlyElementsIn(resultSchemas);
+
         String expectedString = "QueryStats {\n"
                 + "  packageName=com.google.test,\n"
                 + "  database=testDataBase,\n"
@@ -811,6 +818,7 @@ public class AppSearchStatsTest {
                 + "  liteIndexHitBufferUnsortedByteSize=216,\n"
                 + "  pageTokenType=3,\n"
                 + "  numResultStatesEvicted=217,\n"
+                + "  resultSchemas={Type1, Type2, Type3},\n"
                 + "  enabledFeatures=11,\n"
                 + "  javaLockAcquisitionLatencyMillis=204,\n"
                 + "  lastBlockingOperation=222,\n"

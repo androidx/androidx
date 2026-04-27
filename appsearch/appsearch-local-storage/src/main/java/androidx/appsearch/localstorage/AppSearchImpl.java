@@ -3371,13 +3371,15 @@ public final class AppSearchImpl implements Closeable {
 
         long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
         // Rewrite search result before we return.
+        Set<String> resultSchemas = new ArraySet<>();
         SearchResultPage searchResultPage = SearchResultToProtoConverter
-                .toSearchResultPage(searchResultProto, mSchemaCacheLocked, mConfig);
+                .toSearchResultPage(searchResultProto, mSchemaCacheLocked, mConfig, resultSchemas);
         if (sStatsBuilder != null) {
             sStatsBuilder.setRewriteSearchResultLatencyMillis(
                     (int) (SystemClock.elapsedRealtime()
                             - rewriteSearchResultLatencyStartMillis))
-                    .addGetVmLatencyMillis(searchResultProto.getGetVmLatencyMs());
+                    .addGetVmLatencyMillis(searchResultProto.getGetVmLatencyMs())
+                    .setResultSchemas(resultSchemas);
         }
         return searchResultPage;
     }
@@ -3777,13 +3779,16 @@ public final class AppSearchImpl implements Closeable {
 
             long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
             // Rewrite search result before we return.
+            Set<String> resultSchemas = new ArraySet<>();
             SearchResultPage searchResultPage = SearchResultToProtoConverter
-                    .toSearchResultPage(searchResultProto, mSchemaCacheLocked, mConfig);
+                    .toSearchResultPage(searchResultProto, mSchemaCacheLocked, mConfig,
+                            resultSchemas);
             if (queryStatsBuilder != null) {
                 queryStatsBuilder.setRewriteSearchResultLatencyMillis(
                         (int) (SystemClock.elapsedRealtime()
                                 - rewriteSearchResultLatencyStartMillis))
-                        .addGetVmLatencyMillis(searchResultProto.getGetVmLatencyMs());
+                        .addGetVmLatencyMillis(searchResultProto.getGetVmLatencyMs())
+                        .setResultSchemas(resultSchemas);
             }
             return searchResultPage;
         } finally {

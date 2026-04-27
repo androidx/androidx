@@ -15,6 +15,8 @@
  */
 package androidx.appsearch.localstorage.stats;
 
+import android.util.ArraySet;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
@@ -29,7 +31,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Class holds detailed stats for
@@ -166,6 +170,7 @@ public final class QueryStats extends BaseStats {
     // Number of result states being force-evicted from ResultStateManager due to
     // budget limit. This doesn't include expired or invalidated states.
     int mNumResultStatesEvicted;
+    @NonNull final Set<String> mResultSchemas;
 
     QueryStats(@NonNull Builder builder) {
         super(builder);
@@ -201,6 +206,7 @@ public final class QueryStats extends BaseStats {
         mLiteIndexHitBufferUnsortedByteSize = builder.mLiteIndexHitBufferUnsortedByteSize;
         mPageTokenType = builder.mPageTokenType;
         mNumResultStatesEvicted = builder.mNumResultStatesEvicted;
+        mResultSchemas = Collections.unmodifiableSet(builder.mResultSchemas);
     }
 
     /** Returns the package name of the session. */
@@ -392,6 +398,12 @@ public final class QueryStats extends BaseStats {
         return mNumResultStatesEvicted;
     }
 
+    /**  Returns an unmodifiable set contains results schemas. */
+    @NonNull
+    public Set<String> getResultSchemas() {
+        return mResultSchemas;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -430,6 +442,7 @@ public final class QueryStats extends BaseStats {
                         + "  liteIndexHitBufferUnsortedByteSize=%d,\n"
                         + "  pageTokenType=%d,\n"
                         + "  numResultStatesEvicted=%d,\n"
+                        + "  resultSchemas=%s,\n"
                         // Include BaseStats fields
                         + super.toString()
                         + "}",
@@ -464,7 +477,8 @@ public final class QueryStats extends BaseStats {
                 mLiteIndexHitBufferByteSize,
                 mLiteIndexHitBufferUnsortedByteSize,
                 mPageTokenType,
-                mNumResultStatesEvicted);
+                mNumResultStatesEvicted,
+                mResultSchemas);
     }
 
     /** Builder for {@link QueryStats} */
@@ -502,6 +516,7 @@ public final class QueryStats extends BaseStats {
         long mLiteIndexHitBufferUnsortedByteSize;
         @PageTokenType int mPageTokenType;
         int mNumResultStatesEvicted;
+        @NonNull Set<String> mResultSchemas = new ArraySet<>();
 
         /**
          * Constructor of {@link QueryStats}.
@@ -744,6 +759,14 @@ public final class QueryStats extends BaseStats {
         @CanIgnoreReturnValue
         public @NonNull Builder setNumResultStatsEvicted(int numResultStatesEvicted) {
             mNumResultStatesEvicted = numResultStatesEvicted;
+            return this;
+        }
+
+        /** Sets the result schemas.         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setResultSchemas(@NonNull Set<String> resultSchemas) {
+            mResultSchemas = new ArraySet<>(resultSchemas.size());
+            mResultSchemas.addAll(resultSchemas);
             return this;
         }
 

@@ -6837,6 +6837,84 @@ public class AppSearchImplTest {
     }
 
     @Test
+    public void testQueryStatsResultsSchema() throws Exception {
+        // Set a schema and check SetSchemaStats
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("type1").build(),
+                new AppSearchSchema.Builder("type2").build(),
+                new AppSearchSchema.Builder("type3").build());
+        SetSchemaStats.Builder setSchemaStatsBuilder = new SetSchemaStats.Builder(
+                "package", "database");
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                setSchemaStatsBuilder,
+                /*callStatsBuilder=*/null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        List<GenericDocument> documents = new ArrayList<>();
+        GenericDocument document1 =
+                new GenericDocument.Builder<>("namespace1", "id1", "type1").build();
+        documents.add(document1);
+        GenericDocument document2 =
+                new GenericDocument.Builder<>("namespace1", "id2", "type2").build();
+        documents.add(document2);
+        GenericDocument document3 =
+                new GenericDocument.Builder<>("namespace1", "id3", "type3").build();
+        documents.add(document3);
+
+        AppSearchBatchResult.Builder<String, InternalPutDocumentResponse> resultBuilder =
+                new AppSearchBatchResult.Builder<>();
+        mAppSearchImpl.batchPutDocuments(
+                "package",
+                "database",
+                documents,
+                resultBuilder,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null,
+                PersistType.Code.LITE,
+                /*callStatsBuilder=*/ null);
+
+        AppSearchLogger fakeLogger = new AppSearchLogger() {
+            @Override
+            public void logStats(@NonNull QueryStats stats) {
+                assertThat(stats.getResultSchemas()).containsExactly("type1", "type2", "type3");
+            }
+        };
+        mAppSearchImpl.query(
+                "package", "database", "",
+                new SearchSpec.Builder().build(), fakeLogger,
+                /*callStatsBuilder=*/null);
+
+        fakeLogger = new AppSearchLogger() {
+            @Override
+            public void logStats(@NonNull QueryStats stats) {
+                assertThat(stats.getResultSchemas()).containsExactly("type1", "type2");
+            }
+        };
+        mAppSearchImpl.query(
+                "package", "database", "",
+                new SearchSpec.Builder().addFilterSchemas("type1", "type2").build(), fakeLogger,
+                /*callStatsBuilder=*/null);
+
+        fakeLogger = new AppSearchLogger() {
+            @Override
+            public void logStats(@NonNull QueryStats stats) {
+                assertThat(stats.getResultSchemas()).containsExactly("type1");
+            }
+        };
+        mAppSearchImpl.query(
+                "package", "database", "",
+                new SearchSpec.Builder().addFilterSchemas("type1", "type4").build(), fakeLogger,
+                /*callStatsBuilder=*/null);
+    }
+
+    @Test
     public void testLastBlockingOperationStats() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
