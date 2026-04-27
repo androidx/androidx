@@ -21,6 +21,7 @@ import androidx.collection.mutableIntSetOf
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.inspection.inspector.RawParameter
 
 /** A single recorded state read by a state variable for a composable that was recomposed. */
 class StateReadRecord(
@@ -36,13 +37,33 @@ class StateReadRecord(
     val trace: Exception,
 )
 
-/** Invalidations and state reads for a composable that was recomposed once. */
+/**
+ * Observations for a recomposition.
+ *
+ * @param reads the state reads for this recomposition
+ * @param invalidations the valueInstance (hashCode of state variable) that were invalidated.
+ * @param parameterChanges the parameter name and value that changed since the last recomposition.
+ * @param parameterChangeMask a bit mask of which parameters changed since the last recomposition.
+ *   Each bit correspond to a index of a parameter that changed e.g. 0x1010 means that the
+ *   parameters at index 2 and 4 were changed. This information is recorded first and later
+ *   converted to actual [parameterChanges].
+ */
 data class ObservedStateReads(
-    // The [StateRead]s recorded for this recomposition.
-    val reads: MutableList<StateReadRecord> = mutableListOf(),
-    // The valueInstance (hashCode of state variable) that were invalidated.
+    private val reads: MutableList<StateReadRecord> = mutableListOf(),
     private var invalidations: MutableIntSet? = null,
+    private var parameterChanges: List<RawParameter> = emptyList(),
+    var parameterChangeMask: Int = 0,
 ) {
+    val readSize: Int
+        get() = reads.size
+
+    fun registerParameterChanges(parameterChanges: List<RawParameter>) {
+        this.parameterChanges = parameterChanges
+    }
+
+    fun toObservedReadResult(recomposition: Int) =
+        ObservedReadResult(recomposition, reads, parameterChanges)
+
     fun addStateRead(value: Any?, trace: Exception) {
         // Use [Snapshot.withoutReadObservation] to avoid another callback when we read
         // the value.

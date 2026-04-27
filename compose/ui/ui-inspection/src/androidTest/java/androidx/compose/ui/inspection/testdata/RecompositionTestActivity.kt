@@ -55,14 +55,47 @@ class RecompositionTestActivity : ComponentActivity() {
             }
             Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text("Row $number click count: ${clickCount.value}, ${list.joinToString("")}")
-                AnotherItem(clickCount.value) { clickCount.value }
+                AnotherItem(
+                    a1 = 1,
+                    a2 = 2,
+                    a3 = 3,
+                    a4 = 4,
+                    a5 = 5,
+                    a6 = 6,
+                    a7 = 7,
+                    a8 = 8,
+                    a9 = 9,
+                    a10 = 10,
+                    a11 = 11,
+                    a12 = 12,
+                    number = clickCount.value,
+                    a13 = 13,
+                ) {
+                    clickCount.value
+                }
             }
         }
     }
 
     /** This @Composable will have a state read every 2nd time it called from Item. */
     @Composable
-    fun AnotherItem(number: Int, withStateRead: () -> Int) {
+    fun AnotherItem(
+        a1: Int,
+        a2: Int,
+        a3: Int,
+        a4: Int,
+        a5: Int,
+        a6: Int,
+        a7: Int,
+        a8: Int,
+        a9: Int,
+        a10: Int,
+        a11: Int,
+        a12: Int,
+        number: Int,
+        a13: Int,
+        withStateRead: () -> Int,
+    ) {
         val value = if (number % 2 == 1) number + withStateRead() else number
         Text(value.toString(), modifier = Modifier.padding(16.dp, 4.dp))
     }
