@@ -28,7 +28,8 @@ import androidx.annotation.Px
  * properties and provides methods to draw the layout on a [Canvas].
  *
  * NOTE: Currently, this API leverages a platform feature introduced in API 36 (Android 16). On
- * older API levels, it falls back to a no-op.
+ * older API levels, it falls back to a no-op (i.e. it does not draw any text and reports a width
+ * and line count of 0).
  */
 public class VerticalTextLayout
 /**
