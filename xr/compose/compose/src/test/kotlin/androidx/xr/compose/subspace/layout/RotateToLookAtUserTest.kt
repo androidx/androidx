@@ -18,10 +18,12 @@ package androidx.xr.compose.subspace.layout
 
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
+import androidx.xr.compose.spatial.LocalSubspaceRootNode
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
@@ -33,6 +35,7 @@ import androidx.xr.compose.testing.session
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Quaternion.Companion.fromRotation
 import androidx.xr.runtime.math.Vector3
@@ -98,12 +101,12 @@ class RotateToLookAtUserTest {
             composeTestRule.waitForIdle()
 
             val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
-            val targetVector = (userLocation - watcherWorldPose.translation).toNormalized()
+            val targetVector = userLocation - watcherWorldPose.translation
             val expectedRotation = Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
 
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(expectedRotation, tolerance = 0.04f)
+                .assertRotationInRootIsEqualTo(expectedRotation)
         }
 
     @Test
@@ -151,7 +154,7 @@ class RotateToLookAtUserTest {
 
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(expectedRotation, tolerance = 0.04f)
+                .assertRotationInRootIsEqualTo(expectedRotation)
         }
 
     @Test
@@ -187,14 +190,14 @@ class RotateToLookAtUserTest {
             composeTestRule.waitForIdle()
 
             val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
-            val targetVector = (userLocation - watcherWorldPose.translation).toNormalized()
+            val targetVector = userLocation - watcherWorldPose.translation
             val lookAtUserRotationTowardsUser =
                 Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
             val expectedRotation = lookAtUserRotationTowardsUser * fixedRotateOffset
 
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(expectedRotation, tolerance = 0.04f)
+                .assertRotationInRootIsEqualTo(expectedRotation)
         }
 
     @Test
@@ -239,7 +242,7 @@ class RotateToLookAtUserTest {
 
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(expectedRotation, tolerance = 0.04f)
+                .assertRotationInRootIsEqualTo(expectedRotation)
         }
 
     @Test
@@ -275,12 +278,12 @@ class RotateToLookAtUserTest {
             composeTestRule.waitForIdle()
 
             val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
-            val targetVector = (userLocation - watcherWorldPose.translation).toNormalized()
+            val targetVector = userLocation - watcherWorldPose.translation
             val expectedRotation = Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
 
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(expectedRotation, tolerance = 0.04f)
+                .assertRotationInRootIsEqualTo(expectedRotation)
         }
 
     @Test
@@ -303,7 +306,7 @@ class RotateToLookAtUserTest {
 
             composeTestRule
                 .onSubspaceNodeWithTag("child")
-                .assertRotationInRootIsEqualTo(parentRotation, tolerance = 0.04f)
+                .assertRotationInRootIsEqualTo(parentRotation)
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
             fakePerceptionManager.arDevice.apply {
@@ -314,13 +317,66 @@ class RotateToLookAtUserTest {
             composeTestRule.waitForIdle()
 
             val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
-            val targetVector = (userLocation - watcherWorldPose.translation).toNormalized()
+            val targetVector = userLocation - watcherWorldPose.translation
             val expectedWorldRotation =
                 Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
 
             composeTestRule
                 .onSubspaceNodeWithTag("child")
-                .assertRotationInRootIsEqualTo(expectedWorldRotation, tolerance = 0.04f)
+                .assertRotationInRootIsEqualTo(expectedWorldRotation)
+        }
+
+    @Test
+    fun rotateToLookAtUser_withTranslatedRoot_calculatesCorrectLookDirection() =
+        runTest(testDispatcher) {
+            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+
+            // Create a custom Subspace root node offset by 1 meter on the X axis.
+            val customRootNode =
+                Entity.create(assertNotNull(composeTestRule.session), "customRootNode")
+            customRootNode.setPose(
+                relativeTo = Space.ACTIVITY,
+                // Root is at X = 1m
+                pose = Pose(translation = Vector3(x = 1f, y = 0f, z = 0f)),
+            )
+
+            composeTestRule.setContent {
+                CompositionLocalProvider(LocalSubspaceRootNode provides customRootNode) {
+                    Subspace {
+                        // Node has no local offset. It should perfectly inherit the Root's X = 1m
+                        // position.
+                        SpatialPanel(SubspaceModifier.testTag("TheWatcher").rotateToLookAtUser()) {
+                            Text(text = "Panel")
+                        }
+                    }
+                }
+            }
+
+            // Place the user directly in front of the Root's X = 1m position.
+            val userLocation = Vector3(x = 1F, y = 0F, z = 3F)
+
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            val watcherActivityPose =
+                composeTestRule.getTaggedEntity("TheWatcher").getPose(Space.ACTIVITY)
+            val targetVector = userLocation - watcherActivityPose.translation
+            val expectedRotation =
+                Quaternion.fromLookTowards(forward = targetVector, up = Vector3.Up)
+
+            // Verify that the look-at calculation uses the correct absolute position.
+            // Because the Root is at X=1m and the Node has no local offset, the Node's absolute
+            // position is X=1m.
+            // With the User placed at X=1m, Z=3m, the Node and User share the exact same X-axis.
+            // Therefore, the mathematically correct look direction points purely along the positive
+            // Z-axis. In this right-handed coordinate system, +Z maps to Vector3.Backward.
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(expectedRotation)
         }
 
     @Suppress("DEPRECATION")
@@ -345,7 +401,10 @@ class RotateToLookAtUserTest {
         return assertNotNull(semantics.semanticsEntity, "Entity not found for tag: $tag")
     }
 
-    fun getBillboardRotationNeeded(billboardLocation: Vector3, userLocation: Vector3): Quaternion {
+    private fun getBillboardRotationNeeded(
+        billboardLocation: Vector3,
+        userLocation: Vector3,
+    ): Quaternion {
         val rawTargetVector = userLocation - billboardLocation
         // Flatten the vector to the XZ-plane to ensure Y-axis-only rotation.
         val flatTargetVector = Vector3(rawTargetVector.x, 0f, rawTargetVector.z).toNormalized()

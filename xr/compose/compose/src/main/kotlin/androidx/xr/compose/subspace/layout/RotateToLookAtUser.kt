@@ -134,13 +134,15 @@ internal class RotateToLookAtUserNode(var upDirection: Vector3) :
             val rootActivitySpaceTransformation =
                 currentValueOf(LocalSubspaceRootNode)?.getPose(Space.ACTIVITY) ?: Pose.Identity
             val nodePoseInRoot = coordinates?.poseInRoot ?: Pose.Identity
+
+            // Convert the node's pose in root from pixels to meters.
+            val nodePoseInRootMeters =
+                nodePoseInRoot.convertPixelsToMeters(this@RotateToLookAtUserNode.density)
+
             val currentActivitySpaceTransformation =
-                rootActivitySpaceTransformation.compose(nodePoseInRoot)
+                rootActivitySpaceTransformation.compose(nodePoseInRootMeters)
             val currentActivitySpaceRotation = currentActivitySpaceTransformation.rotation
-            val currentActivitySpaceTranslation =
-                currentActivitySpaceTransformation.translation.convertPixelsToMeters(
-                    this@RotateToLookAtUserNode.density
-                )
+            val currentActivitySpaceTranslation = currentActivitySpaceTransformation.translation
 
             // Calculate the desired forward vector in activity space, pointing from
             // the node to the user.
