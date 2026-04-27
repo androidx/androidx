@@ -175,6 +175,12 @@ class UpdateInfoServiceTest {
         // Create a service that ONLY overrides fetchUpdatesAsync
         val asyncService =
             object : ListenableFutureUpdateInfoService() {
+                    // Guarantee the network fetch is attempted
+                    override fun shouldFetchUpdates(): Boolean = true
+
+                    // Guarantee the request is never throttled by the rate limiter
+                    override fun shouldThrottle(): Boolean = false
+
                     override fun fetchUpdatesAsync():
                         com.google.common.util.concurrent.ListenableFuture<
                             @JvmSuppressWildcards
