@@ -675,17 +675,17 @@ package androidx.xr.arcore {
 
   public final class RenderViewpoint {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.RenderViewpoint.State> getState();
-    method public static androidx.xr.arcore.RenderViewpoint? left(androidx.xr.runtime.Session session);
-    method public static androidx.xr.arcore.RenderViewpoint? mono(androidx.xr.runtime.Session session);
-    method public static androidx.xr.arcore.RenderViewpoint? right(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.RenderViewpoint left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.RenderViewpoint mono(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.RenderViewpoint right(androidx.xr.runtime.Session session);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.RenderViewpoint.State> state;
     field public static final androidx.xr.arcore.RenderViewpoint.Companion Companion;
   }
 
   public static final class RenderViewpoint.Companion {
-    method public androidx.xr.arcore.RenderViewpoint? left(androidx.xr.runtime.Session session);
-    method public androidx.xr.arcore.RenderViewpoint? mono(androidx.xr.runtime.Session session);
-    method public androidx.xr.arcore.RenderViewpoint? right(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.RenderViewpoint left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.RenderViewpoint mono(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.RenderViewpoint right(androidx.xr.runtime.Session session);
   }
 
   public static final class RenderViewpoint.State {

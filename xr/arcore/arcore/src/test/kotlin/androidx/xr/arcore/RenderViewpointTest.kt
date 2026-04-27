@@ -91,7 +91,7 @@ class RenderViewpointTest {
 
             advanceUntilIdle()
 
-            val underTest = RenderViewpoint.left(session)!!
+            val underTest = RenderViewpoint.left(session)
             assertThat(underTest.state.value.pose).isEqualTo(EXPECTED_POSE)
             assertThat(underTest.state.value.localPose).isEqualTo(EXPECTED_POSE)
             assertThat(underTest.state.value.fieldOfView.angleLeft)
@@ -112,7 +112,7 @@ class RenderViewpointTest {
 
             advanceUntilIdle()
 
-            val underTest = RenderViewpoint.right(session)!!
+            val underTest = RenderViewpoint.right(session)
             assertThat(underTest.state.value.pose).isEqualTo(EXPECTED_POSE)
             assertThat(underTest.state.value.localPose).isEqualTo(EXPECTED_POSE)
             assertThat(underTest.state.value.fieldOfView.angleLeft)
@@ -133,7 +133,7 @@ class RenderViewpointTest {
 
             advanceUntilIdle()
 
-            val underTest = RenderViewpoint.mono(session)!!
+            val underTest = RenderViewpoint.mono(session)
             assertThat(underTest.state.value.pose).isEqualTo(EXPECTED_POSE)
             assertThat(underTest.state.value.localPose).isEqualTo(EXPECTED_POSE)
             assertThat(underTest.state.value.fieldOfView.angleLeft)
@@ -155,7 +155,7 @@ class RenderViewpointTest {
 
             advanceUntilIdle()
 
-            val underTest = RenderViewpoint.left(session)!!
+            val underTest = RenderViewpoint.left(session)
             val poseInPerceptionSpace: Pose = EXPECTED_DEVICE_POSE.compose(EXPECTED_OBJECT_POSE)
             assertThat(underTest.state.value.pose).isEqualTo(poseInPerceptionSpace)
             assertThat(underTest.state.value.localPose).isEqualTo(EXPECTED_OBJECT_POSE)
@@ -178,7 +178,7 @@ class RenderViewpointTest {
 
             advanceUntilIdle()
 
-            val underTest = RenderViewpoint.right(session)!!
+            val underTest = RenderViewpoint.right(session)
             val poseInPerceptionSpace: Pose = EXPECTED_DEVICE_POSE.compose(EXPECTED_OBJECT_POSE)
             assertThat(underTest.state.value.pose).isEqualTo(poseInPerceptionSpace)
             assertThat(underTest.state.value.localPose).isEqualTo(EXPECTED_OBJECT_POSE)
@@ -201,7 +201,7 @@ class RenderViewpointTest {
 
             advanceUntilIdle()
 
-            val underTest = RenderViewpoint.mono(session)!!
+            val underTest = RenderViewpoint.mono(session)
             val poseInPerceptionSpace: Pose = EXPECTED_DEVICE_POSE.compose(EXPECTED_OBJECT_POSE)
             assertThat(underTest.state.value.pose).isEqualTo(poseInPerceptionSpace)
             assertThat(underTest.state.value.localPose).isEqualTo(EXPECTED_OBJECT_POSE)
