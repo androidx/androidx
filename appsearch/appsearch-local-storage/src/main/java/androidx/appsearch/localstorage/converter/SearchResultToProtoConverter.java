@@ -46,6 +46,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Translates a {@link SearchResultProto} into {@link SearchResult}s.
@@ -65,12 +66,14 @@ public class SearchResultToProtoConverter {
      * @return {@link SearchResultPage} of results.
      */
     public static @NonNull SearchResultPage toSearchResultPage(@NonNull SearchResultProto proto,
-            @NonNull SchemaCache schemaCache, @NonNull AppSearchConfig config)
+            @NonNull SchemaCache schemaCache, @NonNull AppSearchConfig config,
+            @NonNull Set<String> resultsPrefixedSchemasOut)
             throws AppSearchException {
         List<SearchResult> results = new ArrayList<>(proto.getResultsCount());
         for (int i = 0; i < proto.getResultsCount(); i++) {
             SearchResult result = toUnprefixedSearchResult(proto.getResults(i), schemaCache,
                     config);
+            resultsPrefixedSchemasOut.add(result.getGenericDocument().getSchemaType());
             results.add(result);
         }
         return new SearchResultPage(proto.getNextPageToken(), results);

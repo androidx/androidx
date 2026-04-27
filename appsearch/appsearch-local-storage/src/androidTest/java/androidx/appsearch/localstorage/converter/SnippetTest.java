@@ -29,6 +29,7 @@ import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
 import androidx.appsearch.localstorage.SchemaCache;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.collection.ArraySet;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.EmbeddingMatchSnippetProto;
@@ -44,6 +45,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 public class SnippetTest {
     private static final String PACKAGE_NAME = "packageName";
@@ -100,10 +102,13 @@ public class SnippetTest {
                 .build();
 
         // Making ResultReader and getting Snippet values.
+        Set<String> resultSchemas = new ArraySet<>();
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new LocalStorageIcingOptionsConfig()),
+                resultSchemas);
+        assertThat(resultSchemas).containsExactly("schema1");
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match = searchResultPage.getResults().get(0).getMatchInfos().get(0);
         assertThat(match.getPropertyPath()).isEqualTo(propertyKeyString);
@@ -179,10 +184,13 @@ public class SnippetTest {
                 .build();
 
         // Making ResultReader and getting Snippet values.
+        Set<String> resultSchemas = new ArraySet<>();
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new LocalStorageIcingOptionsConfig()),
+                resultSchemas);
+        assertThat(resultSchemas).containsExactly("schema1");
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match = searchResultPage.getResults().get(0).getMatchInfos().get(0);
         assertThat(match.getPropertyPath()).isEqualTo(propertyKeyEmbedding);
@@ -262,10 +270,13 @@ public class SnippetTest {
                 .build();
 
         // Making ResultReader and getting Snippet values.
+        Set<String> resultSchemas = new ArraySet<>();
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new LocalStorageIcingOptionsConfig()),
+                resultSchemas);
+        assertThat(resultSchemas).containsExactly("schema1");
         assertThat(searchResultPage.getResults()).hasSize(1);
 
         // TextMatchInfo
@@ -316,10 +327,13 @@ public class SnippetTest {
                 .addResults(SearchResultProto.ResultProto.newBuilder().setDocument(documentProto))
                 .build();
 
+        Set<String> resultSchemas = new ArraySet<>();
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new LocalStorageIcingOptionsConfig()),
+                resultSchemas);
+        assertThat(resultSchemas).containsExactly("schema1");
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getMatchInfos()).isEmpty();
     }
@@ -373,10 +387,13 @@ public class SnippetTest {
                 .build();
 
         // Making ResultReader and getting Snippet values.
+        Set<String> resultSchemas = new ArraySet<>();
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new LocalStorageIcingOptionsConfig()),
+                resultSchemas);
+        assertThat(resultSchemas).containsExactly("schema1");
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match1 = searchResultPage.getResults().get(0).getMatchInfos().get(0);
         assertThat(match1.getPropertyPath()).isEqualTo("senderName");
@@ -488,10 +505,13 @@ public class SnippetTest {
                 .build();
 
         // Making ResultReader and getting Snippet values.
+        Set<String> resultSchemas = new ArraySet<>();
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new LocalStorageIcingOptionsConfig()),
+                resultSchemas);
+        assertThat(resultSchemas).containsExactly("schema1");
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match1 = searchResultPage.getResults().get(0).getMatchInfos().get(0);
         assertThat(match1.getPropertyPath()).isEqualTo("sender.name");
