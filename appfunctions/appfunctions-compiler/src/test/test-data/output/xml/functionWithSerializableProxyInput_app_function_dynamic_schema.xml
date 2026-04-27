@@ -111,6 +111,16 @@
                 </properties>
                 <properties>
                     <dataTypeMetadata>
+                        <dataTypeReference>android.net.Uri</dataTypeReference>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>11</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>androidUri</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>false</isNullable>
                         <itemType>
@@ -126,6 +136,16 @@
                 </properties>
                 <properties>
                     <dataTypeMetadata>
+                        <dataTypeReference>android.net.Uri</dataTypeReference>
+                        <id>unused</id>
+                        <isNullable>true</isNullable>
+                        <type>11</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>androidUriNullable</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>true</isNullable>
                         <itemType>
@@ -137,17 +157,135 @@
                         <type>10</type>
                     </dataTypeMetadata>
                     <id>unused</id>
-                    <name>androidUriNullable</name>
+                    <name>androidUriListNullable</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <dataTypeReference>java.time.LocalDate</dataTypeReference>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>11</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>localDate</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <itemType>
+                            <dataTypeReference>java.time.LocalDate</dataTypeReference>
+                            <id>unused</id>
+                            <isNullable>false</isNullable>
+                            <type>11</type>
+                        </itemType>
+                        <type>10</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>localDateList</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <dataTypeReference>java.time.LocalDate</dataTypeReference>
+                        <id>unused</id>
+                        <isNullable>true</isNullable>
+                        <type>11</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>localDateNullable</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <dataTypeReference>java.time.LocalTime</dataTypeReference>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>11</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>localTime</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <itemType>
+                            <dataTypeReference>java.time.LocalTime</dataTypeReference>
+                            <id>unused</id>
+                            <isNullable>false</isNullable>
+                            <type>11</type>
+                        </itemType>
+                        <type>10</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>localTimeList</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <dataTypeReference>java.time.LocalTime</dataTypeReference>
+                        <id>unused</id>
+                        <isNullable>true</isNullable>
+                        <type>11</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>localTimeNullable</name>
                 </properties>
                 <required>localDateTime</required>
                 <required>localDateTimeList</required>
                 <required>localDateTimeNullable</required>
+                <required>androidUri</required>
                 <required>androidUriList</required>
                 <required>androidUriNullable</required>
+                <required>androidUriListNullable</required>
+                <required>localDate</required>
+                <required>localDateList</required>
+                <required>localDateNullable</required>
+                <required>localTime</required>
+                <required>localTimeList</required>
+                <required>localTimeNullable</required>
                 <type>3</type>
             </dataTypeMetadata>
             <id>unused</id>
             <name>com.testdata.SerializableWithProxyType</name>
+        </dataTypes>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>java.time.LocalDate</objectQualifiedName>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>year</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>month</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>dayOfMonth</name>
+                </properties>
+                <required>year</required>
+                <required>month</required>
+                <required>dayOfMonth</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>java.time.LocalDate</name>
         </dataTypes>
         <dataTypes>
             <dataTypeMetadata>
@@ -228,6 +366,56 @@
             </dataTypeMetadata>
             <id>unused</id>
             <name>java.time.LocalDateTime</name>
+        </dataTypes>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>java.time.LocalTime</objectQualifiedName>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>hour</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>minute</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>second</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>nanoOfSecond</name>
+                </properties>
+                <required>hour</required>
+                <required>minute</required>
+                <required>second</required>
+                <required>nanoOfSecond</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>java.time.LocalTime</name>
         </dataTypes>
         <id>unused</id>
     </AppFunctionComponentMetadataDocument>
