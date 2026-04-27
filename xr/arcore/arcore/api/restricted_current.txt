@@ -490,16 +490,16 @@ package androidx.xr.arcore {
   public final class Hand implements androidx.xr.arcore.Trackable<androidx.xr.arcore.Hand.State> {
     method public static androidx.xr.arcore.HandSide getPrimaryHandSide(android.content.ContentResolver resolver);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Hand.State> getState();
-    method public static androidx.xr.arcore.Hand? left(androidx.xr.runtime.Session session);
-    method public static androidx.xr.arcore.Hand? right(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Hand left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Hand right(androidx.xr.runtime.Session session);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Hand.State> state;
     field public static final androidx.xr.arcore.Hand.Companion Companion;
   }
 
   public static final class Hand.Companion {
     method public androidx.xr.arcore.HandSide getPrimaryHandSide(android.content.ContentResolver resolver);
-    method public androidx.xr.arcore.Hand? left(androidx.xr.runtime.Session session);
-    method public androidx.xr.arcore.Hand? right(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Hand left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Hand right(androidx.xr.runtime.Session session);
   }
 
   @Deprecated public enum Hand.HandSide {

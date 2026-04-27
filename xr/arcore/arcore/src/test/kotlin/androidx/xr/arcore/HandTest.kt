@@ -89,7 +89,6 @@ class HandTest {
             advanceUntilIdle()
 
             val leftHand = Hand.left(session)
-            check(leftHand != null)
 
             assertThat(leftHand.state.value.trackingState.toRuntimeTrackingState())
                 .isEqualTo(TrackingState.TRACKING)
@@ -108,6 +107,15 @@ class HandTest {
         assertFailsWith<IllegalStateException> { Hand.left(session) }
     }
 
+    @Test
+    fun left_handNotAvailable_throwsIllegalStateException() {
+        val perceptionStateExtender =
+            session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
+        perceptionStateExtender.xrResourcesManager.initiateHands(null, null)
+
+        assertFailsWith<IllegalStateException> { Hand.left(session) }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun right_returnsRightHand() =
@@ -116,7 +124,6 @@ class HandTest {
             advanceUntilIdle()
 
             val rightHand = Hand.right(session)
-            check(rightHand != null)
 
             assertThat(rightHand.state.value.trackingState.toRuntimeTrackingState())
                 .isEqualTo(TrackingState.TRACKING)
@@ -131,6 +138,15 @@ class HandTest {
     @Test
     fun right_handTrackingDisabled_throwsIllegalStateException() {
         session.configure(Config(handTracking = HandTrackingMode.DISABLED))
+
+        assertFailsWith<IllegalStateException> { Hand.right(session) }
+    }
+
+    @Test
+    fun right_handNotAvailable_throwsIllegalStateException() {
+        val perceptionStateExtender =
+            session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
+        perceptionStateExtender.xrResourcesManager.initiateHands(null, null)
 
         assertFailsWith<IllegalStateException> { Hand.right(session) }
     }
@@ -152,7 +168,6 @@ class HandTest {
             advanceUntilIdle()
 
             val underTest = Hand.left(session)
-            check(underTest != null)
             val rotationTolerance = 1e-4f
 
             for ((jointType, pose) in underTest.state.value.handJoints) {
