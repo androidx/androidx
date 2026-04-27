@@ -42,21 +42,23 @@ public open class ProcessTrack(
     @JvmField @Volatile public var l2ThreadTrack: ThreadTrack? = null
 
     init {
-        synchronized(traceEventScope) {
-            val event = obtainTraceEvent()
-            if (event != null) {
-                event.setPreamble(
-                    TrackDescriptor(
-                        name,
-                        uuid,
-                        parentUuid = DEFAULT_LONG,
-                        type = TRACK_DESCRIPTOR_TYPE_PROCESS,
-                        pid = id,
-                        tid = DEFAULT_LONG,
+        if (context.isGloballyEnabled) {
+            synchronized(traceEventScope) {
+                val event = obtainTraceEvent()
+                if (event != null) {
+                    event.setPreamble(
+                        TrackDescriptor(
+                            name,
+                            uuid,
+                            parentUuid = DEFAULT_LONG,
+                            type = TRACK_DESCRIPTOR_TYPE_PROCESS,
+                            pid = id,
+                            tid = DEFAULT_LONG,
+                        )
                     )
-                )
-                dispatchTraceEvent(event, immediateDispatch = true)
-                preamble = true
+                    dispatchTraceEvent(event, immediateDispatch = true)
+                    preamble = true
+                }
             }
         }
     }

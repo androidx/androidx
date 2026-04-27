@@ -27,14 +27,14 @@ package androidx.tracing.wire {
     ctor public TraceDriver(android.content.Context context, androidx.tracing.AbstractTraceSink sink, optional kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean> isCategoryEnabled, optional kotlin.jvm.functions.Function1<? super androidx.tracing.TraceAttributes,kotlin.Unit>? attributes);
     method public void close();
     method public void flush();
+    method public static androidx.tracing.wire.TraceDriver getStubTraceDriver();
     method @InaccessibleFromKotlin public androidx.tracing.Tracer getTracer();
-    method public static androidx.tracing.wire.TraceDriver stubTraceDriver();
     property public androidx.tracing.Tracer tracer;
     field public static final androidx.tracing.wire.TraceDriver.Companion Companion;
   }
 
   public static final class TraceDriver.Companion {
-    method public androidx.tracing.wire.TraceDriver stubTraceDriver();
+    method public androidx.tracing.wire.TraceDriver getStubTraceDriver();
   }
 
   public final class TraceSink extends androidx.tracing.AbstractTraceSink {

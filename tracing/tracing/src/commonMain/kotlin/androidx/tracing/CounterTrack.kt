@@ -30,20 +30,22 @@ public open class CounterTrack(
     internal val packetLock = Any()
 
     init {
-        synchronized(packetLock) {
-            val event = obtainTraceEvent()
-            if (event != null) {
-                event.setPreamble(
-                    TrackDescriptor(
-                        name = name,
-                        uuid = uuid,
-                        parentUuid = parent.uuid,
-                        type = TRACK_DESCRIPTOR_TYPE_COUNTER,
-                        pid = DEFAULT_INT,
-                        tid = DEFAULT_LONG,
+        if (context.isGloballyEnabled) {
+            synchronized(packetLock) {
+                val event = obtainTraceEvent()
+                if (event != null) {
+                    event.setPreamble(
+                        TrackDescriptor(
+                            name = name,
+                            uuid = uuid,
+                            parentUuid = parent.uuid,
+                            type = TRACK_DESCRIPTOR_TYPE_COUNTER,
+                            pid = DEFAULT_INT,
+                            tid = DEFAULT_LONG,
+                        )
                     )
-                )
-                dispatchTraceEvent(event, immediateDispatch = true)
+                    dispatchTraceEvent(event, immediateDispatch = true)
+                }
             }
         }
     }
