@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -243,6 +244,17 @@ internal class RemoteTextNode : RemoteComposeNode() {
         val letterSpacingId = letterSpacing.getFloatIdForCreationState(creationState)
         val lineHeightMultiplyId = lineHeightMultiply.getFloatIdForCreationState(creationState)
 
+        val resolvedTextAlign =
+            when (textAlign) {
+                TextAlign.Start ->
+                    if (creationState.layoutDirection == LayoutDirection.Rtl) TextAlign.End
+                    else TextAlign.Start
+                TextAlign.End ->
+                    if (creationState.layoutDirection == LayoutDirection.Rtl) TextAlign.Start
+                    else TextAlign.End
+                else -> textAlign
+            }
+
         creationState.document.startTextComponent(
             with(modifier) { creationState.toRecordingModifier() },
             textIdValue,
@@ -255,7 +267,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
             fontStyle.encode(),
             fontWeight.getFloatIdForCreationState(creationState),
             fontFamily,
-            textAlign.encode(),
+            resolvedTextAlign.encode(),
             overflow.encode(),
             maxLines,
             letterSpacingId,
