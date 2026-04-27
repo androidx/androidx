@@ -26,16 +26,23 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Contains the depth information corresponding to a specific [RenderViewpoint].
+ * Contains the depth information corresponding to a specific [RenderViewpoint] for left eye, right
+ * eye, or mono view depending on what is supported by the runtime.
  *
- * The availability of depth data depends on the [DepthEstimationMode] set in [Session.config],
- * which also allows it to be turned off by setting it to [DepthEstimationMode.DISABLED].
+ * The availability of depth data depends on the [DepthEstimationMode]. Depth Maps can include
+ * smooth, [DepthEstimationMode.SMOOTH_ONLY], raw, [DepthEstimationMode.RAW_ONLY], or both,
+ * [DepthEstimationMode.SMOOTH_AND_RAW], postprocessing options depending on the runtime.
+ *
+ * This also allows depth to be turned off by setting it to [DepthEstimationMode.DISABLED].
+ *
+ * The mode is set in a [Session.config] that is passed to [Session.configure].
  *
  * Update frequency and the dimensions of the maps provided are system-defined. The buffer
  * lifecycles are controlled by the runtime so if the data will not be used upon receiving, a copy
  * should be made.
  *
  * @property state the current [State] of the depth data.
+ * @note OpenXr does not support [DepthEstimationMode.SMOOTH_AND_RAW].
  */
 @SuppressWarnings("HiddenSuperclass")
 public class Depth internal constructor(internal val runtimeDepth: RuntimeDepth) : Updatable() {

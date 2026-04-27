@@ -210,12 +210,9 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
          * setting this mode will consume additional runtime resources.
          *
          * Supported runtimes:
-         * - OpenXR
          * - Play Services (on supported devices)
          *
          * Required permissions:
-         * - [SCENE_UNDERSTANDING_FINE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE]
-         *   (OpenXR runtimes only)
          * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
          */
         @JvmField public val SMOOTH_AND_RAW: DepthEstimationMode = DepthEstimationMode(3)
