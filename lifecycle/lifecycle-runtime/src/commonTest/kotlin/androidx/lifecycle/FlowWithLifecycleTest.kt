@@ -215,7 +215,6 @@ class FlowWithLifecycleTest {
         } catch (e: Throwable) {
             assertThat(e is IllegalArgumentException).isTrue()
         }
-        Unit // tries to return the result of the try expression, using Unit instead
     }
 
     @Test
