@@ -181,28 +181,28 @@ class Vector3Test {
 
     @Test
     fun angleBetweenVectors_returnsAngleBetweenTwoVectors1() {
-        assertThat(toDegrees(Vector3.angleBetween(Vector3(1f, 0f, 0f), Vector3(0f, 1f, 0f))))
+        assertThat(Vector3.angleBetween(Vector3(1f, 0f, 0f), Vector3(0f, 1f, 0f)))
             .isWithin(1e-5f)
             .of(90f)
     }
 
     @Test
     fun angleBetweenVectors_returnsAngleBetweenTwoVectors2() {
-        assertThat(toDegrees(Vector3.angleBetween(Vector3(0f, 0f, 1f), Vector3(0f, 0f, -1f))))
+        assertThat(Vector3.angleBetween(Vector3(0f, 0f, 1f), Vector3(0f, 0f, -1f)))
             .isWithin(1e-5f)
             .of(180f)
     }
 
     @Test
     fun angleBetweenVectors_returnsAngleBetweenTwoVectors3() {
-        assertThat(toDegrees(Vector3.angleBetween(Vector3(2f, 4f, 0f), Vector3(4f, 8f, 0f))))
+        assertThat(Vector3.angleBetween(Vector3(2f, 4f, 0f), Vector3(4f, 8f, 0f)))
             .isWithin(1e-5f)
             .of(0f)
     }
 
     @Test
     fun angleBetweenVectors_returnsAngleBetweenTwoVectors4() {
-        assertThat(toDegrees(Vector3.angleBetween(Vector3(2f, 2f, 0f), Vector3(0f, 3f, 0f))))
+        assertThat(Vector3.angleBetween(Vector3(2f, 2f, 0f), Vector3(0f, 3f, 0f)))
             .isWithin(1e-5f)
             .of(45f)
     }
