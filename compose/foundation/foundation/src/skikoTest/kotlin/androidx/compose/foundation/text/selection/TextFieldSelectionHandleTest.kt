@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.assertPixels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.forEachPixel
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
@@ -45,20 +45,18 @@ import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.sp
-import kotlin.math.pow
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlinx.test.IgnoreJsTarget
 import kotlinx.test.IgnoreWasmTarget
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalTestApi::class)
 class BasicTextFieldSelectionHandleTest {
-    private val textPadding = 14.dp
+    private val textPadding = 30.dp
     private val selectionColor = TextSelectionColors(
         handleColor = Color.Red,
         backgroundColor = Color.White
@@ -76,7 +74,7 @@ class BasicTextFieldSelectionHandleTest {
 
     @Test
     fun basicTextFieldSelectionHandles() = runSkikoComposeUiTest(size = Size(100f, 100f)) {
-        val textState = TextFieldState(initialText = "Text")
+        val textState = TextFieldState(initialText = "TextText")
 
         var selectionStart: Rect = Rect.Zero
         var selectionEnd: Rect = Rect.Zero
@@ -104,7 +102,7 @@ class BasicTextFieldSelectionHandleTest {
             up()
         }
         textState.edit {
-            selection = TextRange(start = 1, end = 3)
+            selection = TextRange(start = 1, end = 6)
         }
         waitForIdle()
 
@@ -132,10 +130,10 @@ class BasicTextFieldSelectionHandleTest {
     @IgnoreJsTarget
     @IgnoreWasmTarget
     fun coreTextFieldSelectionHandles() = runSkikoComposeUiTest(size = Size(100f, 100f)) {
-        val selection = TextRange(1, 3)
+        val selection = TextRange(1, 6)
         var selectionStart: Rect = Rect.Zero
         var selectionEnd: Rect = Rect.Zero
-        val textFieldValue = mutableStateOf(TextFieldValue(text = "Text", selection = selection))
+        val textFieldValue = mutableStateOf(TextFieldValue(text = "Text Text", selection = selection))
 
         setContent {
             SetInitialTouchInputMode()
@@ -164,7 +162,7 @@ class BasicTextFieldSelectionHandleTest {
             move(1000)
             up()
         }
-        textFieldValue.value = TextFieldValue(text = "Text", selection = selection)
+        textFieldValue.value = TextFieldValue(text = "TextText", selection = selection)
 
         waitForIdle()
 
@@ -198,57 +196,18 @@ class BasicTextFieldSelectionHandleTest {
     private fun SkikoComposeUiTest.TestHandleShape(
         cursor: Rect,
         isStartHandler: Boolean,
-        lineWidth: Dp = 2.dp,
-        circleRadius: Dp = 6.dp,
-    ) = density.run {
-        val lineRect = cursor.copy(
-            left = cursor.bottomCenter.x - lineWidth.toPx() / 2,
-            right = cursor.bottomCenter.x + lineWidth.toPx() / 2,
-        )
-        val circleCenter = Offset(
-            x = cursor.bottomCenter.x,
-            y = if (isStartHandler) {
-                cursor.top - circleRadius.toPx()
-            } else {
-                cursor.bottom + circleRadius.toPx()
-            }
-        )
-        val circleRect = Rect(center = circleCenter, radius = circleRadius.toPx())
-
-        SelectionHandleShape(lineRect, circleRect)
-    }
-
-    private data class SelectionHandleShape(
-        val lineRect: Rect,
-        val circleRect: Rect
-    ) {
-        fun containsInner(point: IntOffset): Boolean =
-            lineRect.roundToIntRect().contains(point) ||
-                circleRect.roundToIntRect().deflate(1).containsInOval(point)
-
-        fun containsOuter(point: IntOffset): Boolean =
-            lineRect.roundToIntRect().contains(point) ||
-                circleRect.roundToIntRect().inflate(1).containsInOval(point)
-
-        private fun IntRect.containsInOval(point: IntOffset): Boolean {
-            val normX = (point.x + 0.5 - center.x) / (width / 2)
-            val normY = (point.y + 0.5 - center.y) / (height / 2)
-            return normX.pow(2) + normY.pow(2) <= 1.0
-        }
-    }
+    ) = PlatformSelectionHandleShape(density, cursor, isStartHandler)
 
     private fun ImageBitmap.assertHandlers(
         left: SelectionHandleShape,
         right: SelectionHandleShape,
     ) {
         val shapes = listOf(left, right)
-        assertPixels { offset ->
-            if (shapes.any { it.containsInner(offset) }) {
-                Color.Red
-            } else if (shapes.any { it.containsOuter(offset) }) {
-                null
-            } else {
-                Color.White
+        forEachPixel { color, offset ->
+            if (shapes.any { it.isInside(offset) }) {
+                assertEquals(Color.Red, color, "Expected $offset to be red, but was $color")
+            } else if (shapes.all { it.isOutside(offset) }) {
+                assertNotEquals(Color.Red, color, "Expected $offset to be not red, but was $color")
             }
         }
     }
