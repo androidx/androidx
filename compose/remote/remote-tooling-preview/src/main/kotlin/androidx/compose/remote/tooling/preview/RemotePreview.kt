@@ -19,7 +19,6 @@ package androidx.compose.remote.tooling.preview
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
@@ -36,6 +35,8 @@ import kotlinx.coroutines.runBlocking
 @Composable
 public fun RemotePreview(
     profile: Profile = RcPlatformProfiles.ANDROIDX,
+    @Suppress("ModifierParameter") // content as last modifier is allowed
+    modifier: Modifier = Modifier,
     content: @RemoteComposable @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -51,5 +52,5 @@ public fun RemotePreview(
 
     LaunchedEffect(Unit) {}
 
-    Box(modifier = Modifier.fillMaxSize()) { RemoteDocPreview(document) }
+    Box(modifier = modifier) { RemoteDocPreview(document) }
 }

@@ -28,8 +28,8 @@ import androidx.compose.ui.platform.LocalWindowInfo
 
 /** Display a [RemoteDocument] in the Android Studio Preview. */
 @Composable
-public fun RemoteDocPreview(remoteDocument: RemoteDocument) {
-    Box(modifier = Modifier.fillMaxSize()) {
+public fun RemoteDocPreview(remoteDocument: RemoteDocument, modifier: Modifier = Modifier) {
+    Box(modifier = modifier) {
         val windowInfo = LocalWindowInfo.current
         RemoteDocumentPlayer(
             document = remoteDocument.document,
