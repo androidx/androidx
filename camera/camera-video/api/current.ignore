@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.camera.video.HighSpeedVideoSessionConfig#HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture, androidx.camera.core.Preview, android.util.Range, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Binary breaking change: Removed constructor androidx.camera.video.HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture,androidx.camera.core.Preview,android.util.Range,boolean,int,kotlin.jvm.internal.DefaultConstructorMarker)

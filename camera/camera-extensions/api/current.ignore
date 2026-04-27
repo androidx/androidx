@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.camera.extensions.ExtensionSessionConfig#ExtensionSessionConfig(int, androidx.camera.extensions.ExtensionsManager, java.util.List, androidx.camera.core.ViewPort, java.util.List, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Binary breaking change: Removed constructor androidx.camera.extensions.ExtensionSessionConfig(int,androidx.camera.extensions.ExtensionsManager,java.util.List,androidx.camera.core.ViewPort,java.util.List,int,kotlin.jvm.internal.DefaultConstructorMarker)

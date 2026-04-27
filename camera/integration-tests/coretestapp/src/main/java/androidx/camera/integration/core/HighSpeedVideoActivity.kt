@@ -103,6 +103,7 @@ class HighSpeedVideoActivity : AppCompatActivity() {
     private var videoCapabilitiesSource = VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
     private var recording: Recording? = null
     private var slowMotionVideoEnabled = false
+    private var autoRotationEnabled = true
     private var targetAspectRatio = RATIO_DEFAULT
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -228,6 +229,7 @@ class HighSpeedVideoActivity : AppCompatActivity() {
             HighSpeedVideoSessionConfig.Builder(videoCapture!!)
                 .setPreview(preview)
                 .setSlowMotionEnabled(slowMotionVideoEnabled)
+                .setAutoRotationEnabled(autoRotationEnabled)
 
         val supportedFpsRanges =
             cameraInfo!!.getSupportedFrameRateRanges(sessionConfigBuilder!!.build())
@@ -299,6 +301,7 @@ class HighSpeedVideoActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(ID_TO_CAMERA_CONFIG_MAP.getKey(currentCameraConfig)!!).isChecked = true
         menu.findItem(R.id.slow_motion_video_enabled).isChecked = slowMotionVideoEnabled
+        menu.findItem(R.id.auto_rotation).isChecked = autoRotationEnabled
         menu.findItem(ID_TO_ASPECT_RATIO_MAP.getKey(targetAspectRatio)!!).isChecked = true
         menu
             .findItem(ID_TO_VIDEO_CAPABILITIES_SOURCE_MAP.getKey(videoCapabilitiesSource)!!)
@@ -342,6 +345,10 @@ class HighSpeedVideoActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.slow_motion_video_enabled -> {
                 slowMotionVideoEnabled = !slowMotionVideoEnabled
+                shouldResetCamera = true
+            }
+            R.id.auto_rotation -> {
+                autoRotationEnabled = !autoRotationEnabled
                 shouldResetCamera = true
             }
         }
