@@ -25,14 +25,27 @@ import okio.ByteString.Companion.toByteString
 /**
  * Describes the raw contents from [WearWidgetContent]. This is after RC content is captured and
  * serialized.
+ *
+ * @property rcDocument The remote compose document.
+ * @property extras Extras to be sent along with the response.
+ * @property widgetTitle The override widget title. This can be used when the widget is shown in
+ *   compatibility mode (containerType = FULLSCREEN).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WearWidgetRawContent(public val rcDocument: ByteArray, public val extras: Bundle) {
+public class WearWidgetRawContent(
+    public val rcDocument: ByteArray,
+    public val extras: Bundle,
+    public val widgetTitle: String? = null,
+) {
 
     /** Convert to the parcelable [androidx.glance.wear.parcel.WearWidgetRawContentParcel]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toParcel(): WearWidgetRawContentParcel {
-        val contentProto = WearWidgetRawContentProto(rc_document = rcDocument.toByteString())
+        val contentProto =
+            WearWidgetRawContentProto(
+                rc_document = rcDocument.toByteString(),
+                widget_title = widgetTitle,
+            )
         return WearWidgetRawContentParcel().apply {
             payload = contentProto.encode()
             extras = this@WearWidgetRawContent.extras
@@ -47,6 +60,7 @@ public class WearWidgetRawContent(public val rcDocument: ByteArray, public val e
             return WearWidgetRawContent(
                 rcDocument = contentProto.rc_document.toByteArray(),
                 extras = contentParcel.extras ?: Bundle.EMPTY,
+                widgetTitle = contentProto.widget_title,
             )
         }
     }

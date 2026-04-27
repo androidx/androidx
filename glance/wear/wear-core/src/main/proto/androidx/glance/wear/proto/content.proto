@@ -23,4 +23,7 @@ message WearWidgetRawContentProto {
 
   // The remote compose document.
   bytes rc_document = 1;
+
+  // The override widget title. This can be used when the widget is shown in compatibility mode (containerType = FULLSCREEN)
+  optional string widget_title = 2;
 }
