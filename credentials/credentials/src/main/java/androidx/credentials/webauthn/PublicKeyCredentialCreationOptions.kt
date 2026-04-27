@@ -16,7 +16,6 @@
 
 package androidx.credentials.webauthn
 
-import android.util.Log
 import androidx.annotation.RestrictTo
 import org.json.JSONObject
 
@@ -63,14 +62,5 @@ class PublicKeyCredentialCreationOptions(requestJson: String) {
         excludeCredentials = emptyList()
         authenticatorSelection = AuthenticatorSelectionCriteria("platform", "required")
         attestation = json.optString("attestation", "none")
-
-        Log.i("WebAuthn", "Challenge $challenge()")
-        Log.i("WebAuthn", "rp $rp")
-        Log.i("WebAuthn", "user $user")
-        Log.i("WebAuthn", "pubKeyCredParams $pubKeyCredParams")
-        Log.i("WebAuthn", "timeout $timeout")
-        Log.i("WebAuthn", "excludeCredentials $excludeCredentials")
-        Log.i("WebAuthn", "authenticatorSelection $authenticatorSelection")
-        Log.i("WebAuthn", "attestation $attestation")
     }
 }
