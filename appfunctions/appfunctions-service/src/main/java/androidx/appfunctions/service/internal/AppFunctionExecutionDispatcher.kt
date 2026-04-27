@@ -25,8 +25,7 @@ import androidx.appfunctions.AppFunctionException
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
-import androidx.appfunctions.internal.Dependencies
-import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.internal.AppFunctionInventory
 import kotlinx.coroutines.CancellationException
 
 /** Helper class for generated AppFunction services to execute an AppFunction. */
@@ -37,6 +36,8 @@ public object AppFunctionExecutionDispatcher {
     /**
      * Executes an AppFunction with the given request.
      *
+     * @param inventory The inventory to look up
+     *   [androidx.appfunctions.metadata.AppFunctionMetadata] for [request].
      * @param request The request to execute.
      * @param block The block of code to execute. The block will be invoked with a map of parameter
      *   names to their extracted values.
@@ -48,13 +49,12 @@ public object AppFunctionExecutionDispatcher {
      * @throws AppFunctionAppUnknownException if any other exception is thrown during execution.
      */
     public suspend fun executeAppFunction(
+        inventory: AppFunctionInventory,
         request: ExecuteAppFunctionRequest,
         block: suspend (Map<String, Any?>) -> Any?,
     ): ExecuteAppFunctionResponse {
         try {
-            val inventory = Dependencies.aggregatedAppFunctionInventory
-            val appFunctionMetadata =
-                inventory?.functionIdToMetadataMap?.get(request.functionIdentifier)
+            val appFunctionMetadata = inventory.functionIdToMetadataMap[request.functionIdentifier]
             if (appFunctionMetadata == null) {
                 throw AppFunctionFunctionNotFoundException(
                     "${request.functionIdentifier} is not available"
@@ -70,7 +70,7 @@ public object AppFunctionExecutionDispatcher {
             val returnValue =
                 appFunctionMetadata.response.unsafeBuildReturnValue(
                     result,
-                    inventory?.componentsMetadata ?: AppFunctionComponentsMetadata(emptyMap()),
+                    inventory.componentsMetadata,
                 )
             return ExecuteAppFunctionResponse.Success(returnValue)
         } catch (e: CancellationException) {

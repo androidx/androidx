@@ -184,6 +184,12 @@ object IntrospectionHelper {
         const val CONTEXT_PROPERTY_NAME = "context"
     }
 
+    object AppFunctionInventoryProviderInterface {
+        object ResolveInventoryMethod {
+            const val METHOD_NAME = "resolveInventory"
+        }
+    }
+
     object AppFunctionServiceClass {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionService")
 
@@ -301,6 +307,10 @@ object IntrospectionHelper {
                     )
             }
         }
+    }
+
+    object AppFunctionInventoryInterface {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionInventory")
     }
 
     object AggregatedAppFunctionInventoryClass {
