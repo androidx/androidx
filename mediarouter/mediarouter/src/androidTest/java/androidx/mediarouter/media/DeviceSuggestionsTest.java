@@ -224,6 +224,7 @@ public class DeviceSuggestionsTest {
                 () -> {
                     mMediaRouterUnderTest.registerDeviceSuggestionsUpdatesCallback(
                             callback, DirectExecutor.INSTANCE);
+                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(mSuggestedDeviceInfo));
                     mMediaRouterUnderTest.clearDeviceSuggestions();
                 });
 
