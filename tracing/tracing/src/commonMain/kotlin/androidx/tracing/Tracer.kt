@@ -355,4 +355,18 @@ public abstract class Tracer {
         metadataBlock(result.metadata)
         result.metadata.dispatchToTraceSink()
     }
+
+    public companion object {
+        private val stubTracer =
+            PerfettoTracer(context = EmptyTraceContext, categoryEnabled = { false })
+
+        /**
+         * @return a [Tracer] instance that is a stub (does nothing). This is useful as a
+         *   placeholder when you want to enable / disable tracing for the program.
+         */
+        @JvmStatic
+        public fun getStubTracer(): Tracer {
+            return stubTracer
+        }
+    }
 }

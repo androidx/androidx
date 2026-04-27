@@ -136,14 +136,17 @@ internal constructor(
     }
 
     public actual companion object {
-        @JvmStatic
-        public actual fun stubTraceDriver(): TraceDriver {
-            return TraceDriver(
+        private val stubTraceDriver =
+            TraceDriver(
                 sink = EmptyTraceSink,
                 isGloballyEnabled = false,
                 isCategoryEnabled = { false },
                 attributes = null,
             )
+
+        @JvmStatic
+        public actual fun getStubTraceDriver(): TraceDriver {
+            return stubTraceDriver
         }
     }
 }

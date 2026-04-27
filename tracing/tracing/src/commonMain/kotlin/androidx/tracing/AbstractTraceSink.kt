@@ -65,7 +65,10 @@ public abstract class AbstractTraceSink : AutoCloseable {
 /** An empty trace sink that writes nowhere. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public object EmptyTraceSink : AbstractTraceSink() {
+    internal val enqueues = AtomicInteger(0)
+
     override fun enqueue(pooledPacketArray: PooledTracePacketArray) {
+        enqueues.incrementAndGet()
         pooledPacketArray.recycle()
     }
 
@@ -78,6 +81,7 @@ public object EmptyTraceSink : AbstractTraceSink() {
     }
 
     override fun close() {
-        // Does nothing
+        // Reset on close
+        enqueues.set(0)
     }
 }

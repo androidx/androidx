@@ -25,7 +25,7 @@ internal expect inline fun TraceContext.currentProcessTrack(): ProcessTrack
 
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class PerfettoTracer(
-    context: TraceContext,
+    @JvmField internal val context: TraceContext,
     @JvmField internal val categoryEnabled: (String) -> Boolean,
 ) : Tracer() {
     // The process track

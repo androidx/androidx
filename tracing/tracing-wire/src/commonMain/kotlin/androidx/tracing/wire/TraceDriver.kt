@@ -25,8 +25,9 @@ public expect class TraceDriver : AbstractTraceDriver {
          * @return a [TraceDriver] instance that is a stub (does nothing). This is useful as a
          *   placeholder when you want to enable / disable tracing for the program.
          *
-         * Effectively, this uses a [androidx.tracing.Tracer] that drops all trace packets.
+         * Effectively, this uses a [androidx.tracing.Tracer] that drops all trace packets. To get a
+         * stub tracer, you can also use the [androidx.tracing.Tracer.getStubTracer] API.
          */
-        @JvmStatic public fun stubTraceDriver(): TraceDriver
+        @JvmStatic public fun getStubTraceDriver(): TraceDriver
     }
 }
