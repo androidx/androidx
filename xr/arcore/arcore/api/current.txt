@@ -191,17 +191,17 @@ package androidx.xr.arcore {
 
   public final class Depth {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Depth.State> getState();
-    method public static androidx.xr.arcore.Depth? left(androidx.xr.runtime.Session session);
-    method public static androidx.xr.arcore.Depth? mono(androidx.xr.runtime.Session session);
-    method public static androidx.xr.arcore.Depth? right(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Depth left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Depth mono(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Depth right(androidx.xr.runtime.Session session);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Depth.State> state;
     field public static final androidx.xr.arcore.Depth.Companion Companion;
   }
 
   public static final class Depth.Companion {
-    method public androidx.xr.arcore.Depth? left(androidx.xr.runtime.Session session);
-    method public androidx.xr.arcore.Depth? mono(androidx.xr.runtime.Session session);
-    method public androidx.xr.arcore.Depth? right(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Depth left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Depth mono(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Depth right(androidx.xr.runtime.Session session);
   }
 
   public static final class Depth.State {
@@ -253,13 +253,13 @@ package androidx.xr.arcore {
 
   public final class Face implements androidx.xr.arcore.Trackable<androidx.xr.arcore.Face.State> {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> getState();
-    method public static androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Face getUserFace(androidx.xr.runtime.Session session);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> state;
     field public static final androidx.xr.arcore.Face.Companion Companion;
   }
 
   public static final class Face.Companion {
-    method public androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Face getUserFace(androidx.xr.runtime.Session session);
   }
 
   public static final class Face.State implements androidx.xr.arcore.Trackable.State {
