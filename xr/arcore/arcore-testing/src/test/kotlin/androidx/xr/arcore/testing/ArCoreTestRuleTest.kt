@@ -61,7 +61,7 @@ class ArCoreTestRuleTest {
 
     @Test
     fun init_augmentableObjects_isEmpty() {
-        assertThat(underTest.augmentableObjects.isEmpty())
+        assertThat(underTest.augmentedObjects.isEmpty())
     }
 
     @Test
