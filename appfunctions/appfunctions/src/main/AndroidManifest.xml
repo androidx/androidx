@@ -13,11 +13,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <application>
         <uses-library
             android:name="com.android.extensions.appfunctions"
             android:required="false" />
+        <property
+            android:name="android.app.appfunctions.schema"
+            android:value="app_functions_schema.xsd" />
     </application>
 </manifest>

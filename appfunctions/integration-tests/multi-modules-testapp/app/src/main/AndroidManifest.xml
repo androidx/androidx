@@ -34,6 +34,7 @@
             <property
                 android:name="android.app.appfunctions.v2"
                 android:value="simple_app_function_service.xml" />
+
             <intent-filter>
                 <action android:name="android.app.appfunctions.AppFunctionService" />
             </intent-filter>
