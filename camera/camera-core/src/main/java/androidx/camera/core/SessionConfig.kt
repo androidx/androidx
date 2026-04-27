@@ -90,6 +90,9 @@ import java.util.concurrent.Executor
  *       **video recording**, though it can lead to darker, noisier video in low light due to
  *       shorter exposure times.
  *
+ * @property isAutoRotationEnabled Whether to use auto rotation. When enabled, CameraX will monitor
+ *   the device motion sensor and set the target rotation for [ImageCapture],
+ *   [androidx.camera.video.VideoCapture] and [ImageAnalysis].
  * @throws IllegalArgumentException If the combination of config options are conflicting or
  *   unsupported, or if the `useCases` list is empty.
  * @see androidx.camera.lifecycle.ProcessCameraProvider.bindToLifecycle

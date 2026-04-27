@@ -29,7 +29,9 @@ import androidx.camera.testing.impl.fakes.FakeCameraExtensionCapabilities
 import androidx.camera.testing.impl.fakes.FakeCameraExtensionCapabilities.CaptureConfig
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -41,6 +43,14 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = 33)
 class ExtensionsManagerTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
+    private lateinit var extensionsManager: ExtensionsManager
+
+    @After
+    fun tearDown() {
+        if (::extensionsManager.isInitialized) {
+            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
+    }
 
     @Test
     fun getEstimatedCaptureLatencyRangeMillis_returnsValueFromCapabilities() = runBlocking {
@@ -64,7 +74,7 @@ class ExtensionsManagerTest {
                 )
             }
 
-        val extensionsManager =
+        extensionsManager =
             ExtensionsManager.getInstance(context, createFakeCameraProvider(cameraInfo))
         val baseCameraSelector =
             CameraSelector.Builder().requireLensFacing(cameraInfo.lensFacing).build()

@@ -22,6 +22,7 @@ import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraProvider
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
@@ -85,6 +86,9 @@ import androidx.camera.core.ViewPort
  *   viewport.
  * @param effects The list of [CameraEffect] to be applied on the camera session. If not set, the
  *   default is no effects.
+ * @param isAutoRotationEnabled Whether to use auto rotation. When enabled, CameraX will monitor the
+ *   device motion sensor and set the target rotation for [ImageCapture] and
+ *   [androidx.camera.video.VideoCapture].
  * @throws IllegalArgumentException if the given mode is not a valid extension mode.
  * @see androidx.camera.lifecycle.ProcessCameraProvider.bindToLifecycle
  * @see ExtensionsManager.getInstanceAsync
@@ -97,7 +101,8 @@ constructor(
     useCases: List<UseCase> = emptyList(),
     viewPort: ViewPort? = null,
     effects: List<CameraEffect> = emptyList(),
-) : SessionConfig(useCases, viewPort, effects) {
+    isAutoRotationEnabled: Boolean = false,
+) : SessionConfig(useCases, viewPort, effects, isAutoRotationEnabled = isAutoRotationEnabled) {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override val requireNonEmptyUseCases: Boolean
         get() = false
@@ -137,6 +142,7 @@ constructor(
         private val useCases: MutableList<UseCase> = mutableListOf()
         private var viewPort: ViewPort? = null
         private var effects: MutableList<CameraEffect> = mutableListOf()
+        private var isAutoRotationEnabled: Boolean = false
 
         /** Adds a [UseCase] to the session. */
         public fun addUseCase(useCase: UseCase): Builder {
@@ -157,6 +163,17 @@ constructor(
         }
 
         /**
+         * Sets whether to use auto rotation.
+         *
+         * When enabled, CameraX will monitor the device motion sensor and set the target rotation
+         * for ImageCapture and VideoCapture.
+         */
+        public fun setAutoRotationEnabled(autoRotationEnabled: Boolean): Builder {
+            this.isAutoRotationEnabled = autoRotationEnabled
+            return this
+        }
+
+        /**
          * Builds an [ExtensionSessionConfig] from the current configuration.
          *
          * @throws IllegalArgumentException if the given mode is not a valid extension mode.
@@ -168,6 +185,7 @@ constructor(
                 useCases = useCases.toList(),
                 viewPort = viewPort,
                 effects = effects.toList(),
+                isAutoRotationEnabled = isAutoRotationEnabled,
             )
         }
     }

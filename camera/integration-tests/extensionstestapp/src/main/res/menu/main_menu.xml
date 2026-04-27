@@ -21,4 +21,8 @@
     <item
         android:id="@+id/menu_validation_tool"
         android:title="Validation Tool" />
+    <item
+        android:id="@+id/menu_auto_rotation"
+        android:checkable="true"
+        android:title="Enable Auto Rotation" />
 </menu>
