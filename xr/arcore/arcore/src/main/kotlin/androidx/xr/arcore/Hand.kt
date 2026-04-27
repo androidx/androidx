@@ -45,37 +45,45 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
         internal const val PRIMARY_HAND_SETTING_NAME = "primary_hand"
 
         /**
-         * Returns the Hand object that corresponds to the user's left hand when available.
+         * Returns the left hand.
          *
-         * @param session the currently active [Session]
-         * @throws [IllegalStateException] if [Session.config] is set to
-         *   [androidx.xr.runtime.HandTrackingMode.DISABLED].
+         * @param session the [Session] to retrieve the hand from
+         * @throws IllegalStateException if [androidx.xr.runtime.Config.handTracking] is set to
+         *   [HandTrackingMode.DISABLED]
+         * @sample androidx.xr.arcore.samples.getLeftHand
          */
         @JvmStatic
-        public fun left(session: Session): Hand? {
+        public fun left(session: Session): Hand {
             val perceptionStateExtender = getPerceptionStateExtender(session)
             val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
             check(config.handTracking != HandTrackingMode.DISABLED) {
                 "Config.HandTrackingMode is set to DISABLED."
             }
-            return perceptionStateExtender.xrResourcesManager.leftHand
+            check(perceptionStateExtender.xrResourcesManager.leftHand != null) {
+                "Left hand is not available."
+            }
+            return perceptionStateExtender.xrResourcesManager.leftHand!!
         }
 
         /**
-         * Returns the Hand object that corresponds to the user's right hand when available.
+         * Returns the right hand.
          *
-         * @param session the currently active [Session]
-         * @throws [IllegalStateException] if [Session.config] is set to
-         *   [HandTrackingMode.DISABLED].
+         * @param session the [Session] to retrieve the hand from
+         * @throws IllegalStateException if [androidx.xr.runtime.Config.handTracking] is set to
+         *   [HandTrackingMode.DISABLED]
+         * @sample androidx.xr.arcore.samples.getRightHand
          */
         @JvmStatic
-        public fun right(session: Session): Hand? {
+        public fun right(session: Session): Hand {
             val perceptionStateExtender = getPerceptionStateExtender(session)
             val config = perceptionStateExtender.xrResourcesManager.perceptionRuntime.config
             check(config.handTracking != HandTrackingMode.DISABLED) {
                 "Config.HandTrackingMode is set to DISABLED."
             }
-            return perceptionStateExtender.xrResourcesManager.rightHand
+            check(perceptionStateExtender.xrResourcesManager.rightHand != null) {
+                "Right hand is not available."
+            }
+            return perceptionStateExtender.xrResourcesManager.rightHand!!
         }
 
         /**

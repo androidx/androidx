@@ -356,7 +356,7 @@ class HandTrackingActivity : ComponentActivity() {
                         .padding(5.dp)
             ) {
                 Text(text = "CoreState: ${state.timeMark.toString()}", fontSize = 22.sp)
-                if (leftHand == null || rightHand == null) {
+                if (session.config.handTracking == HandTrackingMode.DISABLED) {
                     Text(text = "Hand module is not supported.", fontSize = 22.sp)
                 } else {
                     val handedness = Hand.getPrimaryHandSide(contentResolver)
