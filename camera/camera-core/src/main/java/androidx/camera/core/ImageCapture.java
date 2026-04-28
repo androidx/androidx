@@ -1038,25 +1038,23 @@ public final class ImageCapture extends UseCase {
      *
      * <p>Some capabilities are only exposed on Extensions-enabled cameras. To get the correct
      * capabilities when Extensions are enabled, you need to pass the {@link CameraInfo} from the
-     * Extensions-enabled {@link Camera} instance. To do this, use the {@link CameraSelector}
-     * instance retrieved from
-     * {@link androidx.camera.extensions.ExtensionsManager#getExtensionEnabledCameraSelector(CameraSelector, int)}
-     * to invoke {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle} where
-     * you can skip use cases arguments if you'd like to query it before opening the camera. Then,
-     * use the returned {@link Camera} to get the {@link CameraInfo} instance.
+     * Extensions-enabled {@link Camera} instance. To do this, use an
+     * {@link androidx.camera.extensions.ExtensionSessionConfig} containing the desired extension
+     * mode to invoke
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#getCameraInfo(CameraSelector,
+     * androidx.camera.core.SessionConfig)}.
      *
-     * <p>>The following code snippet demonstrates how to enable postview:
-     *
+     * <p>The following code snippet demonstrates how to enable postview with an extension enabled:
      * <pre>{@code
-     * CameraSelector extensionCameraSelector =
-     *     extensionsManager.getExtensionEnabledCameraSelector(cameraSelector, ExtensionMode.NIGHT);
-     * Camera camera = cameraProvider.bindToLifecycle(activity, extensionCameraSelector);
+     * ExtensionSessionConfig config = new ExtensionSessionConfig(ExtensionMode.NIGHT,
+     *         extensionsManager);
+     * CameraInfo extensionCameraInfo = cameraProvider.getCameraInfo(cameraSelector, config);
      * ImageCaptureCapabilities capabilities =
-     *     ImageCapture.getImageCaptureCapabilities(camera.getCameraInfo());
+     *         ImageCapture.getImageCaptureCapabilities(extensionCameraInfo);
      * ImageCapture imageCapture = new ImageCapture.Builder()
-     *     .setPostviewEnabled(capabilities.isPostviewSupported())
-     *     .build();
-     * }}</pre>
+     *         .setPostviewEnabled(capabilities.isPostviewSupported())
+     *         .build();
+     * }</pre>
      *
      * @return {@link ImageCaptureCapabilities}
      */

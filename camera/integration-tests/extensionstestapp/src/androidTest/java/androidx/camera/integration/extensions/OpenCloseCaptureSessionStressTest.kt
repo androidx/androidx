@@ -28,6 +28,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
+import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
@@ -70,7 +71,6 @@ class OpenCloseCaptureSessionStressTest(
     private lateinit var extensionsManager: ExtensionsManager
     private lateinit var camera: Camera
     private lateinit var baseCameraSelector: CameraSelector
-    private lateinit var extensionCameraSelector: CameraSelector
     private lateinit var preview: Preview
     private lateinit var imageCapture: ImageCapture
     private lateinit var imageAnalysis: ImageAnalysis
@@ -87,14 +87,17 @@ class OpenCloseCaptureSessionStressTest(
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
-        extensionCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
-
         camera =
             withContext(Dispatchers.Main) {
                 lifecycleOwner = FakeLifecycleOwner()
                 lifecycleOwner.startAndResume()
-                cameraProvider.bindToLifecycle(lifecycleOwner, extensionCameraSelector)
+                val extensionSessionConfig =
+                    ExtensionSessionConfig(extensionMode, extensionsManager)
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    baseCameraSelector,
+                    extensionSessionConfig,
+                )
             }
 
         val previewBuilder = Preview.Builder()
@@ -198,9 +201,16 @@ class OpenCloseCaptureSessionStressTest(
             // Arrange: resets the camera session monitor
             cameraSessionMonitor.reset()
 
-            withContext(Dispatchers.Main) {
+            withContext<Unit>(Dispatchers.Main) {
                 // Act: binds use cases
-                cameraProvider.bindToLifecycle(lifecycleOwner, extensionCameraSelector, *useCases)
+                val extensionSessionConfig =
+                    ExtensionSessionConfig(extensionMode, extensionsManager, *useCases)
+
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    baseCameraSelector,
+                    extensionSessionConfig,
+                )
             }
 
             // Assert: checks the camera session is opened.

@@ -88,8 +88,6 @@ class ImageCaptureTest(
 
     private lateinit var baseCameraSelector: CameraSelector
 
-    private lateinit var extensionsCameraSelector: CameraSelector
-
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
 
     @Before
@@ -106,9 +104,6 @@ class ImageCaptureTest(
         assumeTrue(
             ExtensionsTestUtil.isExtensionAvailable(extensionsManager, lensFacing, extensionMode)
         )
-
-        extensionsCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
 
         withContext(Dispatchers.Main) {
             fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
@@ -190,10 +185,7 @@ class ImageCaptureTest(
     // TODO(b/322416654): Enable test after it can pass on most devices
     fun canInterruptTakePictureAndResume_forLongCapture(): Unit = runBlocking {
         val latency =
-            extensionsManager.getEstimatedCaptureLatencyRange(
-                extensionsCameraSelector,
-                extensionMode,
-            )
+            extensionsManager.getEstimatedCaptureLatencyRange(baseCameraSelector, extensionMode)
         assumeTrue(latency != null && latency.lower >= 2000)
         canInterruptTakePictureAndResumeInternal(delayForStopLifecycle = latency!!.lower)
     }
@@ -283,7 +275,8 @@ class ImageCaptureTest(
     }
 
     private fun isSupportedJpegUltraHdrStillImageCapture(): Boolean {
-        val cameraInfo = cameraProvider.getCameraInfo(extensionsCameraSelector)
+        val config = ExtensionSessionConfig(extensionMode, extensionsManager)
+        val cameraInfo = cameraProvider.getCameraInfo(baseCameraSelector, config)
         val imageCaptureCapabilities = ImageCapture.getImageCaptureCapabilities(cameraInfo)
         return imageCaptureCapabilities.supportedOutputFormats.contains(
             ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR
@@ -317,9 +310,18 @@ class ImageCaptureTest(
     }
 
     private fun isCaptureProcessProgressSupported(): Boolean = runBlocking {
+        val preview = Preview.Builder().build()
+        val imageCapture = ImageCapture.Builder().build()
+        val extensionSessionConfig =
+            ExtensionSessionConfig(extensionMode, extensionsManager, preview, imageCapture)
+
         val camera =
             withContext(Dispatchers.Main) {
-                cameraProvider.bindToLifecycle(fakeLifecycleOwner, extensionsCameraSelector)
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    baseCameraSelector,
+                    extensionSessionConfig,
+                )
             }
 
         val capabilities = ImageCapture.getImageCaptureCapabilities(camera.cameraInfo)
@@ -327,8 +329,9 @@ class ImageCaptureTest(
     }
 
     private fun isPostviewSupported(): Boolean {
+        val config = ExtensionSessionConfig(extensionMode, extensionsManager)
         return ImageCapture.getImageCaptureCapabilities(
-                cameraProvider.getCameraInfo(extensionsCameraSelector)
+                cameraProvider.getCameraInfo(baseCameraSelector, config)
             )
             .isPostviewSupported
     }
@@ -356,12 +359,19 @@ class ImageCaptureTest(
             preview.surfaceProvider =
                 SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
 
+            val extensionSessionConfig =
+                ExtensionSessionConfig(
+                    extensionMode,
+                    extensionsManager,
+                    preview,
+                    imageCaptureUsecase,
+                )
+
             val camera =
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
-                    extensionsCameraSelector,
-                    preview,
-                    imageCaptureUsecase,
+                    baseCameraSelector,
+                    extensionSessionConfig,
                 )
 
             imageCaptureUsecase.takePicture(
@@ -396,12 +406,19 @@ class ImageCaptureTest(
                 }
             )
 
+            val extensionSessionConfig =
+                ExtensionSessionConfig(
+                    extensionMode,
+                    extensionsManager,
+                    preview,
+                    imageCaptureUseCase,
+                )
+
             val camera =
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
-                    extensionsCameraSelector,
-                    preview,
-                    imageCaptureUseCase,
+                    baseCameraSelector,
+                    extensionSessionConfig,
                 )
 
             assertThat(withTimeoutOrNull(5000) { previewReady.await() }).isTrue()
@@ -430,12 +447,14 @@ class ImageCaptureTest(
             preview.surfaceProvider =
                 SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
 
+            val extensionSessionConfig =
+                ExtensionSessionConfig(extensionMode, extensionsManager, preview, imageCapture)
+
             val camera =
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
-                    extensionsCameraSelector,
-                    preview,
-                    imageCapture,
+                    baseCameraSelector,
+                    extensionSessionConfig,
                 )
 
             val saveLocation = temporaryFolder.newFile("test.jpg")
@@ -572,10 +591,13 @@ class ImageCaptureTest(
         val imageCapture = ImageCapture.Builder().build()
 
         withContext(Dispatchers.Main) {
+            val extensionSessionConfig =
+                ExtensionSessionConfig(extensionMode, extensionsManager, imageCapture)
+
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
-                extensionsCameraSelector,
-                imageCapture,
+                baseCameraSelector,
+                extensionSessionConfig,
             )
         }
 
@@ -587,10 +609,13 @@ class ImageCaptureTest(
         val imageCapture = ImageCapture.Builder().build()
 
         withContext(Dispatchers.Main) {
+            val extensionSessionConfig =
+                ExtensionSessionConfig(extensionMode, extensionsManager, imageCapture)
+
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
-                extensionsCameraSelector,
-                imageCapture,
+                baseCameraSelector,
+                extensionSessionConfig,
             )
         }
 

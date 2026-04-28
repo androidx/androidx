@@ -34,6 +34,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
@@ -283,14 +284,6 @@ class ReleaseTestActivity : AppCompatActivity() {
 
         cameraProvider.unbindAll()
 
-        val cameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(
-                currentCameraSelector,
-                currentExtensionMode,
-            )
-
-        camera = cameraProvider.bindToLifecycle(this, cameraSelector)
-
         imageCapture = ImageCapture.Builder().setTargetName("ImageCapture").build()
 
         preview = Preview.Builder().setTargetName("Preview").build()
@@ -311,7 +304,10 @@ class ReleaseTestActivity : AppCompatActivity() {
             }
         }
 
-        camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+        val extensionSessionConfig =
+            ExtensionSessionConfig(currentExtensionMode, extensionsManager, preview, imageCapture)
+
+        camera = cameraProvider.bindToLifecycle(this, currentCameraSelector, extensionSessionConfig)
     }
 
     private fun takePicture() {

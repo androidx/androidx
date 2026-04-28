@@ -67,8 +67,6 @@ class PreviewTest(
 
     private lateinit var baseCameraSelector: CameraSelector
 
-    private lateinit var extensionsCameraSelector: CameraSelector
-
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
 
     private val surfaceTextureLatch = CountDownLatch(1)
@@ -120,9 +118,6 @@ class PreviewTest(
 
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
-        extensionsCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
-
         withContext(Dispatchers.Main) {
             fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
         }
@@ -161,7 +156,14 @@ class PreviewTest(
                 SurfaceTextureProvider.createSurfaceTextureProvider(createSurfaceTextureCallback())
             )
 
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, extensionsCameraSelector, preview)
+            val extensionSessionConfig =
+                ExtensionSessionConfig(extensionMode, extensionsManager, preview)
+
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                baseCameraSelector,
+                extensionSessionConfig,
+            )
         }
 
         // Waits for the surface texture being ready
@@ -180,7 +182,14 @@ class PreviewTest(
                 SurfaceTextureProvider.createSurfaceTextureProvider(createSurfaceTextureCallback())
             )
 
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, extensionsCameraSelector, preview)
+            val extensionSessionConfig =
+                ExtensionSessionConfig(extensionMode, extensionsManager, preview)
+
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                baseCameraSelector,
+                extensionSessionConfig,
+            )
         }
 
         assertThat(preview.currentConfig.isHighResolutionDisabled(false)).isTrue()
