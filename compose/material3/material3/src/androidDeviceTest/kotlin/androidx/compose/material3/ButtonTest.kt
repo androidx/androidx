@@ -341,7 +341,6 @@ class ButtonTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun text_button_shapesRequired_positioning() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -371,7 +370,6 @@ class ButtonTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun text_button_shapesRequired_withIcon_positioning() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -731,7 +729,6 @@ class ButtonTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_xSmall_positioning() {
         var expectedStartPadding: Dp = 0.dp
@@ -896,7 +893,6 @@ class ButtonTest {
         buttonBounds.height.assertIsEqualTo(size, "height of button.")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_medium_positioning() {
         var expectedStartPadding: Dp = 0.dp
@@ -954,7 +950,6 @@ class ButtonTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_large_positioning() {
         var expectedStartPadding: Dp = 0.dp
@@ -1009,7 +1004,6 @@ class ButtonTest {
         buttonBounds.height.assertIsEqualTo(ButtonDefaults.LargeContainerHeight, "height of button")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_xLarge_positioning() {
         var expectedStartPadding: Dp = 0.dp
@@ -1068,7 +1062,6 @@ class ButtonTest {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_withAnimatedShape_defaultShape() {
         lateinit var shape: Shape
@@ -1104,7 +1097,6 @@ class ButtonTest {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_withAnimatedShape_pressedShape() {
         lateinit var shape: Shape
