@@ -116,6 +116,11 @@ internal class WindowSkiaLayerComponent(
             inputMethodsEnabled = enable
             super.enableInputMethods(enable)
         }
+
+        override fun dispose() {
+            super.dispose()
+            isDisposed = true
+        }
     }
 
     override val contentRoot: Component
@@ -150,16 +155,21 @@ internal class WindowSkiaLayerComponent(
 
     override val windowHandle by hierarchyRoot::windowHandle
 
+    private var isDisposed = false
+
     init {
         hierarchyRoot.renderDelegate = renderDelegate
     }
 
     override fun dispose() {
         hierarchyRoot.dispose()
+        isDisposed = true
     }
 
     override fun onComposeInvalidation() {
-        hierarchyRoot.needRender()
+        if (!isDisposed) {
+            hierarchyRoot.needRender()
+        }
     }
 
     override fun renderImmediately() {

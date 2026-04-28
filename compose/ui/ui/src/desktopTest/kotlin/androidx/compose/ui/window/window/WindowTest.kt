@@ -25,6 +25,7 @@ import androidx.compose.material.Slider
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.ui.awt.LocalAwtWindow
 import androidx.compose.ui.awt.SwingWindow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -46,6 +47,7 @@ import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.*
@@ -879,6 +881,18 @@ class WindowTest {
         Window(onCloseRequest = ::exitApplication) {
             content()
         }
+    }
+
+    @Test
+    fun windowComposableProvidesLocalAwtWindow() = runApplicationTest {
+        var localWindow: Window? = null
+        launchTestApplication {
+            Window(onCloseRequest = ::exitApplication) {
+                localWindow = LocalAwtWindow.current
+            }
+        }
+        awaitIdle()
+        assertNotNull(localWindow)
     }
 }
 

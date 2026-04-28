@@ -17,6 +17,10 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -37,10 +41,12 @@ import java.awt.ComponentOrientation
 import java.awt.Container
 import java.awt.Dimension
 import java.awt.FocusTraversalPolicy
+import java.awt.Window
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.util.*
 import javax.swing.JLayeredPane
+import javax.swing.SwingUtilities
 import javax.swing.SwingUtilities.isEventDispatchThread
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -121,6 +127,8 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         isFocusCycleRoot = true
         isFocusable = true
     }
+
+    private var windowParent by mutableStateOf<Window?>(null)
 
     private val _focusListeners = mutableSetOf<FocusListener?>()
 
@@ -231,8 +239,17 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         // to keep the lambda describing composable content and set the content only when
         // everything is ready to avoid accidental crashes and memory leaks on all supported OS
         // types.
-        _composeContent = content
-        _composeContainer?.setContent(content)
+        val wrappedContent = wrapContent(content)
+        _composeContent = wrappedContent
+        _composeContainer?.setContent(wrappedContent)
+    }
+
+    private fun wrapContent(content: @Composable () -> Unit): @Composable () -> Unit {
+        return {
+            CompositionLocalProvider(LocalAwtWindow provides windowParent) {
+                content()
+            }
+        }
     }
 
     /**
@@ -286,6 +303,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         // content.
         val composeContainer = _composeContainer ?: createComposeContainer().also {
             _composeContainer = it
+            windowParent = SwingUtilities.getWindowAncestor(this)
             it.redispatchUnconsumedMouseWheelEvents = redispatchUnconsumedMouseWheelEvents
             @OptIn(InternalCoreApi::class)
             it.showLayoutBounds = showLayoutBounds
@@ -342,6 +360,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         if (isDisposeOnRemove) {
             dispose()
         }
+        windowParent = null
         super.removeNotify()
     }
 

@@ -23,7 +23,6 @@ import androidx.compose.ui.LayerType
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.scene.ComposeContainer
-import androidx.compose.ui.window.LocalWindow
 import androidx.savedstate.SavedState
 import java.awt.Component
 import java.awt.Container
@@ -151,7 +150,7 @@ internal class ComposeWindowPanel(
         )
         composeContainer.setContent {
             CompositionLocalProvider(
-                LocalWindow provides window
+                LocalAwtWindow provides window
             ) {
                 WindowContentLayout(modifier, content)
             }
