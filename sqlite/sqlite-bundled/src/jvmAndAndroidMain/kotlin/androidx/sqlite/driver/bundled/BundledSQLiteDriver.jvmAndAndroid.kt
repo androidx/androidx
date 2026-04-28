@@ -66,7 +66,7 @@ public actual class BundledSQLiteDriver : SQLiteDriver {
      * @return the database connection.
      */
     public actual fun open(fileName: String, @OpenFlag flags: Int): SQLiteConnection {
-        NativeLibraryObject // loads native library
+        @Suppress("UNUSED_EXPRESSION") NativeLibraryObject // loads native library
         val address = nativeOpen(fileName, flags)
         val connection = BundledSQLiteConnection(address)
         try {

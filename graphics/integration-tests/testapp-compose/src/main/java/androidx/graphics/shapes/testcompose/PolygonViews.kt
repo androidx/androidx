@@ -95,7 +95,6 @@ internal fun PolygonView(
     stroked: Boolean = false,
     center: Boolean = false,
 ) {
-    Size
     val sizedShapes: MutableFloatObjectMap<List<Cubic>> =
         remember(polygon) { mutableFloatObjectMapOf() }
     val scheme = MaterialTheme.colorScheme
