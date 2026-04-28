@@ -465,12 +465,8 @@ public fun FollowingSubspace(
         return
     }
 
-    val subspaceRootNode by remember {
-        disposableValueOf(
-            Entity.create(session, SubspaceConstants.FOLLOWING_SUBSPACE_ROOT_CONTAINER_NAME)
-        ) {
-            it.parent = null
-        }
+    val subspaceRootNode = remember {
+        Entity.create(session, SubspaceConstants.FOLLOWING_SUBSPACE_ROOT_CONTAINER_NAME)
     }
 
     // Implicitly subscribes this Composable to scale changes.
