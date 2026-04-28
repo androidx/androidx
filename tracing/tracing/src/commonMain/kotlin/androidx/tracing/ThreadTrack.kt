@@ -44,6 +44,27 @@ public open class ThreadTrack(
         )
         return event
     }
+
+    override fun endSection() {
+        assertThreadIdWhenNotOptimized()
+        super.endSection()
+    }
+
+    // Note: This method is optimized away by R8.
+    // Making this a public method to avoid name mangling by the Kotlin compiler so that
+    // we can write a corresponding `-assumenosideeffects` rule.
+    public fun assertThreadIdWhenNotOptimized() {
+        // Ideally we do this check in SliceTrack. But, SliceTrack is not thread id aware.
+        // Therefore, we are doing this in ThreadTrack.
+        require(id == currentThreadId()) {
+            """
+                Invariant violation. Current thread id (${currentThreadId()} does not match
+                expected $id. This means that there might be a race condition in the code
+                where begin and end sections are being called on separate threads.
+            """
+                .trimIndent()
+        }
+    }
 }
 
 // An empty thread track when tracing is disabled

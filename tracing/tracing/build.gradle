@@ -25,6 +25,10 @@ androidXMultiplatform {
     desktop()
     androidLibrary {
         namespace = "androidx.tracing"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("src/androidMain/keepRules/rules.keep"))
+        }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)

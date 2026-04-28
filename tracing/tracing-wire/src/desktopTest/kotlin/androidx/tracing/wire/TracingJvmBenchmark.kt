@@ -41,14 +41,8 @@ open class TracingJvmBenchmark {
     private val disabledTraceContext =
         buildTraceContext(sink = buildInMemorySink(), isGloballyEnabled = false)
 
-    private val disabledRingBufferTraceContext =
-        buildTraceContext(sink = buildInMemoryRingBufferSink(), isGloballyEnabled = false)
-
     private val disabledTracer =
         PerfettoTracer(context = disabledTraceContext, categoryEnabled = { false })
-
-    private val disabledRingBufferTracer =
-        PerfettoTracer(context = disabledRingBufferTraceContext, categoryEnabled = { false })
 
     private val enabledTraceContext =
         buildTraceContext(sink = buildInMemorySink(), isGloballyEnabled = true)
@@ -75,30 +69,31 @@ open class TracingJvmBenchmark {
     }
 
     @Benchmark
-    open fun traceSectionDisabled() {
+    open fun beginEnd_withTracingGloballyDisabled() {
         disabledTracer.trace(category = category, name = "benchmark") {
             // Do nothing
         }
     }
 
+    // Note: There is no runWithMeasurementDisabled equivalent in JMH benchmarks.
+    // Therefore, we can't guarantee that all trace events are serialized.
     @Benchmark
-    open fun traceSectionEnabled() {
-        enabledTracer.trace(category = category, name = "benchmark") {
-            // Do nothing
+    open fun beginEnd32_withSerialization() {
+        repeat(32) {
+            enabledTracer.trace(category = category, name = "benchmark") {
+                // Do nothing
+            }
         }
     }
 
+    // Note: There is no runWithMeasurementDisabled equivalent in JMH benchmarks.
+    // Therefore, we can't guarantee that all trace events are serialized.
     @Benchmark
-    open fun traceSectionRingBufferDisabled() {
-        disabledRingBufferTracer.trace(category = category, name = "benchmark") {
-            // Do nothing
-        }
-    }
-
-    @Benchmark
-    open fun traceSectionRingBufferEnabled() {
-        enabledRingBufferTracer.trace(category = category, name = "benchmark") {
-            // Do nothing
+    open fun beginEnd32_withSerialization_ringBuffer() {
+        repeat(32) {
+            enabledRingBufferTracer.trace(category = category, name = "benchmark") {
+                // Do nothing
+            }
         }
     }
 
