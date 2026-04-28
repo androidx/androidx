@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 actual fun DropdownMenu(
     expanded: Boolean,
@@ -225,7 +224,6 @@ actual fun DropdownMenuItem(
 }
 
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 internal actual fun DropdownMenuPopupImpl(
     onDismissRequest: () -> Unit,
     popupPositionProvider: DropdownMenuPopupPositionProvider,
