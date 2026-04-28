@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -90,7 +89,7 @@ fun SmallFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -134,7 +133,7 @@ fun LargeFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -186,7 +185,6 @@ fun ExtendedFloatingActionButtonTextSample() {
     ExtendedFloatingActionButton(onClick = { /* do something */ }) { Text(text = "Extended FAB") }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -196,7 +194,6 @@ fun SmallExtendedFloatingActionButtonTextSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -206,7 +203,6 @@ fun MediumExtendedFloatingActionButtonTextSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -227,7 +223,6 @@ fun ExtendedFloatingActionButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -239,7 +234,6 @@ fun SmallExtendedFloatingActionButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -257,7 +251,6 @@ fun MediumExtendedFloatingActionButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -315,7 +308,6 @@ fun AnimatedExtendedFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -355,7 +347,6 @@ fun SmallAnimatedExtendedFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -401,7 +392,6 @@ fun MediumAnimatedExtendedFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable

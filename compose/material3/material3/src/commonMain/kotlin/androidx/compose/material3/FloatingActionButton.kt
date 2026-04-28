@@ -277,7 +277,6 @@ fun SmallFloatingActionButton(
  *   happen internally.
  * @param content the content of this FAB, typically an [Icon]
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun MediumFloatingActionButton(
     onClick: () -> Unit,
@@ -393,7 +392,6 @@ fun LargeFloatingActionButton(
  *   happen internally.
  * @param content the content of this FAB, typically a [Text] label
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun SmallExtendedFloatingActionButton(
     onClick: () -> Unit,
@@ -459,7 +457,6 @@ fun SmallExtendedFloatingActionButton(
  *   happen internally.
  * @param content the content of this FAB, typically a [Text] label
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun MediumExtendedFloatingActionButton(
     onClick: () -> Unit,
@@ -525,7 +522,6 @@ fun MediumExtendedFloatingActionButton(
  *   happen internally.
  * @param content the content of this FAB, typically a [Text] label
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun LargeExtendedFloatingActionButton(
     onClick: () -> Unit,
@@ -659,7 +655,6 @@ fun ExtendedFloatingActionButton(
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun SmallExtendedFloatingActionButton(
     text: @Composable () -> Unit,
@@ -727,7 +722,6 @@ fun SmallExtendedFloatingActionButton(
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun MediumExtendedFloatingActionButton(
     text: @Composable () -> Unit,
@@ -795,7 +789,6 @@ fun MediumExtendedFloatingActionButton(
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun LargeExtendedFloatingActionButton(
     text: @Composable () -> Unit,
@@ -997,7 +990,7 @@ object FloatingActionButtonDefaults {
     internal val ShowHideTargetScale = 0.2f
 
     /** The recommended size of the icon inside a [MediumFloatingActionButton]. */
-    @ExperimentalMaterial3ExpressiveApi val MediumIconSize = FabMediumTokens.IconSize
+    val MediumIconSize = FabMediumTokens.IconSize
 
     /** The recommended size of the icon inside a [LargeFloatingActionButton]. */
     val LargeIconSize = 36.dp // TODO: FabLargeTokens.IconSize is incorrect
@@ -1011,7 +1004,6 @@ object FloatingActionButtonDefaults {
         @Composable get() = FabSmallTokens.ContainerShape.value
 
     /** Default shape for a medium floating action button. */
-    @ExperimentalMaterial3ExpressiveApi
     val mediumShape: Shape
         @Composable get() = ShapeDefaults.LargeIncreased // TODO: update to use token
 
@@ -1024,17 +1016,14 @@ object FloatingActionButtonDefaults {
         @Composable get() = ExtendedFabPrimaryTokens.ContainerShape.value
 
     /** Default shape for a small extended floating action button. */
-    @ExperimentalMaterial3ExpressiveApi
     val smallExtendedFabShape: Shape
         @Composable get() = ExtendedFabSmallTokens.ContainerShape.value
 
     /** Default shape for a medium extended floating action button. */
-    @ExperimentalMaterial3ExpressiveApi
     val mediumExtendedFabShape: Shape
         @Composable get() = ShapeDefaults.LargeIncreased // TODO: update to use token
 
     /** Default shape for a large extended floating action button. */
-    @ExperimentalMaterial3ExpressiveApi
     val largeExtendedFabShape: Shape
         @Composable get() = ExtendedFabLargeTokens.ContainerShape.value
 
@@ -1129,7 +1118,6 @@ object FloatingActionButtonDefaults {
  *   the Fast Effects spring spec from the [MotionScheme] will be used
  * @sample androidx.compose.material3.samples.AnimatedFloatingActionButtonSample
  */
-@ExperimentalMaterial3ExpressiveApi
 fun Modifier.animateFloatingActionButton(
     visible: Boolean,
     alignment: Alignment,
@@ -1226,7 +1214,6 @@ internal class FabVisibleNode(
         )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     fun updateNode(
         visible: Boolean,
         alignment: Alignment,
