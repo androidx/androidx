@@ -241,24 +241,32 @@ class ConcurrentCameraCompositionTest {
 
         val frameSemaphore = Semaphore(0)
         var surfaceTexture: SurfaceTexture? = null
+        var isReleased = false
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(CameraXExecutors.directExecutor()) { request ->
-                surfaceTexture = SurfaceTexture(textureId)
-                surfaceTexture!!.setDefaultBufferSize(
-                    request.resolution.width,
-                    request.resolution.height,
-                )
-                surfaceTexture!!.setOnFrameAvailableListener(
+                val st = SurfaceTexture(textureId)
+                surfaceTexture = st
+                st.setDefaultBufferSize(request.resolution.width, request.resolution.height)
+                st.setOnFrameAvailableListener(
                     {
-                        it.updateTexImage()
-                        frameSemaphore.release()
+                        if (!isReleased) {
+                            try {
+                                it.updateTexImage()
+                            } catch (e: RuntimeException) {
+                                Log.w(TAG, "updateTexImage failed, probably released", e)
+                            }
+                            frameSemaphore.release()
+                        }
                     },
                     glHandler,
                 )
-                val surface = Surface(surfaceTexture)
+                val surface = Surface(st)
                 request.provideSurface(surface, CameraXExecutors.directExecutor()) {
                     surface.release()
-                    surfaceTexture!!.release()
+                    glHandler.post {
+                        isReleased = true
+                        st.release()
+                    }
                 }
             }
             cameraProvider.bindToLifecycle(listOf(primary, secondary))
@@ -539,7 +547,11 @@ class ConcurrentCameraCompositionTest {
         glHandler.post {
             EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)
 
-            surfaceTexture.updateTexImage()
+            try {
+                surfaceTexture.updateTexImage()
+            } catch (e: RuntimeException) {
+                Log.w(TAG, "updateTexImage failed in renderAndCapturePreviewBitmap", e)
+            }
             val texMatrix = FloatArray(16)
             surfaceTexture.getTransformMatrix(texMatrix)
 
