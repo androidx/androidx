@@ -221,7 +221,6 @@ public class ImpressApiImpl : ImpressApi {
                 },
                 path,
             )
-            "LoadImageBasedLightingAsset Operation"
         }
 
     override suspend fun loadImageBasedLightingAsset(data: ByteArray, key: String): ExrImage =
@@ -262,7 +261,6 @@ public class ImpressApiImpl : ImpressApi {
                 data,
                 key,
             )
-            "LoadImageBasedLightingAsset Operation"
         }
 
     override suspend fun loadGltfAsset(path: String): GltfModel =
@@ -304,7 +302,6 @@ public class ImpressApiImpl : ImpressApi {
                 },
                 path,
             )
-            "LoadGltfAsset Operation"
         }
 
     override suspend fun loadGltfAsset(data: ByteArray, key: String): GltfModel =
@@ -347,7 +344,6 @@ public class ImpressApiImpl : ImpressApi {
                 data,
                 key,
             )
-            "LoadGltfAsset Operation"
         }
 
     override fun releaseGltfAsset(gltfToken: Long): Unit =
@@ -462,7 +458,6 @@ public class ImpressApiImpl : ImpressApi {
                 }
             },
         )
-        "AnimateGltfModel Operation"
     }
 
     /**
@@ -912,7 +907,6 @@ public class ImpressApiImpl : ImpressApi {
                 },
                 path,
             )
-            "LoadTexture Operation"
         }
 
     override fun borrowReflectionTexture(): Texture {
@@ -972,8 +966,6 @@ public class ImpressApiImpl : ImpressApi {
                 },
                 isAlphaMapVersion,
             )
-            // This string is used for debugging purposes by the Coroutine.
-            "CreateWaterMaterial Operation"
         }
 
     override fun setReflectionMapOnWaterMaterial(
@@ -1128,8 +1120,6 @@ public class ImpressApiImpl : ImpressApi {
             spec.blendMode,
             spec.doubleSidedMode,
         )
-        // This string is used for debugging purposes by the Coroutine.
-        "CreateKhronosPbrMaterial Operation"
     }
 
     override fun setBaseColorTextureOnKhronosPbrMaterial(
