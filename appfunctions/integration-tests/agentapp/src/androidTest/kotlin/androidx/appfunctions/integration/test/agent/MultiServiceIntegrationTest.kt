@@ -84,24 +84,26 @@ class MultiServiceIntegrationTest {
                 it.id ==
                     "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#add"
             }
-        // TODO(b/463909015): Re-enable after fixing execution issue.
-        // val response =
-        //     appFunctionCaller.executeAppFunction(
-        //         request =
-        //             ExecuteAppFunctionRequest(
-        //                 targetFunction.packageName,
-        //                 targetFunction.id,
-        //                 AppFunctionData.Builder(targetFunction.parameters,
-        // targetFunction.components)
-        //                     .setInt("a", 1)
-        //                     .setInt("b", 2)
-        //                     .build(),
-        //             )
-        //     )
 
-        // assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
-        // val successResponse = response as ExecuteAppFunctionResponse.Success
-        // assertThat(successResponse.returnValue.getLong(PROPERTY_RETURN_VALUE)).isEqualTo(3)
+        val response =
+            appFunctionCaller.executeAppFunction(
+                request =
+                    ExecuteAppFunctionRequest(
+                        targetFunction.packageName,
+                        targetFunction.id,
+                        AppFunctionData.Builder(
+                                targetFunction.parameters,
+                                targetFunction.components,
+                            )
+                            .setInt("a", 1)
+                            .setInt("b", 2)
+                            .build(),
+                    )
+            )
+
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
+        assertThat(successResponse.returnValue.getInt(PROPERTY_RETURN_VALUE)).isEqualTo(3)
     }
 
     @Test

@@ -25,7 +25,14 @@ import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
+import androidx.appfunctions.internal.AppFunctionInventory
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionParameterMetadata
+import androidx.appfunctions.metadata.AppFunctionResponseMetadata
+import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata
+import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
@@ -53,7 +60,8 @@ class AppFunctionExecutionDispatcherTest {
 
         var intParamValue: Any? = null
         val response =
-            AppFunctionExecutionDispatcher.executeAppFunction(request) { params ->
+            AppFunctionExecutionDispatcher.executeAppFunction(FakeAppFunctionInventory, request) {
+                params ->
                 intParamValue = params["intParam"]
                 Unit
             }
@@ -74,7 +82,10 @@ class AppFunctionExecutionDispatcherTest {
         val exception =
             assertThrows(AppFunctionFunctionNotFoundException::class.java) {
                 runBlocking {
-                    AppFunctionExecutionDispatcher.executeAppFunction(request) { params ->
+                    AppFunctionExecutionDispatcher.executeAppFunction(
+                        FakeAppFunctionInventory,
+                        request,
+                    ) { params ->
                         "Result"
                     }
                 }
@@ -94,7 +105,10 @@ class AppFunctionExecutionDispatcherTest {
         val exception =
             assertThrows(AppFunctionCancelledException::class.java) {
                 runBlocking {
-                    AppFunctionExecutionDispatcher.executeAppFunction(request) { params ->
+                    AppFunctionExecutionDispatcher.executeAppFunction(
+                        FakeAppFunctionInventory,
+                        request,
+                    ) { params ->
                         throw CancellationException("Cancelled")
                     }
                 }
@@ -114,7 +128,10 @@ class AppFunctionExecutionDispatcherTest {
         val exception =
             assertThrows(AppFunctionDeniedException::class.java) {
                 runBlocking {
-                    AppFunctionExecutionDispatcher.executeAppFunction(request) { params ->
+                    AppFunctionExecutionDispatcher.executeAppFunction(
+                        FakeAppFunctionInventory,
+                        request,
+                    ) { params ->
                         throw AppFunctionDeniedException("Specific Exception")
                     }
                 }
@@ -134,11 +151,57 @@ class AppFunctionExecutionDispatcherTest {
         val exception =
             assertThrows(AppFunctionAppUnknownException::class.java) {
                 runBlocking {
-                    AppFunctionExecutionDispatcher.executeAppFunction(request) { params ->
+                    AppFunctionExecutionDispatcher.executeAppFunction(
+                        FakeAppFunctionInventory,
+                        request,
+                    ) { params ->
                         throw IllegalStateException("Generic Exception")
                     }
                 }
             }
         assertThat(exception.message).isEqualTo("Generic Exception")
+    }
+
+    private object FakeAppFunctionInventory : AppFunctionInventory {
+        override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
+            get() =
+                mapOf(
+                    AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT to
+                        CompileTimeAppFunctionMetadata(
+                            id =
+                                AppFunctionMetadataTestHelper.FunctionIds
+                                    .NO_SCHEMA_ENABLED_BY_DEFAULT,
+                            isEnabledByDefault = true,
+                            schema = null,
+                            parameters =
+                                listOf(
+                                    AppFunctionParameterMetadata(
+                                        name = "intParam",
+                                        isRequired = true,
+                                        dataType = AppFunctionIntTypeMetadata(isNullable = false),
+                                    )
+                                ),
+                            response =
+                                AppFunctionResponseMetadata(
+                                    valueType = AppFunctionUnitTypeMetadata(isNullable = false)
+                                ),
+                        ),
+                    AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED to
+                        CompileTimeAppFunctionMetadata(
+                            id =
+                                AppFunctionMetadataTestHelper.FunctionIds
+                                    .NO_SCHEMA_EXECUTION_SUCCEED,
+                            isEnabledByDefault = true,
+                            schema = null,
+                            parameters = listOf(),
+                            response =
+                                AppFunctionResponseMetadata(
+                                    valueType = AppFunctionStringTypeMetadata(isNullable = false)
+                                ),
+                        ),
+                )
+
+        override val componentsMetadata: AppFunctionComponentsMetadata
+            get() = AppFunctionComponentsMetadata()
     }
 }
