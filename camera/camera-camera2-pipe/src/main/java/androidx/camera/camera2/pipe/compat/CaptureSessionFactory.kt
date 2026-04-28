@@ -546,8 +546,13 @@ internal fun buildOutputConfigurations(
             Log.warn { "Failed to create AndroidOutputConfiguration for $outputConfig" }
             continue
         }
-        for (surface in outputSurfaces.drop(1)) {
-            output.addSurface(surface)
+        try {
+            for (surface in outputSurfaces.drop(1)) {
+                output.addSurface(surface)
+            }
+        } catch (e: IllegalArgumentException) {
+            Log.error(e) { "Failed to add Surfaces to $output" }
+            continue
         }
         if (graphConfig.postviewStream != null) {
             val postviewStream = streamGraph[graphConfig.postviewStream]
