@@ -80,15 +80,20 @@ import kotlin.math.max
  *
  * Example of a [DatePicker]:
  *
- * @sample androidx.wear.compose.material3.samples.DatePickerSample
+ * @sample androidx.wear.compose.material3.samples.DatePickerSample ![DatePickerSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_DatePickerSample_CompositeImage.png)
  *
  * Example of a [DatePicker] shows the picker options in year-month-day order:
  *
  * @sample androidx.wear.compose.material3.samples.DatePickerYearMonthDaySample
+ *   ![DatePickerYearMonthDaySample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_DatePickerYearMonthDaySample_CompositeImage.png)
  *
  * Example of a [DatePicker] with a minValidDate:
  *
  * @sample androidx.wear.compose.material3.samples.DatePickerFutureOnlySample
+ *   ![DatePickerFutureOnlySample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_DatePickerFutureOnlySample_CompositeImage.png)
  * @param initialDate The initial value to be displayed in the DatePicker.
  * @param onDatePicked The callback that is called when the user confirms the date selection. It
  *   provides the selected date as [LocalDate]
