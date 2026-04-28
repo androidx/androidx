@@ -18,7 +18,6 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.collection.buildObjectIntMap
-import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -26,6 +25,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.TestClock
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
@@ -54,7 +54,7 @@ class RemoteCircularProgressIndicatorTest {
     val remoteComposeTestRule =
         RemoteComposeScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            clock = TestClock(),
+            clock = TestClock(36600500),
         )
     private val context: Context = ApplicationProvider.getApplicationContext()
 
@@ -130,46 +130,5 @@ class RemoteCircularProgressIndicatorTest {
         content: @Composable @RemoteComposable () -> Unit,
     ) {
         RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
-    }
-}
-
-@Suppress("RestrictedApiAndroidX")
-private class TestClock(val baseTimeMillis: Long = 10 * 3600000L + 10 * 60000L) : RemoteClock {
-    var offsetMillis: Long = 500
-
-    override fun millis() = baseTimeMillis + offsetMillis
-
-    override fun nanoTime() = (baseTimeMillis + offsetMillis) * 1_000_000L
-
-    override fun getZoneId() = "UTC"
-
-    override fun snapshot(millis: Long?): RemoteClock.TimeSnapshot {
-        val m = millis ?: (baseTimeMillis + offsetMillis)
-        return ManualTimeSnapshot(m)
-    }
-
-    @Suppress("RestrictedApiAndroidX")
-    private class ManualTimeSnapshot(val m: Long) : RemoteClock.TimeSnapshot {
-        override fun getMillis() = m
-
-        override fun getYear() = 2026
-
-        override fun getMonth() = 2
-
-        override fun getDayOfMonth() = 13
-
-        override fun getDayOfYear() = 44
-
-        override fun getHour() = (m / 3600000).toInt() % 24
-
-        override fun getMinute() = (m / 60000).toInt() % 60
-
-        override fun getSecond() = (m / 1000).toInt() % 60
-
-        override fun getMillisOfSecond() = (m % 1000).toInt()
-
-        override fun getDayOfWeek() = 5
-
-        override fun getOffsetSeconds() = 0
     }
 }
