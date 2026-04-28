@@ -37,7 +37,8 @@ public abstract class CollectionNavType<T>(
      * Each element in the collection should be converted to an individual String element of the
      * returned list.
      *
-     * Note: Elements should be encoded with [Uri.encode]
+     * Note: Elements should be encoded with
+     * [Uri.encode](https://developer.android.com/reference/android/net/Uri#encode(java.lang.String))
      *
      * @param value a value of this NavType
      * @return List containing encoded and serialized String representation of [value]
