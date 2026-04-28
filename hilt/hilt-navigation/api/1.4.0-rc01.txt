@@ -1,0 +1,12 @@
+// Signature format: 4.0
+package androidx.hilt.navigation {
+
+  public final class HiltViewModelFactory {
+    method @KotlinOnly @Deprecated public static androidx.lifecycle.ViewModelProvider.Factory HiltViewModelFactory(android.content.Context context, androidx.lifecycle.ViewModelProvider.Factory delegateFactory);
+    method @KotlinOnly public static androidx.lifecycle.ViewModelProvider.Factory HiltViewModelFactory(android.content.Context context, androidx.navigation.NavBackStackEntry navBackStackEntry);
+    method @InaccessibleFromKotlin @Deprecated public static androidx.lifecycle.ViewModelProvider.Factory create(android.content.Context context, androidx.lifecycle.ViewModelProvider.Factory delegateFactory);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelProvider.Factory create(android.content.Context context, androidx.navigation.NavBackStackEntry navBackStackEntry);
+  }
+
+}
+
