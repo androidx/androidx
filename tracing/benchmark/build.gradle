@@ -46,7 +46,7 @@ android {
     namespace = "androidx.tracing.benchmark"
     buildTypes.release {
         androidTest {
-            enableMinification = false
+            enableMinification = true
         }
     }
 }
