@@ -21,7 +21,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
@@ -76,4 +75,13 @@ androidx {
     inceptionYear = "2025"
     description = "A runtime library for the app to expose AppFunctions"
     enableRobolectric()
+}
+
+// workaround for b/264283862
+afterEvaluate {
+    tasks.named("mergeReleaseAndroidTestAssets").configure {
+        it.doFirst {
+            it.incrementalFolder.get().asFile.deleteDir()
+        }
+    }
 }
