@@ -91,8 +91,8 @@ class HeadLockedUiActivity : AppCompatActivity() {
         )
         session?.scene?.keyEntity = null
         device = ArDevice.getInstance(session!!)
-        cameraLeft = RenderViewpoint.left(session!!)
-        cameraRight = RenderViewpoint.right(session!!)
+        cameraLeft = runCatching { RenderViewpoint.left(session!!) }.getOrNull()
+        cameraRight = runCatching { RenderViewpoint.right(session!!) }.getOrNull()
 
         // Toolbar action
         findViewById<Toolbar>(R.id.top_app_bar).also {

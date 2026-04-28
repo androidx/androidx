@@ -70,7 +70,10 @@ import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi
+import androidx.xr.runtime.RenderingMode
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.XrDevice
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
@@ -101,6 +104,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
     private lateinit var renderViewpoints: List<RenderViewpoint>
     private val panelInViewStatus = MutableStateFlow<List<Pair<String, Boolean>>>(emptyList())
 
+    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -114,12 +118,15 @@ class PersistentAnchorsActivity : ComponentActivity() {
                 onSessionAvailable = { session ->
                     this.session = session
                     this.arDevice = ArDevice.getInstance(session)
+                    val xrDevice = XrDevice.getCurrentDevice(this@PersistentAnchorsActivity)
                     this.renderViewpoints = buildList {
-                        RenderViewpoint.left(session)?.let { add(it) }
-                        RenderViewpoint.right(session)?.let { add(it) }
+                        if (xrDevice.isRenderingModeSupported(RenderingMode.STEREO)) {
+                            add(RenderViewpoint.left(session))
+                            add(RenderViewpoint.right(session))
+                        }
 
-                        if (isEmpty()) {
-                            RenderViewpoint.mono(session)?.let { add(it) }
+                        if (isEmpty() && xrDevice.isRenderingModeSupported(RenderingMode.MONO)) {
+                            add(RenderViewpoint.mono(session))
                         }
                     }
 
