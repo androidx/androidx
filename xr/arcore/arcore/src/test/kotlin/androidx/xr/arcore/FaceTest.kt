@@ -86,7 +86,6 @@ class FaceTest {
         session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         runTest(testDispatcher) {
             val underTest = Face.getUserFace(session)
-            check(underTest != null)
 
             assertThat(underTest.state.value.blendShapeValues).isNotNull()
             assertThat(underTest.state.value.blendShapeValues!!.all { it == 0f }).isTrue()
@@ -159,7 +158,6 @@ class FaceTest {
         session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         runTest(testDispatcher) {
             val underTest = Face.getUserFace(session)
-            check(underTest != null)
             arCoreTestRule.face.isValid = true
             advanceUntilIdle()
 
@@ -184,7 +182,6 @@ class FaceTest {
         session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         runTest(testDispatcher) {
             val underTest = Face.getUserFace(session)
-            check(underTest != null)
 
             val expectedBlendShapes = MutableList(BLEND_SHAPE_COUNT) { 0.0f }
             expectedBlendShapes.forEachIndexed { i, _ ->
@@ -218,7 +215,6 @@ class FaceTest {
         session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         runTest(testDispatcher) {
             val underTest = Face.getUserFace(session)
-            check(underTest != null)
 
             val expectedConfidences = listOf(0f, .3333f, .6666f)
             arCoreTestRule.face.confidenceValues = expectedConfidences

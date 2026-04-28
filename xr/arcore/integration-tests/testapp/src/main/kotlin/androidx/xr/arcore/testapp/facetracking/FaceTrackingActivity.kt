@@ -154,7 +154,12 @@ class FaceTrackingActivity : ComponentActivity() {
 
     @Composable
     private fun MainPanel(session: Session) {
-        val face = Face.getUserFace(session)
+        val face =
+            if (session.config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
+                runCatching { Face.getUserFace(session) }.getOrNull()
+            } else {
+                null
+            }
 
         var title = intent.getStringExtra("TITLE")
         if (title == null) title = "Face Tracking"
