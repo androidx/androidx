@@ -48,4 +48,8 @@
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"關閉"</string>
     <string name="wear_m3c_open_on_phone" msgid="3200727397161392122">"查看手機"</string>
     <string name="wear_m3c_open_on_phone_icon_content_description" msgid="5953380527505012363">"查看手機圖示"</string>
+    <string name="wear_m3c_capital_on_state_description" msgid="2318453447890695352">"開啟"</string>
+    <string name="wear_m3c_capital_off_state_description" msgid="7254055052192966171">"關閉"</string>
+    <string name="wear_m3c_checked_state_description" msgid="2263865163063929072">"已勾選"</string>
+    <string name="wear_m3c_not_checked_state_description" msgid="1264979459616838816">"未勾選"</string>
 </resources>

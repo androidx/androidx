@@ -48,4 +48,8 @@
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"Ketepikan"</string>
     <string name="wear_m3c_open_on_phone" msgid="3200727397161392122">"Semak telefon anda"</string>
     <string name="wear_m3c_open_on_phone_icon_content_description" msgid="5953380527505012363">"Semak ikon telefon anda"</string>
+    <string name="wear_m3c_capital_on_state_description" msgid="2318453447890695352">"HIDUP"</string>
+    <string name="wear_m3c_capital_off_state_description" msgid="7254055052192966171">"MATI"</string>
+    <string name="wear_m3c_checked_state_description" msgid="2263865163063929072">"ditandai"</string>
+    <string name="wear_m3c_not_checked_state_description" msgid="1264979459616838816">"tidak ditandai"</string>
 </resources>
