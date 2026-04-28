@@ -78,7 +78,7 @@ public fun <VM : ViewModel> viewModel(
         },
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
-): VM = viewModelStoreOwner.get(modelClass.kotlin, key, factory)
+): VM = viewModel(modelClass.kotlin, viewModelStoreOwner, key, factory)
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the scope (usually, a fragment or an
@@ -111,4 +111,4 @@ public fun <VM : ViewModel> viewModel(
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
     extras: CreationExtras = viewModelStoreOwner.defaultViewModelCreationExtras,
-): VM = viewModelStoreOwner.get(modelClass.kotlin, key, factory, extras)
+): VM = viewModel(modelClass.kotlin, viewModelStoreOwner, key, factory, extras)
