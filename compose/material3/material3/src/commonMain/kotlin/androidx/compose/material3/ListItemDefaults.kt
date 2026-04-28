@@ -20,6 +20,7 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ListItemDefaults.defaultListItemColors
 import androidx.compose.material3.internal.rememberAnimatedShape
 import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.material3.tokens.ReorderListTokens
@@ -509,18 +510,16 @@ object ListItemDefaults {
     @Composable
     fun verticalAlignment(): Alignment.Vertical {
         val density = LocalDensity.current
-        return remember(density) {
-            Alignment.Vertical { size, space ->
-                val breakpoint =
-                    with(density) { InteractiveListVerticalAlignmentBreakpoint.roundToPx() }
-                val baseAlignment =
-                    if (space < breakpoint) {
-                        Alignment.CenterVertically
-                    } else {
-                        Alignment.Top
-                    }
-                baseAlignment.align(size, space)
-            }
+        return Alignment.Vertical { size, space ->
+            val breakpoint =
+                with(density) { InteractiveListVerticalAlignmentBreakpoint.roundToPx() }
+            val baseAlignment =
+                if (space < breakpoint) {
+                    Alignment.CenterVertically
+                } else {
+                    Alignment.Top
+                }
+            baseAlignment.align(size, space)
         }
     }
 
@@ -903,35 +902,53 @@ class ListItemColors(
         return result
     }
 
-    @Deprecated("Renamed to contentColor")
+    @Deprecated("Renamed to contentColor", replaceWith = ReplaceWith("contentColor"))
     val headlineColor: Color
         get() = contentColor
 
-    @Deprecated("Renamed to leadingContentColor")
+    @Deprecated("Renamed to leadingContentColor", replaceWith = ReplaceWith("leadingContentColor"))
     val leadingIconColor: Color
         get() = leadingContentColor
 
-    @Deprecated("Renamed to overlineContentColor")
+    @Deprecated(
+        "Renamed to overlineContentColor",
+        replaceWith = ReplaceWith("overlineContentColor"),
+    )
     val overlineColor: Color
         get() = overlineContentColor
 
-    @Deprecated("Renamed to supportingContentColor")
+    @Deprecated(
+        "Renamed to supportingContentColor",
+        replaceWith = ReplaceWith("supportingContentColor"),
+    )
     val supportingTextColor: Color
         get() = supportingContentColor
 
-    @Deprecated("Renamed to trailingContentColor")
+    @Deprecated(
+        "Renamed to trailingContentColor",
+        replaceWith = ReplaceWith("trailingContentColor"),
+    )
     val trailingIconColor: Color
         get() = trailingContentColor
 
-    @Deprecated("Renamed to disabledContentColor")
+    @Deprecated(
+        "Renamed to disabledContentColor",
+        replaceWith = ReplaceWith("disabledContentColor"),
+    )
     val disabledHeadlineColor: Color
         get() = disabledContentColor
 
-    @Deprecated("Renamed to disabledLeadingContentColor")
+    @Deprecated(
+        "Renamed to disabledLeadingContentColor",
+        replaceWith = ReplaceWith("disabledLeadingContentColor"),
+    )
     val disabledLeadingIconColor: Color
         get() = disabledLeadingContentColor
 
-    @Deprecated("Renamed to disabledTrailingContentColor")
+    @Deprecated(
+        "Renamed to disabledTrailingContentColor",
+        replaceWith = ReplaceWith("disabledTrailingContentColor"),
+    )
     val disabledTrailingIconColor: Color
         get() = disabledTrailingContentColor
 
