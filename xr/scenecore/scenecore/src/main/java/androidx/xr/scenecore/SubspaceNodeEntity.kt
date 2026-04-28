@@ -20,10 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
-import androidx.xr.scenecore.SubspaceNodeEntity.Companion.create
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity as RtSubspaceNodeEntity
-import androidx.xr.scenecore.spatial.core.SpatialSceneRuntime
-import com.android.extensions.xr.node.Node
 
 /**
  * Represents an entity that manages a subspace node.
@@ -50,34 +47,11 @@ private constructor(rtEntity: RtSubspaceNodeEntity, entityRegistry: EntityRegist
 
     public companion object {
         /**
-         * Creates a [SubspaceNodeEntity] from a [Node] with a given [FloatSize3d].
-         *
-         * @param session The [Session].
-         * @param node [Node] to create the [SubspaceNodeEntity] from.
-         * @param size The initial [FloatSize3d] of the [SubspaceNodeEntity] in meters in unscaled
-         *   local space.
-         * @deprecated Avoid platform dependence in this library; use [create] with [NodeHolder]
-         *   instead.
-         */
-        @JvmStatic
-        @Deprecated(
-            message = "Avoid platform dependence in this library; use NodeHolder instead.",
-            replaceWith = ReplaceWith("create(session, nodeHolder, size)"),
-        )
-        public fun create(session: Session, node: Node, size: FloatSize3d): SubspaceNodeEntity {
-            val sceneRuntime: SpatialSceneRuntime = session.sceneRuntime as SpatialSceneRuntime
-            return SubspaceNodeEntity(
-                sceneRuntime.createSubspaceNodeEntity(node, size.toRtDimensions()),
-                session.scene.entityRegistry,
-            )
-        }
-
-        /**
          * Creates a [SubspaceNodeEntity] from a [NodeHolder] with a given [FloatSize3d].
          *
          * @param session The [Session].
          * @param NodeHolder The NodeHolder is a XrExtensions Node container. Use the [NodeHolder]
-         *   to get the [Node] to create the [SubspaceNodeEntity] from.
+         *   to get the XrExtensions's Node to create the [SubspaceNodeEntity] from.
          * @param size The initial [FloatSize3d] of the [SubspaceNodeEntity] in meters in unscaled
          *   local space.
          */
