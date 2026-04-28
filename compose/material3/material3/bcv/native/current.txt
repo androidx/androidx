@@ -2629,8 +2629,6 @@ final object androidx.compose.material3/ButtonDefaults { // androidx.compose.mat
         final fun <get-MinHeight>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/ButtonDefaults.MinHeight.<get-MinHeight>|<get-MinHeight>(){}[0]
     final val MinWidth // androidx.compose.material3/ButtonDefaults.MinWidth|{}MinWidth[0]
         final fun <get-MinWidth>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/ButtonDefaults.MinWidth.<get-MinWidth>|<get-MinWidth>(){}[0]
-    final val SmallButtonContentPadding // androidx.compose.material3/ButtonDefaults.SmallButtonContentPadding|{}SmallButtonContentPadding[0]
-        final fun <get-SmallButtonContentPadding>(): androidx.compose.foundation.layout/PaddingValues // androidx.compose.material3/ButtonDefaults.SmallButtonContentPadding.<get-SmallButtonContentPadding>|<get-SmallButtonContentPadding>(){}[0]
     final val SmallContentPadding // androidx.compose.material3/ButtonDefaults.SmallContentPadding|{}SmallContentPadding[0]
         final fun <get-SmallContentPadding>(): androidx.compose.foundation.layout/PaddingValues // androidx.compose.material3/ButtonDefaults.SmallContentPadding.<get-SmallContentPadding>|<get-SmallContentPadding>(){}[0]
     final val SmallIconSize // androidx.compose.material3/ButtonDefaults.SmallIconSize|{}SmallIconSize[0]
