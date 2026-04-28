@@ -95,7 +95,15 @@ public fun <VM : ViewModel> viewModel(
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
     extras: CreationExtras = viewModelStoreOwner.defaultViewModelCreationExtras,
-): VM = viewModelStoreOwner.get(modelClass, key, factory, extras)
+): VM {
+    val resolvedFactory = factory ?: viewModelStoreOwner.defaultViewModelProviderFactory
+    val provider = ViewModelProvider.create(viewModelStoreOwner, resolvedFactory, extras)
+    return if (key != null) {
+        provider[key, modelClass]
+    } else {
+        provider[modelClass]
+    }
+}
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the scope (usually, a fragment or an
@@ -130,18 +138,3 @@ public inline fun <reified VM : ViewModel> viewModel(
         viewModelFactory { initializer(initializer) },
         viewModelStoreOwner.defaultViewModelCreationExtras,
     )
-
-internal fun <VM : ViewModel> ViewModelStoreOwner.get(
-    modelClass: KClass<VM>,
-    key: String? = null,
-    factory: ViewModelProvider.Factory? = null,
-    extras: CreationExtras = defaultViewModelCreationExtras,
-): VM {
-    val provider =
-        ViewModelProvider.create(this, factory ?: defaultViewModelProviderFactory, extras)
-    return if (key != null) {
-        provider[key, modelClass]
-    } else {
-        provider[modelClass]
-    }
-}

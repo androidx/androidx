@@ -29,7 +29,6 @@ plugins {
 }
 
 android {
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.lifecycle.process"
 }
 
