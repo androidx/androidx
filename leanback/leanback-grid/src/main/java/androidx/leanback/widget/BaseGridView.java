@@ -15,6 +15,7 @@
  */
 package androidx.leanback.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
@@ -28,12 +29,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Interpolator;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * An abstract base class for vertically and horizontally scrolling lists. The items come
@@ -43,6 +48,18 @@ import org.jspecify.annotations.Nullable;
  * {@link HorizontalGridView}.
  */
 public abstract class BaseGridView extends RecyclerView {
+
+    /**
+     * Possible focus scroll strategy values.
+     */
+    @IntDef({
+            FOCUS_SCROLL_ALIGNED,
+            FOCUS_SCROLL_ALIGNED_AND_SNAP,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY)
+    public @interface FocusScrollStrategy {
+    }
 
     /**
      * Always keep focused item at an aligned position in non-touch mode.  Developer can use
@@ -319,7 +336,7 @@ public abstract class BaseGridView extends RecyclerView {
      * </ul>
      *
      */
-    public void setFocusScrollStrategy(int scrollStrategy) {
+    public void setFocusScrollStrategy(@FocusScrollStrategy int scrollStrategy) {
         if (scrollStrategy != FOCUS_SCROLL_ALIGNED
                 && scrollStrategy != FOCUS_SCROLL_ALIGNED_AND_SNAP) {
             throw new IllegalArgumentException("Invalid scrollStrategy");
@@ -336,6 +353,7 @@ public abstract class BaseGridView extends RecyclerView {
      * </ul>
      *
      */
+    @FocusScrollStrategy
     public int getFocusScrollStrategy() {
         return mLayoutManager.getFocusScrollStrategy();
     }
