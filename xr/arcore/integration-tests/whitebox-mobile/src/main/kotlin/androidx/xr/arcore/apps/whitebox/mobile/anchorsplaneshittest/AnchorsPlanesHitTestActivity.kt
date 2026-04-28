@@ -314,8 +314,9 @@ class AnchorsPlanesHitTestActivity :
                 getHits(tap.x, tap.y)
             }
 
-            for (hit in foundHits.value) {
-                addAnchor(hit.hitPose)
+            val firstHit = foundHits.value.firstOrNull()
+            if (firstHit != null) {
+                addAnchor(firstHit.hitPose)
             }
             foundHits.value = emptyList() // So we don't keep duplicating anchors
 
