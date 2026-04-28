@@ -17,7 +17,6 @@
 package androidx.compose.material3
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -81,7 +80,7 @@ object MenuDefaults {
      * prominent so should be used sparingly.
      */
     // TODO update with tokens when available
-    @ExperimentalMaterial3ExpressiveApi
+
     val groupStandardContainerColor: Color
         @Composable get() = StandardMenuTokens.ContainerColor.value
 
@@ -94,12 +93,11 @@ object MenuDefaults {
      * prominent so should be used sparingly.
      */
     // TODO update with tokens when available
-    @ExperimentalMaterial3ExpressiveApi
+
     val groupVibrantContainerColor: Color
         @Composable get() = VibrantMenuTokens.ContainerColor.value
 
     /** The default shape for the leading group of a menu. */
-    @ExperimentalMaterial3ExpressiveApi
     val leadingGroupShape: Shape
         @Composable
         get() =
@@ -111,12 +109,10 @@ object MenuDefaults {
             )
 
     /** The default shape for the middle group of a menu. */
-    @ExperimentalMaterial3ExpressiveApi
     val middleGroupShape: Shape
         @Composable get() = SegmentedMenuTokens.GroupShape.value
 
     /** The default shape for the trailing group of a menu. */
-    @ExperimentalMaterial3ExpressiveApi
     val trailingGroupShape: Shape
         @Composable
         get() =
@@ -128,7 +124,6 @@ object MenuDefaults {
             )
 
     /** The default shape for the leading item of a menu or group. */
-    @ExperimentalMaterial3ExpressiveApi
     val leadingItemShape: Shape
         @Composable
         get() =
@@ -140,12 +135,10 @@ object MenuDefaults {
             )
 
     /** The default shape for the middle item of a menu or group. */
-    @ExperimentalMaterial3ExpressiveApi
     val middleItemShape: Shape
         @Composable get() = SegmentedMenuTokens.ItemShape.value
 
     /** The default shape for the trailing item of a menu or group. */
-    @ExperimentalMaterial3ExpressiveApi
     val trailingItemShape: Shape
         @Composable
         get() =
@@ -157,37 +150,31 @@ object MenuDefaults {
             )
 
     /** The default shape for a standalone item of a menu or group. */
-    @ExperimentalMaterial3ExpressiveApi
     val standaloneItemShape: Shape
         @Composable get() = middleItemShape
 
     /** The selected shape for items of a group. */
-    @ExperimentalMaterial3ExpressiveApi
     val selectedItemShape: Shape
         @Composable get() = SegmentedMenuTokens.ItemSelectedShape.value
 
     /** The default shape for a standalone group of a menu. */
-    @ExperimentalMaterial3ExpressiveApi
     val standaloneGroupShape: Shape
         @Composable get() = SegmentedMenuTokens.ContainerShape.value
 
     /** The shape for a group of a menu that is no longer being hovered. */
-    @ExperimentalMaterial3ExpressiveApi
     val inactiveGroupShape: Shape
         @Composable get() = SegmentedMenuTokens.InactiveContainerShape.value
 
     /** The default spacing between each menu group. Usually used in a [Spacer]'s height */
-    @ExperimentalMaterial3ExpressiveApi val GroupSpacing: Dp = SegmentedMenuTokens.SegmentedGap
+    val GroupSpacing: Dp = SegmentedMenuTokens.SegmentedGap
 
     /**
      * The default padding for a [HorizontalDivider] used in a menu group. Use this padding value in
      * a [HorizontalDivider]'s padding modifier.
      */
-    @ExperimentalMaterial3ExpressiveApi
     val HorizontalDividerPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 2.dp)
 
     /** The default horizontal padding for a menu group label. Please see [MenuDefaults.Label]. */
-    @ExperimentalMaterial3ExpressiveApi
     val DropdownMenuGroupLabelHorizontalPadding = PaddingValues(start = 12.dp, end = 4.dp)
 
     /**
@@ -197,7 +184,6 @@ object MenuDefaults {
      * @param index the index for this group in the menu.
      * @param count the count of groups in this menu.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun groupShape(index: Int, count: Int): MenuGroupShapes {
         if (count == 1) {
@@ -220,7 +206,6 @@ object MenuDefaults {
      * @param index the index for this item in the menu or group.
      * @param count the count of items in this menu or group.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun itemShape(index: Int, count: Int): MenuItemShapes {
         if (count == 1) {
@@ -252,7 +237,6 @@ object MenuDefaults {
      * @param selectedShape the shape when selected. It uses [selectedItemShape] as the default if
      *   null is provided.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun itemShapes(shape: Shape? = null, selectedShape: Shape? = null): MenuItemShapes =
         MaterialTheme.shapes.defaultMenuStandaloneItemShapes.copy(
@@ -270,7 +254,6 @@ object MenuDefaults {
      * This [MenuItemShapes] has [MenuDefaults.standaloneItemShape] as the shape and
      * [MenuDefaults.selectedItemShape] as the selected shape.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun itemShapes(): MenuItemShapes = MaterialTheme.shapes.defaultMenuStandaloneItemShapes
 
@@ -286,7 +269,6 @@ object MenuDefaults {
      * @param inactiveShape the shape when no longer being hovered. It uses [inactiveGroupShape] as
      *   the default if null is provided.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun groupShapes(shape: Shape? = null, inactiveShape: Shape? = null): MenuGroupShapes =
         MaterialTheme.shapes.defaultMenuStandaloneGroupShapes.copy(
@@ -301,7 +283,6 @@ object MenuDefaults {
      * [MenuDefaults.inactiveGroupShape] as the inactive shape, the inactive shape is the shape of
      * the group after it is no longer being hovered.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun groupShapes(): MenuGroupShapes = MaterialTheme.shapes.defaultMenuStandaloneGroupShapes
 
@@ -314,7 +295,6 @@ object MenuDefaults {
      * @param padding the padding applied to the label's content.
      * @param content the content of the label.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun Label(
         contentAlignment: Alignment = Alignment.CenterStart,
@@ -342,7 +322,6 @@ object MenuDefaults {
      * The default horizontal padding for a menu group trailing label. Please see
      * [MenuDefaults.DropdownMenuItemTrailingLabel].
      */
-    @ExperimentalMaterial3ExpressiveApi
     val DropdownMenuItemTrailingLabelHorizontalPadding
         get() =
             if (shouldUsePrecisionPointerComponentSizing.value) {
@@ -358,7 +337,6 @@ object MenuDefaults {
      * @param padding the padding applied to the label's content.
      * @param content the content of the label.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun DropdownMenuItemTrailingLabel(
         padding: PaddingValues = DropdownMenuItemTrailingLabelHorizontalPadding,
@@ -367,30 +345,6 @@ object MenuDefaults {
         // TODO replace the typography with token when available
         ProvideTextStyle(MaterialTheme.typography.labelLarge) {
             Box(modifier = Modifier.padding(padding)) { content() }
-        }
-    }
-
-    /**
-     * [Column] of a label and its supporting text. Used in a [DropdownMenuItem]'s text parameter
-     * when a supporting text is desired.
-     *
-     * @param supportingText the supporting text of the label.
-     * @param content the content of the label.
-     */
-    @Deprecated(
-        "Removed in favor of the DropdownMenuItem APIs that have supportingText as a parameter.",
-        level = DeprecationLevel.WARNING,
-    )
-    @ExperimentalMaterial3ExpressiveApi
-    @Composable
-    fun LabelWithSupportingText(
-        supportingText: @Composable () -> Unit,
-        content: @Composable () -> Unit,
-    ) {
-        // TODO replace the typography with token when available
-        Column {
-            ProvideTextStyle(MaterialTheme.typography.labelLarge, content = content)
-            ProvideTextStyle(MaterialTheme.typography.bodyMedium, content = supportingText)
         }
     }
 
@@ -448,7 +402,6 @@ object MenuDefaults {
      * @param selectedTrailingIconColor the trailing icon color of this [DropdownMenuItem] when
      *   enabled and selected
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun selectableItemColors(
         textColor: Color = Color.Unspecified,
@@ -499,7 +452,6 @@ object MenuDefaults {
      * @param selectedTrailingIconColor the trailing icon color of this [DropdownMenuItem] when
      *   enabled and selected
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun selectableItemVibrantColors(
         textColor: Color = Color.Unspecified,
@@ -540,7 +492,6 @@ object MenuDefaults {
      *   [MenuAnchorPosition.Custom].
      * @param offset An optional [DpOffset] to apply to the final calculated position.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun rememberDropdownMenuPopupPositionProvider(
         dropdownMenuAnchorPosition: MenuAnchorPosition,
@@ -580,7 +531,6 @@ object MenuDefaults {
                     .also { defaultMenuItemColorsCached = it }
         }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val ColorScheme.defaultMenuSelectableItemColors: MenuItemColors
         get() {
             return defaultMenuSelectableItemColorsCached
@@ -611,7 +561,6 @@ object MenuDefaults {
                     .also { defaultMenuSelectableItemColorsCached = it }
         }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val ColorScheme.defaultMenuSelectableItemVibrantColors: MenuItemColors
         get() {
             return defaultMenuSelectableItemVibrantColorsCached
@@ -671,7 +620,6 @@ object MenuDefaults {
     internal val dropdownMenuIconTextPadding
         get() = if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 8.dp
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultMenuStandaloneItemShapes: MenuItemShapes
         get() {
             return defaultMenuStandaloneItemShapesCached
@@ -682,7 +630,6 @@ object MenuDefaults {
                     .also { defaultMenuStandaloneItemShapesCached = it }
         }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultMenuLeadingItemShapes: MenuItemShapes
         get() {
             return defaultMenuLeadingItemShapesCached
@@ -699,7 +646,6 @@ object MenuDefaults {
                     .also { defaultMenuLeadingItemShapesCached = it }
         }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultMenuMiddleItemShapes: MenuItemShapes
         get() {
             return defaultMenuMiddleItemShapesCached
@@ -710,7 +656,6 @@ object MenuDefaults {
                     .also { defaultMenuMiddleItemShapesCached = it }
         }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultMenuTrailingItemShapes: MenuItemShapes
         get() {
             return defaultMenuTrailingItemShapesCached
@@ -727,7 +672,6 @@ object MenuDefaults {
                     .also { defaultMenuTrailingItemShapesCached = it }
         }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultMenuStandaloneGroupShapes: MenuGroupShapes
         get() {
             return defaultMenuStandaloneGroupShapesCached
@@ -738,7 +682,6 @@ object MenuDefaults {
                     .also { defaultMenuStandaloneGroupShapesCached = it }
         }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultMenuLeadingGroupShapes: MenuGroupShapes
         get() {
             return defaultMenuLeadingGroupShapesCached
@@ -755,7 +698,6 @@ object MenuDefaults {
                     .also { defaultMenuLeadingGroupShapesCached = it }
         }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultMenuMiddleGroupShapes: MenuGroupShapes
         get() {
             return defaultMenuMiddleGroupShapesCached
@@ -766,7 +708,6 @@ object MenuDefaults {
                     .also { defaultMenuMiddleGroupShapesCached = it }
         }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultMenuTrailingGroupShapes: MenuGroupShapes
         get() {
             return defaultMenuTrailingGroupShapesCached

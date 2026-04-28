@@ -71,7 +71,6 @@ actual fun DropdownMenuItem(
 ): Unit = implementedInJetBrainsFork()
 
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 internal actual fun DropdownMenuPopupImpl(
     onDismissRequest: () -> Unit,
     popupPositionProvider: DropdownMenuPopupPositionProvider,
