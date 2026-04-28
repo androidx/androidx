@@ -149,7 +149,7 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
     }
 
     private fun shouldCreateAnchor(hit: HitResult, cameraPose: Pose): Boolean {
-        return hit.trackable is Plane
+        return anchors.size < MAX_ANCHOR_COUNT && hit.trackable is Plane
     }
 
     private fun createAnchorAtPose(pose: Pose) {
