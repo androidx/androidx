@@ -60,7 +60,6 @@ dependencies {
     testImplementation("androidx.appcompat:appcompat:1.2.0")
 
     // For com.android.extensions.xr
-    compileOnly(libs.androidExtensionsXr)
     testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
     testImplementation(libs.androidExtensionsXr)
 }

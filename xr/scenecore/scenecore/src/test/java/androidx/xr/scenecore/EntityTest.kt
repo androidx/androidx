@@ -51,6 +51,7 @@ import androidx.xr.scenecore.testing.FakeGltfModelResource
 import androidx.xr.scenecore.testing.FakePanelEntity
 import androidx.xr.scenecore.testing.FakeSurfaceEntity
 import androidx.xr.scenecore.testing.MemoryUtils
+import com.android.extensions.xr.XrExtensions
 import com.google.common.truth.Truth.assertThat
 import java.lang.ref.WeakReference
 import java.nio.file.Paths
@@ -77,6 +78,7 @@ import org.robolectric.shadows.ShadowLooper
 class EntityTest {
     private val activity =
         Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
+    private lateinit var extensions: XrExtensions
     private lateinit var sceneRuntime: SceneRuntime
     private lateinit var renderingRuntime: RenderingRuntime
     private lateinit var entityRegistry: EntityRegistry
@@ -137,6 +139,7 @@ class EntityTest {
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
         session = (result as SessionCreateSuccess).session
+        extensions = XrExtensions()
         sceneRuntime = session.sceneRuntime
         renderingRuntime = session.renderingRuntime
         session.configure(
@@ -1636,11 +1639,9 @@ class EntityTest {
     @Test
     fun subspaceNodeEntity_garbageCollection_disposesEntity() {
         fun createSubspaceNodeEntity(): WeakReference<SubspaceNodeEntity> {
-            val xrExtensions =
-                androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions()!!
             val nodeHolder =
                 androidx.xr.runtime.NodeHolder(
-                    xrExtensions.createNode(),
+                    extensions.createNode(),
                     com.android.extensions.xr.node.Node::class.java,
                 )
             val entity = SubspaceNodeEntity.create(session, nodeHolder, FloatSize3d(1f, 1f, 1f))
