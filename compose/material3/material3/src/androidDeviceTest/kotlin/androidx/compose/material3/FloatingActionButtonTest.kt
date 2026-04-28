@@ -508,7 +508,6 @@ class FloatingActionButtonTest {
             .assertWidthIsEqualTo(FabBaselineTokens.ContainerWidth)
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun expandedLargeExtendedFabTextAndIconHaveSizeFromSpecAndVisible() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -540,7 +539,6 @@ class FloatingActionButtonTest {
         rule.onNodeWithTag("icon", useUnmergedTree = true).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun collapsedLargeExtendedFabTextAndIconHaveSizeFromSpecAndTextNotVisible() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -572,7 +570,6 @@ class FloatingActionButtonTest {
         rule.onNodeWithTag("icon", useUnmergedTree = true).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun largeExtendedFabAnimates() {
         rule.mainClock.autoAdvance = false
@@ -724,7 +721,6 @@ class FloatingActionButtonTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun animateFloatingActionButton_hideBottomEnd_scalesAndFadesCorrectly() {
@@ -784,7 +780,6 @@ class FloatingActionButtonTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun animateFloatingActionButton_hideCenter_scalesAndFadesCorrectly() {
@@ -844,7 +839,6 @@ class FloatingActionButtonTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun animateFloatingActionButton_hideTopStart_scalesAndFadesCorrectly() {
@@ -904,7 +898,6 @@ class FloatingActionButtonTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun animateFloatingActionButton_show_noScaleOrFadeAfterAnimation() {
@@ -959,7 +952,6 @@ class FloatingActionButtonTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun animateFloatingActionButton_show_noScaleOrFadeBeforeAnimation() {
@@ -1003,7 +995,6 @@ class FloatingActionButtonTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun animateFloatingActionButton_show_consumesClick() {
@@ -1046,7 +1037,6 @@ class FloatingActionButtonTest {
         assertThat(fabBoxClicked).isTrue()
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun animateFloatingActionButton_hide_doesNotConsumesClick() {
@@ -1089,7 +1079,6 @@ class FloatingActionButtonTest {
         assertThat(fabBoxClicked).isFalse()
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun animateFloatingActionButton_hide_doesNotCrashWithDensityRounding() {

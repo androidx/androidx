@@ -240,7 +240,6 @@ class FloatingActionButtonScreenshotTest {
         assertClickableAgainstGolden("fab_small_size")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun mediumFab() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -293,7 +292,6 @@ class FloatingActionButtonScreenshotTest {
         assertClickableAgainstGolden("fab_extended_text_and_icon")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun smallExtendedFabTextOnly() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -303,7 +301,6 @@ class FloatingActionButtonScreenshotTest {
         assertClickableAgainstGolden("fab_small_extended_text")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun smallExtendedFabTextAndIcon() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -317,7 +314,6 @@ class FloatingActionButtonScreenshotTest {
         assertClickableAgainstGolden("fab_small_extended_text_and_icon")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun mediumExtendedFabTextOnly() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -327,7 +323,6 @@ class FloatingActionButtonScreenshotTest {
         assertClickableAgainstGolden("fab_medium_extended_text")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun mediumExtendedFabTextAndIcon() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -347,7 +342,6 @@ class FloatingActionButtonScreenshotTest {
         assertClickableAgainstGolden("fab_medium_extended_text_and_icon")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun largeExtendedFabTextOnly() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -357,7 +351,6 @@ class FloatingActionButtonScreenshotTest {
         assertClickableAgainstGolden("fab_large_extended_text")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun largeExtendedFabTextAndIcon() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -476,7 +469,6 @@ class FloatingActionButtonScreenshotTest {
         assertRootAgainstGolden("fab_focused_insetFocusRings")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun extended_fab_half_way_animation() {
         rule.mainClock.autoAdvance = false
