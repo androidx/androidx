@@ -1184,7 +1184,6 @@ class MovableComponentImplTest {
 
         verify(mockPanelShadowRenderer, never())
             .updateShadow(any(), any(), eq(FloatSize2d(10.0f, 1.0f)))
-        0
     }
 
     @Test
