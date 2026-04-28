@@ -133,7 +133,6 @@ class Cbor {
     private fun parseItem(data: ByteArray, offset: Int): Item {
         val itemType = getType(data, offset)
         val arg = getArg(data, offset)
-        println("Type $itemType ${arg.arg} ${arg.len}")
 
         when (itemType) {
             TYPE_UNSIGNED_INT -> {

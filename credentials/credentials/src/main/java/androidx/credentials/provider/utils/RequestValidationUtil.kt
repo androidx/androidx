@@ -17,7 +17,9 @@
 package androidx.credentials.provider.utils
 
 import androidx.annotation.RestrictTo
+import org.json.JSONArray
 import org.json.JSONObject
+import org.json.JSONTokener
 
 internal class RequestValidationUtil {
     companion object {
@@ -29,8 +31,8 @@ internal class RequestValidationUtil {
                 return false
             }
             return try {
-                JSONObject(jsonString)
-                true
+                val value = JSONTokener(jsonString).nextValue()
+                value is JSONObject || value is JSONArray
             } catch (ex: Exception) {
                 false
             }

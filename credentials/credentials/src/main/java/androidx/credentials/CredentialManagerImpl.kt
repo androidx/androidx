@@ -335,6 +335,8 @@ internal class CredentialManagerImpl internal constructor(private val context: C
                     "Must have android.permissions.CREDENTIAL_MANAGER_SET_ORIGIN " + "permission"
                 )
             )
+            // Return to prevent continuing execution after a security check failure
+            return
         }
         val provider: CredentialProvider? =
             CredentialProviderFactory(context).getBestAvailableProvider(request)
