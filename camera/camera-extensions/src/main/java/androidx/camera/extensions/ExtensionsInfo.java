@@ -88,7 +88,8 @@ final class ExtensionsInfo {
         if (!isExtensionAvailable(baseCameraSelector, mode)) {
             throw new IllegalArgumentException("No camera can be found to support the specified "
                     + "extensions mode! isExtensionAvailable should be checked first before "
-                    + "calling getExtensionEnabledCameraSelector.");
+                    + "creating an ExtensionSessionConfig or calling "
+                    + "getExtensionEnabledCameraSelector.");
         }
 
         // Checks whether there has been Extensions related CameraConfig set in the base

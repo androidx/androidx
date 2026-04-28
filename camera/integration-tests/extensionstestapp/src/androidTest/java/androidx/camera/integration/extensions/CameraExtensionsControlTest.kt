@@ -26,6 +26,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.extensions.CameraExtensionsControl
 import androidx.camera.extensions.CameraExtensionsInfo
+import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
@@ -78,7 +79,6 @@ class CameraExtensionsControlTest(private val cameraId: String, private val exte
     private lateinit var cameraExtensionsInfo: CameraExtensionsInfo
     private lateinit var cameraExtensionsControl: CameraExtensionsControl
     private lateinit var baseCameraSelector: CameraSelector
-    private lateinit var extensionCameraSelector: CameraSelector
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
     private lateinit var camera: Camera
     private lateinit var preview: Preview
@@ -96,9 +96,6 @@ class CameraExtensionsControlTest(private val cameraId: String, private val exte
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
-        extensionCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
-
         instrumentation.runOnMainSync {
             fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
             preview = Preview.Builder().build()
@@ -109,12 +106,15 @@ class CameraExtensionsControlTest(private val cameraId: String, private val exte
                     }
                 }
             imageCapture = ImageCapture.Builder().build()
+
+            val extensionSessionConfig =
+                ExtensionSessionConfig(extensionMode, extensionsManager, preview, imageCapture)
+
             camera =
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
-                    extensionCameraSelector,
-                    preview,
-                    imageCapture,
+                    baseCameraSelector,
+                    extensionSessionConfig,
                 )
         }
 

@@ -22,6 +22,7 @@ import android.os.Build
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.CameraExtensionsActivity
 import androidx.camera.integration.extensions.IntentExtraKey
@@ -112,14 +113,10 @@ object CameraXExtensionsTestUtil {
         outputFormat: Int,
     ) {
         val cameraIdCameraSelector = createCameraSelectorById(cameraId)
-        val extensionsEnabledCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(
-                cameraIdCameraSelector,
-                extensionMode,
-            )
+        val extensionSessionConfig = ExtensionSessionConfig(extensionMode, extensionsManager)
         val imageCaptureCapabilities =
             ImageCapture.getImageCaptureCapabilities(
-                cameraProvider.getCameraInfo(extensionsEnabledCameraSelector)
+                cameraProvider.getCameraInfo(cameraIdCameraSelector, extensionSessionConfig)
             )
         assumeTrue(
             "Extensions mode($extensionMode) does not supported output format $outputFormat still" +

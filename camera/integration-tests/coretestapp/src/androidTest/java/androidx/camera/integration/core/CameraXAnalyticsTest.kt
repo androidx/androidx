@@ -24,8 +24,11 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
+import androidx.camera.core.SessionConfig
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
@@ -88,7 +91,10 @@ class CameraXAnalyticsTest(private val implName: String, private val cameraXConf
         verifyCaptureRequestTagContainsAnalyticsPrefix(cameraSelector)
     }
 
-    suspend fun verifyCaptureRequestTagContainsAnalyticsPrefix(cameraSelector: CameraSelector) {
+    suspend fun verifyCaptureRequestTagContainsAnalyticsPrefix(
+        cameraSelector: CameraSelector,
+        sessionConfigProvider: (UseCase) -> SessionConfig = { SessionConfig.Builder(it).build() },
+    ) {
         val captureRequestTagDeferred = CompletableDeferred<Any?>()
         val preview =
             Preview.Builder()
@@ -113,7 +119,8 @@ class CameraXAnalyticsTest(private val implName: String, private val cameraXConf
         withContext(Dispatchers.Main) {
             preview.surfaceProvider =
                 SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, preview)
+            val sessionConfig = sessionConfigProvider.invoke(preview)
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, sessionConfig)
         }
 
         assertThat(withTimeoutOrNull(3000) { captureRequestTagDeferred.await() }.toString())
@@ -125,8 +132,8 @@ class CameraXAnalyticsTest(private val implName: String, private val cameraXConf
         val extensionsManager = ExtensionsManager.getInstanceAsync(context, cameraProvider).await()
         assumeTrue(extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.NIGHT))
 
-        val extensionCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(cameraSelector, ExtensionMode.NIGHT)
-        verifyCaptureRequestTagContainsAnalyticsPrefix(extensionCameraSelector)
+        verifyCaptureRequestTagContainsAnalyticsPrefix(cameraSelector) { useCase ->
+            ExtensionSessionConfig(ExtensionMode.NIGHT, extensionsManager, useCase)
+        }
     }
 }

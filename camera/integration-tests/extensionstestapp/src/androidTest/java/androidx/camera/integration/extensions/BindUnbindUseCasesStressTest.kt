@@ -27,6 +27,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.VERIFICATION_TARGET_IMAGE_CAPTURE
@@ -74,7 +75,6 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
     private lateinit var extensionsManager: ExtensionsManager
     private lateinit var camera: Camera
     private lateinit var baseCameraSelector: CameraSelector
-    private lateinit var extensionCameraSelector: CameraSelector
     private lateinit var preview: Preview
     private lateinit var imageCapture: ImageCapture
     private lateinit var lifecycleOwner: FakeLifecycleOwner
@@ -88,14 +88,17 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
-        extensionCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
-
         camera =
             withContext(Dispatchers.Main) {
                 lifecycleOwner = FakeLifecycleOwner()
                 lifecycleOwner.startAndResume()
-                cameraProvider.bindToLifecycle(lifecycleOwner, extensionCameraSelector)
+                val extensionSessionConfig =
+                    ExtensionSessionConfig(extensionMode, extensionsManager)
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    baseCameraSelector,
+                    extensionSessionConfig,
+                )
             }
 
         preview = Preview.Builder().build()
@@ -161,17 +164,20 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
             val previewFrameAvailableMonitor = PreviewFrameAvailableMonitor()
 
             // Act: binds use cases
-            withContext(Dispatchers.Main) {
+            withContext<Unit>(Dispatchers.Main) {
                 preview.setSurfaceProvider(
                     SurfaceTextureProvider.createSurfaceTextureProvider(
                         previewFrameAvailableMonitor.createSurfaceTextureCallback()
                     )
                 )
 
+                val extensionSessionConfig =
+                    ExtensionSessionConfig(extensionMode, extensionsManager, preview, imageCapture)
+
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
-                    extensionCameraSelector,
-                    *listOfNotNull(preview, imageCapture).toTypedArray(),
+                    baseCameraSelector,
+                    extensionSessionConfig,
                 )
             }
 
@@ -236,17 +242,20 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
             previewFrameAvailableMonitor = PreviewFrameAvailableMonitor()
 
             // Act: binds use cases
-            withContext(Dispatchers.Main) {
+            withContext<Unit>(Dispatchers.Main) {
                 preview.setSurfaceProvider(
                     SurfaceTextureProvider.createSurfaceTextureProvider(
                         previewFrameAvailableMonitor.createSurfaceTextureCallback()
                     )
                 )
 
+                val extensionSessionConfig =
+                    ExtensionSessionConfig(extensionMode, extensionsManager, preview, imageCapture)
+
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
-                    extensionCameraSelector,
-                    *listOfNotNull(preview, imageCapture).toTypedArray(),
+                    baseCameraSelector,
+                    extensionSessionConfig,
                 )
 
                 // Clean it up: do not unbind at the last time

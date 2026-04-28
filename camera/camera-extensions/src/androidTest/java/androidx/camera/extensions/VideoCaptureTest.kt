@@ -90,7 +90,6 @@ class VideoCaptureTest(
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
     private lateinit var baseCameraSelector: CameraSelector
-    private lateinit var extensionsCameraSelector: CameraSelector
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
     private lateinit var latchForVideoStarted: CountDownLatch
     private lateinit var latchForVideoSaved: CountDownLatch
@@ -135,9 +134,6 @@ class VideoCaptureTest(
 
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
-        extensionsCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
-
         fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
     }
 
@@ -162,10 +158,13 @@ class VideoCaptureTest(
 
         // Act.
         instrumentation.runOnMainSync {
+            val extensionSessionConfig =
+                ExtensionSessionConfig(extensionMode, extensionsManager, videoCapture)
+
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
-                extensionsCameraSelector,
-                videoCapture,
+                baseCameraSelector,
+                extensionSessionConfig,
             )
         }
         videoCapture.recordTo(file)
@@ -191,12 +190,19 @@ class VideoCaptureTest(
 
         // Act.
         instrumentation.runOnMainSync {
+            val extensionSessionConfig =
+                ExtensionSessionConfig(
+                    extensionMode,
+                    extensionsManager,
+                    preview,
+                    imageCapture,
+                    videoCapture,
+                )
+
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
-                extensionsCameraSelector,
-                preview,
-                imageCapture,
-                videoCapture,
+                baseCameraSelector,
+                extensionSessionConfig,
             )
             preview.setSurfaceProvider(createPreviewSurfaceProvider())
         }

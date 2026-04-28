@@ -48,6 +48,7 @@ import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.INVALID_EXTENSION_MODE
 import androidx.camera.integration.extensions.INVALID_LENS_FACING
@@ -181,22 +182,22 @@ class ImageCaptureActivity : AppCompatActivity() {
             return
         }
 
-        val extensionCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(cameraSelectorById, extensionMode)
-
         imageCapture = ImageCapture.Builder().setFlashMode(flashMode).build()
         val preview = Preview.Builder().build()
         preview.setSurfaceProvider(viewFinder.surfaceProvider)
 
         try {
             cameraProvider.unbindAll()
-            camera =
-                cameraProvider.bindToLifecycle(
-                    this,
-                    if (extensionEnabled) extensionCameraSelector else cameraSelectorById,
-                    imageCapture,
-                    preview,
-                )
+            if (extensionEnabled) {
+                val extensionSessionConfig =
+                    ExtensionSessionConfig(extensionMode, extensionsManager, imageCapture, preview)
+
+                camera =
+                    cameraProvider.bindToLifecycle(this, cameraSelectorById, extensionSessionConfig)
+            } else {
+                camera =
+                    cameraProvider.bindToLifecycle(this, cameraSelectorById, imageCapture, preview)
+            }
 
             Log.d(TAG, "Extension mode is $extensionMode (enabled: $extensionEnabled)")
         } catch (e: IllegalArgumentException) {
