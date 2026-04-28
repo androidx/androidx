@@ -110,8 +110,8 @@ abstract class MetalavaWorkAction @Inject constructor(private val execOperations
                 it.classpath(parameters.metalavaClasspath.get())
                 it.mainClass.set("com.android.tools.metalava.Driver")
                 it.args = parameters.args.get()
-                it.setStandardOutput(outputStream)
-                it.setErrorOutput(outputStream)
+                it.standardOutput = outputStream
+                it.errorOutput = outputStream
             }
             successful = true
         } finally {
@@ -375,6 +375,11 @@ fun getGenerateApiArgs(
         if (outputLocation != null) {
             when (generateApiMode) {
                 is GenerateApiMode.PublicApi -> {
+                    args +=
+                        listOf(
+                            "--trace-file",
+                            ApiLocation.toTraceFilePath(outputLocation.publicApiFile),
+                        )
                     args += listOf("--api", outputLocation.publicApiFile.toString())
                     // Generate API levels just for the public API
                     args += apiLevelsArgs
@@ -382,6 +387,11 @@ fun getGenerateApiArgs(
 
                 is GenerateApiMode.AllRestrictedApis,
                 GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
+                    args +=
+                        listOf(
+                            "--trace-file",
+                            ApiLocation.toTraceFilePath(outputLocation.restrictedApiFile),
+                        )
                     args += listOf("--api", outputLocation.restrictedApiFile.toString())
                 }
             }
@@ -389,6 +399,11 @@ fun getGenerateApiArgs(
     } else {
         // If there is no jvm/android target, generate multiplatform API files instead.
         if (outputLocation != null) {
+            args +=
+                listOf(
+                    "--trace-file",
+                    ApiLocation.toTraceFilePath(outputLocation.multiplatformApiDirectory),
+                )
             args +=
                 listOf(
                     "--multiplatform-api-directory",
