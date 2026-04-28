@@ -25,6 +25,10 @@ import androidx.compose.ui.unit.LayoutDirection
  * this class only have two possible instances, i.e. [ListDetailPaneScaffoldDefaults.PaneOrder] and
  * [SupportingPaneScaffoldDefaults.PaneOrder], which will be used internally by
  * [ListDetailPaneScaffold] and [SupportingPaneScaffold] respectively.
+ *
+ * Note that this class is not supposed to be used directly by developers. It's defined as public to
+ * support [ThreePaneScaffoldOverride], which can be replaced in the future by other mechanisms. By
+ * then we will hide this class as well.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
