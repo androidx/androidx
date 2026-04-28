@@ -43,9 +43,13 @@ import androidx.compose.ui.text.font.FontFamily
  * To learn more about typography, see
  * [Material Design typography](https://m3.material.io/styles/typography/overview).
  *
+ * For a standard typography use case:
+ *
  * @sample androidx.compose.material3.samples.TypographySample
+ *
+ * If you wish to set a default [FontFamily] for all [TextStyle]s in this [Typography]:
+ *
  * @sample androidx.compose.material3.samples.TypographyCustomFontFamilySample
- * @sample androidx.compose.material3.samples.TypographyCustomFontFamilyOverrideSample
  * @property displayLarge displayLarge is the largest display text.
  * @property displayMedium displayMedium is the second largest display text.
  * @property displaySmall displaySmall is the smallest display text.
@@ -149,11 +153,14 @@ class Typography(
      * [Material Design typography](https://m3.material.io/styles/typography/overview).
      *
      * The [fontFamily] provided to this constructor will be used as the default font family for all
-     * text styles. Individual [TextStyle] parameters can be used to override specific styles,
-     * including their own [FontFamily]. If a [TextStyle] parameter is null, the default will be
+     * text styles. Individual [TextStyle] parameters can be used to override specific styles. If
+     * you define a [fontFamily], then any text styles provided without a font family will use
+     * [fontFamily]. Text styles provided with a font family will use that specified font family. If
+     * a [TextStyle] parameter is null, the default style from the Material design tokens will be
      * used.
      *
-     * @param fontFamily the [FontFamily] to be used for the typography.
+     * @param fontFamily the [FontFamily] that will be used for the text styles in this Typography
+     *   that do not have their own [FontFamily] defined.
      * @param displayLarge displayLarge is the largest display text.
      * @param displayMedium displayMedium is the second largest display text.
      * @param displaySmall displaySmall is the smallest display text.
@@ -276,23 +283,6 @@ class Typography(
         labelSmallEmphasized = labelSmallEmphasized,
     )
 
-    /**
-     * The Material Design type scale includes a range of contrasting styles that support the needs
-     * of your product and its content.
-     *
-     * Use typography to make writing legible and beautiful. Material's default type scale includes
-     * contrasting and flexible styles to support a wide range of use cases.
-     *
-     * The type scale is a combination of thirteen styles that are supported by the type system. It
-     * contains reusable categories of text, each with an intended application and meaning.
-     *
-     * To learn more about typography, see
-     * [Material Design typography](https://m3.material.io/styles/typography/overview).
-     *
-     * @param fontFamily the [FontFamily] to be used for the typography.
-     */
-    constructor(fontFamily: FontFamily) : this(fontFamily = fontFamily, displayLarge = null)
-
     private constructor(
         tokens: TypographyTokens,
         displayLarge: TextStyle?,
@@ -326,36 +316,70 @@ class Typography(
         labelMediumEmphasized: TextStyle?,
         labelSmallEmphasized: TextStyle?,
     ) : this(
-        displayLarge = displayLarge ?: tokens.DisplayLarge,
-        displayMedium = displayMedium ?: tokens.DisplayMedium,
-        displaySmall = displaySmall ?: tokens.DisplaySmall,
-        headlineLarge = headlineLarge ?: tokens.HeadlineLarge,
-        headlineMedium = headlineMedium ?: tokens.HeadlineMedium,
-        headlineSmall = headlineSmall ?: tokens.HeadlineSmall,
-        titleLarge = titleLarge ?: tokens.TitleLarge,
-        titleMedium = titleMedium ?: tokens.TitleMedium,
-        titleSmall = titleSmall ?: tokens.TitleSmall,
-        bodyLarge = bodyLarge ?: tokens.BodyLarge,
-        bodyMedium = bodyMedium ?: tokens.BodyMedium,
-        bodySmall = bodySmall ?: tokens.BodySmall,
-        labelLarge = labelLarge ?: tokens.LabelLarge,
-        labelMedium = labelMedium ?: tokens.LabelMedium,
-        labelSmall = labelSmall ?: tokens.LabelSmall,
-        displayLargeEmphasized = displayLargeEmphasized ?: tokens.DisplayLargeEmphasized,
-        displayMediumEmphasized = displayMediumEmphasized ?: tokens.DisplayMediumEmphasized,
-        displaySmallEmphasized = displaySmallEmphasized ?: tokens.DisplaySmallEmphasized,
-        headlineLargeEmphasized = headlineLargeEmphasized ?: tokens.HeadlineLargeEmphasized,
-        headlineMediumEmphasized = headlineMediumEmphasized ?: tokens.HeadlineMediumEmphasized,
-        headlineSmallEmphasized = headlineSmallEmphasized ?: tokens.HeadlineSmallEmphasized,
-        titleLargeEmphasized = titleLargeEmphasized ?: tokens.TitleLargeEmphasized,
-        titleMediumEmphasized = titleMediumEmphasized ?: tokens.TitleMediumEmphasized,
-        titleSmallEmphasized = titleSmallEmphasized ?: tokens.TitleSmallEmphasized,
-        bodyLargeEmphasized = bodyLargeEmphasized ?: tokens.BodyLargeEmphasized,
-        bodyMediumEmphasized = bodyMediumEmphasized ?: tokens.BodyMediumEmphasized,
-        bodySmallEmphasized = bodySmallEmphasized ?: tokens.BodySmallEmphasized,
-        labelLargeEmphasized = labelLargeEmphasized ?: tokens.LabelLargeEmphasized,
-        labelMediumEmphasized = labelMediumEmphasized ?: tokens.LabelMediumEmphasized,
-        labelSmallEmphasized = labelSmallEmphasized ?: tokens.LabelSmallEmphasized,
+        displayLarge = displayLarge.withDefaultFontFamily(tokens.fontFamily) ?: tokens.DisplayLarge,
+        displayMedium =
+            displayMedium.withDefaultFontFamily(tokens.fontFamily) ?: tokens.DisplayMedium,
+        displaySmall = displaySmall.withDefaultFontFamily(tokens.fontFamily) ?: tokens.DisplaySmall,
+        headlineLarge =
+            headlineLarge.withDefaultFontFamily(tokens.fontFamily) ?: tokens.HeadlineLarge,
+        headlineMedium =
+            headlineMedium.withDefaultFontFamily(tokens.fontFamily) ?: tokens.HeadlineMedium,
+        headlineSmall =
+            headlineSmall.withDefaultFontFamily(tokens.fontFamily) ?: tokens.HeadlineSmall,
+        titleLarge = titleLarge.withDefaultFontFamily(tokens.fontFamily) ?: tokens.TitleLarge,
+        titleMedium = titleMedium.withDefaultFontFamily(tokens.fontFamily) ?: tokens.TitleMedium,
+        titleSmall = titleSmall.withDefaultFontFamily(tokens.fontFamily) ?: tokens.TitleSmall,
+        bodyLarge = bodyLarge.withDefaultFontFamily(tokens.fontFamily) ?: tokens.BodyLarge,
+        bodyMedium = bodyMedium.withDefaultFontFamily(tokens.fontFamily) ?: tokens.BodyMedium,
+        bodySmall = bodySmall.withDefaultFontFamily(tokens.fontFamily) ?: tokens.BodySmall,
+        labelLarge = labelLarge.withDefaultFontFamily(tokens.fontFamily) ?: tokens.LabelLarge,
+        labelMedium = labelMedium.withDefaultFontFamily(tokens.fontFamily) ?: tokens.LabelMedium,
+        labelSmall = labelSmall.withDefaultFontFamily(tokens.fontFamily) ?: tokens.LabelSmall,
+        displayLargeEmphasized =
+            displayLargeEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.DisplayLargeEmphasized,
+        displayMediumEmphasized =
+            displayMediumEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.DisplayMediumEmphasized,
+        displaySmallEmphasized =
+            displaySmallEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.DisplaySmallEmphasized,
+        headlineLargeEmphasized =
+            headlineLargeEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.HeadlineLargeEmphasized,
+        headlineMediumEmphasized =
+            headlineMediumEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.HeadlineMediumEmphasized,
+        headlineSmallEmphasized =
+            headlineSmallEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.HeadlineSmallEmphasized,
+        titleLargeEmphasized =
+            titleLargeEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.TitleLargeEmphasized,
+        titleMediumEmphasized =
+            titleMediumEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.TitleMediumEmphasized,
+        titleSmallEmphasized =
+            titleSmallEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.TitleSmallEmphasized,
+        bodyLargeEmphasized =
+            bodyLargeEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.BodyLargeEmphasized,
+        bodyMediumEmphasized =
+            bodyMediumEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.BodyMediumEmphasized,
+        bodySmallEmphasized =
+            bodySmallEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.BodySmallEmphasized,
+        labelLargeEmphasized =
+            labelLargeEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.LabelLargeEmphasized,
+        labelMediumEmphasized =
+            labelMediumEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.LabelMediumEmphasized,
+        labelSmallEmphasized =
+            labelSmallEmphasized.withDefaultFontFamily(tokens.fontFamily)
+                ?: tokens.LabelSmallEmphasized,
     )
 
     /** an emphasized version of [displayLarge]. */
@@ -760,5 +784,10 @@ internal val TypographyKeyTokens.value: TextStyle
     @Composable @ReadOnlyComposable get() = MaterialTheme.typography.fromToken(this)
 
 internal val LocalTypography = staticCompositionLocalOf { Typography() }
+
+private fun TextStyle?.withDefaultFontFamily(default: FontFamily?): TextStyle? {
+    if (this == null || this.fontFamily != null) return this
+    return this.copy(fontFamily = default)
+}
 
 private val typographyTokens: TypographyTokens = TypographyTokens()
