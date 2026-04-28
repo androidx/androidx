@@ -35,5 +35,10 @@ package androidx.xr.arcore.projected;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 enum ProjectedGeospatialMode {
   DISABLED,
+  /**
+   * @deprecated This value is deprecated. Use {@link #SPATIAL} for behavior equivalent to the previous ENABLED state, or {@link #INERTIAL} for the new low-power mode.
+   */
   ENABLED,
+  INERTIAL,
+  SPATIAL,
 }
