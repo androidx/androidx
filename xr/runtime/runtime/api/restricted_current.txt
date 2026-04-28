@@ -504,6 +504,7 @@ package androidx.xr.runtime {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface StateExtender {
+    method public void close();
     method public suspend Object? extend(androidx.xr.runtime.CoreState coreState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void initialize(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
   }

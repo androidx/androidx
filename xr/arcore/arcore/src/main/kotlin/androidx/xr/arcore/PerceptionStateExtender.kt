@@ -27,6 +27,7 @@ import kotlin.time.ComparableTimeMark
 /** [StateExtender] in charge of extending [CoreState] with [PerceptionState]. */
 // TODO: b/455593773 - Restrict ctor once YTXR ports to JXR proper, and is no longer a chimeric app.
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@Suppress("NotCloseable")
 public class PerceptionStateExtender : StateExtender {
 
     internal companion object {
@@ -87,7 +88,7 @@ public class PerceptionStateExtender : StateExtender {
         updatePerceptionStateMap(coreState)
     }
 
-    internal fun close() {
+    override fun close() {
         perceptionStateMap.clear()
         timeMarkQueue.clear()
         xrResourcesManager.clear()

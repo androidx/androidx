@@ -23,7 +23,9 @@ internal class StubStateExtender : StateExtender {
 
     internal var isInitialized: Boolean = false
 
-    internal val extended: MutableList<CoreState> = mutableListOf<CoreState>()
+    internal var isClosed: Boolean = false
+
+    internal val extended: MutableList<CoreState> = mutableListOf()
 
     override fun initialize(runtimes: List<JxrRuntime>) {
         isInitialized = true
@@ -31,5 +33,9 @@ internal class StubStateExtender : StateExtender {
 
     override suspend fun extend(coreState: CoreState) {
         extended.add(coreState)
+    }
+
+    override fun close() {
+        isClosed = true
     }
 }
