@@ -47,11 +47,11 @@ internal constructor(
          * Returns the Face object that corresponds to the user.
          *
          * @param session the currently active [Session]
-         * @throws [IllegalStateException] if [FaceTrackingMode] is set to
+         * @throws IllegalStateException if [androidx.xr.runtime.Config.faceTracking] is set to
          *   [FaceTrackingMode.DISABLED]
          */
         @JvmStatic
-        public fun getUserFace(session: Session): Face? {
+        public fun getUserFace(session: Session): Face {
             val config = session.config
             check(config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
                 "Config.FaceTrackingMode must be set to USER to read the user's face."
@@ -60,7 +60,10 @@ internal constructor(
             val perceptionStateExtender: PerceptionStateExtender? =
                 session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
             check(perceptionStateExtender != null) { "PerceptionStateExtender is not available." }
-            return perceptionStateExtender.xrResourcesManager.userFace
+            checkNotNull(perceptionStateExtender.xrResourcesManager.userFace) {
+                "User face is not available."
+            }
+            return perceptionStateExtender.xrResourcesManager.userFace!!
         }
 
         /**

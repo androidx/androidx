@@ -47,7 +47,7 @@ class PerceivedResolutionManager(
     private val surfaceEntityManager: SurfaceEntityManager,
     private val panelEntityManager: PanelEntityManager,
 ) : LifecycleEventObserver {
-    private val cameraLeft: RenderViewpoint = RenderViewpoint.left(session)!!
+    private val cameraLeft: RenderViewpoint = RenderViewpoint.left(session)
     private val _mPanelEntityFlow = MutableStateFlow<PanelEntity?>(null)
     var mPanelEntity: PanelEntity?
         get() = _mPanelEntityFlow.value
