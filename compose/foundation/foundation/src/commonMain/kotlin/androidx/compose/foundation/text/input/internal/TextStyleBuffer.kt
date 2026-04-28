@@ -108,7 +108,7 @@ internal class TextStyleBuffer<T>(
 
         val intervalInBuffer =
             Interval(startInBuffer, endInBuffer, interval.startExpands, interval.endExpands)
-        return intervalTree.addInterval(style, intervalInBuffer)
+        return intervalTree.addInterval(style, intervalInBuffer) != IntervalHandle.Invalid
     }
 
     /**
@@ -152,10 +152,11 @@ internal class TextStyleBuffer<T>(
         return intervalTree.findIntervalsInRange<R, AnnotatedString.Range<R>>(
             startInBuffer,
             endInBuffer,
-        ) { item, packedInterval ->
-            val interval = Interval(packedInterval)
+        ) { packedHandle ->
+            val handle = IntervalHandle(packedHandle)
+            val interval = intervalTree.getInterval(handle)
             AnnotatedString.Range(
-                item = item,
+                item = intervalTree.getItem(handle) as R,
                 start = gapBufferToOriginalIndex(interval.start),
                 end = gapBufferToOriginalIndex(interval.end),
             )
@@ -331,7 +332,7 @@ internal class TextStyleBuffer<T>(
         }
     }
 
-    internal fun gapBufferToOriginalIndex(index: Int): Int {
+    private fun gapBufferToOriginalIndex(index: Int): Int {
         return if (index <= gapStart) {
             index
         } else {

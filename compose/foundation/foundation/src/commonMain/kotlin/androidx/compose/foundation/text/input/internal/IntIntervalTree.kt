@@ -255,8 +255,11 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         }
 
     /** The data associated with this [Node]. */
-    val Node.item: T?
+    var Node.item: T?
         get() = items[index / STRIDE]
+        set(value) {
+            items[index / STRIDE] = value
+        }
 
     /**
      * Returns the lowest [Node] in the subtree of this [Node], or the node itself if it doesn't
@@ -344,6 +347,9 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
      */
     val terminator: Node
 
+    /** The next available node id. It's always positive, and 0 represents an invalid id. */
+    var nextNodeId: Int
+
     private var _tempArray: NodeList? = null
     private val tempArray
         get() = _tempArray ?: NodeList().also { _tempArray = it }
@@ -355,6 +361,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
             terminator = source.terminator
             root = source.root
             deletedNodeCount = source.deletedNodeCount
+            nextNodeId = source.nextNodeId
         } else {
             items = mutableObjectListOf()
             nodeInfo = mutableLongListOf()
@@ -367,6 +374,8 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
                 )
             root = terminator
             deletedNodeCount = 0
+            // Incremental id start with 1.
+            nextNodeId = 1
         }
     }
 
@@ -411,7 +420,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     inline fun <reified R, M> findIntervalsInRange(
         start: Int,
         end: Int,
-        block: (item: R, packedInterval: Long) -> M,
+        block: (packedHandle: Long) -> M,
     ): List<M> {
         val nodes = tempArray
         forEachNodeInRange(start, end) {
@@ -426,7 +435,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
                 val node = Node(nodes[it])
                 val item = node.item
                 if (item != null) {
-                    block(item as R, node.startEnd.packed)
+                    block(IntervalHandle(node.id, node.index).packed)
                 } else {
                     throw IllegalStateException("IntIntervalTree's item should not be null")
                 }
@@ -829,13 +838,11 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
      * @param interval The interval to add.
      * @return true if the interval is added successfully, false otherwise
      */
-    fun addInterval(item: T, interval: Interval): Boolean {
-        if (interval.start >= interval.end) return false
-        if (findNode(item, interval) != terminator) return false
-
-        val node = Node(item, interval, 0, TreeColorRed)
+    fun addInterval(item: T, interval: Interval): IntervalHandle {
+        if (interval.start >= interval.end) return IntervalHandle.Invalid
+        val node = Node(item, interval, nextNodeId++, TreeColorRed)
         attachNode(node)
-        return true
+        return IntervalHandle(node.id, node.index)
     }
 
     /**
@@ -875,6 +882,22 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     }
 
     /**
+     * Refreshes the [IntervalHandle] to ensure it remains optimized for future lookups. As
+     * intervals are added or removed, the internal storage location of an interval might change.
+     * Calling this method returns a "fresh" handle's [IntervalHandle.originalNodeIndex] that points
+     * directly to the new location.
+     *
+     * @param intervalHandle The handle to refresh.
+     * @return A refreshed [IntervalHandle], or [IntervalHandle.Invalid] if the interval no longer
+     *   exists.
+     */
+    fun refreshIntervalHandle(intervalHandle: IntervalHandle): IntervalHandle {
+        val node = findNode(intervalHandle)
+        if (node == terminator) return IntervalHandle.Invalid
+        return IntervalHandle(node.id, node.index)
+    }
+
+    /**
      * Removes the interval defined between a [start] and an [end] coordinate.
      *
      * @param start The start index of the interval
@@ -889,6 +912,91 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         if (node == terminator) return false
         detachNode(node)
         disposeNode(node, true)
+        return true
+    }
+
+    /**
+     * Removes the interval defined by the given [intervalHandle].
+     *
+     * @param intervalHandle The handle of the interval to remove
+     * @return true if the interval is removed successfully, false otherwise
+     */
+    fun removeInterval(intervalHandle: IntervalHandle): Boolean {
+        val node = findNode(intervalHandle)
+        if (node == terminator) return false
+        detachNode(node)
+        disposeNode(node, true)
+        return true
+    }
+
+    /**
+     * Returns the interval identified by the given [intervalHandle], or [Interval.Invalid] if the
+     * interval is not found.
+     *
+     * @param intervalHandle The [IntervalHandle] of the target interval.
+     * @return The interval, or [Interval.Invalid] if the interval is not found.
+     */
+    fun getInterval(intervalHandle: IntervalHandle): Interval {
+        val node = findNode(intervalHandle)
+        if (node == terminator) return Interval.Invalid
+        return node.startEnd
+    }
+
+    /**
+     * Update the interval identified by [intervalHandle].
+     *
+     * @return True if the interval is found in the [IntIntervalTree] and successfully updated, or
+     *   false if the interval is not found in the this [IntIntervalTree].
+     */
+    fun updateInterval(intervalHandle: IntervalHandle, interval: Interval): Boolean {
+        val node = findNode(intervalHandle)
+        if (node == terminator) return false
+        updateInterval(node, interval)
+        return true
+    }
+
+    private fun updateInterval(node: Node, interval: Interval) {
+        if (node.start == interval.start) {
+            // The start index of the node is not changed, simply update the interval range and
+            // maintain the min/max value.
+            node.startEnd = interval
+            updateNodeMinMax(node)
+        } else {
+            // First remove the node from the tree
+            detachNode(node)
+            node.startEnd = interval
+            node.minMax = interval
+            node.left = terminator
+            node.right = terminator
+            node.color = TreeColorRed
+            // Add the node back to the tree
+            attachNode(node)
+        }
+    }
+
+    /**
+     * Return the item associated with the interval identified by the [IntervalHandle].
+     *
+     * @param intervalHandle The [IntervalHandle] of the target interval.
+     * @return the item or null if the interval is not found.
+     */
+    fun getItem(intervalHandle: IntervalHandle): T? {
+        if (intervalHandle == IntervalHandle.Invalid) return null
+        val node = findNode(intervalHandle)
+        return node.item
+    }
+
+    /**
+     * Update the item associated with the interval identified by [intervalHandle].
+     *
+     * @return True if the interval is found in the [IntIntervalTree] and successfully updated, or
+     *   false if the interval is not found in the this [IntIntervalTree].
+     */
+    fun updateItem(intervalHandle: IntervalHandle, item: T): Boolean {
+        val node = findNode(intervalHandle)
+        if (node == terminator) return false
+        // Update the item doesn't change the tree structure.
+        node.item = item
         return true
     }
 
@@ -928,6 +1036,53 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
             }
         }
         // [stack] should be empty at this point, no need to clean it.
+        return terminator
+    }
+
+    /** Helper method to find a specific Node given the [IntervalHandle]. */
+    private fun findNode(intervalHandle: IntervalHandle): Node {
+        if (intervalHandle == IntervalHandle.Invalid) return terminator
+        val id = intervalHandle.id
+        val originalNodeIndex =
+            ((intervalHandle.originalNodeIndex / STRIDE) * STRIDE).coerceAtMost(
+                nodeInfo.size - STRIDE
+            )
+
+        if (originalNodeIndex > 0) {
+            val node = Node(originalNodeIndex)
+            if (node.id == id) {
+                return if (node.isDeleted) terminator else node
+            }
+        }
+
+        // Node IDs are generated sequentially using nextNodeId and new nodes are always
+        // appended to the end of the nodeInfo array. Even when nodes are deleted and the
+        // array is compressed during cleanDeletedNodes(), the relative order of the remaining
+        // nodes is strictly preserved. Therefore, the sequence of node IDs in the array is
+        // strictly monotonically increasing, which allows us to safely use binary search here.
+        // Furthermore, array compression only ever shifts nodes to lower indices (leftwards).
+        // A node's current index will never exceed its original index.
+        // Thus, we can safely bound our binary search's upper limit to `(originalNodeIndex /
+        // STRIDE) - 1`
+        // (since we already checked originalNodeIndex above).
+        // The first node (index 0) is terminator, skip it.
+        var low = 1
+        var high = (originalNodeIndex / STRIDE) - 1
+
+        while (low <= high) {
+            val mid = (low + high) ushr 1
+            val midIndex = mid * STRIDE
+            val node = Node(midIndex)
+            val midId = node.id
+
+            if (midId < id) {
+                low = mid + 1
+            } else if (midId > id) {
+                high = mid - 1
+            } else {
+                return if (node.isDeleted) terminator else node
+            }
+        }
         return terminator
     }
 
@@ -1380,6 +1535,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
 
         root = other.root
         deletedNodeCount = other.deletedNodeCount
+        nextNodeId = other.nextNodeId
     }
 
     /** Create a copy of this [IntIntervalTree]. */
@@ -1453,4 +1609,43 @@ internal fun intersect(lStart: Int, lEnd: Int, rStart: Int, rEnd: Int): Boolean 
     // generate branchless code.
     return ((lStart == lEnd) or (rStart == rEnd) and (lStart == rStart)) or
         ((lStart < rEnd) and (rStart < lEnd))
+}
+
+/**
+ * An [IntervalHandle] acts as a unique identifier or "key" for an interval stored in an
+ * [IntIntervalTree]. It can be used to efficiently locate a specific [Interval].
+ *
+ * It is an inline value class that packs two components into a single [Long]:
+ * - [id]: The unique identifier for the target [Node] storing interval.
+ * - [originalNodeIndex]: The index of the target [Node] in the [IntIntervalTree.nodeInfo] array at
+ *   the time this handle was created. This is used to attempt a fast-path O(1) lookup. It might
+ *   have become stale due to the array compressing when nodes are deleted, in which case it serves
+ *   as an upper bound for a binary search.
+ *
+ * **Note for [IntIntervalTree] users:** Do not instantiate [IntervalHandle] directly. Providing an
+ * incorrect [originalNodeIndex] can cause [IntIntervalTree] methods to return invalid results.
+ * Instead, use the [IntervalHandle] instances returned by methods such as
+ * [IntIntervalTree.addInterval].
+ */
+@JvmInline
+internal value class IntervalHandle internal constructor(val packed: Long) {
+    /**
+     * Creates an [IntervalHandle] with the specified [id] and [originalNodeIndex].
+     *
+     * **Note for [IntIntervalTree] users:** Do not instantiate [IntervalHandle] directly. Providing
+     * an incorrect [originalNodeIndex] can cause [IntIntervalTree] methods to return invalid
+     * results. Instead, use the [IntervalHandle] instances returned by methods such as
+     * [IntIntervalTree.addInterval].
+     */
+    constructor(id: Int, originalNodeIndex: Int) : this(packInts(id, originalNodeIndex))
+
+    val id: Int
+        get() = unpackInt1(packed)
+
+    val originalNodeIndex: Int
+        get() = unpackInt2(packed)
+
+    companion object {
+        val Invalid = IntervalHandle(0, 0)
+    }
 }

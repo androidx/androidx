@@ -193,6 +193,19 @@ class IntIntervalTreeTest {
     }
 
     @Test
+    fun copy_copiesNextNodeId() {
+        val original = IntIntervalTree<String>()
+        original.addInterval("a", Interval(0, 10))
+        val handle2 = original.addInterval("b", Interval(10, 20))
+
+        val copy = original.copy()
+        val handle3 = copy.addInterval("c", Interval(20, 30))
+
+        // The next ID in the copy should continue from the original's sequence
+        assertThat(handle3.id).isEqualTo(handle2.id + 1)
+    }
+
+    @Test
     fun syncTo_isEqualAndIndependent() {
         val target = IntIntervalTree<String>()
         target.addIntervalAndVerifyIntegrity("a", 0, 10)
@@ -218,6 +231,21 @@ class IntIntervalTreeTest {
         assertThat(target.getAllStyles()).hasSize(3)
         assertThat(source.getAllStyles().last().item).isEqualTo("e")
         assertThat(target.getAllStyles().last().item).isEqualTo("d")
+    }
+
+    @Test
+    fun syncTo_syncsNextNodeId() {
+        val target = IntIntervalTree<String>()
+        val source = IntIntervalTree<String>()
+
+        source.addInterval("a", Interval(0, 10))
+        val handle1 = source.addInterval("b", Interval(10, 20))
+
+        target.syncTo(source)
+        val handle2 = target.addInterval("c", Interval(20, 30))
+
+        // The next ID in the target should continue from the source's sequence
+        assertThat(handle2.id).isEqualTo(handle1.id + 1)
     }
 
     @Test
@@ -460,6 +488,139 @@ class IntIntervalTreeTest {
         assertThat(buffer.previousTransition(5, 0)).isEqualTo(3)
         assertThat(buffer.previousTransition(3, 0)).isEqualTo(0)
     }
+
+    @Test
+    fun getInterval_returnsCorrectInterval() {
+        val tree = IntIntervalTree<String>()
+        val handle = tree.addInterval("a", Interval(10, 20))
+        assertThat(tree.getInterval(handle)).isEqualTo(Interval(10, 20))
+    }
+
+    @Test
+    fun getInterval_withInvalidHandle_returnsInvalid() {
+        val tree = IntIntervalTree<String>()
+        assertThat(tree.getInterval(IntervalHandle.Invalid)).isEqualTo(Interval.Invalid)
+    }
+
+    @Test
+    fun getItem_returnsCorrectItem() {
+        val tree = IntIntervalTree<String>()
+        val handle = tree.addInterval("a", Interval(10, 20))
+        assertThat(tree.getItem(handle)).isEqualTo("a")
+    }
+
+    @Test
+    fun getItem_withInvalidHandle_returnsNull() {
+        val tree = IntIntervalTree<String>()
+        assertThat(tree.getItem(IntervalHandle.Invalid)).isNull()
+    }
+
+    @Test
+    fun update_changesItemAndInterval() {
+        val tree = IntIntervalTree<String>()
+        val handle = tree.addInterval("a", Interval(10, 20))
+
+        val updateIntervalSuccess = tree.updateInterval(handle, Interval(15, 25))
+        assertThat(updateIntervalSuccess).isTrue()
+        assertThat(tree.getInterval(handle)).isEqualTo(Interval(15, 25))
+
+        val updateItemSuccess = tree.updateItem(handle, "b")
+        assertThat(updateItemSuccess).isTrue()
+        assertThat(tree.getItem(handle)).isEqualTo("b")
+
+        verifyIntegrity(tree)
+    }
+
+    @Test
+    fun update_withInvalidHandle_returnsFalse() {
+        val tree = IntIntervalTree<String>()
+        val success = tree.updateInterval(IntervalHandle(1, 4), Interval(15, 25))
+        assertThat(success).isFalse()
+    }
+
+    @Test
+    fun removeInterval_byHandle_removesSuccessfully() {
+        val tree = IntIntervalTree<String>()
+        val handle = tree.addInterval("a", Interval(10, 20))
+
+        val success = tree.removeInterval(handle)
+        assertThat(success).isTrue()
+        assertThat(tree.getAllStyles()).isEmpty()
+        verifyIntegrity(tree)
+    }
+
+    @Test
+    fun removeInterval_byHandle_withInvalidHandle_returnsFalse() {
+        val tree = IntIntervalTree<String>()
+        val success = tree.removeInterval(IntervalHandle(1, 4))
+        assertThat(success).isFalse()
+    }
+
+    @Test
+    fun refreshIntervalHandle_returnsUpdatedHandle() {
+        val tree = IntIntervalTree<String>()
+        val handle = tree.addInterval("a", Interval(10, 20))
+
+        val refreshed = tree.refreshIntervalHandle(handle)
+        assertThat(refreshed.id).isEqualTo(handle.id)
+        assertThat(tree.getItem(refreshed)).isEqualTo("a")
+    }
+
+    @Test
+    fun refreshIntervalHandle_withDeletedNode_returnsNone() {
+        val tree = IntIntervalTree<String>()
+        val handle = tree.addInterval("a", Interval(10, 20))
+        tree.removeInterval(handle)
+
+        val refreshed = tree.refreshIntervalHandle(handle)
+        assertThat(refreshed).isEqualTo(IntervalHandle.Invalid)
+    }
+
+    @Test
+    fun refreshIntervalHandle_afterCleanup_returnsUpdatedHandle() {
+        val tree = IntIntervalTree<String>()
+
+        val handles = mutableListOf<IntervalHandle>()
+        repeat(70) { handles.add(tree.addInterval("temp$it", Interval(it, it + 10))) }
+
+        val keepHandle = tree.addInterval("keep", Interval(100, 110))
+
+        handles.forEach {
+            tree.removeInterval(it)
+            assertThat(tree.getItem(keepHandle)).isNotNull()
+        }
+
+        val trigger = tree.addInterval("trigger", Interval(0, 1))
+        tree.removeInterval(trigger)
+
+        val refreshed = tree.refreshIntervalHandle(keepHandle)
+        assertThat(refreshed.id).isEqualTo(keepHandle.id)
+        assertThat(refreshed.originalNodeIndex).isNotEqualTo(keepHandle.originalNodeIndex)
+        assertThat(tree.getItem(refreshed)).isEqualTo("keep")
+    }
+
+    @Test
+    fun intervalHandle_worksAfterSyncTo() {
+        val target = IntIntervalTree<String>()
+        val source = IntIntervalTree<String>()
+        val handle = source.addInterval("a", Interval(10, 20))
+
+        target.syncTo(source)
+
+        // The handle acquired from source should work on target after sync
+        assertThat(target.getItem(handle)).isEqualTo("a")
+        assertThat(target.getInterval(handle)).isEqualTo(Interval(10, 20))
+
+        // Modify source via handle
+        source.updateItem(handle, "b")
+
+        // Target should be independent and unaffected
+        assertThat(target.getItem(handle)).isEqualTo("a")
+
+        // Target can also be modified via the handle
+        target.updateItem(handle, "c")
+        assertThat(target.getItem(handle)).isEqualTo("c")
+    }
 }
 
 /**
@@ -546,7 +707,7 @@ internal fun <T> IntIntervalTree<T>.addIntervalAndVerifyIntegrity(
 ): Boolean {
     val result = addInterval(t, Interval(start, end, false, true))
     verifyIntegrity(this)
-    return result
+    return result != IntervalHandle.Invalid
 }
 
 internal fun <T> IntIntervalTree<T>.removeIntervalAndVerifyIntegrity(
@@ -559,12 +720,14 @@ internal fun <T> IntIntervalTree<T>.removeIntervalAndVerifyIntegrity(
     return result
 }
 
-internal inline fun <reified T> IntIntervalTree<T>.getStyles(
+private inline fun <reified T> IntIntervalTree<T>.getStyles(
     start: Int,
     end: Int,
 ): List<AnnotatedString.Range<T>> {
-    return findIntervalsInRange<T, AnnotatedString.Range<T>>(start, end) { item, packed ->
-        val interval = Interval(packed)
+    return findIntervalsInRange<T, AnnotatedString.Range<T>>(start, end) { packedHandle ->
+        val handle = IntervalHandle(packedHandle)
+        val item = getItem(handle)!!
+        val interval = getInterval(handle)
         AnnotatedString.Range(item, interval.start, interval.end)
     }
 }
