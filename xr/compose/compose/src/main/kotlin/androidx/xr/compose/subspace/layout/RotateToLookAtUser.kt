@@ -127,36 +127,53 @@ internal class RotateToLookAtUserNode(var upDirection: Vector3) :
         measurable: SubspaceMeasurable,
         constraints: VolumeConstraints,
     ): SubspaceMeasureResult {
-        val placeable = measurable.measure(constraints)
+        val placeable: SubspacePlaceable = measurable.measure(constraints = constraints)
 
-        return layout(placeable.width, placeable.height, placeable.depth) {
-            // Calculate the node's current position in activity space.
-            val rootActivitySpaceTransformation =
-                currentValueOf(LocalSubspaceRootNode)?.getPose(Space.ACTIVITY) ?: Pose.Identity
-            val nodePoseInRoot = coordinates?.poseInRoot ?: Pose.Identity
+        return layout(width = placeable.width, height = placeable.height, depth = placeable.depth) {
+            // Get the pose of the root node in the ActivitySpace.
+            // Transform from Root space to Activity space (dst_From_src notation).
+            val activitySpaceFromRoot: Pose =
+                currentValueOf(LocalSubspaceRootNode)?.getPose(relativeTo = Space.ACTIVITY)
+                    ?: Pose.Identity
 
-            // Convert the node's pose in root from pixels to meters.
-            val nodePoseInRootMeters =
-                nodePoseInRoot.convertPixelsToMeters(this@RotateToLookAtUserNode.density)
+            // Get the pose of the node in the Compose root space.
+            // Transform from Node space to root space.
+            val rootFromNodePixels: Pose = coordinates?.poseInRoot ?: Pose.Identity
 
-            val currentActivitySpaceTransformation =
-                rootActivitySpaceTransformation.compose(nodePoseInRootMeters)
-            val currentActivitySpaceRotation = currentActivitySpaceTransformation.rotation
-            val currentActivitySpaceTranslation = currentActivitySpaceTransformation.translation
+            // Convert the node's pose in Compose root from pixels to meters.
+            val rootFromNodeMeters: Pose =
+                rootFromNodePixels.convertPixelsToMeters(
+                    density = this@RotateToLookAtUserNode.density
+                )
 
-            // Calculate the desired forward vector in activity space, pointing from
-            // the node to the user.
-            val targetVector = currentHeadPose.translation - currentActivitySpaceTranslation
-            // Calculate the desired rotation of the node in activity space based on the desired
-            // forward and up vectors.
-            val goalActivitySpaceRotation: Quaternion =
-                Quaternion.fromLookTowards(targetVector, upDirection)
-            // Determine the local rotation that must be applied to the node to achieve the desired
-            // rotation in activity space.
-            val newLocalRotation = currentActivitySpaceRotation.inverse * goalActivitySpaceRotation
-            // Place the measured content using the new local rotation, which will orient the
-            // content so that if faces the user.
-            placeable.place(Pose(translation = Vector3.Zero, rotation = newLocalRotation))
+            // Chain (compose) the transforms: Node -> Root -> Activity.
+            val activitySpaceFromNode: Pose =
+                activitySpaceFromRoot.compose(other = rootFromNodeMeters)
+
+            // Extract Payloads in Activity Space.
+            val nodeActivitySpaceTranslation: Vector3 = activitySpaceFromNode.translation
+            val headActivitySpaceTranslation: Vector3 = currentHeadPose.translation
+
+            // Calculate the vector pointing "from" the node "to" the head
+            val nodeToHeadDirection: Vector3 =
+                headActivitySpaceTranslation - nodeActivitySpaceTranslation
+
+            // Calculate Target Rotation:
+            // This is the absolute rotation the node needs in ActivitySpace.
+            val activitySpaceFromTargetNodeRotation: Quaternion =
+                Quaternion.fromLookTowards(forward = nodeToHeadDirection, up = upDirection)
+
+            // Calculate Local Delta Rotation:
+            // We know: activitySpaceFromTargetNodeRotation = activitySpaceFromNode.rotation *
+            // localRotationOffset
+            // To isolate localRotationOffset, multiply both sides by the inverse of the parent
+            // rotation.
+            val nodeFromActivitySpaceRotation: Quaternion = activitySpaceFromNode.rotation.inverse
+            val localRotationOffset: Quaternion =
+                nodeFromActivitySpaceRotation * activitySpaceFromTargetNodeRotation
+
+            // Place the measured content using the new local rotation offset.
+            placeable.place(pose = Pose(translation = Vector3.Zero, rotation = localRotationOffset))
         }
     }
 
