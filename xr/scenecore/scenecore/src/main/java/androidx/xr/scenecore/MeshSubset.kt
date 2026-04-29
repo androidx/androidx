@@ -23,24 +23,28 @@ import androidx.annotation.IntRange
  * This specifies how the index buffer maps vertices to geometric primitives.
  */
 @ExperimentalCustomMeshApi
-public class MeshSubsetTopology private constructor(private val name: String) {
+public class MeshSubsetTopology private constructor(private val value: Int) {
     public companion object {
         /** Every three indices form a separate triangle. */
-        @JvmField public val TRIANGLES: MeshSubsetTopology = MeshSubsetTopology("TRIANGLES")
+        @JvmField public val TRIANGLES: MeshSubsetTopology = MeshSubsetTopology(1)
         /** Every index after the first two forms a triangle with the previous two indices. */
-        @JvmField
-        public val TRIANGLE_STRIP: MeshSubsetTopology = MeshSubsetTopology("TRIANGLE_STRIP")
+        @JvmField public val TRIANGLE_STRIP: MeshSubsetTopology = MeshSubsetTopology(2)
     }
 
-    public override fun toString(): String = name
+    public override fun toString(): String =
+        when (this) {
+            TRIANGLES -> "TRIANGLES"
+            TRIANGLE_STRIP -> "TRIANGLE_STRIP"
+            else -> value.toString()
+        }
 
     public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MeshSubsetTopology) return false
-        return name == other.name
+        return value == other.value
     }
 
-    public override fun hashCode(): Int = name.hashCode()
+    public override fun hashCode(): Int = value.hashCode()
 }
 
 /**
