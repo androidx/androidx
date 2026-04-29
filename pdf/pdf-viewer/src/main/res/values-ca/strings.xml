@@ -91,5 +91,4 @@
     <string name="form_widget_type_list_box" msgid="8052623180309553495">"Quadre de llista"</string>
     <string name="form_widget_type_text_field" msgid="581285155951215607">"Camp de text"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"Signatura"</string>
-    <string name="form_filling_tooltip" msgid="1715428076993648563">"Toca el camp per entrar al mode d\'emplenament de formularis"</string>
 </resources>

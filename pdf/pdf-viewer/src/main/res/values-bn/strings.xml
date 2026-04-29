@@ -91,5 +91,4 @@
     <string name="form_widget_type_list_box" msgid="8052623180309553495">"তালিকা বক্স"</string>
     <string name="form_widget_type_text_field" msgid="581285155951215607">"টেক্সট ফিল্ড"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"স্বাক্ষর"</string>
-    <string name="form_filling_tooltip" msgid="1715428076993648563">"ফর্ম পূরণ করার মোডে যেতে ফিল্ডে ট্যাপ করুন"</string>
 </resources>

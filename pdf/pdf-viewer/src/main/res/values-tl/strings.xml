@@ -91,5 +91,4 @@
     <string name="form_widget_type_list_box" msgid="8052623180309553495">"List Box"</string>
     <string name="form_widget_type_text_field" msgid="581285155951215607">"Field ng Text"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"Lagda"</string>
-    <string name="form_filling_tooltip" msgid="1715428076993648563">"I-tap ang field para pumasok sa mode ng pagsagot ng form"</string>
 </resources>

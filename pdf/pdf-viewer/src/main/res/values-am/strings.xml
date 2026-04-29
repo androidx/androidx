@@ -91,5 +91,4 @@
     <string name="form_widget_type_list_box" msgid="8052623180309553495">"የዝርዝር ሣጥን"</string>
     <string name="form_widget_type_text_field" msgid="581285155951215607">"የጽሑፍ መስክ"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"ፊርማ"</string>
-    <string name="form_filling_tooltip" msgid="1715428076993648563">"የቅጽ መሙላት ሁነታን ለማስገባት መስክ ላይ መታ ያድርጉ"</string>
 </resources>

@@ -91,5 +91,4 @@
     <string name="form_widget_type_list_box" msgid="8052623180309553495">"सूची बॉक्स"</string>
     <string name="form_widget_type_text_field" msgid="581285155951215607">"मजकूर फील्ड"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"स्वाक्षरी"</string>
-    <string name="form_filling_tooltip" msgid="1715428076993648563">"फॉर्म भरण्याचा मोड एंटर करण्यासाठी फील्डवर टॅप करा"</string>
 </resources>

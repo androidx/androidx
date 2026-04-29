@@ -91,5 +91,4 @@
     <string name="form_widget_type_list_box" msgid="8052623180309553495">"लिस्ट बॉक्स"</string>
     <string name="form_widget_type_text_field" msgid="581285155951215607">"टेक्स्ट फ़ील्ड"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"सिग्नेचर"</string>
-    <string name="form_filling_tooltip" msgid="1715428076993648563">"फ़ॉर्म भरने का मोड चालू करने के लिए, फ़ील्ड पर टैप करें"</string>
 </resources>

@@ -252,7 +252,4 @@
 
     <!-- String for pdf form widget type - Signature -->
     <string name="form_widget_type_signature">"Signature"</string>
-
-    <!-- String for Promotional Tooltip for Form Filling -->
-    <string name="form_filling_tooltip">"Tap field to enter form filling mode"</string>
 </resources>

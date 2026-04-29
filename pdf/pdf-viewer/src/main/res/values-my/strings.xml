@@ -91,5 +91,4 @@
     <string name="form_widget_type_list_box" msgid="8052623180309553495">"စာရင်းအကွက်"</string>
     <string name="form_widget_type_text_field" msgid="581285155951215607">"စာသားအကွက်"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"လက်မှတ်"</string>
-    <string name="form_filling_tooltip" msgid="1715428076993648563">"ဖောင်ဖြည့်ခြင်းမုဒ်သို့ ဝင်ရန် အကွက်ကိုတို့ပါ"</string>
 </resources>
