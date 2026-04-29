@@ -21,7 +21,6 @@ import android.graphics.Bitmap
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
-import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -30,14 +29,12 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.painter.painterRemoteBitmap
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.remote.player.core.state.RemoteDomains
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
@@ -46,15 +43,16 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(AndroidJUnit4::class)
-@MediumTest
+@SdkSuppress(minSdkVersion = 29)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 @OptIn(ExperimentalRemoteCreationComposeApi::class)
 class RemoteStateCreationTest {
-    @get:Rule
-    val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+
+    @get:Rule val remoteCaptureRule = RemoteCaptureTestRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
@@ -71,7 +69,7 @@ class RemoteStateCreationTest {
     @Test
     fun rememberNamedRemoteInt_isTracked() = runTest {
         val coreDoc =
-            remoteComposeTestRule.captureDocument(context) {
+            remoteCaptureRule.captureDocument(context) {
                 val namedInt = rememberNamedRemoteInt("testInt", 42).withGlobalScope()
                 RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedInt.toRemoteFloat())))
             }
@@ -83,7 +81,7 @@ class RemoteStateCreationTest {
     @Test
     fun rememberNamedRemoteFloat_isTracked() = runTest {
         val coreDoc =
-            remoteComposeTestRule.captureDocument(context) {
+            remoteCaptureRule.captureDocument(context) {
                 val namedFloat = rememberNamedRemoteFloat("testFloat") { 42.42f.rf }
                 RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedFloat)))
             }
@@ -95,7 +93,7 @@ class RemoteStateCreationTest {
     @Test
     fun rememberNamedRemoteLong_isTracked() = runTest {
         val coreDoc =
-            remoteComposeTestRule.captureDocument(context) {
+            remoteCaptureRule.captureDocument(context) {
                 val namedLong = rememberNamedRemoteLong("testLong", 42L)
                 namedLong.writeToDocument(LocalRemoteComposeCreationState.current)
             }
@@ -106,7 +104,7 @@ class RemoteStateCreationTest {
     @Test
     fun rememberNamedRemoteBoolean_isPresent() = runTest {
         val coreDoc =
-            remoteComposeTestRule.captureDocument(context) {
+            remoteCaptureRule.captureDocument(context) {
                 val namedBoolean = rememberNamedRemoteBoolean("isRed", true).withGlobalScope()
 
                 //                RemoteText(text = namedBoolean.select("a".rs, "b".rs))
@@ -124,7 +122,7 @@ class RemoteStateCreationTest {
     @Test
     fun rememberNamedRemoteString_isTracked() = runTest {
         val coreDoc =
-            remoteComposeTestRule.captureDocument(context) {
+            remoteCaptureRule.captureDocument(context) {
                 val namedString = rememberNamedRemoteString("testString", "Hello")
                 RemoteText(text = namedString)
             }
@@ -136,7 +134,7 @@ class RemoteStateCreationTest {
     @Test
     fun rememberNamedRemoteDp_isTracked() = runTest {
         val coreDoc =
-            remoteComposeTestRule.captureDocument(context) {
+            remoteCaptureRule.captureDocument(context) {
                 val namedDp = rememberNamedRemoteDp("testDp") { 10.rdp }
                 RemoteBox(modifier = RemoteModifier.padding(namedDp.value))
             }
@@ -148,7 +146,7 @@ class RemoteStateCreationTest {
     @Test
     fun rememberNamedRemoteColor_isTracked() = runTest {
         val coreDoc =
-            remoteComposeTestRule.captureDocument(context) {
+            remoteCaptureRule.captureDocument(context) {
                 val namedColor =
                     rememberNamedRemoteColor("testColor", Color.Magenta).withGlobalScope()
                 RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
@@ -161,7 +159,7 @@ class RemoteStateCreationTest {
     @Test
     fun rememberNamedRemoteBitmap_FromUrl_isRendered() = runTest {
         val coreDoc =
-            remoteComposeTestRule.captureDocument(context) {
+            remoteCaptureRule.captureDocument(context) {
                 val namedBitmap =
                     rememberNamedRemoteBitmap(
                         name = "testBitmapUrl",
@@ -177,7 +175,7 @@ class RemoteStateCreationTest {
     @Test
     fun rememberNamedRemoteBitmap_FromImageBitmap_isRendered() = runTest {
         val coreDoc =
-            remoteComposeTestRule.captureDocument(context) {
+            remoteCaptureRule.captureDocument(context) {
                 val namedBitmap =
                     rememberNamedRemoteBitmap("testBitmapImage") {
                         Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
@@ -193,7 +191,7 @@ class RemoteStateCreationTest {
 
     @Test
     fun creation_invoke_isStandardized() = runTest {
-        remoteComposeTestRule.captureDocument(context) {
+        remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
             RemoteInt(42).writeToDocument(state)
             RemoteFloat(42f).writeToDocument(state)
@@ -207,7 +205,7 @@ class RemoteStateCreationTest {
 
     @Test
     fun creation_createForId_isStandardized() = runTest {
-        remoteComposeTestRule.captureDocument(context) {
+        remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
             val iId = RemoteInt(1).writeToDocument(state) + 0x100000000L
             RemoteInt.createForId(iId).writeToDocument(state)
@@ -234,7 +232,7 @@ class RemoteStateCreationTest {
 
     @Test
     fun creation_createNamedRemoteX_isStandardized() = runTest {
-        remoteComposeTestRule.captureDocument(context) {
+        remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
             RemoteInt.createNamedRemoteInt("i", defaultValue = 1).writeToDocument(state)
             RemoteFloat.createNamedRemoteFloat("f", defaultValue = 1f).writeToDocument(state)
@@ -248,7 +246,7 @@ class RemoteStateCreationTest {
 
     @Test
     fun creation_mutableCreate_isStandardized() = runTest {
-        remoteComposeTestRule.captureDocument(context) {
+        remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
             MutableRemoteInt.createMutable(1).writeToDocument(state)
             MutableRemoteFloat.createMutable(1f).writeToDocument(state)
@@ -261,7 +259,7 @@ class RemoteStateCreationTest {
 
     @Test
     fun creation_mutableForId_isStandardized() = runTest {
-        remoteComposeTestRule.captureDocument(context) {
+        remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
             val iId = MutableRemoteInt.createMutable(1).writeToDocument(state).toLong()
             MutableRemoteInt.createMutableForId(iId).writeToDocument(state)
@@ -283,7 +281,7 @@ class RemoteStateCreationTest {
 
     @Test
     fun creation_rememberMutableRemote_isStandardized() = runTest {
-        remoteComposeTestRule.captureDocument(context) {
+        remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
             rememberMutableRemoteInt(1).writeToDocument(state)
             rememberMutableRemoteFloat(1f).writeToDocument(state)
@@ -296,7 +294,7 @@ class RemoteStateCreationTest {
 
     @Test
     fun creation_rememberNamedRemote_isStandardized() = runTest {
-        remoteComposeTestRule.captureDocument(context) {
+        remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
 
             // Taking expression values
@@ -314,7 +312,7 @@ class RemoteStateCreationTest {
 
     @Test
     fun creation_rememberRemote_nonStandardized() = runTest {
-        remoteComposeTestRule.captureDocument(context) {
+        remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
 
             // Only non-deprecated unnamed rememberRemoteX functions are tested here.

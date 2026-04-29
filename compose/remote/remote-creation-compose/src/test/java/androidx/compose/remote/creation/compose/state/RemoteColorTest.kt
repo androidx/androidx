@@ -30,10 +30,13 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.remote.player.core.state.RemoteDomains
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -42,6 +45,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.test.runTest
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -57,6 +61,10 @@ private val referenceHsvColor =
 @Config(sdk = [Config.TARGET_SDK])
 @SdkSuppress(minSdkVersion = 29)
 class RemoteColorTest {
+    @get:Rule val remoteCaptureRule = RemoteCaptureTestRule()
+
+    private val androidContext: Context = ApplicationProvider.getApplicationContext()
+
     val context =
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
@@ -533,6 +541,27 @@ class RemoteColorTest {
 
         assertThat(operations.filterIsInstance<NamedVariable>().size).isEqualTo(1)
         assertThat(operations.filterIsInstance<ColorAttribute>().size).isEqualTo(3)
+    }
+
+    @Test
+    fun copy_rememberRemoteColor_resultsSingleNamedColor() = runTest {
+        val colorName = "TEST"
+        val coreDoc =
+            remoteCaptureRule.captureDocument(context = androidContext) {
+                val namedColor = rememberNamedRemoteColor(colorName, Color.Red)
+
+                val copy = namedColor.copy(alpha = 0f.rf)
+
+                RemoteCanvas {
+                    drawRect(paint = RemotePaint { color = copy })
+                    drawCircle(
+                        paint = RemotePaint { color = copy },
+                        radius = size.minDimension / 2f,
+                    )
+                }
+            }
+        assertThat(coreDoc.namedColors).hasLength(1)
+        assertThat(coreDoc.namedColors[0]).isEqualTo("${RemoteDomains.USER}:$colorName")
     }
 
     private fun makeAndPaintCoreDocument() =
