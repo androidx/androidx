@@ -26,7 +26,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalWindowInfo
 
-/** Display a [RemoteDocument] in the Android Studio Preview. */
+/**
+ * Displays a [RemoteDocument] in the Android Studio Preview.
+ *
+ * This composable is intended for use within Android Studio to preview the content of a
+ * [RemoteDocument]. It handles setting up the necessary Remote Compose player environment.
+ *
+ * @param remoteDocument The [RemoteDocument] containing the content to be displayed.
+ * @param modifier The modifier to be applied to the box containing the preview.
+ */
 @Composable
 public fun RemoteDocPreview(remoteDocument: RemoteDocument, modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
@@ -41,3 +49,15 @@ public fun RemoteDocPreview(remoteDocument: RemoteDocument, modifier: Modifier =
         )
     }
 }
+
+/**
+ * Displays a [RemoteDocument] in the Android Studio Preview from a [ByteArray].
+ *
+ * This is a convenience overload that takes the raw document bytes directly.
+ *
+ * @param document The raw byte array representing the [RemoteDocument].
+ * @param modifier The modifier to be applied to the box containing the preview.
+ */
+@Composable
+public fun RemoteDocPreview(document: ByteArray, modifier: Modifier = Modifier): Unit =
+    RemoteDocPreview(remoteDocument = RemoteDocument(document), modifier = modifier)
