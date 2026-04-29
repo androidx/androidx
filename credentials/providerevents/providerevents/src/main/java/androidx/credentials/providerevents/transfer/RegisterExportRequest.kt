@@ -54,7 +54,7 @@ public class RegisterExportRequest(
         @WorkerThread
         @JvmStatic
         public fun create(context: Context, entries: List<ExportEntry>): RegisterExportRequest {
-            val exportMatcher = context.assets.open(MATCHER_BINARY).readBytes()
+            val exportMatcher = context.assets.open(MATCHER_BINARY).use { it.readBytes() }
             return RegisterExportRequest(entries, exportMatcher)
         }
 
