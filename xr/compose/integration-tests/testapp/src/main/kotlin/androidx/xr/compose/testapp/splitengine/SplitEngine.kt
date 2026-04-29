@@ -321,6 +321,7 @@ class SplitEngine : ComponentActivity() {
                                         session,
                                         glimmerModel.value!!,
                                         Pose.Identity,
+                                        session.scene.activitySpace,
                                     )
                             }
                             glimmerEntity.value!!
@@ -376,6 +377,7 @@ class SplitEngine : ComponentActivity() {
                                             Vector3(2.0f, 0.0f, 0.0f),
                                             Quaternion(0.0f, 0.0f, 0.0f, 1.0f),
                                         ),
+                                        session.scene.activitySpace,
                                     )
                             }
                         }

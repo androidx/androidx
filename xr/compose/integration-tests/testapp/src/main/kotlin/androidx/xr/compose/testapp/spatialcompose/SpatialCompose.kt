@@ -113,6 +113,7 @@ import androidx.xr.scenecore.GltfAnimation.AnimationState
 import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.scene
 import java.nio.file.Paths
 import java.time.Clock
 import kotlin.math.cos
@@ -440,6 +441,7 @@ class SpatialCompose : ComponentActivity() {
                     session,
                     dragonModel.value!!,
                     Pose(Vector3(1.0f, 0.0f, 0.0f), Quaternion.Identity),
+                    parent = session.scene.activitySpace,
                 )
 
             dragonEntity.value?.let { entity ->
@@ -513,7 +515,13 @@ class SpatialCompose : ComponentActivity() {
 
         if (gltfModel != null) {
             SceneCoreEntity(
-                factory = { GltfModelEntity.create(session, gltfModel!!) },
+                factory = {
+                    GltfModelEntity.create(
+                        session,
+                        gltfModel!!,
+                        parent = session.scene.activitySpace,
+                    )
+                },
                 modifier = modifier.rotate(rotation),
             )
         }
@@ -525,7 +533,7 @@ class SpatialCompose : ComponentActivity() {
     fun AspectRatioPanel() {
         var aspectRatioValue by remember { mutableFloatStateOf(1f) }
         SpatialPanel(
-            modifier = SubspaceModifier.fillMaxWidth().height(1000.dp).aspectRatio(aspectRatioValue)
+            modifier = SubspaceModifier.fillMaxWidth().height(200.dp).aspectRatio(aspectRatioValue)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize().background(Color.LightGray).padding(16.dp),
