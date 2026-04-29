@@ -21,35 +21,36 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.enterTransition
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.exitTransition
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.predictivePopEnterTransition
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.predictivePopExitTransition
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.sizeTransform
 
 public actual object DefaultNavTransitions {
-    public actual val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
-        get() = NonAndroidDefaultNavTransitions.enterTransition
+    public actual val enterTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
+        { EnterTransition.None }
 
-    public actual val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
-        get() = NonAndroidDefaultNavTransitions.exitTransition
+    public actual val exitTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
+        { ExitTransition.None }
 
     public actual val predictivePopEnterTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition
-        get() = NonAndroidDefaultNavTransitions.predictivePopEnterTransition
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition =
+        { EnterTransition.None }
 
     public actual val predictivePopExitTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition
-        get() = NonAndroidDefaultNavTransitions.predictivePopExitTransition
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition =
+        { ExitTransition.None }
 
 
-    public actual val sizeTransform: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)?
-        get() = NonAndroidDefaultNavTransitions.sizeTransform
+    public actual val sizeTransform:
+        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
+        null
 
-    public actual fun popEnterTransition(enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition): AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
-        NonAndroidDefaultNavTransitions.popEnterTransition(enterTransition)
+    public actual fun popEnterTransition(
+        enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+    ): AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
+        enterTransition
 
-    public actual fun popExitTransition(exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition): AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
-        NonAndroidDefaultNavTransitions.popExitTransition(exitTransition)
+    public actual fun popExitTransition(
+        exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+    ): AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
+        exitTransition
 }

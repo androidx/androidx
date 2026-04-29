@@ -19,38 +19,121 @@ package androidx.navigation.compose
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.unveilIn
+import androidx.compose.animation.veilOut
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.enterTransition
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.exitTransition
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.predictivePopEnterTransition
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.predictivePopExitTransition
-import androidx.navigation.compose.internal.NonAndroidDefaultNavTransitions.sizeTransform
+import androidx.navigationevent.NavigationEvent.Companion.EDGE_LEFT
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-9920/Correctly-implement-DefaultNavTransitions-predictive-pop-transitions-for-iOS
+private const val DEFAULT_TRANSITION_DURATION_MILLISECOND = 500
+private val IosTransitionEasing = CubicBezierEasing(0.2833f, 0.99f, 0.31833f, 0.99f)
+
+@OptIn(ExperimentalAnimationApi::class)
 public actual object DefaultNavTransitions {
-    public actual val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
-        get() = NonAndroidDefaultNavTransitions.enterTransition
+    public actual val enterTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+        slideIntoContainer(
+            towards = AnimatedContentTransitionScope.SlideDirection.Start,
+            animationSpec = tween(
+                DEFAULT_TRANSITION_DURATION_MILLISECOND,
+                easing = IosTransitionEasing
+            ),
+        )
+    }
 
-    public actual val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
-        get() = NonAndroidDefaultNavTransitions.exitTransition
+    public actual val exitTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+        slideOutOfContainer(
+            towards = AnimatedContentTransitionScope.SlideDirection.Start,
+            targetOffset = { it / 4 },
+            animationSpec = tween(
+                DEFAULT_TRANSITION_DURATION_MILLISECOND,
+                easing = IosTransitionEasing
+            ),
+        ) + veilOut(
+            animationSpec = tween(
+                DEFAULT_TRANSITION_DURATION_MILLISECOND,
+                easing = IosTransitionEasing
+            ),
+        )
+    }
 
     public actual val predictivePopEnterTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition
-        get() = NonAndroidDefaultNavTransitions.predictivePopEnterTransition
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition =
+        { edge ->
+            val towards = if (edge == EDGE_LEFT) {
+                AnimatedContentTransitionScope.SlideDirection.Right
+            } else {
+                AnimatedContentTransitionScope.SlideDirection.Left
+            }
+            slideIntoContainer(
+                towards = towards,
+                initialOffset = { it / 4 },
+                animationSpec = tween(
+                    DEFAULT_TRANSITION_DURATION_MILLISECOND,
+                    easing = LinearEasing
+                ),
+            ) + unveilIn(
+                animationSpec = tween(
+                    DEFAULT_TRANSITION_DURATION_MILLISECOND,
+                    easing = LinearEasing
+                ),
+            )
+        }
 
     public actual val predictivePopExitTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition
-        get() = NonAndroidDefaultNavTransitions.predictivePopExitTransition
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition =
+        { edge ->
+            val towards = if (edge == EDGE_LEFT) {
+                AnimatedContentTransitionScope.SlideDirection.Right
+            } else {
+                AnimatedContentTransitionScope.SlideDirection.Left
+            }
+            slideOutOfContainer(
+                towards = towards,
+                animationSpec = tween(
+                    DEFAULT_TRANSITION_DURATION_MILLISECOND,
+                    easing = LinearEasing
+                ),
+            )
+        }
 
 
-    public actual val sizeTransform: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)?
-        get() = NonAndroidDefaultNavTransitions.sizeTransform
+    public actual val sizeTransform:
+        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
+        null
 
-    public actual fun popEnterTransition(enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition): AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
-        NonAndroidDefaultNavTransitions.popEnterTransition(enterTransition)
+    public actual fun popEnterTransition(
+        enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+    ): AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+        slideIntoContainer(
+            towards = AnimatedContentTransitionScope.SlideDirection.End,
+            initialOffset = { it / 4 },
+            animationSpec = tween(
+                DEFAULT_TRANSITION_DURATION_MILLISECOND,
+                easing = IosTransitionEasing
+            ),
+        ) + unveilIn(
+            animationSpec = tween(
+                DEFAULT_TRANSITION_DURATION_MILLISECOND,
+                easing = IosTransitionEasing
+            )
+        )
+    }
 
-    public actual fun popExitTransition(exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition): AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
-        NonAndroidDefaultNavTransitions.popExitTransition(exitTransition)
+    public actual fun popExitTransition(
+        exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+    ): AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+        slideOutOfContainer(
+            towards = AnimatedContentTransitionScope.SlideDirection.End,
+            animationSpec = tween(
+                DEFAULT_TRANSITION_DURATION_MILLISECOND,
+                easing = IosTransitionEasing
+            ),
+        )
+    }
 }
