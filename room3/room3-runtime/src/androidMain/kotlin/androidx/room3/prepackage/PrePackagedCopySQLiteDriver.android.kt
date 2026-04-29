@@ -137,7 +137,8 @@ internal class PrePackagedCopySQLiteDriver(
 
     private fun deleteDatabase(fileName: String): Boolean {
         var deleted = false
-        for (postfix in arrayOf("", "-wal", "-shm")) {
+        // Also delete journal file if it exists, along with WAL and SHM
+        for (postfix in arrayOf("", "-wal", "-shm", "-journal")) {
             val dbFile = File(fileName + postfix)
             if (dbFile.exists()) {
                 deleted = deleted || dbFile.delete()
