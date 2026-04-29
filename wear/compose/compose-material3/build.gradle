@@ -47,6 +47,7 @@ dependencies {
     implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation("androidx.graphics:graphics-shapes:1.0.1")
     implementation("androidx.compose.animation:animation-graphics:1.10.0")
+    implementation("androidx.wear:wear-core:1.1.0-alpha02")
 
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
