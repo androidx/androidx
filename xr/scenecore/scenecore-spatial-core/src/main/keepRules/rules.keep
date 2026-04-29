@@ -4,3 +4,7 @@
 # Instantiated via reflection in androidx.xr.scenecore.spatial.rendering.SpatialRenderingRuntime
 -if class androidx.xr.scenecore.runtime.RenderingRuntime
 -keep class androidx.xr.scenecore.spatial.core.SpatialCoreXrExtensionsHolderProvider{ *; }
+
+# Instantiated via reflection in androidx.xr.runtime.SpatialApiVersionHelper
+-if class androidx.xr.runtime.Session
+-keep class androidx.xr.scenecore.spatial.core.SpatialCoreApiVersionProvider { *; }
