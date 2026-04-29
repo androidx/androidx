@@ -33,7 +33,6 @@ object LargePayloadSupport {
     const val EXTRA_LARGE_PAYLOAD = "androidx.credentials.provider.extra.LARGE_PAYLOAD"
 
     /** Key for the size of the large payload stored in a [Bundle]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     private const val EXTRA_LARGE_PAYLOAD_SIZE =
         "androidx.credentials.provider.extra.LARGE_PAYLOAD_SIZE"
 
@@ -84,7 +83,6 @@ object LargePayloadSupport {
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal inline fun <R> Parcel.use(block: (Parcel) -> R?) =
         try {
             block(this)

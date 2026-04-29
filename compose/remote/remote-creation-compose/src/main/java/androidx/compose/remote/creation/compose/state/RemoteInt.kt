@@ -120,7 +120,6 @@ internal constructor(
      * @param creationState The current [RemoteComposeCreationState].
      * @return The [LongArray] representing this remote integer\'s expression.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun arrayForCreationState(stateScope: RemoteStateScope): LongArray {
         return stateScope.creationState.getOrPutLongArray(cacheKey) {
             arrayProvider(stateScope.creationState)
@@ -463,7 +462,6 @@ internal constructor(
          * @param v The remote ID.
          * @return A [RemoteInt] referencing the ID.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal fun createForId(v: Long): RemoteInt {
             return RemoteIntExpression(
                 constantValueOrNull = null,
@@ -688,7 +686,6 @@ internal constructor(
  * [extras]. Inlining is preferred as long as the resulting array length is less than
  * [MAX_SAFE_LONG_ARRAY].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun combineToLongArray(
     creationState: RemoteComposeCreationState,
     remoteInts: Array<RemoteInt>,
@@ -852,7 +849,6 @@ internal fun binaryOp(
  * @param directEval When the sources are const float, this lambda will be called to evaluate the
  *   result directly.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun comparisonOp(
     a: RemoteInt,
     b: RemoteInt,
@@ -958,9 +954,7 @@ public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
 public class MutableRemoteInt
 internal constructor(
     constantValueOrNull: Int? = null,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal override val cacheKey: RemoteStateCacheKey,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal val idProvider: (creationState: RemoteComposeCreationState) -> Long,
 ) :
     RemoteInt(

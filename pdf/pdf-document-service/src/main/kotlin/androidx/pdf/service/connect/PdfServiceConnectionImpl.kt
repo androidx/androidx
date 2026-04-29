@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.IBinder
-import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocumentRemote
 import androidx.pdf.service.PdfDocumentServiceImpl
 import java.util.Queue
@@ -32,7 +31,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PdfServiceConnectionImpl(override val context: Context) : PdfServiceConnection {
     private val _eventStateFlow: MutableStateFlow<ConnectionState> = MutableStateFlow(Disconnected)
 

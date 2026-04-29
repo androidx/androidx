@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
-import androidx.annotation.RestrictTo
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 
@@ -66,7 +65,6 @@ public constructor(
     }
 
     @SuppressLint("NewApi")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun convertToAdServices(): android.adservices.adselection.ReportImpressionRequest {
         if (
             AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersionS() >= 10

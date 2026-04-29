@@ -17,14 +17,12 @@
 package androidx.camera.camera2.pipe.graph
 
 import androidx.annotation.GuardedBy
-import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class LatestFrameNumberListener(private val onNextFrameNumber: (FrameNumber) -> Unit) :
     Request.Listener {
     @GuardedBy("this") private var latestFrameNumber = Long.MIN_VALUE
@@ -48,7 +46,6 @@ internal class LatestFrameNumberListener(private val onNextFrameNumber: (FrameNu
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class LatestFrameInfoListener(private val onNextFrameInfo: (FrameInfo) -> Unit) :
     Request.Listener {
     @GuardedBy("this") private var latestFrameNumber = Long.MIN_VALUE

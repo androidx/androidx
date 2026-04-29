@@ -161,7 +161,6 @@ internal constructor(
          *
          * @return This ImageVector.Builder instance as a convenience for chaining calls
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal fun clearGroup(): Builder {
             ensureNotConsumed()
             val popped = nodes.pop()

@@ -17,8 +17,10 @@
 package androidx.tracing.perfetto.internal.handshake.protocol
 
 import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING
+import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
+import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.KEY_PATH
+import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.KEY_PERSISTENT
 
 // Keep these two packages in sync:
 // - `androidx.tracing.perfetto.handshake.protocol` in the tracing/tracing-perfetto-handshake folder
@@ -27,7 +29,6 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 // This is a part of a WIP refactor to decouple tracing-perfetto and tracing-perfetto-handshake
 // tracked under TODO(243405142)
 
-@RestrictTo(LIBRARY_GROUP)
 internal object RequestKeys {
     public const val RECEIVER_CLASS_NAME: String = "androidx.tracing.perfetto.TracingReceiver"
 
@@ -101,7 +102,6 @@ internal object RequestKeys {
     public const val KEY_PERSISTENT: String = "persistent"
 }
 
-@RestrictTo(LIBRARY_GROUP)
 internal object ResponseKeys {
     /**
      * Result code as listed in [ResponseResultCodes].
@@ -169,9 +169,7 @@ internal object ResponseResultCodes {
 )
 private annotation class ResultCode
 
-internal class Response
-@RestrictTo(LIBRARY_GROUP)
-constructor(
+internal class Response(
     @ResultCode public val resultCode: Int,
 
     /**

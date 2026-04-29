@@ -17,12 +17,10 @@
 package androidx.pdf.viewer.fragment.search
 
 import android.view.View
-import androidx.annotation.RestrictTo
 import androidx.pdf.view.search.PdfSearchView
 import androidx.pdf.viewer.fragment.model.SearchViewUiState
 
 /** A view manager class for [PdfSearchView] that updates it based on [SearchViewUiState]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PdfSearchViewManager(private val pdfSearchView: PdfSearchView) {
 
     fun setState(uiState: SearchViewUiState) {

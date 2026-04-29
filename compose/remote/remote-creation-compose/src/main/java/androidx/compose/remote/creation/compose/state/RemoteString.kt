@@ -887,7 +887,6 @@ public fun selectIfGe(
     )
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal interface LazyRemoteString {
     /**
      * @return The text ID for the RemoteString within the provided [RemoteComposeCreationState].

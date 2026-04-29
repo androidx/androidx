@@ -15,7 +15,6 @@
  */
 package androidx.appsearch.compiler
 
-import androidx.annotation.RestrictTo
 import androidx.room.compiler.processing.XElement
 
 /**
@@ -24,6 +23,5 @@ import androidx.room.compiler.processing.XElement
  *
  * @exportToFramework:hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class MissingXTypeException(typeName: XElement) :
     Exception("Type ${typeName.name} is not present")

@@ -25,7 +25,6 @@ import android.widget.ImageButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.BundleCompat
@@ -46,7 +45,6 @@ import com.google.android.material.button.MaterialButton
 // TODO(b/386721657): Remove this activity once the switch to V2 completes
 
 @Suppress("NewApi")
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.FragmentListener {
 
     private lateinit var pdfViewerFragment: PdfViewerFragment

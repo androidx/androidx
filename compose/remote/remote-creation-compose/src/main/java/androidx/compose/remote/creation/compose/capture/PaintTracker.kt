@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.capture
 import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.os.Build
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.layout.toAndroidCap
 import androidx.compose.remote.creation.compose.layout.toAndroidJoin
@@ -38,7 +37,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 
 /** Tracks the state of a [RemotePaint] to optimize serialization by only sending deltas. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class PaintTracker {
     var force: Boolean = false
     var isChanged: Boolean = false

@@ -1619,7 +1619,6 @@ internal constructor(
  * @property hasConstantValue Indicates if this expression will always yield the same value.
  * @property arrayProvider A lambda that provides the [FloatArray] representing the expression.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class UncachedRemoteFloatExpression(
     public override val constantValueOrNull: Float?,
     internal override val cacheKey: RemoteStateCacheKey,
@@ -1926,7 +1925,6 @@ public fun toString(array: FloatArray): String {
  * by [extras]. Inlining is preferred as long as the resulting array length is less than
  * [MAX_SAFE_FLOAT_ARRAY].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun combineToFloatArray(
     creationState: RemoteComposeCreationState,
     remoteFloats: Array<RemoteFloat>,

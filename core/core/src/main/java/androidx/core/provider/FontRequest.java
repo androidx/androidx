@@ -140,7 +140,6 @@ public final class FontRequest {
                 mVariationSettings);
     }
 
-    @RestrictTo(LIBRARY)
     private FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
             @NonNull String query, @ArrayRes int certificates,
             @Nullable String systemFont, @Nullable String variationSettings) {

@@ -41,7 +41,6 @@ public annotation class ExerciseTrackedStatus {
         /** There is not currently any exercise in progress owned by any app. */
         public const val NO_EXERCISE_IN_PROGRESS: Int = 3
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal fun @receiver:ExerciseTrackedStatus Int.toProto():
             DataProto.ExerciseTrackedStatus =
             DataProto.ExerciseTrackedStatus.forNumber(this) ?: EXERCISE_TRACKED_STATUS_UNKNOWN

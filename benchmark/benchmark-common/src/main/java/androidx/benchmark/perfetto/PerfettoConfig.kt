@@ -388,7 +388,6 @@ private fun configOf(dataSources: List<TraceConfig.DataSource>) =
  *
  * Eventually, this should be more configurable.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun perfettoConfig(
     atraceApps: List<String>,
     stackSamplingConfig: StackSamplingConfig?,

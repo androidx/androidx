@@ -411,7 +411,6 @@ private fun M3IconButtonElement(
 }
 
 @Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 private fun M3TextButtonElement(
     text: String,
     onClick: Action,

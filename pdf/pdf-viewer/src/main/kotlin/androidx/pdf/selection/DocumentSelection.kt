@@ -19,7 +19,6 @@ package androidx.pdf.selection
 import android.graphics.PointF
 import android.os.Parcel
 import android.util.SparseArray
-import androidx.annotation.RestrictTo
 import androidx.core.util.forEach
 import androidx.pdf.PdfPoint
 import androidx.pdf.selection.model.GoToLinkSelection
@@ -36,7 +35,6 @@ import androidx.pdf.selection.model.textSelectionFromParcel
  * list of selections in that page. Currently, multi-content selection is not supported, so only one
  * type of selection will be present.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class DocumentSelection(val selectedContents: SparseArray<List<Selection>>) {
 
     class SelectionType {

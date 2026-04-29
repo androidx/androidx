@@ -35,7 +35,6 @@ public class ExerciseGoalType private constructor(public val id: Int, public val
 
     override fun hashCode(): Int = id
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun toProto(): DataProto.ExerciseGoalType =
         DataProto.ExerciseGoalType.forNumber(id) ?: EXERCISE_GOAL_TYPE_UNKNOWN
 
@@ -56,7 +55,6 @@ public class ExerciseGoalType private constructor(public val id: Int, public val
         @JvmStatic
         public fun fromId(id: Int): ExerciseGoalType? = VALUES.firstOrNull { it.id == id }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         internal fun fromProto(proto: DataProto.ExerciseGoalType): ExerciseGoalType? =
             fromId(proto.number)

@@ -16,13 +16,11 @@
 
 package androidx.camera.core.processing.util
 
-import androidx.annotation.RestrictTo
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.processing.ShaderProvider
 import androidx.core.util.Preconditions
 
 /** Default shader providers for [GLUtils]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal object ShaderProviders {
     @JvmField
     val DEFAULT_VERTEX_SHADER = createVertexShader(GLUtils.VAR_TEXTURE_COORD, isHdr = false)

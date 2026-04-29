@@ -80,7 +80,6 @@ private constructor(public override val id: Int, public val name: String) : Avai
         @JvmStatic
         public fun fromId(id: Int): LocationAvailability? = VALUES.firstOrNull { it.id == id }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal fun fromProto(proto: LocationAvailabilityProto): LocationAvailability =
             fromId(proto.number) ?: UNKNOWN
     }

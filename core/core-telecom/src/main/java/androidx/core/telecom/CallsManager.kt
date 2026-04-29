@@ -488,7 +488,6 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
      * @param onEvent Incoming {@link CallEvents} from an InCallService implementation
      * @see addCall For more documentation on the operations/parameters of this class
      */
-    @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
     internal suspend fun addCall(
         callAttributes: CallAttributesCompat,
         onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,

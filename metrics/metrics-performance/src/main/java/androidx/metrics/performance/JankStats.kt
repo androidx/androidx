@@ -18,9 +18,7 @@ package androidx.metrics.performance
 import android.os.Build
 import android.view.View
 import android.view.Window
-import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import java.lang.IllegalStateException
 
 /**
  * This class is used to both accumulate and report information about UI "jank" (runtime performance
@@ -73,7 +71,7 @@ class JankStats private constructor(window: Window, private val frameListener: O
      * impl class, which is instantiated when necessary based on the runtime OS version. The
      * JankStats API is basically a thin wrapper around the implementations in these classes.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) internal val implementation: JankStatsBaseImpl
+    internal val implementation: JankStatsBaseImpl
 
     init {
         val decorView: View =

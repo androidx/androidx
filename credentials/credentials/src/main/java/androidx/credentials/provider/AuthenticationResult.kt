@@ -79,7 +79,6 @@ class AuthenticationResult(val authenticationType: @AuthenticationResultTypes In
          * @return an authentication result that has properly handled conversion of the result types
          */
         @JvmOverloads
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal fun createFrom(
             uiAuthenticationType: Int,
             isFrameworkBiometricPrompt: Boolean = true,

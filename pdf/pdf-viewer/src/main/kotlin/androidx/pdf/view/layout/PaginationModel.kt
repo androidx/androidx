@@ -21,7 +21,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.util.Range
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
 import kotlin.math.max
 
 /**
@@ -31,7 +30,6 @@ import kotlin.math.max
  */
 @MainThread
 @Suppress("BanParcelableUsage")
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PaginationModel(val numPages: Int) : Parcelable {
 
     init {

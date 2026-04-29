@@ -16,7 +16,6 @@
 
 package androidx.navigation.internal
 
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
@@ -142,7 +141,6 @@ internal class NavBackStackEntryImpl(val entry: NavBackStackEntry) {
     internal val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun saveState(outBundle: SavedState) {
         savedStateRegistryController.performSave(outBundle)
     }
