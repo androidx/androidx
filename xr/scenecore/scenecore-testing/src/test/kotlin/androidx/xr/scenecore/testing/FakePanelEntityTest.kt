@@ -59,7 +59,7 @@ class FakePanelEntityTest {
 
     @Test
     fun getSizeInPixels_returnsDefaultValue() {
-        assertThat(underTest.sizeInPixels).isEqualTo(PixelDimensions(1152, 1152))
+        assertThat(underTest.sizeInPixels).isEqualTo(PixelDimensions(2000, 2000))
     }
 
     @Test

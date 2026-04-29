@@ -26,6 +26,7 @@ import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
+import com.android.extensions.xr.ShadowConfig
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
@@ -84,6 +85,7 @@ class ActivityPanelEntityImplTest : AndroidXrEntityImplTest() {
 
     @Before
     fun setUp() {
+        ShadowConfig.extract(xrExtensions.config!!).setDefaultDpPerMeter(1f)
         fakeRuntime =
             SpatialSceneRuntime.create(hostActivity, fakeExecutor, xrExtensions, sceneNodeRegistry)
     }

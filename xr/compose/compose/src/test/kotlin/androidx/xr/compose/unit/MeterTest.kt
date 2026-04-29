@@ -30,6 +30,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 class MeterTest {
     private val UNIT_DENSITY = Density(density = 1.0f, fontScale = 1.0f)
@@ -37,17 +38,17 @@ class MeterTest {
     @Before
     fun setUp() {
         ShadowConfig.extract(XrExtensionsProvider.getXrExtensions().config!!)
-            .setDefaultDpPerMeter(1f)
+            .setDefaultDpPerMeter(2000f)
     }
 
     @Test
     fun meter_toDp() {
-        assertThat(1.meters.toDp()).isEqualTo(1.dp)
+        assertThat(1.meters.toDp()).isEqualTo(2000.dp)
     }
 
     @Test
     fun roundToPx_roundsToNearestPixel() {
-        assertThat(1.meters.roundToPx(UNIT_DENSITY)).isEqualTo(1)
+        assertThat(1.meters.roundToPx(UNIT_DENSITY)).isEqualTo(2000)
     }
 
     @Test
@@ -55,12 +56,12 @@ class MeterTest {
         val DOUBLE_DENSITY = Density(density = 2.0f, fontScale = 2.0f)
 
         // Twice the density, twice the pixels.
-        assertThat(1.meters.roundToPx(DOUBLE_DENSITY)).isEqualTo(2)
+        assertThat(1.meters.roundToPx(DOUBLE_DENSITY)).isEqualTo(4000)
     }
 
     @Test
     fun dp_toMeter() {
-        assertThat(10.dp.toMeter()).isEqualTo(Meter(10f))
+        assertThat(1000.dp.toMeter()).isEqualTo(Meter(0.5f))
         assertThat(Dp.Infinity.toMeter()).isEqualTo(Meter.Infinity)
         assertThat(Dp.Unspecified.toMeter()).isEqualTo(Meter.NaN)
 
@@ -79,7 +80,7 @@ class MeterTest {
 
     @Test
     fun meter_toCm() {
-        assertThat(11.meters.toCm()).isEqualTo(1100f)
+        assertThat(11.meters.toCm()).isEqualTo(1100)
     }
 
     @Test
@@ -89,17 +90,17 @@ class MeterTest {
 
     @Test
     fun meter_toPx() {
-        assertThat(5.meters.toPx(UNIT_DENSITY)).isEqualTo(5f)
+        assertThat(5.meters.toPx(UNIT_DENSITY)).isEqualTo(10000f)
     }
 
     @Test
     fun meter_roundToPx() {
-        assertThat(5.meters.roundToPx(UNIT_DENSITY)).isEqualTo(5)
+        assertThat(5.meters.roundToPx(UNIT_DENSITY)).isEqualTo(10000)
     }
 
     @Test
     fun meter_todp() {
-        assertThat(5.meters.toDp()).isEqualTo(5.dp)
+        assertThat(5.meters.toDp()).isEqualTo(10000.dp)
     }
 
     @Test
@@ -214,6 +215,7 @@ class MeterTest {
     fun dpPerMeter_getterReevaluatedOnEachCall() {
         val extensions = XrExtensionsProvider.getXrExtensions()!!
         val shadowConfig = ShadowConfig.extract(extensions.config!!)
+        val defaultPixelsPerMeter = extensions.config!!.defaultPixelsPerMeter(1f)
 
         shadowConfig.setDefaultDpPerMeter(100f)
 
@@ -222,5 +224,8 @@ class MeterTest {
         shadowConfig.setDefaultDpPerMeter(500f)
 
         assertThat(1.meters.toDp()).isEqualTo(500.dp)
+
+        // Reset to default
+        shadowConfig.setDefaultDpPerMeter(defaultPixelsPerMeter)
     }
 }
