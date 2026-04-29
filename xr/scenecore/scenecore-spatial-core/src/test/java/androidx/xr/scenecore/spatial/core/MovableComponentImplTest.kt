@@ -104,6 +104,8 @@ class MovableComponentImplTest {
     private lateinit var activitySpaceImpl: ActivitySpaceImpl
     private lateinit var activitySpaceNode: Node
     private val mockGltfFeature: GltfFeature = mock<GltfFeature>()
+    /** The default pixels per meter. */
+    private val pixelsPerMeter = 2000f
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -973,7 +975,11 @@ class MovableComponentImplTest {
 
         // Since it is by the plane a call should be made to the panel shadow renderer.
         verify(mockPanelShadowRenderer)
-            .updateShadow(proposedPoseInOxr, expectedPlanePoseInOxr, FloatSize2d(10.0f, 10.0f))
+            .updateShadow(
+                proposedPoseInOxr,
+                expectedPlanePoseInOxr,
+                FloatSize2d(10.0f / pixelsPerMeter, 10.0f / pixelsPerMeter),
+            )
     }
 
     @Test
@@ -1017,8 +1023,9 @@ class MovableComponentImplTest {
         sendReformEvent(getEntityNode(entity), moveEndReformEvent)
         sendReformEvent(getEntityNode(entity), moveOngoingReformEvent)
 
+        // Use a non-matching size to verify the never() condition.
         verify(mockPanelShadowRenderer, never())
-            .updateShadow(any(), any(), eq(FloatSize2d(10.0f, 10.0f)))
+            .updateShadow(any(), any(), eq(FloatSize2d(100.0f, 200.0f)))
     }
 
     @Test
@@ -1182,6 +1189,7 @@ class MovableComponentImplTest {
         sendInputEvent(shadowNode, moveOngoingInputEvent)
         sendInputEvent(shadowNode, moveEndInputEvent)
 
+        // Use a non-matching size to verify the never() condition.
         verify(mockPanelShadowRenderer, never())
             .updateShadow(any(), any(), eq(FloatSize2d(10.0f, 1.0f)))
     }

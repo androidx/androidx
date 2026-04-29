@@ -47,6 +47,9 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
     private lateinit var sceneRuntime: SpatialSceneRuntime
     private lateinit var mainPanelEntity: MainPanelEntityImpl
 
+    /** The default pixels per meter. */
+    private val pixelsPerMeter = 2000f
+
     override fun createEntity(node: Node): AndroidXrEntity {
         // MainPanelEntityImpl is usually created via SpatialSceneRuntime.
         // But for testing GC we can create it directly if constructor is accessible.
@@ -86,23 +89,26 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
 
     @Test
     fun mainPanelEntitySetSize_callsExtensions() {
-        val kTestDimensions = Dimensions(123.0f, 123.0f, 123.0f)
+        val kTestDimensions = Dimensions(0.123f, 0.123f, 0.123f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter.
+        val expectPixels =
+            Dimensions(0.123f * pixelsPerMeter, 0.123f * pixelsPerMeter, 0.123f * pixelsPerMeter)
         mainPanelEntity.size = kTestDimensions
 
         val shadowXrExtensions = ShadowXrExtensions.extract(xrExtensions)
         Truth.assertThat(shadowXrExtensions.getMainWindowWidth(activity))
-            .isEqualTo(kTestDimensions.width.toInt())
+            .isEqualTo(expectPixels.width.toInt())
         Truth.assertThat(shadowXrExtensions.getMainWindowHeight(activity))
-            .isEqualTo(kTestDimensions.height.toInt())
+            .isEqualTo(expectPixels.height.toInt())
     }
 
     @Test
-    fun createActivityPanelEntity_setsCornersTo32Dp() {
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter. Validate that the
-        // corner radius is set to 32dp.
-        Truth.assertThat(mainPanelEntity.cornerRadius).isEqualTo(32.0f)
+    fun createActivityPanelEntity_setsCornerRadiusToDefaultSize() {
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter. Validate that
+        // the corner radius is set to (DEFAULT_CORNER_RADIUS_DP = 32) / 2000 = 0.016.
+        Truth.assertThat(mainPanelEntity.cornerRadius).isEqualTo(32f / pixelsPerMeter)
         Truth.assertThat(NodeRepository.getInstance().getCornerRadius(mainPanelEntity.getNode()))
-            .isEqualTo(32.0f)
+            .isEqualTo(32f / pixelsPerMeter)
     }
 
     @Test
@@ -179,7 +185,8 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
         mainPanelEntity.size = kTestDimensions100
 
         // Verify: The first request is sent to the underlying API immediately.
-        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity)).isEqualTo(100)
+        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity))
+            .isEqualTo((kTestDimensions100.width * pixelsPerMeter).toInt())
         Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
 
         // 2. Simulate rapid, consecutive size updates from the user before the first request
@@ -188,10 +195,11 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
         mainPanelEntity.size = kTestDimensions300
         mainPanelEntity.size = kTestDimensions400
 
-        // Verify: The underlying API width is STILL 100 because the IPC is in-flight.
+        // Verify: The underlying API width is STILL 100m or (100 * 2000)px because the
+        // IPC is in-flight.
         // The intermediate requests (200, 300, 400) are deferred and coalesced.
         Truth.assertThat(shadowExtensions.getMainWindowWidth(activity))
-            .isEqualTo(kTestDimensions100.width.toInt())
+            .isEqualTo((kTestDimensions100.width * pixelsPerMeter).toInt())
         Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
 
         // 3. Manually complete the FIRST request (100).
@@ -201,7 +209,7 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
 
         // Verify: The system automatically skipped 200 and 300, and immediately
         // sent the latest requested size (400) to the underlying API.
-        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity)).isEqualTo(400)
+        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity)).isEqualTo(800000)
         Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
 
         // 4. Manually complete the SECOND request (400).
@@ -236,11 +244,11 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
 
         // Verify: Ensure the internal execution lock is also released by sending
         // a valid request and confirming it reaches the underlying API.
-        val kTestDimensions100 = Dimensions(100f, 100f, 100f)
-        mainPanelEntity.size = kTestDimensions100
-
+        val kTestDimensions01 = Dimensions(0.1f, 0.1f, 0.1f)
+        mainPanelEntity.size = kTestDimensions01
         val shadowExtensions = ShadowXrExtensions.extract(xrExtensions)
-        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity)).isEqualTo(100)
+
+        Truth.assertThat(shadowExtensions.getMainWindowWidth(activity)).isEqualTo(200)
 
         // Cleanup
         mainPanelEntity.removeOnSetSizeCompleteListener(listener)
