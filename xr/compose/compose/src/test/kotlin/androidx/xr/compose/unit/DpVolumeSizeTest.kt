@@ -19,23 +19,14 @@ package androidx.xr.compose.unit
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.compose.testing.XrExtensionsProvider
 import androidx.xr.runtime.math.FloatSize3d
-import com.android.extensions.xr.ShadowConfig
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class DpVolumeSizeTest {
-    @Before
-    fun setUp() {
-        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions().config!!)
-            .setDefaultDpPerMeter(2000f)
-    }
-
     @Test
     fun dpVolumeSize_isCreated() {
         val dpVolumeSize = DpVolumeSize(0.dp, 0.dp, 0.dp)

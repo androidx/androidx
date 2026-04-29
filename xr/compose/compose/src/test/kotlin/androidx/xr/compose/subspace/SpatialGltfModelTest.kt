@@ -84,6 +84,9 @@ class SpatialGltfModelTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
+    /** The default pixels per meter. */
+    private val pixelsPerMeter = 2000f
+
     // --- Test Cases ---
 
     // 1. Model Loading and Source Types
@@ -400,7 +403,7 @@ class SpatialGltfModelTest {
         // `SpatialModel`'s layout size matches the intrinsic bounding box of the loaded 3D asset.
 
         composeTestRule.configureFakeSession(
-            defaultDpPerMeter = 1000f,
+            defaultDpPerMeter = pixelsPerMeter,
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override fun createGltfEntity(
@@ -430,13 +433,13 @@ class SpatialGltfModelTest {
             }
         }
 
-        // The glTF size is 1m x 1m x 1m and 1000 dp per meter the size should be 1000.dp x 1000.dp
-        // x 1000.dp
+        // The glTF size is 1m x 1m x 1m and 2000 dp per meter the size should be 2000.dp x 2000.dp
+        // x 2000.dp
         composeTestRule
             .onSubspaceNodeWithTag("model")
-            .assertWidthIsEqualTo(1000.dp)
-            .assertHeightIsEqualTo(1000.dp)
-            .assertDepthIsEqualTo(1000.dp)
+            .assertWidthIsEqualTo(2000.dp)
+            .assertHeightIsEqualTo(2000.dp)
+            .assertDepthIsEqualTo(2000.dp)
     }
 
     @Test
@@ -448,7 +451,7 @@ class SpatialGltfModelTest {
         val completableDeferred = CompletableDeferred<GltfModelResource>()
 
         composeTestRule.configureFakeSession(
-            defaultDpPerMeter = 1000f,
+            defaultDpPerMeter = pixelsPerMeter,
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
@@ -490,13 +493,13 @@ class SpatialGltfModelTest {
 
         completableDeferred.complete(object : GltfModelResource {})
 
-        // The glTF size is 1m x 1m x 1m and 1000 dp per meter the size should be 1000.dp x 1000.dp
-        // x 1000.dp
+        // The glTF size is 1m x 1m x 1m and 2000 dp per meter the size should be 2000.dp x 2000.dp
+        // x 2000.dp
         composeTestRule
             .onSubspaceNodeWithTag("model")
-            .assertWidthIsEqualTo(1000.dp)
-            .assertHeightIsEqualTo(1000.dp)
-            .assertDepthIsEqualTo(1000.dp)
+            .assertWidthIsEqualTo(2000.dp)
+            .assertHeightIsEqualTo(2000.dp)
+            .assertDepthIsEqualTo(2000.dp)
     }
 
     @Test
@@ -506,7 +509,7 @@ class SpatialGltfModelTest {
         // bounds.
 
         composeTestRule.configureFakeSession(
-            defaultDpPerMeter = 1000f,
+            defaultDpPerMeter = pixelsPerMeter,
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override fun createGltfEntity(
@@ -542,10 +545,10 @@ class SpatialGltfModelTest {
             .assertHeightIsEqualTo(200.dp)
             .assertDepthIsEqualTo(200.dp)
 
-        // The glTF size is 1m x 1m x 1m so the scale should be 0.2f to fit 1000.dp (at 1000 dp per
+        // The glTF size is 1m x 1m x 1m so the scale should be 0.1f to fit 2000.dp (at 2000 dp per
         // meter) into the 200.dp space.
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
-            .isEqualTo(0.2f)
+            .isEqualTo(0.1f)
     }
 
     @Test
@@ -554,7 +557,7 @@ class SpatialGltfModelTest {
         // the constraints provided by its parent.
 
         composeTestRule.configureFakeSession(
-            defaultDpPerMeter = 1000f,
+            defaultDpPerMeter = pixelsPerMeter,
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override fun createGltfEntity(
@@ -593,7 +596,7 @@ class SpatialGltfModelTest {
             .assertHeightIsEqualTo(200.dp)
             .assertDepthIsEqualTo(200.dp)
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
-            .isEqualTo(0.2f)
+            .isEqualTo(0.1f)
     }
 
     @Test
@@ -602,7 +605,7 @@ class SpatialGltfModelTest {
         // The model should scale to fit the most constraining dimension.
 
         composeTestRule.configureFakeSession(
-            defaultDpPerMeter = 1000f,
+            defaultDpPerMeter = pixelsPerMeter,
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override fun createGltfEntity(
@@ -647,15 +650,15 @@ class SpatialGltfModelTest {
             .assertHeightIsEqualTo(400.dp)
             .assertDepthIsEqualTo(200.dp)
 
-        // Intrinsic size is 2000dp x 1000dp x 1000dp.
+        // Intrinsic size is 4000dp x 2000dp x 2000dp (2m x 1m x 1m).
         // Layout size is 300dp x 400dp x 200dp.
         // Scale ratios:
-        // Width:  300 / 2000 = 0.15
-        // Height: 400 / 1000 = 0.4
-        // Depth:  200 / 1000 = 0.2
-        // The width is the most constraining dimension, so the scale should be 0.15.
+        // Width:  300 / 4000 = 0.075
+        // Height: 400 / 2000 = 0.2
+        // Depth:  200 / 2000 = 0.1
+        // The width is the most constraining dimension, so the scale should be 0.075.
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
-            .isEqualTo(0.15f)
+            .isEqualTo(0.075f)
     }
 
     @Test
@@ -665,7 +668,7 @@ class SpatialGltfModelTest {
         // 1m x 1m of the parent.
 
         composeTestRule.configureFakeSession(
-            defaultDpPerMeter = 1000f,
+            defaultDpPerMeter = pixelsPerMeter,
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override fun createGltfEntity(
@@ -690,7 +693,7 @@ class SpatialGltfModelTest {
         composeTestRule.setContent {
             Subspace(allowUnboundedSubspace = true) {
                 // Parent provides the constraints
-                SpatialBox(SubspaceModifier.size(1000.dp)) {
+                SpatialBox(SubspaceModifier.size(2000.dp)) {
                     SpatialGltfModel(
                         state =
                             rememberSpatialGltfModelState(
@@ -703,15 +706,15 @@ class SpatialGltfModelTest {
             }
         }
 
-        // The model's intrinsic size is 1000dp x 2000dp x 1000dp.
-        // The available space is 1000dp x 1000dp x 1000dp.
-        // Height is the most constraining dimension, so the scale factor is 1000/2000 = 0.5.
+        // The model's intrinsic size is 2000dp x 4000dp x 2000dp (1m x 2m x 1m).
+        // The available space is 2000dp x 2000dp x 2000dp (1m x 1m x 1m).
+        // Height is the most constraining dimension, so the scale factor is 2000 / 4000 = 0.5.
         // The final layout size should be the intrinsic size multiplied by the scale factor.
         composeTestRule
             .onSubspaceNodeWithTag("model")
-            .assertWidthIsEqualTo(500.dp) // 1000dp * 0.5
-            .assertHeightIsEqualTo(1000.dp) // 2000dp * 0.5
-            .assertDepthIsEqualTo(500.dp) // 1000dp * 0.5
+            .assertWidthIsEqualTo(1000.dp) // 2000dp * 0.5
+            .assertHeightIsEqualTo(2000.dp) // 4000dp * 0.5
+            .assertDepthIsEqualTo(1000.dp) // 2000dp * 0.5
 
         // The scale of the entity itself should be the calculated scale factor.
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
@@ -724,7 +727,7 @@ class SpatialGltfModelTest {
         // The model should scale to fit the depth, as it is the most constraining dimension.
 
         composeTestRule.configureFakeSession(
-            defaultDpPerMeter = 1000f,
+            defaultDpPerMeter = pixelsPerMeter,
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override fun createGltfEntity(
@@ -769,15 +772,15 @@ class SpatialGltfModelTest {
             .assertHeightIsEqualTo(300.dp)
             .assertDepthIsEqualTo(200.dp)
 
-        // Intrinsic size is 1000dp x 1000dp x 2000dp.
+        // Intrinsic size is 2000dp x 2000dp x 4000dp.
         // Layout size is 400dp x 300dp x 200dp.
         // Scale ratios:
-        // Width:  400 / 1000 = 0.4
-        // Height: 300 / 1000 = 0.3
-        // Depth:  200 / 2000 = 0.1
-        // The depth is the most constraining dimension, so the scale should be 0.1.
+        // Width:  400 / 2000 = 0.2
+        // Height: 300 / 2000 = 0.15
+        // Depth:  200 / 4000 = 0.05
+        // The depth is the most constraining dimension, so the scale should be 0.05.
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
-            .isEqualTo(0.1f)
+            .isEqualTo(0.05f)
     }
 
     @Test
@@ -785,7 +788,7 @@ class SpatialGltfModelTest {
         // A model that has a zero intrinsic size should use the min constraints as its layout size.
 
         composeTestRule.configureFakeSession(
-            defaultDpPerMeter = 1000f,
+            defaultDpPerMeter = pixelsPerMeter,
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override fun createGltfEntity(

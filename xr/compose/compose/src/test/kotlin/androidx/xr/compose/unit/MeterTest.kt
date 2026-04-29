@@ -20,13 +20,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.compose.testing.XrExtensionsProvider
 import androidx.xr.compose.unit.Meter.Companion.centimeters
 import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.compose.unit.Meter.Companion.millimeters
-import com.android.extensions.xr.ShadowConfig
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,12 +31,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MeterTest {
     private val UNIT_DENSITY = Density(density = 1.0f, fontScale = 1.0f)
-
-    @Before
-    fun setUp() {
-        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions().config!!)
-            .setDefaultDpPerMeter(2000f)
-    }
 
     @Test
     fun meter_toDp() {
@@ -209,23 +200,5 @@ class MeterTest {
     fun px_toMeter_toPx() {
         val density = Density(2.789f)
         assertThat(Meter.fromPixel(28.9f, density).toPx(density)).isWithin(1.0e-5f).of(28.9f)
-    }
-
-    @Test
-    fun dpPerMeter_getterReevaluatedOnEachCall() {
-        val extensions = XrExtensionsProvider.getXrExtensions()!!
-        val shadowConfig = ShadowConfig.extract(extensions.config!!)
-        val defaultPixelsPerMeter = extensions.config!!.defaultPixelsPerMeter(1f)
-
-        shadowConfig.setDefaultDpPerMeter(100f)
-
-        assertThat(1.meters.toDp()).isEqualTo(100.dp)
-
-        shadowConfig.setDefaultDpPerMeter(500f)
-
-        assertThat(1.meters.toDp()).isEqualTo(500.dp)
-
-        // Reset to default
-        shadowConfig.setDefaultDpPerMeter(defaultPixelsPerMeter)
     }
 }
