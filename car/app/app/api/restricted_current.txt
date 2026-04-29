@@ -2465,6 +2465,45 @@ package androidx.car.app.navigation.model {
   public static interface NavigationTemplate.NavigationInfo {
   }
 
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class NavigationVoiceAssistantCapabilities {
+    method public java.util.Set<java.lang.Integer!> getSupportedActions();
+    method public java.util.Set<java.lang.Integer!> getSupportedDisruptions();
+    method public boolean isVoiceAssistantConsentGranted();
+    field public static final int ACTION_ALLOW_AND_AVOID_FERRIES = 1; // 0x1
+    field public static final int ACTION_ALLOW_AND_AVOID_HIGHWAYS = 2; // 0x2
+    field public static final int ACTION_ALLOW_AND_AVOID_TOLLS = 3; // 0x3
+    field public static final int ACTION_CLEAR_SEARCH_RESULTS = 4; // 0x4
+    field public static final int ACTION_EXIT_NAVIGATION = 5; // 0x5
+    field public static final int ACTION_FOLLOW_MODE = 6; // 0x6
+    field public static final int ACTION_MUTE_AND_UNMUTE = 7; // 0x7
+    field public static final int ACTION_ROUTE_OVERVIEW = 8; // 0x8
+    field public static final int ACTION_SHOW_ALTERNATES = 9; // 0x9
+    field public static final int ACTION_SHOW_DIRECTIONS_LIST = 10; // 0xa
+    field public static final int ACTION_SHOW_SATELLITE = 11; // 0xb
+    field public static final int ACTION_SHOW_TRAFFIC = 12; // 0xc
+    field public static final int ACTION_UNDEFINED = 0; // 0x0
+    field public static final int DISRUPTION_REPORT_CONSTRUCTION = 1; // 0x1
+    field public static final int DISRUPTION_REPORT_CRASH = 2; // 0x2
+    field public static final int DISRUPTION_REPORT_FLOODING = 3; // 0x3
+    field public static final int DISRUPTION_REPORT_FOG = 4; // 0x4
+    field public static final int DISRUPTION_REPORT_OBJECT_ON_ROAD = 5; // 0x5
+    field public static final int DISRUPTION_REPORT_POLICE = 6; // 0x6
+    field public static final int DISRUPTION_REPORT_POTHOLE = 7; // 0x7
+    field public static final int DISRUPTION_REPORT_ROAD_CLOSURE = 8; // 0x8
+    field public static final int DISRUPTION_REPORT_SNOW = 9; // 0x9
+    field public static final int DISRUPTION_REPORT_TRAFFIC = 10; // 0xa
+    field public static final int DISRUPTION_REPORT_UNDEFINED = 0; // 0x0
+    field public static final int DISRUPTION_REPORT_VEHICLE = 11; // 0xb
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class NavigationVoiceAssistantCapabilities.Builder {
+    ctor public NavigationVoiceAssistantCapabilities.Builder();
+    method public androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities.Builder addSupportedAction(int);
+    method public androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities.Builder addSupportedDisruption(int);
+    method public androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities build();
+    method public androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities.Builder setVoiceAssistantConsentGranted(boolean);
+  }
+
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(2) public interface PanModeDelegate {
     method public void sendPanModeChanged(boolean, androidx.car.app.OnDoneCallback);
   }
