@@ -235,7 +235,6 @@ import kotlinx.coroutines.launch
  *   change the position and sizing of different components of the timepicker.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun TimePicker(
     state: TimePickerState,
     modifier: Modifier = Modifier,
@@ -286,7 +285,6 @@ fun TimePicker(
  *   time input in different states. See [TimePickerDefaults.colors].
  */
 @Composable
-@ExperimentalMaterial3Api
 fun TimeInput(
     state: TimePickerState,
     modifier: Modifier = Modifier,
@@ -296,7 +294,6 @@ fun TimeInput(
 }
 
 /** Contains the default values used by [TimePicker] */
-@ExperimentalMaterial3Api
 @Stable
 object TimePickerDefaults {
 
@@ -431,7 +428,6 @@ object TimePickerDefaults {
  *   default implementation that follows Material specifications.
  */
 @Immutable
-@ExperimentalMaterial3Api
 class TimePickerColors
 constructor(
     val clockDialColor: Color,
@@ -599,7 +595,6 @@ constructor(
  *   or `true` for 24 hour format without toggle. Defaults to follow system setting.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun rememberTimePickerState(
     initialHour: Int = 0,
     initialMinute: Int = 0,
@@ -650,15 +645,30 @@ private const val MaxMinuteValue = 59
  */
 interface TimePickerState {
 
-    /** The currently selected minute (0-59). */
+    /**
+     * The currently selected minute (0-59).
+     *
+     * This value is always valid. [minuteInput] was added later to allow tracking invalid input
+     * (e.g. mid-typing in [TimeInput]) without changing the behavior of this property, which always
+     * guarantees a valid value.
+     */
     @get:IntRange(from = 0, to = 59) @setparam:IntRange(from = 0, to = 59) var minute: Int
 
-    /** The currently selected hour (0-23). */
+    /**
+     * The currently selected hour (0-23).
+     *
+     * This value is always valid. [hourInput] was added later to allow tracking invalid input (e.g.
+     * mid-typing in [TimeInput]) without changing the behavior of this property, which always
+     * guarantees a valid value.
+     */
     @get:IntRange(from = 0, to = 23) @setparam:IntRange(from = 0, to = 23) var hour: Int
 
     /**
-     * The input for the hour. UI should be bound to this value. The default implementation
-     * validates the new value and updates [hour] if it's valid.
+     * The input for the hour.
+     *
+     * UI should be bound to this value. This value can be invalid (e.g. during typing). If valid,
+     * it updates [hour]. This property was added to allow tracking mid-typing state in [TimeInput]
+     * without polluting [hour] with invalid values.
      */
     @get:IntRange(from = 0)
     var hourInput: Int
@@ -670,8 +680,11 @@ interface TimePickerState {
         }
 
     /**
-     * The raw input for the minute. UI should be bound to this value. The default implementation
-     * validates the new value and updates [minute] if it's valid.
+     * The input for the minute.
+     *
+     * UI should be bound to this value. This value can be invalid (e.g. during typing). If valid,
+     * it updates [minute]. This property was added to allow tracking mid-typing state in
+     * [TimeInput] without polluting [minute] with invalid values.
      */
     @get:IntRange(from = 0)
     var minuteInput: Int
@@ -722,13 +735,11 @@ val TimePickerState.isInputValid
  * @param is24Hour The format for this time picker. `false` for 12 hour format with an AM/PM toggle
  *   or `true` for 24 hour format without toggle. Defaults to follow system setting.
  */
-@ExperimentalMaterial3Api
 fun TimePickerState(initialHour: Int, initialMinute: Int, is24Hour: Boolean): TimePickerState =
     TimePickerStateImpl(initialHour, initialMinute, is24Hour)
 
 /** The selection mode for the time picker */
 @JvmInline
-@ExperimentalMaterial3Api
 value class TimePickerSelectionMode private constructor(val value: Int) {
     companion object {
         val Hour = TimePickerSelectionMode(0)
@@ -1038,7 +1049,6 @@ internal val AnalogTimePickerState.selectorPos: DpOffset
     }
 
 @Composable
-@ExperimentalMaterial3Api
 internal fun VerticalTimePicker(
     state: AnalogTimePickerState,
     modifier: Modifier = Modifier,
