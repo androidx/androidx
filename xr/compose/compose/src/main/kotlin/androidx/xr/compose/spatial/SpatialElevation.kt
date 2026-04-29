@@ -110,7 +110,6 @@ private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Uni
     SideEffect { view.setViewTreeDisjointParent(parentView as? ViewParent ?: parentView.parent) }
 
     var parentViewSize by remember { mutableStateOf(parentView.size) }
-    val movableContent = remember { movableContentOf(content) }
 
     DisposableEffect(panelEntity) { onDispose { panelEntity.dispose() } }
     DisposableEffect(parentView) {
@@ -122,7 +121,7 @@ private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Uni
         onDispose { parentView.removeOnLayoutChangeListener(listener) }
     }
 
-    Layout(content = movableContent) { measurables, constraints ->
+    Layout(content = content) { measurables, constraints ->
         val placeables = measurables.fastMap { it.measure(constraints) }
         val contentSize =
             placeables.fastFold(IntSize.Zero) { acc, placeable ->
@@ -145,7 +144,7 @@ private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Uni
                 IntVolumeSize(width = contentSize.width, height = contentSize.height, depth = 0)
 
             // Instead of placing the content here, set it as the panel's content
-            view.setContent(movableContent)
+            view.setContent(content)
 
             panelEntity.enabled = true
         }
