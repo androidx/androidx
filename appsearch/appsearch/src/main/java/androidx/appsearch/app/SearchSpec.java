@@ -349,23 +349,19 @@ public final class SearchSpec extends AbstractSafeParcelable {
      * Use the default metric set in {@link SearchSpec#getDefaultEmbeddingSearchMetricType()} for
      * embedding search and ranking.
      */
-    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public static final int EMBEDDING_SEARCH_METRIC_TYPE_DEFAULT = 0;
 
     /**
      * Cosine similarity as metric for embedding search and ranking.
      */
-    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public static final int EMBEDDING_SEARCH_METRIC_TYPE_COSINE = 1;
     /**
      * Dot product similarity as metric for embedding search and ranking.
      */
-    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public static final int EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT = 2;
     /**
      * Euclidean distance as metric for embedding search and ranking.
      */
-    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public static final int EMBEDDING_SEARCH_METRIC_TYPE_EUCLIDEAN = 3;
 
 
@@ -552,7 +548,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
      * Returns whether to retrieve embedding match infos as a part of
      * {@link SearchResult#getMatchInfos()}
      */
-    @FlaggedApi(Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO)
     @ExperimentalAppSearchApi
     public boolean shouldRetrieveEmbeddingMatchInfos() {
         return mRetrieveEmbeddingMatchInfos;
@@ -725,7 +720,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
      *
      * @see AppSearchSession#search
      */
-    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public @NonNull List<EmbeddingVector> getEmbeddingParameters() {
         return mEmbeddingParameters;
     }
@@ -736,7 +730,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
      * (see {@link SearchSpec.Builder#setRankingStrategy(String)}).
      */
     @EmbeddingSearchMetricType
-    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public int getDefaultEmbeddingSearchMetricType() {
         return mDefaultEmbeddingSearchMetricType;
     }
@@ -1694,7 +1687,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_EMBEDDING_MATCH_INFO)
-        @FlaggedApi(Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO)
         @ExperimentalAppSearchApi
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder setRetrieveEmbeddingMatchInfos(
@@ -2151,7 +2143,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG)
-        @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
         public @NonNull Builder addEmbeddingParameters(
                 @NonNull EmbeddingVector... searchEmbeddings) {
             Preconditions.checkNotNull(searchEmbeddings);
@@ -2170,7 +2161,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG)
-        @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
         public @NonNull Builder addEmbeddingParameters(
                 @NonNull Collection<EmbeddingVector> searchEmbeddings) {
             Preconditions.checkNotNull(searchEmbeddings);
@@ -2203,7 +2193,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG)
-        @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
         public @NonNull Builder setDefaultEmbeddingSearchMetricType(
                 @EmbeddingSearchMetricType int defaultEmbeddingSearchMetricType) {
             Preconditions.checkArgumentInRange(defaultEmbeddingSearchMetricType,

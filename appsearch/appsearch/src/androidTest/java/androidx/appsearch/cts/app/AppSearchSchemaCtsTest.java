@@ -1094,7 +1094,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingPropertyConfig() {
         AppSearchSchema schema =
                 new AppSearchSchema.Builder("Test")
@@ -1185,7 +1184,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingPropertyConfig_defaultValues() {
         EmbeddingPropertyConfig builder =
                 new EmbeddingPropertyConfig.Builder("test").build();
@@ -1196,7 +1194,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingPropertyConfig_setIndexingType() {
         assertThrows(IllegalArgumentException.class, () ->
                 new EmbeddingPropertyConfig.Builder("titleEmbedding")
@@ -1210,8 +1207,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingPropertyConfig_quantization() {
         AppSearchSchema schema =
                 new AppSearchSchema.Builder("Test")
@@ -1265,8 +1260,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingPropertyConfig_defaultQuantizationValue() {
         EmbeddingPropertyConfig builder =
                 new EmbeddingPropertyConfig.Builder("test").build();
@@ -1275,8 +1268,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingPropertyConfig_setQuantizationType() {
         assertThrows(IllegalArgumentException.class, () ->
                 new EmbeddingPropertyConfig.Builder("titleEmbedding")
@@ -1372,9 +1363,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled({
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG, Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION
-    })
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)
     public void testEmbeddingPropertyConfig_SetDescription() {
         AppSearchSchema.Builder schemaBuilder =
                 new AppSearchSchema.Builder("Email")

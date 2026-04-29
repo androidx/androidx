@@ -18,12 +18,9 @@ package androidx.appsearch.localstorage.converter;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeTrue;
-
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
 import androidx.appsearch.localstorage.SchemaCache;
@@ -124,27 +121,22 @@ public class SnippetTest {
                 new SearchResult.MatchRange(/*lower=*/26, /*upper=*/32));
         assertThat(match.getSnippet()).isEqualTo(window);
 
-        if (Flags.enableEmbeddingMatchInfo()) {
-            assertThat(match.getTextMatch()).isNotNull();
-            assertThat(match.getTextMatch().getFullText()).isEqualTo(propertyValueString);
-            assertThat(match.getTextMatch().getExactMatch()).isEqualTo(exactMatch);
-            assertThat(match.getTextMatch().getExactMatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/29, /*upper=*/32));
-            assertThat(match.getTextMatch().getSubmatch()).isEqualTo("foo");
-            assertThat(match.getTextMatch().getSubmatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/29, /*upper=*/32));
-            assertThat(match.getTextMatch().getFullText()).isEqualTo(propertyValueString);
-            assertThat(match.getTextMatch().getSnippetRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/26, /*upper=*/32));
-            assertThat(match.getTextMatch().getSnippet()).isEqualTo(window);
-        }
+        assertThat(match.getTextMatch()).isNotNull();
+        assertThat(match.getTextMatch().getFullText()).isEqualTo(propertyValueString);
+        assertThat(match.getTextMatch().getExactMatch()).isEqualTo(exactMatch);
+        assertThat(match.getTextMatch().getExactMatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/29, /*upper=*/32));
+        assertThat(match.getTextMatch().getSubmatch()).isEqualTo("foo");
+        assertThat(match.getTextMatch().getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/29, /*upper=*/32));
+        assertThat(match.getTextMatch().getFullText()).isEqualTo(propertyValueString);
+        assertThat(match.getTextMatch().getSnippetRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/26, /*upper=*/32));
+        assertThat(match.getTextMatch().getSnippet()).isEqualTo(window);
     }
 
     @Test
     public void testEmbeddingSnippet() throws Exception {
-        assumeTrue(Flags.enableSchemaEmbeddingPropertyConfig());
-        assumeTrue(Flags.enableEmbeddingMatchInfo());
-
         final String propertyKeyEmbedding = "embedding1[1]";
         final String id = "id1";
         final double semanticScore = 1.3f;
@@ -204,9 +196,6 @@ public class SnippetTest {
 
     @Test
     public void testHybridSnippet() throws Exception {
-        assumeTrue(Flags.enableSchemaEmbeddingPropertyConfig());
-        assumeTrue(Flags.enableEmbeddingMatchInfo());
-
         final String id = "id1";
         final String propertyKeyString = "content";
         final String propertyValueString = "A commonly used fake word is foo.\n"
@@ -408,19 +397,17 @@ public class SnippetTest {
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/9));
         assertThat(match1.getSnippet()).isEqualTo("Test Name");
 
-        if (Flags.enableEmbeddingMatchInfo()) {
-            assertThat(match1.getTextMatch()).isNotNull();
-            assertThat(match1.getTextMatch().getFullText()).isEqualTo("Test Name Jr.");
-            assertThat(match1.getTextMatch().getExactMatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
-            assertThat(match1.getTextMatch().getExactMatch()).isEqualTo("Test");
-            assertThat(match1.getTextMatch().getSubmatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
-            assertThat(match1.getTextMatch().getSubmatch()).isEqualTo("Test");
-            assertThat(match1.getTextMatch().getSnippetRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/9));
-            assertThat(match1.getTextMatch().getSnippet()).isEqualTo("Test Name");
-        }
+        assertThat(match1.getTextMatch()).isNotNull();
+        assertThat(match1.getTextMatch().getFullText()).isEqualTo("Test Name Jr.");
+        assertThat(match1.getTextMatch().getExactMatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match1.getTextMatch().getExactMatch()).isEqualTo("Test");
+        assertThat(match1.getTextMatch().getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match1.getTextMatch().getSubmatch()).isEqualTo("Test");
+        assertThat(match1.getTextMatch().getSnippetRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/9));
+        assertThat(match1.getTextMatch().getSnippet()).isEqualTo("Test Name");
 
         SearchResult.MatchInfo match2 = searchResultPage.getResults().get(0).getMatchInfos().get(1);
         assertThat(match2.getPropertyPath()).isEqualTo("senderEmail");
@@ -435,19 +422,17 @@ public class SnippetTest {
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/20));
         assertThat(match2.getSnippet()).isEqualTo("TestNameJr@gmail.com");
 
-        if (Flags.enableEmbeddingMatchInfo()) {
-            assertThat(match2.getTextMatch()).isNotNull();
-            assertThat(match2.getTextMatch().getFullText()).isEqualTo("TestNameJr@gmail.com");
-            assertThat(match2.getTextMatch().getExactMatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/20));
-            assertThat(match2.getTextMatch().getExactMatch()).isEqualTo("TestNameJr@gmail.com");
-            assertThat(match2.getTextMatch().getSubmatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
-            assertThat(match2.getTextMatch().getSubmatch()).isEqualTo("Test");
-            assertThat(match2.getTextMatch().getSnippetRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/20));
-            assertThat(match2.getTextMatch().getSnippet()).isEqualTo("TestNameJr@gmail.com");
-        }
+        assertThat(match2.getTextMatch()).isNotNull();
+        assertThat(match2.getTextMatch().getFullText()).isEqualTo("TestNameJr@gmail.com");
+        assertThat(match2.getTextMatch().getExactMatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/20));
+        assertThat(match2.getTextMatch().getExactMatch()).isEqualTo("TestNameJr@gmail.com");
+        assertThat(match2.getTextMatch().getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match2.getTextMatch().getSubmatch()).isEqualTo("Test");
+        assertThat(match2.getTextMatch().getSnippetRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/20));
+        assertThat(match2.getTextMatch().getSnippet()).isEqualTo("TestNameJr@gmail.com");
     }
 
     @Test
@@ -527,19 +512,17 @@ public class SnippetTest {
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/9));
         assertThat(match1.getSnippet()).isEqualTo("Test Name");
 
-        if (Flags.enableEmbeddingMatchInfo()) {
-            assertThat(match1.getTextMatch()).isNotNull();
-            assertThat(match1.getTextMatch().getFullText()).isEqualTo("Test Name Jr.");
-            assertThat(match1.getTextMatch().getExactMatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
-            assertThat(match1.getTextMatch().getExactMatch()).isEqualTo("Test");
-            assertThat(match1.getTextMatch().getSubmatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
-            assertThat(match1.getTextMatch().getSubmatch()).isEqualTo("Test");
-            assertThat(match1.getTextMatch().getSnippetRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/9));
-            assertThat(match1.getTextMatch().getSnippet()).isEqualTo("Test Name");
-        }
+        assertThat(match1.getTextMatch()).isNotNull();
+        assertThat(match1.getTextMatch().getFullText()).isEqualTo("Test Name Jr.");
+        assertThat(match1.getTextMatch().getExactMatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match1.getTextMatch().getExactMatch()).isEqualTo("Test");
+        assertThat(match1.getTextMatch().getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match1.getTextMatch().getSubmatch()).isEqualTo("Test");
+        assertThat(match1.getTextMatch().getSnippetRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/9));
+        assertThat(match1.getTextMatch().getSnippet()).isEqualTo("Test Name");
 
         SearchResult.MatchInfo match2 = searchResultPage.getResults().get(0).getMatchInfos().get(1);
         assertThat(match2.getPropertyPath()).isEqualTo("sender.email[1]");
@@ -555,18 +538,16 @@ public class SnippetTest {
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
         assertThat(match2.getSnippet()).isEqualTo("TestNameJr2@gmail.com");
 
-        if (Flags.enableEmbeddingMatchInfo()) {
-            assertThat(match2.getTextMatch()).isNotNull();
-            assertThat(match2.getTextMatch().getFullText()).isEqualTo("TestNameJr2@gmail.com");
-            assertThat(match2.getTextMatch().getExactMatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
-            assertThat(match2.getTextMatch().getExactMatch()).isEqualTo("TestNameJr2@gmail.com");
-            assertThat(match2.getTextMatch().getSubmatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
-            assertThat(match2.getTextMatch().getSubmatch()).isEqualTo("Test");
-            assertThat(match2.getTextMatch().getSnippetRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
-            assertThat(match2.getTextMatch().getSnippet()).isEqualTo("TestNameJr2@gmail.com");
-        }
+        assertThat(match2.getTextMatch()).isNotNull();
+        assertThat(match2.getTextMatch().getFullText()).isEqualTo("TestNameJr2@gmail.com");
+        assertThat(match2.getTextMatch().getExactMatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
+        assertThat(match2.getTextMatch().getExactMatch()).isEqualTo("TestNameJr2@gmail.com");
+        assertThat(match2.getTextMatch().getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match2.getTextMatch().getSubmatch()).isEqualTo("Test");
+        assertThat(match2.getTextMatch().getSnippetRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
+        assertThat(match2.getTextMatch().getSnippet()).isEqualTo("TestNameJr2@gmail.com");
     }
 }

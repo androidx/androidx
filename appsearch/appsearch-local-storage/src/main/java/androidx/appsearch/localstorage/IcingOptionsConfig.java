@@ -374,9 +374,7 @@ public interface IcingOptionsConfig {
                         Flags.enablePassingFilterToChildren() || isVmEnabled)
                 .setEnableProtoLogNewHeaderFormat(true)
                 .setEnableReusableDecompressionBuffer(true)
-                .setEmbeddingIndexNumShards(
-                        Flags.enableShardedEmbeddingStorage()
-                                ? Math.max(1, getEmbeddingIndexNumShards()) : 1)
+                .setEmbeddingIndexNumShards(Math.max(1, getEmbeddingIndexNumShards()))
                 .setEnableSchemaTypeIdOptimization(
                         Flags.enableSchemaTypeIdOptimization())
                 .setEnableOptimizeImprovements(

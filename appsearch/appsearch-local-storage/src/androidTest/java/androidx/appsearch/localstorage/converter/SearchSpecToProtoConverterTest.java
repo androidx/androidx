@@ -23,11 +23,8 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeTrue;
-
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.AppSearchConfig;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
@@ -425,7 +422,6 @@ public class SearchSpecToProtoConverterTest {
 
     @Test
     public void testToResultSpecProto_withEmbeddingMatchInfo() {
-        assumeTrue(Flags.enableEmbeddingMatchInfo());
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setResultCountPerPage(123)
                 .setSnippetCount(234)

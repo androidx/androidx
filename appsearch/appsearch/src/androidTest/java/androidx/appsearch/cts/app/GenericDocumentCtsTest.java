@@ -974,7 +974,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentEquals_identicalWithEmbeddingValues() {
         EmbeddingVector embedding1 = new EmbeddingVector(
                 new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
@@ -1006,7 +1005,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentEquals_differentOrderWithEmbeddingValues() {
         EmbeddingVector embedding1 = new EmbeddingVector(
                 new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
@@ -1038,7 +1036,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentGetEmbeddingValue() {
         EmbeddingVector embedding = new EmbeddingVector(
                 new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
@@ -1084,7 +1081,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentGetArrayEmbeddingValues() {
         EmbeddingVector embedding1 = new EmbeddingVector(
                 new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
@@ -1115,7 +1111,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocument_setEmptyEmbeddingValues() {
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setPropertyBoolean("booleanKey")
@@ -1136,7 +1131,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentInvalid_setNullEmbeddingValues() {
         EmbeddingVector embedding = new EmbeddingVector(
                 new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
@@ -1151,7 +1145,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocument_toBuilderWithEmbeddingValues() {
         EmbeddingVector embedding1 = new EmbeddingVector(
                 new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
@@ -1201,7 +1194,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentGetPropertyNamesWithEmbeddingValue() {
         EmbeddingVector embedding = new EmbeddingVector(
                 new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
@@ -1221,7 +1213,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingValuesCannotBeEmpty() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new EmbeddingVector(new float[]{}, "my_model"));
