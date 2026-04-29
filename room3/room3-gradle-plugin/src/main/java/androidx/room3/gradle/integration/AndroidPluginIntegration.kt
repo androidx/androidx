@@ -71,7 +71,7 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
         project.afterEvaluate {
             project.check(roomExtension.schemaConfigurations.isNotEmpty(), isFatal = true) {
                 "The Room Gradle plugin was applied but no schema location was specified. " +
-                    "Use the `room { schemaDirectory(...) }` DSL to specify one."
+                    "Use the `room3 { schemaDirectory(...) }` DSL to specify one."
             }
         }
     }
