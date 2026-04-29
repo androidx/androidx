@@ -37,8 +37,12 @@ public class CameraGraphId private constructor(private val name: String) {
          * directly as the toString representation for a [CameraGraph].
          */
         @JvmStatic
-        public fun nextId(): CameraGraphId {
-            return CameraGraphId("CameraGraph-${cameraGraphIds.incrementAndGet()}")
+        public fun nextId(isFrameGraph: Boolean = false): CameraGraphId {
+            return if (isFrameGraph) {
+                CameraGraphId("FrameGraph-${cameraGraphIds.incrementAndGet()}")
+            } else {
+                CameraGraphId("CameraGraph-${cameraGraphIds.incrementAndGet()}")
+            }
         }
     }
 }

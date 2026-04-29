@@ -301,7 +301,7 @@ internal class CameraPipeImpl(private val component: CameraPipeComponent) : Came
     override fun createFrameGraph(frameGraphConfig: FrameGraph.Config): FrameGraph =
         synchronized(lock) {
             check(!shutdown)
-            createFrameGraphLocked(frameGraphConfig, CameraGraphId.nextId())
+            createFrameGraphLocked(frameGraphConfig, CameraGraphId.nextId(isFrameGraph = true))
         }
 
     override fun createFrameGraphs(
@@ -311,7 +311,7 @@ internal class CameraPipeImpl(private val component: CameraPipeComponent) : Came
             check(!shutdown)
             val cameraGraphIdMap = buildMap {
                 for (graphConfig in frameGraphConfigs.frameGraphConfigs) {
-                    put(graphConfig, CameraGraphId.nextId())
+                    put(graphConfig, CameraGraphId.nextId(isFrameGraph = true))
                 }
             }
             val cameraIds =

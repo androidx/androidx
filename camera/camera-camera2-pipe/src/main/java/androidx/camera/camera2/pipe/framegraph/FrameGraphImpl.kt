@@ -203,6 +203,8 @@ constructor(
         frameGraphCoroutineScope.cancel()
     }
 
+    override fun toString() = cameraGraph.toString()
+
     private fun createSession(cameraGraphSession: CameraGraph.Session): FrameGraph.Session {
         return FrameGraphSessionImpl(cameraGraphSession, frameGraphBuffers, controller3A)
     }
