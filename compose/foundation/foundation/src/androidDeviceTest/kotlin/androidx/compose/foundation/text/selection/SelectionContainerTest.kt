@@ -41,17 +41,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.relocation.BringIntoViewModifierNode
+import androidx.compose.ui.relocation.bringIntoView
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -619,6 +623,39 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             assertThat(selection.value).isNull()
         }
 
+    /**
+     * Regression test for b/238232452 - "SelectionContainer in LazyColumn, first time selection,
+     * content auto scroll up".
+     */
+    @Test
+    fun selectionContainer_doesNotRequestBringIntoViewOnSelectionGesture() {
+        var bringIntoViewCalled = false
+        rule.setContent {
+            Box(
+                Modifier.fakeBringIntoViewResponder { _, _ -> bringIntoViewCalled = true }
+                    .size(200.dp)
+            ) {
+                SelectionContainer {
+                    BasicText(
+                        text = List(20) { "Lorem Ipsum" }.joinToString("\n"),
+                        modifier = Modifier.testTag("text"),
+                    )
+                }
+            }
+        }
+
+        // b/238232452 is triggered even just by pointer down, but let's do the full gesture, just
+        // in case
+        rule.onNodeWithTag("text").performTouchInput {
+            down(Offset.Zero)
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + 100)
+            moveBy(Offset(x = 0f, y = viewConfiguration.touchSlop))
+            up()
+        }
+
+        assertThat(bringIntoViewCalled).isFalse()
+    }
+
     private fun startSelection(tag: String, offset: Int = 0) {
         val textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
         val boundingBox = textLayoutResult.getBoundingBox(offset)
@@ -666,4 +703,38 @@ fun SemanticsNodeInteraction.fetchTextLayoutResult(): TextLayoutResult {
     val textLayoutResults = mutableListOf<TextLayoutResult>()
     performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(textLayoutResults) }
     return textLayoutResults.first()
+}
+
+/**
+ * Returns a modifier that provides an implementation of the [FakeBringIntoViewModifierNode] that
+ * redirects any [bringIntoView] to the [onBringIntoView] lambda.
+ */
+private fun Modifier.fakeBringIntoViewResponder(
+    onBringIntoView: suspend (LayoutCoordinates, () -> Rect?) -> Unit
+): Modifier =
+    this.then(
+        object : ModifierNodeElement<FakeBringIntoViewModifierNode>() {
+            override fun create(): FakeBringIntoViewModifierNode {
+                return FakeBringIntoViewModifierNode(onBringIntoView)
+            }
+
+            override fun update(node: FakeBringIntoViewModifierNode) {
+                node.onBringIntoView = onBringIntoView
+            }
+
+            override fun hashCode(): Int = onBringIntoView.hashCode()
+
+            override fun equals(other: Any?): Boolean {
+                return (this === other)
+            }
+        }
+    )
+
+private class FakeBringIntoViewModifierNode(
+    var onBringIntoView: suspend (LayoutCoordinates, () -> Rect?) -> Unit
+) : Modifier.Node(), BringIntoViewModifierNode {
+    override suspend fun bringIntoView(
+        childCoordinates: LayoutCoordinates,
+        boundsProvider: () -> Rect?,
+    ) = onBringIntoView(childCoordinates, boundsProvider)
 }

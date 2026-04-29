@@ -25,7 +25,6 @@ import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.contextmenu.ContextMenuScope
 import androidx.compose.foundation.contextmenu.ContextMenuState
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitAllPointersUpWithSlopDetection
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitPrimaryFirstDown
@@ -55,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -172,7 +172,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     }
                     this.hasFocus = focusState.hasFocus
                 }
-                .focusable()
+                .focusTarget()
                 .updateSelectionTouchMode { isInTouchMode = it }
                 .onKeyEvent {
                     if (!shouldIgnoreCopyKeyEvent && isCopyKeyEvent(it)) {
