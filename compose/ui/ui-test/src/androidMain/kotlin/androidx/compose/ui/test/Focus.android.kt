@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.ui.test
 
-import android.view.MotionEvent
+import androidx.compose.ui.semantics.SemanticsNode
 
-internal actual fun createPlatformTestContext(): PlatformTestContext = PlatformTestContext()
-
-internal actual class PlatformTestContext(
-    var composeAccessibilityValidator: ComposeAccessibilityValidator? = null,
-    var previousMotionEventForIndirectPointerEventCreation: MotionEvent? = null,
-)
+/** Checks that a view has both focus (at the topmost layer) and window focus. */
+internal actual val SemanticsNode.hasFocusAndWindowFocus: Boolean
+    get() {
+        val windowFocused = view.hasWindowFocus()
+        val topLevelOfComposeHasFocus = view.hasFocus()
+        return windowFocused && topLevelOfComposeHasFocus
+    }

@@ -85,7 +85,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
@@ -1454,11 +1453,14 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             // Finally, dispatch the key event to onPreKeyEvent/onKeyEvent listeners.
             focusOwner.dispatchKeyEvent(keyEvent)
 
-    /** This function is used by the testing framework to send indirect pointer events. */
-    @ExperimentalIndirectPointerApi
+    /**
+     * Allows testing framework to trigger an indirect pointer event (pointer event where
+     * coordinates do not map to the screen). Used for triggering events with Focus (e.g., swipe
+     * goes to next focusable item, etc.).
+     */
     override fun sendIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean {
-        // TODO (jjw): Investigate only triggering cancel during an active indirect event stream
-        //  (should include detach scenarios).
+        // TODO (b/498983361): Investigate only triggering cancel during an active indirect event
+        //  stream (should include detach scenarios).
         if (indirectPointerEvent.nativeEvent.actionMasked == ACTION_CANCEL) {
             focusOwner.dispatchIndirectPointerCancel()
             return true

@@ -44,12 +44,36 @@ val IndirectPointerEvent.nativeEvent: MotionEvent
     get() = (this as AndroidIndirectPointerEvent).nativeEvent
 
 /**
+ * Create a [IndirectPointerEvent] for test use cases. In most cases, you should receive an
+ * [IndirectPointerEvent] from the system through [IndirectPointerInputModifierNode].
+ *
+ * If you need to test indirect pointer events, use
+ * [SemanticsNodeInteractionsProvider.performIndirectPointerInput()].
+ *
+ * @param changes A list of [IndirectPointerInputChange] associated with the event
+ * @param type Indicates the reason that the [IndirectPointerEvent] was sent.
+ * @param primaryDirectionalMotionAxis Primary directional motion axis for testing.
+ * @param motionEvent The [MotionEvent] to convert to an [IndirectPointerEvent].
+ */
+fun IndirectPointerEvent(
+    changes: List<IndirectPointerInputChange>,
+    type: IndirectPointerEventType,
+    primaryDirectionalMotionAxis: IndirectPointerEventPrimaryDirectionalMotionAxis,
+    motionEvent: MotionEvent,
+): IndirectPointerEvent {
+    return AndroidIndirectPointerEvent(
+        changes = changes,
+        type = type,
+        primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
+        nativeEvent = motionEvent,
+    )
+}
+
+/**
  * Allows creation of a [IndirectPointerEvent] from a [MotionEvent] for cross module testing.
  * IMPORTANT NOTE 1: Primary axis is determined by properties of the [InputDevice] contained within
  * the [MotionEvent]. However, when manually creating a [MotionEvent], there is no way to set the
  * [InputDevice]. Therefore, this function allows you to manually set the primary axis for testing.
- * If you have a system created [MotionEvent], you can call
- * convertActionToIndirectPointerEventType() on your [MotionEvent] to get the primary axis.
  * IMPORTANT NOTE 2: Since this is just a test function that doesn't maintain state for previous
  * [MotionEvent]s (like the Android Compose system does), you will need to pass a separate
  * [MotionEvent] to populate IndirectPointerInputChange's "previous" parameters (time, position, and
@@ -59,6 +83,7 @@ val IndirectPointerEvent.nativeEvent: MotionEvent
  * @param primaryDirectionalMotionAxis Primary directional motion axis for testing.
  * @param previousMotionEvent The [MotionEvent] for previous values (time, position, and pressed).
  */
+// TODO(b/499336763): Removed usages and delete function in followup CL.
 @ExperimentalIndirectPointerApi
 fun IndirectPointerEvent(
     motionEvent: MotionEvent,
@@ -66,6 +91,21 @@ fun IndirectPointerEvent(
         IndirectPointerEventPrimaryDirectionalMotionAxis.None,
     previousMotionEvent: MotionEvent? = null,
 ): IndirectPointerEvent {
+    val action = motionEvent.actionMasked
+    val changes =
+        createIndirectPointerInputChangesFromMotionEvents(motionEvent, previousMotionEvent)
+    return AndroidIndirectPointerEvent(
+        changes = changes,
+        type = convertActionToIndirectPointerEventType(action),
+        primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
+        nativeEvent = motionEvent,
+    )
+}
+
+internal fun createIndirectPointerInputChangesFromMotionEvents(
+    motionEvent: MotionEvent,
+    previousMotionEvent: MotionEvent?,
+): List<IndirectPointerInputChange> {
     val action = motionEvent.actionMasked
     val upIndex =
         when (action) {
@@ -84,58 +124,50 @@ fun IndirectPointerEvent(
         }
 
     val uptimeMillis = motionEvent.eventTime
-    val changes =
-        List(motionEvent.pointerCount) { index ->
-            // For tests, we directly use the motion event's pointer ID vs. the production approach
-            // of translate MotionEvent ids to separate Compose PointerIds.
-            val motionEventPointerId = motionEvent.getPointerId(index)
-            val pointerId = PointerId(motionEventPointerId.toLong())
-            val position = Offset(motionEvent.getX(index), motionEvent.getY(index))
+    return List(motionEvent.pointerCount) { index ->
+        // For tests, we directly use the motion event's pointer ID vs. the production approach
+        // of translate MotionEvent ids to separate Compose PointerIds.
+        val motionEventPointerId = motionEvent.getPointerId(index)
+        val pointerId = PointerId(motionEventPointerId.toLong())
+        val position = Offset(motionEvent.getX(index), motionEvent.getY(index))
 
-            val pressed = index != upIndex
+        val pressed = index != upIndex
 
-            val matchedPointerIdInPreviousMotionEventIndex =
-                previousMotionEvent?.findPointerIndex(motionEventPointerId) ?: -1
+        val matchedPointerIdInPreviousMotionEventIndex =
+            previousMotionEvent?.findPointerIndex(motionEventPointerId) ?: -1
 
-            val previousUptimeMillis: Long
-            val previousPosition: Offset
-            val previousPressed: Boolean
+        val previousUptimeMillis: Long
+        val previousPosition: Offset
+        val previousPressed: Boolean
 
-            if (matchedPointerIdInPreviousMotionEventIndex >= 0) {
-                // Found existing id in previous event
-                previousUptimeMillis = previousMotionEvent!!.eventTime
-                previousPosition =
-                    Offset(
-                        previousMotionEvent.getX(matchedPointerIdInPreviousMotionEventIndex),
-                        previousMotionEvent.getY(matchedPointerIdInPreviousMotionEventIndex),
-                    )
-                previousPressed = previousMotionEventWasPressed
-            } else {
-                // Existing id NOT in previous event, so we match the current event values minus
-                // pressed, that should always be false.
-                previousUptimeMillis = uptimeMillis
-                previousPosition = position
-                previousPressed = false
-            }
-
-            IndirectPointerInputChange(
-                id = pointerId,
-                uptimeMillis = uptimeMillis,
-                position = position,
-                pressed = pressed,
-                pressure = motionEvent.getPressure(index),
-                previousUptimeMillis = previousUptimeMillis,
-                previousPosition = previousPosition,
-                previousPressed = previousPressed,
-            )
+        if (matchedPointerIdInPreviousMotionEventIndex >= 0) {
+            // Found existing id in previous event
+            previousUptimeMillis = previousMotionEvent!!.eventTime
+            previousPosition =
+                Offset(
+                    previousMotionEvent.getX(matchedPointerIdInPreviousMotionEventIndex),
+                    previousMotionEvent.getY(matchedPointerIdInPreviousMotionEventIndex),
+                )
+            previousPressed = previousMotionEventWasPressed
+        } else {
+            // Existing id NOT in previous event, so we match the current event values minus
+            // pressed, that should always be false.
+            previousUptimeMillis = uptimeMillis
+            previousPosition = position
+            previousPressed = false
         }
 
-    return AndroidIndirectPointerEvent(
-        changes = changes,
-        type = convertActionToIndirectPointerEventType(action),
-        primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
-        nativeEvent = motionEvent,
-    )
+        IndirectPointerInputChange(
+            id = pointerId,
+            uptimeMillis = uptimeMillis,
+            position = position,
+            pressed = pressed,
+            pressure = motionEvent.getPressure(index),
+            previousUptimeMillis = previousUptimeMillis,
+            previousPosition = previousPosition,
+            previousPressed = previousPressed,
+        )
+    }
 }
 
 internal fun convertActionToIndirectPointerEventType(actionMasked: Int): IndirectPointerEventType {

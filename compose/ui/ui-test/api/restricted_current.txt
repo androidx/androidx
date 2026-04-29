@@ -9,6 +9,8 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performFirstLinkClick(androidx.compose.ui.test.SemanticsNodeInteraction, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.LinkAnnotation>,java.lang.Boolean> predicate);
     method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! performFirstLinkClick$default(androidx.compose.ui.test.SemanticsNodeInteraction!, kotlin.jvm.functions.Function1!, int, Object!);
     method @Deprecated public static androidx.compose.ui.test.SemanticsNodeInteraction performGesture(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.GestureScope,kotlin.Unit> block);
+    method @KotlinOnly public static void performIndirectPointerInput(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis indirectPointerEventPrimaryDirectionalMotionAxis, androidx.compose.ui.unit.IntSize inputDeviceSize, kotlin.jvm.functions.Function1<androidx.compose.ui.test.IndirectPointerInjectionScope,kotlin.Unit> block);
+    method @BytecodeOnly public static void performIndirectPointerInput-O3Q2Zgs(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, int, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.IndirectPointerInjectionScope!,kotlin.Unit!>);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performKeyInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performMouseInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MouseInjectionScope,kotlin.Unit> block);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performMultiModalInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MultiModalInjectionScope,kotlin.Unit> block);
@@ -397,6 +399,121 @@ package androidx.compose.ui.test {
     property public abstract boolean isIdleNow;
   }
 
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface IndirectPointerInjectionScope extends androidx.compose.ui.unit.Density {
+    method public void advanceEventTime(optional long durationMillis);
+    method @BytecodeOnly public static void advanceEventTime$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, int, Object!);
+    method public void cancel(optional long delayMillis);
+    method @BytecodeOnly public static void cancel$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, int, Object!);
+    method @KotlinOnly public androidx.compose.ui.geometry.Offset? currentPosition(optional int pointerId);
+    method @BytecodeOnly public androidx.compose.ui.geometry.Offset? currentPosition-x-9fifI(int);
+    method @BytecodeOnly public static androidx.compose.ui.geometry.Offset! currentPosition-x-9fifI$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, int, int, Object!);
+    method @KotlinOnly public default void down(androidx.compose.ui.geometry.Offset position);
+    method @KotlinOnly public void down(int pointerId, androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly public void down-Uv8p0NA(int, long);
+    method @BytecodeOnly public default void down-k-4lQ0M(long);
+    method @InaccessibleFromKotlin public default long getEventPeriodMillis();
+    method @BytecodeOnly public int getIndirectPointerEventPrimaryDirectionalMotionAxis-nZO2Niw();
+    method @BytecodeOnly public long getInputDeviceSize-YbymL2g();
+    method @InaccessibleFromKotlin public androidx.compose.ui.platform.ViewConfiguration getViewConfiguration();
+    method public void move(optional long delayMillis);
+    method @BytecodeOnly public static void move$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, int, Object!);
+    method @KotlinOnly public default void moveBy(androidx.compose.ui.geometry.Offset delta, optional long delayMillis);
+    method @KotlinOnly public default void moveBy(int pointerId, androidx.compose.ui.geometry.Offset delta, optional long delayMillis);
+    method @BytecodeOnly public default void moveBy-3MmeM6k(long, long);
+    method @BytecodeOnly public static void moveBy-3MmeM6k$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, long, int, Object!);
+    method @BytecodeOnly public default void moveBy-d-4ec7I(int, long, long);
+    method @BytecodeOnly public static void moveBy-d-4ec7I$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, int, long, long, int, Object!);
+    method @KotlinOnly public default void moveTo(androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @KotlinOnly public default void moveTo(int pointerId, androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @BytecodeOnly public default void moveTo-3MmeM6k(long, long);
+    method @BytecodeOnly public static void moveTo-3MmeM6k$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, long, int, Object!);
+    method @BytecodeOnly public default void moveTo-d-4ec7I(int, long, long);
+    method @BytecodeOnly public static void moveTo-d-4ec7I$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, int, long, long, int, Object!);
+    method public default void moveWithHistory(java.util.List<java.lang.Long> relativeHistoricalTimes, java.util.List<androidx.compose.ui.geometry.Offset> historicalCoordinates, optional long delayMillis);
+    method @BytecodeOnly public static void moveWithHistory$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, java.util.List!, java.util.List!, long, int, Object!);
+    method public void moveWithHistoryMultiPointer(java.util.List<java.lang.Long> relativeHistoricalTimes, java.util.List<? extends java.util.List<androidx.compose.ui.geometry.Offset>> historicalCoordinates, optional long delayMillis);
+    method @BytecodeOnly public static void moveWithHistoryMultiPointer$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, java.util.List!, java.util.List!, long, int, Object!);
+    method public void up(optional int pointerId);
+    method @BytecodeOnly public static void up$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, int, int, Object!);
+    method @KotlinOnly public default void updatePointerBy(int pointerId, androidx.compose.ui.geometry.Offset delta);
+    method @BytecodeOnly public default void updatePointerBy-Uv8p0NA(int, long);
+    method @KotlinOnly public default void updatePointerTo(androidx.compose.ui.geometry.Offset position);
+    method @KotlinOnly public void updatePointerTo(int pointerId, androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly public void updatePointerTo-Uv8p0NA(int, long);
+    method @BytecodeOnly public default void updatePointerTo-k-4lQ0M(long);
+    property public default long eventPeriodMillis;
+    property public abstract androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis indirectPointerEventPrimaryDirectionalMotionAxis;
+    property public abstract androidx.compose.ui.unit.IntSize inputDeviceSize;
+    property public abstract androidx.compose.ui.platform.ViewConfiguration viewConfiguration;
+  }
+
+  public final class IndirectPointerInjectionScopeKt {
+    method @KotlinOnly public static void click(androidx.compose.ui.test.IndirectPointerInjectionScope, optional androidx.compose.ui.geometry.Offset position);
+    method @BytecodeOnly public static void click-Uv8p0NA(androidx.compose.ui.test.IndirectPointerInjectionScope, long);
+    method @BytecodeOnly public static void click-Uv8p0NA$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, int, Object!);
+    method @KotlinOnly public static void doubleClick(androidx.compose.ui.test.IndirectPointerInjectionScope, optional androidx.compose.ui.geometry.Offset position, optional long delayMillis);
+    method @BytecodeOnly public static void doubleClick-d-4ec7I(androidx.compose.ui.test.IndirectPointerInjectionScope, long, long);
+    method @BytecodeOnly public static void doubleClick-d-4ec7I$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, long, int, Object!);
+    method @InaccessibleFromKotlin public static float getInputDeviceBottom(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @BytecodeOnly public static long getInputDeviceBottomCenter(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @BytecodeOnly public static long getInputDeviceBottomLeft(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @BytecodeOnly public static long getInputDeviceBottomRight(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @BytecodeOnly public static long getInputDeviceCenter(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @BytecodeOnly public static long getInputDeviceCenterLeft(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @BytecodeOnly public static long getInputDeviceCenterRight(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @InaccessibleFromKotlin public static float getInputDeviceCenterX(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @InaccessibleFromKotlin public static float getInputDeviceCenterY(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @InaccessibleFromKotlin public static int getInputDeviceHeight(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @InaccessibleFromKotlin public static float getInputDeviceLeft(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @InaccessibleFromKotlin public static float getInputDeviceRight(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @InaccessibleFromKotlin public static float getInputDeviceTop(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @BytecodeOnly public static long getInputDeviceTopCenter(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @BytecodeOnly public static long getInputDeviceTopLeft(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @BytecodeOnly public static long getInputDeviceTopRight(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @InaccessibleFromKotlin public static int getInputDeviceWidth(androidx.compose.ui.test.IndirectPointerInjectionScope);
+    method @KotlinOnly public static void longClick(androidx.compose.ui.test.IndirectPointerInjectionScope, optional androidx.compose.ui.geometry.Offset position, optional long durationMillis);
+    method @BytecodeOnly public static void longClick-d-4ec7I(androidx.compose.ui.test.IndirectPointerInjectionScope, long, long);
+    method @BytecodeOnly public static void longClick-d-4ec7I$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, long, int, Object!);
+    method public static void multiTouchSwipe(androidx.compose.ui.test.IndirectPointerInjectionScope, java.util.List<? extends kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset>> curves, optional long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
+    method @BytecodeOnly public static void multiTouchSwipe$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, java.util.List!, long, java.util.List!, int, Object!);
+    method @KotlinOnly public static void pinch(androidx.compose.ui.test.IndirectPointerInjectionScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, optional long durationMillis);
+    method @BytecodeOnly public static void pinch-_QUENCA(androidx.compose.ui.test.IndirectPointerInjectionScope, long, long, long, long, long);
+    method @BytecodeOnly public static void pinch-_QUENCA$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, long, long, long, long, int, Object!);
+    method @KotlinOnly public static void swipe(androidx.compose.ui.test.IndirectPointerInjectionScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, optional long durationMillis);
+    method public static void swipe(androidx.compose.ui.test.IndirectPointerInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, optional long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
+    method @BytecodeOnly public static void swipe$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, kotlin.jvm.functions.Function1!, long, java.util.List!, int, Object!);
+    method @BytecodeOnly public static void swipe-DUneCvk(androidx.compose.ui.test.IndirectPointerInjectionScope, long, long, long);
+    method @BytecodeOnly public static void swipe-DUneCvk$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, long, long, int, Object!);
+    method public static void swipeDown(androidx.compose.ui.test.IndirectPointerInjectionScope, float startY, float endY, optional long durationMillis);
+    method @BytecodeOnly public static void swipeDown$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, float, float, long, int, Object!);
+    method public static void swipeLeft(androidx.compose.ui.test.IndirectPointerInjectionScope, float startX, float endX, optional long durationMillis);
+    method @BytecodeOnly public static void swipeLeft$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, float, float, long, int, Object!);
+    method public static void swipeRight(androidx.compose.ui.test.IndirectPointerInjectionScope, float startX, float endX, optional long durationMillis);
+    method @BytecodeOnly public static void swipeRight$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, float, float, long, int, Object!);
+    method public static void swipeUp(androidx.compose.ui.test.IndirectPointerInjectionScope, float startY, float endY, optional long durationMillis);
+    method @BytecodeOnly public static void swipeUp$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, float, float, long, int, Object!);
+    method @KotlinOnly public static void swipeWithVelocity(androidx.compose.ui.test.IndirectPointerInjectionScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, @FloatRange(from=0.0) float endVelocity, optional long durationMillis);
+    method @BytecodeOnly public static void swipeWithVelocity-5iVPX68(androidx.compose.ui.test.IndirectPointerInjectionScope, long, long, @FloatRange(from=0.0) float, long);
+    method @BytecodeOnly public static void swipeWithVelocity-5iVPX68$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, long, long, float, long, int, Object!);
+    property public static float androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceBottom;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceBottomCenter;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceBottomLeft;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceBottomRight;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceCenter;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceCenterLeft;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceCenterRight;
+    property public static float androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceCenterX;
+    property public static float androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceCenterY;
+    property public static int androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceHeight;
+    property public static float androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceLeft;
+    property public static float androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceRight;
+    property public static float androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceTop;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceTopCenter;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceTopLeft;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceTopRight;
+    property public static int androidx.compose.ui.test.IndirectPointerInjectionScope.inputDeviceWidth;
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface InjectionScope extends androidx.compose.ui.unit.Density {
     method public void advanceEventTime(optional long durationMillis);
     method @BytecodeOnly public static void advanceEventTime$default(androidx.compose.ui.test.InjectionScope!, long, int, Object!);
@@ -591,6 +708,8 @@ package androidx.compose.ui.test {
   }
 
   public sealed nonexhaustive interface MultiModalInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method @KotlinOnly public void indirectPointer(androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis indirectPointerEventPrimaryDirectionalMotionAxis, androidx.compose.ui.unit.IntSize inputDeviceSize, kotlin.jvm.functions.Function1<androidx.compose.ui.test.IndirectPointerInjectionScope,kotlin.Unit> block);
+    method @BytecodeOnly public void indirectPointer-RaavUB8(int, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.IndirectPointerInjectionScope!,kotlin.Unit!>);
     method public void key(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
     method public void mouse(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MouseInjectionScope,kotlin.Unit> block);
     method public void rotary(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.RotaryInjectionScope,kotlin.Unit> block);

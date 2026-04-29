@@ -20,6 +20,7 @@ import android.view.View
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -28,6 +29,7 @@ import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.TestContext
 import androidx.compose.ui.test.TestOwner
 import androidx.compose.ui.test.util.InputEventRecorder
+import androidx.compose.ui.test.util.assertNoIndirectPointerGestureInProgress
 import androidx.compose.ui.test.util.assertNoTouchGestureInProgress
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -78,6 +80,7 @@ open class InputDispatcherTest {
     }
 }
 
+// Touch Gestures
 internal fun AndroidInputDispatcher.generateTouchDownAndCheck(pointerId: Int, position: Offset) {
     enqueueTouchDown(pointerId, position)
     assertThat(getCurrentTouchPosition(pointerId)).isEqualTo(position)
@@ -96,10 +99,54 @@ internal fun AndroidInputDispatcher.generateTouchUpAndCheck(pointerId: Int, dela
     assertThat(getCurrentTouchPosition(pointerId)).isNull()
 }
 
-internal fun AndroidInputDispatcher.generateTouchCancelAndCheck(delay: Long? = null) {
+internal fun AndroidInputDispatcher.generatePointerCancelAndCheck(delay: Long? = null) {
     if (delay != null) {
         advanceEventTime(delay)
     }
     enqueueTouchCancel()
     assertNoTouchGestureInProgress()
+}
+
+// Indirect Pointer Gesture
+internal fun AndroidInputDispatcher.generateIndirectPointerDownAndCheck(
+    pointerId: Int,
+    position: Offset,
+    indirectPointerEventPrimaryDirectionalMotionAxis:
+        IndirectPointerEventPrimaryDirectionalMotionAxis =
+        IndirectPointerEventPrimaryDirectionalMotionAxis.None,
+) {
+    enqueueIndirectPointerDown(
+        pointerId,
+        position,
+        indirectPointerEventPrimaryDirectionalMotionAxis =
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+    )
+    assertThat(getCurrentIndirectPointerPosition(pointerId)).isEqualTo(position)
+}
+
+internal fun AndroidInputDispatcher.updateIndirectPointerAndCheck(
+    pointerId: Int,
+    position: Offset,
+) {
+    updateIndirectPointer(pointerId, position)
+    assertThat(getCurrentIndirectPointerPosition(pointerId)).isEqualTo(position)
+}
+
+internal fun AndroidInputDispatcher.generateIndirectPointerUpAndCheck(
+    pointerId: Int,
+    delay: Long? = null,
+) {
+    if (delay != null) {
+        advanceEventTime(delay)
+    }
+    enqueueIndirectPointerUp(pointerId)
+    assertThat(getCurrentIndirectPointerPosition(pointerId)).isNull()
+}
+
+internal fun AndroidInputDispatcher.generateIndirectPointerCancelAndCheck(delay: Long? = null) {
+    if (delay != null) {
+        advanceEventTime(delay)
+    }
+    enqueueIndirectPointerCancel()
+    assertNoIndirectPointerGestureInProgress()
 }

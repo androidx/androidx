@@ -16,11 +16,6 @@
 
 package androidx.compose.ui.input.indirect
 
-import android.os.SystemClock
-import android.view.MotionEvent.ACTION_CANCEL
-import android.view.MotionEvent.ACTION_DOWN
-import android.view.MotionEvent.ACTION_MOVE
-import android.view.MotionEvent.ACTION_UP
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,18 +31,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.IndirectPointerInjectionScope
+import androidx.compose.ui.test.inputDeviceBottom
+import androidx.compose.ui.test.inputDeviceLeft
+import androidx.compose.ui.test.inputDeviceRight
+import androidx.compose.ui.test.inputDeviceTop
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performIndirectPointerInput
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
-import androidx.test.core.view.MotionEventBuilder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
@@ -57,26 +62,7 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 
 /*
- * Verifies SOURCE_TOUCH_NAVIGATION [MotionEvent]s passing through the system properly trigger
- * Indirect Events (and their navigation movements) in Compose.
- *
- * Important Note: While we set every other value in the MotionEvent for these tests, we manually
- * set the IndirectPointerEventPrimaryAxis in Compose vs. deriving it from the [MotionEvent],
- * because setting the [MotionEvent] fields required for deriving the IndirectPointerEventPrimaryAxis
- * (InputDevice and InputDevice.MotionRange) do not have setters, and we can't mock() or spy() on
- * MotionEvent to make the tests work (see details below):
- *   - spy() - While spy "wraps" the original MotionEvent, it actually makes a copy of the
- * mNativePtr (so both the original MotionEvent and the spy have a non-zero, matching number).
- * During garbage collection, both the spy object and the original MotionEvent have their
- * `finalize()` methods triggered and you aren't allowed to override that method in spy. If the
- * mNativePtr is a non-zero value, the MotionEvent pointer associated with that id is deleted in
- * android_view_MotionEvent_nativeDispose(). Since they both have a non-zero value (the same value)
- * and both are triggered separately, one will delete the backing MotionEvent and the other will
- * cause a crash since it no longer exists.
- *   - mock() - While you can mock most everything you would need for [MotionEvent], you can not
- * mock native fields/functions that are required for the [android.view.GestureDetector] to work (it
- * does a native copy and crashes if it isn't a real [MotionEvent]). ([AndroidComposeView] uses
- * [android.view.GestureDetector] to detect indirect pointer event gestures.)
+ * Verifies [IndirectPointerEvent] events and gestures trigger the proper navigation behavior.
  */
 @RunWith(AndroidJUnit4::class)
 class IndirectPointerEventNavigationSystemTests {
@@ -117,15 +103,42 @@ class IndirectPointerEventNavigationSystemTests {
     private val flingTriggeringDistanceBetweenEvents = 50
     private val nonFlingTriggeringDistanceBetweenEvents = 5
 
+    // Horizontal external indirect pointer input device
+    private val inputDeviceSize = IntSize(3082, 616)
+
     @Before
     fun setup() {
         indirectPointerCancelEventsThatShouldNotBeTriggered = false
         receivedEvent = null
     }
 
+    @Test(expected = AssertionError::class)
+    fun swipeViaNavigation_noFocus_throwsAssertionError() {
+        rule.setContent {
+            rootView = LocalView.current as AndroidComposeView
+            focusManager = LocalFocusManager.current
+
+            Column(modifier = Modifier.fillMaxSize()) {
+                Box(Modifier.testTag(testTagBox1).size(contentBoxSize).focusable())
+                Box(Modifier.testTag(testTagBox2).size(contentBoxSize).focusable())
+                Box(Modifier.testTag(testTagBox3).size(contentBoxSize).focusable())
+            }
+        }
+
+        // Clear focus to ensure no focus exists
+        rule.runOnIdle { focusManager.clearFocus(true) }
+
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            swipeRight()
+        }
+    }
+
     // ----- Primary Directional Motion Axis X tests -----
     @Test
-    fun swipeViaNavigationMotionEvent_swipeRightWithPrimaryAxisX_movesFocusableBoxToNext() {
+    fun swipeViaNavigation_swipeRightWithPrimaryAxisX_movesFocusableBoxToNext() {
         var indirectPointerCancelForBox2 = false
 
         rule.setContent {
@@ -202,141 +215,27 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        var previousTime = eventTime
-        var indirectX = 100f
-        var previousIndirectX = indirectX
-        val indirectY = 100f
-        val previousIndirectY = indirectY
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            swipeRight()
         }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            val firstChange = checkNotNull(receivedEvent?.changes?.first())
-            assertThat(firstChange.position.x).isEqualTo(indirectX)
-            assertThat(firstChange.position.y).isEqualTo(indirectY)
-            assertThat(firstChange.isConsumed).isEqualTo(false)
-            assertThat(firstChange.pressed).isEqualTo(true)
-            // For a first event in a stream, previous is going to equal current (since there is
-            // no previous).
-            assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
-            assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
-            assertThat(firstChange.previousPressed).isEqualTo(false)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            val firstChange = checkNotNull(receivedEvent?.changes?.first())
-            assertThat(firstChange.position.x).isEqualTo(indirectX)
-            assertThat(firstChange.position.y).isEqualTo(indirectY)
-            assertThat(firstChange.isConsumed).isEqualTo(false)
-            assertThat(firstChange.pressed).isEqualTo(true)
-            assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
-            assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
-            assertThat(firstChange.previousPressed).isEqualTo(true)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        previousTime = eventTime
-        previousIndirectX = indirectX
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            val firstChange = checkNotNull(receivedEvent?.changes?.first())
-            assertThat(firstChange.position.x).isEqualTo(indirectX)
-            assertThat(firstChange.position.y).isEqualTo(indirectY)
-            assertThat(firstChange.isConsumed).isEqualTo(false)
-            assertThat(firstChange.pressed).isEqualTo(true)
-            assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
-            assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
-            assertThat(firstChange.previousPressed).isEqualTo(true)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        previousTime = eventTime
-        previousIndirectX = indirectX
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             val firstChange = checkNotNull(receivedEvent?.changes?.first())
-            assertThat(firstChange.position.x).isEqualTo(indirectX)
-            assertThat(firstChange.position.y).isEqualTo(indirectY)
             assertThat(firstChange.isConsumed).isEqualTo(false)
             assertThat(firstChange.pressed).isEqualTo(false)
-            assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
-            assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
             assertThat(firstChange.previousPressed).isEqualTo(true)
-            // The MotionEvent combo above creates a swipe which triggers a focus move (which
-            // triggers focus change and some indirect nodes losing focus and, thus, getting an
-            // indirect cancel event).
+            // The swipe triggers a focus move (which triggers focus change and some indirect nodes
+            // losing focus and, thus, getting an indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isTrue()
         }
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeLeftWithPrimaryAxisX_movesFocusableBoxToPrevious() {
+    fun swipeViaNavigation_swipeLeftWithPrimaryAxisX_movesFocusableBoxToPrevious() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -412,85 +311,16 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        var indirectX = 100f + (3 * flingTriggeringDistanceBetweenEvents)
-        val indirectY = 100f
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
-        }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            swipeLeft()
         }
 
-        eventTime += timeBetweenEvents
-        indirectX -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX -= flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
-            // The MotionEvent combo above creates a swipe which triggers a focus move (which
+            // Swipe triggers a focus move (which
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -499,7 +329,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeRightAndSmallDownWithPrimaryAxisX_movesFocusableBoxToNext() {
+    fun swipeViaNavigation_swipeRightAndSmallDownWithPrimaryAxisX_movesFocusableBoxToNext() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -575,88 +405,72 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f
         var indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
+
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
         indirectY += nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
 
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
         indirectY += nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
 
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
         indirectY += nonFlingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
 
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
-            // The MotionEvent combo above creates a swipe which triggers a focus move (which
+            // Swipe triggers a focus move (which
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -665,7 +479,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeLeftAndSmallUpWithPrimaryAxisX_movesFocusableBoxToPrevious() {
+    fun swipeViaNavigation_swipeLeftAndSmallUpWithPrimaryAxisX_movesFocusableBoxToPrevious() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -741,88 +555,70 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f + (3 * flingTriggeringDistanceBetweenEvents)
         var indirectY = 100f + (3 * flingTriggeringDistanceBetweenEvents)
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
+
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= flingTriggeringDistanceBetweenEvents
         indirectY -= nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= flingTriggeringDistanceBetweenEvents
         indirectY -= nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= flingTriggeringDistanceBetweenEvents
         indirectY -= nonFlingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
 
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
-            // The MotionEvent combo above creates a swipe which triggers a focus move (which
+            // Swipe triggers a focus move (which
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -833,7 +629,7 @@ class IndirectPointerEventNavigationSystemTests {
     // A movement along the primary axis that is over the threshold for a swipe should not trigger
     // a navigation if the non-primary axis motion is larger (the larger motion always wins).
     @Test
-    fun swipeViaNavigationMotionEvent_swipeRightAndDoubleSwipeDownWithPrimaryAxisX_noBehavior() {
+    fun swipeViaNavigation_swipeRightAndDoubleSwipeDownWithPrimaryAxisX_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -910,82 +706,62 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f
         var indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
         indirectY += (flingTriggeringDistanceBetweenEvents * 2)
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
         indirectY += (flingTriggeringDistanceBetweenEvents * 2)
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
         indirectY += (flingTriggeringDistanceBetweenEvents * 2)
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -995,7 +771,7 @@ class IndirectPointerEventNavigationSystemTests {
     // A movement along the primary axis that is over the threshold for a swipe should not trigger
     // a navigation if the non-primary axis motion is larger (the larger motion always wins).
     @Test
-    fun swipeViaNavigationMotionEvent_swipeLeftAndDoubleSwipeUpWithPrimaryAxisX_noBehavior() {
+    fun swipeViaNavigation_swipeLeftAndDoubleSwipeUpWithPrimaryAxisX_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -1072,82 +848,62 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f + (6 * flingTriggeringDistanceBetweenEvents)
         var indirectY = 100f + (6 * flingTriggeringDistanceBetweenEvents)
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= flingTriggeringDistanceBetweenEvents
         indirectY -= (2 * flingTriggeringDistanceBetweenEvents)
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= flingTriggeringDistanceBetweenEvents
         indirectY -= (2 * flingTriggeringDistanceBetweenEvents)
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= flingTriggeringDistanceBetweenEvents
         indirectY -= (2 * flingTriggeringDistanceBetweenEvents)
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -1156,7 +912,7 @@ class IndirectPointerEventNavigationSystemTests {
 
     // Checks a minimal move does NOT qualify as a swipe/fling and does not trigger a behavior.
     @Test
-    fun nonSwipeViaNavigationMotionEvent_minimalMoveRightWithPrimaryAxisX_noBehavior() {
+    fun nonSwipeViaNavigation_minimalMoveRightWithPrimaryAxisX_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -1233,79 +989,60 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f
         val indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += nonFlingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
 
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -1314,7 +1051,7 @@ class IndirectPointerEventNavigationSystemTests {
 
     // Checks a minimal move does NOT qualify as a swipe/fling and does not trigger a behavior.
     @Test
-    fun nonSwipeViaNavigationMotionEvent_minimalMoveLeftWithPrimaryAxisX_noBehavior() {
+    fun nonSwipeViaNavigation_minimalMoveLeftWithPrimaryAxisX_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -1391,79 +1128,60 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f + (3 * nonFlingTriggeringDistanceBetweenEvents)
         val indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= nonFlingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
 
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -1471,7 +1189,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeDownWithPrimaryAxisX_noBehavior() {
+    fun swipeViaNavigation_swipeDownWithPrimaryAxisX_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -1548,79 +1266,13 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        val indirectX = 100f
-        var indirectY = 100f
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
-        }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            swipeDown()
         }
 
-        eventTime += timeBetweenEvents
-        indirectY += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY += flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -1628,7 +1280,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeUpWithPrimaryAxisX_noBehavior() {
+    fun swipeViaNavigation_swipeUpWithPrimaryAxisX_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -1705,79 +1357,12 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        val indirectX = 100f
-        var indirectY = 100f + (3 * flingTriggeringDistanceBetweenEvents)
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            swipeUp()
         }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY -= flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -1786,7 +1371,7 @@ class IndirectPointerEventNavigationSystemTests {
 
     // ----- Primary Directional Motion Axis Y tests -----
     @Test
-    fun swipeViaNavigationMotionEvent_swipeDownWithPrimaryAxisY_movesFocusableBoxToNext() {
+    fun swipeViaNavigation_swipeDownWithPrimaryAxisY_movesFocusableBoxToNext() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -1862,132 +1447,20 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        var previousTime = eventTime
-        val indirectX = 100f
-        val previousIndirectX = indirectX
-        var indirectY = 100f
-        var previousIndirectY = indirectY
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
-        }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            val firstChange = checkNotNull(receivedEvent?.changes?.first())
-            assertThat(firstChange.position.x).isEqualTo(indirectX)
-            assertThat(firstChange.position.y).isEqualTo(indirectY)
-            assertThat(firstChange.isConsumed).isEqualTo(false)
-            assertThat(firstChange.pressed).isEqualTo(true)
-            // For a first event in a stream, previous is going to equal current (since there is
-            // no previous).
-            assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
-            assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
-            assertThat(firstChange.previousPressed).isEqualTo(false)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y,
+            inputDeviceSize,
+        ) {
+            swipeDown()
         }
 
-        eventTime += timeBetweenEvents
-        indirectY += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            val firstChange = checkNotNull(receivedEvent?.changes?.first())
-            assertThat(firstChange.position.x).isEqualTo(indirectX)
-            assertThat(firstChange.position.y).isEqualTo(indirectY)
-            assertThat(firstChange.isConsumed).isEqualTo(false)
-            assertThat(firstChange.pressed).isEqualTo(true)
-            assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
-            assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
-            assertThat(firstChange.previousPressed).isEqualTo(true)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        previousTime = eventTime
-        previousIndirectY = indirectY
-
-        eventTime += timeBetweenEvents
-        indirectY += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            val firstChange = checkNotNull(receivedEvent?.changes?.first())
-            assertThat(firstChange.position.x).isEqualTo(indirectX)
-            assertThat(firstChange.position.y).isEqualTo(indirectY)
-            assertThat(firstChange.isConsumed).isEqualTo(false)
-            assertThat(firstChange.pressed).isEqualTo(true)
-            assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
-            assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
-            assertThat(firstChange.previousPressed).isEqualTo(true)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        previousTime = eventTime
-        previousIndirectY = indirectY
-
-        eventTime += timeBetweenEvents
-        indirectY += flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             val firstChange = checkNotNull(receivedEvent?.changes?.first())
-            assertThat(firstChange.position.x).isEqualTo(indirectX)
-            assertThat(firstChange.position.y).isEqualTo(indirectY)
             assertThat(firstChange.isConsumed).isEqualTo(false)
             assertThat(firstChange.pressed).isEqualTo(false)
-            assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
-            assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
             assertThat(firstChange.previousPressed).isEqualTo(true)
-            // The MotionEvent combo above creates a swipe which triggers a focus move (which
+            // Swipe triggers a focus move (which
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -1996,7 +1469,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeUpWithPrimaryAxisY_movesFocusableBoxToPrevious() {
+    fun swipeViaNavigation_swipeUpWithPrimaryAxisY_movesFocusableBoxToPrevious() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -2072,85 +1545,15 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        val indirectX = 100f
-        var indirectY = 100f + (3 * flingTriggeringDistanceBetweenEvents)
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y,
+            inputDeviceSize,
+        ) {
+            swipeUp()
         }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-            assertThat(indirectPointerCancelForBox2).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY -= flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
-            // The MotionEvent combo above creates a swipe which triggers a focus move (which
+            // Swipe triggers a focus move (which
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -2159,7 +1562,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeDownAndSmallRightWithPrimaryAxisY_movesFocusableBoxToNext() {
+    fun swipeViaNavigation_swipeDownAndSmallRightWithPrimaryAxisY_movesFocusableBoxToNext() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -2235,24 +1638,17 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f
         var indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
@@ -2260,64 +1656,53 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += nonFlingTriggeringDistanceBetweenEvents
         indirectY += flingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
 
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += nonFlingTriggeringDistanceBetweenEvents
         indirectY += flingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
 
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += nonFlingTriggeringDistanceBetweenEvents
         indirectY += flingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
 
-            // The MotionEvent combo above creates a swipe which triggers a focus move (which
+            // Swipe triggers a focus move (which
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -2326,7 +1711,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeUpAndSmallLeftWithPrimaryAxisY_movesFocusableBoxToPrevious() {
+    fun swipeViaNavigation_swipeUpAndSmallLeftWithPrimaryAxisY_movesFocusableBoxToPrevious() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -2402,24 +1787,17 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f + (3 * flingTriggeringDistanceBetweenEvents)
         var indirectY = 100f + (3 * flingTriggeringDistanceBetweenEvents)
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
@@ -2427,63 +1805,50 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= nonFlingTriggeringDistanceBetweenEvents
         indirectY -= flingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= nonFlingTriggeringDistanceBetweenEvents
         indirectY -= flingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForBox2).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= nonFlingTriggeringDistanceBetweenEvents
         indirectY -= flingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
-            // The MotionEvent combo above creates a swipe which triggers a focus move (which
+            // Swipe triggers a focus move (which
             // triggers focus change and some indirect nodes losing focus and, thus, getting an
             // indirect cancel event).
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -2494,7 +1859,7 @@ class IndirectPointerEventNavigationSystemTests {
     // A movement along the primary axis that is over the threshold for a swipe should not trigger
     // a navigation if the non-primary axis motion is larger (the larger motion always wins).
     @Test
-    fun swipeViaNavigationMotionEvent_swipeDownAndDoubleSwipeRightWithPrimaryAxisY_noBehavior() {
+    fun swipeViaNavigation_swipeDownAndDoubleSwipeRightWithPrimaryAxisY_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -2571,82 +1936,62 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f
         var indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += (flingTriggeringDistanceBetweenEvents * 2)
         indirectY += flingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += (flingTriggeringDistanceBetweenEvents * 2)
         indirectY += flingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += (flingTriggeringDistanceBetweenEvents * 2)
         indirectY += flingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -2656,7 +2001,7 @@ class IndirectPointerEventNavigationSystemTests {
     // A movement along the primary axis that is over the threshold for a swipe should not trigger
     // a navigation if the non-primary axis motion is larger (the larger motion always wins).
     @Test
-    fun swipeViaNavigationMotionEvent_swipeUpAndDoubleSwipeLeftWithPrimaryAxisY_noBehavior() {
+    fun swipeViaNavigation_swipeUpAndDoubleSwipeLeftWithPrimaryAxisY_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -2733,82 +2078,62 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f + (6 * flingTriggeringDistanceBetweenEvents)
         var indirectY = 100f + (6 * flingTriggeringDistanceBetweenEvents)
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= (2 * flingTriggeringDistanceBetweenEvents)
         indirectY -= flingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= (2 * flingTriggeringDistanceBetweenEvents)
         indirectY -= flingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= (2 * flingTriggeringDistanceBetweenEvents)
         indirectY -= flingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -2817,7 +2142,7 @@ class IndirectPointerEventNavigationSystemTests {
 
     // Checks a minimal move does NOT qualify as a swipe/fling and does not trigger a behavior.
     @Test
-    fun nonSwipeViaNavigationMotionEvent_minimalMoveDownWithPrimaryAxisY_noBehavior() {
+    fun nonSwipeViaNavigation_minimalMoveDownWithPrimaryAxisY_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -2894,79 +2219,59 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         val indirectX = 100f
         var indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectY += nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectY += nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectY += nonFlingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -2975,7 +2280,7 @@ class IndirectPointerEventNavigationSystemTests {
 
     // Checks a minimal move does NOT qualify as a swipe/fling and does not trigger a behavior.
     @Test
-    fun nonSwipeViaNavigationMotionEvent_minimalMoveUpWithPrimaryAxisY_noBehavior() {
+    fun nonSwipeViaNavigation_minimalMoveUpWithPrimaryAxisY_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -3052,79 +2357,59 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         val indirectX = 100f
         var indirectY = 100f + (3 * nonFlingTriggeringDistanceBetweenEvents)
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectY -= nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectY -= nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectY -= nonFlingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -3132,7 +2417,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeRightWithPrimaryAxisY_noBehavior() {
+    fun swipeViaNavigation_swipeRightWithPrimaryAxisY_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -3209,79 +2494,13 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        var indirectX = 100f
-        val indirectY = 100f
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
-        }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y,
+            inputDeviceSize,
+        ) {
+            swipeRight()
         }
 
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -3289,7 +2508,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeLeftWithPrimaryAxisY_noBehavior() {
+    fun swipeViaNavigation_swipeLeftWithPrimaryAxisY_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -3366,79 +2585,12 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        var indirectX = 100f + (3 * flingTriggeringDistanceBetweenEvents)
-        val indirectY = 100f
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.Y,
+            inputDeviceSize,
+        ) {
+            swipeLeft()
         }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX -= flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -3449,7 +2601,7 @@ class IndirectPointerEventNavigationSystemTests {
     // There is no behavior for Primary Directional Motion Axis X AND Y because it is translated
     // by the system into key up, down, left, and right.
     @Test
-    fun swipeViaNavigationMotionEvent_swipeDownAndRightWithPrimaryAxisNone_noBehavior() {
+    fun swipeViaNavigation_swipeDownAndRightWithPrimaryAxisNone_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -3526,27 +2678,19 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        var previousTime = eventTime
         var indirectX = 100f
         var previousIndirectX = indirectX
         var indirectY = 100f
         var previousIndirectY = indirectY
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.None
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.None
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
@@ -3559,25 +2703,19 @@ class IndirectPointerEventNavigationSystemTests {
             // no previous).
             assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
             assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
             assertThat(firstChange.previousPressed).isEqualTo(false)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
         indirectY += flingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             val firstChange = checkNotNull(receivedEvent?.changes?.first())
@@ -3587,29 +2725,22 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(firstChange.pressed).isEqualTo(true)
             assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
             assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
             assertThat(firstChange.previousPressed).isEqualTo(true)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        previousTime = eventTime
         previousIndirectX = indirectX
         previousIndirectY = indirectY
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
         indirectY += flingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             val firstChange = checkNotNull(receivedEvent?.changes?.first())
@@ -3619,29 +2750,24 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(firstChange.pressed).isEqualTo(true)
             assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
             assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
             assertThat(firstChange.previousPressed).isEqualTo(true)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        previousTime = eventTime
         previousIndirectX = indirectX
         previousIndirectY = indirectY
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
         indirectY += flingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             val firstChange = checkNotNull(receivedEvent?.changes?.first())
@@ -3651,14 +2777,13 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(firstChange.pressed).isEqualTo(false)
             assertThat(firstChange.previousPosition.x).isEqualTo(previousIndirectX)
             assertThat(firstChange.previousPosition.y).isEqualTo(previousIndirectY)
-            assertThat(firstChange.previousUptimeMillis).isEqualTo(previousTime)
             assertThat(firstChange.previousPressed).isEqualTo(true)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeUpAndLeftWithPrimaryAxisNone_noBehavior() {
+    fun swipeViaNavigation_swipeUpAndLeftWithPrimaryAxisNone_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -3735,82 +2860,62 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f + (3 * flingTriggeringDistanceBetweenEvents)
         var indirectY = 100f + (3 * flingTriggeringDistanceBetweenEvents)
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.None
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.None
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= flingTriggeringDistanceBetweenEvents
         indirectY -= flingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= flingTriggeringDistanceBetweenEvents
         indirectY -= flingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= flingTriggeringDistanceBetweenEvents
         indirectY -= flingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -3819,7 +2924,7 @@ class IndirectPointerEventNavigationSystemTests {
 
     // Checks a minimal move does NOT qualify as a swipe/fling and does not trigger a behavior.
     @Test
-    fun nonSwipeViaNavigationMotionEvent_minimalMoveDownAndRightWithPrimaryAxisNone_noBehavior() {
+    fun nonSwipeViaNavigation_minimalMoveDownAndRightWithPrimaryAxisNone_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -3896,82 +3001,62 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f
         var indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.None
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.None
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += nonFlingTriggeringDistanceBetweenEvents
         indirectY += nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += nonFlingTriggeringDistanceBetweenEvents
         indirectY += nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += nonFlingTriggeringDistanceBetweenEvents
         indirectY += nonFlingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -3980,7 +3065,7 @@ class IndirectPointerEventNavigationSystemTests {
 
     // Checks a minimal move does NOT qualify as a swipe/fling and does not trigger a behavior.
     @Test
-    fun nonSwipeViaNavigationMotionEvent_minimalMoveUpAndLeftWithPrimaryAxisNone_noBehavior() {
+    fun nonSwipeViaNavigation_minimalMoveUpAndLeftWithPrimaryAxisNone_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -4057,82 +3142,62 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f + (3 * nonFlingTriggeringDistanceBetweenEvents)
         var indirectY = 100f + (3 * nonFlingTriggeringDistanceBetweenEvents)
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.None
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.None
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= nonFlingTriggeringDistanceBetweenEvents
         indirectY -= nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= nonFlingTriggeringDistanceBetweenEvents
         indirectY -= nonFlingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX -= nonFlingTriggeringDistanceBetweenEvents
         indirectY -= nonFlingTriggeringDistanceBetweenEvents
 
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            updatePointerTo(Offset(indirectX, indirectY))
+            advanceEventTime(timeBetweenEvents)
+            up()
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -4140,7 +3205,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeRightWithPrimaryAxisNone_noBehavior() {
+    fun swipeViaNavigation_swipeRightWithPrimaryAxisNone_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -4217,79 +3282,12 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        var indirectX = 100f
-        val indirectY = 100f
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.None
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.None,
+            inputDeviceSize,
+        ) {
+            swipeRight()
         }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -4297,7 +3295,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeLeftWithPrimaryAxisNone_noBehavior() {
+    fun swipeViaNavigation_swipeLeftWithPrimaryAxisNone_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -4374,79 +3372,12 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        var indirectX = 100f + (3 * flingTriggeringDistanceBetweenEvents)
-        val indirectY = 100f
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.None
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.None,
+            inputDeviceSize,
+        ) {
+            swipeLeft()
         }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX -= flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -4454,7 +3385,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeDownWithPrimaryAxisNone_noBehavior() {
+    fun swipeViaNavigation_swipeDownWithPrimaryAxisNone_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -4531,79 +3462,12 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        val indirectX = 100f
-        var indirectY = 100f
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.None
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.None,
+            inputDeviceSize,
+        ) {
+            swipeDown()
         }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY += flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -4611,7 +3475,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_swipeUpWithPrimaryAxisNone_noBehavior() {
+    fun swipeViaNavigation_swipeUpWithPrimaryAxisNone_noBehavior() {
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
             focusManager = LocalFocusManager.current
@@ -4688,79 +3552,12 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        val indirectX = 100f
-        var indirectY = 100f + (3 * flingTriggeringDistanceBetweenEvents)
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.None
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.None,
+            inputDeviceSize,
+        ) {
+            swipeUp()
         }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY -= flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectY -= flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
@@ -4768,7 +3565,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun swipeViaNavigationMotionEvent_cancelEvent_callsOnCancel() {
+    fun swipeViaNavigation_cancelEvent_callsOnCancel() {
         var indirectPointerCancelForTopContainer = false
         var indirectPointerCancelForBox2 = false
         rule.setContent {
@@ -4843,24 +3640,17 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f
         val indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
@@ -4869,19 +3659,14 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
 
-        val moveEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelForTopContainer).isFalse()
@@ -4889,18 +3674,12 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
-
-        val cancelEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_CANCEL)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(cancelEvent) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            cancel(timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(indirectPointerCancelForTopContainer).isTrue()
             assertThat(indirectPointerCancelForBox2).isTrue()
@@ -4910,7 +3689,7 @@ class IndirectPointerEventNavigationSystemTests {
 
     // ----- Tests for indirect pointer cancellations via Focus movement -----
     @Test
-    fun noNavigationMotionEvent_clearsFocus_triggersIndirectCancel() {
+    fun noNavigation_clearsFocus_triggersIndirectCancel() {
         var indirectPointerCancelForTopContainer = false
         var indirectPointerCancelForBox2 = false
         rule.setContent {
@@ -4999,7 +3778,7 @@ class IndirectPointerEventNavigationSystemTests {
         rule.runOnIdle {
             assertThat(receivedEvent).isEqualTo(null)
 
-            // Because a ui element with indirect pointer was focused, indirect pointer callbacks
+            // Because an ui element with indirect pointer was focused, indirect pointer callbacks
             // WILL receive cancel events.
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
             assertThat(indirectPointerCancelForTopContainer).isTrue()
@@ -5008,7 +3787,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun noNavigationMotionEvent_clearsFocusWithDeeperUiTree_triggersIndirectCancel() {
+    fun noNavigation_clearsFocusWithDeeperUiTree_triggersIndirectCancel() {
         var indirectPointerCancelForTopContainer = false
         var onIndirectPointerCancelForParent2 = false
         var onIndirectPointerCancelForParent2Child1 = false
@@ -5194,7 +3973,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun noNavigationMotionEvent_moveFocusNextProgrammatically_triggersIndirectCancel() {
+    fun noNavigation_moveFocusNextProgrammatically_triggersIndirectCancel() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -5283,7 +4062,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun noNavigationMotionEvent_moveFocusToFocusableParentProgrammatically_triggersIndirectCancelInChild() {
+    fun noNavigation_moveFocusToFocusableParentProgrammatically_triggersIndirectCancelInChild() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -5373,7 +4152,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun noNavigationMotionEvent_moveFocusProgrammaticallyWrapAround_triggersIndirectCancel() {
+    fun noNavigation_moveFocusProgrammaticallyWrapAround_triggersIndirectCancel() {
         var indirectPointerCancelForTopContainer = false
         var indirectPointerCancelForBox1 = false
         rule.setContent {
@@ -5465,7 +4244,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun noNavigationMotionEvent_moveFocusProgrammaticallyWithDeeperUiTree_triggersIndirectCancel() {
+    fun noNavigation_moveFocusProgrammaticallyWithDeeperUiTree_triggersIndirectCancel() {
         var onIndirectPointerCancelForParent2 = false
         var onIndirectPointerCancelForParent2Child1 = false
         var onIndirectPointerCancelForParent2Child2 = false
@@ -5677,7 +4456,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun noNavigationMotionEvent_moveFocusProgrammaticallyWrapAroundWithDeeperUiTree_triggersIndirectCancel() {
+    fun noNavigation_moveFocusProgrammaticallyWrapAroundWithDeeperUiTree_triggersIndirectCancel() {
         var indirectPointerCancelForTopContainer = false
         var onIndirectPointerCancelForParent1 = false
         var onIndirectPointerCancelForParent1Child1 = false
@@ -5888,7 +4667,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun downViaNavigationMotionEvent_moveFocusProgrammatically_triggersIndirectCancel() {
+    fun downViaNavigation_moveFocusProgrammatically_triggersIndirectCancel() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -5964,23 +4743,14 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
         val indirectX = 100f
         val indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(downTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
@@ -6001,7 +4771,7 @@ class IndirectPointerEventNavigationSystemTests {
     }
 
     @Test
-    fun downAndMovesViaNavigationMotionEvent_moveFocusProgrammatically_triggersIndirectCancel() {
+    fun downAndMovesViaNavigation_moveFocusProgrammatically_triggersIndirectCancel() {
         var indirectPointerCancelForBox2 = false
         rule.setContent {
             rootView = LocalView.current as AndroidComposeView
@@ -6077,24 +4847,17 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
         var indirectX = 100f
         val indirectY = 100f
 
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
+        val indirectPointerEventPrimaryDirectionalMotionAxis =
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X
 
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            down(position = Offset(indirectX, indirectY))
         }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
@@ -6102,38 +4865,28 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
 
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelForBox2).isFalse()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
 
-        eventTime += timeBetweenEvents
         indirectX += flingTriggeringDistanceBetweenEvents
 
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
+        rule.performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+        ) {
+            moveTo(Offset(indirectX, indirectY), timeBetweenEvents)
+        }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
             assertThat(indirectPointerCancelForBox2).isFalse()
@@ -6155,7 +4908,7 @@ class IndirectPointerEventNavigationSystemTests {
     // Indirect cancel will trigger after an up (considered the end of the event stream). We test
     // that after a full swipe (down, move, move, up).
     @Test
-    fun swipeViaNavigationMotionEvent_moveFocusProgrammatically_triggersIndirectCancel() {
+    fun swipeViaNavigation_moveFocusProgrammatically_triggersIndirectCancel() {
         var indirectPointerCancelForBox2 = false
         var indirectPointerCancelForBox3 = false
         rule.setContent {
@@ -6230,85 +4983,13 @@ class IndirectPointerEventNavigationSystemTests {
         // Request initial focus for center box
         rule.onNodeWithTag(testTagBox2).requestFocus()
 
-        val downTime = SystemClock.uptimeMillis()
-        var eventTime = downTime
-        var indirectX = 100f
-        val indirectY = 100f
-
-        val downEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_DOWN)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle {
-            rootView.primaryDirectionalMotionAxisOverride =
-                IndirectPointerEventPrimaryDirectionalMotionAxis.X
-            rootView.dispatchGenericMotionEvent(downEvent)
-        }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Press)
-            assertThat(indirectPointerCancelForBox2).isFalse()
-            assertThat(indirectPointerCancelForBox3).isFalse()
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
+        rule.performIndirectPointerInput(
+            IndirectPointerEventPrimaryDirectionalMotionAxis.X,
+            inputDeviceSize,
+        ) {
+            swipeRight()
         }
 
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent1 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent1) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelForBox2).isFalse()
-            assertThat(indirectPointerCancelForBox3).isFalse()
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val moveEvent2 =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_MOVE)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(moveEvent2) }
-        rule.runOnIdle {
-            assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Move)
-            assertThat(indirectPointerCancelForBox2).isFalse()
-            assertThat(indirectPointerCancelForBox3).isFalse()
-            assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
-        }
-
-        eventTime += timeBetweenEvents
-        indirectX += flingTriggeringDistanceBetweenEvents
-
-        val upEvent =
-            MotionEventBuilder.newBuilder()
-                .setDownTime(downTime)
-                .setEventTime(eventTime)
-                .setAction(ACTION_UP)
-                .setSource(SOURCE_TOUCH_NAVIGATION)
-                .setPointer(indirectX, indirectY)
-                .build()
-
-        rule.runOnIdle { rootView.dispatchGenericMotionEvent(upEvent) }
         rule.runOnIdle {
             assertThat(receivedEvent?.type).isEqualTo(IndirectPointerEventType.Release)
             // Any focus move (which triggers a focus change) will cause an indirect cancellation
@@ -8150,5 +6831,21 @@ class IndirectPointerEventNavigationSystemTests {
             assertThat(onIndirectPointerCancelForParent2Child1).isTrue()
             assertThat(indirectPointerCancelEventsThatShouldNotBeTriggered).isFalse()
         }
+    }
+
+    private fun IndirectPointerInjectionScope.swipeUp() {
+        swipeUp(inputDeviceBottom, inputDeviceTop)
+    }
+
+    private fun IndirectPointerInjectionScope.swipeDown() {
+        swipeDown(inputDeviceTop, inputDeviceBottom)
+    }
+
+    private fun IndirectPointerInjectionScope.swipeLeft() {
+        swipeLeft(inputDeviceRight, inputDeviceLeft)
+    }
+
+    private fun IndirectPointerInjectionScope.swipeRight() {
+        swipeRight(inputDeviceLeft, inputDeviceRight)
     }
 }
