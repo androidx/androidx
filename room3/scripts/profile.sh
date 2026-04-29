@@ -74,7 +74,7 @@ while [ $# -gt 0 ]; do
             ;;
         --target)
             if [ "$2" = "gradle" ]; then
-                AGENT_TARGET="gadle"
+                AGENT_TARGET="gradle"
             elif [ "$2" = "test" ]; then
                 AGENT_TARGET="test"
                 # add RealProfileScope to tracing automatically. Otherwise, it will be dominated
@@ -119,7 +119,7 @@ function setOutputFile {
 
 function createParentDirectoryForOutput {
     PARENT_DIR="$(dirname "$OUTPUT_FILE")"
-    $(mkdir -p $PARENT_DIR)
+    mkdir -p "$PARENT_DIR"
 }
 
 if  [ -z ${OUTPUT_FILE+x} ]; then # +x here to workaround unbound variable check
