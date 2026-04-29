@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.FrameGraph
+import androidx.camera.camera2.pipe.FrameReference.Companion.acquire
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
@@ -69,8 +70,20 @@ class FrameGraphImplTest {
             imageSourceConfig = androidx.camera.camera2.pipe.ImageSourceConfig(capacity = 10),
         )
     private val streamConfig2 = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
+
+    private val streamConfig3 =
+        CameraStream.Config.create(
+            Size(640, 480),
+            StreamFormat.RAW10,
+            imageSourceConfig = androidx.camera.camera2.pipe.ImageSourceConfig(capacity = 2),
+        )
+
     private val graphConfig =
-        CameraGraph.Config(camera = metadata.camera, streams = listOf(streamConfig1, streamConfig2))
+        CameraGraph.Config(
+            camera = metadata.camera,
+            streams = listOf(streamConfig1, streamConfig2, streamConfig3),
+        )
+
     private val cameraPipeSimulator =
         CameraPipeSimulator.create(testScope, context, listOf(metadata))
     private val frameGraph: FrameGraphSimulator =
@@ -713,6 +726,38 @@ class FrameGraphImplTest {
             advanceUntilIdle()
 
             assertThat(imageSource.isFlushed).isTrue()
+        }
+
+    @Test
+    fun capture_withStreamSmallCapacity_doesNotDropImages() =
+        testScope.runTest {
+            initialize(this)
+            val streamId = frameGraph.streams[streamConfig3]!!.id
+
+            // Request a buffer to hold our 2 images
+            val buffer = frameGraph.captureWith(setOf(streamId), capacity = 2)
+            advanceUntilIdle()
+
+            // Simulate the first frame and its image
+            val frame1 = frameGraph.simulateNextFrame()
+            frame1.simulateImage(streamId)
+
+            // Simulate the second frame and its image
+            val frame2 = frameGraph.simulateNextFrame()
+            frame2.simulateImage(streamId)
+            advanceUntilIdle()
+
+            val firstFrame = buffer.peekFirstReference()?.acquire()
+            val firstImage = firstFrame?.getImage(streamId)
+            assertThat(firstImage).isNotNull()
+
+            val lastFrame = buffer.peekLastReference()?.acquire()
+            val lastImage = lastFrame?.getImage(streamId)
+            assertThat(lastImage).isNotNull()
+
+            firstImage?.close()
+            lastImage?.close()
+            buffer.close()
         }
 
     companion object {
