@@ -301,10 +301,6 @@ package androidx.xr.runtime {
     property public long sessionPointer;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class NodeHolder<T> extends androidx.xr.runtime.TypeHolder<T> {
-    ctor public NodeHolder(T node, Class<? extends java.lang.Object?> type);
-  }
-
   public final class PlaneTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public int mode;
@@ -499,10 +495,6 @@ package androidx.xr.runtime {
     field public static final int UNKNOWN = 0; // 0x0
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SpatialStateHolder<T> extends androidx.xr.runtime.TypeHolder<T> {
-    ctor public SpatialStateHolder(T state, Class<? extends java.lang.Object?> type);
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface StateExtender {
     method public void close();
     method public suspend Object? extend(androidx.xr.runtime.CoreState coreState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -522,23 +514,6 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.TrackingState STOPPED;
     property public androidx.xr.runtime.TrackingState TRACKING;
     property public androidx.xr.runtime.TrackingState TRACKING_DEGRADED;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract sealed exhaustive class TypeHolder<T> {
-    method public static final <T> androidx.xr.runtime.TypeHolder<T> assertCast(androidx.xr.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
-    method public static final <T> T assertGetValue(androidx.xr.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
-    method @InaccessibleFromKotlin public final Class<? extends java.lang.Object?> getType();
-    method @InaccessibleFromKotlin public final T getValue();
-    method public static final <T, U extends androidx.xr.runtime.TypeHolder<T>> U? safeCast(androidx.xr.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
-    property public final Class<? extends java.lang.Object?> type;
-    property public final T value;
-    field public static final androidx.xr.runtime.TypeHolder.Companion Companion;
-  }
-
-  public static final class TypeHolder.Companion {
-    method public <T> androidx.xr.runtime.TypeHolder<T> assertCast(androidx.xr.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
-    method public <T> T assertGetValue(androidx.xr.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
-    method public <T, U extends androidx.xr.runtime.TypeHolder<T>> U? safeCast(androidx.xr.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="Access to native pointers is discouraged and the data returned by this API may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface UnstableNativeResourceApi {
@@ -603,10 +578,6 @@ package androidx.xr.runtime {
     property @Deprecated public androidx.xr.runtime.XrDevice.DisplayBlendMode ADDITIVE;
     property @Deprecated public androidx.xr.runtime.XrDevice.DisplayBlendMode ALPHA_BLEND;
     property @Deprecated public androidx.xr.runtime.XrDevice.DisplayBlendMode NO_DISPLAY;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class XrExtensionsHolder<T> extends androidx.xr.runtime.TypeHolder<T> {
-    ctor public XrExtensionsHolder(T extensions, Class<? extends java.lang.Object?> type);
   }
 
 }

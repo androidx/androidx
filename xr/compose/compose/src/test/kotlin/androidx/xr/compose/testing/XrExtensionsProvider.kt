@@ -19,7 +19,7 @@
 
 package androidx.xr.compose.testing
 
-import androidx.xr.runtime.XrExtensionsHolder
+import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.testing.FakeXrExtensionsHolderProvider
 import com.android.extensions.xr.XrExtensions
 
@@ -29,6 +29,7 @@ import com.android.extensions.xr.XrExtensions
  */
 internal object XrExtensionsProvider {
     /** Prepare the test environment with XrExtensions. */
+    @SuppressWarnings("RestrictedApiAndroidX")
     internal fun getXrExtensions(): XrExtensions =
         XrExtensions().also {
             FakeXrExtensionsHolderProvider.Companion.fakeHolderLegacy =

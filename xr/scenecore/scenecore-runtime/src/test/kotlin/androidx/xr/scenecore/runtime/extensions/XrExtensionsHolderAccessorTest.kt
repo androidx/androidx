@@ -20,8 +20,8 @@
 package androidx.xr.scenecore.runtime.extensions
 
 import android.extensions.xr.XrExtensions
-import androidx.xr.runtime.TypeHolder
-import androidx.xr.runtime.XrExtensionsHolder
+import androidx.xr.scenecore.runtime.TypeHolder
+import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.testing.FakeXrExtensionsHolderProvider
 import com.android.extensions.xr.XrExtensions as XrExtensionsLegacy
 import com.google.common.truth.Truth.assertThat

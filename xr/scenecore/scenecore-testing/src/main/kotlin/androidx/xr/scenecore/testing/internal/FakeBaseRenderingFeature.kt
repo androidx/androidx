@@ -16,7 +16,7 @@
 
 package androidx.xr.scenecore.testing.internal
 
-import androidx.xr.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.RenderingFeature
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.RenderingFeature] */

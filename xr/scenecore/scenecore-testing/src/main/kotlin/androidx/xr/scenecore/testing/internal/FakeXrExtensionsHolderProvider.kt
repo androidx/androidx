@@ -16,7 +16,7 @@
 
 package androidx.xr.scenecore.testing.internal
 
-import androidx.xr.runtime.XrExtensionsHolder
+import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderProvider
 
 /**

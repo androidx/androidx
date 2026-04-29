@@ -17,7 +17,6 @@
 package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.NodeHolder
 
 /**
  * Defines the internal rendering implementation for an entity.

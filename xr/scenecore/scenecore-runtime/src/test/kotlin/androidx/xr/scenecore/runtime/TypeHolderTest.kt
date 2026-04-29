@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.runtime
+package androidx.xr.scenecore.runtime
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat

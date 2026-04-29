@@ -19,8 +19,8 @@ package androidx.xr.scenecore.spatial.core
 import android.annotation.SuppressLint
 import android.extensions.xr.XrExtensions
 import androidx.xr.runtime.SpatialApiVersionHelper
-import androidx.xr.runtime.XrExtensionsHolder
 import androidx.xr.runtime.XrLog
+import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderProvider
 import com.android.extensions.xr.XrExtensions as XrExtensionsLegacy
 import java.lang.reflect.InvocationTargetException

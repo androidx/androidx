@@ -18,7 +18,7 @@ package androidx.xr.scenecore.runtime.extensions
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
-import androidx.xr.runtime.XrExtensionsHolder
+import androidx.xr.scenecore.runtime.XrExtensionsHolder
 
 /**
  * Provides the XrExtensions available to Jetpack XR at runtime.
@@ -32,7 +32,7 @@ public interface XrExtensionsHolderProvider {
      *
      * This property will be `null` if the XR runtime does not support XR Extensions version 2 or
      * higher. To access the underlying instance, use the helper functions in
-     * [androidx.xr.runtime.TypeHolder].
+     * [androidx.xr.scenecore.runtime.TypeHolder].
      *
      * This holder uses the new `android.extensions.xr` namespace and is the preferred way to access
      * XR functionality.
@@ -44,7 +44,7 @@ public interface XrExtensionsHolderProvider {
      *
      * This property provides backward compatibility with older XR runtimes. It is expected to be
      * deprecated and removed in the future in favor of [holder]. To access the underlying instance,
-     * use the helper functions in [androidx.xr.runtime.TypeHolder].
+     * use the helper functions in [androidx.xr.scenecore.runtime.TypeHolder].
      */
     public val holderLegacy: XrExtensionsHolder<*>?
 }
