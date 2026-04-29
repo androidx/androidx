@@ -33,7 +33,7 @@ import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlin.reflect.KClass
+import java.lang.Class
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -185,7 +185,7 @@ class ZoomCompatTest {
                 TODO("Not yet implemented")
             }
 
-            override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+            override fun <T : Any> unwrapAs(type: Class<T>): T? {
                 TODO("Not yet implemented")
             }
         }

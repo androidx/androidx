@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.media.ImageReaderImageSource
+import androidx.camera.common.unwrapAs
 
 /** Internal debug utilities, constants, and checks. */
 public object Debug {
@@ -213,7 +214,7 @@ public object Debug {
                     val imageReaderImageSource =
                         cameraGraph.streams
                             .getImageSource(stream.id)
-                            ?.unwrapAs(ImageReaderImageSource::class)
+                            ?.unwrapAs<ImageReaderImageSource>()
                     val maxImages = imageReaderImageSource?.maxImages
                     val usageFlags = imageReaderImageSource?.usageFlags
                     stream.outputs.forEachIndexed { i, output ->

@@ -21,7 +21,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraStreamConfigurationMap
 import androidx.camera.camera2.pipe.StreamFormat
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /**
  * A fake implementation of [CameraStreamConfigurationMap] for testing.
@@ -105,12 +105,11 @@ public class FakeCameraStreamConfigurationMap(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
-        return when (type) {
-            FakeCameraStreamConfigurationMap::class -> this as T
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
+        when (type) {
+            FakeCameraStreamConfigurationMap::class.java -> this as T
             else -> null
         }
-    }
 
     /**
      * Defines a single entry in the [FakeCameraStreamConfigurationMap] table for testing purposes.

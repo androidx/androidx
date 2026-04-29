@@ -37,7 +37,7 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.lifecycle.LiveData
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /**
  * Implementation of [CameraInfo] for physical camera. In comparison, [CameraInfoAdapter] is the
@@ -145,11 +145,11 @@ public class PhysicalCameraInfoAdapter(private val cameraProperties: CameraPrope
 
     @OptIn(ExperimentalCamera2Interop::class)
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            Camera2CameraInfo::class -> camera2CameraInfo as T
-            CameraProperties::class -> cameraProperties as T
-            CameraMetadata::class -> cameraProperties.metadata as T
+            Camera2CameraInfo::class.java -> camera2CameraInfo as T
+            CameraProperties::class.java -> cameraProperties as T
+            CameraMetadata::class.java -> cameraProperties.metadata as T
             else -> cameraProperties.metadata.unwrapAs(type)
         }
 

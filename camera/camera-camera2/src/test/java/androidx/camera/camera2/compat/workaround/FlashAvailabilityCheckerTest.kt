@@ -28,8 +28,8 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.testing.FakeCameraProperties
 import com.google.common.truth.Truth
+import java.lang.Class
 import java.nio.BufferUnderflowException
-import kotlin.reflect.KClass
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
@@ -131,7 +131,7 @@ class FlashAvailabilityCheckerTest(
             TODO("b/299356087 - Add support for fake extension metadata")
         }
 
-        override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+        override fun <T : Any> unwrapAs(type: Class<T>): T? {
             TODO("Not yet implemented")
         }
     }

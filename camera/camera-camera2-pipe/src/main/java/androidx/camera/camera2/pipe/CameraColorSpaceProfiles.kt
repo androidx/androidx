@@ -17,7 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /**
  * A compatibility wrapper for color space profiles.
@@ -62,5 +62,5 @@ internal object UnsupportedCameraColorSpaceProfiles : CameraColorSpaceProfiles {
         dynamicRangeProfile: OutputStream.DynamicRangeProfile,
     ): Set<CameraColorSpace> = emptySet()
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 }

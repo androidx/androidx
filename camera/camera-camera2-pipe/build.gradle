@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.atomicFu)
     implementation(libs.dagger)
     implementation(project(":camera:featurecombinationquery:featurecombinationquery"))
+    api(project(":camera:camera-common"))
 
 
     ksp(libs.daggerCompiler)

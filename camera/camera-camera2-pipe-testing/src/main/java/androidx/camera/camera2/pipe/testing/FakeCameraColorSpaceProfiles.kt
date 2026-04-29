@@ -20,7 +20,7 @@ import androidx.camera.camera2.pipe.CameraColorSpace
 import androidx.camera.camera2.pipe.CameraColorSpaceProfiles
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /** A fake implementation of [CameraColorSpaceProfiles] for testing. */
 public class FakeCameraColorSpaceProfiles(private val profileTable: List<Profile> = emptyList()) :
@@ -57,12 +57,11 @@ public class FakeCameraColorSpaceProfiles(private val profileTable: List<Profile
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
-        return when (type) {
-            FakeCameraColorSpaceProfiles::class -> this as T
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
+        when (type) {
+            FakeCameraColorSpaceProfiles::class.java -> this as T
             else -> null
         }
-    }
 
     /** Defines a single entry in the [FakeCameraColorSpaceProfiles] table for testing purposes. */
     public data class Profile(

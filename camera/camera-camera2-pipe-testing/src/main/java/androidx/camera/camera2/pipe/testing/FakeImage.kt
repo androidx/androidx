@@ -22,7 +22,7 @@ import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.camera.camera2.pipe.media.ImagePlane
 import androidx.camera.camera2.pipe.media.ImageWrapper
-import kotlin.reflect.KClass
+import java.lang.Class
 import kotlinx.atomicfu.atomic
 
 /** FakeImage that can be used for testing classes that accept [ImageWrapper]. */
@@ -56,8 +56,10 @@ public class FakeImage(
         get() = throw UnsupportedOperationException("FakeImage does not support planes.")
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1 && type == HardwareBuffer::class) {
+    override fun <T : Any> unwrapAs(type: Class<T>): T? {
+        if (
+            Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1 && type == HardwareBuffer::class.java
+        ) {
             return hardwareBuffer as T?
         }
         return null

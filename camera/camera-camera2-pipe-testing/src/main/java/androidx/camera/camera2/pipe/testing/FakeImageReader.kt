@@ -24,7 +24,7 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.ImageReaderWrapper
 import androidx.camera.camera2.pipe.media.ImageWrapper
-import kotlin.reflect.KClass
+import java.lang.Class
 import kotlinx.atomicfu.atomic
 
 /** Utility class for simulating [FakeImage] and testing code that uses an [ImageReaderWrapper]. */
@@ -110,7 +110,7 @@ private constructor(
         // NoOp
     }
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+    override fun <T : Any> unwrapAs(type: Class<T>): T? {
         // Fake objects cannot be unwrapped.
         return null
     }

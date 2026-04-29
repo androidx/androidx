@@ -85,12 +85,13 @@ class FakeCamera2MultiResolutionStreamConfigurationMapTest {
 
     @Test
     fun unwrapAs_shouldReturnItself() {
-        assertThat(configMap.unwrapAs(FakeCameraMultiResolutionStreamConfigurationMap::class))
+        assertThat(configMap.unwrapAs(FakeCameraMultiResolutionStreamConfigurationMap::class.java))
             .isEqualTo(configMap)
     }
 
     @Test
     fun unwrapAs_returnNull_for_unsupported_type() {
-        assertThat(configMap.unwrapAs(CameraMultiResolutionStreamConfigurationMap::class)).isNull()
+        assertThat(configMap.unwrapAs(CameraMultiResolutionStreamConfigurationMap::class.java))
+            .isNull()
     }
 }

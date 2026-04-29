@@ -23,8 +23,8 @@ import android.os.Build
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.Api28Compat
 import androidx.camera.camera2.pipe.compat.Api33Compat
+import java.lang.Class
 import java.nio.ByteBuffer
-import kotlin.reflect.KClass
 
 /**
  * An [ImageWrapper] backed by an [Image].
@@ -44,9 +44,9 @@ public class AndroidImage(private val image: Image) : ImageWrapper {
         override val buffer: ByteBuffer = imagePlane.buffer
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        override fun <T : Any> unwrapAs(type: Class<T>): T? =
             when (type) {
-                Image.Plane::class -> imagePlane as T
+                Image.Plane::class.java -> imagePlane as T
                 else -> null
             }
     }
@@ -89,8 +89,8 @@ public class AndroidImage(private val image: Image) : ImageWrapper {
         }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
-        if (type == Image::class) {
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
+        if (type == Image::class.java) {
             image as T
         } else {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) {

@@ -18,7 +18,7 @@ package androidx.camera.camera2.pipe.media
 
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /**
  * An OutputImage is a reference to an [ImageWrapper] that was produced from CameraPipe for a
@@ -40,10 +40,10 @@ public interface OutputImage : ImageWrapper {
             private val image: ImageWrapper,
         ) : ImageWrapper by image, OutputImage {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+            override fun <T : Any> unwrapAs(type: Class<T>): T? =
                 when (type) {
-                    OutputImage::class -> this as T?
-                    ImageWrapper::class -> this as T?
+                    OutputImage::class.java -> this as T?
+                    ImageWrapper::class.java -> this as T?
                     else -> image.unwrapAs(type)
                 }
 

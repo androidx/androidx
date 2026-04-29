@@ -29,7 +29,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.core.impl.CameraCaptureResult
-import kotlin.reflect.KClass
+import java.lang.Class
 
 public object FrameMetadataConverter {
     public fun FrameMetadata.toCameraCaptureResult(): CameraCaptureResult {
@@ -44,8 +44,7 @@ public object FrameMetadataConverter {
                 override val frameNumber: FrameNumber = frameMetadata.frameNumber
                 override val requestMetadata: RequestMetadata = emptyRequestMetadata
 
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+                override fun <T : Any> unwrapAs(type: Class<T>): T? = null
             }
 
         return CaptureResultAdapter(
@@ -72,6 +71,6 @@ public object FrameMetadataConverter {
 
             override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = default
 
-            override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+            override fun <T : Any> unwrapAs(type: Class<T>): T? = null
         }
 }

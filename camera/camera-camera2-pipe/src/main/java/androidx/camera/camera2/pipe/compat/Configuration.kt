@@ -39,8 +39,8 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.checkNOrHigher
 import androidx.camera.camera2.pipe.core.checkOOrHigher
 import androidx.camera.camera2.pipe.core.checkPOrHigher
+import java.lang.Class
 import java.util.concurrent.Executor
-import kotlin.reflect.KClass
 
 /**
  * A data class that mirrors the fields in [android.hardware.camera2.params.SessionConfiguration] so
@@ -362,9 +362,9 @@ internal class AndroidOutputConfiguration(
         get() = output.surfaceGroupId
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            OutputConfiguration::class -> output as T
+            OutputConfiguration::class.java -> output as T
             else -> null
         }
 

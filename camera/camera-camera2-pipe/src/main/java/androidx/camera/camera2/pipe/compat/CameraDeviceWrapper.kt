@@ -36,7 +36,8 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.writeParameter
-import kotlin.reflect.KClass
+import androidx.camera.common.unwrapAs
+import java.lang.Class
 import kotlinx.atomicfu.atomic
 
 /**
@@ -185,7 +186,7 @@ internal class AndroidCameraDevice(
                 val sessionConfig =
                     Api31Compat.newExtensionSessionConfiguration(
                         config.extensionMode,
-                        config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
+                        config.outputConfigurations.map { it.unwrapAs<OutputConfiguration>() },
                         config.executor,
                         AndroidExtensionSessionStateCallback(
                             this,
@@ -202,7 +203,7 @@ internal class AndroidCameraDevice(
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
                 ) {
                     val postviewOutput =
-                        config.postviewOutputConfiguration.unwrapAs(OutputConfiguration::class)
+                        config.postviewOutputConfiguration.unwrapAs<OutputConfiguration>()
                     checkNotNull(postviewOutput) { "Failed to unwrap Postview OutputConfiguration" }
                     Api34Compat.setPostviewOutputConfiguration(sessionConfig, postviewOutput)
                 }
@@ -313,7 +314,7 @@ internal class AndroidCameraDevice(
                 // when running on older versions of the OS.
                 Api24Compat.createCaptureSessionByOutputConfigurations(
                     cameraDevice,
-                    outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
+                    outputConfigurations.map { it.unwrapAs<OutputConfiguration>() },
                     AndroidCaptureSessionStateCallback(
                         this,
                         stateCallback,
@@ -353,7 +354,7 @@ internal class AndroidCameraDevice(
                 Api24Compat.createReprocessableCaptureSessionByConfigurations(
                     cameraDevice,
                     InputConfiguration(inputConfig.width, inputConfig.height, inputConfig.format),
-                    outputs.map { it.unwrapAs(OutputConfiguration::class) },
+                    outputs.map { it.unwrapAs<OutputConfiguration>() },
                     AndroidCaptureSessionStateCallback(
                         this,
                         stateCallback,
@@ -387,7 +388,7 @@ internal class AndroidCameraDevice(
                 val sessionConfig =
                     Api28Compat.newSessionConfiguration(
                         config.sessionType,
-                        config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
+                        config.outputConfigurations.map { it.unwrapAs<OutputConfiguration>() },
                         config.executor,
                         AndroidCaptureSessionStateCallback(
                             this,
@@ -514,9 +515,9 @@ internal class AndroidCameraDevice(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            CameraDevice::class -> cameraDevice as T
+            CameraDevice::class.java -> cameraDevice as T
             else -> null
         }
 
@@ -697,7 +698,7 @@ internal class VirtualAndroidCameraDevice(internal val androidCameraDevice: Andr
 
     override fun onDeviceClosed() = androidCameraDevice.onDeviceClosed()
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = androidCameraDevice.unwrapAs(type)
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = androidCameraDevice.unwrapAs(type)
 
     internal fun disconnect() = synchronized(lock) { disconnected = true }
 

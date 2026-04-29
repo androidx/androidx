@@ -89,7 +89,7 @@ private constructor(
          */
         @JvmStatic
         public fun from(cameraInfo: CameraInfo): Camera2CameraInfo {
-            var camera2CameraInfo = cameraInfo.unwrapAs(Camera2CameraInfo::class)
+            var camera2CameraInfo = cameraInfo.unwrapAs<Camera2CameraInfo>()
             requireNotNull(camera2CameraInfo) {
                 "Could not unwrap $cameraInfo as Camera2CameraInfo!"
             }

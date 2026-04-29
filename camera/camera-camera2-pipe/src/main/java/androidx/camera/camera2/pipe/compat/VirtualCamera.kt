@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.common.unwrapAs
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.atomicfu.atomic
@@ -290,7 +291,7 @@ internal class AndroidCameraState(
                 null
             }
 
-        closeWith(device?.unwrapAs(CameraDevice::class), ClosingInfo(ClosedReason.APP_CLOSED))
+        closeWith(device?.unwrapAs<CameraDevice>(), ClosingInfo(ClosedReason.APP_CLOSED))
     }
 
     suspend fun awaitClosed() {

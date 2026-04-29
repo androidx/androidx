@@ -27,7 +27,6 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.core.Debug
-import kotlin.reflect.KClass
 
 /** An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object */
 internal class AndroidFrameMetadata(
@@ -50,10 +49,10 @@ internal class AndroidFrameMetadata(
     override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            CaptureResult::class -> captureResult as T
-            TotalCaptureResult::class -> captureResult as? T
+            CaptureResult::class.java -> captureResult as T
+            TotalCaptureResult::class.java -> captureResult as? T
             else -> null
         }
 
@@ -84,7 +83,7 @@ internal class CorrectedFrameMetadata(
     override val frameNumber: FrameNumber
         get() = frameMetadata.frameNumber
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = frameMetadata.unwrapAs(type)
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = frameMetadata.unwrapAs(type)
 }
 
 /** An implementation of [FrameInfo] that retrieves values from a [TotalCaptureResult] object. */
@@ -132,10 +131,10 @@ internal class AndroidFrameInfo(
         get() = result.frameNumber
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            CaptureResult::class -> totalCaptureResult as T
-            TotalCaptureResult::class -> totalCaptureResult as? T
+            CaptureResult::class.java -> totalCaptureResult as T
+            TotalCaptureResult::class.java -> totalCaptureResult as? T
             else -> null
         }
 

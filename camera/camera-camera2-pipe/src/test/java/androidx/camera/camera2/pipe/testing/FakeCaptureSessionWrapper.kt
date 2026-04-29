@@ -23,7 +23,7 @@ import androidx.camera.camera2.pipe.CameraInterop
 import androidx.camera.camera2.pipe.compat.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
-import kotlin.reflect.KClass
+import java.lang.Class
 
 internal class FakeCaptureSessionWrapper(
     override val device: CameraDeviceWrapper,
@@ -106,7 +106,7 @@ internal class FakeCaptureSessionWrapper(
         throw UnsupportedOperationException("finalizeOutputConfigurations is not supported")
     }
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+    override fun <T : Any> unwrapAs(type: Class<T>): T? {
         unwrappedClasses.add(type)
         return null
     }

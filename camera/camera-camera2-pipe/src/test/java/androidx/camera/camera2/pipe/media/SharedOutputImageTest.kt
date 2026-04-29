@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeImage
+import androidx.camera.common.unwrapAs
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -126,7 +127,7 @@ class SharedOutputImageTest {
         val outputImage = OutputImage.from(streamId, outputId, fakeImageWithHardwareBuffer)
         val sharedImage = SharedOutputImage.from(outputImage)
 
-        val hardwareBuffer = sharedImage.unwrapAs(HardwareBuffer::class)
+        val hardwareBuffer = sharedImage.unwrapAs<HardwareBuffer>()
 
         checkNotNull(hardwareBuffer)
         assertThat(imageHardwareBuffer).isSameInstanceAs(hardwareBuffer)

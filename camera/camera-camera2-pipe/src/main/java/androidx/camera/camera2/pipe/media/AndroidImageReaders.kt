@@ -35,9 +35,10 @@ import androidx.camera.camera2.pipe.compat.Api28Compat
 import androidx.camera.camera2.pipe.compat.Api29Compat
 import androidx.camera.camera2.pipe.compat.Api33Compat
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.common.AndroidImage
+import java.lang.Class
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
-import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 /** Implements an [ImageReaderWrapper] using an [ImageReader]. */
@@ -69,7 +70,7 @@ private constructor(
 
             onExpectedOutputsListener?.onExpectedOutputs(image.timestamp, outputIdSet)
 
-            imageListener.onImage(streamId, outputId, AndroidImage(image))
+            imageListener.onImage(streamId, outputId, AndroidImage(image) as ImageWrapper)
         }
     }
 
@@ -105,9 +106,9 @@ private constructor(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            ImageReader::class -> imageReader as T?
+            ImageReader::class.java -> imageReader as T?
             else -> null
         }
 
@@ -259,7 +260,7 @@ public class AndroidMultiResolutionImageReader(
             // images will always be in monotonically increasing order. The primary reason for this
             // is when a camera switches from one lens to another, which can cause the camera
             // to produce overlapping images from each sensor and can be delivered out of order.
-            imageListener.onImage(streamId, outputId, AndroidImage(image))
+            imageListener.onImage(streamId, outputId, AndroidImage(image) as ImageWrapper)
         }
     }
 
@@ -316,10 +317,10 @@ public class AndroidMultiResolutionImageReader(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            AndroidMultiResolutionImageReader::class -> this as T?
-            MultiResolutionImageReader::class -> multiResolutionImageReader as T?
+            AndroidMultiResolutionImageReader::class.java -> this as T?
+            MultiResolutionImageReader::class.java -> multiResolutionImageReader as T?
             else -> null
         }
 

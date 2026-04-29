@@ -797,7 +797,7 @@ class CameraInfoAdapterTest {
         val fakeCameraConfig = FakeCameraConfig()
         val adapterCameraInfo = AdapterCameraInfo(cameraInfoAdapter, fakeCameraConfig)
 
-        val cameraMetadata = adapterCameraInfo.unwrapAs(CameraMetadata::class)
+        val cameraMetadata = adapterCameraInfo.unwrapAs(CameraMetadata::class.java)
         assertThat(cameraMetadata).isNotNull()
     }
 

@@ -19,7 +19,7 @@ package androidx.camera.camera2.pipe.testing
 import android.hardware.camera2.params.MultiResolutionStreamInfo
 import androidx.camera.camera2.pipe.CameraMultiResolutionStreamConfigurationMap
 import androidx.camera.camera2.pipe.StreamFormat
-import kotlin.reflect.KClass
+import java.lang.Class
 
 public class FakeCameraMultiResolutionStreamConfigurationMap(
     private val outputFormats: List<StreamFormat> = emptyList(),
@@ -46,10 +46,9 @@ public class FakeCameraMultiResolutionStreamConfigurationMap(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
-        return when (type) {
-            FakeCameraMultiResolutionStreamConfigurationMap::class -> this as T
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
+        when (type) {
+            FakeCameraMultiResolutionStreamConfigurationMap::class.java -> this as T
             else -> null
         }
-    }
 }

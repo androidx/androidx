@@ -83,7 +83,7 @@ class AndroidImageTest {
     @Test
     @SdkSuppress(minSdkVersion = 28)
     fun unwrapAsHardwareBuffer_returnsImageHardwareBuffer() {
-        val hardwareBuffer = androidImage.unwrapAs(HardwareBuffer::class)
+        val hardwareBuffer = androidImage.unwrapAs(HardwareBuffer::class.java)
 
         assertThat(hardwareBuffer).isNotNull()
     }

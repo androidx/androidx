@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl.OutputConfig
 import androidx.camera.camera2.pipe.media.AndroidMultiResolutionImageReader
+import androidx.camera.common.unwrapAs
 import dagger.Module
 import dagger.Provides
 import javax.inject.Inject
@@ -414,7 +415,7 @@ internal fun buildOutputConfigurations(
             // used to create the MultiResolutionImageReader. As such, we can line up our
             // OutputStreams with the returned OutputConfigurations one-by-one.
             val multiResImageReader =
-                checkNotNull(imageSource.unwrapAs(AndroidMultiResolutionImageReader::class))
+                checkNotNull(imageSource.unwrapAs<AndroidMultiResolutionImageReader>())
             val outputConfigurations = multiResImageReader.outputConfigurations
             check(outputConfigurations.size == outputs.size)
 

@@ -31,7 +31,7 @@ import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.core.lazyOrEmptySet
 import androidx.camera.camera2.pipe.core.lazyOrFalse
 import androidx.camera.camera2.pipe.core.lazyOrNull
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /**
  * This implementation provides access to [CameraExtensionMetadata] and lazy caching of properties
@@ -74,9 +74,9 @@ internal class Camera2CameraExtensionMetadata(
         metadata[key] as T? ?: default
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            CameraExtensionCharacteristics::class -> extensionCharacteristics as T
+            CameraExtensionCharacteristics::class.java -> extensionCharacteristics as T
             else -> null
         }
 
