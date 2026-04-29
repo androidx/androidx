@@ -25,15 +25,12 @@ import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.CommitBlobResponse;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchTestUtils;
-import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 
-@RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
 public class CommitBlobResponseTest {
     @Rule
     public final RuleChain mRuleChain = AppSearchTestUtils.createCommonTestRules();

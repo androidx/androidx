@@ -18,8 +18,6 @@ package androidx.appsearch.app;
 
 import androidx.annotation.RequiresFeature;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.flags.FlaggedApi;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 
@@ -63,7 +61,6 @@ public interface GlobalSearchSession extends ReadOnlyGlobalSearchSession, Closea
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SCHEMA_BLOB_HANDLE)
-    @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
     default @NonNull ListenableFuture<OpenBlobForReadResponse> openBlobForReadAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
         throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE

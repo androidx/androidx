@@ -1290,7 +1290,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testDocumentEquals_identicalWithBlobHandleValues() throws Exception {
         byte[] data1 = generateRandomBytes(10); // 10 Bytes
         byte[] digest1 = calculateDigest(data1);
@@ -1326,7 +1325,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testDocumentEquals_differentOrderWithBlobHandleValues() throws Exception {
         byte[] data1 = generateRandomBytes(10); // 10 Bytes
         byte[] digest1 = calculateDigest(data1);
@@ -1362,7 +1360,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testDocumentGetBlobHandleValue() throws Exception {
         byte[] data = generateRandomBytes(10); // 10 Bytes
         byte[] digest = calculateDigest(data);
@@ -1405,7 +1402,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testDocumentGetArrayBlobHandleValues() throws Exception {
         byte[] data1 = generateRandomBytes(10); // 10 Bytes
         byte[] digest1 = calculateDigest(data1);
@@ -1440,7 +1436,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testDocument_setEmptyBlobHandleValues() {
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setPropertyBoolean("booleanKey")
@@ -1461,7 +1456,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testDocumentInvalid_setNullBlobHandleValues() throws Exception {
         byte[] data = generateRandomBytes(10); // 10 Bytes
         byte[] digest = calculateDigest(data);
@@ -1478,7 +1472,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testDocument_toBuilderWithBlobHandleValues() throws Exception {
         byte[] data1 = generateRandomBytes(10); // 10 Bytes
         byte[] digest1 = calculateDigest(data1);
@@ -1532,7 +1525,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testDocumentGetPropertyNamesWithBlobHandleValue() throws Exception {
         byte[] data = generateRandomBytes(10); // 10 Bytes
         byte[] digest = calculateDigest(data);

@@ -20,8 +20,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.Parcelable.Creator;
 
 import androidx.appsearch.app.aidl.AppSearchBatchResultParcelV2;
-import androidx.appsearch.flags.FlaggedApi;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.OpenBlobForWriteResponseCreator;
@@ -45,7 +43,6 @@ import java.io.IOException;
  * {@link android.os.ParcelFileDescriptor} occupies a limited file descriptor in the system.
  * </p>
  */
-@FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
 @SuppressWarnings("HiddenSuperclass")
 @SafeParcelable.Class(creator = "OpenBlobForWriteResponseCreator")
 public final class OpenBlobForWriteResponse extends AbstractSafeParcelable implements

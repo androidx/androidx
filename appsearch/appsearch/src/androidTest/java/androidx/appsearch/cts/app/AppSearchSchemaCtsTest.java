@@ -1342,7 +1342,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testBlobHandlePropertyConfig() {
         AppSearchSchema schema = new AppSearchSchema.Builder("Test")
                 .addProperty(
@@ -1364,7 +1363,6 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testBlobHandlePropertyConfig_defaultValues() {
         AppSearchSchema.BlobHandlePropertyConfig builder =
                 new AppSearchSchema.BlobHandlePropertyConfig.Builder("test").build();

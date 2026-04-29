@@ -20,8 +20,6 @@ import android.os.Parcelable.Creator;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.aidl.AppSearchBatchResultParcelV2;
-import androidx.appsearch.flags.FlaggedApi;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.RemoveBlobResponseCreator;
@@ -36,7 +34,6 @@ import org.jspecify.annotations.NonNull;
  * <p> This class is used to retrieve the result of a batch removal operation on a collection of
  * blob handles.
  */
-@FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
 @SuppressWarnings("HiddenSuperclass")
 @SafeParcelable.Class(creator = "RemoveBlobResponseCreator")
 public final class RemoveBlobResponse extends AbstractSafeParcelable {

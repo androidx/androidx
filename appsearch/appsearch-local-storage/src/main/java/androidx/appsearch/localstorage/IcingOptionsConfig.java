@@ -340,7 +340,6 @@ public interface IcingOptionsConfig {
                         getUseNewQualifiedIdJoinIndex())
                 .setBuildPropertyExistenceMetadataHits(
                         getBuildPropertyExistenceMetadataHits())
-                .setEnableBlobStore(Flags.enableBlobStore())
                 .setOrphanBlobTimeToLiveMs(getOrphanBlobTimeToLiveMs())
                 .setEnableScorableProperties(Flags.enableScorableProperty())
                 .setIcuDataFileAbsolutePath(getIcuDataFileAbsolutePath())

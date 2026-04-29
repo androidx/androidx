@@ -31,7 +31,6 @@ import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
@@ -398,10 +397,8 @@ public class LocalStorage {
                 /* shouldRetrieveParentInfo= */ true,
                 persistToDiskRecoveryProof
         );
-        RevocableFileDescriptorStore revocableFileDescriptorStore = null;
-        if (Flags.enableBlobStore()) {
-            revocableFileDescriptorStore = new JetpackRevocableFileDescriptorStore(config);
-        }
+        RevocableFileDescriptorStore revocableFileDescriptorStore =
+                new JetpackRevocableFileDescriptorStore(config);
         mAppSearchImpl = AppSearchImpl.create(
                 icingDir,
                 config,

@@ -4287,7 +4287,7 @@ public final class AppSearchImpl implements Closeable {
             }
             StorageInfoProto storageInfoProto = getRawStorageInfoProto(callStatsBuilder);
 
-            if (Flags.enableBlobStore() && !wantedPrefixedBlobNamespaces.isEmpty()) {
+            if (!wantedPrefixedBlobNamespaces.isEmpty()) {
                 getBlobStorageInfoForNamespaces(
                         storageInfoProto, wantedPrefixedBlobNamespaces, storageInfoBuilder);
             }
@@ -4326,40 +4326,19 @@ public final class AppSearchImpl implements Closeable {
 
             StorageInfo.Builder storageInfoBuilder = new StorageInfo.Builder();
             String prefix = createPrefix(packageName, databaseName);
-            if (Flags.enableBlobStore()) {
-                // read blob storage info and set to storageInfoBuilder
-                StorageInfoProto storageInfoProto = getRawStorageInfoProto(callStatsBuilder);
-                getBlobStorageInfoForPrefix(storageInfoProto, prefix, storageInfoBuilder);
-                // read document storage info and set to storageInfoBuilder
-                Set<String> wantedPrefixedDocumentNamespaces =
-                        mNamespaceCacheLocked.getPrefixedDocumentNamespaces(prefix);
-                if (wantedPrefixedDocumentNamespaces == null
-                        || wantedPrefixedDocumentNamespaces.isEmpty()) {
-                    return storageInfoBuilder.build();
-                }
-                getDocumentStorageInfoForNamespaces(storageInfoProto,
-                        wantedPrefixedDocumentNamespaces, storageInfoBuilder);
-            } else {
-                Map<String, Set<String>> packageToDatabases = getPackageToDatabases();
-                Set<String> databases = packageToDatabases.get(packageName);
-                if (databases == null) {
-                    // Package doesn't exist, no storage info to report
-                    return storageInfoBuilder.build();
-                }
-                if (!databases.contains(databaseName)) {
-                    // Database doesn't exist, no storage info to report
-                    return storageInfoBuilder.build();
-                }
-
-                Set<String> wantedPrefixedDocumentNamespaces =
-                        mNamespaceCacheLocked.getPrefixedDocumentNamespaces(prefix);
-                if (wantedPrefixedDocumentNamespaces == null
-                        || wantedPrefixedDocumentNamespaces.isEmpty()) {
-                    return storageInfoBuilder.build();
-                }
-                getDocumentStorageInfoForNamespaces(getRawStorageInfoProto(callStatsBuilder),
-                        wantedPrefixedDocumentNamespaces, storageInfoBuilder);
+            // read blob storage info and set to storageInfoBuilder
+            StorageInfoProto storageInfoProto = getRawStorageInfoProto(callStatsBuilder);
+            getBlobStorageInfoForPrefix(storageInfoProto, prefix, storageInfoBuilder);
+            // read document storage info and set to storageInfoBuilder
+            Set<String> wantedPrefixedDocumentNamespaces =
+                    mNamespaceCacheLocked.getPrefixedDocumentNamespaces(prefix);
+            if (wantedPrefixedDocumentNamespaces == null
+                    || wantedPrefixedDocumentNamespaces.isEmpty()) {
+                return storageInfoBuilder.build();
             }
+            getDocumentStorageInfoForNamespaces(storageInfoProto,
+                    wantedPrefixedDocumentNamespaces, storageInfoBuilder);
+
             return storageInfoBuilder.build();
         } finally {
             logReadOperationLatencyLocked(totalLatencyStartMillis,
