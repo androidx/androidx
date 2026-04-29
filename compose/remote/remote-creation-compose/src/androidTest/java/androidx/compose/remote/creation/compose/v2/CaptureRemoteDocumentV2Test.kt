@@ -17,8 +17,11 @@
 package androidx.compose.remote.creation.compose.v2
 
 import android.content.Context
+import android.content.res.Configuration
+import android.util.DisplayMetrics
+import android.view.ContextThemeWrapper
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
@@ -35,13 +38,19 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -64,9 +73,13 @@ class CaptureRemoteDocumentV2Test {
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule("compose/remote/remote-creation-compose")
 
+    private val DisplaySize = 200
+    private val ContainerSizeDp
+        @Composable get() = with(LocalDensity.current) { DisplaySize.toDp() }
+
     @Test
     fun captureDocumentV2_withDefaultDensity() = runTest {
-        val creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f)
+        val creationDisplayInfo = RemoteCreationDisplayInfo(DisplaySize, DisplaySize, 160, 1.0f)
         val bytes =
             captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
@@ -75,8 +88,8 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .border(2.rdp, Color.Blue.rc)
                                 .background(Color.DarkGray.rc)
+                                .border(2.rdp, Color.Blue.rc)
                     ) {
                         RemoteText(text = "Hello world!".rs)
                     }
@@ -85,7 +98,9 @@ class CaptureRemoteDocumentV2Test {
         val doc = parseToCoreDocument(bytes)
 
         composeTestRule.setContent {
-            Box(Modifier.size(100.dp)) { RemoteDocumentPlayer(doc, 100, 100) }
+            Box(Modifier.requiredSize(ContainerSizeDp)) {
+                RemoteDocumentPlayer(doc, DisplaySize, DisplaySize)
+            }
         }
 
         composeTestRule
@@ -97,7 +112,7 @@ class CaptureRemoteDocumentV2Test {
 
     @Test
     fun captureDocumentV2_withCustomDensity() = runTest {
-        val creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f)
+        val creationDisplayInfo = RemoteCreationDisplayInfo(DisplaySize, DisplaySize, 160, 1.0f)
         val bytes =
             captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
@@ -107,8 +122,8 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .border(2.rdp, Color.Blue.rc)
                                 .background(Color.DarkGray.rc)
+                                .border(2.rdp, Color.Blue.rc)
                     ) {
                         RemoteText(text = "Hello world!".rs)
                     }
@@ -117,7 +132,9 @@ class CaptureRemoteDocumentV2Test {
         val doc = parseToCoreDocument(bytes)
 
         composeTestRule.setContent {
-            Box(Modifier.size(100.dp)) { RemoteDocumentPlayer(doc, 100, 100) }
+            Box(Modifier.requiredSize(ContainerSizeDp)) {
+                RemoteDocumentPlayer(doc, DisplaySize, DisplaySize)
+            }
         }
 
         composeTestRule
@@ -127,11 +144,140 @@ class CaptureRemoteDocumentV2Test {
             .assertAgainstGolden(screenshotRule, "captureDocumentV2_customDensity")
     }
 
+    @Test
+    fun captureDocumentV2_withHostDensity() = runTest {
+        val creationDisplayInfo = RemoteCreationDisplayInfo(DisplaySize, DisplaySize, 160, 1.0f)
+        val bytes =
+            captureSingleRemoteDocument(
+                    creationDisplayInfo = creationDisplayInfo,
+                    remoteDensity = RemoteDensity.Host,
+                    context = context,
+                ) {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.fillMaxSize()
+                                .background(Color.DarkGray.rc)
+                                .border(2.rdp, Color.Blue.rc)
+                    ) {
+                        RemoteText(text = "Hello world!".rs)
+                    }
+                }
+                .bytes
+        val doc = parseToCoreDocument(bytes)
+
+        composeTestRule.setContent {
+            Box(Modifier.requiredSize(ContainerSizeDp)) {
+                RemoteDocumentPlayer(doc, DisplaySize, DisplaySize)
+            }
+        }
+
+        composeTestRule
+            .onRoot()
+            .captureToImage()
+            .asAndroidBitmap()
+            .assertAgainstGolden(screenshotRule, "captureDocumentV2_hostDensity")
+    }
+
+    @Test
+    fun captureDocumentV2_withHostDensityAndDefaultDensityOverride() = runTest {
+        val bytes =
+            captureSingleRemoteDocument(remoteDensity = RemoteDensity.Host, context = context) {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.fillMaxSize()
+                                .background(Color.DarkGray.rc)
+                                .border(2.rdp, Color.Blue.rc)
+                    ) {
+                        RemoteText(text = "Hello world!".rs)
+                    }
+                }
+                .bytes
+        val doc = parseToCoreDocument(bytes)
+
+        composeTestRule.setContent {
+            WithOverride(deviceConfigurationOverride = DeviceConfigurationOverride.Density(1.0f)) {
+                Box(Modifier.requiredSize(ContainerSizeDp)) {
+                    RemoteDocumentPlayer(doc, DisplaySize, DisplaySize)
+                }
+            }
+        }
+
+        composeTestRule
+            .onRoot()
+            .captureToImage()
+            .asAndroidBitmap()
+            .assertAgainstGolden(
+                screenshotRule,
+                "captureDocumentV2_hostDensityAndDefaultDensityOverride",
+            )
+    }
+
+    @Test
+    fun captureDocumentV2_withHostDensityAndDensityOverride() = runTest {
+        val bytes =
+            captureSingleRemoteDocument(remoteDensity = RemoteDensity.Host, context = context) {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.fillMaxSize()
+                                .background(Color.DarkGray.rc)
+                                .border(2.rdp, Color.Blue.rc)
+                    ) {
+                        RemoteText(text = "Hello world!".rs)
+                    }
+                }
+                .bytes
+        val doc = parseToCoreDocument(bytes)
+
+        composeTestRule.setContent {
+            WithOverride(deviceConfigurationOverride = DeviceConfigurationOverride.Density(2.0f)) {
+                Box(Modifier.requiredSize(ContainerSizeDp)) {
+                    RemoteDocumentPlayer(doc, DisplaySize, DisplaySize)
+                }
+            }
+        }
+
+        composeTestRule
+            .onRoot()
+            .captureToImage()
+            .asAndroidBitmap()
+            .assertAgainstGolden(screenshotRule, "captureDocumentV2_hostDensityAndDensityOverride")
+    }
+
     private fun parseToCoreDocument(bytes: ByteArray): CoreDocument {
         return CoreDocument().apply {
             ByteArrayInputStream(bytes).use {
                 initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
             }
         }
+    }
+
+    @Composable
+    private fun WithOverride(
+        deviceConfigurationOverride: DeviceConfigurationOverride?,
+        content: @Composable () -> Unit,
+    ) {
+        if (deviceConfigurationOverride != null) {
+            DeviceConfigurationOverride(deviceConfigurationOverride, content)
+        } else {
+            content()
+        }
+    }
+
+    private fun DeviceConfigurationOverride.Companion.Density(
+        density: Float
+    ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
+        val context = LocalContext.current
+        val config =
+            Configuration(LocalConfiguration.current).apply {
+                densityDpi = (density * DisplayMetrics.DENSITY_DEFAULT).toInt()
+            }
+        val overriddenContext =
+            ContextThemeWrapper(context, 0).apply { applyOverrideConfiguration(config) }
+        CompositionLocalProvider(
+            LocalContext provides overriddenContext,
+            LocalConfiguration provides config,
+            LocalDensity provides Density(density, LocalDensity.current.fontScale),
+            content = contentUnderTest,
+        )
     }
 }
