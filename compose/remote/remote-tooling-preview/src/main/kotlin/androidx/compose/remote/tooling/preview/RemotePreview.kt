@@ -31,7 +31,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.runBlocking
 
-/** Display a Remote Compose Composable in the Android Studio Preview. */
+/**
+ * Displays a Remote Compose Composable in the Android Studio Preview.
+ *
+ * This function captures the provided [content] using the specified [profile] and renders it as a
+ * [RemoteDocument] to simulate how it would appear when played back in a remote context.
+ *
+ * @param profile The [Profile] defining the target environment for the remote content. Defaults to
+ *   [RcPlatformProfiles.ANDROIDX].
+ * @param modifier The modifier to be applied to the box containing the preview.
+ * @param content The Composable content to be captured and previewed. It does not have be annotated
+ *   with [@RemoteComposable].
+ */
 @Composable
 public fun RemotePreview(
     profile: Profile = RcPlatformProfiles.ANDROIDX,
