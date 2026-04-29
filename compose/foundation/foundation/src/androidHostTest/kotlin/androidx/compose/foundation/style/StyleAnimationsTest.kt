@@ -363,6 +363,28 @@ class StyleAnimationsTest {
     fun can_animate_fontSynthesis() = runTest {
         animate({ fontSynthesis(it) }, { fontSynthesis }, FontSynthesis.Weight, FontSynthesis.Style)
     }
+
+    @Test
+    fun can_animate_brush_out() = runTest {
+        val state = MutableStyleState(null).also { it.isPressed = true }
+        animateOut(
+            {
+                background(WhiteBrush)
+                pressed { animate { background(BlackBrush) } }
+            },
+            { backgroundBrush },
+            state,
+            { state.isPressed = false },
+        ) {
+            assertTrue(it.size > 2)
+            // Assert it starts and ends at WhiteBrush
+            assertEquals(WhiteBrush, it.first())
+            assertEquals(WhiteBrush, it.last())
+
+            // Assert it animated to BlackBrush
+            assertTrue(it.contains(BlackBrush))
+        }
+    }
 }
 
 @ExperimentalFoundationStyleApi
@@ -384,6 +406,38 @@ private suspend fun <T> TestScope.animate(
         }
         clock.runUntil(duration)
 
+        clock.frameUntilStopped { result.add(collect(resolvedStyle.resolve())) }
+        resolvedStyle.closeForTesting()
+    }
+    block(result)
+}
+
+@ExperimentalFoundationStyleApi
+private suspend fun <T> TestScope.animateOut(
+    style: Style,
+    collect: StyleProperties.() -> T,
+    state: StyleState? = null,
+    out: () -> Unit = {},
+    duration: Int = 1000,
+    interval: Int = 50,
+    block: suspend TestScope.(List<T>) -> Unit,
+) {
+    val resolvedStyle = ResolvedStyle()
+    val clock = TestFrameClock(this)
+    val result = mutableListOf<T>()
+    withContext(clock) {
+        resolvedStyle.buildForTesting(style, Density(100f), state, this)
+        for (frameTimeMillis in 0..duration * 2 step interval) {
+            clock.frame(frameTimeMillis * 1_000_000L)
+        }
+        clock.runUntil(duration * 2)
+
+        clock.frameUntil {
+            result.add(collect(resolvedStyle.resolve()))
+            it >= (duration * 1_000_000L)
+        }
+        out()
+        resolvedStyle.buildForTesting(style, Density(100f), state, this)
         clock.frameUntilStopped { result.add(collect(resolvedStyle.resolve())) }
         resolvedStyle.closeForTesting()
     }
@@ -660,6 +714,13 @@ private class TestFrameClock(private val coroutineScope: CoroutineScope) : Monot
     suspend fun frameUntilStopped(onFrame: (Long) -> Unit) {
         while (!stopped) {
             withFrameNanos(onFrame)
+        }
+    }
+
+    suspend fun frameUntil(onFrame: (Long) -> Boolean) {
+        var run = true
+        while (run && !stopped) {
+            withFrameNanos { run = !onFrame(it) }
         }
     }
 }
