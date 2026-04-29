@@ -84,8 +84,16 @@ private constructor(
             usageFlags: Long?,
             fakeImageReaders: FakeImageReaders,
         ): FakeImageSource {
+            // ImageReaderImageSource maintains a margin to avoid acquiring too many images. We need
+            // to bump up the capacity to keep effective capacity same.
             val fakeImageReader =
-                fakeImageReaders.create(streamFormat, streamId, outputs, capacity, usageFlags)
+                fakeImageReaders.create(
+                    streamFormat,
+                    streamId,
+                    outputs,
+                    capacity + ImageReaderImageSource.IMAGE_SOURCE_CAPACITY_MARGIN,
+                    usageFlags,
+                )
 
             val imageReaderImageSource = ImageReaderImageSource.create(fakeImageReader)
             return FakeImageSource(fakeImageReader, imageReaderImageSource)
