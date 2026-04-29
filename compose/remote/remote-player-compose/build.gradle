@@ -48,6 +48,7 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.8.3")
     implementation("androidx.tracing:tracing-ktx:1.3.0")
     implementation("androidx.activity:activity-compose:1.9.0")
+    androidTestImplementation(project(":compose:remote:remote-testing"))
     androidTestImplementation(project(":compose:remote:remote-creation"))
     androidTestImplementation(project(":compose:remote:remote-creation-compose"))
     androidTestImplementation(project(":compose:remote:remote-player-compose-testutils"))

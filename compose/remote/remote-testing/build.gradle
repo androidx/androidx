@@ -36,3 +36,27 @@ android {
         minSdk { version = release(26) }
     }
 }
+
+dependencies {
+    implementation(libs.junit)
+    implementation(libs.testRunner)
+    implementation("androidx.compose.runtime:runtime:1.8.3")
+    implementation(project(":compose:remote:remote-core"))
+    implementation(project(":compose:remote:remote-creation"))
+    implementation(project(":compose:remote:remote-creation-core"))
+    implementation(project(":compose:remote:remote-creation-compose"))
+
+    testImplementation(libs.truth)
+    testImplementation(libs.testCoreKtx)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.robolectric)
+
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.testRunner)
+}
+
