@@ -4381,6 +4381,99 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    fun dispatchHoverEvent_returnsTrueForHandledAndFalseForUnhandled() {
+        val hoverableBoxTag = "hoverable"
+        val unhoverableBoxTag = "unhoverable"
+
+        setContent {
+            Column {
+                Box(
+                    Modifier.testTag(hoverableBoxTag).size(100.dp).semantics {
+                        contentDescription = "Hoverable Box"
+                    }
+                )
+                Box(Modifier.testTag(unhoverableBoxTag).size(100.dp))
+            }
+        }
+
+        val hoverableBounds =
+            with(rule.density) { rule.onNodeWithTag(hoverableBoxTag).getBoundsInRoot().toRect() }
+        rule.runOnUiThread {
+            val hoverEnter =
+                createHoverMotionEvent(
+                    action = ACTION_HOVER_ENTER,
+                    x = (hoverableBounds.left + hoverableBounds.right) / 2f,
+                    y = (hoverableBounds.top + hoverableBounds.bottom) / 2f,
+                )
+            assertThat(androidComposeView.dispatchHoverEvent(hoverEnter)).isTrue()
+        }
+
+        val unhoverableBounds =
+            with(rule.density) { rule.onNodeWithTag(unhoverableBoxTag).getBoundsInRoot().toRect() }
+        rule.runOnUiThread {
+            val hoverEnter =
+                createHoverMotionEvent(
+                    action = ACTION_HOVER_ENTER,
+                    x = (unhoverableBounds.left + unhoverableBounds.right) / 2f,
+                    y = (unhoverableBounds.top + unhoverableBounds.bottom) / 2f,
+                )
+            assertThat(androidComposeView.dispatchHoverEvent(hoverEnter)).isFalse()
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun dispatchHoverEvent_returnsTrueForHandledAndFalseForUnhandled_featureFlagOff() {
+        val original = ComposeUiFlags.isExploreByTouchHoverHandled
+        try {
+            ComposeUiFlags.isExploreByTouchHoverHandled = false
+            val hoverableBoxTag = "hoverable"
+            val unhoverableBoxTag = "unhoverable"
+
+            setContent {
+                Column {
+                    Box(
+                        Modifier.testTag(hoverableBoxTag).size(100.dp).semantics {
+                            contentDescription = "Hoverable Box"
+                        }
+                    )
+                    Box(Modifier.testTag(unhoverableBoxTag).size(100.dp))
+                }
+            }
+
+            val hoverableBounds =
+                with(rule.density) {
+                    rule.onNodeWithTag(hoverableBoxTag).getBoundsInRoot().toRect()
+                }
+            rule.runOnUiThread {
+                val hoverEnter =
+                    createHoverMotionEvent(
+                        action = ACTION_HOVER_ENTER,
+                        x = (hoverableBounds.left + hoverableBounds.right) / 2f,
+                        y = (hoverableBounds.top + hoverableBounds.bottom) / 2f,
+                    )
+                assertThat(androidComposeView.dispatchHoverEvent(hoverEnter)).isFalse()
+            }
+
+            val unhoverableBounds =
+                with(rule.density) {
+                    rule.onNodeWithTag(unhoverableBoxTag).getBoundsInRoot().toRect()
+                }
+            rule.runOnUiThread {
+                val hoverEnter =
+                    createHoverMotionEvent(
+                        action = ACTION_HOVER_ENTER,
+                        x = (unhoverableBounds.left + unhoverableBounds.right) / 2f,
+                        y = (unhoverableBounds.top + unhoverableBounds.bottom) / 2f,
+                    )
+                assertThat(androidComposeView.dispatchHoverEvent(hoverEnter)).isFalse()
+            }
+        } finally {
+            ComposeUiFlags.isExploreByTouchHoverHandled = original
+        }
+    }
+
+    @Test
     fun testViewInterop_dualHoverEnterExit() {
         val colTag = "ColTag"
         val textTag = "TextTag"

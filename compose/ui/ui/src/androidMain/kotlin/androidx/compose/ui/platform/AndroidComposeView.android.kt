@@ -51,9 +51,7 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_SCROLL
 import android.view.MotionEvent.ACTION_UP
-import android.view.MotionEvent.TOOL_TYPE_ERASER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
-import android.view.MotionEvent.TOOL_TYPE_STYLUS
 import android.view.ScrollCaptureTarget
 import android.view.View
 import android.view.ViewGroup
@@ -3058,6 +3056,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     private fun autofillSupported() = SDK_INT >= O
 
+    @OptIn(ExperimentalComposeUiApi::class)
     public override fun dispatchHoverEvent(event: MotionEvent): Boolean {
         if (hoverExitReceived) {
             // Go ahead and send it now
@@ -3070,14 +3069,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
         // Always call accessibilityDelegate dispatchHoverEvent (since accessibilityDelegate's
         // dispatchHoverEvent only runs if touch exploration is enabled)
-        composeAccessibilityDelegate.dispatchHoverEvent(event)
+        val delegateHandled =
+            composeAccessibilityDelegate.dispatchHoverEvent(event) &&
+                ComposeUiFlags.isExploreByTouchHoverHandled
 
         when (event.actionMasked) {
             ACTION_HOVER_EXIT -> {
                 if (isInBounds(event)) {
                     if (event.getToolType(0) == TOOL_TYPE_MOUSE && event.buttonState != 0) {
                         // We know that this is caused by a mouse button press, so we can ignore it
-                        return false
+                        return delegateHandled
                     }
 
                     // This may be caused by a press (e.g. stylus pressed on the screen), but
@@ -3092,18 +3093,19 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     // a press/down event (which hasn't occurred yet). Therefore, we delay the post
                     // call a small amount to account for that.
                     postDelayed(sendHoverExitEvent, ONE_FRAME_120_HERTZ_IN_MILLISECONDS)
-                    return false
+                    return delegateHandled
                 }
             }
 
             ACTION_HOVER_MOVE ->
                 // Check if we're receiving this when we've already handled it elsewhere
                 if (!isPositionChanged(event)) {
-                    return false
+                    return delegateHandled
                 }
         }
         val result = handleMotionEvent(event)
-        return result.dispatchedToAPointerInputModifier
+
+        return result.dispatchedToAPointerInputModifier || delegateHandled
     }
 
     private fun isBadMotionEvent(event: MotionEvent): Boolean {
