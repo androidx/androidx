@@ -33,7 +33,7 @@ class DpVolumeSizeTest {
     @Before
     fun setUp() {
         ShadowConfig.extract(XrExtensionsProvider.getXrExtensions().config!!)
-            .setDefaultDpPerMeter(1f)
+            .setDefaultDpPerMeter(2000f)
     }
 
     @Test
@@ -54,18 +54,18 @@ class DpVolumeSizeTest {
 
     @Test
     fun toDimensionsInMeter_returnsCorrectDimensions() {
-        val dpVolumeSize = DpVolumeSize(1.dp, 1.dp, 1.dp)
+        val dpVolumeSize = DpVolumeSize(1000.dp, 1000.dp, 1000.dp)
 
         val dimensions = dpVolumeSize.toDimensionsInMeters()
 
-        assertThat(dimensions).isEqualTo(FloatSize3d(1f, 1f, 1f))
+        assertThat(dimensions).isEqualTo(FloatSize3d(0.5f, 0.5f, 0.5f))
     }
 
     @Test
     fun dpVolumeSize_fromMeters_returnsCorrectDpVolumeSize() {
-        val dpVolumeSize = FloatSize3d(1f, 1f, 1f).toDpVolumeSize()
+        val dpVolumeSize = FloatSize3d(0.5f, 0.5f, 0.5f).toDpVolumeSize()
 
-        assertThat(dpVolumeSize).isEqualTo(DpVolumeSize(1.dp, 1.dp, 1.dp))
+        assertThat(dpVolumeSize).isEqualTo(DpVolumeSize(1000.dp, 1000.dp, 1000.dp))
     }
 
     @Test

@@ -431,7 +431,7 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         FakeSubspaceNodeEntity()
 
     public companion object {
-        internal const val DEFAULT_DP_PER_METER: Float = 1151.856f
+        internal const val DEFAULT_DP_PER_METER: Float = 2000f
 
         public const val ALL_SPATIAL_CAPABILITIES: Int =
             SpatialCapabilities.SPATIAL_CAPABILITY_UI or

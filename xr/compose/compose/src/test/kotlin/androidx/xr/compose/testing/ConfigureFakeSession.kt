@@ -34,7 +34,7 @@ import com.android.extensions.xr.ShadowConfig
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 
 private object SubspaceAndroidComposeTestRuleConstants {
-    const val DEFAULT_DP_PER_METER = 1151.856f
+    const val DEFAULT_DP_PER_METER = 2000f
 }
 
 /**
