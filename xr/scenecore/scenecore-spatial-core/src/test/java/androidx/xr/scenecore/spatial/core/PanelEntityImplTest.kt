@@ -30,6 +30,7 @@ import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
+import com.android.extensions.xr.ShadowConfig
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
@@ -63,6 +64,9 @@ class PanelEntityImplTest : AndroidXrEntityImplTest() {
     private val renderViewScenePose: ScenePose = mock(ScenePose::class.java)
     private lateinit var renderViewFov: FieldOfView
 
+    /** The default pixels per meter. */
+    private val pixelsPerMeter = 2000f
+
     override fun createEntity(node: Node): AndroidXrEntity {
         val display = activity.getSystemService(DisplayManager::class.java).displays[0]
         val displayContext = activity.createDisplayContext(display!!)
@@ -82,11 +86,12 @@ class PanelEntityImplTest : AndroidXrEntityImplTest() {
 
     @Before
     fun setUp() {
+        ShadowConfig.extract(xrExtensions.config!!).setDefaultDpPerMeter(pixelsPerMeter)
         val widthAndHeightConfig =
             "+w" + pixelDimensions.width + "dp-h" + pixelDimensions.height + "dp"
         RuntimeEnvironment.setQualifiers(widthAndHeightConfig)
         sceneRuntime =
-            SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions!!, sceneNodeRegistry)
+            SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions, sceneNodeRegistry)
         `when`(renderViewScenePose.activitySpacePose)
             .thenReturn(Pose(Vector3(0f, 0f, 0f), Quaternion.Identity))
         renderViewFov =
@@ -140,9 +145,9 @@ class PanelEntityImplTest : AndroidXrEntityImplTest() {
     fun getSizeForPanelEntity_returnsSizeInMeters() {
         val panelEntity = createPanelEntity(K_VGA_RESOLUTION_PX)
 
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter.
-        Truth.assertThat(panelEntity.size.width).isEqualTo(640f)
-        Truth.assertThat(panelEntity.size.height).isEqualTo(480f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter.
+        Truth.assertThat(panelEntity.size.width).isEqualTo(640f / pixelsPerMeter)
+        Truth.assertThat(panelEntity.size.height).isEqualTo(480f / pixelsPerMeter)
         Truth.assertThat(panelEntity.size.depth).isEqualTo(0f)
     }
 
@@ -150,15 +155,15 @@ class PanelEntityImplTest : AndroidXrEntityImplTest() {
     fun setSizeForPanelEntity_setsSize() {
         val panelEntity = createPanelEntity(K_HD_RESOLUTION_PX)
 
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter.
-        Truth.assertThat(panelEntity.size.width).isEqualTo(1280f)
-        Truth.assertThat(panelEntity.size.height).isEqualTo(720f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter.
+        Truth.assertThat(panelEntity.size.width).isEqualTo(1280f / pixelsPerMeter)
+        Truth.assertThat(panelEntity.size.height).isEqualTo(720f / pixelsPerMeter)
         Truth.assertThat(panelEntity.size.depth).isEqualTo(0f)
 
-        panelEntity.size = K_VGA_RESOLUTION_PX
+        panelEntity.size = Dimensions(0.4f, 0.3f, 0f)
 
-        Truth.assertThat(panelEntity.size.width).isEqualTo(640f)
-        Truth.assertThat(panelEntity.size.height).isEqualTo(480f)
+        Truth.assertThat(panelEntity.size.width).isEqualTo(0.4f)
+        Truth.assertThat(panelEntity.size.height).isEqualTo(0.3f)
         Truth.assertThat(panelEntity.size.depth).isEqualTo(0f)
     }
 
@@ -166,54 +171,55 @@ class PanelEntityImplTest : AndroidXrEntityImplTest() {
     fun setSizeForPanelEntity_updatesPixelDimensions() {
         val panelEntity = createPanelEntity(K_HD_RESOLUTION_PX)
 
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter.
-        Truth.assertThat(panelEntity.size.width).isEqualTo(1280f)
-        Truth.assertThat(panelEntity.size.height).isEqualTo(720f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter.
+        Truth.assertThat(panelEntity.size.width).isEqualTo(1280f / pixelsPerMeter)
+        Truth.assertThat(panelEntity.size.height).isEqualTo(720f / pixelsPerMeter)
         Truth.assertThat(panelEntity.size.depth).isEqualTo(0f)
 
-        panelEntity.size = K_VGA_RESOLUTION_PX
+        panelEntity.size = Dimensions(0.4f, 0.3f, 0f)
 
-        Truth.assertThat(panelEntity.size.width).isEqualTo(640f)
-        Truth.assertThat(panelEntity.size.height).isEqualTo(480f)
+        Truth.assertThat(panelEntity.size.width).isEqualTo(0.4f)
+        Truth.assertThat(panelEntity.size.height).isEqualTo(0.3f)
         Truth.assertThat(panelEntity.size.depth).isEqualTo(0f)
-        Truth.assertThat(panelEntity.sizeInPixels.width).isEqualTo(640)
-        Truth.assertThat(panelEntity.sizeInPixels.height).isEqualTo(480)
+        Truth.assertThat(panelEntity.sizeInPixels.width).isEqualTo(800)
+        Truth.assertThat(panelEntity.sizeInPixels.height).isEqualTo(600)
     }
 
     @Test
     fun createPanel_setsCornerRadius() {
         val panelEntity = createPanelEntity(K_VGA_RESOLUTION_PX)
 
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter.
-        // Validate that the corner radius is set to 32dp.
-        Truth.assertThat(panelEntity.cornerRadius).isEqualTo(32.0f)
-        Truth.assertThat(nodeRepository.getCornerRadius(panelEntity.getNode())).isEqualTo(32.0f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter.
+        // Validate that the corner radius is set to (32dp / 2000) = 0.016m.
+        Truth.assertThat(panelEntity.cornerRadius).isEqualTo(32.0f / pixelsPerMeter)
+        Truth.assertThat(nodeRepository.getCornerRadius(panelEntity.getNode()))
+            .isEqualTo(32.0f / pixelsPerMeter)
     }
 
     @Test
     fun createPanel_smallPanelWidth_setsCornerRadiusToPanelSize() {
         val panelEntity = createPanelEntity(Dimensions(40f, 1000f, 0f))
 
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter.
-        // Validate that the corner radius is set to 32dp.
-        Truth.assertThat(panelEntity.cornerRadius).isEqualTo(20f)
-        Truth.assertThat(nodeRepository.getCornerRadius(panelEntity.getNode())).isEqualTo(20f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter.
+        // Validate that the corner radius is set to 40 / 2 / 2000 = 0.01.
+        Truth.assertThat(panelEntity.cornerRadius).isEqualTo(0.01f)
+        Truth.assertThat(nodeRepository.getCornerRadius(panelEntity.getNode())).isEqualTo(0.01f)
     }
 
     @Test
     fun createPanel_smallPanelHeight_setsCornerRadiusToPanelSize() {
         val panelEntity = createPanelEntity(Dimensions(1000f, 40f, 0f))
 
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter.
-        // Validate that the corner radius is set to 32dp.
-        Truth.assertThat(panelEntity.cornerRadius).isEqualTo(20f)
-        Truth.assertThat(nodeRepository.getCornerRadius(panelEntity.getNode())).isEqualTo(20f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter.
+        // Validate that the corner radius is set to (40dp / 2 / 2000) = 0.01m.
+        Truth.assertThat(panelEntity.cornerRadius).isEqualTo(0.01f)
+        Truth.assertThat(nodeRepository.getCornerRadius(panelEntity.getNode())).isEqualTo(0.01f)
     }
 
     @Test
     fun getPerceivedResolution_validCameraAndPanelInFront_returnsSuccess() {
-        // Panel created with PixelDimensions(2,1). With pixel density 1.0, size is 2m x 1m.
-        val panelEntity = createPanelEntity(Dimensions(2f, 1f, 0f))
+        // Panel created with PixelDimensions(2,1). With pixel density 2000.0, size is 2m x 1m.
+        val panelEntity = createPanelEntity(Dimensions(2 * pixelsPerMeter, pixelsPerMeter, 0f))
 
         // Place panel 2m in front of camera. Camera is at (0,0,0). Panel at (0,0,-2).
         // Panel is parented to ActivitySpaceRoot (identity pose and scale by default).
@@ -229,7 +235,7 @@ class PanelEntityImplTest : AndroidXrEntityImplTest() {
         val successResult = result as PerceivedResolutionResult.Success
 
         // Expected calculation:
-        // Panel size: 2m width, 1m height (since pixel density is 1.0)
+        // Panel size: 2m width, 1m height (since pixel density is 2000.0)
         // Panel scale in activity space: (1,1,1)
         // Effective panel size in activity space: 2m x 1m
         // Panel distance: 2m
@@ -273,7 +279,8 @@ class PanelEntityImplTest : AndroidXrEntityImplTest() {
 
     @Test
     fun getPerceivedResolution_panelWithScale_calculatesCorrectly() {
-        val panelEntity = createPanelEntity(Dimensions(1f, 1f, 0f)) // 1m x 1m
+        val panelEntity =
+            createPanelEntity(Dimensions(pixelsPerMeter, pixelsPerMeter, 0f)) // 1m x 1m
 
         // local size
         panelEntity.setPose(Pose(Vector3(0f, 0f, -2f), Quaternion.Identity))

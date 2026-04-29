@@ -58,6 +58,9 @@ class ActivityPanelEntityImplTest : AndroidXrEntityImplTest() {
     private val nodeRepository: NodeRepository = NodeRepository.getInstance()
     private lateinit var fakeRuntime: SceneRuntime
 
+    /** The default pixels per meter. */
+    private val pixelsPerMeter = 2000f
+
     override fun createEntity(node: Node): AndroidXrEntity {
         val windowBoundsRect = Rect(0, 0, 100, 100)
         // Note: we can't easily use the provided node here because createActivityPanel creates its
@@ -85,7 +88,7 @@ class ActivityPanelEntityImplTest : AndroidXrEntityImplTest() {
 
     @Before
     fun setUp() {
-        ShadowConfig.extract(xrExtensions.config!!).setDefaultDpPerMeter(1f)
+        ShadowConfig.extract(xrExtensions.config!!).setDefaultDpPerMeter(pixelsPerMeter)
         fakeRuntime =
             SpatialSceneRuntime.create(hostActivity, fakeExecutor, xrExtensions, sceneNodeRegistry)
     }
@@ -118,48 +121,58 @@ class ActivityPanelEntityImplTest : AndroidXrEntityImplTest() {
     }
 
     @Test
-    fun createActivityPanelEntity_setsCornersTo32dp() {
+    fun createActivityPanelEntity_setsCornerRadiusToDefaultSize() {
         val activityPanelEntity = createActivityPanelEntity()
 
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter. Validate that the
-        // corner radius is set to 32dp.
-        Truth.assertThat(activityPanelEntity.cornerRadius).isEqualTo(32.0f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter. Validate that
+        // the corner radius is set to (DEFAULT_CORNER_RADIUS_DP = 32) / 2000 = 0.016.
+        val radius = 32.0f / pixelsPerMeter
+
+        Truth.assertThat(activityPanelEntity.cornerRadius).isEqualTo(radius)
         Truth.assertThat(
                 nodeRepository.getCornerRadius(
                     (activityPanelEntity as ActivityPanelEntityImpl).getNode()
                 )
             )
-            .isEqualTo(32.0f)
+            .isEqualTo(radius)
     }
 
     @Test
     fun createPanel_smallPanelWidth_setsCornerRadiusToPanelSize() {
         val activityPanelEntity = createActivityPanelEntity(PixelDimensions(40, 1000))
 
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter.
-        // Validate that the corner radius is set to half the width.
-        Truth.assertThat(activityPanelEntity.cornerRadius).isEqualTo(20f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter.
+        // If the pixel dimensions are smaller than the default corner radius(32dp), use the smaller
+        // of the two dimensions as the corner radius.
+        // Validate that the corner radius is set to half the width, 40 / 2 / 2000 = 0.01.
+        val radius = 40f / 2 / pixelsPerMeter
+
+        Truth.assertThat(activityPanelEntity.cornerRadius).isEqualTo(radius)
         Truth.assertThat(
                 nodeRepository.getCornerRadius(
                     (activityPanelEntity as ActivityPanelEntityImpl).getNode()
                 )
             )
-            .isEqualTo(20f)
+            .isEqualTo(radius)
     }
 
     @Test
     fun createPanel_smallPanelHeight_setsCornerRadiusToPanelSize() {
         val activityPanelEntity = createActivityPanelEntity(PixelDimensions(1000, 40))
 
-        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter.
-        // Validate that the corner radius is set to half the height.
-        Truth.assertThat(activityPanelEntity.cornerRadius).isEqualTo(20f)
+        // The (FakeXrExtensions) test default pixel density is 2000 pixel per meter.
+        // If the pixel dimensions are smaller than the default corner radius(32dp), use the smaller
+        // of the two dimensions as the corner radius.
+        // Validate that the corner radius is set to half the height, 40 / 2 / 2000 = 0.01.
+        val radius = 40f / 2 / pixelsPerMeter
+
+        Truth.assertThat(activityPanelEntity.cornerRadius).isEqualTo(radius)
         Truth.assertThat(
                 nodeRepository.getCornerRadius(
                     (activityPanelEntity as ActivityPanelEntityImpl).getNode()
                 )
             )
-            .isEqualTo(20f)
+            .isEqualTo(radius)
     }
 
     @Test
@@ -198,19 +211,22 @@ class ActivityPanelEntityImplTest : AndroidXrEntityImplTest() {
     @Test
     fun activityPanelEntitySetSize_callsSetSizeInPixels() {
         val activityPanelEntity = createActivityPanelEntity()
-        val dimensions = Dimensions(400f, 300f, 0f)
+        val dimensions = Dimensions(0.4f, 0.3f, 0f)
+        val dimensionsExpected = Dimensions(0.4f * pixelsPerMeter, 0.3f * pixelsPerMeter, 0f)
         activityPanelEntity.size = dimensions
 
         val panel = ShadowXrExtensions.extract(xrExtensions).getActivityPanelForHost(hostActivity)
 
         Truth.assertThat(ShadowActivityPanel.extract(panel).bounds)
-            .isEqualTo(Rect(0, 0, dimensions.width.toInt(), dimensions.height.toInt()))
+            .isEqualTo(
+                Rect(0, 0, dimensionsExpected.width.toInt(), dimensionsExpected.height.toInt())
+            )
 
         // SetSize redirects to setSizeInPixels, so we check the same thing here.
         val viewDimensions = activityPanelEntity.sizeInPixels
 
-        Truth.assertThat(viewDimensions.width).isEqualTo(dimensions.width.toInt())
-        Truth.assertThat(viewDimensions.height).isEqualTo(dimensions.height.toInt())
+        Truth.assertThat(viewDimensions.width).isEqualTo(dimensionsExpected.width.toInt())
+        Truth.assertThat(viewDimensions.height).isEqualTo(dimensionsExpected.height.toInt())
     }
 
     @Test
@@ -226,6 +242,7 @@ class ActivityPanelEntityImplTest : AndroidXrEntityImplTest() {
 
         val viewDimensions = activityPanelEntity.sizeInPixels
 
+        // Get in Pixels size
         Truth.assertThat(viewDimensions.width).isEqualTo(dimensions.width)
         Truth.assertThat(viewDimensions.height).isEqualTo(dimensions.height)
     }
