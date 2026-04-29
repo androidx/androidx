@@ -57,7 +57,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 /**
  * Implementation of the [PerceptionRuntime] interface using Projected.
  *
- * @property lifecycleManager that manages the lifecycle of the Projected session
  * @property perceptionManager that manages the perception capabilities of a runtime using Projected
  * @property timeSource the [ProjectedTimeSource] instance
  */
