@@ -68,31 +68,40 @@ public class VertexAttribute private constructor(private val name: String) {
  * This specifies the data type and component count for an attribute in the vertex buffer.
  */
 @ExperimentalCustomMeshApi
-public class VertexAttributeType private constructor(private val name: String) {
+public class VertexAttributeType private constructor(private val value: Int) {
     public companion object {
         /** A single 32-bit floating point value. */
-        @JvmField public val FLOAT: VertexAttributeType = VertexAttributeType("FLOAT")
+        @JvmField public val FLOAT: VertexAttributeType = VertexAttributeType(1)
         /** Two 32-bit floating point values. */
-        @JvmField public val FLOAT2: VertexAttributeType = VertexAttributeType("FLOAT2")
+        @JvmField public val FLOAT2: VertexAttributeType = VertexAttributeType(2)
         /** Three 32-bit floating point values. */
-        @JvmField public val FLOAT3: VertexAttributeType = VertexAttributeType("FLOAT3")
+        @JvmField public val FLOAT3: VertexAttributeType = VertexAttributeType(3)
         /** Four 32-bit floating point values. */
-        @JvmField public val FLOAT4: VertexAttributeType = VertexAttributeType("FLOAT4")
+        @JvmField public val FLOAT4: VertexAttributeType = VertexAttributeType(4)
         /** Four unsigned 8-bit integers, normalized to [0, 1]. */
-        @JvmField public val UBYTE4_NORM: VertexAttributeType = VertexAttributeType("UBYTE4_NORM")
+        @JvmField public val UBYTE4_NORM: VertexAttributeType = VertexAttributeType(5)
         /** Four unsigned 8-bit integers. */
-        @JvmField public val UBYTE4: VertexAttributeType = VertexAttributeType("UBYTE4")
+        @JvmField public val UBYTE4: VertexAttributeType = VertexAttributeType(6)
     }
 
     public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is VertexAttributeType) return false
-        return name == other.name
+        return value == other.value
     }
 
-    public override fun hashCode(): Int = name.hashCode()
+    public override fun hashCode(): Int = value.hashCode()
 
-    public override fun toString(): String = name
+    public override fun toString(): String =
+        when (this) {
+            FLOAT -> "FLOAT"
+            FLOAT2 -> "FLOAT2"
+            FLOAT3 -> "FLOAT3"
+            FLOAT4 -> "FLOAT4"
+            UBYTE4_NORM -> "UBYTE4_NORM"
+            UBYTE4 -> "UBYTE4"
+            else -> value.toString()
+        }
 }
 
 /**
