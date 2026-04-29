@@ -35,7 +35,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -498,9 +497,7 @@ class OneHandedGestureTest {
         content: @Composable () -> Unit,
     ) {
         val scope: CoroutineScope = rememberCoroutineScope()
-        val haptic = LocalHapticFeedback.current
-        val gestureManager =
-            remember(haptic, scope) { GestureManagerImpl(haptic, scope, sdkGestureInputManager) }
+        val gestureManager = remember(scope) { GestureManagerImpl(scope, sdkGestureInputManager) }
 
         CompositionLocalProvider(LocalGestureManager provides gestureManager) { content() }
     }

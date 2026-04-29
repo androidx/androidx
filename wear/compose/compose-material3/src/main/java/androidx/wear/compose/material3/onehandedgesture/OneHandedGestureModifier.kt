@@ -21,12 +21,14 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.wear.compose.foundation.LocalScreenIsActive
@@ -168,11 +170,12 @@ private class GestureNode(var config: GestureConfig) :
     private var gestureManager: GestureManager? = null
     private var localScreenIsActive = false
     private var currentView: View? = null
+    private var hapticFeedback: HapticFeedback? = null
     private var size: IntSize = IntSize.Zero
 
     override fun onAttach() {
         updateCompositionLocals(false)
-        registerGesture(gestureManager, currentView!!, config)
+        registerGesture(gestureManager, currentView!!, hapticFeedback!!, config)
     }
 
     override fun onObservedReadsChanged() = updateCompositionLocals(true)
@@ -182,6 +185,7 @@ private class GestureNode(var config: GestureConfig) :
         gestureManager = null
         localScreenIsActive = false
         currentView = null
+        hapticFeedback = null
     }
 
     fun updateGesture(newConfig: GestureConfig) {
@@ -199,7 +203,7 @@ private class GestureNode(var config: GestureConfig) :
         } else {
             unregisterGesture(oldGestureManager, currentView!!, oldConfig)
             if (isAttached) {
-                registerGesture(gestureManager, currentView!!, newConfig)
+                registerGesture(gestureManager, currentView!!, hapticFeedback!!, newConfig)
             }
         }
         config = newConfig
@@ -208,17 +212,24 @@ private class GestureNode(var config: GestureConfig) :
     private fun updateCompositionLocals(reregister: Boolean) = observeReads {
         localScreenIsActive = currentValueOf(LocalScreenIsActive)
         currentView = currentValueOf(LocalView)
+        hapticFeedback = currentValueOf(LocalHapticFeedback)
         val newGestureManager = currentValueOf(LocalGestureManager)
         if (reregister) {
             unregisterGesture(gestureManager, currentView!!, config)
-            registerGesture(newGestureManager, currentView!!, config)
+            registerGesture(newGestureManager, currentView!!, hapticFeedback!!, config)
         }
         gestureManager = newGestureManager
     }
 
-    private fun registerGesture(manager: GestureManager?, view: View, gesture: GestureConfig) {
+    private fun registerGesture(
+        manager: GestureManager?,
+        view: View,
+        haptic: HapticFeedback,
+        gesture: GestureConfig,
+    ) {
         manager?.registerGesture(
             view = view,
+            haptic = haptic,
             gesture = gesture,
             isActive = { localScreenIsActive },
             size = { size },
