@@ -19,7 +19,7 @@
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.runtime.SpatialEnvironmentFeature
 

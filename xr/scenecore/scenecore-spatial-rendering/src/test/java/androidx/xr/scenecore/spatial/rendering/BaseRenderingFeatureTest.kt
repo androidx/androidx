@@ -16,10 +16,10 @@
 
 package androidx.xr.scenecore.spatial.rendering
 
-import androidx.xr.runtime.TypeHolder
 import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl
 import androidx.xr.scenecore.impl.impress.ImpressApi
 import androidx.xr.scenecore.impl.impress.ImpressNode
+import androidx.xr.scenecore.runtime.TypeHolder
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node

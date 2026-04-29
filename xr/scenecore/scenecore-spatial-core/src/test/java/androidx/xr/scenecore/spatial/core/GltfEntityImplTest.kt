@@ -16,12 +16,12 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.BoundingBox.Companion.fromMinMax
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature

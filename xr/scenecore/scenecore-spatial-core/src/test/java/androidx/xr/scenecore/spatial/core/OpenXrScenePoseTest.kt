@@ -17,7 +17,6 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -26,6 +25,7 @@ import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.HitTestResult
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.impl.BaseScenePose
 import androidx.xr.scenecore.runtime.impl.OpenXrScenePose

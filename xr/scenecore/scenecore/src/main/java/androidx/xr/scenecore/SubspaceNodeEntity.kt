@@ -17,9 +17,9 @@
 package androidx.xr.scenecore
 
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity as RtSubspaceNodeEntity
 
 /**

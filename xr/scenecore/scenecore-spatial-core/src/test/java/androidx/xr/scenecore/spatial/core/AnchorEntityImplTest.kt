@@ -24,7 +24,6 @@ import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.runtime.Anchor.PersistenceState
 import androidx.xr.arcore.runtime.ExportableAnchor
 import androidx.xr.arcore.runtime.TrackingState
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -33,6 +32,7 @@ import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.runtime.AnchorEntity
 import androidx.xr.scenecore.runtime.GltfFeature
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature

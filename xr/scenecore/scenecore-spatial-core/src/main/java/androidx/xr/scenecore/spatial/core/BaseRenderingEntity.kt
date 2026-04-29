@@ -17,9 +17,9 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.content.Context
-import androidx.xr.runtime.TypeHolder.Companion.assertGetValue
 import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.RenderingFeature
+import androidx.xr.scenecore.runtime.TypeHolder.Companion.assertGetValue
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
 import java.util.concurrent.ScheduledExecutorService

@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore.testing.internal
 
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix3
 import androidx.xr.runtime.math.Pose
@@ -31,6 +30,7 @@ import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshBufferResource
 import androidx.xr.scenecore.runtime.MeshEntity
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.RenderingEntityFactory
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime

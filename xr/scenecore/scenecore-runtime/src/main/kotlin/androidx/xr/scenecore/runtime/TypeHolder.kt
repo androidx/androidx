@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.runtime
+package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
 
@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
  * TypeHolder is used to decouple the dependency to rendering runtime. Pass the rendering runtime
  * object to rendering runtime through the SceneCore with TypeHolder.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed class TypeHolder<T>(public val value: T, public val type: Class<*>) {
     public companion object {
         /** If cast is success, return the typed holder. Otherwise, return null. */
@@ -73,19 +73,12 @@ public sealed class TypeHolder<T>(public val value: T, public val type: Class<*>
  * NodeHolder is used to decouple the dependency to rendering runtime. Pass the rendering runtime
  * object to rendering runtime through the SceneCore with NodeHolder.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class NodeHolder<T>(node: T, type: Class<*>) : TypeHolder<T>(node, type)
-
-/**
- * SpatialStateHolder is used to decouple the dependency to rendering runtime. Pass the rendering
- * runtime SpatialState to rendering runtime through the JXR SDK with SpatialStateHolder.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class SpatialStateHolder<T>(state: T, type: Class<*>) : TypeHolder<T>(state, type)
 
 /**
  * Decouple the dependency to XrExtensions. The XrExtensions can be retrieved from this holder when
  * necessary.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class XrExtensionsHolder<T>(extensions: T, type: Class<*>) : TypeHolder<T>(extensions, type)

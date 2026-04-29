@@ -20,9 +20,9 @@ package androidx.xr.scenecore.testing
 
 import android.graphics.ImageFormat
 import android.media.ImageReader
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node

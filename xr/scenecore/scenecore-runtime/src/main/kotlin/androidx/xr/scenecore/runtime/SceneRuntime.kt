@@ -21,7 +21,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.internal.JxrRuntime
 import androidx.xr.runtime.math.Pose
 import java.util.concurrent.Executor

@@ -19,7 +19,7 @@
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.XrExtensionsHolder
+import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderProvider
 import androidx.xr.scenecore.testing.FakeXrExtensionsHolderProvider.Companion.fakeHolder
 import androidx.xr.scenecore.testing.FakeXrExtensionsHolderProvider.Companion.fakeHolderLegacy
