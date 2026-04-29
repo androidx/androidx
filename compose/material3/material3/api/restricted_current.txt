@@ -4444,7 +4444,7 @@ package androidx.compose.material3 {
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class TimePickerColors {
+  @androidx.compose.runtime.Immutable public final class TimePickerColors {
     ctor @KotlinOnly public TimePickerColors(androidx.compose.ui.graphics.Color clockDialColor, androidx.compose.ui.graphics.Color selectorColor, androidx.compose.ui.graphics.Color containerColor, androidx.compose.ui.graphics.Color periodSelectorBorderColor, androidx.compose.ui.graphics.Color clockDialSelectedContentColor, androidx.compose.ui.graphics.Color clockDialUnselectedContentColor, androidx.compose.ui.graphics.Color periodSelectorSelectedContainerColor, androidx.compose.ui.graphics.Color periodSelectorUnselectedContainerColor, androidx.compose.ui.graphics.Color periodSelectorSelectedContentColor, androidx.compose.ui.graphics.Color periodSelectorUnselectedContentColor, androidx.compose.ui.graphics.Color timeSelectorSelectedContainerColor, androidx.compose.ui.graphics.Color timeSelectorUnselectedContainerColor, androidx.compose.ui.graphics.Color timeSelectorSelectedContentColor, androidx.compose.ui.graphics.Color timeSelectorUnselectedContentColor);
     ctor @BytecodeOnly public TimePickerColors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public androidx.compose.material3.TimePickerColors copy(optional androidx.compose.ui.graphics.Color clockDialColor, optional androidx.compose.ui.graphics.Color selectorColor, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color periodSelectorBorderColor, optional androidx.compose.ui.graphics.Color clockDialSelectedContentColor, optional androidx.compose.ui.graphics.Color clockDialUnselectedContentColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContentColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContentColor, optional androidx.compose.ui.graphics.Color timeSelectorSelectedContainerColor, optional androidx.compose.ui.graphics.Color timeSelectorUnselectedContainerColor, optional androidx.compose.ui.graphics.Color timeSelectorSelectedContentColor, optional androidx.compose.ui.graphics.Color timeSelectorUnselectedContentColor);
@@ -4480,7 +4480,7 @@ package androidx.compose.material3 {
     property public androidx.compose.ui.graphics.Color timeSelectorUnselectedContentColor;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class TimePickerDefaults {
+  @androidx.compose.runtime.Stable public final class TimePickerDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerColors colors();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerColors colors(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerColors colors(optional androidx.compose.ui.graphics.Color clockDialColor, optional androidx.compose.ui.graphics.Color clockDialSelectedContentColor, optional androidx.compose.ui.graphics.Color clockDialUnselectedContentColor, optional androidx.compose.ui.graphics.Color selectorColor, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color periodSelectorBorderColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContentColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContentColor, optional androidx.compose.ui.graphics.Color timeSelectorSelectedContainerColor, optional androidx.compose.ui.graphics.Color timeSelectorUnselectedContainerColor, optional androidx.compose.ui.graphics.Color timeSelectorSelectedContentColor, optional androidx.compose.ui.graphics.Color timeSelectorUnselectedContentColor);
@@ -4523,17 +4523,17 @@ package androidx.compose.material3 {
   }
 
   public final class TimePickerKt {
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void TimePicker(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors, optional androidx.compose.material3.TimePickerLayoutType layoutType);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void TimePicker-mT9BvqQ(androidx.compose.material3.TimePickerState, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, int, androidx.compose.runtime.Composer?, int, int);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.TimePickerState TimePickerState(int initialHour, int initialMinute, boolean is24Hour);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void TimePicker(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors, optional androidx.compose.material3.TimePickerLayoutType layoutType);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimePicker-mT9BvqQ(androidx.compose.material3.TimePickerState, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, int, androidx.compose.runtime.Composer?, int, int);
+    method public static androidx.compose.material3.TimePickerState TimePickerState(int initialHour, int initialMinute, boolean is24Hour);
     method @InaccessibleFromKotlin public static boolean isHourInputValid(androidx.compose.material3.TimePickerState);
     method @InaccessibleFromKotlin public static boolean isInputValid(androidx.compose.material3.TimePickerState);
     method @InaccessibleFromKotlin public static boolean isMinuteInputValid(androidx.compose.material3.TimePickerState);
     method @InaccessibleFromKotlin public static boolean isPm(androidx.compose.material3.TimePickerState);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.TimePickerState rememberTimePickerState(optional int initialHour, optional int initialMinute, optional boolean is24Hour);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.TimePickerState rememberTimePickerState(int, int, boolean, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.TimePickerState rememberTimePickerState(optional int initialHour, optional int initialMinute, optional boolean is24Hour);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.TimePickerState rememberTimePickerState(int, int, boolean, androidx.compose.runtime.Composer?, int, int);
     property public static boolean androidx.compose.material3.TimePickerState.isHourInputValid;
     property public static boolean androidx.compose.material3.TimePickerState.isInputValid;
     property public static boolean androidx.compose.material3.TimePickerState.isMinuteInputValid;
@@ -4553,7 +4553,7 @@ package androidx.compose.material3 {
     property public androidx.compose.material3.TimePickerLayoutType Vertical;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @kotlin.jvm.JvmInline public final value class TimePickerSelectionMode {
+  @kotlin.jvm.JvmInline public final value class TimePickerSelectionMode {
     method @BytecodeOnly public static androidx.compose.material3.TimePickerSelectionMode! box-impl(int);
     method @InaccessibleFromKotlin public int getValue();
     method @BytecodeOnly public int unbox-impl();
@@ -4561,7 +4561,7 @@ package androidx.compose.material3 {
     field public static final androidx.compose.material3.TimePickerSelectionMode.Companion Companion;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final class TimePickerSelectionMode.Companion {
+  public static final class TimePickerSelectionMode.Companion {
     method @BytecodeOnly public int getHour-yecRtBI();
     method @BytecodeOnly public int getMinute-yecRtBI();
     property public androidx.compose.material3.TimePickerSelectionMode Hour;
