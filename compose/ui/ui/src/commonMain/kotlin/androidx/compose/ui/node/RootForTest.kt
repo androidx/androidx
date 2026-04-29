@@ -18,7 +18,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -46,11 +45,12 @@ interface RootForTest {
     fun sendKeyEvent(keyEvent: KeyEvent): Boolean
 
     /**
-     * Send this [IndirectPointerEvent] to the focused component in this [Owner].
+     * Sends [IndirectPointerEvent] to the focused component in this [Owner] for testing. In most
+     * cases, you should use the indirect testing APIs provided in ui-test. See
+     * [androidx.compose.ui.test.IndirectPointerInjectionScope] for more information.
      *
      * @return true if the event was consumed. False otherwise.
      */
-    @ExperimentalIndirectPointerApi
     fun sendIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean = false
 
     /**

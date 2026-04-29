@@ -18,6 +18,7 @@ package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.AccessibilityAction
@@ -36,6 +37,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastFilter
@@ -367,7 +369,7 @@ fun SemanticsNodeInteraction.performGesture(
  * thrown here.
  *
  * Due to the batching of events, all events in a block are sent together and no recomposition will
- * take place in between events. Additionally all events will be generated before any of the events
+ * take place in between events. Additionally, all events will be generated before any of the events
  * take effect. This means that the screen coordinates of all events are resolved before any of the
  * events can cause the position of the node being injected into to change. This has certain
  * advantages, for example, in the cases of nested scrolling or dragging an element around, it
@@ -802,6 +804,77 @@ fun SemanticsNodeInteraction.performFirstLinkClick(
 }
 
 /**
+ * Executes an indirect pointer gesture globally, targeting the currently focused Compose UI (from
+ * root to the focused node).
+ *
+ * This API requires an active focus state meaning developers need to request focus to the component
+ * or a child of the component via [SemanticsNodeInteraction.requestFocus()] before calling this
+ * function. If no component is currently focused, this will throw an [AssertionError].
+ *
+ * If there are multiple Compose roots present, this action will target the first focused root.
+ *
+ * Indirect pointer input events are touch events that are from an external touchpad whose
+ * coordinates are not tied to the screen coordinates.
+ *
+ * These events are dispatched through the focused tree, and components will only receive these
+ * events if they are focused, or an ancestor of a focused item.
+ *
+ * The gesture doesn't need to be complete and can be resumed in a later invocation of
+ * `performIndirectPointerInput { ... }`. The event time is initialized to the current time of the
+ * [MainTestClock].
+ *
+ * Be aware that if you split a gesture over multiple invocations of `performIndirectPointerInput {
+ * ... }`, everything that happens in between will run as if the gesture is still ongoing (imagine a
+ * finger still touching the touchpad).
+ *
+ * All events that are injected from the [block] are batched together and sent after [block] is
+ * complete. This method blocks while the events are injected. If an error occurs during execution
+ * of [block] or injection of the events, all (subsequent) events are dropped and the error is
+ * thrown here.
+ *
+ * Due to the batching of events, all events in a block are sent together and no recomposition will
+ * take place in between events. Additionally, all events will be generated before any of the events
+ * take effect.
+ *
+ * Example of performing a swipe:
+ *
+ * @sample androidx.compose.ui.test.samples.indirectPointerInputSwipeRight
+ *
+ * Examples of click:
+ *
+ * @sample androidx.compose.ui.test.samples.indirectPointerInputClick
+ * @sample androidx.compose.ui.test.samples.indirectPointerInputAssertDuringClick
+ *
+ * Example of performing a click-and-drag:
+ *
+ * @sample androidx.compose.ui.test.samples.indirectPointerInputClickAndDrag
+ * @param indirectPointerEventPrimaryDirectionalMotionAxis The main movement axis (horizontal or
+ *   vertical) for single-directional scrolling when using the touchpad [inputDeviceSize]. For
+ *   instance, if the primary axis is set to X, a display prioritizes scrolling its content (both
+ *   horizontal and vertical containers) based on the device's X-axis movement. Note that this input
+ *   axis may not correspond directly to the resulting scrolling axis on the display (e.g., X-axis
+ *   movement causing vertical scrolling).
+ * @param inputDeviceSize The dimensions of the external indirect pointer input device that provide
+ *   the boundaries for indirect input. If you go outside these dimensions, the tests will throw an
+ *   exception. Note: This is not related to the screen coordinates.
+ * @param block Block of code/events to execute in indirect scope.
+ */
+fun SemanticsNodeInteractionsProvider.performIndirectPointerInput(
+    indirectPointerEventPrimaryDirectionalMotionAxis:
+        IndirectPointerEventPrimaryDirectionalMotionAxis,
+    inputDeviceSize: IntSize,
+    block: IndirectPointerInjectionScope.() -> Unit,
+) {
+    val rootFocusedNode = findFocusedRoot()
+    onNode(SemanticsMatcher("Root with ID ${rootFocusedNode.id}") { it.id == rootFocusedNode.id })
+        .performIndirectPointerInput(
+            indirectPointerEventPrimaryDirectionalMotionAxis,
+            inputDeviceSize,
+            block,
+        )
+}
+
+/**
  * Tries to perform accessibility checks on the current screen. This will only actually do something
  * if (1) accessibility checks are enabled and (2) accessibility checks are implemented for the
  * platform on which the test runs.
@@ -822,6 +895,70 @@ fun SemanticsNodeInteractionCollection.tryPerformAccessibilityChecks():
     // Accessibility checks don't run on one node only, they run on the whole hierarchy. It doesn't
     // matter where we start, so just run them on the first node.
     onFirst().tryPerformAccessibilityChecks()
+    return this
+}
+
+/**
+ * Executes an indirect pointer gesture specified in the given [block] on a targeted node (provided
+ * the node is currently in the focus path).
+ *
+ * This is an internal only function. If you need to test with indirect pointer events, use
+ * [SemanticsNodeInteractionsProvider.performIndirectPointerInput()].
+ *
+ * Indirect pointer input events are touch events that are from an external touchpad whose
+ * coordinates are not tied to the screen coordinates.
+ *
+ * These events are dispatched through the focused tree, and components will only receive these
+ * events if they are focused, or an ancestor of a focused item.
+ *
+ * The gesture doesn't need to be complete and can be resumed in a later invocation of
+ * `performIndirectPointerInput { ... }`. The event time is initialized to the current time of the
+ * [MainTestClock].
+ *
+ * Be aware that if you split a gesture over multiple invocations of `performIndirectPointerInput {
+ * ... }`, everything that happens in between will run as if the gesture is still ongoing (imagine a
+ * finger still touching the touchpad).
+ *
+ * All events that are injected from the [block] are batched together and sent after [block] is
+ * complete. This method blocks while the events are injected. If an error occurs during execution
+ * of [block] or injection of the events, all (subsequent) events are dropped and the error is
+ * thrown here.
+ *
+ * Due to the batching of events, all events in a block are sent together and no recomposition will
+ * take place in between events. Additionally, all events will be generated before any of the events
+ * take effect.
+ *
+ * @param indirectPointerEventPrimaryDirectionalMotionAxis The main movement axis (horizontal or
+ *   vertical) for single-directional scrolling when using the external touchpad [inputDeviceSize].
+ *   For instance, if the primary axis is set to X, a display prioritizes the external device's
+ *   X-axis movement (for example, a scroll or swipe) to navigate content. Note that this input axis
+ *   may not correspond directly to the resulting scrolling axis on the display (e.g., X-axis
+ *   movement causing vertical scrolling).
+ * @param inputDeviceSize The dimensions of the external indirect pointer input device that provide
+ *   the boundaries for indirect input. If you go outside these dimensions, the tests will throw an
+ *   exception. Note: This is not related to the screen coordinates.
+ * @param block Block of code/events to execute in indirect scope
+ */
+internal fun SemanticsNodeInteraction.performIndirectPointerInput(
+    indirectPointerEventPrimaryDirectionalMotionAxis:
+        IndirectPointerEventPrimaryDirectionalMotionAxis,
+    inputDeviceSize: IntSize,
+    block: IndirectPointerInjectionScope.() -> Unit,
+): SemanticsNodeInteraction {
+    tryPerformAccessibilityChecks()
+    val node = fetchSemanticsNode("Failed to inject indirect pointer input.")
+    with(MultiModalInjectionScopeImpl(node, testContext)) {
+        try {
+            indirectPointer(
+                indirectPointerEventPrimaryDirectionalMotionAxis =
+                    indirectPointerEventPrimaryDirectionalMotionAxis,
+                inputDeviceSize = inputDeviceSize,
+                block = block,
+            )
+        } finally {
+            dispose()
+        }
+    }
     return this
 }
 
@@ -867,4 +1004,16 @@ private fun SemanticsNodeInteraction.requireSemantics(
             }]"
         throw AssertionError(buildGeneralErrorMessage(msg, selector, node))
     }
+}
+
+/** Checks all available roots for the one that has both focus and window focus. */
+private fun SemanticsNodeInteractionsProvider.findFocusedRoot(): SemanticsNode {
+    val roots = onAllNodes(isRoot()).fetchSemanticsNodes()
+
+    val rootWithActivityFocus = roots.firstOrNull { it.hasFocusAndWindowFocus }
+
+    if (rootWithActivityFocus == null) {
+        throw AssertionError("No focused nodes within a focused window!")
+    }
+    return rootWithActivityFocus
 }
