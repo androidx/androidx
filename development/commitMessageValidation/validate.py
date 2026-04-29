@@ -39,6 +39,13 @@ def main(args=None):
     all_case_case_words = []
     for m in relnote_pattern.finditer(args.commit):
       match = next(g for g in m.groups() if g is not None)
+
+      if m.groups()[0] is None and '\n' in match.strip():
+        print(
+            'Error: Multi-line release notes must be surrounded by '
+            'triple quotes (""").'
+        )
+        sys.exit(1)
       # Remove all words surrounded by backticks
       text_without_backticks = re.sub(r'`[^`]*`', '', match)
       # Find CaseCase words: words containing at least one lowercase letter
