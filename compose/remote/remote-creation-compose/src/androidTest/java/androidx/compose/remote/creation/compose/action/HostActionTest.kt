@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.action
 
-import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -35,7 +34,8 @@ import androidx.compose.remote.creation.compose.state.rememberMutableRemoteStrin
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteInteractionTestRule
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.uiautomator.uiAutomator
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -44,9 +44,8 @@ import org.junit.Test
 class HostActionTest {
 
     @get:Rule
-    val remoteComposeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
-    }
+    val remoteComposeTestRule: RemoteInteractionTestRule =
+        RemoteInteractionTestRule(context = ApplicationProvider.getApplicationContext())
 
     @Test
     fun hostActionWithConstantName() {
@@ -91,7 +90,7 @@ class HostActionTest {
 
     private fun runActionTest(value: RemoteState<*>?, expected: Any?) {
 
-        remoteComposeTestRule.runTest {
+        remoteComposeTestRule.setContent {
             val valueString =
                 when (value) {
                     is RemoteInt -> value.toRemoteString()
