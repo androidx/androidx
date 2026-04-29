@@ -36,6 +36,7 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.core.content.ContextCompat
+import androidx.wear.utils.WearApiVersionHelper
 import com.google.wear.Sdk
 import com.google.wear.input.ForegroundGestureSubscriptionParams
 import com.google.wear.input.GestureEvent
@@ -412,7 +413,7 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
 
         val consumers = gestureConsumers.getOrPut(view) { mutableIntObjectMapOf() }
         consumers[sdkGestureAction] = Consumer<GestureEvent> { onGesture(sdkGestureAction) }
-        if (Sdk.isApiVersionAtLeast(Sdk.VERSION_CODES.WEAR_CINNAMON_BUN_0)) {
+        if (WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_CINNAMON_BUN_0)) {
             gestureInputManager?.addGestureEventListener(
                 ForegroundGestureSubscriptionParams.Builder(intArrayOf(sdkGestureAction), view)
                     .setAmbientSupported(enabledInAmbient)
