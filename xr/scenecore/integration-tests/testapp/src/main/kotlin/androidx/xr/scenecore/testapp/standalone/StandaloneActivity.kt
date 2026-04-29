@@ -23,7 +23,9 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
@@ -41,7 +43,7 @@ import java.nio.file.Paths
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.time.TimeSource
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
 @SuppressLint("SetTextI18n", "RestrictedApi")
@@ -148,15 +150,17 @@ class StandaloneActivity : AppCompatActivity() {
             val timeSource = TimeSource.Monotonic
             val startTime = timeSource.markNow()
 
-            while (true) {
-                delay(16L)
-                val deltaAngle =
-                    (2 * pi) * ((timeSource.markNow() - startTime).inWholeMilliseconds) /
-                        rotateTimeMs
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    awaitFrame()
+                    val deltaAngle =
+                        (2 * pi) * ((timeSource.markNow() - startTime).inWholeMilliseconds) /
+                            rotateTimeMs
 
-                val angle = startAngle + deltaAngle
-                val pos = Vector3(radius * cos(angle), 0F, radius * sin(angle))
-                modelEntity.setPose(Pose(pos, Quaternion.Identity))
+                    val angle = startAngle + deltaAngle
+                    val pos = Vector3(radius * cos(angle), 0F, radius * sin(angle))
+                    modelEntity.setPose(Pose(pos, Quaternion.Identity))
+                }
             }
         }
     }

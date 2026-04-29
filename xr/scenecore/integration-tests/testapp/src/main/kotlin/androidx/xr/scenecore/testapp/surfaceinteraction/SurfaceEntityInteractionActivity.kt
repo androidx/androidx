@@ -32,6 +32,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
@@ -61,6 +64,8 @@ import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.isMvHevcSupported
 import java.io.File
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.launch
 
 internal const val TAG = "JXR-SurfaceEntityInteractionActivity"
 
@@ -79,9 +84,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
             return if (videoSelected == null) null else videoAttributesMap[videoSelected!!.ordinal]
         }
 
-    private lateinit var view: View
     private lateinit var session: Session
-
     private lateinit var scene: Scene
     private lateinit var device: ArDevice
 
@@ -192,8 +195,14 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
 
         updateButtonsEnabled(null, false)
 
-        view = window.decorView
-        view.postOnAnimation(this::onAnimation)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    onAnimation()
+                    awaitFrame()
+                }
+            }
+        }
     }
 
     private fun onAnimation() {
@@ -251,8 +260,6 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
             val newRot = headPose.rotation
             debugPanelRight.setPose(Pose.lerp(oldPose, Pose(newPos, newRot), followingPortion))
         }
-
-        view.postOnAnimation(this::onAnimation)
     }
 
     override fun onDestroy() {
