@@ -37,7 +37,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.perceptionState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
@@ -84,8 +83,8 @@ class HelloArPlaneActivity : ComponentActivity() {
                 onSessionAvailable = { session ->
                     this.session = session
 
-                    planeRenderer = PlaneRenderer(session, lifecycleScope)
-                    anchorRenderer = AnchorRenderer(this, planeRenderer, session, lifecycleScope)
+                    planeRenderer = PlaneRenderer(session)
+                    anchorRenderer = AnchorRenderer(this, planeRenderer, session)
                     lifecycle.addObserver(planeRenderer)
                     lifecycle.addObserver(anchorRenderer)
 

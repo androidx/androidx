@@ -169,7 +169,7 @@ class GeospatialActivity : ComponentActivity() {
                         loadAnchorsFromSharedPreferences()
                     }
 
-                    planeRenderer = PlaneRenderer(session, lifecycleScope)
+                    planeRenderer = PlaneRenderer(session)
                     lifecycle.addObserver(planeRenderer)
                     attachTapHandlerToPlanes()
                     setContent { MainPanel(session) }

@@ -13,16 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("BanConcurrentHashMap", "TYPEALIAS_EXPANSION_DEPRECATION")
+@file:Suppress("BanConcurrentHashMap", "deprecation", "TYPEALIAS_EXPANSION_DEPRECATION")
 
 package androidx.xr.arcore.testapp.helloar.rendering
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.res.Resources
-import android.graphics.Color
-import android.view.View
-import android.widget.TextView
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.Plane
@@ -38,37 +33,34 @@ import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.scene
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
-import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-internal class PlaneRenderer(val session: Session, val coroutineScope: CoroutineScope) :
-    DefaultLifecycleObserver {
+internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
 
-    private val _planesModelsMap = ConcurrentHashMap<String, GltfModel?>()
+    private val _planesModelsMap = ConcurrentHashMap<PlaneLabel, GltfModel>()
     private val _renderedPlanes: MutableStateFlow<List<PlaneModel>> =
-        MutableStateFlow(mutableListOf<PlaneModel>())
+        MutableStateFlow(mutableListOf())
     internal val renderedPlanes: StateFlow<Collection<PlaneModel>> = _renderedPlanes.asStateFlow()
-
-    private lateinit var updateJob: CompletableJob
+    private lateinit var renderScope: CoroutineScope
 
     override fun onResume(owner: LifecycleOwner) {
-        updateJob =
-            SupervisorJob(
-                coroutineScope.launch {
-                    preloadModels()
-                    Plane.subscribe(session).collect { updatePlaneModels(it) }
-                }
-            )
+        renderScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        renderScope.launch {
+            preloadModels()
+            Plane.subscribe(session).collect { updatePlaneModels(it) }
+        }
     }
 
     override fun onPause(owner: LifecycleOwner) {
-        updateJob.complete()
-        _renderedPlanes.value = emptyList<PlaneModel>()
+        renderScope.cancel()
+        clearPlaneModels()
     }
 
     private suspend fun preloadModels() {
@@ -83,10 +75,8 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
             }
 
         for ((category, assetName) in SUPPORTED_OBJECT_MODELS) {
-            _planesModelsMap[category] = assetToModel[assetName]
+            _planesModelsMap[category] = assetToModel[assetName]!!
         }
-
-        _planesModelsMap["DEFAULT"] = assetToModel[DEFAULT_OBJECT_MODEL]
     }
 
     private suspend fun updatePlaneModels(planes: Collection<Plane>) {
@@ -109,7 +99,7 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
 
     @Suppress("DEPRECATION")
     private suspend fun addPlaneModel(plane: Plane, planesToRender: MutableList<PlaneModel>) {
-        val label = plane.state.value.label.toString()
+        val label = plane.state.value.label
         val asset =
             if (SUPPORTED_OBJECT_MODELS.containsKey(label)) {
                 SUPPORTED_OBJECT_MODELS[label]
@@ -121,19 +111,14 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
                 GltfModel.create(session, Paths.get("models", asset))
             }
         val modelEntity =
-            GltfModelEntity.create(
-                session,
-                _planesModelsMap[label]!!,
-                parent = session.scene.activitySpace,
-            )
+            GltfModelEntity.create(session, model, parent = session.scene.activitySpace)
 
         // The counter starts at max to trigger the resize on the first update loop since emulators
-        // only
-        // update their static planes once.
+        // only update their static planes once.
         var counter = PANEL_RESIZE_UPDATE_COUNT
         // Make the render job a child of the update job so it completes when the parent completes.
         val renderJob =
-            coroutineScope.launch(updateJob) {
+            renderScope.launch {
                 plane.state.collect { state ->
                     if (state.trackingState == TrackingState.TRACKING) {
                         if (state.label == PlaneLabel.UNKNOWN) {
@@ -164,19 +149,9 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
             }
 
         planesToRender.add(
-            PlaneModel(plane.hashCode(), plane.type, plane.state, modelEntity!!, renderJob)
+            PlaneModel(plane.hashCode(), plane.type, plane.state, modelEntity, renderJob)
         )
     }
-
-    private fun createPanelDebugViewUsingCompose(plane: Plane, activity: Activity): View {
-        val view = TextView(activity.applicationContext)
-        view.text = "Plane: ${plane.hashCode()}"
-        view.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM)
-        view.setBackgroundColor(Color.WHITE)
-        return view
-    }
-
-    private fun convertMetersToPixels(input: FloatSize2d): FloatSize2d = input * PX_PER_METER
 
     private fun removePlaneModel(planeModel: PlaneModel, planesToRender: MutableList<PlaneModel>) {
         planeModel.renderJob?.cancel()
@@ -184,23 +159,29 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
         planesToRender.remove(planeModel)
     }
 
+    private fun clearPlaneModels() {
+        for (planeModel in _renderedPlanes.value) {
+            planeModel.modelEntity.parent = null
+        }
+        _renderedPlanes.value = emptyList()
+    }
+
     private fun scaledExtents(extents: FloatSize2d): Vector3 {
         return Vector3(extents.width, extents.height, MODEL_DEPTH)
     }
 
     private companion object {
-        private val PX_PER_METER = Resources.getSystem().displayMetrics.density * 1111.11f
         private val PANEL_TO_PLANE_ROTATION =
             Pose(Vector3(), Quaternion.fromEulerAngles(-90f, 0f, 0f))
         private const val PANEL_RESIZE_UPDATE_COUNT = 50
         private const val MODEL_DEPTH = .001f
-        private val DEFAULT_OBJECT_MODEL = "BoundingBoxGreen.glb"
+        private const val DEFAULT_OBJECT_MODEL = "BoundingBoxGreen.glb"
         private val SUPPORTED_OBJECT_MODELS =
             mapOf(
-                "WALL" to "BoundingBoxGreen.glb",
-                "FLOOR" to "BoundingBoxBlue.glb",
-                "CEILING" to "BoundingBoxYellow.glb",
-                "TABLE" to "BoundingBoxMagenta.glb",
+                PlaneLabel.WALL to "BoundingBoxGreen.glb",
+                PlaneLabel.FLOOR to "BoundingBoxBlue.glb",
+                PlaneLabel.CEILING to "BoundingBoxYellow.glb",
+                PlaneLabel.TABLE to "BoundingBoxMagenta.glb",
             )
     }
 }
