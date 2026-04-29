@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
@@ -36,67 +35,64 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import androidx.test.screenshot.AndroidXScreenshotTestRule
 import java.io.ByteArrayInputStream
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-/** Emulator-based screenshot test of [RecordingCanvas]. */
-@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(AndroidJUnit4::class)
-@MediumTest
+/** Robolectric test of [RecordingCanvas]. */
+@OptIn(ExperimentalCoroutinesApi::class)
+@Config(sdk = [Config.TARGET_SDK])
+@RunWith(RobolectricTestRunner::class)
 class CaptureRemoteDocumentTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
-    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Test
-    fun captureDocument() = runTest {
-        val document: ByteArray =
-            withContext(Dispatchers.Main) {
+    fun captureDocument() =
+        runTest(UnconfinedTestDispatcher()) {
+            val document: ByteArray =
                 captureSingleRemoteDocument(context) {
                         RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red))
                     }
                     .bytes
-            }
 
-        val remoteComposeDocument =
-            CoreDocument().apply {
-                ByteArrayInputStream(document).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+            val remoteComposeDocument =
+                CoreDocument().apply {
+                    ByteArrayInputStream(document).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                    }
                 }
-            }
 
-        assertTrue(remoteComposeDocument.docInfo.mNumberOfOps > 0)
-    }
+            assertTrue(remoteComposeDocument.docInfo.mNumberOfOps > 0)
+        }
 
     @Test
-    fun captureDocumentWithCustomProfile() = runTest {
-        val customProfile =
-            Profile(
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROID_NATIVE,
-                AndroidxRcPlatformServices(),
-                {
-                    Operations.getOperations(
-                            CoreDocument.DOCUMENT_API_LEVEL,
-                            RcProfiles.PROFILE_ANDROIDX,
-                        )
-                        ?.keySet()
-                        .orEmpty() + setOf(Operations.DRAW_TEXT_ON_CIRCLE)
-                },
-            ) { creationDisplayInfo, profile, callback ->
-                RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
-            }
-        val document: ByteArray =
-            withContext(Dispatchers.Main) {
+    fun captureDocumentWithCustomProfile() =
+        runTest(UnconfinedTestDispatcher()) {
+            val customProfile =
+                Profile(
+                    CoreDocument.DOCUMENT_API_LEVEL,
+                    RcProfiles.PROFILE_ANDROID_NATIVE,
+                    AndroidxRcPlatformServices(),
+                    {
+                        Operations.getOperations(
+                                CoreDocument.DOCUMENT_API_LEVEL,
+                                RcProfiles.PROFILE_ANDROIDX,
+                            )
+                            ?.keySet()
+                            .orEmpty() + setOf(Operations.DRAW_TEXT_ON_CIRCLE)
+                    },
+                ) { creationDisplayInfo, profile, callback ->
+                    RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
+                }
+            val document: ByteArray =
                 captureSingleRemoteDocument(context, profile = customProfile) {
                         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                             val redPaint = RemotePaint { color = Color.Red.rc }
@@ -127,8 +123,21 @@ class CaptureRemoteDocumentTest {
                         }
                     }
                     .bytes
+
+            assertTrue(document.isNotEmpty())
+        }
+
+    @Test
+    fun captureDocument_withHostDensity() =
+        runTest(UnconfinedTestDispatcher()) {
+            var capturedDensity: RemoteDensity? = null
+            captureSingleRemoteDocument(context = context, remoteDensity = RemoteDensity.Host) {
+                capturedDensity = LocalRemoteComposeCreationState.current.remoteDensity
+                RemoteBox(modifier = RemoteModifier.fillMaxSize())
             }
 
-        assertTrue(document.isNotEmpty())
-    }
+            assertNotNull(capturedDensity)
+            // Assert that it is not a constant
+            assertNull(capturedDensity?.density?.constantValueOrNull)
+        }
 }
