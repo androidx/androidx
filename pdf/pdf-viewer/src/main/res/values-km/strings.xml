@@ -90,5 +90,4 @@
     <string name="form_widget_type_list_box" msgid="8052623180309553495">"ប្រអប់បញ្ជី"</string>
     <string name="form_widget_type_text_field" msgid="581285155951215607">"កន្លែងបញ្ចូលអក្សរ"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"ហត្ថលេខា"</string>
-    <string name="form_filling_tooltip" msgid="1715428076993648563">"ចុចកន្លែងបញ្ចូលដើម្បីចូលមុខងារបំពេញទម្រង់បែបបទ"</string>
 </resources>

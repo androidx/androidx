@@ -42,8 +42,4 @@
 
     <!-- Form Filling -->
     <dimen name="form_widget_edit_text_boundary_width">2dp</dimen>
-    <dimen name="tooltip_text_size">14sp</dimen>
-    <dimen name="tooltip_padding">16dp</dimen>
-    <dimen name="tooltip_head_offset_from_edge">34dp</dimen>
-    <dimen name="tooltip_extra_padding">8dp</dimen>
 </resources>

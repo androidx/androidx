@@ -294,14 +294,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             selectionStateManager?.isImageSelectionEnabled = value
         }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    /**
-     * Used to determine whether a promotional tooltip for form-filling will be displayed or not
-     * when the user opens a PDF which is a form and form-filling is enabled.
-     */
-    public var isFormFillingTooltipEnabled: Boolean = false
-
     /**
      * The maximum scaling factor that can be applied to this View using the [zoom] property. This
      * value is a multiplier relative to the content's natural size, where '1.0' represents 100%
@@ -1557,7 +1549,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             state.contentCenterY = 0F
         }
         state.isFormFillingEnabled = isFormFillingEnabled
-        state.isFormFillingTooltipEnabled = isFormFillingTooltipEnabled
         if (isImageSelectionAvailableInSdk()) {
             state.isImageSelectionEnabled = isImageSelectionEnabled
         }
@@ -1735,7 +1726,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
 
         isFormFillingEnabled = localStateToRestore.isFormFillingEnabled
-        isFormFillingTooltipEnabled = localStateToRestore.isFormFillingTooltipEnabled
         if (isImageSelectionAvailableInSdk()) {
             isImageSelectionEnabled = localStateToRestore.isImageSelectionEnabled
         }
@@ -2363,29 +2353,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     internal fun commitFormFillingEditText() {
         formFillingEditText?.let { formWidgetInteractionHandler?.finishTextEditing(it) }
-    }
-
-    private val shouldShowFormFillingTooltip: Boolean
-        get() = isFormFillingTooltipEnabled && isFormFillingEnabled && isPdfValidForm
-
-    private val isPdfValidForm: Boolean
-        get() = pdfDocument?.formType != PdfDocument.PDF_FORM_TYPE_NONE
-
-    private fun getFirstVisibleAndEditableFormWidget(): Pair<Int, FormWidgetInfo>? {
-        val localPageMetadataLoader = pageLayoutManager ?: return null
-        val visiblePageAreas = localPageMetadataLoader.visiblePageAreas
-
-        visiblePageAreas.keyIterator().forEach { pageNum ->
-            val editableFormWidgetsInPage =
-                pageManager?.pages[pageNum]?.formWidgetInfos?.filter { !it.isReadOnly }
-
-            editableFormWidgetsInPage?.forEach { widget ->
-                if (visiblePageAreas.get(pageNum).contains(widget.widgetRect.toRectF())) {
-                    return Pair(pageNum, widget)
-                }
-            }
-        }
-        return null
     }
 
     /** The height of the viewport, minus padding */
