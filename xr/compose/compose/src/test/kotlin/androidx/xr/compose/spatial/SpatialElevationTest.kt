@@ -17,11 +17,18 @@
 package androidx.xr.compose.spatial
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertCountEquals
@@ -36,9 +43,12 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.platform.LocalSpatialCapabilities
+import androidx.xr.compose.platform.SpatialCapabilities
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.session
@@ -49,6 +59,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @RunWith(AndroidJUnit4::class)
 class SpatialElevationTest {
@@ -180,5 +192,42 @@ class SpatialElevationTest {
         composeTestRule.waitForIdle()
 
         assertThat(panel.getAlpha()).isEqualTo(0f)
+    }
+
+    @Test
+    fun spatialElevation_preservesStateWhenToggled() {
+        var isSpatialEnabled by mutableStateOf(false)
+        val spatialCapabilities = mock<SpatialCapabilities>()
+        whenever(spatialCapabilities.isSpatialUiEnabled).thenReturn(isSpatialEnabled)
+
+        var count = 0
+
+        composeTestRule.setContent {
+            val currentSpatialEnabled = isSpatialEnabled
+            whenever(spatialCapabilities.isSpatialUiEnabled).thenReturn(currentSpatialEnabled)
+
+            CompositionLocalProvider(LocalSpatialCapabilities provides spatialCapabilities) {
+                SpatialElevation {
+                    var localCount by remember { mutableStateOf(0) }
+                    SideEffect { count = localCount }
+
+                    Box(modifier = Modifier.clickable { localCount++ }.testTag("btn")) {
+                        Text("Count: $localCount")
+                    }
+                }
+            }
+        }
+
+        // 1. Increment the counter
+        composeTestRule.onNodeWithTag("btn").performClick()
+        composeTestRule.waitForIdle()
+        assertThat(count).isEqualTo(1)
+
+        // 2. Toggle spatial UI
+        isSpatialEnabled = true
+        composeTestRule.waitForIdle()
+
+        // 3. Verify that the state (count) was not lost!
+        assertThat(count).isEqualTo(1)
     }
 }
