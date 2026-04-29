@@ -27,7 +27,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.runtime.Config
@@ -45,7 +47,7 @@ import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.math.tan
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
 @SuppressLint("SetTextI18n", "RestrictedApi")
@@ -152,14 +154,18 @@ class SpatialUserActivity : AppCompatActivity() {
         panelRightView: TextView,
     ) {
         lifecycleScope.launch {
-            while (true) {
-                delay(16L)
-                val leftVisible =
-                    cameraLeft?.let { isEntityInView(session.scene.mainPanelEntity, it) } ?: false
-                val rightVisible =
-                    cameraRight?.let { isEntityInView(session.scene.mainPanelEntity, it) } ?: false
-                panelLeftView.text = "$leftVisible"
-                panelRightView.text = "$rightVisible"
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    awaitFrame()
+                    val leftVisible =
+                        cameraLeft?.let { isEntityInView(session.scene.mainPanelEntity, it) }
+                            ?: false
+                    val rightVisible =
+                        cameraRight?.let { isEntityInView(session.scene.mainPanelEntity, it) }
+                            ?: false
+                    panelLeftView.text = "$leftVisible"
+                    panelRightView.text = "$rightVisible"
+                }
             }
         }
     }

@@ -37,7 +37,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
@@ -77,6 +79,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
 @SuppressLint("RestrictedApi", "RestrictedApiAndroidX")
@@ -782,34 +785,46 @@ class MeshEntityActivity : AppCompatActivity() {
             val idScale = Vector3(1f, 1f, 1f)
             val idRot = Quaternion(0f, 0f, 0f, 1f)
 
-            while (true) {
-                kotlinx.coroutines.delay(16)
-                time += 0.05f
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    awaitFrame()
+                    time += 0.05f
 
-                val m0 = Matrix4.Identity
+                    val m0 = Matrix4.Identity
 
-                val angle1 = kotlin.math.sin(time) * 0.5f
-                val q1 =
-                    Quaternion(0f, 0f, kotlin.math.sin(angle1 / 2f), kotlin.math.cos(angle1 / 2f))
-                val pivot1 = Vector3(0f, 0.3f, 0f)
-                val invPivot1 = Vector3(0f, -0.3f, 0f)
-                val m1 =
-                    Matrix4.fromTrs(pivot1, idRot, idScale) *
-                        Matrix4.fromTrs(Vector3(0f, 0f, 0f), q1, idScale) *
-                        Matrix4.fromTrs(invPivot1, idRot, idScale)
+                    val angle1 = kotlin.math.sin(time) * 0.5f
+                    val q1 =
+                        Quaternion(
+                            0f,
+                            0f,
+                            kotlin.math.sin(angle1 / 2f),
+                            kotlin.math.cos(angle1 / 2f),
+                        )
+                    val pivot1 = Vector3(0f, 0.3f, 0f)
+                    val invPivot1 = Vector3(0f, -0.3f, 0f)
+                    val m1 =
+                        Matrix4.fromTrs(pivot1, idRot, idScale) *
+                            Matrix4.fromTrs(Vector3(0f, 0f, 0f), q1, idScale) *
+                            Matrix4.fromTrs(invPivot1, idRot, idScale)
 
-                val angle2 = kotlin.math.sin(time * 1.5f) * 0.8f
-                val q2 =
-                    Quaternion(0f, 0f, kotlin.math.sin(angle2 / 2f), kotlin.math.cos(angle2 / 2f))
-                val pivot2 = Vector3(0f, 0.6f, 0f)
-                val invPivot2 = Vector3(0f, -0.6f, 0f)
-                val m2 =
-                    m1 *
-                        Matrix4.fromTrs(pivot2, idRot, idScale) *
-                        Matrix4.fromTrs(Vector3(0f, 0f, 0f), q2, idScale) *
-                        Matrix4.fromTrs(invPivot2, idRot, idScale)
+                    val angle2 = kotlin.math.sin(time * 1.5f) * 0.8f
+                    val q2 =
+                        Quaternion(
+                            0f,
+                            0f,
+                            kotlin.math.sin(angle2 / 2f),
+                            kotlin.math.cos(angle2 / 2f),
+                        )
+                    val pivot2 = Vector3(0f, 0.6f, 0f)
+                    val invPivot2 = Vector3(0f, -0.6f, 0f)
+                    val m2 =
+                        m1 *
+                            Matrix4.fromTrs(pivot2, idRot, idScale) *
+                            Matrix4.fromTrs(Vector3(0f, 0f, 0f), q2, idScale) *
+                            Matrix4.fromTrs(invPivot2, idRot, idScale)
 
-                wigglingStickEntity?.setBoneTransforms(listOf(m0, m1, m2))
+                    wigglingStickEntity?.setBoneTransforms(listOf(m0, m1, m2))
+                }
             }
         }
     }

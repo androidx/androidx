@@ -28,6 +28,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.runtime.Config
@@ -37,6 +40,7 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.ScenePose
 import androidx.xr.scenecore.Space
@@ -47,7 +51,9 @@ import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 @SuppressLint("SetTextI18n", "RestrictedApi")
 class HeadLockedUiActivity : AppCompatActivity() {
@@ -66,8 +72,6 @@ class HeadLockedUiActivity : AppCompatActivity() {
     private var sliderPositionZ: Float = -1.0f
     private var sliderPositionY: Float = 0.0f
     private var sliderPositionX: Float = 0.0f
-
-    private val animationRunnable: Runnable = Runnable { updateHeadLockedPose() }
 
     enum class ProjectionSource {
         Head,
@@ -188,18 +192,23 @@ class HeadLockedUiActivity : AppCompatActivity() {
 
         // Create the head locked star image panel.
         createHeadLockedPanel()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    updateHeadLockedPose()
+                    awaitFrame()
+                }
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        // Register the animation runnable to update the head locked panel.
-        this.mHeadLockedPanelView.postOnAnimation(animationRunnable)
     }
 
     override fun onStop() {
         super.onStop()
-        // Unregister the animation runnable when the activity is stopped.
-        this.mHeadLockedPanelView.removeCallbacks(animationRunnable)
     }
 
     private fun createHeadLockedPanel() {
@@ -254,35 +263,31 @@ class HeadLockedUiActivity : AppCompatActivity() {
     }
 
     private fun updateHeadLockedPose() {
+        val activitySpace = session?.scene?.activitySpace ?: return
         val projectionSource = getProjectionSource()
         if (projectionSource != null) {
             // Since the panel is parented by the activitySpace, we need to inverse its scale
             // so that the panel stays at a fixed size in the view even when ActivitySpace scales.
             // TODO - b/415320653: Remove use of deprecated Space.REAL_WORLD
             @Suppress("DEPRECATION", "RestrictedApiAndroidX")
-            this.mHeadLockedPanel.setScale(
-                0.5f / session!!.scene.activitySpace.getScale(Space.REAL_WORLD)
-            )
-            projectionSource
-                .transformPoseTo(mUserForward.value, session!!.scene.activitySpace)
-                .let {
-                    this.mHeadLockedPanel.setPose(it)
-                    if (mIsDebugPanelEnabled) updateDebugPanel(it)
-                }
+            this.mHeadLockedPanel.setScale(0.5f / activitySpace.getScale(Space.REAL_WORLD))
+            projectionSource.transformPoseTo(mUserForward.value, activitySpace).let {
+                this.mHeadLockedPanel.setPose(it)
+                if (mIsDebugPanelEnabled) updateDebugPanel(it, activitySpace)
+            }
         }
-        mHeadLockedPanelView.postOnAnimation(animationRunnable)
     }
 
     // TODO - b/415320653: Remove use of deprecated Space.REAL_WORLD
     @Suppress("DEPRECATION", "RestrictedApiAndroidX")
-    private fun updateDebugPanel(projectedPose: Pose) {
+    private fun updateDebugPanel(projectedPose: Pose, activitySpace: Entity) {
         mDebugPanel.view.setLine(
             "ActivitySpace ActivityPose",
-            session!!.scene.activitySpace.poseInActivitySpace.toFormattedString(),
+            activitySpace.getPose(Space.ACTIVITY).toFormattedString(),
         )
         mDebugPanel.view.setLine(
             "ActivitySpace WorldScale",
-            session!!.scene.activitySpace.getScale(Space.REAL_WORLD).toString(),
+            activitySpace.getScale(Space.REAL_WORLD).toString(),
         )
         val worldScaleValue = this.mHeadLockedPanel.getScale(Space.REAL_WORLD).toString()
         mDebugPanel.view.setLine("Head Locked Panel WorldScale", worldScaleValue)

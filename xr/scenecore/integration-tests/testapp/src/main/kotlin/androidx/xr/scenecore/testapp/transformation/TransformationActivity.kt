@@ -26,7 +26,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
@@ -57,7 +59,9 @@ import java.nio.file.Paths
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -135,27 +139,33 @@ class TransformationActivity : AppCompatActivity() {
             // Activity space debug panel
             createActivitySpaceDebugPanel()
 
-            while (true) {
-                val anchorState =
-                    anchor?.state ?: AnchorEntity.State.UNANCHORED // Handle null anchor
-                for (panel in debugTextPanelsToUpdate) {
-                    if (panel.trackedEntity == null) continue // Skip if no tracked entity
-                    if (panel == anchorDebugPanel) {
-                        anchorDebugPanel.view.setLine("Anchor State", anchorState.toString())
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    val anchorState =
+                        anchor?.state ?: AnchorEntity.State.UNANCHORED // Handle null anchor
+                    for (panel in debugTextPanelsToUpdate) {
+                        if (panel.trackedEntity == null) continue // Skip if no tracked entity
+                        if (panel == anchorDebugPanel) {
+                            anchorDebugPanel.view.setLine("Anchor State", anchorState.toString())
+                        }
+                        updateDebugTextPanel(panel.view, panel.trackedEntity!!, anchorState)
                     }
-                    updateDebugTextPanel(panel.view, panel.trackedEntity!!, anchorState)
-                }
-                for (label in labelsToUpdate) {
-                    updateLabelPanelSize(label.labelPanel, label.trackedEntity, label.dimensions)
-                }
-                // Update main panel debug data
-                updateDebugTextPanel(
-                    mainActivityDebugView,
-                    session!!.scene.mainPanelEntity,
-                    anchorState,
-                )
+                    for (label in labelsToUpdate) {
+                        updateLabelPanelSize(
+                            label.labelPanel,
+                            label.trackedEntity,
+                            label.dimensions,
+                        )
+                    }
+                    // Update main panel debug data
+                    updateDebugTextPanel(
+                        mainActivityDebugView,
+                        session!!.scene.mainPanelEntity,
+                        anchorState,
+                    )
 
-                delay(100L)
+                    delay(100L.milliseconds)
+                }
             }
         }
     }
@@ -415,19 +425,21 @@ class TransformationActivity : AppCompatActivity() {
             val timeSource = TimeSource.Monotonic
             val startTime = timeSource.markNow()
 
-            while (true) {
-                if (pauseAnimation.value) {
-                    delay(16L)
-                    continue
-                }
-                delay(16L)
-                val deltaAngle =
-                    (2 * pi) * ((timeSource.markNow() - startTime).inWholeMilliseconds) /
-                        rotateTimeMs
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    if (pauseAnimation.value) {
+                        awaitFrame()
+                        continue
+                    }
+                    awaitFrame()
+                    val deltaAngle =
+                        (2 * pi) * ((timeSource.markNow() - startTime).inWholeMilliseconds) /
+                            rotateTimeMs
 
-                val angle = startAngle + deltaAngle
-                val pos = Vector3(radius * cos(angle), 0F, radius * sin(angle))
-                modelEntity.setPose(Pose(pos, Quaternion.Identity))
+                    val angle = startAngle + deltaAngle
+                    val pos = Vector3(radius * cos(angle), 0F, radius * sin(angle))
+                    modelEntity.setPose(Pose(pos, Quaternion.Identity))
+                }
             }
         }
     }
