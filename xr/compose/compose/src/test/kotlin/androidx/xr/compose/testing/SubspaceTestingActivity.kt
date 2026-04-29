@@ -19,7 +19,6 @@ package androidx.xr.compose.testing
 import android.content.pm.PackageManager
 import androidx.activity.ComponentActivity
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
-import com.android.extensions.xr.ShadowConfig
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
@@ -31,10 +30,6 @@ class SubspaceTestingActivity : ComponentActivity() {
     private val _packageManager: PackageManager = mock<PackageManager>()
 
     init {
-        // TODO(b/447211302) Remove once direct dependency on XrExtensions in Compose XR is removed.
-        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions().config!!)
-            .setDefaultDpPerMeter(1000f)
-
         whenever(_packageManager.hasSystemFeature(FEATURE_XR_API_SPATIAL)).thenReturn(true)
     }
 

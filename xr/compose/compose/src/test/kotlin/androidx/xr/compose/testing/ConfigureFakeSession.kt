@@ -30,7 +30,6 @@ import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.testing.FakeRenderingRuntime
 import androidx.xr.scenecore.testing.FakeSceneRuntimeFactory
-import com.android.extensions.xr.ShadowConfig
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 
 private object SubspaceAndroidComposeTestRuleConstants {
@@ -115,10 +114,6 @@ fun Activity.configureFakeSession(
     perceptionRuntime: (PerceptionRuntime) -> PerceptionRuntime = { it },
     defaultDpPerMeter: Float = SubspaceAndroidComposeTestRuleConstants.DEFAULT_DP_PER_METER,
 ): Session {
-    // TODO(b/447211302) Remove once direct dependency on XrExtensions in Compose XR is removed.
-    ShadowConfig.extract(XrExtensionsProvider.getXrExtensions().config!!)
-        .setDefaultDpPerMeter(defaultDpPerMeter)
-
     val originalSceneRuntime =
         FakeSceneRuntimeFactory().create(this).apply { deviceDpPerMeter = defaultDpPerMeter }
     val wrappedSceneRuntime = sceneRuntime(originalSceneRuntime)
