@@ -46,15 +46,20 @@ import androidx.savedstate.savedState
  * throw an [IllegalStateException] if one is not present.
  *
  * @param parent The [ViewModelStoreOwner] to use as the parent, or `null` if it is a root. Defaults
- *   to the owner from [LocalViewModelStoreOwner].
+ *   to the owner from [LocalViewModelStoreOwner]. If this value changes, the provider will be
+ *   recreated.
  * @param defaultArgs The [SavedState] containing default arguments to be passed to ViewModels
  *   created in this scope. These arguments are merged with any default arguments in
  *   [defaultCreationExtras]. If the same key exists in both, the value from [defaultArgs] takes
- *   precedence.
+ *   precedence. This value is only read during the initial creation of the provider; subsequent
+ *   recompositions with different values will not update the existing provider.
  * @param defaultCreationExtras The [CreationExtras] to use. Defaults to the [parent]'s default
- *   extras.
+ *   extras. This value is only read during the initial creation of the provider; subsequent
+ *   recompositions with different values will not update or recreate the existing provider.
  * @param defaultFactory The [ViewModelProvider.Factory] to use for creating ViewModels in this
- *   scope. Defaults to the [parent]'s default factory.
+ *   scope. Defaults to the [parent]'s default factory. This value is only read during the initial
+ *   creation of the provider; subsequent recompositions with different values will not update or
+ *   recreate the existing provider.
  * @return A new [ViewModelStoreProvider] that is remembered across compositions and scoped to this
  *   call site.
  * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreProviderSample
@@ -98,17 +103,23 @@ public fun rememberViewModelStoreProvider(
  *
  * @param key A unique identifier to isolate this provider from others. Providing the same [key] and
  *   [parent] to multiple [rememberViewModelStoreProvider] calls will yield providers that share the
- *   same internal state, so matching child keys will share the same state.
+ *   same internal state, so matching child keys will share the same state. If this value changes,
+ *   the provider will be recreated.
  * @param parent The [ViewModelStoreOwner] to use as the parent, or `null` if it is a root. Defaults
- *   to the owner from [LocalViewModelStoreOwner].
+ *   to the owner from [LocalViewModelStoreOwner]. If this value changes, the provider will be
+ *   recreated.
  * @param defaultArgs The [SavedState] containing default arguments to be passed to ViewModels
  *   created in this scope. These arguments are merged with any default arguments in
  *   [defaultCreationExtras]. If the same key exists in both, the value from [defaultArgs] takes
- *   precedence.
+ *   precedence. This value is only read during the initial creation of the provider; subsequent
+ *   recompositions with different values will not update the existing provider.
  * @param defaultCreationExtras The [CreationExtras] to use. Defaults to the [parent]'s default
- *   extras.
+ *   extras. This value is only read during the initial creation of the provider; subsequent
+ *   recompositions with different values will not update or recreate the existing provider.
  * @param defaultFactory The [ViewModelProvider.Factory] to use for creating ViewModels in this
- *   scope. Defaults to the [parent]'s default factory.
+ *   scope. Defaults to the [parent]'s default factory. This value is only read during the initial
+ *   creation of the provider; subsequent recompositions with different values will not update or
+ *   recreate the existing provider.
  * @return A new [ViewModelStoreProvider] that is remembered across compositions and scoped to the
  *   provided [key].
  * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreProviderWithKeySample
@@ -125,7 +136,7 @@ public fun rememberViewModelStoreProvider(
     defaultFactory: ViewModelProvider.Factory = parent.defaultViewModelProviderFactory,
 ): ViewModelStoreProvider {
     val provider =
-        remember(parent, key, defaultFactory, defaultCreationExtras) {
+        remember(parent, key) {
             ViewModelStoreProvider(parent, key, defaultArgs, defaultCreationExtras, defaultFactory)
         }
 
