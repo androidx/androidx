@@ -28,7 +28,6 @@ import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
@@ -38,8 +37,6 @@ import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.testutil.AppSearchTestUtils;
 import androidx.appsearch.testutil.SimpleTestLogger;
-import androidx.appsearch.testutil.flags.RequiresFlagsDisabled;
-import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import com.google.android.icing.proto.DeleteStatsProto;
 import com.google.android.icing.proto.DocumentProto;
@@ -650,7 +647,6 @@ public class AppSearchLoggerTest {
     }
 
     @Test
-    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_BLOB_STORE)
     @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_initializeWithDocuments_success() throws Exception {
         final String testPackageName = "testPackage";
@@ -733,7 +729,6 @@ public class AppSearchLoggerTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_enableBlobStore_initializeWithDocuments_success()
             throws Exception {

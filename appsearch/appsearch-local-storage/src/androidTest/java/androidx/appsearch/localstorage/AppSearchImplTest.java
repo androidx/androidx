@@ -50,7 +50,6 @@ import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
@@ -895,7 +894,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testReset_withBlob() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -3702,7 +3700,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testWriteAndReadBlob() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -3737,7 +3734,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testWriteAfterCommit_notAllowed() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -3775,7 +3771,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testRemovePendingBlob() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -3813,7 +3808,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testRemoveCommittedBlob() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -3848,7 +3842,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testRemoveAndReWriteBlob() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -3898,7 +3891,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testOpenReadForWrite_notAllowed() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -3937,7 +3929,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testOpenWriteForRead_allowed() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -3961,7 +3952,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testOpenMultipleBlobForWrite() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -3988,7 +3978,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testOpenMultipleBlobForRead() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -4027,7 +4016,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testOptimizeBlob() throws Exception {
         // Create a new AppSearchImpl with lower orphan blob time to live.
         mAppSearchImpl.close();
@@ -4076,7 +4064,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testOptimizeBlobWithDocument() throws Exception {
         // Create a new AppSearchImpl with lower orphan blob time to live.
         mAppSearchImpl.close();
@@ -4166,7 +4153,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testRevokeFileDescriptor() throws Exception {
         mAppSearchImpl.close();
         // Initialize AppSearch with revocable file descriptor store.
@@ -4215,8 +4201,6 @@ public class AppSearchImplTest {
         }
     }
 
-    // Verify the blob handle won't sent request to Icing. So no need to enable
-    // FLAG_ENABLE_BLOB_STORE.
     @Test
     public void testInvalidBlobHandle() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
@@ -4248,7 +4232,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testSetBlobVisibility() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -4306,36 +4289,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_BLOB_STORE)
-    public void testSetBlobVisibility_notSupported() throws Exception {
-        mAppSearchImpl = AppSearchImpl.create(
-                mAppSearchDir,
-                new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()),
-                AppSearchUserPlugins.EMPTY,
-                ALWAYS_OPTIMIZE);
-
-        SchemaVisibilityConfig visibleToConfig = new SchemaVisibilityConfig.Builder()
-                .addAllowedPackage(new PackageIdentifier("pkgBar", new byte[32]))
-                .addRequiredPermissions(ImmutableSet.of(1, 2))
-                .setPubliclyVisibleTargetPackage(new PackageIdentifier("pkgFoo", new byte[32]))
-                .build();
-        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("namespace")
-                .setNotDisplayedBySystem(false)
-                .addVisibleToConfig(visibleToConfig)
-                .build();
-
-        UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
-                () -> mAppSearchImpl.setBlobNamespaceVisibility(
-                        "package", "db1", ImmutableList.of(config),
-                        /*callStatsBuilder=*/null));
-        assertThat(exception).hasMessageThat().contains(
-                Features.SCHEMA_BLOB_HANDLE
-                        + " is not available on this AppSearch implementation.");
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testRemoveBlobVisibility() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -4483,34 +4436,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_BLOB_STORE)
-    public void testGlobalReadBlob_notSupported() throws Exception {
-        String visiblePrefix = PrefixUtil.createPrefix("package", "db1");
-        VisibilityChecker mockVisibilityChecker =
-                createMockVisibilityChecker(ImmutableSet.of(visiblePrefix + "visibleNamespace"));
-        mAppSearchImpl = AppSearchImpl.create(
-                mAppSearchDir,
-                new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()),
-                new AppSearchUserPlugins.Builder()
-                        .setVisibilityChecker(mockVisibilityChecker).build(),
-                ALWAYS_OPTIMIZE);
-
-        byte[] data = generateRandomBytes(20 * 1024); // 20 KiB
-        byte[] digest = calculateDigest(data);
-        AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
-                digest, "package", "db1", "ns");
-        // nonVisibleHandle is not visible to the caller.
-        UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
-                () -> mAppSearchImpl.globalOpenReadBlob(handle, mSelfCallerAccess,
-                /*callStatsBuilder=*/null));
-        assertThat(exception).hasMessageThat().contains(
-                Features.SCHEMA_BLOB_HANDLE
-                        + " is not available on this AppSearch implementation.");
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testGlobalReadBlob() throws Exception {
         String visiblePrefix = PrefixUtil.createPrefix("package", "db1");
         VisibilityChecker mockVisibilityChecker =
@@ -4579,7 +4504,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testGlobalReadBlob_sameErrorMessage() throws Exception {
         String visiblePrefix = PrefixUtil.createPrefix("package", "db1");
         VisibilityChecker mockVisibilityChecker =
@@ -4960,59 +4884,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_BLOB_STORE)
-    public void testGetAllPrefixedSchemaTypes() throws Exception {
-        // Insert schema
-        List<AppSearchSchema> schemas1 =
-                Collections.singletonList(new AppSearchSchema.Builder("type1").build());
-        List<AppSearchSchema> schemas2 =
-                Collections.singletonList(new AppSearchSchema.Builder("type2").build());
-        List<AppSearchSchema> schemas3 =
-                Collections.singletonList(new AppSearchSchema.Builder("type3").build());
-        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
-                "package1",
-                "database1",
-                schemas1,
-                /*visibilityConfigs=*/ Collections.emptyList(),
-                /*accountPropertyPaths=*/ ImmutableMap.of(),
-                /*forceOverride=*/ false,
-                /*version=*/ 0,
-                /* setSchemaStatsBuilder= */ null,
-                /*callStatsBuilder=*/ null);
-        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-        internalSetSchemaResponse = mAppSearchImpl.setSchema(
-                "package1",
-                "database2",
-                schemas2,
-                /*visibilityConfigs=*/ Collections.emptyList(),
-                /*accountPropertyPaths=*/ ImmutableMap.of(),
-                /*forceOverride=*/ false,
-                /*version=*/ 0,
-                /* setSchemaStatsBuilder= */ null,
-                /*callStatsBuilder=*/ null);
-        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-        internalSetSchemaResponse = mAppSearchImpl.setSchema(
-                "package2",
-                "database1",
-                schemas3,
-                /*visibilityConfigs=*/ Collections.emptyList(),
-                /*accountPropertyPaths=*/ ImmutableMap.of(),
-                /*forceOverride=*/ false,
-                /*version=*/ 0,
-                /* setSchemaStatsBuilder= */ null,
-                /*callStatsBuilder=*/ null);
-        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-        assertThat(mAppSearchImpl.getAllPrefixedSchemaTypes()).containsExactly(
-                "package1$database1/type1",
-                "package1$database2/type2",
-                "package2$database1/type3",
-                "VS#Pkg$VS#Db/VisibilityType",  // plus the stored Visibility schema
-                "VS#Pkg$VS#Db/VisibilityPermissionType",
-                "VS#Pkg$VS#AndroidVDb/AndroidVOverlayType");
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testGetAllPrefixedSchemaTypes_enableBlobStore() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -5440,7 +5311,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testGetStorageInfoForPackages_withBlob() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -5503,7 +5373,6 @@ public class AppSearchImplTest {
 
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testGetStorageInfoForDatabase_withBlob() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -6216,58 +6085,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_BLOB_STORE)
-    public void testGetIcingSearchEngineStorageInfo() throws Exception {
-        List<AppSearchSchema> schemas =
-                Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
-                "package",
-                "database",
-                schemas,
-                /*visibilityConfigs=*/ Collections.emptyList(),
-                /*accountPropertyPaths=*/ ImmutableMap.of(),
-                /*forceOverride=*/ false,
-                /*version=*/ 0,
-                /* setSchemaStatsBuilder= */ null,
-                /*callStatsBuilder=*/ null);
-        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-
-        // Add two documents
-        GenericDocument document1 =
-                new GenericDocument.Builder<>("namespace1", "id1", "type").build();
-        mAppSearchImpl.putDocument(
-                "package",
-                "database",
-                document1,
-                /*sendChangeNotifications=*/ false,
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-        GenericDocument document2 =
-                new GenericDocument.Builder<>("namespace1", "id2", "type").build();
-        mAppSearchImpl.putDocument(
-                "package",
-                "database",
-                document2,
-                /*sendChangeNotifications=*/ false,
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-
-        StorageInfoProto storageInfo = mAppSearchImpl.getRawStorageInfoProto(
-                /*callStatsBuilder=*/ null);
-
-        // Simple checks to verify if we can get correct StorageInfoProto from IcingSearchEngine
-        // No need to cover all the fields
-        assertThat(storageInfo.getTotalStorageSize()).isGreaterThan(0);
-        assertThat(
-                storageInfo.getDocumentStorageInfo().getNumAliveDocuments())
-                .isEqualTo(2);
-        assertThat(
-                storageInfo.getSchemaStoreStorageInfo().getNumSchemaTypes())
-                .isEqualTo(4); // +2 for VisibilitySchema, +1 for VisibilityOverlay
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testGetIcingSearchEngineStorageInfo_enableBlobStore() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -6327,57 +6144,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_BLOB_STORE)
-    public void testGetIcingSearchEngineDebugInfo() throws Exception {
-        List<AppSearchSchema> schemas =
-                Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
-                "package",
-                "database",
-                schemas,
-                /*visibilityConfigs=*/ Collections.emptyList(),
-                /*accountPropertyPaths=*/ ImmutableMap.of(),
-                /*forceOverride=*/ false,
-                /*version=*/ 0,
-                /* setSchemaStatsBuilder= */ null,
-                /*callStatsBuilder=*/ null);
-        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-
-        // Add two documents
-        GenericDocument document1 =
-                new GenericDocument.Builder<>("namespace1", "id1", "type").build();
-        mAppSearchImpl.putDocument(
-                "package",
-                "database",
-                document1,
-                /*sendChangeNotifications=*/ false,
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-        GenericDocument document2 =
-                new GenericDocument.Builder<>("namespace1", "id2", "type").build();
-        mAppSearchImpl.putDocument(
-                "package",
-                "database",
-                document2,
-                /*sendChangeNotifications=*/ false,
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-
-        DebugInfoProto debugInfo =
-                mAppSearchImpl.getRawDebugInfoProto(DebugInfoVerbosity.Code.DETAILED);
-
-        // Simple checks to verify if we can get correct DebugInfoProto from IcingSearchEngine
-        // No need to cover all the fields
-        assertThat(debugInfo.getDocumentInfo().getCorpusInfoList()).hasSize(1);
-        assertThat(
-                debugInfo.getDocumentInfo().getDocumentStorageInfo().getNumAliveDocuments())
-                .isEqualTo(2);
-        assertThat(debugInfo.getSchemaInfo().getSchema().getTypesList())
-                .hasSize(4); // +2 for VisibilitySchema, +1 for VisibilityOverlay
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testGetIcingSearchEngineDebugInfo_enableBlobStore() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
@@ -9004,7 +8770,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testLimitConfig_activeWriteFds() throws Exception {
         mAppSearchImpl.close();
         File tempFolder = mTemporaryFolder.newFolder();
@@ -9075,7 +8840,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testLimitConfig_activeReadFds() throws Exception {
         mAppSearchImpl.close();
         File tempFolder = mTemporaryFolder.newFolder();
@@ -11845,7 +11609,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testClearAndDestroy_shouldRevokeFileDescriptor() throws Exception {
         mAppSearchImpl.close();
         // Initialize AppSearch with revocable file descriptor store.
@@ -13178,7 +12941,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testGetAndResetNeedPersistToDisk_returnsTrueAfterOpenWriteAndCommitBlob()
             throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
@@ -13212,7 +12974,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testGetAndResetNeedPersistToDisk_returnsTrueAfterSetBlobVisibility()
             throws Exception {
         mAppSearchImpl = AppSearchImpl.create(

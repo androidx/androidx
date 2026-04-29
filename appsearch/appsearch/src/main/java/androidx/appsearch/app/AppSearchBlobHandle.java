@@ -22,8 +22,6 @@ import android.os.Parcelable.Creator;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.flags.FlaggedApi;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.AppSearchBlobHandleCreator;
@@ -53,7 +51,6 @@ import java.util.Objects;
  *
  * @see GenericDocument.Builder#setPropertyBlobHandle
  */
-@FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
 // TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to Platform.
 //  Do not switch until this is resolved.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})

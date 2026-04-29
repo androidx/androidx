@@ -19,8 +19,6 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.RequiresFeature;
-import androidx.appsearch.flags.FlaggedApi;
-import androidx.appsearch.flags.Flags;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -157,7 +155,6 @@ public interface AppSearchSession extends Closeable {
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SCHEMA_BLOB_HANDLE)
-    @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
     default @NonNull ListenableFuture<OpenBlobForWriteResponse> openBlobForWriteAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
         throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
@@ -188,7 +185,6 @@ public interface AppSearchSession extends Closeable {
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SCHEMA_BLOB_HANDLE)
-    @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
     default @NonNull ListenableFuture<RemoveBlobResponse> removeBlobAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
         throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
@@ -228,7 +224,6 @@ public interface AppSearchSession extends Closeable {
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SCHEMA_BLOB_HANDLE)
-    @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
     default @NonNull ListenableFuture<CommitBlobResponse> commitBlobAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
         throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
@@ -253,7 +248,6 @@ public interface AppSearchSession extends Closeable {
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SCHEMA_BLOB_HANDLE)
-    @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
     default @NonNull ListenableFuture<OpenBlobForReadResponse> openBlobForReadAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
         throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
@@ -276,7 +270,6 @@ public interface AppSearchSession extends Closeable {
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SCHEMA_BLOB_HANDLE)
-    @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
     default @NonNull ListenableFuture<Void> setBlobVisibilityAsync(
             @NonNull SetBlobVisibilityRequest request) {
         throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE

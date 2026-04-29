@@ -38,9 +38,7 @@ import androidx.appsearch.builtintypes.Account;
 import androidx.appsearch.builtintypes.PotentialAction;
 import androidx.appsearch.builtintypes.Thing;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchEmail;
-import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 import androidx.appsearch.util.DocumentIdUtil;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -3196,7 +3194,6 @@ public abstract class AnnotationProcessorTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testBlobHandleSearch() throws Exception {
         assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_BLOB_HANDLE));
 

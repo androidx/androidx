@@ -22,9 +22,7 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetBlobVisibilityRequest;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchTestUtils;
-import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -38,7 +36,6 @@ public class SetBlobVisibilityRequestCtsTest {
     public final RuleChain mRuleChain = AppSearchTestUtils.createCommonTestRules();
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testBuildAndGet() {
         PackageIdentifier packageIdentifier1 =
                 new PackageIdentifier("com.package.foo", new byte[] {100});
@@ -73,7 +70,6 @@ public class SetBlobVisibilityRequestCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testRebuild() {
         PackageIdentifier packageIdentifier1 =
                 new PackageIdentifier("com.package.foo", new byte[] {100});
@@ -119,7 +115,6 @@ public class SetBlobVisibilityRequestCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
     public void testClearNamespaceVisibleToConfigs() {
         PackageIdentifier packageIdentifier1 =
                 new PackageIdentifier("com.package.foo", new byte[] {100});

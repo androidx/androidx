@@ -2145,14 +2145,12 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SCHEMA_BLOB_HANDLE)
-    @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
     public static final class BlobHandlePropertyConfig extends PropertyConfig {
         BlobHandlePropertyConfig(@NonNull PropertyConfigParcel propertyConfigParcel) {
             super(propertyConfigParcel);
         }
 
         /** Builder for {@link BlobHandlePropertyConfig}. */
-        @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
         public static final class Builder {
             private final String mPropertyName;
             private String mDescription = "";
