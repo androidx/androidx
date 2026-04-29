@@ -64,7 +64,26 @@ class FakeImageReaderTest {
         assertThat(fakeImage.height).isEqualTo(IMAGE_HEIGHT)
         assertThat(fakeImage.format).isEqualTo(StreamFormat.PRIVATE.value)
         assertThat(fakeImage.timestamp).isEqualTo(100)
+        assertThat(fakeImage.planes).hasSize(0)
         assertThat(fakeImage.isClosed).isFalse()
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P)
+    fun imageReaderCanSimulateYuvImagesWith3Planes() {
+        val yuvImageReader =
+            FakeImageReader.create(
+                StreamFormat.YUV_420_888,
+                StreamId(32),
+                OutputId(42),
+                Size(IMAGE_WIDTH, IMAGE_HEIGHT),
+                10,
+                null,
+            )
+        val fakeImage = yuvImageReader.simulateImage(100)
+
+        assertThat(fakeImage.format).isEqualTo(StreamFormat.YUV_420_888.value)
+        assertThat(fakeImage.planes).hasSize(3)
     }
 
     @Test
