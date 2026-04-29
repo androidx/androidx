@@ -121,6 +121,10 @@ public class HostDispatcherTest {
             }
 
             @Override
+            public void setVoiceAssistantCapabilities(Bundleable capabilities) {
+            }
+
+            @Override
             public int getInterfaceVersion() {
                 return super.VERSION;
             }

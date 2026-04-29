@@ -20,12 +20,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
+import androidx.annotation.OptIn;
+import androidx.car.app.HandshakeInfo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.navigation.NavigationManagerCallback;
 import androidx.car.app.navigation.model.Destination;
+import androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities;
 import androidx.car.app.navigation.model.Step;
 import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.navigation.model.Trip;
@@ -227,6 +231,35 @@ public class TestNavigationManagerTest {
         mCarContext.getCarService(NavigationManager.class).navigationEnded();
         assertThat(mCarContext.getCarService(TestNavigationManager.class).getNavigationEndedCount())
                 .isEqualTo(1);
+    }
+
+    @Test
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    public void getVoiceAssistantCapabilitiesSent_returnsCapabilities() {
+        TestNavigationManager mTestNavigationManager = mCarContext.getCarService(
+                TestNavigationManager.class);
+
+        mCarContext.updateHandshakeInfo(new HandshakeInfo("com.example.host", 9));
+        org.robolectric.Shadows.shadowOf(mCarContext.getPackageManager()).setSystemFeature(
+                android.content.pm.PackageManager.FEATURE_AUTOMOTIVE, true);
+
+        assertThat(mTestNavigationManager.getVoiceAssistantCapabilitiesSent()).isEmpty();
+
+        NavigationVoiceAssistantCapabilities capabilities1 =
+                new NavigationVoiceAssistantCapabilities.Builder()
+                        .setVoiceAssistantConsentGranted(true)
+                        .build();
+
+        NavigationVoiceAssistantCapabilities capabilities2 =
+                new NavigationVoiceAssistantCapabilities.Builder()
+                        .setVoiceAssistantConsentGranted(false)
+                        .build();
+
+        mTestNavigationManager.setVoiceAssistantCapabilities(capabilities1);
+        mTestNavigationManager.setVoiceAssistantCapabilities(capabilities2);
+
+        assertThat(mTestNavigationManager.getVoiceAssistantCapabilitiesSent()).containsExactly(
+                capabilities1, capabilities2).inOrder();
     }
 
     private static void checkTrip(
