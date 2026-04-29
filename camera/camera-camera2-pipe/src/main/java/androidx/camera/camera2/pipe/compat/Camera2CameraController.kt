@@ -73,6 +73,7 @@ constructor(
     private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val camera2DeviceManager: Camera2DeviceManager,
     private val cameraSurfaceManager: CameraSurfaceManager,
+    private val camera2SystemState: Camera2SystemState,
     private val camera2Quirks: Camera2Quirks,
     private val timeSource: TimeSource,
     override val cameraGraphId: CameraGraphId,
@@ -205,6 +206,11 @@ constructor(
             Log.warn { "Ignoring start(): $this is already started" }
             return
         }
+
+        // Before opening the camera, make sure the camera2SystemState knows that the graph
+        // is now in an active state.
+        camera2SystemState.onGraphStarting(cameraGraphId)
+
         lastCameraError = null
         val cameraId = graphConfig.camera
         val allCameraIds = graphConfig.concurrentCameraGraphs?.cameraIds ?: setOf(cameraId)
@@ -426,6 +432,7 @@ constructor(
 
     @GuardedBy("lock")
     private fun detachSessionAndCamera(session: CaptureSessionState?, camera: VirtualCamera?) {
+        camera2SystemState.onGraphStopped(cameraGraphId)
         val job =
             scope.launch {
                 session?.shutdown()

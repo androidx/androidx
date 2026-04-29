@@ -21,6 +21,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.TimeSource
@@ -98,6 +99,7 @@ internal class PruningCamera2DeviceManagerImplTest {
                         fakeCameraErrorListener,
                         fakeCamera2DeviceCloser,
                         fakeCamera2Quirks,
+                        fakeCamera2SystemState,
                         fakeThreads,
                         fakeAudioRestrictionController,
                     )
@@ -120,6 +122,8 @@ internal class PruningCamera2DeviceManagerImplTest {
     private val criticalCameraErrorListenerProvider = Provider { fakeCriticalCameraErrorListener }
     private val fakeCamera2ErrorProcessor =
         Camera2ErrorProcessor(criticalCameraErrorListenerProvider)
+    private val fakeCamera2SystemState =
+        Camera2SystemState(CameraPipe.CameraInteropConfig(), fakeThreads)
 
     private val deviceManager =
         PruningCamera2DeviceManager(
@@ -127,6 +131,7 @@ internal class PruningCamera2DeviceManagerImplTest {
             fakeRetryingCameraStateOpener,
             fakeCamera2DeviceCloser,
             fakeCamera2ErrorProcessor,
+            fakeCamera2SystemState,
             fakeThreads,
         )
 
@@ -935,6 +940,7 @@ internal class PruningCamera2DeviceManagerImplTest {
                 fakeCameraErrorListener,
                 fakeCamera2DeviceCloser,
                 fakeCamera2Quirks,
+                fakeCamera2SystemState,
                 fakeThreads,
                 fakeAudioRestrictionController,
             )

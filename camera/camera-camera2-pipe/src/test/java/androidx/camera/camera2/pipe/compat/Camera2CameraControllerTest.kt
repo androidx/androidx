@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamFormat
@@ -100,6 +101,8 @@ class Camera2CameraControllerTest {
             FakeCamera2MetadataProvider(mapOf(cameraId to fakeCameraMetadata)),
             StrictMode(false),
         )
+    private val fakeCamera2SystemState =
+        Camera2SystemState(CameraPipe.CameraInteropConfig(), fakeThreads)
     private val fakeTimeSource: TimeSource = mock()
     private val fakeGraphId = CameraGraphId.nextId()
     private val fakeShutdownListener: Camera2CameraController.ShutdownListener = mock()
@@ -133,6 +136,7 @@ class Camera2CameraControllerTest {
                 fakeCaptureSequenceProcessorFactory,
                 fakeCamera2DeviceManager,
                 fakeCameraSurfaceManager,
+                fakeCamera2SystemState,
                 fakeCamera2Quirks,
                 fakeTimeSource,
                 fakeGraphId,
@@ -521,6 +525,42 @@ class Camera2CameraControllerTest {
             testScheduler.advanceUntilIdle()
             assertEquals(cameraController.controllerState, ControllerState.STARTED)
             verify(fakeCaptureSessionFactory, times(1)).create(any(), any(), any())
+
+            cameraController.close()
+        }
+
+    @Test
+    fun testControllerStopThenCloseDoesNotCrash() =
+        testScope.runTest(20.seconds) {
+            val cameraController = createCamera2CameraController()
+            cameraController.updateSurfaceMap(mapOf(streamId1 to fakeSurface))
+            cameraController.start()
+            fakeCamera2DeviceManager.simulateCameraOpen(cameraId)
+            testScheduler.advanceUntilIdle()
+
+            cameraController.stop()
+            testScheduler.advanceUntilIdle()
+
+            cameraController.close()
+            testScheduler.advanceUntilIdle()
+
+            assertEquals(cameraController.controllerState, ControllerState.CLOSED)
+        }
+
+    @Test
+    fun testControllerMultipleStopsDoNotCrash() =
+        testScope.runTest(20.seconds) {
+            val cameraController = createCamera2CameraController()
+            cameraController.updateSurfaceMap(mapOf(streamId1 to fakeSurface))
+            cameraController.start()
+            fakeCamera2DeviceManager.simulateCameraOpen(cameraId)
+            testScheduler.advanceUntilIdle()
+
+            cameraController.stop()
+            testScheduler.advanceUntilIdle()
+
+            cameraController.stop()
+            testScheduler.advanceUntilIdle()
 
             cameraController.close()
         }

@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_UNKNOWN_EXCEPTIO
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Timestamps
@@ -141,12 +142,16 @@ class RetryingCameraStateOpenerTest {
             }
         }
 
+    private val fakeCamera2SystemState =
+        Camera2SystemState(CameraPipe.CameraInteropConfig(), FakeThreads.fromTestScope(TestScope()))
+
     private val cameraStateOpener =
         CameraStateOpener(
             cameraOpener,
             camera2MetadataProvider,
             fakeCameraErrorListener,
             fakeCamera2Quirks,
+            fakeCamera2SystemState,
             fakeTimeSource,
             cameraInteropConfig = null,
             FakeThreads.fromTestScope(TestScope()),
