@@ -69,6 +69,12 @@ abstract interface androidx.datastore.core/InterProcessCoordinator { // androidx
     abstract suspend fun incrementAndGetVersion(): kotlin/Int // androidx.datastore.core/InterProcessCoordinator.incrementAndGetVersion|incrementAndGetVersion(){}[0]
 }
 
+final class <#A: kotlin/Any?> androidx.datastore.core.handlers/ReThrowCorruptionHandler : androidx.datastore.core/CorruptionHandler<#A> { // androidx.datastore.core.handlers/ReThrowCorruptionHandler|null[0]
+    constructor <init>() // androidx.datastore.core.handlers/ReThrowCorruptionHandler.<init>|<init>(){}[0]
+
+    final suspend fun handleCorruption(androidx.datastore.core/CorruptionException): #A // androidx.datastore.core.handlers/ReThrowCorruptionHandler.handleCorruption|handleCorruption(androidx.datastore.core.CorruptionException){}[0]
+}
+
 final class <#A: kotlin/Any?> androidx.datastore.core.handlers/ReplaceFileCorruptionHandler : androidx.datastore.core/CorruptionHandler<#A> { // androidx.datastore.core.handlers/ReplaceFileCorruptionHandler|null[0]
     constructor <init>(kotlin/Function1<androidx.datastore.core/CorruptionException, #A>) // androidx.datastore.core.handlers/ReplaceFileCorruptionHandler.<init>|<init>(kotlin.Function1<androidx.datastore.core.CorruptionException,1:0>){}[0]
 

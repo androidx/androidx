@@ -19,7 +19,7 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.CorruptionHandler
 
 /** Default corruption handler which does nothing but rethrow the exception. */
-internal actual class ReThrowCorruptionHandler<T> : CorruptionHandler<T> {
+public actual class ReThrowCorruptionHandler<T> : CorruptionHandler<T> {
 
     @Throws(CorruptionException::class)
     actual override suspend fun handleCorruption(ex: CorruptionException): T {
