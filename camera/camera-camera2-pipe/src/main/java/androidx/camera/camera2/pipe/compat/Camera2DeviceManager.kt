@@ -182,12 +182,12 @@ constructor(
     private val retryingCameraStateOpener: RetryingCameraStateOpener,
     private val camera2DeviceCloser: Camera2DeviceCloser,
     private val camera2ErrorProcessor: Camera2ErrorProcessor,
+    private val camera2SystemState: Camera2SystemState,
     val threads: Threads,
 ) : Camera2DeviceManager {
     private val scope = threads.cameraPipeScope
 
-    private val queue =
-        PruningProcessingQueue<CameraRequest>(prune = ::prune) { process(it) }.processIn(scope)
+    private val queue = PruningProcessingQueue(prune = ::prune) { process(it) }.processIn(scope)
     private val activeCameras: MutableSet<ActiveCamera> = mutableSetOf()
 
     // PendingRequestOpen stores the context information for the pending RequestOpens to be
@@ -572,6 +572,10 @@ constructor(
         scope: CoroutineScope,
     ): OpenVirtualCameraResult {
         Log.debug { "Opening $cameraId with retries..." }
+
+        // Inform the camera2SystemState that we are about to attempt to open a camera.
+        camera2SystemState.onCameraOpening(cameraId)
+
         val result =
             retryingCameraStateOpener.openCameraWithRetry(
                 cameraId,
@@ -579,6 +583,7 @@ constructor(
                 isForegroundObserver,
             )
         if (result.cameraState == null) {
+            camera2SystemState.onCameraClosed(cameraId)
             return OpenVirtualCameraResult.Error(result.errorCode)
         }
         return OpenVirtualCameraResult.Success(
