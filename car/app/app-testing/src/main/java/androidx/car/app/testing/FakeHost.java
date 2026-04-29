@@ -238,6 +238,11 @@ public class FakeHost {
         }
 
         @Override
+        public void setVoiceAssistantCapabilities(Bundleable capabilities) {
+            // No-op.
+        }
+
+        @Override
         public int getInterfaceVersion() {
             return super.VERSION;
         }

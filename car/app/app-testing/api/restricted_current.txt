@@ -65,6 +65,7 @@ package androidx.car.app.testing.navigation {
     method public androidx.car.app.navigation.NavigationManagerCallback? getNavigationManagerCallback();
     method public int getNavigationStartedCount();
     method public java.util.List<androidx.car.app.navigation.model.Trip!> getTripsSent();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public java.util.List<androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities!> getVoiceAssistantCapabilitiesSent();
     method public void reset();
   }
 

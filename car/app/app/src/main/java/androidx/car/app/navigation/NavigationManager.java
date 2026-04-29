@@ -24,6 +24,7 @@ import static androidx.car.app.utils.ThreadUtils.checkMainThread;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.os.Looper;
 import android.util.Log;
 
@@ -32,8 +33,11 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.managers.Manager;
+import androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities;
 import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.serialization.Bundleable;
@@ -123,6 +127,70 @@ public class NavigationManager implements Manager {
                 CarContext.NAVIGATION_SERVICE,
                 "updateTrip", (INavigationHost service) -> {
                     service.updateTrip(bundle);
+                    return null;
+                }
+        );
+    }
+
+    /**
+     * Returns whether the host supports setting voice assistant capabilities.
+     *
+     * <p>Third-party navigation apps should call this method before attempting to build
+     * or send a {@link NavigationVoiceAssistantCapabilities} object, as it is only supported on
+     * specific host platforms (e.g., Android Automotive OS).
+     *
+     * @return {@code true} if the current host supports voice assistant capabilities,
+     *         {@code false} otherwise.
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public boolean canSetVoiceAssistantCapabilities() {
+        if (mCarContext.getCarAppApiLevel() < 9) {
+            return false;
+        }
+        // If the app is running natively on the AAOS, this returns true.
+        return mCarContext.getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_AUTOMOTIVE);
+    }
+
+    /**
+     * Sends the voice assistant capabilities and consent state of the navigation app to the host.
+     *
+     * <p>This allows the app to dynamically toggle whether the voice assistant can access
+     * the active navigation state, and declares the actions and disruptions the app supports.
+     *
+     * @param capabilities The capabilities and consent state to send to the host.
+     * @throws IllegalStateException    if the current thread is not the main thread, or if the
+     *                                  host does not support voice assistant capabilities
+     * @throws IllegalArgumentException if the provided capabilities cannot be serialized
+     * @throws HostException            if the call is invoked by an app that is not declared as
+     *                                  a navigation app in the manifest
+     */
+    @MainThread
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public void setVoiceAssistantCapabilities(
+            @NonNull NavigationVoiceAssistantCapabilities capabilities) {
+        checkMainThread();
+        requireNonNull(capabilities);
+
+        if (!canSetVoiceAssistantCapabilities()) {
+            throw new IllegalStateException("VoiceAssistantCapabilities are not supported "
+                    + "on this host");
+        }
+
+        Bundleable bundle;
+        try {
+            bundle = Bundleable.create(capabilities);
+        } catch (BundlerException e) {
+            throw new IllegalArgumentException("Serialization failure", e);
+        }
+
+        mHostDispatcher.dispatch(
+                CarContext.NAVIGATION_SERVICE,
+                "setVoiceAssistantCapabilities",
+                (INavigationHost host) -> {
+                    host.setVoiceAssistantCapabilities(bundle);
                     return null;
                 }
         );
