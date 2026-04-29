@@ -32,9 +32,10 @@ interface FocusState {
     val isFocused: Boolean
 
     /**
-     * Whether the focus modifier associated with this [FocusState] has a child that is focused.
+     * Whether the focus modifier associated with this [FocusState] has a child that is focused, or
+     * is itself focused ([isFocused]).
      *
-     * @return true if a child is focused, false otherwise.
+     * @return true if the component or any of its children are focused, false otherwise.
      */
     val hasFocus: Boolean
 
