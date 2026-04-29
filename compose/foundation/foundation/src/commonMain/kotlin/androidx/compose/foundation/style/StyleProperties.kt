@@ -1759,14 +1759,10 @@ private inline fun <T> StyleProperties.animateAB(
 
 internal fun removeColorForBrushProperties(primitivesSet: Long, objectsSet: Int): Long {
     var result = primitivesSet
-    if (result.hasId(BorderColorId) && objectsSet.hasId(BorderBrushId))
-        result = result.withoutId(BorderColorId)
-    if (result.hasId(ContentColorId) && objectsSet.hasId(ContentBrushId))
-        result = result.withoutId(ContentColorId)
-    if (result.hasId(BackgroundColorId) && objectsSet.hasId(BackgroundBrushId))
-        result = result.withoutId(BackgroundColorId)
-    if (result.hasId(ForegroundColorId) && objectsSet.hasId(ForegroundBrushId))
-        result = result.withoutId(ForegroundColorId)
+    if (objectsSet.hasId(BorderBrushId)) result = result.withoutId(BorderColorId)
+    if (objectsSet.hasId(ContentBrushId)) result = result.withoutId(ContentColorId)
+    if (objectsSet.hasId(BackgroundBrushId)) result = result.withoutId(BackgroundColorId)
+    if (objectsSet.hasId(ForegroundBrushId)) result = result.withoutId(ForegroundColorId)
     return result
 }
 
@@ -1945,7 +1941,7 @@ private inline fun Int.hasId(objectId: Int) = this and (1 shl objectId.shiftOffs
 
 internal inline fun Long.withId(primitiveId: Byte) = this or (1L shl primitiveId.shiftOffset())
 
-private inline fun Long.withoutId(primitiveId: Byte) =
+internal inline fun Long.withoutId(primitiveId: Byte) =
     this and (1L shl primitiveId.shiftOffset()).inv()
 
 internal inline fun Int.withId(objectId: Int) = this or (1 shl objectId.shiftOffset())
