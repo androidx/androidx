@@ -1,0 +1,201 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.remote.player.compose.test.utils.screenshot.rule
+
+import android.content.Context
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.heightDp
+import androidx.compose.remote.creation.compose.capture.widthDp
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.remote.player.view.RemoteComposePlayer
+import androidx.compose.remote.testing.RemoteBaseContentTestRule.Player
+import androidx.compose.remote.testing.RemoteContentTestRule
+import androidx.compose.runtime.Composable
+import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.AndroidXScreenshotTestRule
+import androidx.test.screenshot.matchers.BitmapMatcher
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
+
+/**
+ * A [TestRule] that uses [RemoteContentTestRule] to set the Remote Compose content and uses
+ * [AndroidXScreenshotTestRule] for screenshot testing.
+ */
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+class RemoteScreenshotTestRule(
+    moduleDirectory: String,
+    val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
+    val matcher: BitmapMatcher? = null,
+) : TestRule {
+
+    constructor(
+        moduleDirectory: String,
+        context: Context,
+        matcher: BitmapMatcher? = null,
+    ) : this(
+        moduleDirectory = moduleDirectory,
+        remoteCreationDisplayInfo = createCreationDisplayInfo(context),
+        matcher = matcher,
+    )
+
+    private val remoteContentTestRule: RemoteContentTestRule = RemoteContentTestRule()
+
+    private val screenshotTestRule = AndroidXScreenshotTestRule(moduleDirectory)
+
+    private val testNameRule =
+        object : TestWatcher() {
+
+            override fun starting(description: Description) {
+                testDescription = description
+            }
+        }
+
+    private val delegateChain: RuleChain =
+        RuleChain.outerRule(testNameRule).around(remoteContentTestRule).around(screenshotTestRule)
+
+    private lateinit var testDescription: Description
+
+    override fun apply(base: Statement, description: Description): Statement {
+        return delegateChain.apply(base, description)
+    }
+
+    fun runScreenshotTest(
+        remoteCreationDisplayInfo: RemoteCreationDisplayInfo? = null,
+        profile: Profile = RcPlatformProfiles.ANDROIDX,
+        onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
+        goldenScreenshotName: GoldenScreenshotName? = null,
+        update: (RemoteComposePlayer) -> Unit = {},
+        composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)? = null,
+        composable: @Composable @RemoteComposable () -> Unit,
+    ) {
+        runScreenshotTestInternal(
+            remoteCreationDisplayInfo = remoteCreationDisplayInfo ?: this.remoteCreationDisplayInfo,
+            profile = profile,
+            onCoreDocumentCreated = onCoreDocumentCreated,
+            goldenScreenshotName = getGoldenScreenshotName(goldenScreenshotName),
+            composableWrapper = composableWrapper,
+            update = update,
+            composable = composable,
+        )
+    }
+
+    private fun runScreenshotTestInternal(
+        remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
+        profile: Profile,
+        onCoreDocumentCreated: ((CoreDocument) -> Unit)?,
+        goldenScreenshotName: GoldenScreenshotName,
+        update: (RemoteComposePlayer) -> Unit,
+        composableWrapper: (@Composable (content: @Composable () -> Unit) -> Unit)?,
+        composable: @Composable @RemoteComposable () -> Unit,
+    ) {
+        remoteContentTestRule.setContent(
+            remoteCreationDisplayInfo = remoteCreationDisplayInfo,
+            profile = profile,
+            onCoreDocumentCreated = onCoreDocumentCreated,
+            player =
+                PlayerImpl(
+                    remoteCreationDisplayInfo = remoteCreationDisplayInfo,
+                    update = update,
+                    composableWrapper = composableWrapper,
+                ),
+            composableWrapper = composableWrapper,
+            composable = composable,
+        )
+
+        val screenshot =
+            remoteContentTestRule.composeTestRule.onNodeWithTag(ROOT_TEST_TAG).captureToImage()
+
+        if (matcher == null) {
+            screenshot.assertAgainstGolden(screenshotTestRule, goldenScreenshotName.getName())
+        } else {
+            screenshot.assertAgainstGolden(
+                screenshotTestRule,
+                goldenScreenshotName.getName(),
+                matcher,
+            )
+        }
+    }
+
+    private fun getGoldenScreenshotName(goldenScreenshotName: GoldenScreenshotName?) =
+        goldenScreenshotName ?: GoldenScreenshotName(testDescription)
+
+    /** Name for the screenshot golden file. */
+    class GoldenScreenshotName(
+        private val description: Description,
+        private val suffix: String? = null,
+    ) {
+        fun getName(): String {
+            val testIdentifier =
+                description.className.substringAfterLast('.') +
+                    "_" +
+                    description.methodName +
+                    (suffix ?: "")
+            return testIdentifier.replace("[\\[$]".toRegex(), "_").replace("]", "")
+        }
+    }
+
+    companion object {
+        const val ROOT_TEST_TAG: String = "ROOT_TEST_TAG"
+    }
+
+    private class PlayerImpl(
+        private val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
+        private val update: (RemoteComposePlayer) -> Unit = {},
+        private val composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)?,
+    ) : Player {
+        @Composable
+        override fun Play(coreDocument: CoreDocument, size: Size) {
+            Box(
+                modifier =
+                    Modifier.width(remoteCreationDisplayInfo.widthDp)
+                        .height(remoteCreationDisplayInfo.heightDp)
+                        .testTag(ROOT_TEST_TAG)
+            ) {
+                val composable: @Composable () -> Unit = {
+                    RemoteDocumentPlayer(
+                        document = coreDocument,
+                        documentWidth = size.width.toInt(),
+                        documentHeight = size.height.toInt(),
+                        update = update,
+                    )
+                }
+                if (composableWrapper == null) {
+                    composable()
+                } else {
+                    composableWrapper { composable() }
+                }
+            }
+        }
+    }
+}

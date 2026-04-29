@@ -16,7 +16,10 @@
 
 package androidx.wear.compose.remote.material3
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
@@ -27,9 +30,12 @@ import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontVariation.Setting
@@ -38,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
@@ -54,15 +61,15 @@ import org.junit.runners.JUnit4
 class RemoteTextTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(
+        RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
             matcher = MSSIMMatcher(threshold = 0.999),
-            profile = TestProfiles.androidXWithCoreText,
         )
 
     @Test
     fun text_withDefaultColor() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text = "text_withDefaultColor".rs
             RemoteText(text, fontSize = 32.rsp)
         }
@@ -70,9 +77,8 @@ class RemoteTextTest {
 
     @Test
     fun text_withColorAndTextAlign_rtl() {
-        remoteComposeTestRule.runScreenshotTest(
-            backgroundColor = Color.Black,
-            layoutDirection = LayoutDirection.Rtl,
+        remoteComposeTestRule.runScreenshotTestCustomProfile(
+            layoutDirection = LayoutDirection.Rtl
         ) {
             val left = "LEFT".rs
             val center = "CENTER".rs
@@ -130,7 +136,7 @@ class RemoteTextTest {
 
     @Test
     fun text_withStyle() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text = "textWithStyle".rs
             RemoteText(
                 text,
@@ -145,7 +151,7 @@ class RemoteTextTest {
 
     @Test
     fun text_withColor() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text = "text_withColor".rs
             val color = rememberNamedRemoteColor("TestColor2", Color.Green)
             RemoteText(text, color = color, fontSize = 32.rsp)
@@ -154,7 +160,7 @@ class RemoteTextTest {
 
     @Test
     fun text_withOverridingColor() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text = "text_withOverridingColor".rs
             val color = rememberNamedRemoteColor("TestColor3", Color.Green)
 
@@ -172,7 +178,7 @@ class RemoteTextTest {
 
     @Test
     fun text_withParamAndStyle_paramIsPreserved() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text = "text_withParamAndStyle".rs
             val color = rememberNamedRemoteColor("TestColor4", Color.Green)
 
@@ -187,7 +193,7 @@ class RemoteTextTest {
 
     @Test
     fun text_withColorAndTextAlign() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             val left = "LEFT".rs
             val center = "CENTER".rs
             val right = "RIGHT".rs
@@ -222,7 +228,7 @@ class RemoteTextTest {
     @Test
     @Ignore("No flex font in CI")
     fun text_withWeight() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 VariantText(FontVariation.weight(100))
                 VariantText(FontVariation.weight(500))
@@ -234,7 +240,7 @@ class RemoteTextTest {
     @Test
     @Ignore("No flex font in CI")
     fun text_withWidth() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 VariantText(FontVariation.width(10f))
                 VariantText(FontVariation.width(50f))
@@ -246,7 +252,7 @@ class RemoteTextTest {
     @Test
     @Ignore("No flex font in CI")
     fun text_withTnum() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 RemoteText(
                     text = RemoteString("WWWiii 012345679"),
@@ -266,7 +272,7 @@ class RemoteTextTest {
     @Test
     @Ignore("No flex font in CI")
     fun text_withRoundness() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 VariantText(Setting("ROND", 0f))
                 VariantText(Setting("ROND", 50f))
@@ -277,7 +283,7 @@ class RemoteTextTest {
 
     @Test
     fun text_withDecoration() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 RemoteText(
                     text = "None".rs,
@@ -306,7 +312,7 @@ class RemoteTextTest {
 
     @Test
     fun text_withSpacing() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 RemoteText(
                     text = "Standard\nParagraph".rs,
@@ -344,7 +350,7 @@ class RemoteTextTest {
 
     @Test
     fun longText_overflow() {
-        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text =
                 "a piece of writing in which the expression of feelings and ideas is given intensity by particular attention to diction (sometimes involving rhyme), rhythm, and imagery."
                     .rs
@@ -390,5 +396,22 @@ class RemoteTextTest {
                 )
             }
         }
+    }
+
+    private fun RemoteScreenshotTestRule.runScreenshotTestCustomProfile(
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        composable: @Composable @RemoteComposable () -> Unit,
+    ) {
+        this.runScreenshotTest(
+            profile = TestProfiles.androidXWithCoreText,
+            composableWrapper = { composable ->
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(layoutDirection)
+                ) {
+                    Box(modifier = Modifier.background(Color.Black)) { composable() }
+                }
+            },
+            composable = composable,
+        )
     }
 }
