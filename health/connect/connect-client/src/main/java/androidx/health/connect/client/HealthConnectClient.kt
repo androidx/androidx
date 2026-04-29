@@ -834,10 +834,8 @@ interface HealthConnectClient {
     }
 
     companion object {
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 68623
         /**
          * Intent action to open Health Connect settings on this phone. Developers should use this
@@ -850,13 +848,11 @@ interface HealthConnectClient {
                 "android.health.connect.action.HEALTH_HOME_SETTINGS"
             else "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal val ACTION_HEALTH_CONNECT_MANAGE_DATA =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
                 "android.health.connect.action.MANAGE_HEALTH_DATA"
             else "androidx.health.ACTION_MANAGE_HEALTH_DATA"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal val ACTION_HEALTH_CONNECT_MATCHMAKING =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
                 "android.health.connect.action.MATCHMAKING"
@@ -1011,7 +1007,6 @@ interface HealthConnectClient {
         }
 
         /** Tag used in SDK debug logs. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val HEALTH_CONNECT_CLIENT_TAG = "HealthConnectClient"
     }
 

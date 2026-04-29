@@ -18,10 +18,8 @@ package androidx.credentials.webauthn
 
 import android.os.Build
 import android.util.Base64
-import androidx.annotation.RestrictTo
 import androidx.credentials.provider.CallingAppInfo
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class WebAuthnUtils {
     companion object {
         fun b64Decode(str: String): ByteArray {

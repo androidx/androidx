@@ -435,7 +435,6 @@ internal constructor(rtEntity: RtEntityType, private val entityRegistry: EntityR
     override val isDisposed: Boolean
         get() = _rtEntity == null
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal open fun disposeInternal() {
         if (isDisposed) return
         // Clear the parent to remove this entity from the parent's children list.

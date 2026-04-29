@@ -20,7 +20,6 @@ import android.content.Context
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
-import androidx.annotation.RestrictTo
 import androidx.pdf.service.PdfDocumentServiceImpl
 import androidx.pdf.service.connect.PdfSandboxHandleImpl
 import androidx.pdf.service.connect.PdfServiceConnection
@@ -196,7 +195,6 @@ public class SandboxedPdfLoader(
 
 /** Represents the loading status of a PDF file. */
 // TODO(b/425827955): Clean up status codes and handle runtime exceptions directly
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal enum class PdfLoadingStatus {
     SUCCESS, // The PDF was loaded successfully.
     WRONG_PASSWORD, // Incorrect password was provided for a password-protected PDF.

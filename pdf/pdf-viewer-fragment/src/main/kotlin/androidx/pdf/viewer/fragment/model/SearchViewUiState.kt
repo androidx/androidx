@@ -16,10 +16,7 @@
 
 package androidx.pdf.viewer.fragment.model
 
-import androidx.annotation.RestrictTo
-
 /** A sealed interface representing the various UI states of the PdfSearchView. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal sealed interface SearchViewUiState {
     /**
      * Represents the state where the search functionality is closed.

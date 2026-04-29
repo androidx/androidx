@@ -28,7 +28,6 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
-import androidx.annotation.RestrictTo
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -58,7 +57,6 @@ import java.lang.reflect.Method
  * The fix for this is to add the missing onStop() call, by using reflection to call into
  * ActivityThread.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal object ActivityRecreatorKt {
     private const val LOG_TAG = "ActivityRecreator"
 

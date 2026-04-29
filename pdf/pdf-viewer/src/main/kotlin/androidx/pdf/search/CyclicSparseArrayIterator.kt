@@ -17,7 +17,6 @@
 package androidx.pdf.search
 
 import android.util.SparseArray
-import androidx.annotation.RestrictTo
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.search.model.QueryResultsIndex
 
@@ -27,7 +26,6 @@ import androidx.pdf.search.model.QueryResultsIndex
  * @param searchData search result over which [CyclicSparseArrayIterator] will iterate.
  * @param visiblePage current visible page to the user, used to init current result.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class CyclicSparseArrayIterator(
     private val searchData: SparseArray<List<PageMatchBounds>>,
     private val visiblePage: Int,

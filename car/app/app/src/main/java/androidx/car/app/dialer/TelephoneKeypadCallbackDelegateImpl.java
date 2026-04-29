@@ -105,7 +105,6 @@ public class TelephoneKeypadCallbackDelegateImpl implements TelephoneKeypadCallb
      */
     @CarProtocol
     @KeepFields
-    @RestrictTo(LIBRARY)
     private static class TelephoneKeypadCallbackStub extends ITelephoneKeypadCallback.Stub {
         private final TelephoneKeypadCallback mTelephoneKeypadCallback;
 

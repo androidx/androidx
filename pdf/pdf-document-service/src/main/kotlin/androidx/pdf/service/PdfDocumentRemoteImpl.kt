@@ -33,7 +33,6 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
-import androidx.annotation.RestrictTo
 import androidx.pdf.DraftEditOperation
 import androidx.pdf.DraftEditResult
 import androidx.pdf.PdfDocumentRemote
@@ -51,7 +50,6 @@ import androidx.pdf.models.Dimensions
 import androidx.pdf.utils.isAnnotationsFeatureAvailable
 import androidx.pdf.utils.toPdfObject
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PdfDocumentRemoteImpl(
     private val adapterFactory: PdfDocumentRendererFactory = PdfDocumentRendererFactoryImpl()
 ) : PdfDocumentRemote.Stub() {

@@ -10222,7 +10222,6 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         static final String EXTRA_TV_EXTENDER = "android.tv.EXTENSIONS";
 
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         private static final String EXTRA_FLAGS = "flags";
 
         static final String EXTRA_CONTENT_INTENT = "content_intent";

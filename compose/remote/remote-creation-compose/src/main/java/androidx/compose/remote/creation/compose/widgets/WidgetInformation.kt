@@ -24,7 +24,6 @@ import androidx.compose.runtime.compositionLocalOf
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public data class WidgetInformation(val widgetId: Int)
 
 /** Provides the Widget information as a composition local */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal val LocalWidget: ProvidableCompositionLocal<WidgetInformation> =
     compositionLocalOf<WidgetInformation> {
         WidgetInformation(-1) // Default

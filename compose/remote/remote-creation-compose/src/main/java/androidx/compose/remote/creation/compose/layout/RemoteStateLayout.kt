@@ -30,7 +30,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.util.fastForEach
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class RemoteStateMachine<T>
 internal constructor(val currentState: RemoteInt, val states: List<T>) {
 
@@ -58,7 +57,6 @@ internal class RemoteStateLayoutNode : RemoteComposeNode() {
 @SuppressLint("PrimitiveInCollection")
 @Composable
 @RemoteComposable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun <T> StateLayout(
     stateMachine: RemoteStateMachine<T>,
     modifier: RemoteModifier = RemoteModifier,

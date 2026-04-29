@@ -198,7 +198,6 @@ internal constructor(
         }
 
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal fun fromSlice(slice: Slice): CredentialEntry? {
             return if (Build.VERSION.SDK_INT >= 35) {
                 Api35Impl.fromSlice(slice)

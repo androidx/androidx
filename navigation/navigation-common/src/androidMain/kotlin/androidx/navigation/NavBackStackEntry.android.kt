@@ -38,7 +38,6 @@ import androidx.savedstate.SavedStateRegistryOwner
 import java.util.UUID
 
 public actual class NavBackStackEntry
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 private constructor(
     internal actual val context: NavContext?,
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public actual var destination: NavDestination,

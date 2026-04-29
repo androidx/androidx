@@ -18,13 +18,11 @@ package androidx.health.services.client.impl.internal
 
 import android.os.RemoteException
 import androidx.annotation.CallSuper
-import androidx.annotation.RestrictTo
 import androidx.health.services.client.HealthServicesException
 import com.google.common.util.concurrent.SettableFuture
 import java.lang.SecurityException
 
 /** A generic callback for ipc invocations. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal open class StatusCallback(private val resultFuture: SettableFuture<Void?>) :
     IStatusCallback.Stub() {
 

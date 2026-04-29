@@ -39,7 +39,6 @@ internal class NavGraphImpl(val graph: NavGraph) {
     internal var startDestId = 0
     internal var startDestIdName: String? = null
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun matchRouteComprehensive(
         route: String,
         searchChildren: Boolean,
@@ -79,7 +78,6 @@ internal class NavGraphImpl(val graph: NavGraph) {
         return listOfNotNull(bestMatch, bestChildMatch, bestParentMatch).maxOrNull()
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun matchDeepLinkComprehensive(
         bestMatch: DeepLinkMatch?,
         navDeepLinkRequest: NavDeepLinkRequest,
@@ -108,7 +106,6 @@ internal class NavGraphImpl(val graph: NavGraph) {
         return listOfNotNull(bestMatch, bestChildMatch, bestParentMatch).maxOrNull()
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun matchDeepLink(
         superBestMatch: DeepLinkMatch?,
         navDeepLinkRequest: NavDeepLinkRequest,
@@ -215,7 +212,6 @@ internal class NavGraphImpl(val graph: NavGraph) {
     internal fun <T> findNode(route: T?): NavDestination? =
         route?.let { findNode(it::class.serializer().generateHashCode()) }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun findNode(route: String, searchParents: Boolean): NavDestination? {
         val destination =
             nodes.valueIterator().asSequence().firstOrNull {

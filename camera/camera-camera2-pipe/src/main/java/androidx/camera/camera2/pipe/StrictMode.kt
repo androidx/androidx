@@ -16,10 +16,8 @@
 
 package androidx.camera.camera2.pipe
 
-import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.core.Log
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class StrictMode(val enabled: Boolean) {
     inline fun check(value: Boolean, crossinline message: () -> String) {
         if (!value) {

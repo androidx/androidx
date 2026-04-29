@@ -22,7 +22,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import androidx.annotation.RestrictTo
 
 /**
  * Helper object to bind to a Projected service.
@@ -31,7 +30,6 @@ import androidx.annotation.RestrictTo
  * 1. Service must be a system service,
  * 2. Service must include a provided action in its [android.content.IntentFilter].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal object ProjectedServiceBinding {
 
     /**

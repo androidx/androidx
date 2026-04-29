@@ -27,7 +27,6 @@ public interface PdfDocumentRendererFactory {
 }
 
 @Suppress("ObsoleteSdkInt")
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PdfDocumentRendererFactoryImpl : PdfDocumentRendererFactory {
     override fun create(pfd: ParcelFileDescriptor, password: String?): PdfDocumentRenderer {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {

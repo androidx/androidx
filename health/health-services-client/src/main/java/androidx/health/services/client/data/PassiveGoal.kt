@@ -92,7 +92,6 @@ private constructor(
              */
             const val REPEATED: Int = 2
 
-            @RestrictTo(RestrictTo.Scope.LIBRARY)
             internal fun @receiver:TriggerFrequency Int.toProto():
                 PassiveGoalProto.TriggerFrequency =
                 PassiveGoalProto.TriggerFrequency.forNumber(this)

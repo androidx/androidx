@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.ExerciseSegment.Companion.isSegmentTypeCompatibleWithSessionType
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_OTHER_WORKOUT
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Duration
 import java.time.Instant
@@ -38,7 +39,6 @@ import java.time.ZoneOffset
  * @sample androidx.health.connect.client.samples.ReadExerciseSessions
  */
 class ExerciseSessionRecord
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal constructor(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,

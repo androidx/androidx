@@ -126,7 +126,6 @@ public final class UserAgentMetadata {
     private boolean mWow64 = false;
     private final @FormFactors List<String> mFormFactors;
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     private UserAgentMetadata(@NonNull List<BrandVersion> brandVersionList,
             @Nullable String fullVersion, @Nullable String platform,
             @Nullable String platformVersion, @Nullable String architecture,
@@ -309,7 +308,6 @@ public final class UserAgentMetadata {
         private final String mMajorVersion;
         private final String mFullVersion;
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         private BrandVersion(@NonNull String brand, @NonNull String majorVersion,
                 @NonNull String fullVersion) {
             mBrand = brand;

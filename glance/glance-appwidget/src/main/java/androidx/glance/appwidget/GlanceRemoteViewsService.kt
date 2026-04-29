@@ -25,7 +25,6 @@ import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -47,7 +46,6 @@ public open class GlanceRemoteViewsService : RemoteViewsService() {
         return GlanceRemoteViewsFactory(this, appWidgetId, viewId, sizeInfo)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal companion object {
         internal const val EXTRA_VIEW_ID = "androidx.glance.widget.extra.view_id"
         internal const val EXTRA_SIZE_INFO = "androidx.glance.widget.extra.size_info"

@@ -117,7 +117,6 @@ constructor(val errorCode: @AuthenticationErrorTypes Int, val errorMsg: CharSequ
          * @return an authentication error that has properly handled conversion of the err code
          */
         @JvmOverloads
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal fun createFrom(
             uiErrorCode: Int,
             uiErrorMessage: CharSequence,

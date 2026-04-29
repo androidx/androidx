@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
-import androidx.annotation.RestrictTo
 import androidx.core.os.bundleOf
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.mutableActionParametersOf
@@ -77,7 +76,6 @@ public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal companion object {
         internal const val AppWidgetId = "ActionCallbackBroadcastReceiver:appWidgetId"
         internal const val ExtraCallbackClassName = "ActionCallbackBroadcastReceiver:callbackClass"

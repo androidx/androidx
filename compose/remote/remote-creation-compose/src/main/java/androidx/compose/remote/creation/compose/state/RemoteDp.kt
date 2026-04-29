@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.isSpecified
  */
 @Stable
 public class RemoteDp
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val value: RemoteFloat
 ) : BaseRemoteState<Dp>() {

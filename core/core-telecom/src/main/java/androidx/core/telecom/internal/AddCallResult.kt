@@ -16,7 +16,6 @@
 
 package androidx.core.telecom.internal
 
-import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /**
@@ -24,7 +23,6 @@ import java.util.Objects
  * [androidx.core.telecom.CallsManager.addCall]. Generally, the platform can either successfully add
  * the call at the time or fail with or without an exception code.
  */
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 internal sealed class AddCallResult {
 
     /**
