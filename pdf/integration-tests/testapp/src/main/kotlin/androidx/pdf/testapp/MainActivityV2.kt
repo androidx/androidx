@@ -198,9 +198,9 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
 
             // Adjust the padding of the container view to accommodate system windows
             view.setPadding(
-                view.paddingLeft,
+                systemBarsInsets.left,
                 systemBarsInsets.top,
-                view.paddingRight,
+                systemBarsInsets.right,
                 systemBarsInsets.bottom,
             )
 
