@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (9.1.0-alpha06)" variant="all" version="9.1.0-alpha06">
+<issues format="6" by="lint 9.3.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha01)" variant="all" version="9.3.0-alpha01">
 
     <issue
         id="NewApi"
@@ -17,6 +17,636 @@
         errorLine2="        ~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        val buffer = TextFieldBuffer(originalValue).apply { append(&quot;hello&quot;) }"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/AllCapsTransformationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        val buffer = TextFieldBuffer(originalValue).apply { append(&quot; world&quot;) }"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/AllCapsTransformationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        val buffer = TextFieldBuffer(originalValue).apply { append(&quot;i&quot;) }"
+        errorLine2="                                                            ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/AllCapsTransformationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;xyz&quot;) // lACoXYZ"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/AllCapsTransformationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                        append(&quot; World!&quot;)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldAnnotatedOutputTransformationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                    append(&quot;world&quot;)"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldImmIntegrationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                    append(&quot;world&quot;)"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldImmIntegrationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                    append(&quot;world&quot;)"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldImmIntegrationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                append(&quot;hello&quot;)"
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldImmIntegrationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                append(&quot;hello&quot;)"
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldImmIntegrationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                            append(&apos;A&apos;)"
+        errorLine2="                            ~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldImmIntegrationTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                outputTransformation = { append(&quot; xyz&quot;) },"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldSemanticsTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                outputTransformation = { append(&quot; XYZ&quot;) },"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldSemanticsTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot; World!&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldStyledTextTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                    append(&quot; World!&quot;)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldStyledTextTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                    append(&quot; World!&quot;)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldStyledTextTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                outputTransformation = { append(&quot; world&quot;) },"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            mutableStateOf&lt;OutputTransformation?>(OutputTransformation { append(&quot; World&quot;) })"
+        errorLine2="                                                                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        outputTransformation = OutputTransformation { append(&quot; Compose&quot;) }"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/BasicTextFieldTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        rule.runOnIdle { state.edit { append(&quot;abc&quot;) } }"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/undo/BasicTextFieldUndoTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        rule.runOnIdle { repeat(3) { state.edit { append(&quot;a&quot;) } } }"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/undo/BasicTextFieldUndoTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                state.editAsUser(null) { append(&quot; World!&quot;) }"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/undo/BasicTextFieldUndoTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        initialize(&quot;ABC&quot;, TextRange(3), outputTransformation = { append(&quot;!&quot;) })"
+        errorLine2="                                                                 ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/internal/BatchEditTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                append(&quot;hello, world&quot;)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/RememberTextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        testSelectionAdjustment(&quot;&quot;, { append(&quot;hello&quot;) }, &quot;hello_&quot;)"
+        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldBufferTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        testSelectionAdjustment(&quot;_hello&quot;, { append(&quot;world&quot;) }, &quot;_helloworld&quot;)"
+        errorLine2="                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldBufferTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        testSelectionAdjustment(&quot;hello_&quot;, { append(&quot;world&quot;) }, &quot;helloworld_&quot;)"
+        errorLine2="                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldBufferTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        buffer.append(&quot; world&quot;)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldBufferTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        buffer.append(&quot;hello&quot;)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldBufferTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        buffer.append(&quot;world&quot;)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldBufferTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        buffer.append(&quot;world&quot;, 0, 3)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldBufferTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        buffer.append(&apos;!&apos;)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldBufferTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        state.edit { append(&quot;a&quot;) }"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/TextFieldFocusTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                append(&quot;hello&quot;)"
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/TextFieldLayoutStateCacheTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;hello&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/TextFieldLayoutStateCacheTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            state.edit { append(&quot;1&quot;) }"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&apos;c&apos;)"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;hello&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;hello world&quot;, 0, 5)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        state.edit { append(&quot; world&quot;) }"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&apos;c&apos;)"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;world&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;hello world&quot;, 6, 11)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;hello&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;hello&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot; world&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                append(&quot;hello&quot;)"
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                append(&quot; world&quot;)"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                    append(&quot;hello&quot;)"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="                    append(&quot;hello&quot;)"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            state.edit { append(&quot;a&quot;) }"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            state.edit { append(&quot;b&quot;) }"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            state.edit { append(&quot;c&quot;) }"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            state.edit { append(&quot; world&quot;) }"
+        errorLine2="                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        state.edit { append(&quot; World&quot;) }"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        state.edit { append(&quot; World&quot;) }"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        state.edit { append(&quot; World&quot;) }"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot; World&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        state.editAsUser(null) { append(&quot; World&quot;) }"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot; World!&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/selection/TextFieldTextContextMenuToolbarTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot; World!&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/selection/TextFieldTextToolbarTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;d&quot;)"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/internal/undo/TextUndoTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;e&quot;)"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/internal/undo/TextUndoTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(newText.toString())"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/input/internal/TransformedTextFieldState.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        val outputTransformation = OutputTransformation { append(&quot;world&quot;) }"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/internal/TransformedTextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="        val outputTransformation = OutputTransformation { append(&quot; world&quot;) }"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/internal/TransformedTextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;cc&quot;)"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/internal/TransformedTextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot;cc&quot;)"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/internal/TransformedTextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot; world&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/internal/TransformedTextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(&quot; world&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/internal/TransformedTextFieldStateTest.kt"/>
     </issue>
 
     <issue
