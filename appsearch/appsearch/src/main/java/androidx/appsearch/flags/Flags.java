@@ -132,14 +132,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_GET_PARENT_TYPES_AND_INDEXABLE_NESTED_PROPERTIES =
             FLAG_PREFIX + "enable_get_parent_types_and_indexable_nested_properties";
 
-    /** Enables embedding search related APIs. */
-    public static final String FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG =
-            FLAG_PREFIX + "enable_schema_embedding_property_config";
-
-    /** Enables embedding quantization. */
-    public static final String FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION =
-            FLAG_PREFIX + "enable_schema_embedding_quantization";
-
     /** Enables informational ranking expressions. */
     public static final String FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS =
             FLAG_PREFIX + "enable_informational_ranking_expressions";
@@ -218,10 +210,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_RELEASE_BACKUP_SCHEMA_FILE_IF_OVERLAY_PRESENT =
             FLAG_PREFIX + "enable_release_backup_schema_file_if_overlay_present";
 
-    /** Enables retrieving embedding match snippet information. This affects */
-    public static final String FLAG_ENABLE_EMBEDDING_MATCH_INFO =
-            FLAG_PREFIX + "enable_embedding_match_info";
-
     /** Enables strict byte size enforcement on a result page. */
     public static final String FLAG_ENABLE_STRICT_PAGE_BYTE_SIZE_LIMIT =
             FLAG_PREFIX + "enable_strict_page_byte_size_limit";
@@ -253,10 +241,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_DATABASE_SCOPED_SCHEMA_OPERATIONS =
             FLAG_PREFIX + "enable_database_scoped_schema_operations";
 
-    /** Enables the Eigen library for embedding scoring, if Eigen is compiled in. */
-    public static final String FLAG_ENABLE_EIGEN_EMBEDDING_SCORING =
-            FLAG_PREFIX + "enable_eigen_embedding_scoring";
-
     /**
      * Enable retrying the critical section of initialization before resetting as a last resort.
      */
@@ -276,12 +260,6 @@ public final class Flags {
      */
     public static final String FLAG_ENABLE_EARLY_SET_SCHEMA_EXIT =
             FLAG_PREFIX + "enable_early_set_schema_exit";
-
-    /**
-     * Whether to enable sharded storage for embedding index.
-     */
-    public static final String FLAG_ENABLE_SHARDED_EMBEDDING_STORAGE =
-            FLAG_PREFIX + "enable_sharded_embedding_storage";
 
     /**
      * Whether to directly write data to parcel data for remove and commit blob.
@@ -457,16 +435,6 @@ public final class Flags {
         return true;
     }
 
-    /** Whether embedding search related APIs should be enabled. */
-    public static boolean enableSchemaEmbeddingPropertyConfig() {
-        return true;
-    }
-
-    /** Whether embedding quantization is enabled. */
-    public static boolean enableSchemaEmbeddingQuantization() {
-        return true;
-    }
-
     /** Whether the search parameter APIs should be enabled. */
     public static boolean enableSearchSpecSearchStringParameters() {
         return true;
@@ -573,13 +541,6 @@ public final class Flags {
         return true;
     }
 
-    /**
-     * Whether to enable retrieving embedding match info during snippetting.
-     */
-    public static boolean enableEmbeddingMatchInfo() {
-        return true;
-    }
-
     /** Whether to enforce page byte size limit in a stricter way. */
     public static boolean enableStrictPageByteSizeLimit() {
         return true;
@@ -638,14 +599,6 @@ public final class Flags {
         return true;
     }
 
-
-    /** Whether to enable the Eigen library for embedding scoring */
-    public static boolean enableEigenEmbeddingScoring() {
-        // The return value does not matter, since Jetpack does not have Eigen compiled in.
-        // Set it to false for clarity.
-        return false;
-    }
-
     /**
      * Whether to enable retrying the critical section of initialization before resetting as a
      * last resort.
@@ -674,14 +627,6 @@ public final class Flags {
      */
     public static boolean enableEarlySetSchemaExit() {
         // TODO(b/436813583): Enable this once the feature is rolled out to Nextfood in platform.
-        return false;
-    }
-
-    /**
-     * Whether to enable sharded storage for embedding index.
-     */
-    public static boolean enableShardedEmbeddingStorage() {
-        // TODO(b/436237337): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
     }
 

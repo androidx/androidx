@@ -23,8 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.flags.FlaggedApi;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.EmbeddingVectorCreator;
@@ -49,7 +47,6 @@ import java.util.Objects;
 @RequiresFeature(
         enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
         name = Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG)
-@FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
 @SafeParcelable.Class(creator = "EmbeddingVectorCreator")
 // TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
 //  Do not switch until this is resolved.

@@ -5950,7 +5950,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO)
     public void testSnippet_usingTextMatchInfo() throws Exception {
         // Schema registration
         AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
@@ -6083,8 +6082,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG})
     public void testEmbeddingSnippet() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_EMBEDDING_MATCH_INFO));
         assumeTrue(
@@ -6210,8 +6207,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG})
     public void testHybridSnippet() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_EMBEDDING_MATCH_INFO));
         assumeTrue(
@@ -6356,8 +6351,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG})
     public void testEmbeddingSnippet_withSnippetCountPerPropertyLimit() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_EMBEDDING_MATCH_INFO));
         assumeTrue(
@@ -11791,7 +11784,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_simple() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -11875,7 +11867,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_propertyRestriction() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -11958,7 +11949,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_multipleSearchEmbeddings() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -12047,7 +12037,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_hybrid() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -12129,7 +12118,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_notSupported() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
@@ -12372,9 +12360,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({
-            Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG})
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
     public void testInformationalRankingExpressions_embeddingExpression() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -12508,8 +12494,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingQuantization() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -12560,8 +12544,6 @@ public abstract class AppSearchSessionCtsTestBase {
                 .of(256);
     }
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingQuantization_changeSchema() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -12648,8 +12630,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG,
-            Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION})
     public void testEmbeddingQuantization_notSupported() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
@@ -12683,7 +12663,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testRankingFunction_maxMinOrDefault() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -12829,7 +12808,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testRankingFunction_filterByRange() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));

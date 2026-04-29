@@ -112,18 +112,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableSchemaEmbeddingPropertyConfig() {
-        assertThat(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
-                .isEqualTo("com.android.appsearch.flags.enable_schema_embedding_property_config");
-    }
-
-    @Test
-    public void testFlagValue_enableSchemaEmbeddingQuantization() {
-        assertThat(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION)
-                .isEqualTo("com.android.appsearch.flags.enable_schema_embedding_quantization");
-    }
-
-    @Test
     public void testFlagValue_enableSearchSpecSearchStringParameters() {
         assertThat(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
                 .isEqualTo(
@@ -220,12 +208,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableEmbeddingMatchInfo() {
-        assertThat(Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO)
-                .isEqualTo("com.android.appsearch.flags.enable_embedding_match_info");
-    }
-
-    @Test
     public void testFlagValue_enableStrictPageByteSizeLimit() {
         assertThat(Flags.FLAG_ENABLE_STRICT_PAGE_BYTE_SIZE_LIMIT)
                 .isEqualTo("com.android.appsearch.flags.enable_strict_page_byte_size_limit");
@@ -257,12 +239,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableEigenEmbeddingScoring() {
-        assertThat(Flags.FLAG_ENABLE_EIGEN_EMBEDDING_SCORING)
-                .isEqualTo("com.android.appsearch.flags.enable_eigen_embedding_scoring");
-    }
-
-    @Test
     public void testFlagValue_enableInitializationRetriesBeforeReset() {
         assertThat(Flags.FLAG_ENABLE_INITIALIZATION_RETRIES_BEFORE_RESET)
                 .isEqualTo(
@@ -279,12 +255,6 @@ public class FlagsTest {
     public void testFlagValue_enableEarlySetSchemaExit() {
         assertThat(Flags.FLAG_ENABLE_EARLY_SET_SCHEMA_EXIT)
                 .isEqualTo("com.android.appsearch.flags.enable_early_set_schema_exit");
-    }
-
-    @Test
-    public void testFlagValue_enableShardedEmbeddingStorage() {
-        assertThat(Flags.FLAG_ENABLE_SHARDED_EMBEDDING_STORAGE)
-                .isEqualTo("com.android.appsearch.flags.enable_sharded_embedding_storage");
     }
 
     @Test

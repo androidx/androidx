@@ -1947,7 +1947,6 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG)
-    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public static final class EmbeddingPropertyConfig extends PropertyConfig {
         /**
          * Encapsulates the configurations on how AppSearch should query/index these embedding
@@ -2020,7 +2019,6 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          */
         @EmbeddingPropertyConfig.QuantizationType
         @ExperimentalAppSearchApi
-        @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION)
         public int getQuantizationType() {
             PropertyConfigParcel.EmbeddingIndexingConfigParcel indexingConfigParcel =
                     mPropertyConfigParcel.getEmbeddingIndexingConfigParcel();
@@ -2031,7 +2029,6 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         }
 
         /** Builder for {@link EmbeddingPropertyConfig}. */
-        @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
         @OptIn(markerClass = ExperimentalAppSearchApi.class)
         public static final class Builder {
             private final String mPropertyName;
@@ -2115,7 +2112,6 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_EMBEDDING_QUANTIZATION)
-            @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_QUANTIZATION)
             @CanIgnoreReturnValue
             public @NonNull EmbeddingPropertyConfig.Builder setQuantizationType(
                     @EmbeddingPropertyConfig.QuantizationType int quantizationType) {

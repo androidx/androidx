@@ -112,12 +112,10 @@ public class SearchResultToProtoConverter {
                             entry.getSnippetMatches(j), entry.getPropertyName());
                     builder.addMatchInfo(matchInfo);
                 }
-                if (Flags.enableEmbeddingMatchInfo()) {
-                    for (int j = 0; j < entry.getEmbeddingMatchesCount(); j++) {
-                        SearchResult.MatchInfo matchInfo = toMatchInfoWithEmbeddingMatch(
-                                entry.getEmbeddingMatches(j), entry.getPropertyName());
-                        builder.addMatchInfo(matchInfo);
-                    }
+                for (int j = 0; j < entry.getEmbeddingMatchesCount(); j++) {
+                    SearchResult.MatchInfo matchInfo = toMatchInfoWithEmbeddingMatch(
+                            entry.getEmbeddingMatches(j), entry.getPropertyName());
+                    builder.addMatchInfo(matchInfo);
                 }
             }
         }
@@ -183,9 +181,7 @@ public class SearchResultToProtoConverter {
                 .build();
     }
 
-    /**
-     * Returns a MatchInfo for an embedding match. Requires Flags.enableEmbeddingMatchInfo() = true.
-     */
+    /** Returns a MatchInfo for an embedding match. */
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     private static SearchResult.MatchInfo toMatchInfoWithEmbeddingMatch(
             @NonNull EmbeddingMatchSnippetProto embeddingMatchSnippetProto,
