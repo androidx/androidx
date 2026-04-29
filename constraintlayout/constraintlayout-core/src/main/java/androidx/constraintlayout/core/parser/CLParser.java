@@ -238,6 +238,12 @@ public class CLParser {
                 }
             }
         }
+
+        // Limit depth to prevent memory issues
+        if (currentElement != null && currentElement.mDepth >= 256) {
+            throw new CLParsingException("Max depth exceeded", currentElement);
+        }
+
         return currentElement;
     }
 
@@ -288,6 +294,7 @@ public class CLParser {
             CLContainer container = (CLContainer) currentElement;
             newElement.setContainer(container);
         }
+
         return newElement;
     }
 
