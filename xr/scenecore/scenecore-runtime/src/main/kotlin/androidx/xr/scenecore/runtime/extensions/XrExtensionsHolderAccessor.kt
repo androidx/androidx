@@ -19,8 +19,8 @@ package androidx.xr.scenecore.runtime.extensions
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX
 import androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion
-import androidx.xr.runtime.XrExtensionsHolder
 import androidx.xr.runtime.loadProviders
+import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor.PROVIDERS
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor.holder
 
@@ -59,6 +59,7 @@ public object XrExtensionsHolderAccessor {
      * XR functionality.
      */
     @JvmStatic
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val holder: XrExtensionsHolder<*>?
         get() = providers.firstOrNull()?.holder
 
@@ -73,6 +74,7 @@ public object XrExtensionsHolderAccessor {
      * future. For platforms supporting [spatialApiVersion] 2 or higher, prefer using [holder].
      */
     @JvmStatic
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val holderLegacy: XrExtensionsHolder<*>?
         get() = providers.firstOrNull()?.holderLegacy
 }

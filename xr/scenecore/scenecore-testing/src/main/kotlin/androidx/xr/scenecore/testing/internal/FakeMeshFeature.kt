@@ -16,12 +16,12 @@
 
 package androidx.xr.scenecore.testing.internal
 
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshFeature
+import androidx.xr.scenecore.runtime.NodeHolder
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MeshFeature] */
 internal open class FakeMeshFeature(

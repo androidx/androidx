@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore.testing.internal
 
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Vector3
@@ -24,6 +23,7 @@ import androidx.xr.scenecore.runtime.GltfAnimationFeature
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
+import androidx.xr.scenecore.runtime.NodeHolder
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 

@@ -23,12 +23,12 @@ import android.hardware.display.DisplayManager
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
-import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.MoveEventListener
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.ResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEventListener

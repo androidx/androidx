@@ -38,6 +38,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Entity as RtEntity
+import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.PerceivedResolutionResult as RtPerceivedResolutionResult
 import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
 import androidx.xr.scenecore.runtime.RenderingRuntime
@@ -1640,10 +1641,7 @@ class EntityTest {
     fun subspaceNodeEntity_garbageCollection_disposesEntity() {
         fun createSubspaceNodeEntity(): WeakReference<SubspaceNodeEntity> {
             val nodeHolder =
-                androidx.xr.runtime.NodeHolder(
-                    extensions.createNode(),
-                    com.android.extensions.xr.node.Node::class.java,
-                )
+                NodeHolder(extensions.createNode(), com.android.extensions.xr.node.Node::class.java)
             val entity = SubspaceNodeEntity.create(session, nodeHolder, FloatSize3d(1f, 1f, 1f))
             return WeakReference(entity)
         }

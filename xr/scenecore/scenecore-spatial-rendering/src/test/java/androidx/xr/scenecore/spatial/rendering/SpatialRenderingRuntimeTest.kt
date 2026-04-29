@@ -20,7 +20,6 @@ package androidx.xr.scenecore.spatial.rendering
 
 import android.app.Activity
 import android.widget.FrameLayout
-import androidx.xr.runtime.XrExtensionsHolder
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.impl.impress.ExrImage
@@ -37,6 +36,7 @@ import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.TextureResource
+import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.spatial.core.SceneNodeRegistry
 import androidx.xr.scenecore.spatial.core.SpatialSceneRuntime
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService

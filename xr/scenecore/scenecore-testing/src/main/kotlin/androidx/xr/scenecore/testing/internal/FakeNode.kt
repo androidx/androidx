@@ -16,7 +16,7 @@
 
 package androidx.xr.scenecore.testing.internal
 
-import androidx.xr.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.NodeHolder
 
 /** Test-only interface for XrExtensions Node. */
 internal interface FakeNode

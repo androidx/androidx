@@ -41,10 +41,13 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.10.0")
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.testExtJunit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.testRunner)
     testImplementation(project(":xr:runtime:runtime-testing"))
     testImplementation(project(":xr:scenecore:scenecore-testing"))
 

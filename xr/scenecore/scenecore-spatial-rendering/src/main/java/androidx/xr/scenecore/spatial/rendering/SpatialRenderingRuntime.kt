@@ -19,7 +19,6 @@ package androidx.xr.scenecore.spatial.rendering
 import android.app.Activity
 import android.os.Looper
 import androidx.annotation.VisibleForTesting
-import androidx.xr.runtime.TypeHolder
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Matrix3
@@ -53,6 +52,7 @@ import androidx.xr.scenecore.runtime.SpatialEnvironmentFeature
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.TextureResource
 import androidx.xr.scenecore.runtime.TextureSampler
+import androidx.xr.scenecore.runtime.TypeHolder
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor
 import com.android.extensions.xr.XrExtensions
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
