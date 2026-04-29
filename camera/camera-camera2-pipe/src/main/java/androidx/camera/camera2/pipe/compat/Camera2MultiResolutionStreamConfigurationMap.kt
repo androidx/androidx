@@ -22,7 +22,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMultiResolutionStreamConfigurationMap
 import androidx.camera.camera2.pipe.StreamFormat
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /**
  * Implementation of the MultiResolutionStreamConfigurationMap interface using the Camera2 library.
@@ -58,11 +58,11 @@ internal class Camera2MultiResolutionStreamConfigurationMap(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+    override fun <T : Any> unwrapAs(type: Class<T>): T? {
         return when (type) {
-            MultiResolutionStreamConfigurationMap::class ->
+            MultiResolutionStreamConfigurationMap::class.java ->
                 multiResolutionStreamConfigurationMap as T
-            Camera2MultiResolutionStreamConfigurationMap::class -> this as T
+            Camera2MultiResolutionStreamConfigurationMap::class.java -> this as T
             else -> null
         }
     }

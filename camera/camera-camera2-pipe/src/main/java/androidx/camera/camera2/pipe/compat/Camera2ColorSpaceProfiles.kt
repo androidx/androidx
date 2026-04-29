@@ -24,7 +24,7 @@ import androidx.camera.camera2.pipe.CameraColorSpaceProfiles
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.core.Log
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /**
  * Implementation of the color space profile interface using Camera2 library.
@@ -92,10 +92,10 @@ internal class Camera2ColorSpaceProfiles(private val colorSpaceProfiles: ColorSp
             .toSet()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+    override fun <T : Any> unwrapAs(type: Class<T>): T? {
         return when (type) {
-            ColorSpaceProfiles::class -> colorSpaceProfiles as T
-            Camera2ColorSpaceProfiles::class -> this as T
+            ColorSpaceProfiles::class.java -> colorSpaceProfiles as T
+            Camera2ColorSpaceProfiles::class.java -> this as T
             else -> null
         }
     }

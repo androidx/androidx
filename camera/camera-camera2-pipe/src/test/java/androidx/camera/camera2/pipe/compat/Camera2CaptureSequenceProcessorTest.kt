@@ -313,11 +313,11 @@ internal class Camera2CaptureSequenceProcessorTest {
 
         assertThat(captureSequence).isNotNull()
         assertThat(captureSequence!!.captureMetadataList).isNotEmpty()
-        captureSequence.captureMetadataList[0].unwrapAs(CameraCaptureSession::class)
+        captureSequence.captureMetadataList[0].unwrapAs(CameraCaptureSession::class.java)
 
         assertThat(fakeCaptureSessionWrapper.unwrappedClasses.size).isEqualTo(1)
         assertThat(fakeCaptureSessionWrapper.unwrappedClasses[0])
-            .isEqualTo(CameraCaptureSession::class)
+            .isEqualTo(CameraCaptureSession::class.java)
     }
 
     @Test

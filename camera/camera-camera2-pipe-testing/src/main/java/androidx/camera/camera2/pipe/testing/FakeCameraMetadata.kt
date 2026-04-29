@@ -27,7 +27,7 @@ import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
-import kotlin.reflect.KClass
+import java.lang.Class
 
 /** Utility class for interacting with objects that require pre-populated Metadata. */
 public open class FakeMetadata(private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap()) :
@@ -88,7 +88,7 @@ public class FakeCameraMetadata(
         return extensions[extension]!!
     }
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 
     override fun toString(): String = "FakeCameraMetadata(camera: ${camera.value})"
 }
@@ -136,7 +136,7 @@ public class FakeCameraExtensionMetadata(
     override val keys: Set<CameraCharacteristics.Key<*>>
         get() = characteristics.keys
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 
     override fun toString(): String =
         "FakeCameraExtensionMetadata(camera: ${camera.value}, extension: $cameraExtension)"

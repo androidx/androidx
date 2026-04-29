@@ -29,7 +29,8 @@ import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
-import kotlin.reflect.KClass
+import androidx.camera.common.unwrapAs
+import java.lang.Class
 import kotlinx.atomicfu.atomic
 
 /**
@@ -315,15 +316,15 @@ internal open class AndroidCameraCaptureSession(
         return instrumentAndCatch("finalizeOutputConfigurations") {
             Api26Compat.finalizeOutputConfigurations(
                 cameraCaptureSession,
-                outputConfigs.map { it.unwrapAs(OutputConfiguration::class) },
+                outputConfigs.map { it.unwrapAs<OutputConfiguration>() },
             )
         } != null
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            CameraCaptureSession::class -> cameraCaptureSession as T?
+            CameraCaptureSession::class.java -> cameraCaptureSession as T?
             else -> null
         }
 
@@ -392,9 +393,9 @@ internal constructor(
         }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            CameraConstrainedHighSpeedCaptureSession::class -> session as T?
-            else -> super.unwrapAs(type)
+            CameraConstrainedHighSpeedCaptureSession::class.java -> session as T?
+            else -> super<AndroidCameraCaptureSession>.unwrapAs(type)
         }
 }

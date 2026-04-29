@@ -19,10 +19,11 @@ package androidx.camera.camera2.adapter
 import android.hardware.camera2.CaptureFailure
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.compat.AndroidCaptureFailure
+import androidx.camera.common.unwrapAs
 import androidx.camera.core.impl.CameraCaptureFailure
 
 public class CaptureFailureAdapter(private val requestFailure: RequestFailure) :
     CameraCaptureFailure(Reason.ERROR) {
     override fun getCaptureFailure(): CaptureFailure =
-        (requestFailure as AndroidCaptureFailure).unwrapAs(CaptureFailure::class)!!
+        (requestFailure as AndroidCaptureFailure).unwrapAs<CaptureFailure>()!!
 }

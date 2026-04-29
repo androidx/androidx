@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.common.unwrapAs
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -58,7 +59,7 @@ constructor(
         shouldReopenCamera: Boolean,
         shouldCreateEmptyCaptureSession: Boolean,
     ) {
-        val unwrappedCameraDevice = cameraDeviceWrapper?.unwrapAs(CameraDevice::class)
+        val unwrappedCameraDevice = cameraDeviceWrapper?.unwrapAs<CameraDevice>()
         if (unwrappedCameraDevice != null) {
             val cameraId = CameraId.fromCamera2Id(unwrappedCameraDevice.id)
             cameraDevice?.let {
@@ -95,7 +96,7 @@ constructor(
 
             val (currentCameraDeviceWrapper, currentAndroidCameraState) = currentCameras
             val currentCameraDevice =
-                checkNotNull(currentCameraDeviceWrapper.unwrapAs(CameraDevice::class))
+                checkNotNull(currentCameraDeviceWrapper.unwrapAs<CameraDevice>())
 
             // This call would eventually disconnect the capture session state, preventing any
             // additional capture session calls to be made. This is needed because we would no

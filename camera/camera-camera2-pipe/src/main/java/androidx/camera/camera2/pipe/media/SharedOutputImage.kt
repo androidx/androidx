@@ -17,7 +17,8 @@
 package androidx.camera.camera2.pipe.media
 
 import android.media.Image
-import kotlin.reflect.KClass
+import androidx.camera.common.unwrapAs
+import java.lang.Class
 import kotlinx.atomicfu.atomic
 
 /**
@@ -58,7 +59,7 @@ public interface SharedOutputImage : OutputImage {
 
             // This attempts to unwrap the OutputImage as a SharedOutputImage. This avoids
             // creating layers of reference counted objects.
-            val shared = image.unwrapAs(SharedOutputImage::class)
+            val shared = image.unwrapAs<SharedOutputImage>()
             if (shared != null) {
                 return shared.acquire()
             }
@@ -95,20 +96,15 @@ public interface SharedOutputImage : OutputImage {
             }
 
             @Suppress("UNCHECKED_CAST")
-            override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+            override fun <T : Any> unwrapAs(type: Class<T>): T? {
                 return if (closed.value) {
                     null
                 } else {
                     when (type) {
-                        SharedOutputImage::class -> this as T?
-                        OutputImage::class -> this as T?
-                        ImageWrapper::class -> this as T?
-
-                        // WARNING: Do not allow shared images to be directly unwrapped as a
-                        // android.media.Image to avoid circumventing the finalizer protection
-                        // methods. This restriction may be removed in the future if there is a
-                        // compelling use case.
-                        Image::class ->
+                        SharedOutputImage::class.java -> this as T?
+                        OutputImage::class.java -> this as T?
+                        ImageWrapper::class.java -> this as T?
+                        Image::class.java ->
                             throw UnsupportedOperationException(
                                 "Cannot unwrap $this as android.media.Image. Use setFinalizer" +
                                     "instead and close all outstanding references."

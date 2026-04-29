@@ -21,6 +21,7 @@ import android.hardware.camera2.params.MultiResolutionStreamConfigurationMap
 import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.os.Build
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.common.unwrapAs
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -102,9 +103,9 @@ class Camera2MultiResolutionStreamConfigurationMapTest {
     @Test
     fun unwrapAs_supportedType_returnsWrappedParams() {
         val unwrapped =
-            camera2MultiResolutionStreamConfigurationMap.unwrapAs(
-                MultiResolutionStreamConfigurationMap::class
-            )
+            camera2MultiResolutionStreamConfigurationMap.unwrapAs<
+                MultiResolutionStreamConfigurationMap
+            >()
 
         assertThat(unwrapped).isNotNull()
         assertThat(unwrapped).isSameInstanceAs(mockedConfigMap)
@@ -113,9 +114,9 @@ class Camera2MultiResolutionStreamConfigurationMapTest {
     @Test
     fun unwrapAs_selfType_returnsSelf() {
         val unwrapped =
-            camera2MultiResolutionStreamConfigurationMap.unwrapAs(
-                Camera2MultiResolutionStreamConfigurationMap::class
-            )
+            camera2MultiResolutionStreamConfigurationMap.unwrapAs<
+                Camera2MultiResolutionStreamConfigurationMap
+            >()
 
         assertThat(unwrapped).isNotNull()
         assertThat(unwrapped).isSameInstanceAs(camera2MultiResolutionStreamConfigurationMap)
@@ -123,7 +124,7 @@ class Camera2MultiResolutionStreamConfigurationMapTest {
 
     @Test
     fun unwrapAs_unsupportedType_returnsNull() {
-        val unwrapped = camera2MultiResolutionStreamConfigurationMap.unwrapAs(String::class)
+        val unwrapped = camera2MultiResolutionStreamConfigurationMap.unwrapAs<String>()
 
         assertThat(unwrapped).isNull()
     }

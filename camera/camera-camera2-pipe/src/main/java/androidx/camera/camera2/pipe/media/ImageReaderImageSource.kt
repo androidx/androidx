@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.media.OutputImage.Companion.toLogString
+import java.lang.Class
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
@@ -209,12 +210,11 @@ public class ImageReaderImageSource(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
-        return when (type) {
-            ImageReaderImageSource::class -> this as T?
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
+        when (type) {
+            ImageReaderImageSource::class.java -> this as T?
             else -> imageReader.unwrapAs(type)
         }
-    }
 
     override fun close() {
         // If this is the first time this is invoked, update the state from ACTIVE to CLOSING and
@@ -309,6 +309,19 @@ public class ImageReaderImageSource(
         override val streamId: StreamId,
         override val outputId: OutputId,
     ) : ImageWrapper by image, OutputImage {
+        @Suppress("UNCHECKED_CAST")
+        @Deprecated("Use the reified unwrapAs<T>() extension function instead")
+        override fun <T : Any> unwrapAs(type: KClass<T>): T? = unwrapAs(type.java)
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : Any> unwrapAs(type: Class<T>): T? =
+            when (type) {
+                TrackedOutputImage::class.java -> this as T?
+                OutputImage::class.java -> this as T?
+                ImageWrapper::class.java -> this as T?
+                else -> image.unwrapAs(type)
+            }
+
         private val closed = atomic(false)
 
         override fun close() {

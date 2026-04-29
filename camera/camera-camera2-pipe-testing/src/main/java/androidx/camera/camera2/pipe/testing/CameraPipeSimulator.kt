@@ -85,7 +85,7 @@ private constructor(
     override fun createFrameGraph(frameGraphConfig: FrameGraph.Config): FrameGraphSimulator {
         check(!closed.value) { "Cannot interact with CameraPipeSimulator after close!" }
         val frameGraph = cameraPipeInternal.createFrameGraph(frameGraphConfig)
-        val cameraGraph = frameGraph.unwrapAs(CameraGraph::class)
+        val cameraGraph = frameGraph.unwrapAs(CameraGraph::class.java)
         checkNotNull(cameraGraph) { "Failed to unwrap $frameGraph as a CameraGraph!" }
 
         val cameraGraphSimulator =

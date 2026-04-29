@@ -25,7 +25,9 @@ import androidx.camera.camera2.pipe.InputStreamId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.Api29Compat
 import androidx.camera.camera2.pipe.core.Log
-import kotlin.reflect.KClass
+import androidx.camera.common.AndroidImage
+import androidx.camera.common.unwrapAs
+import java.lang.Class
 import kotlinx.atomicfu.atomic
 
 /** Implements an [ImageWriterWrapper] using an [ImageWriter]. */
@@ -41,7 +43,7 @@ private constructor(
 
     override fun queueInputImage(image: ImageWrapper): Boolean {
         return try {
-            val unwrappedImage = image.unwrapAs(Image::class)
+            val unwrappedImage = image.unwrapAs<Image>()
             if (unwrappedImage == null) {
                 Log.warn { "Failed to unwrap image wrapper $image" }
                 return false
@@ -60,7 +62,7 @@ private constructor(
 
     override fun dequeueInputImage(): ImageWrapper {
         val image = imageWriter.dequeueInputImage()
-        return AndroidImage(image)
+        return AndroidImage(image) as ImageWrapper
     }
 
     override fun setOnImageReleasedListener(
@@ -76,9 +78,9 @@ private constructor(
     override fun close(): Unit = imageWriter.close()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            ImageWriter::class -> imageWriter as T?
+            ImageWriter::class.java -> imageWriter as T?
             else -> null
         }
 

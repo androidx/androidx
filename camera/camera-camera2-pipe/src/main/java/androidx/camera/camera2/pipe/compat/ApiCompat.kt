@@ -46,7 +46,6 @@ import androidx.annotation.RequiresPermission
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.availableVideoStabilizationModes
 import java.util.concurrent.Executor
-import kotlin.reflect.KClass
 
 @RequiresApi(24)
 internal object Api24Compat {
@@ -231,8 +230,8 @@ internal object Api28Compat {
 
     @JvmStatic
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> unwrapAsHardwareBuffer(image: Image, type: KClass<T>): T? {
-        if (type == HardwareBuffer::class) {
+    fun <T : Any> unwrapAsHardwareBuffer(image: Image, type: Class<T>): T? {
+        if (type == HardwareBuffer::class.java) {
             return image.getHardwareBuffer() as T?
         }
         return null

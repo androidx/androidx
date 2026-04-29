@@ -30,7 +30,6 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executor
-import kotlin.reflect.KClass
 import kotlinx.atomicfu.AtomicLong
 import kotlinx.atomicfu.atomic
 
@@ -242,9 +241,9 @@ internal open class AndroidCameraExtensionSession(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when (type) {
-            CameraExtensionSession::class -> cameraExtensionSession as T?
+            CameraExtensionSession::class.java -> cameraExtensionSession as T?
             else -> null
         }
 

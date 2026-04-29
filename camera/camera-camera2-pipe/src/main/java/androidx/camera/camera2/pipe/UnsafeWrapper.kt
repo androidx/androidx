@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
+import java.lang.Class
 import kotlin.reflect.KClass
 
 /**
@@ -28,7 +29,7 @@ import kotlin.reflect.KClass
  * of the object is managed by CameraPipe.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface UnsafeWrapper {
+public interface UnsafeWrapper : androidx.camera.common.UnsafeWrapper {
     /**
      * Attempt to unwrap this object into an underlying type.
      *
@@ -39,5 +40,11 @@ public interface UnsafeWrapper {
      *
      * @return unwrapped object matching T or null
      */
-    public fun <T : Any> unwrapAs(type: KClass<T>): T?
+    @Deprecated(
+        "Use the reified unwrapAs<T>() extension function instead",
+        ReplaceWith("this.unwrapAs<T>()"),
+    )
+    public fun <T : Any> unwrapAs(type: KClass<T>): T? = unwrapAs(type.java)
+
+    override fun <T : Any> unwrapAs(type: Class<T>): T?
 }
