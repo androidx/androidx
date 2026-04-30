@@ -77,7 +77,7 @@ class CustomMeshTest {
     @Test
     fun builder_addSubsetAfterSetTopology_throwsException() {
         val builder =
-            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
+            CustomMesh.BuilderFromMeshData(session, vertexLayout)
                 .setTopology(MeshSubsetTopology.TRIANGLES)
         val exception =
             assertThrows(IllegalStateException::class.java) {
@@ -91,7 +91,7 @@ class CustomMeshTest {
     @Test
     fun builder_setTopologyAfterAddSubset_throwsException() {
         val builder =
-            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
+            CustomMesh.BuilderFromMeshData(session, vertexLayout)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
         val exception =
             assertThrows(IllegalStateException::class.java) {
@@ -102,7 +102,7 @@ class CustomMeshTest {
 
     @Test
     fun meshBufferBuilder_withoutSubsets_throwsException() {
-        val builder = CustomMesh.FromMeshBufferBuilder(session, meshBuffer)
+        val builder = CustomMesh.BuilderFromMeshBuffer(session, meshBuffer)
         val exception = assertThrows(IllegalStateException::class.java) { builder.build() }
         assertThat(exception).hasMessageThat().contains("CustomMesh requires at least one subset")
     }
@@ -110,7 +110,7 @@ class CustomMeshTest {
     @Test
     fun meshBufferBuilder_withSubsets_succeeds() {
         val builder =
-            CustomMesh.FromMeshBufferBuilder(session, meshBuffer)
+            CustomMesh.BuilderFromMeshBuffer(session, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
         assertThat(builder.build()).isNotNull()
     }
@@ -118,7 +118,7 @@ class CustomMeshTest {
     @Test
     fun build_withMissingIndexData_throwsException() {
         val builder =
-            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
+            CustomMesh.BuilderFromMeshData(session, vertexLayout)
                 .addVertexData(vertexBufferRegion)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
 
@@ -129,7 +129,7 @@ class CustomMeshTest {
     @Test
     fun build_withMissingVertexData_throwsException() {
         val builder =
-            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
+            CustomMesh.BuilderFromMeshData(session, vertexLayout)
                 .setIndexData(indexBufferRegion)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
 
@@ -142,7 +142,7 @@ class CustomMeshTest {
     @Test
     fun build_withNeitherSubsetsNorTopology_throwsException() {
         val builder =
-            CustomMesh.FromMeshDataBuilder(session, vertexLayout)
+            CustomMesh.BuilderFromMeshData(session, vertexLayout)
                 .addVertexData(vertexBufferRegion)
                 .setIndexData(indexBufferRegion)
 

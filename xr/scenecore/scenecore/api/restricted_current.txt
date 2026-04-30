@@ -179,24 +179,24 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.CustomMesh.Companion Companion;
   }
 
+  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class CustomMesh.BuilderFromMeshBuffer {
+    ctor public CustomMesh.BuilderFromMeshBuffer(androidx.xr.runtime.Session session, androidx.xr.scenecore.MeshBuffer meshBuffer);
+    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshBuffer addSubset(androidx.xr.scenecore.MeshSubset subset);
+    method @MainThread public androidx.xr.scenecore.CustomMesh build();
+    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshBuffer setBounds(androidx.xr.runtime.math.BoundingBox bounds);
+  }
+
+  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class CustomMesh.BuilderFromMeshData {
+    ctor public CustomMesh.BuilderFromMeshData(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout);
+    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addSubset(androidx.xr.scenecore.MeshSubset subset);
+    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addVertexData(androidx.xr.scenecore.ByteBufferRegion vertexData);
+    method @MainThread public androidx.xr.scenecore.CustomMesh build();
+    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setBounds(androidx.xr.runtime.math.BoundingBox bounds);
+    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setIndexData(androidx.xr.scenecore.ByteBufferRegion indexData);
+    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setTopology(androidx.xr.scenecore.MeshSubsetTopology topology);
+  }
+
   @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class CustomMesh.Companion {
-  }
-
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class CustomMesh.FromMeshBufferBuilder {
-    ctor public CustomMesh.FromMeshBufferBuilder(androidx.xr.runtime.Session session, androidx.xr.scenecore.MeshBuffer meshBuffer);
-    method public androidx.xr.scenecore.CustomMesh.FromMeshBufferBuilder addSubset(androidx.xr.scenecore.MeshSubset subset);
-    method @MainThread public androidx.xr.scenecore.CustomMesh build();
-    method public androidx.xr.scenecore.CustomMesh.FromMeshBufferBuilder setBounds(androidx.xr.runtime.math.BoundingBox bounds);
-  }
-
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class CustomMesh.FromMeshDataBuilder {
-    ctor public CustomMesh.FromMeshDataBuilder(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout);
-    method public androidx.xr.scenecore.CustomMesh.FromMeshDataBuilder addSubset(androidx.xr.scenecore.MeshSubset subset);
-    method public androidx.xr.scenecore.CustomMesh.FromMeshDataBuilder addVertexData(androidx.xr.scenecore.ByteBufferRegion vertexData);
-    method @MainThread public androidx.xr.scenecore.CustomMesh build();
-    method public androidx.xr.scenecore.CustomMesh.FromMeshDataBuilder setBounds(androidx.xr.runtime.math.BoundingBox bounds);
-    method public androidx.xr.scenecore.CustomMesh.FromMeshDataBuilder setIndexData(androidx.xr.scenecore.ByteBufferRegion indexData);
-    method public androidx.xr.scenecore.CustomMesh.FromMeshDataBuilder setTopology(androidx.xr.scenecore.MeshSubsetTopology topology);
   }
 
   public interface Entity extends androidx.xr.scenecore.ScenePose {
