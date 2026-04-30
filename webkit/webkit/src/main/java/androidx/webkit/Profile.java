@@ -309,9 +309,9 @@ public interface Profile {
      * {@link WebViewFeature#SPECULATIVE_LOADING_CONFIG}.
      *
      * @param speculativeLoadingConfig the config to set for this profile session.
-     * @deprecated use {@link Profile#setMaxPrerenders(Integer)},
-     * {@link PrefetchCache#setMaxPrefetches(Integer)} and
-     * {@link PrefetchCache#setPrefetchTtlSeconds(Integer)} instead.
+     * @deprecated use {@link Profile#setMaxPrerenders(int)},
+     * {@link PrefetchCache#setMaxPrefetches(int)} and
+     * {@link PrefetchCache#setPrefetchTtlSeconds(int)} instead.
      * @throws UnsupportedOperationException if the
      *                                       {@link WebViewFeature#SPECULATIVE_LOADING_CONFIG}
      *                                       feature is not supported.
@@ -325,7 +325,7 @@ public interface Profile {
             speculativeLoadingConfig);
 
     /**
-     * Sets the max pererenders for the current profile session.
+     * Sets the max prerenders for the current profile session.
      * These configurations will be applied to any prerender requests made after they are set;
      * they will not be applied to in-flight requests.
      * <p>
@@ -335,8 +335,7 @@ public interface Profile {
      * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
      * {@link WebViewFeature#SET_MAX_PRERENDERS_V1}.
      *
-     * @param maxPrerenders the prerender value to update. Setting this value {@code null} will
-     *                      use the default value of maximum prerenders.
+     * @param maxPrerenders the prerender value to update.
      * @throws UnsupportedOperationException if the {@link WebViewFeature#SET_MAX_PRERENDERS_V1}
      *                                       feature is not supported.
      */
@@ -344,13 +343,62 @@ public interface Profile {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @UiThread
     @ExperimentalUrlPrefetch
-    default void setMaxPrerenders(
-            @SuppressWarnings("AutoBoxing") @Nullable @IntRange(from = 1) Integer maxPrerenders) {
+    default void setMaxPrerenders(@IntRange(from = 1) int maxPrerenders) {
         // We provide a default implementation of this method so that embedders extending the
         // Profile (eg, for testing) don't have their build broken by the addition of this
         // method. However, throw a runtime exception if this method is actually called, as
         // that's better than silently no-oping.
         throw new UnsupportedOperationException("Profile#setMaxPrerenders is not implemented.");
+    }
+
+    /**
+     * Returns maximum prerenders for the current profile session.
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#SET_MAX_PRERENDERS_V1}.
+     *
+     * @throws UnsupportedOperationException if the {@link WebViewFeature#SET_MAX_PRERENDERS_V1}
+     *                                       feature is not supported.
+     */
+    @RequiresFeature(name = WebViewFeature.SET_MAX_PRERENDERS_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @ExperimentalUrlPrefetch
+    default int getMaxPrerenders() {
+        // We provide a default implementation of this method so that embedders extending the
+        // Profile (eg, for testing) don't have their build broken by the addition of this
+        // method. However, throw a runtime exception if this method is actually called, as
+        // that's better than silently no-oping.
+        throw new UnsupportedOperationException("Profile#getMaxPrerenders is not implemented.");
+    }
+
+
+
+    /**
+     * Resets the max prerenders for the current profile session to system default.
+     * This configuration will be applied to any prerender requests made after they are set;
+     * they will not be applied to in-flight requests.
+     * <p>
+     * This configuration will be applied to WebViews that are associated with this Profile.
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#SET_MAX_PRERENDERS_V1}.
+     *
+     * @throws UnsupportedOperationException if the {@link WebViewFeature#SET_MAX_PRERENDERS_V1}
+     *                                       feature is not supported.
+     */
+    @RequiresFeature(name = WebViewFeature.SET_MAX_PRERENDERS_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @ExperimentalUrlPrefetch
+    default void clearMaxPrerenders() {
+        // We provide a default implementation of this method so that embedders extending the
+        // Profile (eg, for testing) don't have their build broken by the addition of this
+        // method. However, throw a runtime exception if this method is actually called, as
+        // that's better than silently no-oping.
+        throw new UnsupportedOperationException("Profile#clearMaxPrerenders is not implemented.");
     }
 
     /**

@@ -156,7 +156,6 @@ public class PrefetchTest {
             PrefetchCache prefetchCache = ProfileStore.getInstance().getProfile(
                     Profile.DEFAULT_PROFILE_NAME).getPrefetchCache();
             prefetchCache.setMaxPrefetches(5);
-            prefetchCache.setMaxPrefetches(null);
             prefetchCache.setMaxPrefetches(1);
         });
     }
@@ -173,7 +172,6 @@ public class PrefetchTest {
                     Profile.DEFAULT_PROFILE_NAME).getPrefetchCache();
             prefetchCache.setPrefetchTtlSeconds(60);
             prefetchCache.setPrefetchTtlSeconds(1);
-            prefetchCache.setPrefetchTtlSeconds(null);
         });
     }
 
@@ -188,7 +186,6 @@ public class PrefetchTest {
                     Profile.DEFAULT_PROFILE_NAME);
             testProfile.setMaxPrerenders(5);
             testProfile.setMaxPrerenders(1);
-            testProfile.setMaxPrerenders(null);
         });
     }
 
