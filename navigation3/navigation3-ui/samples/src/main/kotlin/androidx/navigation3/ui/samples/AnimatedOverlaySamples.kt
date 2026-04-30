@@ -96,7 +96,7 @@ private class AnimatedBottomSheetSceneStrategy() : SceneStrategy<Any> {
             override val key = entry.contentKey
             override val entries = listOf(entry)
             override val previousEntries = entries.dropLast(1)
-            override val overlaidEntries = previousEntries.takeLast(1)
+            override val overlaidEntries = entries.dropLast(1)
 
             lateinit var sheetState: SheetState
 

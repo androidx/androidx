@@ -59,6 +59,9 @@ public fun interface SceneDecoratorStrategy<T : Any> {
      *
      * The newly returned [Scene] may or may not include the content of the given [scene].
      *
+     * Note: this does not apply to [OverlayScene] because they are animated separately from
+     * non-overlay scenes.
+     *
      * @param scene The scene to be decorated
      */
     public fun SceneDecoratorStrategyScope<T>.decorateScene(scene: Scene<T>): Scene<T>
