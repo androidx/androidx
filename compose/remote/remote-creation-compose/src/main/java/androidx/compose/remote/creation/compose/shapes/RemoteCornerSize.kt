@@ -22,7 +22,6 @@ import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
 
 /** Defines size of a corner in pixels. For example for rounded shape it can be a corner radius. */
@@ -44,7 +43,7 @@ internal data class RemoteDpCornerSize(val size: RemoteDp) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = ${size.value}.dp)"
 
     override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
-        return size.toPx(density)
+        return size.toPx()
     }
 }
 
@@ -77,12 +76,12 @@ public fun RemoteCornerSize(@IntRange(from = 0, to = 100) percent: Int): RemoteC
  * Creates [RemoteCornerSize] with provided size.
  *
  * @param percent the corner size defined in float percents of the shape's smaller side. Can't be
- *   negative or larger then 100 percents.
+ *   negative or larger than 100 percents.
  */
 internal data class RemotePercentCornerSize(val percent: Int) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = $percent%)"
 
     override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
-        return shapeSize.minDimension * (percent.toFloat().rf / 100f)
+        return shapeSize.minDimension * (percent / 100f)
     }
 }
