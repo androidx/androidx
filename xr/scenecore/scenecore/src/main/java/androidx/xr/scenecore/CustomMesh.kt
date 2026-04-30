@@ -122,12 +122,12 @@ private constructor(
      *
      * This is useful if you are sharing a single buffer across multiple meshes.
      * <pre><code class="lang-kotlin">
-     * val mesh = CustomMesh.FromMeshBufferBuilder(session, myMeshBuffer)
+     * val mesh = CustomMesh.BuilderFromMeshBuffer(session, myMeshBuffer)
      *     .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, indexCount))
      *     .build()
      * </code></pre>
      */
-    public class FromMeshBufferBuilder(
+    public class BuilderFromMeshBuffer(
         private val session: Session,
         private val meshBuffer: MeshBuffer,
     ) {
@@ -135,7 +135,7 @@ private constructor(
         private var boundingBox: BoundingBox? = null
 
         /** Adds a [MeshSubset] defining a part of the mesh. */
-        public fun addSubset(subset: MeshSubset): FromMeshBufferBuilder = apply {
+        public fun addSubset(subset: MeshSubset): BuilderFromMeshBuffer = apply {
             this.subsets.add(subset)
         }
 
@@ -144,7 +144,7 @@ private constructor(
          *
          * If not provided, the auto-computed bounding box of the entire [MeshBuffer] will be used.
          */
-        public fun setBounds(bounds: BoundingBox): FromMeshBufferBuilder = apply {
+        public fun setBounds(bounds: BoundingBox): BuilderFromMeshBuffer = apply {
             this.boundingBox = bounds
         }
 
@@ -166,7 +166,7 @@ private constructor(
      * This will implicitly create a `MeshBuffer` for you. You provide the [VertexLayout] along with
      * the raw vertex and index data:
      * <pre><code class="lang-kotlin">
-     * val builder = CustomMesh.FromMeshDataBuilder(session, myLayout)
+     * val builder = CustomMesh.BuilderFromMeshData(session, myLayout)
      *     .addVertexData(myVertexData)
      *     .setIndexData(myIndexData)
      * </code></pre>
@@ -190,7 +190,7 @@ private constructor(
      * val mesh = builder.build()
      * </code></pre>
      */
-    public class FromMeshDataBuilder(
+    public class BuilderFromMeshData(
         private val session: Session,
         private val vertexLayout: VertexLayout,
     ) {
@@ -211,7 +211,7 @@ private constructor(
          * underlying [MeshBuffer].
          */
         @SuppressLint("MissingGetterMatchingBuilder")
-        public fun addVertexData(vertexData: ByteBufferRegion): FromMeshDataBuilder = apply {
+        public fun addVertexData(vertexData: ByteBufferRegion): BuilderFromMeshData = apply {
             this.vertexDataList.add(vertexData)
         }
 
@@ -222,7 +222,7 @@ private constructor(
          * without affecting the underlying [MeshBuffer].
          */
         @SuppressLint("MissingGetterMatchingBuilder")
-        public fun setIndexData(indexData: ByteBufferRegion): FromMeshDataBuilder = apply {
+        public fun setIndexData(indexData: ByteBufferRegion): BuilderFromMeshData = apply {
             this.indexData = indexData
         }
 
@@ -233,7 +233,7 @@ private constructor(
          *
          * @throws IllegalStateException if a topology has already been set
          */
-        public fun addSubset(subset: MeshSubset): FromMeshDataBuilder = apply {
+        public fun addSubset(subset: MeshSubset): BuilderFromMeshData = apply {
             check(topology == null) { "Cannot add subset after setting a single topology." }
             this.subsets.add(subset)
         }
@@ -247,7 +247,7 @@ private constructor(
          * @throws IllegalStateException if subsets have already been added
          */
         @SuppressLint("MissingGetterMatchingBuilder")
-        public fun setTopology(topology: MeshSubsetTopology): FromMeshDataBuilder = apply {
+        public fun setTopology(topology: MeshSubsetTopology): BuilderFromMeshData = apply {
             check(subsets.isEmpty()) { "Cannot set topology after adding subsets." }
             this.topology = topology
         }
@@ -257,7 +257,7 @@ private constructor(
          *
          * If not provided, the auto-computed bounding box of the entire [MeshBuffer] will be used.
          */
-        public fun setBounds(bounds: BoundingBox): FromMeshDataBuilder = apply {
+        public fun setBounds(bounds: BoundingBox): BuilderFromMeshData = apply {
             this.boundingBox = bounds
         }
 
