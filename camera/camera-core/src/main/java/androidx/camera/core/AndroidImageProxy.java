@@ -18,8 +18,11 @@ package androidx.camera.core;
 
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.hardware.HardwareBuffer;
 import android.media.Image;
+import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.TagBundle;
 
 import org.jspecify.annotations.NonNull;
@@ -129,5 +132,21 @@ final class AndroidImageProxy implements ImageProxy {
     @ExperimentalGetImage
     public Image getImage() {
         return mImage;
+    }
+
+    @Override
+    @RequiresApi(Build.VERSION_CODES.P)
+    public @Nullable HardwareBuffer getHardwareBuffer() {
+        return Api28Impl.getHardwareBuffer(mImage);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    private static class Api28Impl {
+        private Api28Impl() {
+        }
+
+        static @Nullable HardwareBuffer getHardwareBuffer(@NonNull Image image) {
+            return image.getHardwareBuffer();
+        }
     }
 }

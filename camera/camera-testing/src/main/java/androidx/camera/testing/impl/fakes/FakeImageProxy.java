@@ -18,9 +18,12 @@ package androidx.camera.testing.impl.fakes;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.hardware.HardwareBuffer;
 import android.media.Image;
+import android.os.Build;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
@@ -47,6 +50,7 @@ public final class FakeImageProxy implements ImageProxy {
 
     private @NonNull ImageInfo mImageInfo;
     private Image mImage;
+    private @Nullable HardwareBuffer mHardwareBuffer;
     private @Nullable Bitmap mBitmap;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Object mReleaseLock = new Object();
@@ -143,6 +147,12 @@ public final class FakeImageProxy implements ImageProxy {
         return mImage;
     }
 
+    @Override
+    @RequiresApi(Build.VERSION_CODES.P)
+    public @Nullable HardwareBuffer getHardwareBuffer() {
+        return mHardwareBuffer;
+    }
+
     /**
      * Checks the image close status.
      * @return true if image closed, false otherwise.
@@ -175,6 +185,11 @@ public final class FakeImageProxy implements ImageProxy {
 
     public void setImage(@Nullable Image image) {
         mImage = image;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    public void setHardwareBuffer(@Nullable HardwareBuffer hardwareBuffer) {
+        mHardwareBuffer = hardwareBuffer;
     }
 
     /**
