@@ -31,6 +31,9 @@ function usage() {
   echo " f, flan"
   echo "  Open the project subset flan: Fragment, Lifecycle, Activity, and Navigation"
   echo
+  echo " m3, material3"
+  echo "  Open the project subset material3 and material catalog"
+  echo
   echo " media"
   echo "  Open the project subset media: Media, Media2, and MediaRouter"
   echo
@@ -112,6 +115,9 @@ while [ "$1" != "" ]; do
   fi
   if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
     newSubset=flan
+  fi
+  if [ "$subsetArg" == "m3" -o "$subsetArg" == "material3" ]; then
+    newPrefix=":compose:material3,:compose:integration-tests:material-catalog"
   fi
   if [ "$subsetArg" == "media" ]; then
     newSubset=media
