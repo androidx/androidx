@@ -18,40 +18,27 @@ package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.Action
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteAppCard
 import androidx.wear.compose.remote.material3.RemoteText
+import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Sampled
 @Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteAppCardSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteAppCard(
         onClick = Action.Empty,
         appName = { RemoteText("App Name".rs) },
         time = { RemoteText("now".rs) },
         title = { RemoteText("App Card Title".rs) },
+        modifier = modifier,
     ) {
         RemoteText("This is a sample App Card.".rs)
     }
-}
-
-@WearPreviewDevices
-@Composable
-fun RemoteAppCardSamplePreview() = RemotePreview { Container { RemoteAppCardSample() } }
-
-@Composable
-@RemoteComposable
-private fun Container(
-    modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
-    content: @Composable @RemoteComposable () -> Unit,
-) {
-    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
 }

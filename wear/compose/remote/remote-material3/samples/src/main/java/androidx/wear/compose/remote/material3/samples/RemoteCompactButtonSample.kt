@@ -18,21 +18,20 @@ package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.ValueChange
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteCompactButton
 import androidx.wear.compose.remote.material3.RemoteText
+import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Sampled
 @Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteCompactButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
     val tapCount = rememberMutableRemoteInt(0)
     val countSuffix = " (".rs + tapCount.toRemoteString() + " taps)"
@@ -42,19 +41,4 @@ fun RemoteCompactButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
         modifier = modifier,
         label = { RemoteText("Tap me!".rs + countSuffix) },
     )
-}
-
-@WearPreviewDevices
-@Composable
-fun RemoteCompactButtonSimpleSamplePreview() = RemotePreview {
-    Container { RemoteCompactButtonSimpleSample() }
-}
-
-@Composable
-@RemoteComposable
-private fun Container(
-    modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
-    content: @Composable @RemoteComposable () -> Unit,
-) {
-    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
 }

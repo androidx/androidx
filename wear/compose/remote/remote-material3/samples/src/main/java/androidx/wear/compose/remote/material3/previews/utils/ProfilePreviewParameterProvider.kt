@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.remote.material3.previews
+package androidx.wear.compose.remote.material3.previews.utils
 
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.creation.profile.RcPlatformProfiles.ANDROIDX
-import androidx.compose.remote.creation.profile.RcPlatformProfiles.WEAR_WIDGETS
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 class ProfilePreviewParameterProvider : PreviewParameterProvider<Profile> {
     @OptIn(ExperimentalRemoteCreationApi::class)
-    override val values = sequenceOf(ANDROIDX, WEAR_WIDGETS)
+    override val values = sequenceOf(RcPlatformProfiles.ANDROIDX, RcPlatformProfiles.WEAR_WIDGETS)
 }

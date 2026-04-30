@@ -18,46 +18,34 @@ package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.Action
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteCard
 import androidx.wear.compose.remote.material3.RemoteOutlinedCard
 import androidx.wear.compose.remote.material3.RemoteText
+import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Sampled
 @Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteCardSample() {
-    RemoteCard(onClick = Action.Empty) { RemoteText("This is a basic card".rs) }
+    RemoteCard(onClick = Action.Empty, modifier = RemoteModifier.padding(16.rdp)) {
+        RemoteText("This is a basic card".rs)
+    }
 }
 
 @Sampled
 @Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteOutlinedCardSample() {
-    RemoteOutlinedCard(onClick = Action.Empty) { RemoteText("This is an outlined card".rs) }
-}
-
-@WearPreviewDevices
-@Composable
-fun RemoteCardSamplePreview() = RemotePreview { Container { RemoteCardSample() } }
-
-@WearPreviewDevices
-@Composable
-fun RemoteOutlinedCardSamplePreview() = RemotePreview { Container { RemoteOutlinedCardSample() } }
-
-@Composable
-@RemoteComposable
-private fun Container(
-    modifier: RemoteModifier = RemoteModifier.fillMaxSize().padding(16.rdp),
-    content: @Composable @RemoteComposable () -> Unit,
-) {
-    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
+    RemoteOutlinedCard(onClick = Action.Empty, modifier = RemoteModifier.padding(16.rdp)) {
+        RemoteText("This is an outlined card".rs)
+    }
 }

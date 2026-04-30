@@ -17,37 +17,23 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteIcon
+import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Sampled
 @Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteIconSimpleSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteIcon(
         modifier = modifier,
         imageVector = ImageVector.vectorResource(R.drawable.gs_map_wght500rond100_vd_theme_24),
         contentDescription = null,
     )
-}
-
-@WearPreviewDevices
-@Composable
-fun RemoteIconSimpleSamplePreview() = RemotePreview { Container { RemoteIconSimpleSample() } }
-
-@Composable
-@RemoteComposable
-private fun Container(
-    modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
-    content: @Composable @RemoteComposable () -> Unit,
-) {
-    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
 }

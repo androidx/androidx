@@ -49,22 +49,19 @@ package androidx.wear.compose.remote.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.$COMPONENT_NAME
+import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
+import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Sampled
 @Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun ${COMPONENT_NAME}Sample(modifier: RemoteModifier = RemoteModifier) {
     $COMPONENT_NAME(
         modifier = modifier
     )
-}
-
-@WearPreviewDevices
-@Composable
-fun ${COMPONENT_NAME}SamplePreview(
-    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) {
-    Container { ${COMPONENT_NAME}Sample() }
 }
 ```
 
