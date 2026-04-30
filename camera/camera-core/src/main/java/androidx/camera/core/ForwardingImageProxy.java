@@ -17,9 +17,12 @@
 package androidx.camera.core;
 
 import android.graphics.Rect;
+import android.hardware.HardwareBuffer;
 import android.media.Image;
+import android.os.Build;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
@@ -101,6 +104,12 @@ public abstract class ForwardingImageProxy implements ImageProxy {
     @ExperimentalGetImage
     public @Nullable Image getImage() {
         return mImage.getImage();
+    }
+
+    @Override
+    @RequiresApi(Build.VERSION_CODES.P)
+    public @Nullable HardwareBuffer getHardwareBuffer() {
+        return mImage.getHardwareBuffer();
     }
 
     /**

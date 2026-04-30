@@ -20,6 +20,7 @@ import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.media.Image
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
@@ -27,6 +28,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
@@ -116,5 +119,26 @@ class AndroidImageProxyTest {
             assertThat(wrappedPlanes[i].pixelStride).isEqualTo(originalPlanes[i].pixelStride)
             assertThat(wrappedPlanes[i].buffer).isEqualTo(originalPlanes[i].buffer)
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun getHardwareBuffer_callsImageGetHardwareBufferEachTime() {
+        `when`(mImage.hardwareBuffer).thenReturn(null)
+
+        mImageProxy!!.hardwareBuffer
+        mImageProxy!!.hardwareBuffer
+
+        verify(mImage, times(2)).hardwareBuffer
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun close_doesNotCloseImageHardwareBuffer() {
+        // This test ensures that AndroidImageProxy doesn't attempt to get and close
+        // the hardware buffer during its own close() call.
+        mImageProxy!!.close()
+
+        verify(mImage, never()).hardwareBuffer
     }
 }
