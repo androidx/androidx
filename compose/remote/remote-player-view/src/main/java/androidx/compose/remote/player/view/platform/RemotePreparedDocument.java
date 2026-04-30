@@ -29,14 +29,13 @@ import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.DataMap;
 import androidx.compose.remote.player.core.RemoteDocument;
+import androidx.compose.remote.player.core.platform.BitmapLoader;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,6 +43,7 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemotePreparedDocument implements RemoteComposePlayer.PreparedDocument {
     private final RemoteDocument mOriginalDoc;
+    private final BitmapLoader mBitmapLoader;
     private final HashMap<Integer, Object> mResolvedData = new HashMap<>();
     private final RemoteContext mContext =
             new RemoteContext() {
@@ -127,7 +127,6 @@ public class RemotePreparedDocument implements RemoteComposePlayer.PreparedDocum
                 @Override
                 public void hapticEffect(int type) {}
 
-                @SuppressWarnings("deprecation") // usage of new URL()
                 @Override
                 public void loadBitmap(
                         int imageId,
@@ -208,15 +207,13 @@ public class RemotePreparedDocument implements RemoteComposePlayer.PreparedDocum
                             }
                             break;
                         case BitmapData.ENCODING_FILE:
-                            image = BitmapFactory.decodeFile(new String(data));
+                            image = BitmapFactory.decodeFile(
+                                    new String(data, java.nio.charset.StandardCharsets.UTF_8));
                             break;
                         case BitmapData.ENCODING_URL:
-                            try {
-                                image =
-                                        BitmapFactory.decodeStream(
-                                                new URL(new String(data)).openStream());
-                            } catch (MalformedURLException e) {
-                                throw new RuntimeException(e);
+                            try (java.io.InputStream is = mBitmapLoader.loadBitmap(
+                                    new String(data, java.nio.charset.StandardCharsets.UTF_8))) {
+                                image = BitmapFactory.decodeStream(is);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -306,8 +303,9 @@ public class RemotePreparedDocument implements RemoteComposePlayer.PreparedDocum
                         int metadataId) {}
             };
 
-    public RemotePreparedDocument(@NonNull RemoteDocument doc) {
+    public RemotePreparedDocument(@NonNull RemoteDocument doc, @NonNull BitmapLoader bitmapLoader) {
         mOriginalDoc = doc;
+        mBitmapLoader = bitmapLoader;
         BitmapData[] data = doc.getDocument().getBitmapDataSet();
         for (BitmapData d : data) {
             d.apply(mContext);
