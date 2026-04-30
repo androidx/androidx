@@ -28,12 +28,13 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.padding
+import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.transformingMovable
 
 /**
@@ -68,7 +69,10 @@ public fun NavigationSuiteScaffold(
         // TODO(b/454025889): Expose DragPolicy and ResizePolicy params
         SpatialPanel(
             modifier =
-                modifier.getPaddingForLayoutType(layoutType).fillMaxSize().transformingMovable(),
+                modifier
+                    .getPaddingForLayoutType(layoutType)
+                    .size(800.dp, 600.dp)
+                    .transformingMovable(),
             resizePolicy = ResizePolicy(),
         ) {
             // TODO(b/395684702): Support show/hide animation
