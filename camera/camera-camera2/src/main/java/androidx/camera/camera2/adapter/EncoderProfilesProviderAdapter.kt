@@ -129,12 +129,10 @@ public class EncoderProfilesProviderAdapter(
             } else {
                 try {
                     return EncoderProfilesProxyCompat.from(profiles)
-                } catch (e: NullPointerException) {
-                    Logger.w(
+                } catch (_: NullPointerException) {
+                    Logger.d(
                         TAG,
-                        "Failed to create EncoderProfilesProxy, EncoderProfiles might " +
-                            "contain invalid video profiles. Use CamcorderProfile instead.",
-                        e,
+                        "Unable to create EncoderProfilesProxy. Fall back to CamcorderProfile.",
                     )
                 }
             }
