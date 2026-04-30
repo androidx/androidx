@@ -103,6 +103,9 @@ apply(plugin: "com.android.settings")
 apply(from: "buildSrc/ndk.gradle")
 
 def buildNumberProvider = providers.environmentVariable("BUILD_NUMBER").orElse("unset")
+// Noisy requests from VSCode based IDEs that we do not want to see in build scans
+def isNoisyTaskRequest = startParameter.taskNames.contains("kotlinLSPProjectDeps") || startParameter.taskNames.contains("javalsCheckProject")
+
 develocity {
     server = "https://androidx.develocity.cloud"
 
@@ -121,7 +124,7 @@ develocity {
         value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
 
         // Do not publish scan for androidx-platform-dev
-        publishing.onlyIf { it.authenticated }
+        publishing.onlyIf { it.authenticated && !isNoisyTaskRequest }
     }
 
     // TODO(https://github.com/gradle/gradle/issues/34584): Avoid setting buildFinished via Gradle magic:
