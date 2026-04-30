@@ -1142,6 +1142,32 @@ class WindowInsetsPaddingTest {
         assertThat(recomposed.value).isFalse()
     }
 
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    fun onConsumedWindowInsetsChanged_updateBlockRecalculates() {
+        val insets1 = MutableWindowInsets()
+        val insets2 = MutableWindowInsets()
+        var useFirstInsets by mutableStateOf(true)
+
+        setContent {
+            val targetInsets = if (useFirstInsets) insets1 else insets2
+            Box(
+                Modifier.consumeWindowInsets(PaddingValues(top = 10.dp))
+                    .onConsumedWindowInsetsChanged { consumed -> targetInsets.insets = consumed }
+            )
+        }
+
+        rule.waitForIdle()
+        sendInsets(WindowInsetsCompat.Type.statusBars(), AndroidXInsets.of(0, 30, 0, 0))
+        rule.runOnIdle {
+            assertThat(insets1.getTop(rule.density)).isGreaterThan(0)
+            assertThat(insets2.getTop(rule.density)).isEqualTo(0)
+        }
+
+        useFirstInsets = false
+        rule.runOnIdle { assertThat(insets2.getTop(rule.density)).isGreaterThan(0) }
+    }
+
     private fun sendInsets(
         type: Int,
         sentInsets: AndroidXInsets = AndroidXInsets.of(10, 11, 12, 13),

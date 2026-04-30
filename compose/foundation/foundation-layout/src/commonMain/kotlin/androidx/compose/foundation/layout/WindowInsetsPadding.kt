@@ -589,6 +589,7 @@ private class ConsumedInsetsModifierNode(private var block: (WindowInsets) -> Un
     fun update(block: (WindowInsets) -> Unit) {
         if (block !== this.block) {
             this.block = block
+            insetsInvalidated()
         }
     }
 }
