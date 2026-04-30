@@ -2004,6 +2004,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
     method public androidx.car.app.model.CarIcon? getStartIcon();
     method public int getStartIconType();
+    method public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText getTitle();
     field public static final int IMAGE_TYPE_LARGE = 2; // 0x2
     field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
@@ -2015,7 +2016,10 @@ package androidx.car.app.model {
     method public androidx.car.app.model.SectionHeader build();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setEndIcon(androidx.car.app.model.CarIcon);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setStartIcon(androidx.car.app.model.CarIcon);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setStartIcon(androidx.car.app.model.CarIcon, int);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setSubtitle(androidx.car.app.model.CarText?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setSubtitle(CharSequence?);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class SectionedItemList {
