@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.modifiers.ClipModifier as CoreClipModifi
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.RectShape as CoreRectShape
 import androidx.compose.remote.creation.modifiers.RoundedRectShape as CoreRoundedRectShape
+import androidx.compose.ui.unit.LayoutDirection
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClipModifier(public val shape: RemoteShape = RemoteRectangleShape) :
@@ -51,11 +52,20 @@ public class ClipModifier(public val shape: RemoteShape = RemoteRectangleShape) 
                 is RemoteRoundedCornerShape -> {
                     val context = RemoteFloatContext(this)
                     val remoteSize = RemoteSize(context.componentWidth(), context.componentHeight())
+                    val isRtl = layoutDirection == LayoutDirection.Rtl
                     CoreRoundedRectShape(
-                        shape.topStart.toPx(remoteSize, remoteDensity).floatId,
-                        shape.topEnd.toPx(remoteSize, remoteDensity).floatId,
-                        shape.bottomStart.toPx(remoteSize, remoteDensity).floatId,
-                        shape.bottomEnd.toPx(remoteSize, remoteDensity).floatId,
+                        (if (isRtl) shape.topEnd else shape.topStart)
+                            .toPx(remoteSize, remoteDensity)
+                            .floatId,
+                        (if (isRtl) shape.topStart else shape.topEnd)
+                            .toPx(remoteSize, remoteDensity)
+                            .floatId,
+                        (if (isRtl) shape.bottomEnd else shape.bottomStart)
+                            .toPx(remoteSize, remoteDensity)
+                            .floatId,
+                        (if (isRtl) shape.bottomStart else shape.bottomEnd)
+                            .toPx(remoteSize, remoteDensity)
+                            .floatId,
                     )
                 }
                 else -> CoreRectShape(0f, 0f, 0f, 0f)
