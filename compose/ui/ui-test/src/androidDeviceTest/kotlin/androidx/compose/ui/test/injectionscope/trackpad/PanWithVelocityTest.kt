@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -108,10 +106,7 @@ class PanWithVelocityTest(private val config: TestConfig) {
 
                 val computedVelocity: Velocity
 
-                @OptIn(ExperimentalComposeUiApi::class)
-                if (
-                    ComposeUiFlags.isTrackpadGestureHandlingEnabled && Build.VERSION.SDK_INT >= 34
-                ) {
+                if (Build.VERSION.SDK_INT >= 34) {
                     assertThat(events.map { it.position }.toSet()).containsExactly(boxCenter)
                     assertThat(events[1].eventType).isEqualTo(PointerEventType.PanStart)
                     assertThat(events.subList(2, events.size - 1).map { it.eventType }.toSet())

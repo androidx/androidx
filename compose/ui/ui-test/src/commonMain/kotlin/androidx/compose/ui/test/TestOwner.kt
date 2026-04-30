@@ -26,6 +26,17 @@ import androidx.compose.ui.semantics.getAllSemanticsNodes
  * This is typically implemented by entities like test rule.
  */
 internal interface TestOwner {
+    /**
+     * Indicates whether the implicit [ComposeUiTest.waitForIdle] synchronization should be bypassed
+     * before fetching semantics nodes.
+     *
+     * To prevent race conditions and ensure predictable behavior across different testing
+     * environments, this property must strictly be accessed and modified from the UI thread.
+     *
+     * This is primarily used to power scoped APIs like [ComposeUiTest.runWhenIdle].
+     */
+    var isImplicitWaitSuppressed: Boolean
+
     /** Clock that drives frames and recompositions in compose tests. */
     val mainClock: MainTestClock
 

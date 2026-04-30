@@ -259,9 +259,10 @@ internal class LayoutModifierNodeCoordinator(
                 wrapped.forcePlaceWithLookaheadOffset = approachComplete
             }
         }
+        val wasPlacingForAlignment = wrapped.isPlacingForAlignment
         wrapped.isPlacingForAlignment = isPlacingForAlignment
         measureResult.placeChildren()
-        wrapped.isPlacingForAlignment = false
+        wrapped.isPlacingForAlignment = wasPlacingForAlignment
         wrapped.forcePlaceWithLookaheadOffset = false
     }
 
@@ -305,11 +306,13 @@ private fun LookaheadCapablePlaceable.calculateAlignmentAndPlaceChildAsNeeded(
         return AlignmentLine.Unspecified
     }
     // Place our wrapped to obtain their position inside ourselves.
+    val wasShallowPlacing = isShallowPlacing
+    val wasPlacingForAlignment = isPlacingForAlignment
     child.isShallowPlacing = true
     isPlacingForAlignment = true
     replace()
-    child.isShallowPlacing = false
-    isPlacingForAlignment = false
+    child.isShallowPlacing = wasShallowPlacing
+    isPlacingForAlignment = wasPlacingForAlignment
     return if (alignmentLine is HorizontalAlignmentLine) {
         positionInWrapped + child.position.y
     } else {

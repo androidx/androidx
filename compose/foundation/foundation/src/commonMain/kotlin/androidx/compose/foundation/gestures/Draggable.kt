@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
-import androidx.compose.foundation.ComposeFoundationFlags.isNestedDraggablesTouchConflictFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.GestureConnection
 import androidx.compose.foundation.MutatePriority
@@ -537,7 +535,6 @@ internal abstract class DragGestureNode(
     }
 
     protected fun initializeGestureCoordination() {
-        if (!isDelayPressesUsingGestureConsumptionEnabled) return
         if (gestureNode == null) {
             gestureNode = delegate(gestureNode(this))
         }
@@ -590,7 +587,6 @@ internal abstract class DragGestureNode(
      */
     override fun isInterested(event: PointerInputChange): Boolean {
         if (event.changedToDownIgnoreConsumed()) return enabled
-        if (!isNestedDraggablesTouchConflictFixEnabled) return false
         if (event.changedToUpIgnoreConsumed()) return false
 
         if (touchSlopDetector == null) {
@@ -862,31 +858,20 @@ internal abstract class DragGestureNode(
                      * event), we will give the parent a chance to do something by postponing the
                      * remaining consumption to the final pass.
                      */
-                    if (isNestedDraggablesTouchConflictFixEnabled) {
-                        if (postSlopOffset.isSpecified) {
-                            val isSelfInterested = isInterested(dragEvent)
-                            val isParentInterested =
-                                parentGestureConnection?.isInterested(dragEvent) == true
-                            if (!isSelfInterested && isParentInterested) {
-                                state.verifyConsumptionInFinalPass = true
-                            } else {
-                                dragEvent.consume()
-                                sendDragStart(state.initialDown!!, dragEvent, postSlopOffset)
-                                sendDragEvent(dragEvent, postSlopOffset)
-                                moveToDraggingState(dragEvent.id)
-                            }
-                        } else {
+                    if (postSlopOffset.isSpecified) {
+                        val isSelfInterested = isInterested(dragEvent)
+                        val isParentInterested =
+                            parentGestureConnection?.isInterested(dragEvent) == true
+                        if (!isSelfInterested && isParentInterested) {
                             state.verifyConsumptionInFinalPass = true
-                        }
-                    } else {
-                        if (postSlopOffset.isSpecified) {
+                        } else {
                             dragEvent.consume()
                             sendDragStart(state.initialDown!!, dragEvent, postSlopOffset)
                             sendDragEvent(dragEvent, postSlopOffset)
                             moveToDraggingState(dragEvent.id)
-                        } else {
-                            state.verifyConsumptionInFinalPass = true
                         }
+                    } else {
+                        state.verifyConsumptionInFinalPass = true
                     }
                 }
             } else {

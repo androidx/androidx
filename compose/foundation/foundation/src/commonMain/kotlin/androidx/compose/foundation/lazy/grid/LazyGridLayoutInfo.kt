@@ -137,17 +137,6 @@ internal fun LazyGridLayoutInfo.visibleLinesAverageMainAxisSize(): Int {
 internal val LazyGridLayoutInfo.singleAxisViewportSize: Int
     get() = if (orientation == Orientation.Vertical) viewportSize.height else viewportSize.width
 
-internal val LazyGridLayoutInfo.firstVisibleItemLineIndex: Int
-    get() {
-        val visibleItems = visibleItemsInfo
-        if (visibleItems.isEmpty()) return 0
-        return if (orientation == Orientation.Vertical) {
-            visibleItems.first().row
-        } else {
-            visibleItems.first().column
-        }
-    }
-
 internal fun LazyGridLayoutInfo.calculateContentSize(): Int {
     val contentPadding = beforeContentPadding + afterContentPadding
     if (totalItemsCount == 0) return contentPadding

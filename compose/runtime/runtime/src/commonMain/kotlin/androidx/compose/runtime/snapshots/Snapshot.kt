@@ -2287,7 +2287,21 @@ internal fun <T : StateRecord> T.writableRecord(state: StateObject, snapshot: Sn
         snapshot.recordModified(state)
     }
     val id = snapshot.snapshotId
-    val readData = readable(this, id, snapshot.invalid) ?: readError()
+    val readData =
+        readable(this, id, snapshot.invalid)
+            ?: sync {
+                // If a state record is prepended by another thread and then
+                // [overwriteUnusedRecordsLocked] is called by another thread before this thread
+                // reaches the `readable` call above, the call will return null. When the call
+                // returns null, we fall back to making the `readable` call in a [sync] block,
+                // ensuring that the head of the state record list is passed as the first argument.
+                // The fallback call is valid as it will either return the same result as the
+                // previous call or find a valid record.
+                val syncSnapshot = Snapshot.current
+                @Suppress("UNCHECKED_CAST")
+                readable(state.firstStateRecord as T, syncSnapshot.snapshotId, syncSnapshot.invalid)
+                    ?: readError()
+            }
 
     // If the readable data was born in this snapshot, it is writable.
     if (readData.snapshotId == snapshot.snapshotId) return readData

@@ -18,6 +18,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -25,9 +26,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -38,6 +44,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -236,7 +243,7 @@ class GridTest : LayoutTest() {
         }
 
     @Test
-    fun testGrid_fractionTracks() =
+    fun testGrid_percentageTracks() =
         with(density) {
             val totalSize = 200
             val totalSizeDp = totalSize.toDp()
@@ -2859,52 +2866,238 @@ class GridTest : LayoutTest() {
         }
 
     @Test
-    fun testGrid_lazyColumn_inFlexTrack_throwsHelpfulException() {
-        val latch = CountDownLatch(1)
-        var caughtException: Throwable? = null
+    fun testGrid_autoRowHeight_respectsColumnSpanAndGap() =
+        with(density) {
+            val colSize = 50.dp
+            val colSizePx = colSize.roundToPx()
+            val gapSize = 10.dp
+            val gapSizePx = gapSize.roundToPx()
 
-        show {
-            // We wrap the Grid in a custom Layout so we can catch the exception
-            // directly on the UI thread during the measurement phase.
-            Layout(
-                content = {
-                    Grid(
-                        config = {
-                            // Standard Flex queries intrinsics -> Crashes on SubcomposeLayout
-                            column(GridTrackSize.Flex(1.fr))
-                            row(GridTrackSize.Flex(1.fr))
-                        },
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(10) { Box(Modifier.height(20.dp)) }
-                        }
-                    }
-                },
-                measurePolicy = { measurables, constraints ->
-                    try {
-                        // Trigger the Grid's measure pass. This is what triggers the
-                        // intrinsic query, and subsequently, our wrapped exception.
-                        measurables.firstOrNull()?.measure(constraints)
-                    } catch (e: Throwable) {
-                        // Catch the exception before it bubbles up and crashes the test runner!
-                        caughtException = e
-                    }
+            val expectedSpannedWidth = (colSizePx * 2) + gapSizePx
 
-                    latch.countDown()
-                    layout(100, 100) {} // Return dummy layout
-                },
+            val latch = CountDownLatch(1)
+            val childSize = Ref<IntSize>()
+
+            show {
+                Grid(
+                    config = {
+                        column(GridTrackSize.Fixed(colSize))
+                        column(GridTrackSize.Fixed(colSize))
+                        row(GridTrackSize.Auto)
+                        columnGap(gapSize)
+                    }
+                ) {
+                    Layout(
+                        modifier =
+                            Modifier.gridItem(1, 1, columnSpan = 2).onGloballyPositioned {
+                                childSize.value = it.size
+                                latch.countDown()
+                            },
+                        measurePolicy =
+                            object : MeasurePolicy {
+                                override fun MeasureScope.measure(
+                                    measurables: List<Measurable>,
+                                    constraints: Constraints,
+                                ): MeasureResult {
+                                    // Protect against Constraints.Infinity (Int.MAX_VALUE)
+                                    val w =
+                                        if (constraints.hasBoundedWidth) constraints.maxWidth
+                                        else expectedSpannedWidth
+                                    val h = if (w < expectedSpannedWidth) 200 else 100
+                                    return layout(w, h) {}
+                                }
+
+                                // Override intrinsic widths so Grid's Pass 1.5 doesn't
+                                // trigger the default fallback measurements.
+                                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    height: Int,
+                                ): Int = expectedSpannedWidth
+
+                                override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    height: Int,
+                                ): Int = expectedSpannedWidth
+
+                                // The critical intrinsic height checks
+                                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    width: Int,
+                                ): Int = if (width < expectedSpannedWidth) 200 else 100
+
+                                override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    width: Int,
+                                ): Int = if (width < expectedSpannedWidth) 200 else 100
+                            },
+                    )
+                }
+            }
+
+            assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "Auto row height should be calculated using the full spanned width (including gaps)",
+                100,
+                childSize.value?.height,
+            )
+            assertEquals(
+                "Item should occupy the full spanned width",
+                expectedSpannedWidth,
+                childSize.value?.width,
             )
         }
 
-        assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+    @Test
+    fun testGrid_autoColumnWidth_respectsColumnSpanAndGap() =
+        with(density) {
+            // Scenario:
+            // 2 Auto columns with a 10px gap.
+            // An item spans both columns (columnSpan = 2) and has an intrinsic width of 110px.
+            // The gap provides 10px, so the columns only need to provide 100px total.
+            // Since there are 2 Auto columns, they should equally split the 100px -> 50px each.
 
-        val message = caughtException?.message
-        assertTrue(
-            "Expected helpful error message, but got: $message",
-            message?.contains(SubcomposeLayoutIntrinsicErrorMessage) == true,
-        )
-    }
+            val gapSize = 10.dp
+            val gapSizePx = gapSize.roundToPx()
+            val intrinsicWidthPx = 110
+
+            val expectedColWidth = (intrinsicWidthPx - gapSizePx) / 2
+
+            val latch = CountDownLatch(2)
+            val col1Size = Ref<IntSize>()
+            val col2Size = Ref<IntSize>()
+
+            show {
+                Grid(
+                    config = {
+                        column(GridTrackSize.Auto)
+                        column(GridTrackSize.Auto)
+                        row(GridTrackSize.Fixed(50.dp)) // Row for the spanning item
+                        row(GridTrackSize.Fixed(50.dp)) // Row for the measurement boxes
+                        columnGap(gapSize)
+                    }
+                ) {
+                    // The item spanning 2 columns driving the Auto expansion
+                    IntrinsicItem(
+                        minWidth = intrinsicWidthPx,
+                        minIntrinsicWidth = intrinsicWidthPx,
+                        maxIntrinsicWidth = intrinsicWidthPx,
+                        modifier = Modifier.gridItem(row = 1, column = 1, columnSpan = 2),
+                    )
+
+                    // Dummy items in Row 2 to accurately measure the final column widths
+                    Box(
+                        Modifier.gridItem(row = 2, column = 1).fillMaxSize().onGloballyPositioned {
+                            col1Size.value = it.size
+                            latch.countDown()
+                        }
+                    )
+                    Box(
+                        Modifier.gridItem(row = 2, column = 2).fillMaxSize().onGloballyPositioned {
+                            col2Size.value = it.size
+                            latch.countDown()
+                        }
+                    )
+                }
+            }
+
+            assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "Column 1 should account for the spanned gap when calculating deficit",
+                expectedColWidth,
+                col1Size.value?.width,
+            )
+            assertEquals(
+                "Column 2 should account for the spanned gap when calculating deficit",
+                expectedColWidth,
+                col2Size.value?.width,
+            )
+        }
+
+    @Test
+    fun testGrid_focusTraversal_followsPlacementOrder() =
+        with(density) {
+            val focusLog = mutableListOf<String>()
+            val latch = CountDownLatch(1)
+            var isPlaced by mutableStateOf(false)
+
+            show {
+                val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+                val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
+
+                Grid(
+                    config = {
+                        repeat(2) { column(GridTrackSize.Flex(1.fr)) }
+                        repeat(2) { row(GridTrackSize.Flex(1.fr)) }
+                    },
+                    modifier = Modifier.size(100.dp).onGloballyPositioned { isPlaced = true },
+                ) {
+                    // Compose items in reverse visual order: (2,2), (2,1), (1,2), (1,1)
+
+                    // 4. (2, 2)
+                    Box(
+                        Modifier.gridItem(row = 2, column = 2)
+                            .size(50.dp)
+                            .onFocusChanged { if (it.isFocused) focusLog.add("2,2") }
+                            .focusable()
+                    )
+                    // 3. (2, 1)
+                    Box(
+                        Modifier.gridItem(row = 2, column = 1)
+                            .size(50.dp)
+                            .onFocusChanged { if (it.isFocused) focusLog.add("2,1") }
+                            .focusable()
+                    )
+                    // 2. (1, 2)
+                    Box(
+                        Modifier.gridItem(row = 1, column = 2)
+                            .size(50.dp)
+                            .onFocusChanged { if (it.isFocused) focusLog.add("1,2") }
+                            .focusable()
+                    )
+                    // 1. (1, 1)
+                    Box(
+                        Modifier.gridItem(row = 1, column = 1)
+                            .size(50.dp)
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { if (it.isFocused) focusLog.add("1,1") }
+                            .focusable()
+                    )
+                }
+
+                if (isPlaced) {
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        // 1. Initially focus the top-start item (1,1)
+                        focusRequester.requestFocus()
+                        kotlinx.coroutines.yield() // Allow event to process
+
+                        // 2. Tab -> should go to (1,2)
+                        focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next)
+                        kotlinx.coroutines.yield()
+
+                        // 3. Tab -> should go to (2,1)
+                        focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next)
+                        kotlinx.coroutines.yield()
+
+                        // 4. Tab -> should go to (2,2)
+                        focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next)
+                        kotlinx.coroutines.yield()
+
+                        latch.countDown()
+                    }
+                }
+            }
+
+            assertTrue("Timed out waiting for focus traversal", latch.await(2, TimeUnit.SECONDS))
+
+            val expectedOrder = listOf("1,1", "1,2", "2,1", "2,2")
+            assertEquals(
+                "Focus should traverse in a Z-shaped order based on placement order, not composition order",
+                expectedOrder,
+                focusLog,
+            )
+        }
 
     @Composable
     private fun IntrinsicItem(

@@ -56,6 +56,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
@@ -405,7 +406,28 @@ constructor(
 
     private fun calculateScrollOffset(): Int {
         val info = layoutInfo
-        return (info.visibleLinesAverageMainAxisSize() * info.firstVisibleItemLineIndex) +
+        val visibleItems = info.visibleItemsInfo
+        val orientation = info.orientation
+
+        // Find the first visible item that corresponds to the state's logical scroll position
+        val firstVisibleItem = visibleItems.fastFirstOrNull { it.index == firstVisibleItemIndex }
+        val firstVisibleItemLineIndex = firstVisibleItem?.lineIndex(orientation) ?: -1
+
+        val lineForOffset =
+            if (firstVisibleItemLineIndex != -1) {
+                // The first visible item is a standard grid item.
+                firstVisibleItemLineIndex
+            } else {
+                // Fallback for sticky headers, where the line is an UnknownRow/UnknownColumn (-1
+                // index)
+                val firstValidItem =
+                    visibleItems.fastFirstOrNull { it.lineIndex(orientation) != -1 }
+                val firstValidLineIndex = firstValidItem?.lineIndex(orientation) ?: 0
+
+                maxOf(0, firstValidLineIndex - 1)
+            }
+
+        return (info.visibleLinesAverageMainAxisSize() * lineForOffset) +
             firstVisibleItemScrollOffset
     }
 

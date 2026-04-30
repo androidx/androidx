@@ -249,10 +249,12 @@ internal fun translateRootToDestination(
     if (!localCoordinates.isAttached || !destinationCoordinates.isAttached) return Rect.Zero
     val rootContentPosition = rootContentBounds.topLeft
     val rootCoordinates = localCoordinates.findRootCoordinates()
-    val destinationContentPosition =
-        destinationCoordinates.localPositionOf(
-            sourceCoordinates = rootCoordinates,
-            relativeToSource = rootContentPosition,
-        )
+    // The destinationCoordinates is not necessarily at the same LayoutNode tree with the
+    // localCoordinates of this node. e.g. The TextField is in a Dialog.
+    // We assume that the context menu's destinationCoordinates shares the same screen
+    // as the localCoordinates.
+    // Check b/441759435 for details.
+    val screenCoordinates = rootCoordinates.localToScreen(rootContentPosition)
+    val destinationContentPosition = destinationCoordinates.screenToLocal(screenCoordinates)
     return Rect(destinationContentPosition, rootContentBounds.size)
 }

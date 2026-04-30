@@ -69,6 +69,10 @@ interface LayoutInfo {
      */
     val isDeactivated: Boolean
         get() = false
+
+    /** A layout node that is ignored by the layout system. */
+    val isVirtual: Boolean
+        get() = false
 }
 
 /** Used by tooling to examine the modifiers on a [LayoutInfo]. */

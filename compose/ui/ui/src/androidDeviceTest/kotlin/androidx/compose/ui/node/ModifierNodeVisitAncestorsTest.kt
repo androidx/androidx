@@ -20,15 +20,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeUiFlags.isTraversableDelegatesFixEnabled
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Assume
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -159,10 +156,8 @@ class ModifierNodeVisitAncestorsTest {
             .inOrder()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun shallowVisitAncestorsWithoutDelegate() {
-        Assume.assumeTrue(isTraversableDelegatesFixEnabled)
         // Arrange.
         val (ancestor1, ancestor2, ancestor3) = List(3) { object : Modifier.Node() {} }
         val childNode = object : Modifier.Node() {}

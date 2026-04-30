@@ -27,11 +27,14 @@ import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
+import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
+import androidx.compose.ui.test.onRootWithViewInteraction
 import androidx.compose.ui.test.waitUntilAtLeastOneExists
 import androidx.compose.ui.test.waitUntilDoesNotExist
 import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.compose.ui.test.waitUntilNodeCount
 import androidx.compose.ui.unit.Density
+import androidx.test.espresso.ViewInteraction
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.coroutines.CoroutineContext
@@ -474,6 +477,11 @@ private constructor(
 
     override fun <T> runOnIdle(action: () -> T): T = composeTest.runOnIdle(action)
 
+    override fun <T> runWhenIdle(action: () -> T): T = composeTest.runWhenIdle(action)
+
+    override suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T =
+        composeTest.awaitAndRunWhenIdle(action)
+
     override fun waitForIdle() = composeTest.waitForIdle()
 
     override suspend fun awaitIdle() = composeTest.awaitIdle()
@@ -533,6 +541,21 @@ private constructor(
      */
     fun cancelAndRecreateRecomposer() {
         environment.cancelAndRecreateRecomposer()
+    }
+
+    /**
+     * Scopes the Compose interaction to the View hierarchy matched by the provided Espresso
+     * [ViewInteraction].
+     *
+     * It resolves the View from the Espresso [interaction], locates all Compose roots within that
+     * view hierarchy, and creates a new, scoped SemanticsNodeInteractionsProvider.
+     */
+    fun onRootWithViewInteraction(interaction: ViewInteraction): SemanticsNodeInteractionsProvider {
+        return composeTest.onRootWithViewInteraction(interaction)
+    }
+
+    override fun hasPendingWork(): Boolean {
+        return composeTest.hasPendingWork()
     }
 }
 

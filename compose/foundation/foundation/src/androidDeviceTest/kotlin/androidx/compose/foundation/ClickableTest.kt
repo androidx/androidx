@@ -18,7 +18,6 @@ package androidx.compose.foundation
 
 import android.os.Build.VERSION.SDK_INT
 import android.os.Looper
-import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
@@ -131,7 +130,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
-import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -678,10 +676,8 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun interactionSource_immediateDrag_insideDraggable() {
-        Assume.assumeTrue(isDelayPressesUsingGestureConsumptionEnabled)
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -719,53 +715,6 @@ class ClickableTest {
 
         // We started a drag before the timeout, so no press should be emitted
         rule.runOnIdle { assertThat(interactions).isEmpty() }
-    }
-
-    @OptIn(ExperimentalFoundationApi::class)
-    @Test
-    fun interactionSource_immediateDrag_noScrollableContainer_doNotUseGestureNode() {
-        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
-        val interactionSource = MutableInteractionSource()
-
-        lateinit var scope: CoroutineScope
-
-        rule.mainClock.autoAdvance = false
-
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier =
-                        Modifier.testTag("myClickable")
-                            .draggable(
-                                state = rememberDraggableState {},
-                                orientation = Orientation.Horizontal,
-                            )
-                            .clickable(interactionSource = interactionSource, indication = null) {},
-                )
-            }
-        }
-
-        val interactions = mutableListOf<Interaction>()
-
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
-
-        rule.onNodeWithTag("myClickable").performTouchInput {
-            down(centerLeft)
-            moveTo(centerRight)
-        }
-
-        // The press should fire, and then the drag should instantly cancel it
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
-            assertThat((interactions[1] as PressInteraction.Cancel).press)
-                .isEqualTo(interactions[0])
-        }
     }
 
     @Test

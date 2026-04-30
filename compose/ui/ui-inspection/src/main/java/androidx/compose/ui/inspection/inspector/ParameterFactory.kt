@@ -576,7 +576,14 @@ internal class ParameterFactory(inlineClassConverter: InlineClassConverter) {
             val parameter = NodeParameter(name, ParameterType.String, simpleName)
             return when {
                 properties.isEmpty() -> parameter
-                !shouldRecurseDeeper() -> parameter.withChildReference()
+                !shouldRecurseDeeper() -> {
+                    val hasChildValue =
+                        properties.values.any { part ->
+                            createRecursively(part.name, support.valueOf(part, value), value, 0) !=
+                                null
+                        }
+                    if (hasChildValue) parameter.withChildReference() else parameter
+                }
                 else -> {
                     val elements = parameter.elements
                     properties.values.mapIndexedNotNullTo(elements) { index, part ->

@@ -17,7 +17,7 @@ package androidx.compose.foundation.layout
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.core.view.WindowCompat
+import androidx.activity.enableEdgeToEdge
 import java.util.concurrent.CountDownLatch
 
 open class WindowInsetsActivity : ComponentActivity() {
@@ -25,8 +25,8 @@ open class WindowInsetsActivity : ComponentActivity() {
     val attachedToWindowLatch = CountDownLatch(1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         createdLatch.countDown()
         topActivity = this
     }

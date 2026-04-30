@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -507,13 +508,23 @@ internal class TextFieldCoreModifierNode(
             // no need to coerce again.
             // prefer to use immediate dispatch instead of suspending scroll calls
             coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
-                scrollState.scrollBy(offsetDifference.roundToNext())
-                // Don't bring into view if only the container size changed to avoid
-                // unexpected scrolls
+                val targetScroll = offsetDifference.roundToNext()
+                val scrolled = scrollState.scrollBy(targetScroll)
+                // Don't bring into view if scrolling has already done it
                 if (shouldBringIntoView) {
+                    val bringIntoViewRect =
+                        if (
+                            !currSelection.collapsed ||
+                                rawCursorRect.width > 0 ||
+                                (abs(targetScroll - scrolled) < 1f)
+                        ) {
+                            rawCursorRect
+                        } else {
+                            rawCursorRect.copy(right = rawCursorRect.right + 1)
+                        }
                     // make sure to use the cursor rect from text layout since bringIntoView does
                     // its own checks for RTL layouts.
-                    textLayoutState.bringIntoViewRequester.bringIntoView(rawCursorRect)
+                    textLayoutState.bringIntoViewRequester.bringIntoView(bringIntoViewRect)
                 }
             }
         }
@@ -637,10 +648,11 @@ private fun Density.getCursorRectInScroller(
 
     val cursorRight =
         if (rtl) {
-            textLayoutSize - cursorRect.right + thickness
-        } else {
-            cursorRect.left + thickness
-        }
+                textLayoutSize - cursorRect.right + thickness
+            } else {
+                cursorRect.left + thickness
+            }
+            .coerceAtMost(textLayoutSize.toFloat())
     return cursorRect.copy(left = cursorLeft, right = cursorRight)
 }
 

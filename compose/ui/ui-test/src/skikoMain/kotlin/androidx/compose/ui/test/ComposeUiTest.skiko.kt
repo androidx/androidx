@@ -444,6 +444,20 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
         }
     }
 
+    override fun <T> runWhenIdle(action: () -> T): T {
+        waitForIdle()
+        return action()
+    }
+
+    override suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T {
+        awaitIdle()
+        return action()
+    }
+
+    override fun hasPendingWork(): Boolean {
+        return !isIdle()
+    }
+
     override fun onNode(
         matcher: SemanticsMatcher,
         useUnmergedTree: Boolean
@@ -480,6 +494,8 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
 
     @OptIn(InternalComposeUiApi::class)
     internal inner class SkikoTestOwner : TestOwner {
+        override var isImplicitWaitSuppressed: Boolean = false
+
         override val mainClock
             get() = mainClockImpl
 
@@ -488,7 +504,9 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
         }
 
         override fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest> {
-            waitForIdle()
+            if (!isImplicitWaitSuppressed) {
+                waitForIdle()
+            }
             return composeRootRegistry.getComposeRoots()
         }
 
@@ -572,6 +590,9 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     )
 
     actual fun setContent(composable: @Composable () -> Unit)
+    actual fun <T> runWhenIdle(action: () -> T): T
+    actual suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T
+    actual fun hasPendingWork(): Boolean
 }
 
 private const val FRAME_DELAY_MILLIS = 16L

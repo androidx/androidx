@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.list
 
-import androidx.compose.foundation.ComposeFoundationFlags.isCacheWindowRefillFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
@@ -46,7 +45,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.junit.Assume
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -188,7 +186,6 @@ class LazyListCacheWindowTest(orientation: Orientation) :
 
     @Test
     fun datasetChanged_shouldMakeSureNestedItemsChanged_afterScroll() {
-        Assume.assumeTrue(isCacheWindowRefillFixEnabled)
         val items = mutableStateOf(listOf("a", "b", "c", "d", "e"))
 
         rule.setContent {
@@ -269,7 +266,6 @@ class LazyListCacheWindowTest(orientation: Orientation) :
 
     @Test
     fun datasetChanged_shouldMakeSureNestedItemsChanged_noScroll() {
-        Assume.assumeTrue(isCacheWindowRefillFixEnabled)
         val items = mutableStateOf(listOf("a", "b", "c", "d"))
 
         rule.setContent {

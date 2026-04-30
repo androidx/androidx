@@ -1203,9 +1203,11 @@ public final class androidx/compose/ui/graphics/GraphicsLayerModifierKt {
 	public static final fun graphicsLayer (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
 	public static final synthetic fun graphicsLayer-2Xn7asI (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun graphicsLayer-2Xn7asI$default (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun graphicsLayer-56HxDYs (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;JJIILandroidx/compose/ui/graphics/ColorFilter;Landroidx/compose/ui/graphics/LayerOutsets;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun graphicsLayer-56HxDYs$default (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;JJIILandroidx/compose/ui/graphics/ColorFilter;Landroidx/compose/ui/graphics/LayerOutsets;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 	public static final synthetic fun graphicsLayer-Ap8cVGQ (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;JJI)Landroidx/compose/ui/Modifier;
 	public static synthetic fun graphicsLayer-Ap8cVGQ$default (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;JJIILjava/lang/Object;)Landroidx/compose/ui/Modifier;
-	public static final fun graphicsLayer-_6ThJ44 (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;JJIILandroidx/compose/ui/graphics/ColorFilter;)Landroidx/compose/ui/Modifier;
+	public static final synthetic fun graphicsLayer-_6ThJ44 (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;JJIILandroidx/compose/ui/graphics/ColorFilter;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun graphicsLayer-_6ThJ44$default (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;JJIILandroidx/compose/ui/graphics/ColorFilter;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 	public static final synthetic fun graphicsLayer-pANQ8Wg (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;JJ)Landroidx/compose/ui/Modifier;
 	public static synthetic fun graphicsLayer-pANQ8Wg$default (Landroidx/compose/ui/Modifier;FFFFFFFFFFJLandroidx/compose/ui/graphics/Shape;ZLandroidx/compose/ui/graphics/RenderEffect;JJILjava/lang/Object;)Landroidx/compose/ui/Modifier;
@@ -1222,6 +1224,7 @@ public abstract interface class androidx/compose/ui/graphics/GraphicsLayerScope 
 	public abstract fun getClip ()Z
 	public fun getColorFilter ()Landroidx/compose/ui/graphics/ColorFilter;
 	public fun getCompositingStrategy--NrFUSI ()I
+	public fun getOutsets ()Landroidx/compose/ui/graphics/LayerOutsets;
 	public fun getRenderEffect ()Landroidx/compose/ui/graphics/RenderEffect;
 	public abstract fun getRotationX ()F
 	public abstract fun getRotationY ()F
@@ -1242,6 +1245,7 @@ public abstract interface class androidx/compose/ui/graphics/GraphicsLayerScope 
 	public abstract fun setClip (Z)V
 	public fun setColorFilter (Landroidx/compose/ui/graphics/ColorFilter;)V
 	public fun setCompositingStrategy-aDBOjCE (I)V
+	public fun setOutsets (Landroidx/compose/ui/graphics/LayerOutsets;)V
 	public fun setRenderEffect (Landroidx/compose/ui/graphics/RenderEffect;)V
 	public abstract fun setRotationX (F)V
 	public abstract fun setRotationY (F)V
@@ -1261,6 +1265,7 @@ public final class androidx/compose/ui/graphics/GraphicsLayerScope$DefaultImpls 
 	public static fun getBlendMode-0nO6VwU (Landroidx/compose/ui/graphics/GraphicsLayerScope;)I
 	public static fun getColorFilter (Landroidx/compose/ui/graphics/GraphicsLayerScope;)Landroidx/compose/ui/graphics/ColorFilter;
 	public static fun getCompositingStrategy--NrFUSI (Landroidx/compose/ui/graphics/GraphicsLayerScope;)I
+	public static fun getOutsets (Landroidx/compose/ui/graphics/GraphicsLayerScope;)Landroidx/compose/ui/graphics/LayerOutsets;
 	public static fun getRenderEffect (Landroidx/compose/ui/graphics/GraphicsLayerScope;)Landroidx/compose/ui/graphics/RenderEffect;
 	public static fun getSize-NH-jbRc (Landroidx/compose/ui/graphics/GraphicsLayerScope;)J
 	public static fun getSpotShadowColor-0d7_KjU (Landroidx/compose/ui/graphics/GraphicsLayerScope;)J
@@ -1270,6 +1275,7 @@ public final class androidx/compose/ui/graphics/GraphicsLayerScope$DefaultImpls 
 	public static fun setBlendMode-s9anfk8 (Landroidx/compose/ui/graphics/GraphicsLayerScope;I)V
 	public static fun setColorFilter (Landroidx/compose/ui/graphics/GraphicsLayerScope;Landroidx/compose/ui/graphics/ColorFilter;)V
 	public static fun setCompositingStrategy-aDBOjCE (Landroidx/compose/ui/graphics/GraphicsLayerScope;I)V
+	public static fun setOutsets (Landroidx/compose/ui/graphics/GraphicsLayerScope;Landroidx/compose/ui/graphics/LayerOutsets;)V
 	public static fun setRenderEffect (Landroidx/compose/ui/graphics/GraphicsLayerScope;Landroidx/compose/ui/graphics/RenderEffect;)V
 	public static fun setSpotShadowColor-8_81llA (Landroidx/compose/ui/graphics/GraphicsLayerScope;J)V
 	public static fun toDp-GaN1DYA (Landroidx/compose/ui/graphics/GraphicsLayerScope;J)F
@@ -2840,6 +2846,7 @@ public abstract interface class androidx/compose/ui/layout/LayoutInfo {
 	public abstract fun isAttached ()Z
 	public fun isDeactivated ()Z
 	public abstract fun isPlaced ()Z
+	public fun isVirtual ()Z
 }
 
 public final class androidx/compose/ui/layout/LayoutKt {

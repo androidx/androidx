@@ -18,7 +18,9 @@ package androidx.compose.foundation.text.input.internal
 
 import androidx.collection.MutableIntList
 import androidx.collection.MutableLongList
+import androidx.collection.MutableObjectList
 import androidx.collection.mutableLongListOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
@@ -191,7 +193,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         return Node(index)
     }
 
-    private val items: MutableList<T?>
+    private val items: MutableObjectList<T?>
     private val nodeInfo: MutableLongList
 
     /**
@@ -225,13 +227,13 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
 
     init {
         if (source != null) {
-            items = source.items.toMutableList()
+            items = MutableObjectList<T?>(source.items.size).also { it.addAll(source.items) }
             nodeInfo = MutableLongList(source.nodeInfo.size).also { it.addAll(source.nodeInfo) }
             terminator = source.terminator
             root = source.root
             deletedNodeCount = source.deletedNodeCount
         } else {
-            items = mutableListOf()
+            items = mutableObjectListOf()
             nodeInfo = mutableLongListOf()
             terminator = Node(Int.MAX_VALUE, Int.MIN_VALUE, null, TreeColorBlack)
             root = terminator
@@ -264,6 +266,47 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     }
 
     /**
+     * Finds each interval of type [R] that overlaps with the range defined by [start] and [end],
+     * and maps it to a result of type [M].
+     *
+     * Intervals are processed in the order they were originally added to the tree.
+     *
+     * **Performance Note:** This method is more efficient than manually creating a [MutableList]
+     * and using [forEachIntervalInRange] to fill it, because it pre-allocates the exact required
+     * capacity for the resulting list.
+     *
+     * @param start The start of the range to check for overlaps.
+     * @param end The end of the range to check for overlaps.
+     * @return A list of mapped results of type [M].
+     */
+    inline fun <reified R, M> findIntervalsInRange(
+        start: Int,
+        end: Int,
+        block: (item: R, start: Int, end: Int) -> M,
+    ): List<M> {
+        val nodes = tempArray
+        forEachNodeInRange(start, end) {
+            if (Node(it).item is R) {
+                nodes.add(it)
+            }
+        }
+        nodes.sort()
+
+        val result =
+            List(nodes.size) {
+                val node = Node(nodes[it])
+                val item = node.item
+                if (item != null) {
+                    block(item as R, node.start, node.end)
+                } else {
+                    throw IllegalStateException("IntIntervalTree's item should not be null")
+                }
+            }
+        nodes.clear()
+        return result
+    }
+
+    /**
      * Calls [block] for all intervals stored in this [IntIntervalTree] in the order they were
      * added. This method returns the same result as [forEachIntervalInRange] with full range but is
      * optimized to be faster, especially when a large number of intervals are stored.
@@ -293,7 +336,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         root = terminator
         // Don't directly call clear which will also remove the terminator.
         nodeInfo.removeRange(STRIDE, nodeInfo.size)
-        items.subList(1, items.size).clear()
+        items.removeRange(1, items.size)
         deletedNodeCount = 0
     }
 
@@ -355,7 +398,7 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         }
 
         nodeInfo.removeRange(targetIndex, nodeInfo.size)
-        items.subList(items.size - deletedNodeCount, items.size).clear()
+        items.removeRange(items.size - deletedNodeCount, items.size)
         deletedNodeCount = 0
         mapping.clear()
     }
@@ -967,6 +1010,22 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
             nodeIndex += STRIDE
         }
         return result
+    }
+
+    /** Sync this tree with the [other] tree. */
+    fun syncTo(other: IntIntervalTree<T>) {
+        if (other.isEmpty()) {
+            clear()
+            return
+        }
+
+        nodeInfo.clear()
+        nodeInfo.addAll(other.nodeInfo)
+        items.clear()
+        items.addAll(other.items)
+
+        root = other.root
+        deletedNodeCount = other.deletedNodeCount
     }
 
     /** Create a copy of this [IntIntervalTree]. */

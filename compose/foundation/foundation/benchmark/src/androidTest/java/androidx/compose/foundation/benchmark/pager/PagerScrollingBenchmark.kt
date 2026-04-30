@@ -243,11 +243,13 @@ class PagerRemeasureTestCase(
         Assert.assertEquals(fraction, pagerState.currentPageOffsetFraction)
     }
 
-    override suspend fun programmaticScroll(amount: Int) {
-        pagerState.scrollBy(amount.toFloat())
+    override fun programmaticScroll(amount: Int) {
+        pagerState.dispatchRawDelta(amount.toFloat())
     }
 
     override fun setUp() {
+        @Suppress("INVISIBLE_REFERENCE") // b/407927787
+        pagerState.prefetchingEnabled = false
         runBlocking { pagerState.scrollToPage(0, 0.0f) }
     }
 

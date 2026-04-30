@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.LayoutDirection
  * screen, using either [left][WindowInsets.getLeft] or [right][WindowInsets.getRight], depending on
  * the [LayoutDirection].
  *
- * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed insets from
- * [windowInsetsPadding] and [consumeWindowInsets], but won't consume any insets.
+ * When used, the [WindowInsets] will respect the consumed insets from [windowInsetsPadding] and
+ * [consumeWindowInsets], but won't consume any insets.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsStartWidthSample
  */
@@ -73,8 +73,8 @@ private val startCalc = WindowInsetsWidthCalculator { insets, layoutDirection, d
  * using either [left][WindowInsets.getLeft] or [right][WindowInsets.getRight], depending on the
  * [LayoutDirection].
  *
- * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed insets from
- * [windowInsetsPadding] and [consumeWindowInsets], but won't consume any insets.
+ * When used, the [WindowInsets] will respect the consumed insets from [windowInsetsPadding] and
+ * [consumeWindowInsets], but won't consume any insets.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsEndWidthSample
  */
@@ -101,8 +101,8 @@ private val endCalc = WindowInsetsWidthCalculator { insets, layoutDirection, den
 /**
  * Sets the height to that of [insets] at the [top][WindowInsets.getTop] of the screen.
  *
- * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed insets from
- * [windowInsetsPadding] and [consumeWindowInsets], but won't consume any insets.
+ * When used, the [WindowInsets] will respect the consumed insets from [windowInsetsPadding] and
+ * [consumeWindowInsets], but won't consume any insets.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsTopHeightSample
  */
@@ -127,8 +127,8 @@ private val topCalc = WindowInsetsHeightCalculator { insets, density -> insets.g
 /**
  * Sets the height to that of [insets] at the [bottom][WindowInsets.getBottom] of the screen.
  *
- * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed insets from
- * [windowInsetsPadding] and [consumeWindowInsets], but won't consume any insets.
+ * When used, the [WindowInsets] will respect the consumed insets from [windowInsetsPadding] and
+ * [consumeWindowInsets], but won't consume any insets.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsBottomHeightSample
  */

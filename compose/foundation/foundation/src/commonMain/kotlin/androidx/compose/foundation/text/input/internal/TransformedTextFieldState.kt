@@ -181,6 +181,9 @@ internal class TransformedTextFieldState(
     val visualText: TextFieldCharSequence
         get() = codepointTransformedText?.value?.text ?: outputText
 
+    val isTransformed: Boolean
+        get() = outputTransformation != null || codepointTransformation != null
+
     /**
      * Indicates which side of a wedge (text inserted by the [OutputTransformation]) the start and
      * end of the selection should map to. This allows the user to move the cursor to both sides of

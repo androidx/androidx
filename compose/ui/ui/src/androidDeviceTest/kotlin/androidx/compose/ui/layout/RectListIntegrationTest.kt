@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +54,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.scale
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.spatial.NotFound
 import androidx.compose.ui.spatial.RectList
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -119,6 +121,29 @@ class RectListIntegrationTest {
         rule.runOnIdle { toggle = !toggle }
 
         rule.onNodeWithTag("foo").assertRectDp(50.dp, 50.dp, 60.dp, 60.dp)
+    }
+
+    @Test
+    @SmallTest
+    fun testUpdatePosition_OptimizedMove() {
+        var toggle by mutableStateOf(false)
+
+        rule.setContent {
+            Row {
+                Box(Modifier.width(if (toggle) 50.dp else 10.dp).height(10.dp))
+                Box(Modifier.testTag("parent").width(20.dp).height(20.dp)) {
+                    Box(Modifier.testTag("child").size(10.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("parent").assertRectDp(10.dp, 0.dp, 30.dp, 20.dp)
+        rule.onNodeWithTag("child").assertRectDp(10.dp, 0.dp, 20.dp, 10.dp)
+
+        rule.runOnIdle { toggle = !toggle }
+
+        rule.onNodeWithTag("parent").assertRectDp(50.dp, 0.dp, 70.dp, 20.dp)
+        rule.onNodeWithTag("child").assertRectDp(50.dp, 0.dp, 60.dp, 10.dp)
     }
 
     @Test
@@ -913,6 +938,18 @@ class RectListIntegrationTest {
         assertThat(rule.onNodeWithTag("foo").addedToRectList).isFalse()
     }
 
+    @Test
+    @SmallTest
+    fun testRectListDuringAlignment() {
+        rule.setContent {
+            Row {
+                Row(Modifier.alignByBaseline()) {
+                    BasicText("text", Modifier.size(10.dp).alignByBaseline())
+                }
+            }
+        }
+    }
+
     /**
      * Lazy Column example that can be used to reproduce issues related to re-using LayoutNodes
      * where each item has the same Layout.
@@ -1006,9 +1043,10 @@ class RectListIntegrationTest {
         val rectList = node.getRectList()
 
         with(rule.density) {
-            val found = rectList.withRect(node.id) { l, t, r, b -> block(l, t, r, b) }
-
-            if (!found) {
+            val index = rectList.indexOf(node.id)
+            if (index != NotFound) {
+                rectList.withRectAt(index) { l, t, r, b -> block(l, t, r, b) }
+            } else {
                 error("Node with ${node.id} not found in rectlist")
             }
         }

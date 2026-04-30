@@ -29,7 +29,7 @@ import androidx.annotation.RequiresApi
  * debug purposes.
  */
 @RequiresApi(Build.VERSION_CODES.O)
-internal object AutofillCallback : AutofillManager.AutofillCallback() {
+internal object AutofillLoggingCallback : AutofillManager.AutofillCallback() {
     override fun onAutofillEvent(view: View, virtualId: Int, event: Int) {
         super.onAutofillEvent(view, virtualId, event)
         Log.d(

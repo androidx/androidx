@@ -18,6 +18,7 @@ package androidx.compose.ui.graphics.layer
 import android.graphics.Outline as AndroidOutline
 import android.graphics.RectF
 import android.os.Build
+import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -152,6 +153,46 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
                 }
             }
         }
+
+    /** Adds to the [GraphicsLayer] size extending it to the left in pixels. */
+    private var outsetLeft: Int = 0
+
+    /** Adds to the [GraphicsLayer] size extending its top in pixels. */
+    private var outsetTop: Int = 0
+
+    /** Adds to the [GraphicsLayer] size extending it to the right in pixels. */
+    private var outsetRight: Int = 0
+
+    /** Adds to the [GraphicsLayer] size extending its bottom in pixels. */
+    private var outsetBottom: Int = 0
+
+    /**
+     * Sets the outsets for this [GraphicsLayer]. GraphicsLayer implicitly clips to its bounds when
+     * promoted to an offscreen buffer such as when [alpha] is set to a value less than 1.0f, a
+     * [colorFilter] is applied or a [blendMode] other than [BlendMode.SrcOver] is used. Outsets can
+     * be used to increase the visual bounds of the layer to avoid clipping the underlying content
+     * in case the layer is promoted to an offscreen buffer. Note that increasing the outsets will
+     * also increase the overhead of the Offscreen buffer since it increases its bounds. This does
+     * not affect [clip], [shadowElevation] or transformations.
+     *
+     * @param left The outset on the left side.
+     * @param top The outset on the top side.
+     * @param right The outset on the right side.
+     * @param bottom The outset on the bottom side.
+     * @sample androidx.compose.ui.graphics.samples.GraphicsLayerOutsetsSample
+     */
+    actual fun setOutsets(
+        @IntRange(from = 0) left: Int,
+        @IntRange(from = 0) top: Int,
+        @IntRange(from = 0) right: Int,
+        @IntRange(from = 0) bottom: Int,
+    ) {
+        outsetLeft = left
+        outsetTop = top
+        outsetRight = right
+        outsetBottom = bottom
+        impl.setOutsets(left, top, right, bottom)
+    }
 
     /**
      * Alpha of the content of the [GraphicsLayer] between 0f and 1f. Any value between 0f and 1f
@@ -447,10 +488,10 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
     }
 
     private fun transformCanvas(androidCanvas: android.graphics.Canvas) {
-        val left = topLeft.x.toFloat()
-        val top = topLeft.y.toFloat()
-        val right = topLeft.x + size.width.toFloat()
-        val bottom = topLeft.y + size.height.toFloat()
+        val left = topLeft.x.toFloat() - outsetLeft
+        val top = topLeft.y.toFloat() - outsetTop
+        val right = topLeft.x + size.width.toFloat() + outsetRight
+        val bottom = topLeft.y + size.height.toFloat() + outsetBottom
         // If there is alpha applied, we must render into an offscreen buffer to
         // properly blend the contents of this layer against the background content
         val layerAlpha = alpha
@@ -475,7 +516,9 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
         // If we are software rendered we must translate the canvas based on the offset provided
         // in the move call which operates directly on the RenderNode
         androidCanvas.translate(left, top)
-        androidCanvas.concat(impl.calculateMatrix())
+        val transformationMatrix = impl.calculateMatrix()
+        transformationMatrix.preTranslate(outsetLeft.toFloat(), outsetTop.toFloat())
+        androidCanvas.concat(transformationMatrix)
     }
 
     internal fun drawForPersistence(canvas: Canvas) {
@@ -511,18 +554,22 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
         if (isReleased) {
             return
         }
+        val previousRoundRectOutlineTopLeft = roundRectOutlineTopLeft
+        val androidCanvas = canvas.nativeCanvas
+        val softwareRendered = !androidCanvas.isHardwareAccelerated
 
+        if (softwareRendered) {
+            transformCanvas(androidCanvas)
+            // The canvas in this case is already translated by the outsets so we
+            // need to temporarily remove the offset from the outline
+            roundRectOutlineTopLeft -= Offset(outsetLeft.toFloat(), outsetTop.toFloat())
+        }
         configureOutlineAndClip()
         recreateDisplayListIfNeeded()
 
         val useZ = shadowElevation > 0f
         if (useZ) {
             canvas.enableZ()
-        }
-        val androidCanvas = canvas.nativeCanvas
-        val softwareRendered = !androidCanvas.isHardwareAccelerated
-        if (softwareRendered) {
-            transformCanvas(androidCanvas)
         }
 
         val willClipPath = softwareRendered && clip
@@ -565,6 +612,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
         if (softwareRendered) {
             androidCanvas.restore()
         }
+        roundRectOutlineTopLeft = previousRoundRectOutlineTopLeft
     }
 
     private fun onAddedToParentLayer() {
@@ -658,6 +706,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
             } else {
                 resultOutline.setConvexPath(path.asAndroidPath())
             }
+            resultOutline.offset(outsetLeft, outsetTop)
             usePathForClip = !resultOutline.canClip()
         } else { // Concave outlines are not supported on older API levels
             androidOutline?.setEmpty()
@@ -789,14 +838,15 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
     actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float) {
+        val topLeftWithOutsets = topLeft + Offset(outsetLeft.toFloat(), outsetTop.toFloat())
         if (
-            this.roundRectOutlineTopLeft != topLeft ||
+            this.roundRectOutlineTopLeft != topLeftWithOutsets ||
                 this.roundRectOutlineSize != size ||
                 this.roundRectCornerRadius != cornerRadius ||
                 this.outlinePath != null
         ) {
             resetOutlineParams()
-            this.roundRectOutlineTopLeft = topLeft
+            this.roundRectOutlineTopLeft = topLeftWithOutsets
             this.roundRectOutlineSize = size
             this.roundRectCornerRadius = cornerRadius
             configureOutlineAndClip()
@@ -995,6 +1045,14 @@ internal interface GraphicsLayerImpl {
 
     /** Calculate the current transformation matrix for the layer implementation */
     fun calculateMatrix(): android.graphics.Matrix
+
+    /** @see androidx.compose.ui.graphics.LayerOutsets */
+    fun setOutsets(
+        @IntRange(from = 0) left: Int,
+        @IntRange(from = 0) top: Int,
+        @IntRange(from = 0) right: Int,
+        @IntRange(from = 0) bottom: Int,
+    )
 
     companion object {
         val DefaultDrawBlock: DrawScope.() -> Unit = { drawRect(Color.Transparent) }

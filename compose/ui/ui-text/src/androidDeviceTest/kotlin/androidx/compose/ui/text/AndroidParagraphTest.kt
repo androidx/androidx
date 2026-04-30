@@ -2269,6 +2269,80 @@ class AndroidParagraphTest {
         }
     }
 
+    @Test
+    fun getLineForOffset_singleLine_longText() {
+        with(defaultDensity) {
+            val text = "A".repeat(100_000)
+            val fontSize = 10.sp
+            val paragraph =
+                simpleParagraph(
+                    text = text,
+                    style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
+                    width = 100 * fontSize.toPx(),
+                    maxLines = 1,
+                )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            assertThat(paragraph.getLineForOffset(100_000)).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_singleLine_longText() {
+        with(defaultDensity) {
+            val text = "A".repeat(100_000)
+            val fontSize = 10.sp
+            val paragraph =
+                simpleParagraph(
+                    text = text,
+                    style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
+                    width = 100 * fontSize.toPx(),
+                    maxLines = 1,
+                )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            assertThat(paragraph.getLineForVerticalPosition(100f)).isEqualTo(0)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun getOffsetForPosition_singleLine_longText() {
+        with(defaultDensity) {
+            val text = "A".repeat(100_000)
+            val fontSize = 10.sp
+            val paragraph =
+                simpleParagraph(
+                    text = text,
+                    style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
+                    width = 100 * fontSize.toPx(),
+                    maxLines = 1,
+                )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            assertThat(paragraph.getOffsetForPosition(Offset(10f, 100f))).isEqualTo(100_000)
+        }
+    }
+
+    @SdkSuppress(maxSdkVersion = 25)
+    @Test
+    fun getOffsetForPosition_singleLine_longText_beforeAPI26() {
+        with(defaultDensity) {
+            val text = "A".repeat(100_000)
+            val fontSize = 10.sp
+            val paragraph =
+                simpleParagraph(
+                    text = text,
+                    style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
+                    width = 100 * fontSize.toPx(),
+                    maxLines = 1,
+                )
+
+            assertThat(paragraph.lineCount).isEqualTo(1)
+            assertThat(paragraph.getOffsetForPosition(Offset(10f, 100f))).isEqualTo(1)
+        }
+    }
+
     private fun simpleParagraph(
         text: String = "",
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),

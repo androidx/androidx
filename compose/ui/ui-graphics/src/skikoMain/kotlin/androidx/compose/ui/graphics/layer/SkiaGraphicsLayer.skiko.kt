@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.layer
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -463,5 +464,14 @@ actual class GraphicsLayer internal constructor(
         val offscreenBufferRequested = compositingStrategy == CompositingStrategy.Offscreen
         return alphaNeedsLayer || hasColorFilter || hasBlendMode || hasRenderEffect ||
             offscreenBufferRequested
+    }
+
+    actual fun setOutsets(
+        @IntRange(from = 0) left: Int,
+        @IntRange(from = 0) top: Int,
+        @IntRange(from = 0) right: Int,
+        @IntRange(from = 0) bottom: Int
+    ) {
+        // TODO: https://youtrack.jetbrains.com/issue/CMP-10054/Implement-GraphicsLayer.setOutsets-method
     }
 }

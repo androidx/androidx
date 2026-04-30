@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.input.PlacedAnnotation
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.internal.TextFieldLayoutStateCache.MeasureInputs
-import androidx.compose.foundation.text.input.internal.TextFieldLayoutStateCache.NonMeasureInputs
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -149,13 +149,21 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         return getOrComputeLayout(nonMeasureInputs, measureInputs)
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     private fun getOrComputeLayout(
         nonMeasureInputs: NonMeasureInputs,
         measureInputs: MeasureInputs,
     ): TextLayoutResult {
         val visualText = nonMeasureInputs.textFieldState.visualText
         val visualTextAnnotations =
-            mergeNullableLists(visualText.composingAnnotations, visualText.outputAnnotations)
+            if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+                mergeNullableLists(
+                    visualText.composingAnnotations,
+                    visualText.textStyleBuffer?.getAllStyles(),
+                )
+            } else {
+                mergeNullableLists(visualText.composingAnnotations, visualText.outputAnnotations)
+            }
 
         // Use withCurrent here so the cache itself is never reported as a read state object. It
         // doesn't need to be, because it's always guaranteed to return the same value for the same

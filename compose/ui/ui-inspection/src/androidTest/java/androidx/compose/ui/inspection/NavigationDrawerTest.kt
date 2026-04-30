@@ -22,11 +22,16 @@ import androidx.compose.ui.inspection.testdata.NavigationDrawerTestActivity
 import androidx.compose.ui.inspection.util.AllParametersChecks
 import androidx.compose.ui.inspection.util.GetAllParametersCommand
 import androidx.compose.ui.inspection.util.GetComposablesCommand
+import androidx.compose.ui.inspection.util.GetParametersByAnchorIdCommand
+import androidx.compose.ui.inspection.util.filter
+import androidx.compose.ui.inspection.util.find
 import androidx.compose.ui.inspection.util.nodes
+import androidx.compose.ui.inspection.util.resolve
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode.Flags
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterReference
 import org.junit.Rule
 import org.junit.Test
 
@@ -80,5 +85,37 @@ class NavigationDrawerTest {
         checks.assertTextNode(withChildDrawModifiers[6], "Section 1")
         checks.assertNode(withChildDrawModifiers[7], "NavigationDrawerItem")
         checks.assertTextNode(withChildDrawModifiers[8], "Item 1")
+    }
+
+    @Test
+    fun testNavigationDrawerParameterDrawerState() = runBlocking {
+        val composableResponse =
+            rule.inspectorTester
+                .sendCommand(
+                    GetComposablesCommand(rootViewId = rule.rootId, skipSystemComposables = false)
+                )
+                .getComposablesResponse
+
+        val node = composableResponse.filter("ModalNavigationDrawer").first()
+
+        val parametersResponse =
+            rule.inspectorTester
+                .sendCommand(
+                    GetParametersByAnchorIdCommand(
+                        rootViewId = rule.rootId,
+                        node.anchorHash,
+                        node.id,
+                        skipSystemComposables = false,
+                    )
+                )
+                .getParametersResponse
+        val drawerState = parametersResponse.find("drawerState")
+        val anchored =
+            drawerState.elementsList.single {
+                it.name.resolve(parametersResponse) == "anchoredDraggableState"
+            }
+        val dragMutex =
+            anchored.elementsList.single { it.name.resolve(parametersResponse) == "dragMutex" }
+        assertThat(dragMutex.reference).isEqualTo(ParameterReference.getDefaultInstance())
     }
 }

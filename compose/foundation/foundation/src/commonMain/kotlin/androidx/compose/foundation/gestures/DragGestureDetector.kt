@@ -960,8 +960,8 @@ internal class TouchSlopDetector(
     private var totalPositionChange: Offset = initialPositionChange
 
     /**
-     * Adds [dragEvent] to this detector. If the accumulated position changes crosses the touch slop
-     * provided by [touchSlop], this method will return the post slop offset, that is the total
+     * Adds [positionChange] to this detector. If the accumulated position changes crosses the touch
+     * slop provided by [touchSlop], this method will return the post slop offset, that is the total
      * accumulated delta change minus the touch slop value, otherwise this should return null. If
      * [shouldCommit] is true, the delta will be added to the total position change.
      */

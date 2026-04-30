@@ -51,42 +51,6 @@ package androidx.compose.ui
 @ExperimentalComposeUiApi
 object AndroidComposeUiFlags {
     /**
-     * This flag enables ComposeViewContext to be created automatically and used across ComposeViews
-     * within the same hierarchy. With the flag disabled, ComposeViewContext will only be created
-     * when explicitly provided to a ComposeView.
-     */
-    // TODO: b/479834257
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isSharedComposeViewContextEnabled: Boolean = true
-
-    /** This moves WindowInfo into the shared ComposeViewContext. */
-    // TODO: b/479837249
-    @field:Suppress("MutableBareField") @JvmField var isSharedWindowInfoEnabled: Boolean = true
-
-    /** This moves AccessibilityManager into the shared ComposeViewContext. */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    // TODO: b/479845566
-    var isSharedAccessibilityManagerEnabled: Boolean = true
-
-    /** This moves DrawScope and CanvasHolder into the shared ComposeViewContext. */
-    // TODO: b/479849019
-    @field:Suppress("MutableBareField") @JvmField var isSharedDrawingEnabled: Boolean = true
-
-    /** This moves ViewConfiguration into the shared ComposeViewContext. */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    // TODO: b/479890645
-    var isSharedViewConfigurationEnabled: Boolean = true
-
-    /** This moves Clipboard-related instances into the shared ComposeViewContext. */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    // TODO: b/479895130
-    var isSharedClipboardManagerEnabled: Boolean = true
-
-    /**
      * This flag enables support for walking up nested scrolling in response to
      * android.R.id.accessibilityActionShowOnScreen from Accessibility.
      *
@@ -97,10 +61,6 @@ object AndroidComposeUiFlags {
     @JvmField
     var isAccessibilityShowOnScreenNestedScrollingEnabled: Boolean = true
 
-    /** This moves Haptics-related instances into the shared ComposeViewContext. */
-    // TODO: b/479895628
-    @field:Suppress("MutableBareField") @JvmField var isSharedHapticsEnabled: Boolean = true
-
     /**
      * This flag enables using the View's handler for semantics processing instead of the Main
      * Looper. This avoids crashes in environments where Compose is used on a non-main thread.
@@ -110,7 +70,9 @@ object AndroidComposeUiFlags {
     // TODO remove me b/486998514
     var isViewBasedSemanticsHandlerEnabled: Boolean = true
 
-    /** This moves Font-related instances into the shared ComposeViewContext. */
-    // TODO remove me b/479898293
-    @field:Suppress("MutableBareField") @JvmField var isSharedFontEnabled: Boolean = true
+    /** This flag enables the Android Framework implementation of VelocityTracker. */
+    // TODO: b/483449576
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isFrameworkVelocityTrackerEnabled: Boolean = false
 }

@@ -57,7 +57,6 @@ import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ComposeViewContext
-import androidx.compose.ui.platform.ExperimentalComposeViewContextApi
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -104,7 +103,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@OptIn(ExperimentalComposeViewContextApi::class)
 @RunWith(AndroidJUnit4::class)
 class ComposeViewTest {
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())

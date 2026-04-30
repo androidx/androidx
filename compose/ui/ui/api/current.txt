@@ -72,25 +72,11 @@ package androidx.compose.ui {
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class AndroidComposeUiFlags {
     property public boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
-    property public boolean isSharedAccessibilityManagerEnabled;
-    property public boolean isSharedClipboardManagerEnabled;
-    property public boolean isSharedComposeViewContextEnabled;
-    property public boolean isSharedDrawingEnabled;
-    property public boolean isSharedFontEnabled;
-    property public boolean isSharedHapticsEnabled;
-    property public boolean isSharedViewConfigurationEnabled;
-    property public boolean isSharedWindowInfoEnabled;
+    property public boolean isFrameworkVelocityTrackerEnabled;
     property public boolean isViewBasedSemanticsHandlerEnabled;
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
-    field public static boolean isSharedAccessibilityManagerEnabled;
-    field public static boolean isSharedClipboardManagerEnabled;
-    field public static boolean isSharedComposeViewContextEnabled;
-    field public static boolean isSharedDrawingEnabled;
-    field public static boolean isSharedFontEnabled;
-    field public static boolean isSharedHapticsEnabled;
-    field public static boolean isSharedViewConfigurationEnabled;
-    field public static boolean isSharedWindowInfoEnabled;
+    field public static boolean isFrameworkVelocityTrackerEnabled;
     field public static boolean isViewBasedSemanticsHandlerEnabled;
   }
 
@@ -167,27 +153,19 @@ package androidx.compose.ui {
     property public boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     property public boolean isBypassUnfocusableComposeViewEnabled;
     property public boolean isFocusRestorationEnabled;
-    property public boolean isGraphicsLayerShapeSemanticsEnabled;
-    property public boolean isIndirectPointerNavigationGestureDetectorEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isMediaQueryIntegrationEnabled;
     property public boolean isOptimizedFocusEventDispatchEnabled;
     property public boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
-    property public boolean isTrackpadGestureHandlingEnabled;
-    property public boolean isTraversableDelegatesFixEnabled;
     property public boolean isViewFocusFixEnabled;
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     field public static boolean isBypassUnfocusableComposeViewEnabled;
     field public static boolean isFocusRestorationEnabled;
-    field public static boolean isGraphicsLayerShapeSemanticsEnabled;
-    field public static boolean isIndirectPointerNavigationGestureDetectorEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isMediaQueryIntegrationEnabled;
     field public static boolean isOptimizedFocusEventDispatchEnabled;
     field public static boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
-    field public static boolean isTrackpadGestureHandlingEnabled;
-    field public static boolean isTraversableDelegatesFixEnabled;
     field public static boolean isViewFocusFixEnabled;
   }
 
@@ -244,7 +222,7 @@ package androidx.compose.ui {
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static inline boolean mediaQuery(androidx.compose.runtime.CompositionLocalAccessorScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static inline boolean mediaQuery(androidx.compose.ui.node.CompositionLocalConsumerModifierNode, kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static boolean mediaQuery(kotlin.jvm.functions.Function1<? super androidx.compose.ui.UiMediaScope!,java.lang.Boolean!>, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static boolean mediaQuery(kotlin.jvm.functions.Function1<androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.compose.ui.ExperimentalMediaQueryApi public static inline boolean mediaQuery(kotlin.jvm.functions.Function1<androidx.compose.ui.UiMediaScope,java.lang.Boolean> query);
     property @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.UiMediaScope> LocalUiMediaScope;
   }
 
@@ -321,9 +299,9 @@ package androidx.compose.ui {
     property public abstract androidx.compose.ui.UiMediaScope.KeyboardKind keyboardKind;
     property public abstract androidx.compose.ui.UiMediaScope.PointerPrecision pointerPrecision;
     property public abstract androidx.compose.ui.UiMediaScope.ViewingDistance viewingDistance;
-    property public abstract androidx.compose.ui.unit.Dp windowHeight;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract androidx.compose.ui.unit.Dp windowHeight;
     property public abstract androidx.compose.ui.UiMediaScope.Posture windowPosture;
-    property public abstract androidx.compose.ui.unit.Dp windowWidth;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract androidx.compose.ui.unit.Dp windowWidth;
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.KeyboardKind {
@@ -1124,14 +1102,16 @@ package androidx.compose.ui.graphics {
   }
 
   public final class GraphicsLayerModifierKt {
-    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier graphicsLayer(androidx.compose.ui.Modifier, optional float scaleX, optional float scaleY, optional float alpha, optional float translationX, optional float translationY, optional float shadowElevation, optional float rotationX, optional float rotationY, optional float rotationZ, optional float cameraDistance, optional androidx.compose.ui.graphics.TransformOrigin transformOrigin, optional androidx.compose.ui.graphics.Shape shape, optional boolean clip, optional androidx.compose.ui.graphics.RenderEffect? renderEffect, optional androidx.compose.ui.graphics.Color ambientShadowColor, optional androidx.compose.ui.graphics.Color spotShadowColor, optional androidx.compose.ui.graphics.CompositingStrategy compositingStrategy, optional androidx.compose.ui.graphics.BlendMode blendMode, optional androidx.compose.ui.graphics.ColorFilter? colorFilter);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier graphicsLayer(androidx.compose.ui.Modifier, optional float scaleX, optional float scaleY, optional float alpha, optional float translationX, optional float translationY, optional float shadowElevation, optional float rotationX, optional float rotationY, optional float rotationZ, optional float cameraDistance, optional androidx.compose.ui.graphics.TransformOrigin transformOrigin, optional androidx.compose.ui.graphics.Shape shape, optional boolean clip, optional androidx.compose.ui.graphics.RenderEffect? renderEffect, optional androidx.compose.ui.graphics.Color ambientShadowColor, optional androidx.compose.ui.graphics.Color spotShadowColor, optional androidx.compose.ui.graphics.CompositingStrategy compositingStrategy, optional androidx.compose.ui.graphics.BlendMode blendMode, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.LayerOutsets outsets);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier graphicsLayer(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> block);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-2Xn7asI(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-2Xn7asI$default(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier graphicsLayer-56HxDYs(androidx.compose.ui.Modifier, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape, boolean, androidx.compose.ui.graphics.RenderEffect?, long, long, int, int, androidx.compose.ui.graphics.ColorFilter?, androidx.compose.ui.graphics.LayerOutsets);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-56HxDYs$default(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!, long, long, int, int, androidx.compose.ui.graphics.ColorFilter!, androidx.compose.ui.graphics.LayerOutsets!, int, Object!);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-Ap8cVGQ(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!, long, long, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-Ap8cVGQ$default(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!, long, long, int, int, Object!);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier graphicsLayer-_6ThJ44(androidx.compose.ui.Modifier, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape, boolean, androidx.compose.ui.graphics.RenderEffect?, long, long, int, int, androidx.compose.ui.graphics.ColorFilter?);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-_6ThJ44$default(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!, long, long, int, int, androidx.compose.ui.graphics.ColorFilter!, int, Object!);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-_6ThJ44(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!, long, long, int, int, androidx.compose.ui.graphics.ColorFilter!);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-_6ThJ44$default(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!, long, long, int, int, androidx.compose.ui.graphics.ColorFilter!, int, Object!);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-pANQ8Wg(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!, long, long);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-pANQ8Wg$default(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean, androidx.compose.ui.graphics.RenderEffect!, long, long, int, Object!);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! graphicsLayer-sKFY_QE(androidx.compose.ui.Modifier!, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape!, boolean);
@@ -1147,6 +1127,7 @@ package androidx.compose.ui.graphics {
     method @InaccessibleFromKotlin public boolean getClip();
     method @InaccessibleFromKotlin public default androidx.compose.ui.graphics.ColorFilter? getColorFilter();
     method @BytecodeOnly public default int getCompositingStrategy--NrFUSI();
+    method @InaccessibleFromKotlin public default androidx.compose.ui.graphics.LayerOutsets getOutsets();
     method @InaccessibleFromKotlin public default androidx.compose.ui.graphics.RenderEffect? getRenderEffect();
     method @InaccessibleFromKotlin public float getRotationX();
     method @InaccessibleFromKotlin public float getRotationY();
@@ -1167,6 +1148,7 @@ package androidx.compose.ui.graphics {
     method @InaccessibleFromKotlin public void setClip(boolean);
     method @InaccessibleFromKotlin public default void setColorFilter(androidx.compose.ui.graphics.ColorFilter?);
     method @BytecodeOnly public default void setCompositingStrategy-aDBOjCE(int);
+    method @InaccessibleFromKotlin public default void setOutsets(androidx.compose.ui.graphics.LayerOutsets);
     method @InaccessibleFromKotlin public default void setRenderEffect(androidx.compose.ui.graphics.RenderEffect?);
     method @InaccessibleFromKotlin public void setRotationX(float);
     method @InaccessibleFromKotlin public void setRotationY(float);
@@ -1186,6 +1168,7 @@ package androidx.compose.ui.graphics {
     property public abstract boolean clip;
     property public default androidx.compose.ui.graphics.ColorFilter? colorFilter;
     property public default androidx.compose.ui.graphics.CompositingStrategy compositingStrategy;
+    property public default androidx.compose.ui.graphics.LayerOutsets outsets;
     property public default androidx.compose.ui.graphics.RenderEffect? renderEffect;
     property public abstract float rotationX;
     property public abstract float rotationY;
@@ -2817,9 +2800,6 @@ package androidx.compose.ui.input.pointer.util {
     method public static void addPointerInputChange(androidx.compose.ui.input.pointer.util.VelocityTracker, androidx.compose.ui.input.pointer.PointerInputChange event);
     method @KotlinOnly public static void addPointerInputChange(androidx.compose.ui.input.pointer.util.VelocityTracker, androidx.compose.ui.input.pointer.PointerInputChange event, androidx.compose.ui.geometry.Offset offset);
     method @BytecodeOnly public static void addPointerInputChange-0AR0LA0(androidx.compose.ui.input.pointer.util.VelocityTracker, androidx.compose.ui.input.pointer.PointerInputChange, long);
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getVelocityTrackerAddPointsFix();
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setVelocityTrackerAddPointsFix(boolean);
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean VelocityTrackerAddPointsFix;
   }
 
 }
@@ -3092,12 +3072,14 @@ package androidx.compose.ui.layout {
     method @InaccessibleFromKotlin public boolean isAttached();
     method @InaccessibleFromKotlin public default boolean isDeactivated();
     method @InaccessibleFromKotlin public boolean isPlaced();
+    method @InaccessibleFromKotlin public default boolean isVirtual();
     property public abstract androidx.compose.ui.layout.LayoutCoordinates coordinates;
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract int height;
     property public abstract boolean isAttached;
     property public default boolean isDeactivated;
     property public abstract boolean isPlaced;
+    property public default boolean isVirtual;
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract androidx.compose.ui.layout.LayoutInfo? parentInfo;
     property public abstract int semanticsId;
@@ -3936,7 +3918,7 @@ package androidx.compose.ui.platform {
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public abstract void Content();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public abstract void Content(androidx.compose.runtime.Composer?, int);
     method public final void createComposition();
-    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeViewContextApi public final void createComposition(androidx.compose.ui.platform.ComposeViewContext composeViewContext);
+    method public final void createComposition(androidx.compose.ui.platform.ComposeViewContext composeViewContext);
     method public final void disposeComposition();
     method @BytecodeOnly public final int getAutoClearFocusBehavior-4UtRPd4();
     method @InaccessibleFromKotlin public final boolean getHasComposition();
@@ -4099,16 +4081,17 @@ package androidx.compose.ui.platform {
   public static final class ComposeView.Companion {
   }
 
-  @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeViewContextApi public final class ComposeViewContext {
+  public final class ComposeViewContext {
     ctor public ComposeViewContext(android.view.View view, optional androidx.compose.runtime.CompositionContext compositionContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
     ctor @BytecodeOnly public ComposeViewContext(android.view.View!, androidx.compose.runtime.CompositionContext!, androidx.lifecycle.LifecycleOwner!, androidx.savedstate.SavedStateRegistryOwner!, androidx.lifecycle.ViewModelStoreOwner!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.compose.ui.platform.ComposeViewContext copy(optional android.view.View view, optional androidx.compose.runtime.CompositionContext compositionContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
     method @BytecodeOnly public static androidx.compose.ui.platform.ComposeViewContext! copy$default(androidx.compose.ui.platform.ComposeViewContext!, android.view.View!, androidx.compose.runtime.CompositionContext!, androidx.lifecycle.LifecycleOwner!, androidx.savedstate.SavedStateRegistryOwner!, androidx.lifecycle.ViewModelStoreOwner!, int, Object!);
   }
 
-  @SuppressCompatibility public final class ComposeView_androidKt {
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void disableWindowInsetsRulers(androidx.compose.ui.platform.ComposeView.Companion);
-    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeViewContextApi public static androidx.compose.ui.platform.ComposeViewContext? findViewTreeComposeViewContext(android.view.View);
+  public final class ComposeView_androidKt {
+    method public static void disableWindowInsetsRulers(androidx.compose.ui.platform.ComposeView.Companion);
+    method public static androidx.compose.ui.platform.ComposeViewContext? findViewTreeComposeViewContext(android.view.View);
+    method public static void setAutofillDebugEnabled(androidx.compose.ui.platform.ComposeView.Companion, boolean enabled);
   }
 
   public final class CompositionLocalsKt {
@@ -4158,9 +4141,6 @@ package androidx.compose.ui.platform {
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> LocalUriHandler;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ViewConfiguration> LocalViewConfiguration;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.WindowInfo> LocalWindowInfo;
-  }
-
-  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose and is likely to change before becoming stable.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExperimentalComposeViewContextApi {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface InfiniteAnimationPolicy extends kotlin.coroutines.CoroutineContext.Element {

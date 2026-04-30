@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Scroll
 import androidx.compose.ui.platform.testTag
@@ -79,7 +80,9 @@ class ScrollTest {
             eventVerifiers =
                 arrayOf(
                     { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(0, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(0, Scroll, false, Offset.Zero, Offset(0f, 10f)) },
+                    { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
                 ),
         )
 
@@ -93,7 +96,9 @@ class ScrollTest {
             eventVerifiers =
                 arrayOf(
                     { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(0, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(0, Scroll, false, Offset.Zero, Offset(10f, 0f)) },
+                    { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
                 ),
         )
 
@@ -130,10 +135,18 @@ class ScrollTest {
             eventVerifiers =
                 arrayOf(
                     { this.verifyMouseEvent(1 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(1 * T, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(1 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
+                    { this.verifyMouseEvent(1 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(2 * T, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(2 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
+                    { this.verifyMouseEvent(2 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(3 * T, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(3 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
+                    { this.verifyMouseEvent(3 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(4 * T, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(4 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
+                    { this.verifyMouseEvent(4 * T, Enter, false, Offset.Zero) },
                 ),
         )
 
@@ -144,10 +157,18 @@ class ScrollTest {
             eventVerifiers =
                 arrayOf(
                     { this.verifyMouseEvent(1 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(1 * T, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(1 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
+                    { this.verifyMouseEvent(1 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(2 * T, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(2 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
+                    { this.verifyMouseEvent(2 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(3 * T, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(3 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
+                    { this.verifyMouseEvent(3 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(4 * T, Exit, false, Offset.Zero) },
                     { this.verifyMouseEvent(4 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
+                    { this.verifyMouseEvent(4 * T, Enter, false, Offset.Zero) },
                 ),
         )
 

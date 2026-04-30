@@ -16,16 +16,20 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
+import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.text.ParseException
 import kotlin.test.assertFailsWith
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -495,13 +499,46 @@ class TextFieldBufferTest {
     @Test
     fun replace_withSubSequence_startTooSmall() {
         val buffer = TextFieldBuffer(TextFieldCharSequence(""))
-        assertFailsWith<IllegalArgumentException> { buffer.replace(0, 0, "hi", -1, 0) }
+        buffer.replace(0, 0, "hi", -1, 0)
+        assertThat(buffer.toString()).isEqualTo("")
     }
 
     @Test
     fun replace_withSubSequence_endTooBig() {
         val buffer = TextFieldBuffer(TextFieldCharSequence(""))
-        assertFailsWith<IndexOutOfBoundsException> { buffer.replace(0, 0, "hi", 2, 3) }
+        buffer.replace(0, 0, "hi", 2, 3)
+        assertThat(buffer.toString()).isEqualTo("")
+    }
+
+    @Test
+    fun replace_withSubSequence_indicesCoerced() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("ABCD"))
+        buffer.replace(-1, 10, "XYZ", -1, 10)
+        assertThat(buffer.toString()).isEqualTo("XYZ")
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 4))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 3))
+
+        val buffer2 = TextFieldBuffer(TextFieldCharSequence("ABCD"))
+        buffer2.replace(1, 3, "XYZ", -1, 2)
+        assertThat(buffer2.toString()).isEqualTo("AXYD")
+        assertThat(buffer2.changes.changeCount).isEqualTo(1)
+        assertThat(buffer2.changes.getOriginalRange(0)).isEqualTo(TextRange(1, 3))
+        assertThat(buffer2.changes.getRange(0)).isEqualTo(TextRange(1, 3))
+    }
+
+    @Test
+    fun replace_throws_whenStartGreaterThanEnd() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("ABCD"))
+        val error = assertFailsWith<IllegalArgumentException> { buffer.replace(3, 2, "") }
+        assertThat(error).hasMessageThat().contains("Expected start=3 <= end=2")
+    }
+
+    @Test
+    fun replace_throws_whenTextStartGreaterThanTextEnd() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("ABCD"))
+        val error = assertFailsWith<IllegalArgumentException> { buffer.replace(2, 3, "", 1, 0) }
+        assertThat(error).hasMessageThat().contains("Expected textStart=1 <= textEnd=0")
     }
 
     @Test
@@ -638,6 +675,7 @@ class TextFieldBufferTest {
 
     @Test
     fun addStyle_addsToOutputAnnotations_ifCreatedForOutputTransformation() {
+        assumeTrue(!ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled)
         val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
         // Act
         val style = SpanStyle(fontSize = 12.sp)
@@ -654,6 +692,7 @@ class TextFieldBufferTest {
 
     @Test
     fun addStyle_crashes_ifNotCreatedForOutputTransformation() {
+        assumeTrue(!ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled)
         val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
         val style = SpanStyle(fontSize = 12.sp)
         assertFailsWith<IllegalStateException>(
@@ -665,6 +704,7 @@ class TextFieldBufferTest {
 
     @Test
     fun addStyle_notRangeTracked() {
+        assumeTrue(!ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled)
         val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
         val style = SpanStyle(fontSize = 12.sp)
 
@@ -674,6 +714,52 @@ class TextFieldBufferTest {
 
         assertThat(buffer.outputTransformationAnnotations?.get(0)?.start).isEqualTo(0)
         assertThat(buffer.outputTransformationAnnotations?.get(0)?.end).isEqualTo(5)
+    }
+
+    @Test
+    fun addStyle_addsToTextStyleBuffer() {
+        assumeTrue(ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled)
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        // Act
+        val style = SpanStyle(fontSize = 12.sp)
+        buffer.addStyle(style, 0, 2)
+
+        val paragraphStyle = ParagraphStyle(textAlign = TextAlign.Left)
+        buffer.addStyle(paragraphStyle, 3, 5)
+
+        // Assert
+        val spanStyles = buffer.getSpanStyles(0, buffer.length)
+        assertThat(spanStyles).hasSize(1)
+        assertThat(spanStyles[0].item).isEqualTo(style)
+        assertThat(spanStyles[0].start).isEqualTo(0)
+        assertThat(spanStyles[0].end).isEqualTo(2)
+
+        val paragraphStyles = buffer.getParagraphStyles(0, buffer.length)
+        assertThat(paragraphStyles).hasSize(1)
+        assertThat(paragraphStyles[0].item).isEqualTo(paragraphStyle)
+        assertThat(paragraphStyles[0].start).isEqualTo(3)
+        assertThat(paragraphStyles[0].end).isEqualTo(5)
+
+        // adding style is treat as replacing the plain text in the range with the styled text
+        assertThat(buffer.changes.changeCount).isEqualTo(2)
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 2))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 2))
+
+        assertThat(buffer.changes.getOriginalRange(1)).isEqualTo(TextRange(3, 5))
+        assertThat(buffer.changes.getRange(1)).isEqualTo(TextRange(3, 5))
+    }
+
+    @Test
+    fun addStyle_rangeTracked() {
+        assumeTrue(ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled)
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        val style = SpanStyle(fontSize = 12.sp)
+
+        buffer.addStyle(style, 0, buffer.length)
+        buffer.insert(2, "world") // expand where style is applied
+
+        assertThat(buffer.getSpanStyles(0, buffer.length)[0].start).isEqualTo(0)
+        assertThat(buffer.getSpanStyles(0, buffer.length)[0].end).isEqualTo(10)
     }
 
     private fun testSelectionAdjustment(

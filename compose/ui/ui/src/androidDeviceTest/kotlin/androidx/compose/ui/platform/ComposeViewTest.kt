@@ -29,8 +29,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.AndroidComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -41,7 +39,6 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.TruthJUnit.assume
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertFalse
@@ -53,7 +50,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalComposeViewContextApi::class)
 class ComposeViewTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
@@ -81,8 +77,6 @@ class ComposeViewTest {
 
     @Test
     fun composeWithComposeViewContext() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assume().that(AndroidComposeUiFlags.isSharedWindowInfoEnabled).isTrue()
         rule.runOnUiThread { rule.activity.setContentView(FrameLayout(rule.activity)) }
         rule.waitForIdle()
         val contentView = rule.activity.findViewById<View>(android.R.id.content)
@@ -108,8 +102,6 @@ class ComposeViewTest {
 
     @Test
     fun setComposeViewContextToNullStopsObserving() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assume().that(AndroidComposeUiFlags.isSharedWindowInfoEnabled).isTrue()
         lateinit var composeViewContext: ComposeViewContext
         rule.setContent {
             val view = LocalView.current
@@ -139,8 +131,6 @@ class ComposeViewTest {
 
     @Test
     fun detachingComposeViewWithComposeViewContextStopsObserving() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assume().that(AndroidComposeUiFlags.isSharedWindowInfoEnabled).isTrue()
         lateinit var composeViewContext: ComposeViewContext
         var addView by mutableStateOf(false)
         lateinit var composeView: ComposeView
@@ -303,8 +293,6 @@ class ComposeViewTest {
 
     @Test
     fun detachedComposition() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assume().that(AndroidComposeUiFlags.isSharedWindowInfoEnabled).isTrue()
         lateinit var view: View
         rule.setContent { view = LocalView.current }
         rule.waitForIdle()
@@ -320,8 +308,6 @@ class ComposeViewTest {
 
     @Test
     fun setContentAfterCreateComposition() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assume().that(AndroidComposeUiFlags.isSharedWindowInfoEnabled).isTrue()
         lateinit var view: View
         rule.setContent { view = LocalView.current }
         rule.waitForIdle()
@@ -338,8 +324,6 @@ class ComposeViewTest {
 
     @Test
     fun reuseAutomaticComposeViewContext() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assume().that(AndroidComposeUiFlags.isSharedWindowInfoEnabled).isTrue()
         lateinit var view: View
         var addComposeView by mutableStateOf(false)
         lateinit var composeView: ComposeView
@@ -376,8 +360,6 @@ class ComposeViewTest {
 
     @Test
     fun disposedComposeViewContextCanRecompose() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assume().that(AndroidComposeUiFlags.isSharedWindowInfoEnabled).isTrue()
         lateinit var view: View
         var addComposeView by mutableStateOf(false)
         lateinit var composeView: ComposeView

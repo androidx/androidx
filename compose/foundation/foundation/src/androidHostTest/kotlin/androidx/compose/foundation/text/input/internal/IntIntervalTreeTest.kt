@@ -192,6 +192,34 @@ class IntIntervalTreeTest {
     }
 
     @Test
+    fun syncTo_isEqualAndIndependent() {
+        val target = IntIntervalTree<String>()
+        target.addIntervalAndVerifyIntegrity("a", 0, 10)
+
+        val source = IntIntervalTree<String>()
+        source.addIntervalAndVerifyIntegrity("b", 10, 20)
+        source.addIntervalAndVerifyIntegrity("c", 20, 30)
+
+        // syncTo should overwrite the target with the source
+        target.syncTo(source)
+        assertThat(target).isEqualTo(source)
+        assertThat(target.hashCode()).isEqualTo(source.hashCode())
+
+        // Modify target, source should remain unchanged
+        target.addIntervalAndVerifyIntegrity("d", 30, 40)
+        assertThat(target).isNotEqualTo(source)
+        assertThat(source.getAllStyles()).hasSize(2)
+        assertThat(target.getAllStyles()).hasSize(3)
+
+        // Modify source, target should remain unchanged
+        source.addIntervalAndVerifyIntegrity("e", 40, 50)
+        assertThat(source.getAllStyles()).hasSize(3)
+        assertThat(target.getAllStyles()).hasSize(3)
+        assertThat(source.getAllStyles().last().item).isEqualTo("e")
+        assertThat(target.getAllStyles().last().item).isEqualTo("d")
+    }
+
+    @Test
     fun testRebalancing_sequentialInsertions() {
         // The tree property should be maintained in the following test cases.
         val buffer = IntIntervalTree<Int>()
@@ -395,15 +423,13 @@ class IntIntervalTreeTest {
         return result
     }
 
-    private fun <T> IntIntervalTree<T>.getStyles(
+    private inline fun <reified T> IntIntervalTree<T>.getStyles(
         start: Int,
         end: Int,
     ): List<AnnotatedString.Range<T>> {
-        val result = mutableListOf<AnnotatedString.Range<T>>()
-        forEachIntervalInRange(start, end) { item, s, e ->
-            result.add(AnnotatedString.Range(item, s, e))
+        return findIntervalsInRange<T, AnnotatedString.Range<T>>(start, end) { item, s, e ->
+            AnnotatedString.Range(item, s, e)
         }
-        return result
     }
 
     private fun <T> IntIntervalTree<T>.getAllStyles(): List<AnnotatedString.Range<T>> {

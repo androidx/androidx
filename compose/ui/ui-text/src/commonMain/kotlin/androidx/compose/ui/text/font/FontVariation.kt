@@ -77,6 +77,10 @@ object FontVariation {
         override fun hashCode(): Int {
             return settings.hashCode()
         }
+
+        override fun toString(): String {
+            return "Settings(settings=$settings)"
+        }
     }
 
     /** Represents a single point in a variation, such as 0.7 or 100 */

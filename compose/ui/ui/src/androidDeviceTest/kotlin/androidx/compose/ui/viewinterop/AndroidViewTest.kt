@@ -79,6 +79,8 @@ import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
@@ -93,10 +95,12 @@ import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.tests.R
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -2282,6 +2286,60 @@ class AndroidViewTest {
         rule.waitForIdle()
         useRowContainer = true
         rule.waitForIdle()
+    }
+
+    @Test
+    fun premeasuredViewCanChangeItsSizeBeforePlacement() {
+        val tag = "view"
+        lateinit var view: ChangingSizeView
+        var shouldSubcompose by mutableStateOf(false)
+        val content =
+            @Composable {
+                AndroidView(
+                    factory = {
+                        view = ChangingSizeView(it)
+                        val parent = FrameLayout(it)
+                        parent.addView(view)
+                        parent
+                    }
+                )
+            }
+        val state = SubcomposeLayoutState()
+        var lastConstraints = Constraints()
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SubcomposeLayout(state = state, modifier = Modifier.testTag(tag)) { constraints ->
+                    lastConstraints = constraints
+                    val placeable =
+                        if (shouldSubcompose) {
+                            subcompose(Unit, content).first().measure(constraints)
+                        } else {
+                            null
+                        }
+                    layout(placeable?.width ?: 0, placeable?.height ?: 0) { placeable?.place(0, 0) }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(tag).assertWidthIsEqualTo(0.dp)
+        rule.runOnIdle { state.precompose(Unit, content).premeasure(0, lastConstraints) }
+
+        rule.runOnIdle {
+            view.desiredSize = 20
+            view.requestLayout()
+        }
+
+        rule.runOnIdle { shouldSubcompose = true }
+
+        rule.onNodeWithTag(tag).assertWidthIsEqualTo(20.dp)
+    }
+
+    class ChangingSizeView(context: Context) : View(context) {
+        var desiredSize = 10
+
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            setMeasuredDimension(desiredSize, desiredSize)
+        }
     }
 
     @Composable

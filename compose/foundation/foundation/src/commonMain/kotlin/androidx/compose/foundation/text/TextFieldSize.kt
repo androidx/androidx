@@ -204,8 +204,7 @@ private class TextFieldSize(
     var typeface: Any,
 ) {
     private var dirty by mutableStateOf(true)
-
-    private var minSize: IntSize = computeMinSize(fontFamilyResolver)
+    private var minSize: IntSize = IntSize.Zero
 
     fun cachedMinSizeOrComputeMinSize(typeface: Any): IntSize {
         updateTypeface(typeface)

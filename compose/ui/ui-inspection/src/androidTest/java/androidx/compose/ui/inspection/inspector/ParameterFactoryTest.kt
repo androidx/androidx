@@ -714,6 +714,7 @@ class ParameterFactoryTest {
                     parameter("blendMode", ParameterType.String, "SrcOver", index = 17)
                     // Null values aren't added to the list of properties
                     // parameter("colorFilter", ParameterType.String, "null", index = 18)
+                    parameter("outsets", ParameterType.String, "Zero", index = 19)
                 }
             }
         }

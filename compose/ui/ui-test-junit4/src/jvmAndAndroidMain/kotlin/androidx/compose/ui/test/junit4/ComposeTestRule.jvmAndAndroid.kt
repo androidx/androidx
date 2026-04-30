@@ -82,6 +82,44 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
     fun <T> runOnIdle(action: () -> T): T
 
     /**
+     * Executes the given [action] on the UI thread in the same way as [runOnIdle]. It first
+     * [waits][waitForIdle] until the app is idle before executing the action.
+     *
+     * Unlike [runOnIdle], this method skips unnecessary synchronization inside the provided
+     * [action] block. Because the UI is already known to be idle, multiple node queries,
+     * interactions, or assertions can evaluate immediately and seamlessly against the current,
+     * stable UI state.
+     *
+     * This block is intended primarily for inspecting the UI state, making assertions, or capturing
+     * properties without the performance overhead of repeated synchronization. You should avoid
+     * mutating UI state (e.g., performing clicks, text input, or advancing the clock) inside this
+     * block. If your test requires driving the UI to a new state, perform those interactions
+     * outside of this block to ensure the framework can properly synchronize.
+     */
+    fun <T> runWhenIdle(action: () -> T): T {
+        throw NotImplementedError("runWhenIdle is not implemented.")
+    }
+
+    /**
+     * Executes the given [action] on the UI thread in the same way as [runWhenIdle]. It first
+     * [suspends][awaitIdle] until the app is idle before executing the action.
+     *
+     * Like [runWhenIdle], this method skips unnecessary synchronization inside the provided
+     * [action] block. Because the UI is already known to be idle, multiple node queries,
+     * interactions, or assertions can evaluate immediately and seamlessly against the current,
+     * stable UI state.
+     *
+     * This block is intended primarily for inspecting the UI state, making assertions, or capturing
+     * properties without the performance overhead of repeated synchronization. You should avoid
+     * mutating UI state (e.g., performing clicks, text input, or advancing the clock) inside this
+     * block. If your test requires driving the UI to a new state, perform those interactions
+     * outside of this block to ensure the framework can properly synchronize.
+     */
+    suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T {
+        throw NotImplementedError("awaitAndRunWhenIdle is not implemented.")
+    }
+
+    /**
      * Waits for the UI to become idle. Quiescence is reached when there are no more pending changes
      * (e.g. pending recompositions or a pending draw call) and all [IdlingResource]s are idle.
      *
@@ -228,6 +266,20 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
 
     /** Unregisters an [IdlingResource] from this test. */
     fun unregisterIdlingResource(idlingResource: IdlingResource)
+
+    /**
+     * Returns whether the Compose UI has any pending work.
+     *
+     * This performs a passive check of the [mainClock], snapshot state, and recomposer to determine
+     * if there is any pending work. Unlike [waitForIdle], calling this method does not advance the
+     * clock or drain the main message queue.
+     *
+     * This is particularly useful when `autoAdvance` is disabled, allowing you to inspect the state
+     * of the UI while an animation or other work is still active.
+     */
+    fun hasPendingWork(): Boolean {
+        throw NotImplementedError("hasPendingWork() is not implemented.")
+    }
 }
 
 /**

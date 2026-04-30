@@ -384,6 +384,131 @@ class LazyGridScrollIndicatorTest(private val orientation: Orientation) :
         }
     }
 
+    @Test
+    fun scrollIndicatorState_withStickyHeader() {
+        lateinit var state: LazyGridState
+        val crossAxisSlots = 2
+        val itemMainSizePx = 50
+        val itemMainSize = with(rule.density) { itemMainSizePx.toDp() }
+        val itemCrossSize = 30.dp
+        val totalItems = 20
+        val linesInViewport = 3
+        val containerMainAxisSizePx = itemMainSizePx * linesInViewport
+        val containerMainAxisSize = with(rule.density) { containerMainAxisSizePx.toDp() }
+
+        rule.setContentWithTestViewConfiguration {
+            state = rememberLazyGridState()
+            LazyGrid(
+                cells = GridCells.Fixed(crossAxisSlots),
+                modifier = Modifier.mainAxisSize(containerMainAxisSize).testTag(LazyGridTag),
+                state = state,
+            ) {
+                stickyHeader {
+                    Spacer(Modifier.mainAxisSize(itemMainSize).crossAxisSize(itemCrossSize))
+                }
+                items(totalItems) {
+                    Spacer(Modifier.mainAxisSize(itemMainSize).crossAxisSize(itemCrossSize))
+                }
+            }
+        }
+
+        val expectedContentLines = ceil((totalItems + 1).toFloat() / crossAxisSlots).toInt()
+        val expectedContentSize = expectedContentLines * itemMainSizePx
+
+        // Initial state (0px scrolled)
+        rule.runOnIdle {
+            assertNotNull(state.scrollIndicatorState)
+            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(0)
+            assertThat(state.scrollIndicatorState?.contentSize).isEqualTo(expectedContentSize)
+            assertThat(state.scrollIndicatorState?.viewportSize).isEqualTo(containerMainAxisSizePx)
+        }
+
+        // Scrolled by 20px (Sticky header pinned, line 1 partially scrolled)
+        val scrollAmount1 = 20
+        rule
+            .onNodeWithTag(LazyGridTag)
+            .scrollMainAxisBy(with(rule.density) { scrollAmount1.toDp() })
+        rule.runOnIdle {
+            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(scrollAmount1)
+        }
+
+        // Scrolled by 80px total (Line 1 is covered under sticky header, line 2 partially scrolled)
+        val scrollAmount2 = 60
+        val expectedScrollOffset2 = scrollAmount1 + scrollAmount2
+        rule
+            .onNodeWithTag(LazyGridTag)
+            .scrollMainAxisBy(with(rule.density) { scrollAmount2.toDp() })
+        rule.runOnIdle {
+            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(expectedScrollOffset2)
+        }
+
+        // Scrolled by 100px total (Line 2 is covered under sticky header, aligned to the top of
+        // viewport)
+        val scrollAmount3 = 20
+        val expectedScrollOffset3 = scrollAmount1 + scrollAmount2 + scrollAmount3
+        rule
+            .onNodeWithTag(LazyGridTag)
+            .scrollMainAxisBy(with(rule.density) { scrollAmount3.toDp() })
+        rule.runOnIdle {
+            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(expectedScrollOffset3)
+        }
+    }
+
+    @Test
+    fun scrollIndicatorState_withMultipleStickyHeaders() {
+        lateinit var state: LazyGridState
+        val crossAxisSlots = 2
+        val itemMainSizePx = 50
+        val itemMainSize = with(rule.density) { itemMainSizePx.toDp() }
+        val itemCrossSize = 30.dp
+        // 4 items = 2 lines of standard items between headers
+        val sectionItems = 4
+        val linesInViewport = 3
+        val containerMainAxisSizePx = itemMainSizePx * linesInViewport
+        val containerMainAxisSize = with(rule.density) { containerMainAxisSizePx.toDp() }
+
+        rule.setContentWithTestViewConfiguration {
+            state = rememberLazyGridState()
+            LazyGrid(
+                cells = GridCells.Fixed(crossAxisSlots),
+                modifier = Modifier.mainAxisSize(containerMainAxisSize).testTag(LazyGridTag),
+                state = state,
+            ) {
+                // First Section
+                stickyHeader {
+                    Spacer(Modifier.mainAxisSize(itemMainSize).crossAxisSize(itemCrossSize))
+                }
+                items(sectionItems) {
+                    Spacer(Modifier.mainAxisSize(itemMainSize).crossAxisSize(itemCrossSize))
+                }
+                // Second Section
+                stickyHeader {
+                    Spacer(Modifier.mainAxisSize(itemMainSize).crossAxisSize(itemCrossSize))
+                }
+                items(sectionItems) {
+                    Spacer(Modifier.mainAxisSize(itemMainSize).crossAxisSize(itemCrossSize))
+                }
+            }
+        }
+
+        val expectedContentLines = ceil((sectionItems * 2 + 2).toFloat() / crossAxisSlots).toInt()
+        val expectedContentSize = expectedContentLines * itemMainSizePx
+
+        // Scroll past the first section to pin the second sticky header.
+        // First Header (50px) + 2 lines of items (100px) = 150px total scroll
+        val scrollAmountPx = itemMainSizePx * 3
+        val scrollAmount = with(rule.density) { scrollAmountPx.toDp() }
+
+        rule.onNodeWithTag(LazyGridTag).scrollMainAxisBy(scrollAmount)
+
+        rule.runOnIdle {
+            assertNotNull(state.scrollIndicatorState)
+            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(scrollAmountPx)
+            assertThat(state.scrollIndicatorState?.contentSize).isEqualTo(expectedContentSize)
+            assertThat(state.scrollIndicatorState?.viewportSize).isEqualTo(containerMainAxisSizePx)
+        }
+    }
+
     internal fun LazyGridLayoutInfo.visibleLinesAverageMainAxisSize(): Int {
         val isVertical = orientation == Orientation.Vertical
         val visibleItems = visibleItemsInfo

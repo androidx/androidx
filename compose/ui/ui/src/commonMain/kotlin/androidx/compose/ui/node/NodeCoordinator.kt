@@ -1308,17 +1308,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         if (layer != null) {
             if (isClipping) {
                 if (clipToMinimumTouchTargetSize) {
-                    val minTouch = minimumTouchTargetSize
-                    val (left, top) = calculateMinimumTouchTargetOffset(bounds, minTouch)
-                    val (width, height) = size
-                    val right =
-                        minOf(width + minTouch.width, maxOf(width.toFloat(), left + minTouch.width))
-                    val bottom =
-                        minOf(
-                            height + minTouch.height,
-                            maxOf(height.toFloat(), top + minTouch.height),
-                        )
-                    bounds.intersect(left, top, right, bottom)
+                    intersectMinimumTouchTargetClip(bounds)
                 } else if (clipBounds) {
                     bounds.intersect(0f, 0f, size.width.toFloat(), size.height.toFloat())
                 }
@@ -1470,41 +1460,39 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     }
 
     /**
-     * Returns the offset of the child to give the best minimum touch target to it. If the child is
-     * smaller than minimum touch target size, then the offset will be away from the child position
-     * such that it is centered within the minimum touch target space, which may be outside of the
-     * parent. Otherwise, it will return the child offset.
+     * Intersects [bounds] with a clip region that accounts for minimum touch target size. If the
+     * child needed mtt expansion (bounds.width/height <= mtt), the clip allows up to mtt/2
+     * extension past each parent edge so the expansion isn't clipped away. If the child is already
+     * larger than mtt, the clip is just the parent bounds with no extension.
      */
-    protected fun calculateMinimumTouchTargetOffset(
-        childRect: MutableRect,
-        minimumTouchTargetSize: Size,
-    ): Offset {
-        val childLeft = childRect.left
-        val childTop = childRect.top
+    private fun intersectMinimumTouchTargetClip(bounds: MutableRect) {
+        var left = 0f
+        var top = 0f
+        var right = size.width.toFloat()
+        var bottom = size.height.toFloat()
+
         if (
-            childRect.right < 0 ||
-                childLeft > size.width ||
-                childRect.bottom < 0 ||
-                childTop > size.height
+            bounds.right < left || bounds.left > right || bounds.bottom < top || bounds.top > bottom
         ) {
-            return Offset.Zero
+            bounds.intersect(left, top, right, bottom)
+            return
         }
+
         val (mttWidth, mttHeight) = minimumTouchTargetSize
-        val underWidth = (mttWidth - childRect.width) / 2f
-        val left =
-            if (underWidth > 0) {
-                childLeft - underWidth
-            } else {
-                childLeft.coerceAtLeast(-mttWidth / 2f)
-            }
-        val underHeight = (mttHeight - childRect.height) / 2f
-        val top =
-            if (underHeight > 0) {
-                childTop - underHeight
-            } else {
-                childTop.coerceAtLeast(-mttHeight / 2f)
-            }
-        return Offset(left, top)
+
+        if (bounds.width <= mttWidth) {
+            val halfMttWidth = mttWidth / 2f
+            left = -halfMttWidth
+            right = size.width + halfMttWidth
+        }
+
+        if (bounds.height <= mttHeight) {
+            val halfMttHeight = mttHeight / 2f
+            top = -halfMttHeight
+            bottom = size.height + halfMttHeight
+        }
+
+        bounds.intersect(left, top, right, bottom)
     }
 
     /**

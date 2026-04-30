@@ -50,6 +50,7 @@ class Item(
     val focusable: Boolean,
     val pointerInput: Boolean,
 ) {
+    var lastIndex = -1
     val children: MutableList<Item> = mutableListOf()
 
     operator fun Item.unaryPlus() {
@@ -2280,19 +2281,19 @@ val rootItem =
         +Item(230, 0, 0, 1440, 145, false, false, false)
     }
 
-val exampleLayoutRects: Array<IntArray> = run {
-    val emptyIntArray = IntArray(0)
-    val results = Array(231) { emptyIntArray }
+val exampleLayoutRects: Array<Item> = run {
+    val results = arrayOfNulls<Item>(231)
 
     fun push(item: Item) {
-        results[item.id] = item.bounds
+        results[item.id] = item
         item.children.forEach { child -> push(child) }
     }
     push(rootItem)
-    for (bounds in results) {
-        assert(bounds !== emptyIntArray)
+    for (item in results) {
+        require(item !== null)
     }
-    results
+    @Suppress("UNCHECKED_CAST")
+    results as Array<Item>
 }
 
 val scrollableItems: List<Item> = run {

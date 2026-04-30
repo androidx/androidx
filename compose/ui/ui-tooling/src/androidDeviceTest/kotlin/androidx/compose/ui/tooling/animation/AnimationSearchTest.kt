@@ -16,10 +16,15 @@
 
 package androidx.compose.ui.tooling.animation
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.tooling.ComposeAnimationType
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.AnimateAsStatePreview
 import androidx.compose.ui.tooling.AnimateAsStateWithLabelsPreview
@@ -41,13 +46,17 @@ import androidx.compose.ui.tooling.animation.InfiniteTransitionComposeAnimation.
 import androidx.compose.ui.tooling.animation.Utils.addAnimations
 import androidx.compose.ui.tooling.animation.Utils.attachAllAnimations
 import androidx.compose.ui.tooling.animation.Utils.hasAnimations
+import androidx.compose.ui.tooling.animationDebugMutableStateOf
+import androidx.compose.ui.tooling.isAnimationPreviewEnabled
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -58,6 +67,11 @@ import org.junit.runner.RunWith
 class AnimationSearchTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+
+    @After
+    fun tearDown() {
+        isAnimationPreviewEnabled = false
+    }
 
     @Test
     fun targetBasedIsAddedAndTracked() {
@@ -453,6 +467,52 @@ class AnimationSearchTest {
         val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { AnimatedContentExtensionPreview() }
         assertEquals(1, clock.animationClocks.size)
+    }
+
+    @Test
+    fun triggerIsFound() {
+        isAnimationPreviewEnabled = true
+        val search = AnimationSearch.TriggerSearch {}
+        rule.addAnimations(search) {
+            val state by remember {
+                animationDebugMutableStateOf(
+                    value = true,
+                    { mutableStateOf(it) },
+                    states = { setOf(true, null, false) },
+                    label = "customTrigger",
+                )
+            }
+            AnimatedContent(state) { if (it == true) Text("Hello") else Text("World") }
+        }
+        rule.waitForIdle()
+        assertEquals(1, search.animations.size)
+
+        search.animations.first().let { trigger ->
+            assertEquals("customTrigger", trigger.label)
+            assertEquals(true, trigger.initialState)
+            assertEquals(null, trigger.targetState)
+            assertEquals(setOf(true, false), trigger.states)
+            assertNotNull(trigger.animationObject)
+        }
+    }
+
+    @Test
+    fun triggerIsNotFound() {
+        isAnimationPreviewEnabled = false
+        val search = AnimationSearch.TriggerSearch {}
+        rule.addAnimations(search) {
+            val state by remember {
+                animationDebugMutableStateOf(
+                    value = true,
+                    { mutableStateOf(it) },
+                    states = { setOf(true, null, false) },
+                    label = "customTrigger",
+                )
+            }
+            AnimatedContent(state) { if (it == true) Text("Hello") else Text("World") }
+        }
+        rule.waitForIdle()
+        assertEquals(0, search.animations.size)
     }
 
     private fun animationIsFound(

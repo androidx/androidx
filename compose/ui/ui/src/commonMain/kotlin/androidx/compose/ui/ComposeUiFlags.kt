@@ -17,7 +17,8 @@
 
 package androidx.compose.ui
 
-import androidx.compose.ui.node.findNearestAncestor
+import androidx.compose.ui.ComposeUiFlags.isInitialFocusOnFocusableAvailable
+import androidx.compose.ui.ComposeUiFlags.isViewFocusFixEnabled
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmName
 
@@ -84,33 +85,11 @@ object ComposeUiFlags {
     // TODO: b/485962036
     @field:Suppress("MutableBareField") @JvmField var isFocusRestorationEnabled: Boolean = false
 
-    /** Flag for enabling indirect pointer event navigation gestures in Compose. */
-    // TODO: b/455601135
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isIndirectPointerNavigationGestureDetectorEnabled: Boolean = true
-
     /** Flag enables optimized focus change dispatching logic. */
     // TODO: b/455603009
     @field:Suppress("MutableBareField")
     @JvmField
     var isOptimizedFocusEventDispatchEnabled: Boolean = true
-
-    /** This flag enables setting the shape semantics property in the graphicsLayer modifiers. */
-    // TODO: b/455600081
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
-
-    /**
-     * Enables a fix where [androidx.compose.ui.node.TraversableNode] traversal method
-     * [findNearestAncestor] will take into consideration any delegates that might also be
-     * traversable.
-     */
-    // TODO: b/485962494
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isTraversableDelegatesFixEnabled: Boolean = true
 
     /**
      * Enables a change where off-screen children of the partially visible merging nodes (e.g. a
@@ -123,22 +102,6 @@ object ComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isAccessibilityShouldIncludeOffscreenChildrenEnabled: Boolean = true
-
-    /**
-     * Enables support of trackpad gesture events.
-     *
-     * If enabled, [androidx.compose.ui.input.pointer.PointerEvent]s can have type of
-     * [androidx.compose.ui.input.pointer.PointerEventType.PanMove] and
-     * [androidx.compose.ui.input.pointer.PointerEventType.ScaleChange], corresponding to
-     * system-recognized gestures on a trackpad.
-     *
-     * These trackpad gestures will also generally be treated as mouse, with the exact behavior
-     * depending on platform specifics.
-     */
-    // TODO: b/475634969 remove the temporary flag
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isTrackpadGestureHandlingEnabled: Boolean = true
 
     /**
      * Enable the integration of [LocalUiMediaScope] at the root compose view which provides various

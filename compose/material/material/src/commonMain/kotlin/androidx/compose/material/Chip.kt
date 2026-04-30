@@ -171,7 +171,7 @@ fun Chip(
  *   color for this chip in different states. See [ChipDefaults.filterChipColors].
  * @param leadingIcon Optional icon at the start of the chip, preceding the content text.
  * @param selectedIcon Icon used to indicate a chip's selected state, it is commonly a
- *   [androidx.compose.material.icons.Icons.Filled.Done]. By default, if a leading icon is also
+ *   androidx.compose.material.icons.Icons.Filled.Done. By default, if a leading icon is also
  *   provided, the leading icon will be obscured by a circle overlay and then the selected icon.
  * @param trailingIcon Optional icon at the end of the chip, following the content text. Filter
  *   chips commonly do not display any trailing icon.

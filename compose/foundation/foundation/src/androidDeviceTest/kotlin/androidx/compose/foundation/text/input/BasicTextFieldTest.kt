@@ -109,6 +109,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextAlign
@@ -1219,7 +1220,6 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1,
                     )
                     .width
 
@@ -1256,7 +1256,6 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1,
                     )
                     .width
 
@@ -1726,6 +1725,48 @@ internal class BasicTextFieldTest {
         // Session count should still be 2.
         inputMethodInterceptor.assertThatSessionCount().isEqualTo(2)
         rule.onNodeWithTag(Tag).assertTextEquals("Hello Compose")
+    }
+
+    @Test
+    fun whenCursorOutOfView_bringCursorIntoView() {
+        val state = TextFieldState("")
+        val tag = "textField"
+        val scrollState = ScrollState(0)
+
+        inputMethodInterceptor.setTextFieldTestContent {
+            Column(Modifier.fillMaxSize().verticalScroll(scrollState)) {
+                repeat(100) { Box(Modifier.size(100.dp)) }
+                BasicTextField(state, Modifier.testTag(tag))
+                repeat(100) { Box(Modifier.size(100.dp)) }
+            }
+        }
+        rule.onNodeWithTag(tag).requestFocus()
+        val initialScroll = rule.runOnIdle { scrollState.value }
+        inputMethodInterceptor.withInputConnection { commitText("\n") }
+        rule.runOnIdle { assertThat(scrollState.value).isNotEqualTo(initialScroll) }
+    }
+
+    @Test
+    fun whenCursorOutOfView_bringCursorIntoView_withCoreTextField() {
+        val tag = "textField"
+        val scrollState = ScrollState(0)
+        var textFieldValue by mutableStateOf(TextFieldValue(""))
+
+        inputMethodInterceptor.setTextFieldTestContent {
+            Column(Modifier.fillMaxSize().verticalScroll(scrollState)) {
+                repeat(100) { Box(Modifier.size(100.dp)) }
+                BasicTextField(
+                    value = textFieldValue,
+                    onValueChange = { textFieldValue = it },
+                    modifier = Modifier.testTag(tag),
+                )
+                repeat(100) { Box(Modifier.size(100.dp)) }
+            }
+        }
+        rule.onNodeWithTag(tag).requestFocus()
+        val initialScroll = rule.runOnIdle { scrollState.value }
+        inputMethodInterceptor.withInputConnection { commitText("\n") }
+        rule.runOnIdle { assertThat(scrollState.value).isNotEqualTo(initialScroll) }
     }
 
     @Test

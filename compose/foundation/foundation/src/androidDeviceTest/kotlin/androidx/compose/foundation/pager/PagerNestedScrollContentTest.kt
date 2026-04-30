@@ -404,6 +404,7 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
             down(center)
             val toMove = forwardDelta + touchSlop * scrollForwardSign.toFloat()
             moveBy(if (vertical) Offset(x = 0f, y = toMove) else Offset(x = toMove, y = 0f))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 
@@ -422,6 +423,7 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
                 if (vertical) Offset(x = -forwardDelta / 2, y = 0f)
                 else Offset(x = 0f, y = -forwardDelta / 2)
             )
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 

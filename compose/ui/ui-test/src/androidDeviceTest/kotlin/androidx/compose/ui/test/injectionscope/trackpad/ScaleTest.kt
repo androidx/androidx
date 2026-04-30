@@ -20,8 +20,6 @@ import android.os.Build
 import android.view.MotionEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
@@ -52,7 +50,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalTestApi::class)
 class ScaleTest {
     companion object {
         private val T = InputDispatcher.eventPeriodMillis
@@ -96,10 +94,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleStart
                                 } else {
                                     Press
@@ -123,10 +118,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Press
@@ -147,10 +139,7 @@ class ScaleTest {
                         .verifyTrackpadEvent(
                             expectedTimestamp = T,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Press
@@ -166,10 +155,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T * 2,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Move
@@ -190,10 +176,7 @@ class ScaleTest {
                         .verifyTrackpadEvent(
                             expectedTimestamp = T * 2,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Move
@@ -209,10 +192,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T * 3,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Release
@@ -233,10 +213,7 @@ class ScaleTest {
                         .verifyTrackpadEvent(
                             expectedTimestamp = T * 3,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Release
@@ -252,10 +229,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T * 3,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleEnd
                                 } else {
                                     Release
@@ -317,10 +291,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleStart
                                 } else {
                                     Press
@@ -343,10 +314,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Press
@@ -367,10 +335,7 @@ class ScaleTest {
                         .verifyTrackpadEvent(
                             expectedTimestamp = T,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Press
@@ -386,10 +351,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T * 2,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Move
@@ -410,10 +372,7 @@ class ScaleTest {
                         .verifyTrackpadEvent(
                             expectedTimestamp = T * 2,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Move
@@ -429,10 +388,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T * 3,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Release
@@ -453,10 +409,7 @@ class ScaleTest {
                         .verifyTrackpadEvent(
                             expectedTimestamp = T * 3,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleChange
                                 } else {
                                     Release
@@ -472,10 +425,7 @@ class ScaleTest {
                         pointer.verifyTrackpadEvent(
                             expectedTimestamp = T * 3,
                             expectedEventType =
-                                if (
-                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
-                                        Build.VERSION.SDK_INT >= 34
-                                ) {
+                                if (Build.VERSION.SDK_INT >= 34) {
                                     ScaleEnd
                                 } else {
                                     Release

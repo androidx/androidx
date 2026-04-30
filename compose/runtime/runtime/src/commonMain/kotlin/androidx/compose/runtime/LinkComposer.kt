@@ -2155,7 +2155,9 @@ internal class LinkComposer(
             exit = { group ->
                 if (reader.isNode(group)) changeListWriter.moveUp()
                 rGroupIndex = parentStateStack.pop()
-                nodeIndex = parentStateStack.pop() + updatedNodeCount(group.toGroupHandle())
+                nodeIndex =
+                    parentStateStack.pop() +
+                        if (reader.isNode(group)) 1 else updatedNodeCount(group.toGroupHandle())
                 updateCompositeKeyWhenWeExitGroup(
                     groupKey = reader.groupKey(group),
                     rGroupIndex = rGroupIndex,

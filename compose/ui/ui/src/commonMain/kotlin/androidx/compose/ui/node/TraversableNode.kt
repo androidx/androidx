@@ -15,8 +15,6 @@
  */
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ComposeUiFlags.isTraversableDelegatesFixEnabled
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.areObjectsOfSameType
 import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
@@ -52,9 +50,8 @@ interface TraversableNode : DelegatableNode {
 
 // *********** Nearest Traversable Ancestor methods ***********
 /** Finds the nearest traversable ancestor with a matching [key]. */
-@OptIn(ExperimentalComposeUiApi::class)
 fun DelegatableNode.findNearestAncestor(key: Any?): TraversableNode? {
-    visitAncestors(Nodes.Traversable, includeDelegates = isTraversableDelegatesFixEnabled) {
+    visitAncestors(Nodes.Traversable, includeDelegates = true) {
         if (key == it.traverseKey) {
             return it
         }
@@ -63,9 +60,8 @@ fun DelegatableNode.findNearestAncestor(key: Any?): TraversableNode? {
 }
 
 /** Finds the nearest ancestor of the same class and key. */
-@OptIn(ExperimentalComposeUiApi::class)
 fun <T> T.findNearestAncestor(): T? where T : TraversableNode {
-    visitAncestors(Nodes.Traversable, includeDelegates = isTraversableDelegatesFixEnabled) {
+    visitAncestors(Nodes.Traversable, includeDelegates = true) {
         if (this.traverseKey == it.traverseKey && areObjectsOfSameType(this, it)) {
             @Suppress("UNCHECKED_CAST")
             return it as T

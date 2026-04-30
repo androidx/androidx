@@ -1466,6 +1466,144 @@ class AndroidAutofillManagerTest {
         }
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun autofillManager_doesNotNotify_contentDataType_none() {
+        var changeText by mutableStateOf(false)
+        val initialValue = AutofillValue.forText("")
+        val finalValue = AutofillValue.forText("1234")
+
+        rule.setTestContent {
+            Box(
+                Modifier.semantics {
+                        testTag = "username"
+                        onFillData { true }
+                        contentDataType = ContentDataType.None
+                        fillableData =
+                            if (changeText) {
+                                AndroidFillableData(finalValue)
+                            } else {
+                                AndroidFillableData(initialValue)
+                            }
+                    }
+                    .size(height, width)
+            )
+        }
+
+        rule.runOnIdle { changeText = true }
+        rule.waitForIdle()
+
+        verifyZeroInteractions(am)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun autofillManager_viewEntered_contentDataType_fromNone() {
+        var changeText by mutableStateOf(false)
+        val initialValue = AutofillValue.forText("")
+        val finalValue = AutofillValue.forText("1234")
+
+        rule.setTestContent {
+            Box(
+                Modifier.semantics {
+                        testTag = "username"
+                        onFillData { true }
+                        contentDataType =
+                            if (changeText) {
+                                ContentDataType.Text
+                            } else {
+                                ContentDataType.None
+                            }
+                        fillableData =
+                            if (changeText) {
+                                AndroidFillableData(finalValue)
+                            } else {
+                                AndroidFillableData(initialValue)
+                            }
+                    }
+                    .size(height, width)
+            )
+        }
+
+        rule.runOnIdle { changeText = true }
+
+        rule.waitForIdle()
+        verify(am)
+            .notifyViewVisibilityChanged(
+                view = eq(view),
+                semanticsId = eq(rule.onNodeWithTag("username").semanticsId()),
+                isVisible = eq(true),
+            )
+        verify(am)
+            .notifyValueChanged(
+                view = eq(view),
+                semanticsId = eq(rule.onNodeWithTag("username").semanticsId()),
+                autofillValue = eq(finalValue),
+            )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun autofillManager_viewEntered_contentDataType_toNone() {
+        var changeText by mutableStateOf(false)
+        val initialValue = AutofillValue.forText("")
+        val finalValue = AutofillValue.forText("1234")
+
+        rule.setTestContent {
+            Box(
+                Modifier.semantics {
+                        testTag = "username"
+                        onFillData { true }
+                        contentDataType =
+                            if (changeText) {
+                                ContentDataType.None
+                            } else {
+                                ContentDataType.Text
+                            }
+                        fillableData =
+                            if (changeText) {
+                                AndroidFillableData(finalValue)
+                            } else {
+                                AndroidFillableData(initialValue)
+                            }
+                    }
+                    .size(height, width)
+            )
+        }
+
+        rule.runOnIdle { changeText = true }
+        rule.waitForIdle()
+
+        verify(am)
+            .notifyViewVisibilityChanged(
+                view = eq(view),
+                semanticsId = eq(rule.onNodeWithTag("username").semanticsId()),
+                isVisible = eq(false),
+            )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun autofillManager_focus_contendDataTypeNone() {
+
+        rule.setTestContent {
+            Box(
+                Modifier.semantics {
+                        testTag = "username"
+                        onFillData { true }
+                        contentDataType = ContentDataType.None
+                    }
+                    .size(height, width)
+                    .focusable()
+            )
+        }
+
+        rule.onNodeWithTag("username").requestFocus()
+
+        rule.waitForIdle()
+        verifyZeroInteractions(am)
+    }
+
     private fun ComposeContentTestRule.setTestContent(composable: @Composable () -> Unit) {
         setContent {
             view = LocalView.current

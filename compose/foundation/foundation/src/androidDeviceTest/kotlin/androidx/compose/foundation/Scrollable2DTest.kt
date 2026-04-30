@@ -20,7 +20,6 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Scroll2DScope
@@ -97,7 +96,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert
-import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -938,6 +936,7 @@ class Scrollable2DTest {
         rule.onNodeWithTag("childScrollable").performTouchInput {
             down(centerLeft)
             moveBy(Offset(100f, 100f))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 
@@ -1281,6 +1280,7 @@ class Scrollable2DTest {
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             down(this.center)
             moveBy(Offset(115f, 0f))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
         assertThat(flingCalled).isEqualTo(1)
@@ -1363,111 +1363,8 @@ class Scrollable2DTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
-    @Test
-    fun scrollable_setsModifierLocalScrollableContainer() {
-        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
-        val scrollable2DState = Scrollable2DState { it }
-
-        var isOuterInScrollableContainer: Boolean? = null
-        var isInnerInScrollableContainer: Boolean? = null
-        rule.setContent {
-            Box {
-                Box(
-                    modifier =
-                        Modifier.testTag(scrollable2DBoxTag)
-                            .size(100.dp)
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isOuterInScrollableContainer = it
-                                }
-                            )
-                            .scrollable2D(state = scrollable2DState)
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isInnerInScrollableContainer = it
-                                }
-                            )
-                )
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(isOuterInScrollableContainer).isFalse()
-            assertThat(isInnerInScrollableContainer).isTrue()
-        }
-    }
-
-    @OptIn(ExperimentalFoundationApi::class)
-    @Test
-    fun scrollable_setsModifierLocalScrollableContainer_scrollDisabled() {
-        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
-        val scrollable2DState = Scrollable2DState { it }
-
-        var isOuterInScrollableContainer: Boolean? = null
-        var isInnerInScrollableContainer: Boolean? = null
-        rule.setContent {
-            Box {
-                Box(
-                    modifier =
-                        Modifier.testTag(scrollable2DBoxTag)
-                            .size(100.dp)
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isOuterInScrollableContainer = it
-                                }
-                            )
-                            .scrollable2D(state = scrollable2DState, enabled = false)
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isInnerInScrollableContainer = it
-                                }
-                            )
-                )
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(isOuterInScrollableContainer).isFalse()
-            assertThat(isInnerInScrollableContainer).isFalse()
-        }
-    }
-
-    @OptIn(ExperimentalFoundationApi::class)
-    @Test
-    fun scrollable_setsModifierLocalScrollableContainer_scrollUpdates() {
-        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
-        val scrollable2DState = Scrollable2DState { it }
-
-        var isInnerInScrollableContainer: Boolean? = null
-        val enabled = mutableStateOf(true)
-        rule.setContent {
-            Box {
-                Box(
-                    modifier =
-                        Modifier.testTag(scrollable2DBoxTag)
-                            .size(100.dp)
-                            .scrollable2D(state = scrollable2DState, enabled = enabled.value)
-                            .then(
-                                ScrollableContainerReaderNodeElement {
-                                    isInnerInScrollableContainer = it
-                                }
-                            )
-                )
-            }
-        }
-
-        rule.runOnIdle { assertThat(isInnerInScrollableContainer).isTrue() }
-
-        rule.runOnIdle { enabled.value = false }
-
-        rule.runOnIdle { assertThat(isInnerInScrollableContainer).isFalse() }
-    }
-
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_isInterestedInDownEvents() {
-        Assume.assumeTrue(isDelayPressesUsingGestureConsumptionEnabled)
         val controller = Scrollable2DState { it }
 
         var isOuterInterested: Boolean? = null
@@ -1501,10 +1398,8 @@ class Scrollable2DTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_isInterestedInDownEvents_handlesParentEnabledState() {
-        Assume.assumeTrue(isDelayPressesUsingGestureConsumptionEnabled)
         val scrollable2DState = Scrollable2DState { it }
 
         var isOuterInterested: Boolean? = null
@@ -1793,6 +1688,7 @@ class Scrollable2DTest {
         rule.onRoot().performTouchInput {
             down(center)
             moveBy(Offset(scrollDelta, scrollDelta))
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 
@@ -2028,8 +1924,7 @@ class Scrollable2DTest {
                 moveBy(Offset(delta, delta), delayMillis = 8L)
                 previousScrollValue += delta.toInt()
             }
-            // stop for a moment
-            advanceEventTime(3000L)
+            advanceEventTime(3000L) // Prevent fling gesture.
             up()
         }
 
@@ -2136,10 +2031,7 @@ class Scrollable2DTest {
 
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput { swipeUp() }
 
-        rule.runOnIdle {
-            assertThat(flingDelta.x).isNotEqualTo(previousDelta.x)
-            assertThat(flingDelta.y).isNotEqualTo(previousDelta.y)
-        }
+        rule.runOnIdle { assertThat(flingDelta).isNotEqualTo(previousDelta) }
     }
 
     @Test

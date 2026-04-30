@@ -157,6 +157,18 @@ internal class CommitTextCommandTest : ImeEditCommandTest() {
     }
 
     @Test
+    fun test_replace_reversed_selection() {
+        initialize("ABCDE", TextRange(4, 1)) // reversed selection "BCD"
+
+        imeScope.commitText("X", 1)
+
+        assertThat(state.text.toString()).isEqualTo("AXE")
+        assertThat(state.selection.start).isEqualTo(2)
+        assertThat(state.selection.end).isEqualTo(2)
+        assertThat(state.composition).isNull()
+    }
+
+    @Test
     fun test_composition_and_selection() {
         initialize("ABCDE", TextRange(1, 3)) // select "BC"
 

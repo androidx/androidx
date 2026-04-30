@@ -1946,6 +1946,47 @@ class MovableContentTests {
 
         validate {}
     }
+
+    @Test
+    fun moveNestedMovableContentFromNodeGroup() =
+        compositionTest(ComposerToUse.Link) {
+            var moveNested by mutableStateOf(false)
+            var showOuter by mutableStateOf(true)
+
+            val innerMovable = movableContentOf { repeat(10) { Text("$it") } }
+            val outerMovable = movableContentOf {
+                Linear {
+                    Text("Hello")
+                    innerMovable()
+                }
+            }
+
+            compose {
+                Linear {
+                    if (showOuter) {
+                        outerMovable()
+                    }
+                    if (moveNested) {
+                        innerMovable()
+                    }
+                }
+            }
+
+            validate {
+                Linear {
+                    Linear {
+                        Text("Hello")
+                        repeat(10) { Text("$it") }
+                    }
+                }
+            }
+
+            showOuter = false
+            moveNested = true
+            expectChanges()
+
+            validate { Linear { repeat(10) { Text("$it") } } }
+        }
 }
 
 @Composable
