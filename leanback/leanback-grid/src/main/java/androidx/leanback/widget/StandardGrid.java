@@ -28,15 +28,15 @@ class StandardGrid extends Grid {
     Object[] mTmpItems;
     private int[] mTmpItemsSize;
 
-    SpanSizeLookup mSpanSizeLookup;
+    LeanbackSpanSizeLookup mSpanSizeLookup;
 
     StandardGrid() {
         setNumRows(1);
     }
 
-    void setSpanSizeLookup(SpanSizeLookup spanSizeLookup) {
+    void setSpanSizeLookup(LeanbackSpanSizeLookup spanSizeLookup) {
         if (spanSizeLookup != null
-                && !(spanSizeLookup instanceof SpanSizeLookup.DefaultSpanSizeLookup)) {
+                && !(spanSizeLookup instanceof LeanbackSpanSizeLookup.DefaultSpanSizeLookup)) {
             mSpanSizeLookup = spanSizeLookup;
             mSearchFocusInNextSpanGroup = true;
         } else {
@@ -49,7 +49,8 @@ class StandardGrid extends Grid {
     public void resetVisibleIndex() {
         super.resetVisibleIndex();
         if (mSpanSizeLookup != null) {
-            mSpanSizeLookup.clearCache();
+            mSpanSizeLookup.invalidateSpanIndexCache();
+            mSpanSizeLookup.invalidateSpanGroupIndexCache();
         }
     }
 

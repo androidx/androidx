@@ -424,14 +424,14 @@ public class GridActivity extends Activity {
 
     class MyAdapter extends RecyclerView.Adapter implements FacetProviderAdapter, FacetProvider {
 
-        SpanSizeLookup mSpanSizeLookup;
+        LeanbackSpanSizeLookup mSpanSizeLookup;
 
         MyAdapter() {
             if (mSpanSizes != null) {
                 if (mSpanSizes.size() == 0) {
-                    mSpanSizeLookup = SpanSizeLookup.DefaultSpanSizeLookup.INSTANCE;
+                    mSpanSizeLookup = LeanbackSpanSizeLookup.DefaultSpanSizeLookup.INSTANCE;
                 } else {
-                    mSpanSizeLookup = new SpanSizeLookup() {
+                    mSpanSizeLookup = new LeanbackSpanSizeLookup() {
                         @Override
                         public int getSpanSize(int position) {
                             if (position < 0 || position >= mGridView.getAdapter().getItemCount()) {
@@ -461,7 +461,7 @@ public class GridActivity extends Activity {
         @Override
         public @Nullable Object getFacet(@NonNull Class<?> facetClass) {
             if (mSpanSizeLookup != null) {
-                if (facetClass.equals(SpanSizeLookup.class)) {
+                if (facetClass.equals(LeanbackSpanSizeLookup.class)) {
                     return mSpanSizeLookup;
                 }
             }
@@ -620,7 +620,7 @@ public class GridActivity extends Activity {
         }
         boolean multiSpan = false;
         if (mGridView.getAdapter() instanceof MyAdapter) {
-            SpanSizeLookup spanSizeLookup =
+            LeanbackSpanSizeLookup spanSizeLookup =
                     ((MyAdapter) mGridView.getAdapter()).mSpanSizeLookup;
             multiSpan = spanSizeLookup != null && (spanSizeLookup.getSpanSize(position) > 1
                     || spanSizeLookup.getSpanSize(position) < 0);

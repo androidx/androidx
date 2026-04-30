@@ -174,7 +174,7 @@ abstract class Grid {
     /**
      * Creates a single or multiple rows (can be staggered or not staggered) grid
      */
-    public static Grid createGrid(int rows, SpanSizeLookup spanSizeLookup) {
+    public static Grid createGrid(int rows, LeanbackSpanSizeLookup spanSizeLookup) {
         Grid grid;
         if (rows == 1) {
             grid = new SingleRow();

@@ -745,7 +745,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Optional SpanSizeLookup retrieved from Adapter.
      */
-    private SpanSizeLookup mSpanSizeLookup;
+    private LeanbackSpanSizeLookup mSpanSizeLookup;
 
     public GridLayoutManager() {
         this(null);
@@ -1654,7 +1654,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         final int spanSize = lp.mSpanSize;
         final int secondarySpec;
-        if (spanSize == SpanSizeLookup.FILL_ALL_SPANS_AND_PADDINGS) {
+        if (spanSize == LeanbackSpanSizeLookup.FILL_ALL_SPANS_AND_PADDINGS) {
             secondarySpec = MeasureSpec.makeMeasureSpec(mMaxSizeSecondary, MeasureSpec.EXACTLY);
         } else if (mRowSizeSecondaryRequested == ViewGroup.LayoutParams.WRAP_CONTENT) {
             secondarySpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
@@ -1848,7 +1848,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         int sizeSecondary = mOrientation == HORIZONTAL ? getDecoratedMeasuredHeightWithMargin(v)
                 : getDecoratedMeasuredWidthWithMargin(v);
         if (((LayoutParams) v.getLayoutParams()).mSpanSize
-                == SpanSizeLookup.FILL_ALL_SPANS_AND_PADDINGS) {
+                == LeanbackSpanSizeLookup.FILL_ALL_SPANS_AND_PADDINGS) {
             startSecondary = 0;
             sizeSecondary = mMaxSizeSecondary;
         } else if (((LayoutParams) v.getLayoutParams()).mSpanSize == 1) {
@@ -3678,8 +3678,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             mFacetProviderAdapter = null;
         }
         if (newAdapter instanceof FacetProvider) {
-            mSpanSizeLookup = (SpanSizeLookup) ((FacetProvider) newAdapter).getFacet(
-                            SpanSizeLookup.class);
+            mSpanSizeLookup = (LeanbackSpanSizeLookup) ((FacetProvider) newAdapter).getFacet(
+                            LeanbackSpanSizeLookup.class);
         } else {
             mSpanSizeLookup = null;
         }

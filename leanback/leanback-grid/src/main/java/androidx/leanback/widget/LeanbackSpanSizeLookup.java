@@ -17,15 +17,17 @@ package androidx.leanback.widget;
 
 import android.util.SparseIntArray;
 
-import androidx.recyclerview.widget.GridLayoutManager;
-
 import org.jspecify.annotations.NonNull;
 
 /**
- * Extension of recyclerview GridLayoutManager.SpanSizeLookUp.  Supports FILL_ALL_SPANS_AND_PADDINGS
- * and FILL_ALL_SPANS.
+ * A helper class to provide the number of spans each item occupies. {@link BaseGridView} retrieves
+ * the object from {@link androidx.recyclerview.widget.RecyclerView.Adapter} via
+ * {@link FacetProvider} interface implemented by the adapter.
+ * The class is similar to {@link androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup}.
+ * It supports two special span size: {@link #FILL_ALL_SPANS_AND_PADDINGS} and
+ * {@link #FILL_ALL_SPANS}.
  */
-public abstract class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
+public abstract class LeanbackSpanSizeLookup {
     /**
      * Value returned by {@link #getSpanSize(int)}: fill all spans and padding area, it takes full
      * width of a vertical grid view or full height of a horizontal grid view.
@@ -40,14 +42,86 @@ public abstract class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
 
     private final SparseIntArray mSpanIndexCache = new SparseIntArray();
     private final SparseIntArray mSpanGroupIndexCache = new SparseIntArray();
+    private boolean mCacheSpanIndices = false;
+    private boolean mCacheSpanGroupIndices = false;
 
-    void clearCache() {
+    /**
+     * Returns the number of spans this item will take, or {@link #FILL_ALL_SPANS_AND_PADDINGS},
+     * {@link #FILL_ALL_SPANS}.
+     * @param position The adapter position of the item.
+     * @return The number of spans this item will take, or {@link #FILL_ALL_SPANS_AND_PADDINGS},
+     * {@link #FILL_ALL_SPANS}.
+     */
+    public abstract int getSpanSize(int position);
+
+    /**
+     * Clears the span index cache. GridLayoutManager automatically calls this method when
+     * adapter changes occur.
+     */
+    public void invalidateSpanIndexCache() {
         mSpanIndexCache.clear();
+    }
+
+    /**
+     * Clears the span group index cache. GridLayoutManager automatically calls this method
+     * when adapter changes occur.
+     */
+    public void invalidateSpanGroupIndexCache() {
         mSpanGroupIndexCache.clear();
     }
 
+    /**
+     * Sets whether the results of {@link #getSpanIndex(int, int)} method should be cached or
+     * not. By default these values are not cached. If you are not overriding
+     * {@link #getSpanIndex(int, int)} with something highly performant, you should set this
+     * to true for better performance.
+     *
+     * @param cacheSpanIndices Whether results of getSpanIndex should be cached or not.
+     */
+    public void setSpanIndexCacheEnabled(boolean cacheSpanIndices) {
+        if (!cacheSpanIndices) {
+            mSpanGroupIndexCache.clear();
+        }
+        mCacheSpanIndices = cacheSpanIndices;
+    }
+
+    /**
+     * Returns whether results of {@link #getSpanIndex(int, int)} method are cached or not.
+     *
+     * @return True if results of {@link #getSpanIndex(int, int)} are cached.
+     */
+    public boolean isSpanIndexCacheEnabled() {
+        return mCacheSpanIndices;
+    }
+
+    /**
+     * Returns whether results of {@link #getSpanGroupIndex(int, int)} method are cached or not.
+     *
+     * @return True if results of {@link #getSpanGroupIndex(int, int)} are cached.
+     */
+    public boolean isSpanGroupIndexCacheEnabled() {
+        return mCacheSpanGroupIndices;
+    }
+
+    /**
+     * Sets whether the results of {@link #getSpanGroupIndex(int, int)} method should be cached
+     * or not. By default these values are not cached. If you are not overriding
+     * {@link #getSpanGroupIndex(int, int)} with something highly performant, and you are using
+     * spans to calculate scrollbar offset and range, you should set this to true for better
+     * performance.
+     *
+     * @param cacheSpanGroupIndices Whether results of getGroupSpanIndex should be cached or
+     *                              not.
+     */
+    public void setSpanGroupIndexCacheEnabled(boolean cacheSpanGroupIndices)  {
+        if (!cacheSpanGroupIndices) {
+            mSpanGroupIndexCache.clear();
+        }
+        mCacheSpanGroupIndices = cacheSpanGroupIndices;
+    }
+
     int getCachedSpanIndex(int position, int spanCount) {
-        if (!isSpanIndexCacheEnabled()) {
+        if (!mCacheSpanIndices) {
             // If app supplied SpanSizeLookup declares the cache is not enabled.  Then it is
             // the app's responsibility to make getSpanIndex() efficient.
             return getSpanIndex(position, spanCount);
@@ -62,7 +136,7 @@ public abstract class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
     }
 
     int getCachedSpanGroupIndex(int position, int spanCount) {
-        if (!isSpanGroupIndexCacheEnabled()) {
+        if (!mCacheSpanGroupIndices) {
             // If app supplied SpanSizeLookup declares the cache is not enabled.  Then it is
             // the app's responsibility to make getSpanGroupIndex() efficient.
             return getSpanGroupIndex(position, spanCount);
@@ -75,16 +149,6 @@ public abstract class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
         mSpanGroupIndexCache.put(position, value);
         return value;
     }
-
-    /**
-     * Returns the number of spans this item will take, or {@link #FILL_ALL_SPANS_AND_PADDINGS},
-     * {@link #FILL_ALL_SPANS}.
-     * @param position The adapter position of the item.
-     * @return The number of spans this item will take, or {@link #FILL_ALL_SPANS_AND_PADDINGS},
-     * {@link #FILL_ALL_SPANS}.
-     */
-    @Override
-    public abstract int getSpanSize(int position);
 
     /**
      * Returns the number of spans this item will take, or {@link #FILL_ALL_SPANS_AND_PADDINGS}.
@@ -110,8 +174,32 @@ public abstract class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
         return size;
     }
 
-    // Implementation using built-in cache.
-    @Override
+    /**
+     * Returns the final span index of the provided position.
+     * <p>
+     * If {@link VerticalGridView}, this is a column value.
+     * If {@link HorizontalGridView}, this is a row value.
+     * <p>
+     * If you have a faster way to calculate span index for your items, you should override
+     * this method. Otherwise, you should enable span index cache
+     * ({@link #setSpanIndexCacheEnabled(boolean)}) for better performance. When caching is
+     * disabled, default implementation traverses all items from 0 to
+     * <code>position</code>. When caching is enabled, it calculates from the closest cached
+     * value before the <code>position</code>.
+     * <p>
+     * If you override this method, you need to make sure it is consistent with
+     * {@link #getSpanSize(int)}. GridLayoutManager does not call this method for
+     * each item. It is called only for the reference item and rest of the items
+     * are assigned to spans based on the reference item. For example, you cannot assign a
+     * position to span 2 while span 1 is empty.
+     * <p>
+     * Note that span offsets always start with 0 and are not affected by RTL.
+     *
+     * @param position  The position of the item
+     * @param spanCount The total number of spans in the grid
+     * @return The final span position of the item. Should be between 0 (inclusive) and
+     * <code>spanCount</code>(exclusive)
+     */
     public int getSpanIndex(int position, int spanCount) {
         int positionSpanSize = getRealSpanSize(position, spanCount);
         if (positionSpanSize == spanCount) {
@@ -165,7 +253,19 @@ public abstract class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
         return -1;
     }
 
-    @Override
+    /**
+     * Returns the index of the group this position belongs.
+     * <p>
+     * If {@link VerticalGridView}, this is a row value.
+     * If {@link HorizontalGridView}, this is a column value.
+     * <p>
+     * For example, if grid has 3 columns and each item occupies 1 span, span group index
+     * for item 1 will be 0, item 5 will be 1.
+     *
+     * @param adapterPosition The position in adapter
+     * @param spanCount The total number of spans in the grid
+     * @return The index of the span group including the item at the given adapter position
+     */
     public int getSpanGroupIndex(int adapterPosition, int spanCount) {
         int span = 0;
         int group = 0;
@@ -203,10 +303,16 @@ public abstract class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
         return group;
     }
 
+    /** Return the default LeanbackSpanSizeLookup that each item has a span size of 1. */
+    @NonNull
+    public static LeanbackSpanSizeLookup getDefault() {
+        return DefaultSpanSizeLookup.INSTANCE;
+    }
+
     /**
      * The default SpanSizeLookup that has one span.
      */
-    public static final class DefaultSpanSizeLookup extends SpanSizeLookup {
+    static final class DefaultSpanSizeLookup extends LeanbackSpanSizeLookup {
         private DefaultSpanSizeLookup() {}
 
         @Override
@@ -215,6 +321,6 @@ public abstract class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
         }
 
         @NonNull
-        public static final DefaultSpanSizeLookup INSTANCE = new DefaultSpanSizeLookup();
+        static final DefaultSpanSizeLookup INSTANCE = new DefaultSpanSizeLookup();
     }
 }

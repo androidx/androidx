@@ -181,6 +181,23 @@ package androidx.leanback.widget {
     method public final void setItemAlignmentViewId(int);
   }
 
+  public abstract class LeanbackSpanSizeLookup {
+    ctor public LeanbackSpanSizeLookup();
+    method public static androidx.leanback.widget.LeanbackSpanSizeLookup getDefault();
+    method public int getSpanGroupIndex(int, int);
+    method public int getSpanIndex(int, int);
+    method public abstract int getSpanSize(int);
+    method public int getSpanSize(int, int);
+    method public void invalidateSpanGroupIndexCache();
+    method public void invalidateSpanIndexCache();
+    method public boolean isSpanGroupIndexCacheEnabled();
+    method public boolean isSpanIndexCacheEnabled();
+    method public void setSpanGroupIndexCacheEnabled(boolean);
+    method public void setSpanIndexCacheEnabled(boolean);
+    field public static final int FILL_ALL_SPANS = -2; // 0xfffffffe
+    field public static final int FILL_ALL_SPANS_AND_PADDINGS = -1; // 0xffffffff
+  }
+
   public interface OnChildLaidOutListener {
     method public void onChildLaidOut(android.view.ViewGroup, android.view.View, int, long);
   }
@@ -193,18 +210,6 @@ package androidx.leanback.widget {
     ctor public OnChildViewHolderSelectedListener();
     method public void onChildViewHolderSelected(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder?, int, int);
     method public void onChildViewHolderSelectedAndPositioned(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder?, int, int);
-  }
-
-  public abstract class SpanSizeLookup extends androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup {
-    ctor public SpanSizeLookup();
-    method public int getSpanSize(int, int);
-    field public static final int FILL_ALL_SPANS = -2; // 0xfffffffe
-    field public static final int FILL_ALL_SPANS_AND_PADDINGS = -1; // 0xffffffff
-  }
-
-  public static final class SpanSizeLookup.DefaultSpanSizeLookup extends androidx.leanback.widget.SpanSizeLookup {
-    method public int getSpanSize(int);
-    field public static final androidx.leanback.widget.SpanSizeLookup.DefaultSpanSizeLookup INSTANCE;
   }
 
   public class VerticalGridView extends androidx.leanback.widget.BaseGridView {
