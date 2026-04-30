@@ -346,7 +346,8 @@ public class FontResourcesParserCompat {
             @NonNull String authority, @NonNull String pkg, @NonNull List<List<byte[]>> cert
     ) throws XmlPullParserException, IOException {
         AttributeSet attrs = Xml.asAttributeSet(parser);
-        try (TypedArray a = res.obtainAttributes(attrs, R.styleable.FontFamilyProviderFallback)) {
+        TypedArray a = res.obtainAttributes(attrs, R.styleable.FontFamilyProviderFallback);
+        try {
             final String query = a.getString(
                     R.styleable.FontFamilyProviderFallback_fontProviderQuery);
             final String systemFont = a.getString(
@@ -360,6 +361,8 @@ public class FontResourcesParserCompat {
                 skip(parser);
             }
             return new FontRequest(authority, pkg, query, cert, systemFont, variationSettings);
+        } finally {
+            a.recycle();
         }
     }
 
