@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window
+package androidx.lifecycle.viewmodel.internal
 
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.awt.ComposeDialog
-import androidx.compose.ui.awt.ComposePanel
-import androidx.compose.ui.awt.ComposeWindow
-import java.awt.Window
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 
-/**
- * Window-owner of the current composition (for example, [ComposeWindow] or [ComposeDialog]).
- * If the composition is not inside Window (for example, [ComposePanel]), then return null
- */
-internal val LocalWindow = compositionLocalOf<Window?> { null }
+internal actual object DefaultViewModelProviderFactory : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+        JvmViewModelProviders.createViewModel(modelClass)
+}

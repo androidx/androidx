@@ -23,8 +23,6 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMaxOfOrDefault
-import androidx.compose.ui.util.fastMaxOfOrNull
-import androidx.compose.ui.window.LocalWindow
 
 /**
  * Base layout for full-window Compose content.
@@ -34,7 +32,7 @@ internal fun WindowContentLayout(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    val window = requireNotNull(LocalWindow.current)
+    val window = requireNotNull(LocalAwtWindow.current)
     Layout(
         content = content,
         modifier = modifier,

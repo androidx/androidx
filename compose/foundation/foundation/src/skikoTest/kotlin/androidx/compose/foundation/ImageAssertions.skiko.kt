@@ -72,6 +72,24 @@ fun ImageBitmap.assertPixels(
 }
 
 /**
+ * Iterates over each pixel in the ImageBitmap and invokes the provided function for every pixel.
+ *
+ * @param handlePixel A function that is invoked for each pixel. It receives the color of the pixel
+ * and its position as parameters. The color is represented as a [Color] object, and the position
+ * is specified as an [IntOffset].
+ */
+fun ImageBitmap.forEachPixel(
+    handlePixel: (color: Color, position: IntOffset) -> Unit
+) {
+    val pixel = toPixelMap()
+    for (x in 0 until width) {
+        for (y in 0 until height) {
+            handlePixel(pixel[x, y], IntOffset(x, y))
+        }
+    }
+}
+
+/**
  * Asserts that the color at a specific pixel in the bitmap at ([x], [y]) is [expected].
  */
 fun PixelMap.assertPixelColor(

@@ -652,8 +652,11 @@ class ColorScheme(
     internal var defaultSuggestionChipColorsCached: ChipColors? = null
     internal var defaultElevatedSuggestionChipColorsCached: ChipColors? = null
     internal var defaultFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultTonalFilterChipColorsCached: SelectableChipColors? = null
     internal var defaultElevatedFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultTonalElevatedFilterChipColorsCached: SelectableChipColors? = null
     internal var defaultInputChipColorsCached: SelectableChipColors? = null
+    internal var defaultTonalInputChipColorsCached: SelectableChipColors? = null
 
     internal var defaultVerticalDragHandleColorsCached: DragHandleColors? = null
 
@@ -710,6 +713,9 @@ class ColorScheme(
 
     @OptIn(ExperimentalMaterial3Api::class)
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultScrollFieldColorsCached: ScrollFieldColors? = null
 
     @OptIn(ExperimentalMaterial3Api::class)
     internal var defaultRichTooltipColorsCached: RichTooltipColors? = null
@@ -1154,7 +1160,7 @@ fun ColorScheme.surfaceColorAtElevation(elevation: Dp): Color {
  *
  * @sample androidx.compose.material3.samples.MaterialExpressiveThemeColorSchemeSample
  */
-@ExperimentalMaterial3ExpressiveApi
+@Material3ExpressiveApi
 fun expressiveLightColorScheme() =
     lightColorScheme(
         // TODO: Replace palette references with color token references when available.

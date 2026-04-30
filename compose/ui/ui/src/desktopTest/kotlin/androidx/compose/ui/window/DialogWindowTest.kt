@@ -24,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.*
 import androidx.compose.ui.awt.ComposeDialog
+import androidx.compose.ui.awt.LocalAwtWindow
 import androidx.compose.ui.awt.SwingDialog
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -53,6 +54,7 @@ import javax.swing.JFrame
 import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.delay
 
 class DialogWindowTest {
@@ -826,6 +828,18 @@ class DialogWindowTest {
         DialogWindow(onCloseRequest = ::exitApplication) {
             content()
         }
+    }
+
+    @Test
+    fun dialogWindowComposableProvidesLocalAwtWindow() = runApplicationTest {
+        var localWindow: Window? = null
+        launchTestApplication {
+            DialogWindow(onCloseRequest = ::exitApplication) {
+                localWindow = LocalAwtWindow.current
+            }
+        }
+        awaitIdle()
+        assertNotNull(localWindow)
     }
 }
 

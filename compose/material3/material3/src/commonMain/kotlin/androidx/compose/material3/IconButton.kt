@@ -251,7 +251,7 @@ private fun IconButtonImpl(
                     enabled = enabled,
                     role = Role.Button,
                     interactionSource = interactionSource,
-                    indication = ripple(),
+                    indication = ripple(focusRingShape = shape),
                 )
                 .childSemantics(),
         contentAlignment = Alignment.Center,
@@ -456,7 +456,7 @@ private fun IconToggleButtonImpl(
                     enabled = enabled,
                     role = Role.Checkbox,
                     interactionSource = interactionSource,
-                    indication = ripple(),
+                    indication = ripple(focusRingShape = shape),
                 ),
         contentAlignment = Alignment.Center,
     ) {

@@ -21,12 +21,8 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.snap
-import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
-import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -49,6 +45,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.internal.BackEventCompat
 import androidx.compose.material3.internal.FloatProducer
+import androidx.compose.material3.internal.MaterialAnchoredDraggableDefaults
+import androidx.compose.material3.internal.MaterialAnchoredDraggableDefaults.materialAnchoredDraggable
+import androidx.compose.material3.internal.MaterialAnchoredDraggableState
 import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.internal.PredictiveBackHandler
 import androidx.compose.material3.internal.Strings
@@ -131,18 +130,14 @@ class DrawerState(
     internal val confirmStateChange: (DrawerValue) -> Boolean = { true },
 ) {
 
-    internal var anchoredDraggableMotionSpec: FiniteAnimationSpec<Float> =
-        AnchoredDraggableDefaultAnimationSpec
-
+    // TODO: Incorporate velocityThreshold into flingbehavior if possible.
     @Suppress("Deprecation")
     internal val anchoredDraggableState =
-        AnchoredDraggableState(
+        MaterialAnchoredDraggableState(
             initialValue = initialValue,
-            snapAnimationSpec = anchoredDraggableMotionSpec,
-            decayAnimationSpec = AnchoredDraggableDefaults.DecayAnimationSpec,
-            confirmValueChange = confirmStateChange,
             positionalThreshold = { distance: Float -> distance * DrawerPositionalThreshold },
             velocityThreshold = { with(requireDensity()) { DrawerVelocityThreshold.toPx() } },
+            confirmValueChange = confirmStateChange,
         )
 
     /** Whether the drawer is open. */
@@ -161,15 +156,11 @@ class DrawerState(
      * before the swipe or animation started.
      */
     val currentValue: DrawerValue
-        get() {
-            return anchoredDraggableState.settledValue
-        }
+        get() = anchoredDraggableState.currentValue
 
     /** Whether the state is currently animating. */
     val isAnimationRunning: Boolean
-        get() {
-            return anchoredDraggableState.isAnimationRunning
-        }
+        get() = anchoredDraggableState.isAnimationRunning
 
     /**
      * Open the drawer with animation and suspend until it if fully opened or animation has been
@@ -227,7 +218,8 @@ class DrawerState(
      * The current position (in pixels) of the drawer sheet, or Float.NaN before the offset is
      * initialized.
      *
-     * @see [AnchoredDraggableState.offset] for more information.
+     * @see [androidx.compose.foundation.gestures.AnchoredDraggableState#offset] for more
+     *   information.
      */
     @Deprecated(
         message =
@@ -245,7 +237,8 @@ class DrawerState(
      * The current position (in pixels) of the drawer sheet, or Float.NaN before the offset is
      * initialized.
      *
-     * @see [AnchoredDraggableState.offset] for more information.
+     * @see [androidx.compose.foundation.gestures.AnchoredDraggableState#offset] for more
+     *   information.
      */
     val currentOffset: Float
         get() = anchoredDraggableState.offset
@@ -269,20 +262,7 @@ class DrawerState(
         animationSpec: AnimationSpec<Float>,
         velocity: Float = anchoredDraggableState.lastVelocity,
     ) {
-        anchoredDraggableState.anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
-            val targetOffset = anchors.positionOf(latestTarget)
-            if (!targetOffset.isNaN()) {
-                var prev = if (currentOffset.isNaN()) 0f else currentOffset
-                animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
-                    // Our onDrag coerces the value within the bounds, but an animation may
-                    // overshoot, for example a spring animation or an overshooting interpolator
-                    // We respect the user's intention and allow the overshoot, but still use
-                    // DraggableState's drag for its mutex.
-                    dragTo(value, velocity)
-                    prev = value
-                }
-            }
-        }
+        anchoredDraggableState.animateTo(targetValue, animationSpec)
     }
 
     companion object {
@@ -357,7 +337,6 @@ fun ModalNavigationDrawer(
         drawerState.density = density
         drawerState.openDrawerMotionSpec = openMotion
         drawerState.closeDrawerMotionSpec = closeMotion
-        drawerState.anchoredDraggableMotionSpec = anchoredDraggableMotion
     }
 
     LaunchedEffect(drawerState.isOpen) {
@@ -367,15 +346,23 @@ fun ModalNavigationDrawer(
         }
     }
 
+    val anchoredDraggableFlingBehavior =
+        MaterialAnchoredDraggableDefaults.flingBehavior(
+            state = drawerState.anchoredDraggableState,
+            positionalThreshold = { distance: Float -> distance * DrawerPositionalThreshold },
+            animationSpec = anchoredDraggableMotion,
+        )
+
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Box(
         modifier
             .fillMaxSize()
-            .anchoredDraggable(
+            .materialAnchoredDraggable(
                 state = drawerState.anchoredDraggableState,
                 orientation = Orientation.Horizontal,
                 enabled = gesturesEnabled,
                 reverseDirection = isRtl,
+                flingBehavior = anchoredDraggableFlingBehavior,
             )
     ) {
         Box { content() }
@@ -518,7 +505,7 @@ fun DismissibleNavigationDrawer(
 
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Box(
-        modifier.anchoredDraggable(
+        modifier.materialAnchoredDraggable(
             state = drawerState.anchoredDraggableState,
             orientation = Orientation.Horizontal,
             enabled = gesturesEnabled,

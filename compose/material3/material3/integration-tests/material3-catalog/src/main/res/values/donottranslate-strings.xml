@@ -41,6 +41,8 @@
     <string name="color_mode" description=" Material 3 Color Mode. [CHAR_LIMIT=NONE]">Color mode</string>
     <string name="font_scale" description="Font scale. [CHAR_LIMIT=NONE]">Font scale</string>
     <string name="text_direction" description="Text direction. [CHAR_LIMIT=NONE]">Text direction</string>
+    <string name="focus_indication_style" description="Focus indication style. [CHAR_LIMIT=NONE]">Focus indication style</string>
+
     <string name="reset_all" description="Reset all. [CHAR_LIMIT=NONE]">Reset all</string>
 
     <string name="mark_expressive_components" description="Mark expressive components with an expressive banner. [CHAR_LIMIT=NONE]">Mark expressive components</string>

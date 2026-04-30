@@ -1,6 +1,6 @@
 ## General requirements
 
-- Java 17 (should be specified in JAVA_HOME)
+- Java 21 (should be specified in JAVA_HOME and in the IDE)
 - Android SDK downloaded from Android Studio and specified in `ANDROID_SDK_ROOT`
 - *(on Windows)* Git "symlinks" is enabled. Call `git config --global core.symlinks true` to set it globally. `core.symlinks` requires running git commands with admin priviligies, or with [Developer mode enabled](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode)
 

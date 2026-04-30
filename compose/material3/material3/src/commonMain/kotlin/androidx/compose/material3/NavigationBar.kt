@@ -292,10 +292,11 @@ fun RowScope.NavigationBarItem(
         // ripple, which is why they are separate composables
         val indicatorRipple =
             @Composable {
+                val shape = NavigationBarTokens.ItemActiveIndicatorShape.value
                 Box(
                     Modifier.layoutId(IndicatorRippleLayoutIdTag)
                         .clip(NavigationBarTokens.ItemActiveIndicatorShape.value)
-                        .indication(offsetInteractionSource, ripple())
+                        .indication(offsetInteractionSource, ripple(focusRingShape = shape))
                 )
             }
         val indicator =

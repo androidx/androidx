@@ -30,11 +30,11 @@ import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
 /**
- * Decoder to deserialize a SavedState of argument back into an object instance of type [T]
+ * Decoder to deserialize a SavedState of argument back into an object instance of given class type
  *
- * This decoder iterates through every class field (argument) in [T], retrieves the value for that
- * argument from the SavedState (or fallback to default value), then use the retrieved values to
- * re-create the object instance.
+ * This decoder iterates through every class field (argument) in the class type, retrieves the value
+ * for that argument from the SavedState (or fallback to default value), then use the retrieved
+ * values to re-create the object instance.
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal class RouteDecoder : AbstractDecoder {

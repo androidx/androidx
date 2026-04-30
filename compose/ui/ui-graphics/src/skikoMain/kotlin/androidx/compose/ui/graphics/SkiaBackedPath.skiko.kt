@@ -127,6 +127,7 @@ internal class SkiaBackedPath(
     private fun replacePath(path: SkPath) {
         // Keep the same SkPath instance alive so native callers can continue mutating it.
         internalSkiaPath.swap(path)
+        path.close()
         materializedGenerationId = internalSkiaPath.generationId
         currentFillMode = internalSkiaPath.fillMode
         pathBuilder.close()

@@ -17,10 +17,8 @@
 package androidx.compose.material3
 
 import android.os.Build
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.FocusInteraction
@@ -59,6 +57,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -80,6 +79,7 @@ import org.junit.runner.RunWith
     // color.
     maxSdkVersion = Build.VERSION_CODES.R,
 )
+@OptIn(ExperimentalMaterial3Api::class)
 class RippleTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
@@ -403,6 +403,7 @@ class RippleTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun rippleConfiguration_alpha_dragged() {
         val interactionSource = MutableInteractionSource()
@@ -479,6 +480,156 @@ class RippleTest {
         }
     }
 
+    @Test
+    fun insetFocusRing_focused() {
+        val interactionSource = MutableInteractionSource()
+
+        val outerColor = Color.Red
+        val innerColor = Color.Green
+
+        val scope =
+            rule.setRippleContent(
+                interactionSource = interactionSource,
+                bounded = true,
+                lightTheme = true,
+                contentColor = Color.Black,
+                rippleThemeConfiguration = RippleDefaults.InsetFocusRingRippleThemeConfiguration,
+                outerStrokeColor = outerColor,
+                innerStrokeColor = innerColor,
+            )
+
+        // Pause the clock
+        rule.mainClock.autoAdvance = false
+
+        // Start focus
+        rule.runOnIdle { scope.launch { interactionSource.emit(FocusInteraction.Focus()) } }
+
+        // Advance to the end of the animation
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        val bitmap = rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap()
+
+        // Use density to get pixel coordinates
+        val density = rule.density
+        val edgePx = with(density) { 51.dp.toPx().roundToInt() }
+        val innerPx = with(density) { 53.dp.toPx().roundToInt() }
+        val centerPx = with(density) { 70.dp.toPx().roundToInt() }
+
+        // Center pixel should be background color
+        Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+            .isEqualTo(RippleBoxBackgroundColor)
+
+        // Edge pixel should be outer stroke color
+        Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+
+        // Inner pixel should be inner stroke color
+        Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+    }
+
+    @Test
+    fun insetFocusRing_focused_defaultColors() {
+        val interactionSource = MutableInteractionSource()
+
+        val scope =
+            rule.setRippleContent(
+                interactionSource = interactionSource,
+                bounded = true,
+                lightTheme = true,
+                contentColor = Color.Black,
+                rippleThemeConfiguration = RippleDefaults.InsetFocusRingRippleThemeConfiguration,
+            )
+
+        // Pause the clock
+        rule.mainClock.autoAdvance = false
+
+        // Start focus
+        rule.runOnIdle { scope.launch { interactionSource.emit(FocusInteraction.Focus()) } }
+
+        // Advance to the end of the animation
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        val bitmap = rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap()
+
+        // Use density to get pixel coordinates
+        val density = rule.density
+        val edgePx = with(density) { 51.dp.toPx().roundToInt() }
+        val innerPx = with(density) { 53.dp.toPx().roundToInt() }
+        val centerPx = with(density) { 70.dp.toPx().roundToInt() }
+
+        val expectedOuterColor = lightColorScheme().secondary
+        val expectedInnerColor = lightColorScheme().onSecondary
+
+        // Center pixel should be background color
+        Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+            .isEqualTo(RippleBoxBackgroundColor)
+
+        // Edge pixel should be default secondary color
+        Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(expectedOuterColor)
+
+        // Inner pixel should be default onSecondary color
+        Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(expectedInnerColor)
+    }
+
+    @Test
+    fun rippleConfiguration_insetFocusRing_focused() {
+        val interactionSource = MutableInteractionSource()
+
+        val outerColor = Color.Red
+        val innerColor = Color.Green
+
+        val rippleConfiguration =
+            RippleConfiguration(focus = RippleConfiguration.Focus.InsetRing(outerColor, innerColor))
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalRippleThemeConfiguration provides
+                        RippleDefaults.InsetFocusRingRippleThemeConfiguration,
+                    LocalRippleConfiguration provides rippleConfiguration,
+                ) {
+                    Surface {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            RippleBoxWithBackground(interactionSource, ripple(), bounded = true)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Pause the clock
+        rule.mainClock.autoAdvance = false
+
+        // Start focus
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(FocusInteraction.Focus()) } }
+
+        // Advance to the end of the animation
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        val bitmap = rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap()
+
+        // Use density to get pixel coordinates
+        val density = rule.density
+        val edgePx = with(density) { 51.dp.toPx().roundToInt() }
+        val innerPx = with(density) { 53.dp.toPx().roundToInt() }
+        val centerPx = with(density) { 70.dp.toPx().roundToInt() }
+
+        // Center pixel should be background color
+        Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+            .isEqualTo(RippleBoxBackgroundColor)
+
+        // Edge pixel should be outer stroke color from configuration
+        Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+
+        // Inner pixel should be inner stroke color from configuration
+        Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+    }
+
     /**
      * Test case for changing RippleConfiguration during an existing ripple effect
      *
@@ -486,6 +637,7 @@ class RippleTest {
      * color of currently active ripples unless they are being drawn on the UI thread (which should
      * only happen if the target radius also changes).
      */
+    @Suppress("DEPRECATION")
     @Test
     fun rippleConfigurationChangeDuringRipple_dragged() {
         val interactionSource = MutableInteractionSource()
@@ -546,6 +698,7 @@ class RippleTest {
         }
 
         rule.runOnUiThread { rippleConfiguration = null }
+        rule.waitForIdle()
 
         with(rule.onNodeWithTag(Tag)) {
             val centerPixel =
@@ -706,7 +859,7 @@ private fun RippleBoxWithBackground(
                 Modifier.padding(25.dp)
                     .width(40.dp)
                     .height(40.dp)
-                    .border(BorderStroke(2.dp, Color.Black), shape)
+                    //                    .border(BorderStroke(2.dp, Color.Black), shape)
                     .background(color = RippleBoxBackgroundColor, shape = shape)
                     .then(clip)
                     .indication(interactionSource = interactionSource, indication = ripple)
@@ -723,23 +876,44 @@ private fun RippleBoxWithBackground(
  * @param bounded whether the ripple inside the [RippleBoxWithBackground] is bounded
  * @param lightTheme whether the theme is light or dark
  * @param contentColor the contentColor that will be used for the ripple color
+ * @param rippleThemeConfiguration the [RippleThemeConfiguration] to use
+ * @param outerStrokeColor the color to use for the outer stroke of an inset focus ring
+ * @param innerStrokeColor the color to use for the inner stroke of an inset focus ring
  */
+@OptIn(ExperimentalMaterial3Api::class)
 private fun ComposeContentTestRule.setRippleContent(
     interactionSource: MutableInteractionSource,
     bounded: Boolean,
     lightTheme: Boolean,
     contentColor: Color,
+    rippleThemeConfiguration: RippleThemeConfiguration? = null,
+    outerStrokeColor: Color = Color.Unspecified,
+    innerStrokeColor: Color = Color.Unspecified,
 ): CoroutineScope {
     var scope: CoroutineScope? = null
 
     setContent {
         scope = rememberCoroutineScope()
-        val colors = if (lightTheme) lightColorScheme() else darkColorScheme()
+        val baseColors = if (lightTheme) lightColorScheme() else darkColorScheme()
+        val colors =
+            baseColors.copy(
+                secondary =
+                    if (outerStrokeColor != Color.Unspecified) outerStrokeColor
+                    else baseColors.secondary,
+                onSecondary =
+                    if (innerStrokeColor != Color.Unspecified) innerStrokeColor
+                    else baseColors.onSecondary,
+            )
 
         MaterialTheme(colors) {
-            Surface(contentColor = contentColor) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    RippleBoxWithBackground(interactionSource, ripple(bounded), bounded)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    (rippleThemeConfiguration ?: RippleDefaults.ThemeConfiguration)
+            ) {
+                Surface(contentColor = contentColor) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        RippleBoxWithBackground(interactionSource, ripple(bounded), bounded)
+                    }
                 }
             }
         }

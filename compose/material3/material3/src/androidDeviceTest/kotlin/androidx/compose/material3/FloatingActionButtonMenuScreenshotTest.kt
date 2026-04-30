@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,8 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -106,6 +112,71 @@ class FloatingActionButtonMenuScreenshotTest {
             .onNodeWithTag(FabMenuTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "fabMenu_expanded_darkTheme")
+    }
+
+    @Test
+    fun fabMenu_expanded_secondItem_focused_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+                val items =
+                    listOf(
+                        Icons.Filled.Add to "Add",
+                        Icons.Filled.Build to "Build",
+                        Icons.Filled.Call to "Call",
+                    )
+
+                Box {
+                    Column(
+                        modifier = Modifier.testTag(FabMenuTestTag).align(Alignment.BottomEnd),
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        FloatingActionButtonMenu(
+                            modifier = Modifier.weight(weight = 1f, fill = false),
+                            expanded = true,
+                            button = {
+                                ToggleFloatingActionButton(checked = true, onCheckedChange = {}) {
+                                    Icon(Icons.Filled.Close, contentDescription = null)
+                                }
+                            },
+                        ) {
+                            items.forEachIndexed { index, item ->
+                                FloatingActionButtonMenuItem(
+                                    onClick = {},
+                                    icon = { Icon(item.first, contentDescription = null) },
+                                    text = { Text(text = item.second) },
+                                    modifier =
+                                        if (index == 1) Modifier.focusRequester(focusRequester)
+                                        else Modifier,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.waitForIdle()
+
+        rule
+            .onNodeWithTag(FabMenuTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "fabMenu_expanded_secondItem_focused_insetFocusRings",
+            )
     }
 
     @Test

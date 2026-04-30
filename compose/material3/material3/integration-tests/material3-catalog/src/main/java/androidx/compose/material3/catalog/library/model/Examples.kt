@@ -176,6 +176,7 @@ import androidx.compose.material3.samples.OutlinedButtonWithAnimatedShapeSample
 import androidx.compose.material3.samples.OutlinedCardSample
 import androidx.compose.material3.samples.OutlinedIconButtonSample
 import androidx.compose.material3.samples.OutlinedIconToggleButtonSample
+import androidx.compose.material3.samples.OutlinedIconToggleButtonWithAnimatedShapeSample
 import androidx.compose.material3.samples.OutlinedSplitButtonSample
 import androidx.compose.material3.samples.OutlinedTextFieldWithInitialValueAndSelection
 import androidx.compose.material3.samples.OutlinedToggleButtonSample
@@ -216,6 +217,7 @@ import androidx.compose.material3.samples.ScaffoldWithCustomSnackbar
 import androidx.compose.material3.samples.ScaffoldWithIndefiniteSnackbar
 import androidx.compose.material3.samples.ScaffoldWithMultilineSnackbar
 import androidx.compose.material3.samples.ScaffoldWithSimpleSnackbar
+import androidx.compose.material3.samples.ScrollFieldSample
 import androidx.compose.material3.samples.ScrollableHorizontalFloatingToolbarSample
 import androidx.compose.material3.samples.ScrollableVerticalFloatingToolbarSample
 import androidx.compose.material3.samples.ScrollingFancyIndicatorContainerTabs
@@ -278,6 +280,7 @@ import androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSuppor
 import androidx.compose.material3.samples.TimeInputSample
 import androidx.compose.material3.samples.TimePickerSample
 import androidx.compose.material3.samples.TimePickerSwitchableSample
+import androidx.compose.material3.samples.TimeScrollFieldSample
 import androidx.compose.material3.samples.TintedIconButtonSample
 import androidx.compose.material3.samples.ToggleButtonSample
 import androidx.compose.material3.samples.ToggleButtonWithIconSample
@@ -1579,6 +1582,14 @@ val IconButtonExamples =
             OutlinedIconToggleButtonSample()
         },
         Example(
+            name = "OutlinedIconToggleButtonWithAnimatedShapeSample",
+            description = IconButtonExampleDescription,
+            sourceUrl = IconButtonExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            OutlinedIconToggleButtonWithAnimatedShapeSample()
+        },
+        Example(
             name = "XSmallNarrowSquareIconButtonsSample",
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
@@ -2140,6 +2151,28 @@ val ToggleButtonsExamples =
             isExpressive = true,
         ) {
             XLargeToggleButtonWithIconSample()
+        },
+    )
+
+private const val ScrollFieldDescription = "Scroll field examples"
+private const val ScrollFieldSourceUrl = "$SampleSourceUrl/ScrollFieldSamples.kt"
+val ScrollFieldExamples =
+    listOf(
+        Example(
+            name = "ScrollFieldSample",
+            description = ScrollFieldDescription,
+            sourceUrl = ScrollFieldSourceUrl,
+            isExpressive = true,
+        ) {
+            ScrollFieldSample()
+        },
+        Example(
+            name = "TimeScrollFieldSample",
+            description = ScrollFieldDescription,
+            sourceUrl = ScrollFieldSourceUrl,
+            isExpressive = true,
+        ) {
+            TimeScrollFieldSample()
         },
     )
 

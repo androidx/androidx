@@ -16,14 +16,22 @@
 
 package androidx.compose.material3.internal
 
+import androidx.collection.IntList
+import androidx.collection.MutableIntList
+import androidx.compose.material3.DropdownMenuPopupPositionProvider
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MenuAnchorPosition
 import androidx.compose.material3.MenuHorizontalMargin
 import androidx.compose.material3.MenuVerticalMargin
 import androidx.compose.material3.internal.MenuPosition.Horizontal
 import androidx.compose.material3.internal.MenuPosition.Vertical
+import androidx.compose.material3.internal.MenuPosition.topToAnchorTop
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
@@ -31,6 +39,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.PopupPositionProvider
+import kotlin.text.compareTo
 
 /**
  * Interfaces for positioning a menu within a window. This is the same purpose as the interface
@@ -81,6 +90,20 @@ internal object MenuPosition {
         )
 
     /**
+     * Returns a [MenuPosition.Horizontal] which aligns the start of the menu to the end of the
+     * anchor.
+     *
+     * The given [offset] is [LayoutDirection]-aware. It will be added to the resulting x position
+     * for [LayoutDirection.Ltr] and subtracted for [LayoutDirection.Rtl].
+     */
+    fun startToAnchorEnd(offset: Int = 0): Horizontal =
+        AnchorAlignmentOffsetPosition.Horizontal(
+            menuAlignment = Alignment.Start,
+            anchorAlignment = Alignment.End,
+            offset = offset,
+        )
+
+    /**
      * Returns a [MenuPosition.Horizontal] which aligns the end of the menu to the end of the
      * anchor.
      *
@@ -91,6 +114,20 @@ internal object MenuPosition {
         AnchorAlignmentOffsetPosition.Horizontal(
             menuAlignment = Alignment.End,
             anchorAlignment = Alignment.End,
+            offset = offset,
+        )
+
+    /**
+     * Returns a [MenuPosition.Horizontal] which aligns the end of the menu to the start of the
+     * anchor.
+     *
+     * The given [offset] is [LayoutDirection]-aware. It will be added to the resulting x position
+     * for [LayoutDirection.Ltr] and subtracted for [LayoutDirection.Rtl].
+     */
+    fun endToAnchorStart(offset: Int = 0): Horizontal =
+        AnchorAlignmentOffsetPosition.Horizontal(
+            menuAlignment = Alignment.End,
+            anchorAlignment = Alignment.Start,
             offset = offset,
         )
 
@@ -132,6 +169,16 @@ internal object MenuPosition {
         )
 
     /**
+     * Returns a [MenuPosition.Vertical] which aligns the top of the menu to the top of the anchor.
+     */
+    fun topToAnchorTop(offset: Int = 0): Vertical =
+        AnchorAlignmentOffsetPosition.Vertical(
+            menuAlignment = Alignment.Top,
+            anchorAlignment = Alignment.Top,
+            offset = offset,
+        )
+
+    /**
      * Returns a [MenuPosition.Vertical] which aligns the bottom of the menu to the top of the
      * anchor.
      */
@@ -139,6 +186,17 @@ internal object MenuPosition {
         AnchorAlignmentOffsetPosition.Vertical(
             menuAlignment = Alignment.Bottom,
             anchorAlignment = Alignment.Top,
+            offset = offset,
+        )
+
+    /**
+     * Returns a [MenuPosition.Vertical] which aligns the bottom of the menu to the bottom of the
+     * anchor.
+     */
+    fun bottomToAnchorBottom(offset: Int = 0): Vertical =
+        AnchorAlignmentOffsetPosition.Vertical(
+            menuAlignment = Alignment.Bottom,
+            anchorAlignment = Alignment.Bottom,
             offset = offset,
         )
 
@@ -287,21 +345,28 @@ internal object WindowAlignmentMarginPosition {
 
 /** Calculates the position of a Material [androidx.compose.material3.DropdownMenu]. */
 @Immutable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal data class DropdownMenuPositionProvider(
+    override val transformOriginState: MutableState<TransformOrigin>,
     val contentOffset: DpOffset,
     val density: Density,
+    val dropdownMenuAnchorPosition: MenuAnchorPosition,
     val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
     val horizontalMargin: Int = with(density) { MenuHorizontalMargin.roundToPx() },
     val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> },
-) : PopupPositionProvider {
+) : DropdownMenuPopupPositionProvider {
     // Horizontal position
     private val startToAnchorStart: MenuPosition.Horizontal
+    private val endToAnchorStart: MenuPosition.Horizontal
     private val endToAnchorEnd: MenuPosition.Horizontal
+    private val startToAnchorEnd: MenuPosition.Horizontal
     private val leftToWindowLeft: MenuPosition.Horizontal
     private val rightToWindowRight: MenuPosition.Horizontal
     // Vertical position
     private val topToAnchorBottom: MenuPosition.Vertical
+    private val topToAnchorTop: MenuPosition.Vertical
     private val bottomToAnchorTop: MenuPosition.Vertical
+    private val bottomToAnchorBottom: MenuPosition.Vertical
     private val centerToAnchorTop: MenuPosition.Vertical
     private val topToWindowTop: MenuPosition.Vertical
     private val bottomToWindowBottom: MenuPosition.Vertical
@@ -310,13 +375,17 @@ internal data class DropdownMenuPositionProvider(
         // Horizontal position
         val contentOffsetX = with(density) { contentOffset.x.roundToPx() }
         startToAnchorStart = MenuPosition.startToAnchorStart(offset = contentOffsetX)
+        endToAnchorStart = MenuPosition.endToAnchorStart(offset = contentOffsetX)
         endToAnchorEnd = MenuPosition.endToAnchorEnd(offset = contentOffsetX)
+        startToAnchorEnd = MenuPosition.startToAnchorEnd(offset = contentOffsetX)
         leftToWindowLeft = MenuPosition.leftToWindowLeft(margin = horizontalMargin)
         rightToWindowRight = MenuPosition.rightToWindowRight(margin = horizontalMargin)
         // Vertical position
         val contentOffsetY = with(density) { contentOffset.y.roundToPx() }
         topToAnchorBottom = MenuPosition.topToAnchorBottom(offset = contentOffsetY)
+        topToAnchorTop = MenuPosition.topToAnchorTop(offset = contentOffsetY)
         bottomToAnchorTop = MenuPosition.bottomToAnchorTop(offset = contentOffsetY)
+        bottomToAnchorBottom = MenuPosition.bottomToAnchorBottom(offset = contentOffsetY)
         centerToAnchorTop = MenuPosition.centerToAnchorTop(offset = contentOffsetY)
         topToWindowTop = MenuPosition.topToWindowTop(margin = verticalMargin)
         bottomToWindowBottom = MenuPosition.bottomToWindowBottom(margin = verticalMargin)
@@ -328,6 +397,242 @@ internal data class DropdownMenuPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize,
     ): IntOffset {
+        return when (dropdownMenuAnchorPosition) {
+            is MenuAnchorPosition.Above ->
+                abovePosition(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    popupContentSize = popupContentSize,
+                    layoutDirection = layoutDirection,
+                )
+            is MenuAnchorPosition.Below ->
+                belowPosition(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    popupContentSize = popupContentSize,
+                    layoutDirection = layoutDirection,
+                )
+            is MenuAnchorPosition.Start ->
+                startPosition(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    popupContentSize = popupContentSize,
+                    layoutDirection = layoutDirection,
+                )
+            is MenuAnchorPosition.End ->
+                endPosition(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    popupContentSize = popupContentSize,
+                    layoutDirection = layoutDirection,
+                )
+            is MenuAnchorPosition.Left ->
+                leftPosition(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    popupContentSize = popupContentSize,
+                )
+            is MenuAnchorPosition.Right ->
+                rightPosition(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    popupContentSize = popupContentSize,
+                )
+            is MenuAnchorPosition.Custom ->
+                positioningLogic(
+                    dropdownMenuAnchorPosition.xCandidates(
+                        anchorBounds,
+                        windowSize,
+                        popupContentSize,
+                    ),
+                    dropdownMenuAnchorPosition.yCandidates(
+                        anchorBounds,
+                        windowSize,
+                        popupContentSize,
+                    ),
+                    anchorBounds,
+                    windowSize,
+                    popupContentSize,
+                )
+        }
+    }
+
+    private fun startPosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        popupContentSize: IntSize,
+        layoutDirection: LayoutDirection,
+    ): IntOffset {
+        val xCandidates =
+            listOf(
+                endToAnchorStart,
+                startToAnchorEnd,
+                if (anchorBounds.center.x < windowSize.width / 2) {
+                    leftToWindowLeft
+                } else {
+                    rightToWindowRight
+                },
+            )
+
+        val yCandidates =
+            listOf(
+                topToAnchorTop,
+                bottomToAnchorBottom,
+                if (anchorBounds.center.y < windowSize.height / 2) {
+                    topToWindowTop
+                } else {
+                    bottomToWindowBottom
+                },
+            )
+
+        return positioningLogic(
+            xValuesFromCandidates(
+                xCandidates,
+                anchorBounds,
+                windowSize,
+                popupContentSize,
+                layoutDirection,
+            ),
+            yValuesFromCandidates(yCandidates, anchorBounds, windowSize, popupContentSize),
+            anchorBounds,
+            windowSize,
+            popupContentSize,
+        )
+    }
+
+    private fun endPosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        popupContentSize: IntSize,
+        layoutDirection: LayoutDirection,
+    ): IntOffset {
+        val xCandidates =
+            listOf(
+                startToAnchorEnd,
+                endToAnchorStart,
+                if (anchorBounds.center.x < windowSize.width / 2) {
+                    leftToWindowLeft
+                } else {
+                    rightToWindowRight
+                },
+            )
+
+        val yCandidates =
+            listOf(
+                topToAnchorTop,
+                bottomToAnchorBottom,
+                if (anchorBounds.center.y < windowSize.height / 2) {
+                    topToWindowTop
+                } else {
+                    bottomToWindowBottom
+                },
+            )
+
+        return positioningLogic(
+            xValuesFromCandidates(
+                xCandidates,
+                anchorBounds,
+                windowSize,
+                popupContentSize,
+                layoutDirection,
+            ),
+            yValuesFromCandidates(yCandidates, anchorBounds, windowSize, popupContentSize),
+            anchorBounds,
+            windowSize,
+            popupContentSize,
+        )
+    }
+
+    private fun leftPosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        val xCandidates =
+            listOf(
+                endToAnchorStart,
+                startToAnchorEnd,
+                if (anchorBounds.center.x < windowSize.width / 2) {
+                    leftToWindowLeft
+                } else {
+                    rightToWindowRight
+                },
+            )
+
+        val yCandidates =
+            listOf(
+                topToAnchorTop,
+                bottomToAnchorBottom,
+                if (anchorBounds.center.y < windowSize.height / 2) {
+                    topToWindowTop
+                } else {
+                    bottomToWindowBottom
+                },
+            )
+
+        return positioningLogic(
+            xValuesFromCandidates(
+                xCandidates,
+                anchorBounds,
+                windowSize,
+                popupContentSize,
+                LayoutDirection.Ltr,
+            ),
+            yValuesFromCandidates(yCandidates, anchorBounds, windowSize, popupContentSize),
+            anchorBounds,
+            windowSize,
+            popupContentSize,
+        )
+    }
+
+    private fun rightPosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        val xCandidates =
+            listOf(
+                startToAnchorEnd,
+                endToAnchorStart,
+                if (anchorBounds.center.x < windowSize.width / 2) {
+                    leftToWindowLeft
+                } else {
+                    rightToWindowRight
+                },
+            )
+
+        val yCandidates =
+            listOf(
+                topToAnchorTop,
+                bottomToAnchorBottom,
+                if (anchorBounds.center.y < windowSize.height / 2) {
+                    topToWindowTop
+                } else {
+                    bottomToWindowBottom
+                },
+            )
+
+        return positioningLogic(
+            xValuesFromCandidates(
+                xCandidates,
+                anchorBounds,
+                windowSize,
+                popupContentSize,
+                LayoutDirection.Ltr,
+            ),
+            yValuesFromCandidates(yCandidates, anchorBounds, windowSize, popupContentSize),
+            anchorBounds,
+            windowSize,
+            popupContentSize,
+        )
+    }
+
+    private fun abovePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        popupContentSize: IntSize,
+        layoutDirection: LayoutDirection,
+    ): IntOffset {
         val xCandidates =
             listOf(
                 startToAnchorStart,
@@ -338,24 +643,50 @@ internal data class DropdownMenuPositionProvider(
                     rightToWindowRight
                 },
             )
-        var x = 0
-        for (index in xCandidates.indices) {
-            val xCandidate =
-                xCandidates[index].position(
-                    anchorBounds = anchorBounds,
-                    windowSize = windowSize,
-                    menuWidth = popupContentSize.width,
-                    layoutDirection = layoutDirection,
-                )
-            if (
-                index == xCandidates.lastIndex ||
-                    (xCandidate >= horizontalMargin &&
-                        xCandidate + popupContentSize.width <= windowSize.width - horizontalMargin)
-            ) {
-                x = xCandidate
-                break
-            }
-        }
+
+        val yCandidates =
+            listOf(
+                bottomToAnchorTop,
+                topToAnchorBottom,
+                centerToAnchorTop,
+                if (anchorBounds.center.y < windowSize.height / 2) {
+                    topToWindowTop
+                } else {
+                    bottomToWindowBottom
+                },
+            )
+
+        return positioningLogic(
+            xValuesFromCandidates(
+                xCandidates,
+                anchorBounds,
+                windowSize,
+                popupContentSize,
+                layoutDirection,
+            ),
+            yValuesFromCandidates(yCandidates, anchorBounds, windowSize, popupContentSize),
+            anchorBounds,
+            windowSize,
+            popupContentSize,
+        )
+    }
+
+    private fun belowPosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        popupContentSize: IntSize,
+        layoutDirection: LayoutDirection,
+    ): IntOffset {
+        val xCandidates =
+            listOf(
+                startToAnchorStart,
+                endToAnchorEnd,
+                if (anchorBounds.center.x < windowSize.width / 2) {
+                    leftToWindowLeft
+                } else {
+                    rightToWindowRight
+                },
+            )
 
         val yCandidates =
             listOf(
@@ -368,14 +699,46 @@ internal data class DropdownMenuPositionProvider(
                     bottomToWindowBottom
                 },
             )
+
+        return positioningLogic(
+            xValuesFromCandidates(
+                xCandidates,
+                anchorBounds,
+                windowSize,
+                popupContentSize,
+                layoutDirection,
+            ),
+            yValuesFromCandidates(yCandidates, anchorBounds, windowSize, popupContentSize),
+            anchorBounds,
+            windowSize,
+            popupContentSize,
+        )
+    }
+
+    private fun positioningLogic(
+        xCandidates: IntList,
+        yCandidates: IntList,
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        popupContentSize: IntSize,
+    ): IntOffset {
+
+        var x = 0
+        for (index in xCandidates.indices) {
+            val xCandidate = xCandidates[index]
+            if (
+                index == xCandidates.lastIndex ||
+                    (xCandidate >= horizontalMargin &&
+                        xCandidate + popupContentSize.width <= windowSize.width - horizontalMargin)
+            ) {
+                x = xCandidate
+                break
+            }
+        }
+
         var y = 0
         for (index in yCandidates.indices) {
-            val yCandidate =
-                yCandidates[index].position(
-                    anchorBounds = anchorBounds,
-                    windowSize = windowSize,
-                    menuHeight = popupContentSize.height,
-                )
+            val yCandidate = yCandidates[index]
             if (
                 index == yCandidates.lastIndex ||
                     (yCandidate >= verticalMargin &&
@@ -387,10 +750,47 @@ internal data class DropdownMenuPositionProvider(
         }
 
         val menuOffset = IntOffset(x, y)
-        onPositionCalculated(
-            /* anchorBounds = */ anchorBounds,
-            /* menuBounds = */ IntRect(offset = menuOffset, size = popupContentSize),
-        )
+        onPositionCalculated(anchorBounds, IntRect(offset = menuOffset, size = popupContentSize))
         return menuOffset
+    }
+
+    private fun xValuesFromCandidates(
+        xCandidates: List<Horizontal>,
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        popupContentSize: IntSize,
+        layoutDirection: LayoutDirection,
+    ): IntList {
+        val xCandidatesMapped = MutableIntList(xCandidates.size)
+        for (i in 0 until xCandidates.size) {
+            xCandidatesMapped.add(
+                xCandidates[i].position(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    menuWidth = popupContentSize.width,
+                    layoutDirection = layoutDirection,
+                )
+            )
+        }
+        return xCandidatesMapped
+    }
+
+    private fun yValuesFromCandidates(
+        yCandidates: List<Vertical>,
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        popupContentSize: IntSize,
+    ): IntList {
+        val yCandidatesMapped = MutableIntList(yCandidates.size)
+        for (i in 0 until yCandidates.size) {
+            yCandidatesMapped.add(
+                yCandidates[i].position(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    menuHeight = popupContentSize.height,
+                )
+            )
+        }
+        return yCandidatesMapped
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.viewmodel.internal
+package androidx.compose.foundation.text.selection
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.CreationExtras
-import kotlin.reflect.KClass
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.unit.Density
 
-internal actual object DefaultViewModelProviderFactory : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T =
-        JvmViewModelProviders.createViewModel(modelClass.java)
-}
+internal actual fun PlatformSelectionHandleShape(
+    density: Density,
+    cursor: Rect,
+    isStartHandler: Boolean,
+): SelectionHandleShape = DefaultSelectionHandleShape(density, cursor, isStartHandler)

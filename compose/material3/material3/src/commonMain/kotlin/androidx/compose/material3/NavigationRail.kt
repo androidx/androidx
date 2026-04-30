@@ -305,7 +305,10 @@ fun NavigationRailItem(
                 Box(
                     Modifier.layoutId(IndicatorRippleLayoutIdTag)
                         .clip(indicatorShape)
-                        .indication(offsetInteractionSource, ripple())
+                        .indication(
+                            offsetInteractionSource,
+                            ripple(focusRingShape = indicatorShape),
+                        )
                 )
             }
         val indicator =
