@@ -5,12 +5,15 @@ package androidx.navigationevent.testing {
     ctor public TestNavigationEventDispatcherOwner();
     ctor @BytecodeOnly public TestNavigationEventDispatcherOwner(kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public TestNavigationEventDispatcherOwner(optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventDispatcherOwner,kotlin.Unit> onBackCompletedFallback);
+    ctor public TestNavigationEventDispatcherOwner(kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventDispatcherOwner,kotlin.Unit> onForwardCompletedFallback, kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventDispatcherOwner,kotlin.Unit> onBackCompletedFallback);
     method @InaccessibleFromKotlin public androidx.navigationevent.NavigationEventDispatcher getNavigationEventDispatcher();
     method @InaccessibleFromKotlin public androidx.navigationevent.DirectNavigationEventInput getNavigationEventInput();
     method @InaccessibleFromKotlin public int getOnBackCompletedFallbackInvocations();
+    method @InaccessibleFromKotlin public int getOnForwardCompletedFallbackInvocations();
     property public androidx.navigationevent.NavigationEventDispatcher navigationEventDispatcher;
     property public androidx.navigationevent.DirectNavigationEventInput navigationEventInput;
     property public int onBackCompletedFallbackInvocations;
+    property public int onForwardCompletedFallbackInvocations;
   }
 
   public final class TestNavigationEventHandler<T extends androidx.navigationevent.NavigationEventInfo> extends androidx.navigationevent.NavigationEventHandler<T> {
