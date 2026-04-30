@@ -21,6 +21,7 @@ import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -398,6 +399,40 @@ class CardScreenshotTest {
     }
 
     @Test
+    fun filledCard_focused_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+                Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
+                    Card(
+                        onClick = {},
+                        Modifier.size(width = 180.dp, height = 100.dp)
+                            .focusRequester(focusRequester),
+                    ) {
+                        Box(Modifier.fillMaxSize()) {
+                            Text("Filled Card", Modifier.align(Alignment.Center))
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+        rule.waitForIdle()
+
+        assertAgainstGolden("filledCard_focused_insetFocusRings")
+    }
+
+    @Test
     fun elevatedCard_focused() {
         val focusRequester = FocusRequester()
         var localInputModeManager: InputModeManager? = null
@@ -425,6 +460,40 @@ class CardScreenshotTest {
     }
 
     @Test
+    fun elevatedCard_focused_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+                Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
+                    ElevatedCard(
+                        onClick = {},
+                        Modifier.size(width = 180.dp, height = 100.dp)
+                            .focusRequester(focusRequester),
+                    ) {
+                        Box(Modifier.fillMaxSize()) {
+                            Text("Elevated Card", Modifier.align(Alignment.Center))
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+        rule.waitForIdle()
+
+        assertAgainstGolden("elevatedCard_focused_insetFocusRings")
+    }
+
+    @Test
     fun outlinedCard_focused() {
         val focusRequester = FocusRequester()
         var localInputModeManager: InputModeManager? = null
@@ -449,6 +518,40 @@ class CardScreenshotTest {
         rule.waitForIdle()
 
         assertAgainstGolden("outlinedCard_focused")
+    }
+
+    @Test
+    fun outlinedCard_focused_insetFocusRings() {
+        val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                localInputModeManager = LocalInputModeManager.current
+                Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
+                    OutlinedCard(
+                        onClick = {},
+                        Modifier.size(width = 180.dp, height = 100.dp)
+                            .focusRequester(focusRequester),
+                    ) {
+                        Box(Modifier.fillMaxSize()) {
+                            Text("Outlined Card", Modifier.align(Alignment.Center))
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
+            focusRequester.requestFocus()
+        }
+        rule.waitForIdle()
+
+        assertAgainstGolden("outlinedCard_focused_insetFocusRings")
     }
 
     private fun assertPressed(goldenName: String) {

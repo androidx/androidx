@@ -44,7 +44,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)

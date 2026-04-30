@@ -154,6 +154,7 @@ fun DropdownMenu(
  * @param properties [PopupProperties] for further customization of this popup's behavior
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 actual fun DropdownMenu(
     expanded: Boolean,
@@ -177,9 +178,13 @@ actual fun DropdownMenu(
         val density = LocalDensity.current
         val popupPositionProvider =
             remember(offset, density) {
-                DropdownMenuPositionProvider(offset, density, horizontalMargin = 0) {
-                        parentBounds,
-                        menuBounds ->
+                DropdownMenuPositionProvider(
+                    transformOriginState = transformOriginState,
+                    contentOffset = offset,
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                    horizontalMargin = 0
+                ) { parentBounds, menuBounds ->
                     transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
                 }
             }
@@ -231,7 +236,12 @@ actual fun DropdownMenuPopup(
         val density = LocalDensity.current
         val popupPositionProvider =
             remember(offset, density) {
-                DropdownMenuPositionProvider(offset, density) { parentBounds, menuBounds ->
+                DropdownMenuPositionProvider(
+                    transformOriginState = transformOriginState,
+                    contentOffset = offset,
+                    density = density,
+                    dropdownMenuAnchorPosition = MenuAnchorPosition.Below,
+                ) { parentBounds, menuBounds ->
                     transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
                 }
             }

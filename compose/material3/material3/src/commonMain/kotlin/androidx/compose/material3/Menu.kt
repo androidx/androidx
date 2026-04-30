@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.collection.IntList
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -85,9 +86,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import kotlin.math.max
 import kotlin.math.min
@@ -187,6 +190,7 @@ expect fun DropdownMenu(
  * @param properties [PopupProperties] for further customization of this popup's behavior.
  * @param content the content of this dropdown menu.
  */
+@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @ExperimentalMaterial3ExpressiveApi
 @Composable
 expect fun DropdownMenuPopup(
@@ -201,6 +205,65 @@ expect fun DropdownMenuPopup(
 /**
  * [Material Design dropdown menu](https://m3.material.io/components/menus/overview)
  *
+ * A [Popup] that provides the foundation for building a custom menu.
+ *
+ * ![Dropdown menu
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/exposed-dropdown-menu-selectable-items.png)
+ *
+ * This composable provides the [Popup] and layout behavior for a menu. This is useful for building
+ * custom menus that require different content arrangements or styling than the default
+ * [DropdownMenu].
+ *
+ * Example usage:
+ *
+ * @sample androidx.compose.material3.samples.GroupedMenuSample
+ *
+ * Example usage of cascading menus:
+ *
+ * @sample androidx.compose.material3.samples.MenuWithCascadingMenusSample
+ * @param expanded whether the menu is expanded or not.
+ * @param onDismissRequest called when the user requests to dismiss the menu, such as by tapping
+ *   outside the menu's bounds.
+ * @param modifier [Modifier] to be applied to the menu's content.
+ * @param popupPositionProvider [DropdownMenuPopupPositionProvider] to be used to position the menu.
+ * @param offset [DpOffset] from the original position of the menu.
+ * @param properties [PopupProperties] for further customization of this popup's behavior.
+ * @param content the content of this dropdown menu.
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun DropdownMenuPopup(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    popupPositionProvider: DropdownMenuPopupPositionProvider =
+        MenuDefaults.rememberDropdownMenuPopupPositionProvider(MenuAnchorPosition.Below),
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    properties: PopupProperties = DefaultMenuProperties,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val expandedState = remember { MutableTransitionState(false) }
+    expandedState.targetState = expanded
+    if (expandedState.currentState || expandedState.targetState) {
+        DropdownMenuPopupImpl(
+            onDismissRequest = onDismissRequest,
+            popupPositionProvider = popupPositionProvider,
+            properties = properties,
+            content = {
+                DropdownMenuPopupContent(
+                    modifier = modifier,
+                    expandedState = expandedState,
+                    transformOriginState = popupPositionProvider.transformOriginState,
+                    content = content,
+                )
+            },
+        )
+    }
+}
+
+/**
+ * [Material Design dropdown menu](https://m3.material.io/components/menus/overview)
+ *
  * A composable for creating a visually distinct group within a [DropdownMenuPopup].
  *
  * This component adds additional styling to [content]. It's used to group related menu items.
@@ -211,6 +274,10 @@ expect fun DropdownMenuPopup(
  * Example usage:
  *
  * @sample androidx.compose.material3.samples.GroupedMenuSample
+ *
+ * Example usage of cascading menus:
+ *
+ * @sample androidx.compose.material3.samples.MenuWithCascadingMenusSample
  * @param shapes the [MenuGroupShapes] of the menu group. The shapes provided should be determined
  *   by the number of groups in the menu as well as the group's position in the menu. There is a
  *   convenience function that can be used to easily determine the shape to be used at
@@ -1036,6 +1103,98 @@ class MenuGroupShapes(val shape: Shape, val inactiveShape: Shape) {
     }
 }
 
+/**
+ * Interface that determines the position of a menu relative to its anchor.
+ *
+ * This allows selecting between standard positioning strategies (such as [Above], [Below], [Start],
+ * [End], [Left], [Right]) or providing a [Custom] implementation for complex positioning logic.
+ */
+@Stable
+@ExperimentalMaterial3ExpressiveApi
+sealed interface MenuAnchorPosition {
+    /** Positions the menu vertically above the anchor. */
+    object Above : MenuAnchorPosition
+
+    /** Positions the menu vertically below the anchor. */
+    object Below : MenuAnchorPosition
+
+    /** Positions the menu to the absolute left of the anchor. */
+    object Left : MenuAnchorPosition
+
+    /** Positions the menu to the absolute right of the anchor. */
+    object Right : MenuAnchorPosition
+
+    /** Positions the menu at the start of the anchor, adhering to the layout direction. */
+    object Start : MenuAnchorPosition
+
+    /** Positions the menu at the end of the anchor, adhering to the layout direction. */
+    object End : MenuAnchorPosition
+
+    /**
+     * A custom positioning strategy
+     *
+     * This allows for dynamic positioning logic that can adapt to the anchor's location on screen,
+     * the available window space, and the size of the menu content.
+     *
+     * Please adjust [xCandidates] and [yCandidates] to the current [LayoutDirection] if needed.
+     *
+     * @property xCandidates A lambda that calculates a list of preferred X (horizontal)
+     *   coordinates. The system will iterate through these candidates to find the best fit within
+     *   the window bounds. The lambda receives: `anchorBounds`: The position and size of the anchor
+     *   element in window coordinates. `windowSize`: The total available size of the window/screen.
+     *   `menuSize`: The measured size of the menu content.
+     * @property yCandidates A lambda that calculates a list of preferred Y (vertical) coordinates.
+     *   The system will iterate through these candidates to find the best fit within the window
+     *   bounds. The lambda receives: `anchorBounds`: The position and size of the anchor element in
+     *   window coordinates. `windowSize`: The total available size of the window/screen.
+     *   `menuSize`: The measured size of the menu content.
+     */
+    @Immutable
+    class Custom(
+        val xCandidates: (anchorBounds: IntRect, windowSize: IntSize, menuSize: IntSize) -> IntList,
+        val yCandidates: (anchorBounds: IntRect, windowSize: IntSize, menuSize: IntSize) -> IntList,
+    ) : MenuAnchorPosition {
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Custom) return false
+
+            if (xCandidates !== other.xCandidates) return false
+            if (yCandidates !== other.yCandidates) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = xCandidates.hashCode()
+            result = 31 * result + yCandidates.hashCode()
+            return result
+        }
+    }
+}
+
+/**
+ * [PopupPositionProvider] that communicates the [TransformOrigin] to dropdown menu's
+ * implementation.
+ */
+@ExperimentalMaterial3ExpressiveApi
+interface DropdownMenuPopupPositionProvider : PopupPositionProvider {
+    val transformOriginState: MutableState<TransformOrigin>
+}
+
+/**
+ * The implementation of the popup. This allows desktop versions to listen to key events and
+ * communicate it to their popup.
+ */
+@Composable
+@ExperimentalMaterial3ExpressiveApi
+internal expect fun DropdownMenuPopupImpl(
+    onDismissRequest: () -> Unit,
+    popupPositionProvider: DropdownMenuPopupPositionProvider,
+    properties: PopupProperties,
+    content: @Composable () -> Unit,
+)
+
 @Composable
 internal fun DropdownMenuContent(
     modifier: Modifier,
@@ -1094,6 +1253,45 @@ internal fun DropdownMenuContent(
             content = content,
         )
     }
+}
+
+@Composable
+internal fun DropdownMenuPopupContent(
+    modifier: Modifier,
+    expandedState: MutableTransitionState<Boolean>,
+    transformOriginState: MutableState<TransformOrigin>,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    // Menu open/close animation.
+    @Suppress("DEPRECATION") val transition = updateTransition(expandedState, "DropDownMenu")
+    // TODO Load the motionScheme tokens from the component tokens file
+    val scaleAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
+    val alphaAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
+    val scale by
+        transition.animateFloat(transitionSpec = { scaleAnimationSpec }) { expanded ->
+            if (expanded) ExpandedScaleTarget else ClosedScaleTarget
+        }
+    val alpha by
+        transition.animateFloat(transitionSpec = { alphaAnimationSpec }) { expanded ->
+            if (expanded) ExpandedAlphaTarget else ClosedAlphaTarget
+        }
+    val isInspecting = LocalInspectionMode.current
+    Column(
+        modifier =
+            modifier.width(IntrinsicSize.Max).graphicsLayer {
+                scaleX =
+                    if (!isInspecting) scale
+                    else if (expandedState.targetState) ExpandedScaleTarget else ClosedScaleTarget
+                scaleY =
+                    if (!isInspecting) scale
+                    else if (expandedState.targetState) ExpandedScaleTarget else ClosedScaleTarget
+                this.alpha =
+                    if (!isInspecting) alpha
+                    else if (expandedState.targetState) ExpandedAlphaTarget else ClosedAlphaTarget
+                transformOrigin = transformOriginState.value
+            },
+        content = content,
+    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
