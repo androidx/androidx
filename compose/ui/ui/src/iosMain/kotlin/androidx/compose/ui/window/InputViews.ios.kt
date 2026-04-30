@@ -56,7 +56,6 @@ import platform.UIKit.UIGestureRecognizerStateChanged
 import platform.UIKit.UIGestureRecognizerStateEnded
 import platform.UIKit.UIGestureRecognizerStateFailed
 import platform.UIKit.UIGestureRecognizerStatePossible
-import platform.UIKit.UIHoverGestureRecognizer
 import platform.UIKit.UIPanGestureRecognizer
 import platform.UIKit.UIPressesEvent
 import platform.UIKit.UIScreenEdgePanGestureRecognizer
@@ -661,7 +660,7 @@ internal class OverlayInputView(
             return null
         }
         val nativeTextInputViewHitTest = subviews.firstNotNullOfOrNull { it ->
-            (it as? IntermediateTextScrollView)?.let {
+            (it as? NativeTextInputScrollView)?.let {
                 val inputPoint = convertPoint(point, toView = it)
                 it.hitTest(inputPoint, withEvent)
             }
@@ -819,7 +818,7 @@ private fun UIView.findAncestorInteractionMode(touch: UITouch): UIKitInteropInte
         if (view is InteropWrappingView) {
             return view.interactionMode
         }
-        if (view is IntermediateTextScrollView) {
+        if (view is NativeTextInputScrollView) {
             return view.interactionModeAt(touch.locationInView(view))
         }
         view = view.superview

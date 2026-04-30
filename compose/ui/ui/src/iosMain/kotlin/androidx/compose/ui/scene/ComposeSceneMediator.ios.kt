@@ -369,7 +369,7 @@ internal class ComposeSceneMediator(
 
     private val textInputService: UIKitTextInputService by lazy {
         UIKitTextInputService(
-            updateView = {
+            updateView = { usingNativeTextInput ->
                 if (usingNativeTextInput) {
                     // Too heavy method for this purpose
                     // we actually do not need to re-render the scene -
@@ -614,7 +614,7 @@ internal class ComposeSceneMediator(
         CompositionLocalProvider(
             LocalInteropContainer provides interopContainer,
             LocalUIView provides _overlayView,
-            LocalNativeTextInputContext provides textInputService,
+            LocalNativeTextInputContext provides textInputService.nativeTextInputContext,
             content = content
         )
 
@@ -732,7 +732,7 @@ internal class ComposeSceneMediator(
         override val viewConfiguration get() = this@ComposeSceneMediator.viewConfiguration
         override val inputModeManager = DefaultInputModeManager(InputMode.Touch)
         override val textInputService get() = this@ComposeSceneMediator.textInputService
-        override val textToolbar get() = this@ComposeSceneMediator.textInputService
+        override val textToolbar get() = this@ComposeSceneMediator.textInputService.textToolbar
         override val semanticsOwnerListener get() = this@ComposeSceneMediator.semanticsOwnerListener
         override val dragAndDropManager get() = this@ComposeSceneMediator.dragAndDropManager
         override val windowInsets get() = this@ComposeSceneMediator.windowInsetsManager.windowInsets
@@ -762,24 +762,17 @@ internal class ComposeSceneMediator(
                 }
                 launch {
                     snapshotFlow {
-                        Triple(
+                        Pair(
                             request.textFieldRectInRoot(),
-                            request.textClippingRectInRoot(),
                             request.unclippedTextOffsetInRoot()
                         )
-                    }.collect { (textFieldRect, clippingRect, unclippedTextOffset) ->
-                        if (textFieldRect != null && clippingRect != null && unclippedTextOffset != null) {
+                    }.collect { (textFieldRect, unclippedTextOffset) ->
+                        if (textFieldRect != null && unclippedTextOffset != null) {
                             textInputService.updateTextFieldGeometry(
                                 textFieldFrame = textFieldRect,
-                                clippingTextFrame = clippingRect,
                                 unclippedTextPosition = unclippedTextOffset
                             )
                         }
-                    }
-                }
-                launch {
-                    snapshotFlow { request.focusedRectInRoot() }.filterNotNull().collect {
-                        textInputService.updateFocusedRect(it)
                     }
                 }
                 suspendCancellableCoroutine<Nothing> { continuation ->

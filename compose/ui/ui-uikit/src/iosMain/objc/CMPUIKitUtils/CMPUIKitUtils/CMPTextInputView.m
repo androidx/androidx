@@ -125,4 +125,24 @@
     CMP_ABSTRACT_FUNCTION_CALLED
 }
 
+- (void)activateTextInputInteractionIfNeeded {
+    if (@available(iOS 17, *)) {
+        for (id<UIInteraction> interaction in self.interactions) {
+            if ([interaction isKindOfClass:[UITextSelectionDisplayInteraction class]]) {
+                [((UITextSelectionDisplayInteraction *)interaction) setActivated:YES];
+            }
+        }
+    }
+}
+
+- (void)deactivateTextInputInteractionIfNeeded {
+    if (@available(iOS 17, *)) {
+        for (id<UIInteraction> interaction in self.interactions) {
+            if ([interaction isKindOfClass:[UITextSelectionDisplayInteraction class]]) {
+                [((UITextSelectionDisplayInteraction *)interaction) setActivated:NO];
+            }
+        }
+    }
+}
+
 @end

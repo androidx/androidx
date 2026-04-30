@@ -26,4 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                 atCharacterOffset:(NSInteger)offset CMP_ABSTRACT_FUNCTION;
 NS_ASSUME_NONNULL_END
 
+- (void)activateTextInputInteractionIfNeeded;
+
+- (void)deactivateTextInputInteractionIfNeeded;
+
 @end

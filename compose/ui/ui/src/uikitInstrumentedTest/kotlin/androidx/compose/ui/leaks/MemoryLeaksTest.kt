@@ -38,7 +38,7 @@ import androidx.compose.ui.test.waitForIdle
 import androidx.compose.ui.uikit.embedSubview
 import androidx.compose.ui.window.ComposeUIViewController
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.IntermediateTextInputUIView
+import androidx.compose.ui.window.ComposeTextInputView
 import kotlin.native.runtime.GC
 import kotlin.native.runtime.NativeRuntimeApi
 import kotlin.test.AfterTest
@@ -552,7 +552,7 @@ class MemoryLeaksTest {
 
     @OptIn(ExperimentalForeignApi::class)
     private fun startFakeTextInputSession(useNativeInput: Boolean = false) {
-        val input = IntermediateTextInputUIView(0, useNativeInput, coroutineScope = mainScope)
+        val input = ComposeTextInputView(0, coroutineScope = mainScope)
         UIApplication.sharedApplication.keyWindow?.rootViewController?.view?.addSubview(input)
         input.setFrame(CGRectMake(0.0, 0.0, 100.0, 100.0))
         input.becomeFirstResponder()

@@ -16,12 +16,10 @@
 
 #import <UIKit/UIKit.h>
 #import "CMPEditMenuCustomAction.h"
-#import "CMPTextInputView.h"
 
-@interface CMPEditMenuView : CMPTextInputView
+@interface CMPEditMenuView : UIView
 
 @property (readonly) BOOL isEditMenuShown;
-@property (readonly) BOOL shouldUseNonComposeMenuActions;
 
 - (void)showEditMenuAtRect:(CGRect)targetRect
                       copy:(void (^)(void))copyBlock
@@ -43,9 +41,5 @@
 - (UIView *)inputView;
 
 - (UIView *)inputAccessoryView;
-
-- (void)activateTextInputInteractionIfNeeded;
-
-- (void)deactivateTextInputInteractionIfNeeded;
 
 @end
