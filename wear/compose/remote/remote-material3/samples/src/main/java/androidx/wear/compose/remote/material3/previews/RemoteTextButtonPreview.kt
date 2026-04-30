@@ -36,6 +36,7 @@ import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.RemoteTextButton
 import androidx.wear.compose.remote.material3.RemoteTextButtonDefaults
+import androidx.wear.compose.remote.material3.previews.utils.ProfilePreviewParameterProvider
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Composable
