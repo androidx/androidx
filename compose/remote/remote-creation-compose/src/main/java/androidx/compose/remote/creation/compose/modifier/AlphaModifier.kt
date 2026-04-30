@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 /**
  * Draw content with modified alpha that may be less than 1.
  *
+ * @sample androidx.compose.remote.creation.compose.samples.AlphaSample
  * @param alpha the fraction of children's alpha value and must be between `0` and `1`, inclusive.
  * @see graphicsLayer
  */

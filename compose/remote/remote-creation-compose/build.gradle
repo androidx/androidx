@@ -29,6 +29,7 @@ androidx {
     description = "Provides a compose API to create RemoteCompose documents"
     enableRobolectric()
     addGoldenImageAssets()
+    samples(project(":compose:remote:remote-creation-compose-samples"))
 }
 
 android {
@@ -88,5 +89,6 @@ dependencies {
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":compose:remote:remote-creation-compose-samples"))
     androidTestImplementation("org.jetbrains.kotlin:kotlin-reflect")
 }
