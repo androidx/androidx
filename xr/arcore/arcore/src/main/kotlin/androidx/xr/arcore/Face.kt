@@ -182,7 +182,7 @@ internal constructor(
     /**
      * The representation of the current state of [Face].
      *
-     * @property trackingState the current [androidx.xr.runtime.TrackingState] of the face
+     * @property trackingState the current [androidx.xr.arcore.TrackingState] of the face
      * @property owner self-reference to the object that owns this state.
      */
     public class State

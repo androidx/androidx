@@ -38,7 +38,7 @@ internal constructor(internal val runtimeAugmentedImage: RuntimeAugmentedImage) 
         /**
          * Emits the augmented images that are currently being tracked in the [session]
          *
-         * Only instances of [AugmentedImage] that are [androidx.xr.runtime.TrackingState.TRACKING]
+         * Only instances of [AugmentedImage] that are [androidx.xr.arcore.TrackingState.TRACKING]
          * will be emitted in the [Collection]. Instances of the same [AugmentedImage] will remain
          * between subsequent emits to the [StateFlow] as long as they remain tracking
          *

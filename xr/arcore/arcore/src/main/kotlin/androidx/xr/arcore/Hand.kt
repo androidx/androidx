@@ -131,7 +131,7 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
      * respectively. The order of the joints within the array follows the order in which the joints
      * are defined in [HandJointType].
      *
-     * @property trackingState the current [androidx.xr.runtime.TrackingState] of the hand
+     * @property trackingState the current [androidx.xr.arcore.TrackingState] of the hand
      * @property handJointsBuffer the [FloatBuffer] containing the current state of the hand
      * @property handJoints a map of [HandJointType] to [Pose] representing the current pose of each
      *   joint in the hand

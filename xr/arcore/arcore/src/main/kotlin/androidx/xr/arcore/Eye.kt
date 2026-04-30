@@ -93,7 +93,7 @@ public class Eye internal constructor(internal val runtimeEye: RuntimeEye) :
      *
      * @property isOpen a flag indicating whether the eye is open
      * @property pose the [Pose] of the eye
-     * @property trackingState the [androidx.xr.runtime.TrackingState] of the eye
+     * @property trackingState the [androidx.xr.arcore.TrackingState] of the eye
      * @property owner self-reference to the object that owns this state.
      */
     public class State

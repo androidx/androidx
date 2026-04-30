@@ -65,7 +65,7 @@ public class ArDevice internal constructor(internal val runtimeArDevice: Runtime
      * Contains the current state of the AR Device tracking.
      *
      * @property devicePose the current [Pose] of the device
-     * @property trackingState The current [androidx.xr.runtime.TrackingState]
+     * @property trackingState The current [androidx.xr.arcore.TrackingState]
      * @property owner self-reference to the object that owns this state.
      */
     public class State
