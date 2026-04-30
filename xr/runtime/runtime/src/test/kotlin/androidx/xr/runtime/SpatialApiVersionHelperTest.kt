@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.runtime
 
-import androidx.xr.runtime.testing.internal.FakeSpatialApiVersionProvider
+import androidx.xr.runtime.testing.XrDeviceTestRule
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
-import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -27,33 +25,19 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class SpatialApiVersionHelperTest {
 
-    @After
-    fun tearDown() {
-        // Clean up the static state of the fake provider after each test to ensure isolation.
-        FakeSpatialApiVersionProvider.testSpatialApiVersion = null
-        FakeSpatialApiVersionProvider.testPreviewSpatialApiVersion = null
-    }
+    @Rule @JvmField val xrDeviceTestRule = XrDeviceTestRule()
 
     @Test
-    fun spatialApiVersion_returnsVersionFromServiceProvider() {
-        FakeSpatialApiVersionProvider.testSpatialApiVersion = 99
-        assertThat(SpatialApiVersionHelper.spatialApiVersion).isEqualTo(99)
-    }
-
-    @Test
-    fun previewSpatialApiVersion_returnsVersionFromServiceProvider() {
-        FakeSpatialApiVersionProvider.testPreviewSpatialApiVersion = 199
-        assertThat(SpatialApiVersionHelper.previewSpatialApiVersion).isEqualTo(199)
-    }
-
-    @Test
-    fun spatialApiVersion_whenNotSet_returnsLatestStableApiLevel() {
+    fun spatialApiVersion_default_returnsLatestStable() {
         assertThat(SpatialApiVersionHelper.spatialApiVersion)
             .isEqualTo(SpatialApiVersions.LATEST_STABLE_API_LEVEL)
     }
 
     @Test
-    fun previewSpatialApiVersion_whenNotSet_throwsIllegalStateException() {
-        assertFailsWith<IllegalStateException> { SpatialApiVersionHelper.previewSpatialApiVersion }
+    fun spatialApiVersion_returnsCorrectValue() {
+        xrDeviceTestRule.spatialApiVersion = SpatialApiVersions.SPATIAL_API_V1
+
+        assertThat(SpatialApiVersionHelper.spatialApiVersion)
+            .isEqualTo(SpatialApiVersions.SPATIAL_API_V1)
     }
 }

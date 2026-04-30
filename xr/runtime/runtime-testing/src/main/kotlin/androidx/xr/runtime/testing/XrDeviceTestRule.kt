@@ -22,7 +22,11 @@ import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.RenderingMode
+import androidx.xr.runtime.SpatialApiVersion
+import androidx.xr.runtime.SpatialApiVersionHelper
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.XrDevice
+import androidx.xr.runtime.testing.internal.FakeSpatialApiVersionProvider
 import androidx.xr.runtime.testing.internal.FakeXrDeviceCapabilityProvider
 import androidx.xr.runtime.testing.internal.FakeXrDeviceCapabilityProviderFactory
 import androidx.xr.runtime.toInternalDepthEstimationMode
@@ -35,6 +39,7 @@ import org.junit.rules.ExternalResource
 /** JUnit Rule containing properties that affect the results of [XrDevice] capability APIs. */
 public class XrDeviceTestRule : ExternalResource() {
     internal var capabilityProvider: FakeXrDeviceCapabilityProvider? = null
+    internal var spatialApiVersionProvider: FakeSpatialApiVersionProvider? = null
 
     /**
      * The result of [XrDevice.getPreferredDisplayBlendMode].
@@ -140,6 +145,20 @@ public class XrDeviceTestRule : ExternalResource() {
             }
         }
 
+    /**
+     * The value to be returned by [SpatialApiVersionHelper.spatialApiVersion].
+     *
+     * Tests can set this property to control the value returned by
+     * [SpatialApiVersionHelper.spatialApiVersion] during the test execution. By default the value
+     * is set to the latest stable API level.
+     */
+    @SpatialApiVersion
+    public var spatialApiVersion: Int = SpatialApiVersions.UNKNOWN
+        set(@SpatialApiVersion value) {
+            spatialApiVersionProvider?.spatialApiVersion = value
+            field = value
+        }
+
     internal fun DisplayBlendMode.toInternal() =
         when (this) {
             DisplayBlendMode.ALPHA_BLEND ->
@@ -148,11 +167,22 @@ public class XrDeviceTestRule : ExternalResource() {
             else -> androidx.xr.runtime.interfaces.DisplayBlendMode.NO_DISPLAY
         }
 
+    init {
+        // Force SpatialApiVersionHelper to load FakeSpatialApiVersionProvider
+        SpatialApiVersionHelper.spatialApiVersion
+    }
+
     override fun before() {
         FakeXrDeviceCapabilityProviderFactory.xrDeviceTestRule = this
+
+        FakeSpatialApiVersionProvider.xrDeviceTestRule = this
+        FakeSpatialApiVersionProvider.instance?.registerProvider()
+        spatialApiVersion =
+            spatialApiVersionProvider?.spatialApiVersion ?: SpatialApiVersions.UNKNOWN
     }
 
     override fun after() {
         FakeXrDeviceCapabilityProviderFactory.xrDeviceTestRule = null
+        FakeSpatialApiVersionProvider.xrDeviceTestRule = null
     }
 }

@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.DisplayBlendMode
 import androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi
 import androidx.xr.runtime.XrDevice
+import androidx.xr.runtime.testing.internal.FakeSpatialApiVersionProvider
 import androidx.xr.runtime.testing.internal.FakeXrDeviceCapabilityProviderFactory
 import kotlin.test.Test
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -47,8 +48,9 @@ class XrDeviceTestRuleTest {
     }
 
     @Test
-    fun before_registersSelfWithProviderFactory() {
+    fun before_registersSelfWithProviders() {
         assertThat(FakeXrDeviceCapabilityProviderFactory.xrDeviceTestRule).isEqualTo(underTest)
+        assertThat(FakeSpatialApiVersionProvider.xrDeviceTestRule).isEqualTo(underTest)
     }
 
     @OptIn(ExperimentalXrDeviceLifecycleApi::class)
