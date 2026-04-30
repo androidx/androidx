@@ -318,6 +318,9 @@
     <!-- ProgressBarDemo -->
     <string name="progress_bar_demo_title">Progress Bar Demo</string>
 
+    <!-- SectionHeaderDemo -->
+    <string name="section_header_demo_title">Section Header Demo</string>
+
   <!-- PaneTemplateDemoScreen -->
   <string name="pane_template_demo_title">Pane Template Demo</string>
 
