@@ -2384,6 +2384,223 @@ class SecurityPatchStateTest {
     }
 
     @Test
+    fun testIsDeviceFullyUpdated_withDifferentMinorKernelVersions_returnsTrue() {
+        // GIVEN a device running an older minor kernel branch (e.g., 6.6.118)
+        val bundle = Bundle()
+        bundle.putString("system_spl", "2023-05-01")
+        bundle.putString("vendor_spl", "2023-02-01")
+        bundle.putString("kernel_version", "6.6.118")
+        bundle.putString("com.google.android.modulemetadata", "2023-10-05")
+
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn("2023-10-05").`when`(mockSecurityStateManagerCompat).getPackageVersion(anyString())
+
+        // AND the published vulnerability report contains updates for multiple minor branches
+        // within the same major version (e.g., both 6.6.x and 6.12.x)
+        val jsonInput =
+            """
+            {
+              "vulnerabilities": {
+                "2023-05-01": [{
+                  "cve_identifiers": ["CVE-1234-4321"],
+                  "asb_identifiers": ["ASB-A-2023111"],
+                  "severity": "high",
+                  "components": ["com.google.android.modulemetadata"]
+                }],
+                "2023-01-01": [{
+                  "cve_identifiers": ["CVE-1234-1321"],
+                  "asb_identifiers": ["ASB-A-2023121"],
+                  "severity": "critical",
+                  "components": ["system"]
+                }],
+                "2023-02-01": [{
+                  "cve_identifiers": ["CVE-1234-3321"],
+                  "asb_identifiers": ["ASB-A-2023151"],
+                  "severity": "moderate",
+                  "components": ["vendor"]
+                }]
+              },
+              "kernel_lts_versions": {
+                  "2023-05-01": [ "6.6.118", "6.12.58" ]
+              }
+            }
+            """
+                .trimIndent()
+
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        // WHEN we check if the device is fully updated
+        // THEN it should return true, because the device is up-to-date on its specific minor branch
+        // (6.6),
+        // and should not be incorrectly compared against the newer 6.12 branch.
+        assertTrue(securityState.isDeviceFullyUpdated())
+    }
+
+    @Test
+    fun testIsDeviceFullyUpdated_withOutdatedMinorKernelVersion_returnsFalse() {
+        // GIVEN a device running an outdated kernel version on its specific minor branch (e.g.,
+        // 6.6.102)
+        val bundle = Bundle()
+        bundle.putString("system_spl", "2023-05-01")
+        bundle.putString("vendor_spl", "2023-02-01")
+        bundle.putString("kernel_version", "6.6.102")
+        bundle.putString("com.google.android.modulemetadata", "2023-10-05")
+
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn("2023-10-05").`when`(mockSecurityStateManagerCompat).getPackageVersion(anyString())
+
+        // AND the published vulnerability report contains a newer update for that exact branch
+        // (6.6.118)
+        val jsonInput =
+            """
+            {
+              "vulnerabilities": {
+                "2023-05-01": [{
+                  "cve_identifiers": ["CVE-1234-4321"],
+                  "asb_identifiers": ["ASB-A-2023111"],
+                  "severity": "high",
+                  "components": ["com.google.android.modulemetadata"]
+                }],
+                "2023-01-01": [{
+                  "cve_identifiers": ["CVE-1234-1321"],
+                  "asb_identifiers": ["ASB-A-2023121"],
+                  "severity": "critical",
+                  "components": ["system"]
+                }],
+                "2023-02-01": [{
+                  "cve_identifiers": ["CVE-1234-3321"],
+                  "asb_identifiers": ["ASB-A-2023151"],
+                  "severity": "moderate",
+                  "components": ["vendor"]
+                }]
+              },
+              "kernel_lts_versions": {
+                  "2023-05-01": [ "6.6.118", "6.12.58" ]
+              }
+            }
+            """
+                .trimIndent()
+
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        // WHEN we check if the device is fully updated
+        // THEN it should return false, because the device is missing patches on its active branch
+        // (6.6.102 < 6.6.118).
+        assertFalse(securityState.isDeviceFullyUpdated())
+    }
+
+    @Test
+    fun testIsDeviceFullyUpdated_withUntrackedKernelBranch_returnsTrue() {
+        // GIVEN a device running an older kernel branch that is no longer tracked in the bulletin
+        // (e.g., 5.10.100)
+        val bundle = Bundle()
+        bundle.putString("system_spl", "2023-05-01")
+        bundle.putString("vendor_spl", "2023-02-01")
+        bundle.putString("kernel_version", "5.10.100")
+        bundle.putString("com.google.android.modulemetadata", "2023-10-05")
+
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn("2023-10-05").`when`(mockSecurityStateManagerCompat).getPackageVersion(anyString())
+
+        // AND the published vulnerability report only lists newer, supported branches (e.g., 5.15,
+        // 6.1)
+        val jsonInput =
+            """
+            {
+              "vulnerabilities": {
+                "2023-05-01": [{
+                  "cve_identifiers": ["CVE-1234-4321"],
+                  "asb_identifiers": ["ASB-A-2023111"],
+                  "severity": "high",
+                  "components": ["com.google.android.modulemetadata"]
+                }],
+                "2023-01-01": [{
+                  "cve_identifiers": ["CVE-1234-1321"],
+                  "asb_identifiers": ["ASB-A-2023121"],
+                  "severity": "critical",
+                  "components": ["system"]
+                }],
+                "2023-02-01": [{
+                  "cve_identifiers": ["CVE-1234-3321"],
+                  "asb_identifiers": ["ASB-A-2023151"],
+                  "severity": "moderate",
+                  "components": ["vendor"]
+                }]
+              },
+              "kernel_lts_versions": {
+                  "2023-05-01": [ "5.15.100", "6.1.50" ]
+              }
+            }
+            """
+                .trimIndent()
+
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        // WHEN we check if the device is fully updated
+        // THEN it should return true. The API evaluates patch availability on the current branch.
+        // Since the 5.10 branch is absent, it is not flagged as having pending updates.
+        assertTrue(securityState.isDeviceFullyUpdated())
+    }
+
+    @Test
+    fun testIsDeviceFullyUpdated_withNewerKernelVersionThanPublished_returnsTrue() {
+        // GIVEN a device running a kernel version that is strictly newer than the published
+        // bulletin (e.g., 6.6.120)
+        // This often happens when OEMs pull patches upstream before they are officially indexed by
+        // Android.
+        val bundle = Bundle()
+        bundle.putString("system_spl", "2023-05-01")
+        bundle.putString("vendor_spl", "2023-02-01")
+        bundle.putString("kernel_version", "6.6.120")
+        bundle.putString("com.google.android.modulemetadata", "2023-10-05")
+
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn("2023-10-05").`when`(mockSecurityStateManagerCompat).getPackageVersion(anyString())
+
+        // AND the published vulnerability report lists an older patch level for that branch (e.g.,
+        // 6.6.118)
+        val jsonInput =
+            """
+            {
+              "vulnerabilities": {
+                "2023-05-01": [{
+                  "cve_identifiers": ["CVE-1234-4321"],
+                  "asb_identifiers": ["ASB-A-2023111"],
+                  "severity": "high",
+                  "components": ["com.google.android.modulemetadata"]
+                }],
+                "2023-01-01": [{
+                  "cve_identifiers": ["CVE-1234-1321"],
+                  "asb_identifiers": ["ASB-A-2023121"],
+                  "severity": "critical",
+                  "components": ["system"]
+                }],
+                "2023-02-01": [{
+                  "cve_identifiers": ["CVE-1234-3321"],
+                  "asb_identifiers": ["ASB-A-2023151"],
+                  "severity": "moderate",
+                  "components": ["vendor"]
+                }]
+              },
+              "kernel_lts_versions": {
+                  "2023-05-01": [ "6.6.118", "6.12.58" ]
+              }
+            }
+            """
+                .trimIndent()
+
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        // WHEN we check if the device is fully updated
+        // THEN it should return true. A device ahead of the bulletin is fully compliant.
+        assertTrue(securityState.isDeviceFullyUpdated())
+    }
+
+    @Test
     fun testAreCvesPatched_ReturnsTrue() {
         val jsonInput =
             """

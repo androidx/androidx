@@ -1451,7 +1451,10 @@ constructor(
 
                     if (
                         publishedVersions
-                            .filter { it.getMajorVersion() == kernelVersion.getMajorVersion() }
+                            .filter {
+                                it.getMajorVersion() == kernelVersion.getMajorVersion() &&
+                                    it.getMinorVersion() == kernelVersion.getMinorVersion()
+                            }
                             .any { it > kernelVersion }
                     ) {
                         return false
