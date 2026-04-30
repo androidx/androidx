@@ -179,10 +179,10 @@ public class ProfileImpl implements Profile {
 
     @Profile.ExperimentalUrlPrefetch
     @Override
-    public void setMaxPrerenders(@Nullable Integer maxPrerenders) {
+    public void setMaxPrerenders(int maxPrerenders) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.SET_MAX_PRERENDERS;
         if (feature.isSupportedByWebView()) {
-            if (maxPrerenders != null && maxPrerenders < 1) {
+            if (maxPrerenders < 1) {
                 throw new IllegalArgumentException(
                         "maxPrerenders should be greater than or equal to 1");
             }
@@ -191,6 +191,29 @@ public class ProfileImpl implements Profile {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
+
+    @Profile.ExperimentalUrlPrefetch
+    @Override
+    public void clearMaxPrerenders() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.SET_MAX_PRERENDERS;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.clearMaxPrerenders();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Profile.ExperimentalUrlPrefetch
+    @Override
+    public int getMaxPrerenders() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.SET_MAX_PRERENDERS;
+        if (feature.isSupportedByWebView()) {
+            return mProfileImpl.getMaxPrerenders();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
 
     @Override
     @ExperimentalWarmUpRendererProcess

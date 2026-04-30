@@ -25,7 +25,6 @@ import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.chromium.support_lib_boundary.ProfileBoundaryInterface;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * PrefetchCache manages the configuration of the prefetch cache for a {@link Profile}.
@@ -50,10 +49,10 @@ public final class PrefetchCache {
     /**
      * Sets the maximum number of prefetches for the current browsing session.
      * <p>
-     * These configurations will be applied to any prefetch requests made after they are set;
+     * This configuration will be applied to any prefetch requests made after they are set;
      * they will not be applied to in-flight requests.
      * <p>
-     * These configurations will be applied to WebViews that are associated with the
+     * This configuration will be applied to WebViews that are associated with the
      * {@link Profile} that owns this {@link PrefetchCache}.
      *
      * <p>
@@ -61,8 +60,7 @@ public final class PrefetchCache {
      * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
      * {@link WebViewFeature#PREFETCH_CACHE_V1}.
      *
-     * @param maxPrefetches the maximum number of prefetches to allow. Setting this value to
-     *                      {@code null} will use the default value.
+     * @param maxPrefetches the maximum number of prefetches to allow.
      * @throws UnsupportedOperationException if the {@link WebViewFeature#PREFETCH_CACHE_V1}
      *                                       feature is not supported.
      */
@@ -70,15 +68,66 @@ public final class PrefetchCache {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @UiThread
     @Profile.ExperimentalUrlPrefetch
-    public void setMaxPrefetches(
-            @Nullable @IntRange(from = 1) @SuppressWarnings("AutoBoxing") Integer maxPrefetches) {
+    public void setMaxPrefetches(@IntRange(from = 1) int maxPrefetches) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.PREFETCH_CACHE;
         if (feature.isSupportedByWebView()) {
-            if (maxPrefetches != null && maxPrefetches < 1) {
+            if (maxPrefetches < 1) {
                 throw new IllegalArgumentException(
                         "maxPrefetches should be greater than or equal to 1");
             }
             mProfileImpl.setMaxPrefetches(maxPrefetches);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Returns maximum prefetches set for this Profile.
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#PREFETCH_CACHE_V1}.
+     * @throws UnsupportedOperationException if the {@link WebViewFeature#PREFETCH_CACHE_V1}
+     *                                       feature is not supported.
+     */
+    @RequiresFeature(name = WebViewFeature.PREFETCH_CACHE_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @Profile.ExperimentalUrlPrefetch
+    public int getMaxPrefetches() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PREFETCH_CACHE;
+        if (feature.isSupportedByWebView()) {
+            return mProfileImpl.getMaxPrefetches();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Resets the maximum number of prefetches for the current browsing session to system default.
+     * <p>
+     * This configuration will be applied to any prefetch requests made after they are set;
+     * they will not be applied to in-flight requests.
+     * <p>
+     * This configuration will be applied to WebViews that are associated with the
+     * {@link Profile} that owns this {@link PrefetchCache}.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#PREFETCH_CACHE_V1}.
+     *
+     * @throws UnsupportedOperationException if the {@link WebViewFeature#PREFETCH_CACHE_V1}
+     *                                       feature is not supported.
+     */
+    @RequiresFeature(name = WebViewFeature.PREFETCH_CACHE_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @Profile.ExperimentalUrlPrefetch
+    public void clearMaxPrefetches() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PREFETCH_CACHE;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.clearMaxPrefetches();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -98,8 +147,7 @@ public final class PrefetchCache {
      * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
      * {@link WebViewFeature#PREFETCH_CACHE_V1}.
      *
-     * @param prefetchTtlSeconds the TTL in seconds. Setting this value to {@code null}
-     *                           will use the default value.
+     * @param prefetchTtlSeconds the TTL in seconds.
      * @throws UnsupportedOperationException if the {@link WebViewFeature#PREFETCH_CACHE_V1}
      *                                       feature is not supported.
      */
@@ -107,16 +155,67 @@ public final class PrefetchCache {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @UiThread
     @Profile.ExperimentalUrlPrefetch
-    public void setPrefetchTtlSeconds(
-            @Nullable @IntRange(from = 1) @SuppressWarnings("AutoBoxing")
-            Integer prefetchTtlSeconds) {
+    public void setPrefetchTtlSeconds(@IntRange(from = 1) int prefetchTtlSeconds) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.PREFETCH_CACHE;
         if (feature.isSupportedByWebView()) {
-            if (prefetchTtlSeconds != null && prefetchTtlSeconds < 1) {
+            if (prefetchTtlSeconds < 1) {
                 throw new IllegalArgumentException(
                         "prefetchTtlSeconds should be greater than or equal to 1");
             }
             mProfileImpl.setPrefetchTtlSeconds(prefetchTtlSeconds);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Returns Prefetch TTL in Seconds set for this Profile.
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#PREFETCH_CACHE_V1}.
+     * @throws UnsupportedOperationException if the {@link WebViewFeature#PREFETCH_CACHE_V1}
+     *                                       feature is not supported.
+     */
+    @RequiresFeature(name = WebViewFeature.PREFETCH_CACHE_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @Profile.ExperimentalUrlPrefetch
+    public int getPrefetchTtlSeconds() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PREFETCH_CACHE;
+        if (feature.isSupportedByWebView()) {
+            return mProfileImpl.getPrefetchTtlSeconds();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Resets the maximum prefetch Time-to-Live (TTL) in seconds for the current browsing session
+     * to the system default.
+     * <p>
+     * This configuration will be applied to any prefetch requests made after they are set;
+     * they will not be applied to in-flight requests.
+     * <p>
+     * This configuration will be applied to WebViews that are associated with the
+     * {@link Profile} that owns this {@link PrefetchCache}.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#PREFETCH_CACHE_V1}.
+     *
+     * @throws UnsupportedOperationException if the {@link WebViewFeature#PREFETCH_CACHE_V1}
+     *                                       feature is not supported.
+     */
+    @RequiresFeature(name = WebViewFeature.PREFETCH_CACHE_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @Profile.ExperimentalUrlPrefetch
+    public void clearPrefetchTtl() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PREFETCH_CACHE;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.clearPrefetchTtl();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
