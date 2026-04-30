@@ -6,8 +6,10 @@ package androidx.navigationevent.testing {
     ctor @BytecodeOnly public TestNavigationEventDispatcherOwner(kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public TestNavigationEventDispatcherOwner(optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventDispatcherOwner,kotlin.Unit> onBackCompletedFallback);
     method @InaccessibleFromKotlin public androidx.navigationevent.NavigationEventDispatcher getNavigationEventDispatcher();
+    method @InaccessibleFromKotlin public androidx.navigationevent.DirectNavigationEventInput getNavigationEventInput();
     method @InaccessibleFromKotlin public int getOnBackCompletedFallbackInvocations();
     property public androidx.navigationevent.NavigationEventDispatcher navigationEventDispatcher;
+    property public androidx.navigationevent.DirectNavigationEventInput navigationEventInput;
     property public int onBackCompletedFallbackInvocations;
   }
 
