@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 
 /**
@@ -26,5 +25,4 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * @param alpha the fraction of children's alpha value and must be between `0` and `1`, inclusive.
  * @see graphicsLayer
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.alpha(alpha: RemoteFloat): RemoteModifier = graphicsLayer(alpha = alpha)
