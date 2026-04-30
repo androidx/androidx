@@ -251,13 +251,10 @@ internal class BasicTextFieldStyledTextTest {
         rule.onNodeWithTag(tag).performTextInput(" World!")
 
         assertThat(state.text.toString()).isEqualTo("Hello World!")
-        assertThat(state.value.textStyleBuffer?.getStyles<SpanStyle>(0, 12)?.size).isEqualTo(1)
-        assertThat(state.value.textStyleBuffer?.getStyles<SpanStyle>(0, 12)?.get(0)?.item)
-            .isEqualTo(boldStyle)
-        assertThat(state.value.textStyleBuffer?.getStyles<SpanStyle>(0, 12)?.get(0)?.start)
-            .isEqualTo(0)
-        assertThat(state.value.textStyleBuffer?.getStyles<SpanStyle>(0, 12)?.get(0)?.end)
-            .isEqualTo(12)
+        assertThat(state.value.textStyleBuffer?.getAllStyles()?.size).isEqualTo(1)
+        assertThat(state.value.textStyleBuffer?.getAllStyles()?.get(0)?.item).isEqualTo(boldStyle)
+        assertThat(state.value.textStyleBuffer?.getAllStyles()?.get(0)?.start).isEqualTo(0)
+        assertThat(state.value.textStyleBuffer?.getAllStyles()?.get(0)?.end).isEqualTo(12)
     }
 
     @Test

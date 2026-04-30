@@ -33,6 +33,7 @@ import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMapNotNull
 import kotlin.jvm.JvmName
 
 /**
@@ -528,15 +529,20 @@ internal constructor(
             ?: TextStyleBuffer<AnnotatedString.Annotation>().also { textStyleBuffer = it }
     }
 
-    internal fun addAnnotationToBuffer(
-        annotation: AnnotatedString.Annotation,
+    internal inline fun <reified T : AnnotatedString.Annotation> addAnnotationToBuffer(
+        annotation: T,
         start: Int,
         end: Int,
-    ) {
+        expandPolicy: ExpandPolicy,
+    ): LiveRange<T> {
         // We treat it as replace the original text with newly styled text.
         changeTracker.trackChange(start, end, end - start)
 
-        requireTextFieldBuffer().addStyle(annotation, Interval(start, end, false, true))
+        return requireTextFieldBuffer()
+            .addStyle<T>(
+                annotation,
+                Interval(start, end, expandPolicy.startExpands, expandPolicy.endExpands),
+            )
     }
 
     /**
@@ -552,7 +558,7 @@ internal constructor(
     @OptIn(ExperimentalFoundationApi::class)
     fun addStyle(spanStyle: SpanStyle, start: Int, end: Int) {
         if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
-            addAnnotationToBuffer(spanStyle, start, end)
+            addAnnotationToBuffer(spanStyle, start, end, ExpandPolicy.AtEnd)
         } else {
             addAnnotation(spanStyle, start, end)
         }
@@ -571,7 +577,7 @@ internal constructor(
     @OptIn(ExperimentalFoundationApi::class)
     fun addStyle(paragraphStyle: ParagraphStyle, start: Int, end: Int) {
         if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
-            addAnnotationToBuffer(paragraphStyle, start, end)
+            addAnnotationToBuffer(paragraphStyle, start, end, ExpandPolicy.AtEnd)
         } else {
             addAnnotation(paragraphStyle, start, end)
         }
@@ -579,7 +585,14 @@ internal constructor(
 
     /** Returns the [SpanStyle]s that are applied to the text between [start] and [end]. */
     internal fun getSpanStyles(start: Int, end: Int): List<AnnotatedString.Range<SpanStyle>> {
-        return textStyleBuffer?.getStyles<SpanStyle>(start, end) ?: emptyList()
+        val styleBuffer = textStyleBuffer ?: return emptyList()
+        return with(styleBuffer) {
+            getStyles<SpanStyle>(start, end).fastMapNotNull { liveRange ->
+                val item = getItem<SpanStyle>(liveRange) ?: return@fastMapNotNull null
+                val range = getRange(liveRange)
+                AnnotatedString.Range(item, range.start, range.end)
+            }
+        }
     }
 
     /** Returns the [ParagraphStyle]s that are applied to the text between [start] and [end]. */
@@ -587,7 +600,14 @@ internal constructor(
         start: Int,
         end: Int,
     ): List<AnnotatedString.Range<ParagraphStyle>> {
-        return textStyleBuffer?.getStyles(start, end) ?: emptyList()
+        val styleBuffer = textStyleBuffer ?: return emptyList()
+        return with(styleBuffer) {
+            getStyles<ParagraphStyle>(start, end).fastMapNotNull { liveRange ->
+                val item = getItem<ParagraphStyle>(liveRange) ?: return@fastMapNotNull null
+                val range = getRange(liveRange)
+                AnnotatedString.Range(item, range.start, range.end)
+            }
+        }
     }
 
     /**

@@ -16,9 +16,13 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.ExpandPolicy
+import androidx.compose.foundation.text.input.LiveRange
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import kotlin.random.Random
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -43,8 +47,8 @@ class TextStyleBufferTest {
     @Test
     fun removeStyle() {
         val buffer = TextStyleBuffer<String>()
-        buffer.addStyle("a", Interval(0, 10))
-        buffer.removeStyle("a", Interval(0, 10))
+        val handle = buffer.addStyle("a", Interval(0, 10))
+        buffer.removeStyle(handle)
         assertThat(buffer.getAllStyles()).isEmpty()
     }
 
@@ -56,7 +60,9 @@ class TextStyleBufferTest {
         buffer.addStyle(3, Interval(5, 15))
 
         // Verifies that styles are returned in insertion order, regardless of their ranges.
-        assertThat(buffer.getStyles<Int>(0, 30).map { it.item }).containsExactly(1, 2, 3).inOrder()
+        assertThat(buffer.getStyles<Int>(0, 30).map { buffer.getItem<Int>(it) })
+            .containsExactly(1, 2, 3)
+            .inOrder()
     }
 
     @Test
@@ -273,17 +279,15 @@ class TextStyleBufferTest {
                         val endExpands = random.nextBoolean()
 
                         val interval = Interval(start, end, startExpands, endExpands)
-                        buffer.addStyle(style, interval)
-                        reference.addStyle(style, interval)
+                        val liveRange = buffer.addStyle(style, interval)
+                        reference.addStyle(style, interval, liveRange)
                     }
                 }
                 1 -> { // removeStyle
                     if (reference.items.isNotEmpty()) {
                         val index = random.nextInt(reference.items.size)
-                        val interval = reference.intervals[index]
-                        val item = reference.items[index]
-
-                        val removed = buffer.removeStyle(item, interval)
+                        val range = reference.liveRanges[index]
+                        val removed = buffer.removeStyle(range)
                         assertThat(removed).isTrue()
                         reference.removeAt(index)
                     }
@@ -302,7 +306,14 @@ class TextStyleBufferTest {
 
                     // query styles right at the gap to surface any bugs related to gap logic
                     val gapIndex = start + newLength
-                    val actual = buffer.getStyles<Int>(gapIndex, gapIndex)
+                    val actual =
+                        buffer.getStyles<Int>(gapIndex, gapIndex).map {
+                            AnnotatedString.Range(
+                                buffer.getItem<Int>(it)!!,
+                                buffer.getRange(it).start,
+                                buffer.getRange(it).end,
+                            )
+                        }
                     val expected = reference.getStyles(gapIndex, gapIndex)
                     assertThat(actual).isEqualTo(expected)
                 }
@@ -404,6 +415,161 @@ class TextStyleBufferTest {
         assertThat(buffer.previousTransition(30, 0)).isEqualTo(20)
         assertThat(buffer.previousTransition(20, 0)).isEqualTo(10)
     }
+
+    @Test
+    fun liveRange_getRange() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(10, 20))
+    }
+
+    @Test
+    fun liveRange_setRange() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        buffer.setRange(liveRange, TextRange(15, 25))
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(15, 25))
+        assertThat(buffer.getAllStyles()).containsExactly(AnnotatedString.Range("style", 15, 25))
+    }
+
+    @Test
+    fun liveRange_setRange_throwsIfReversedOrCollapsed() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        assertFailsWith<IllegalArgumentException> { buffer.setRange(liveRange, TextRange(15, 10)) }
+        assertFailsWith<IllegalArgumentException> { buffer.setRange(liveRange, TextRange(15, 15)) }
+    }
+
+    @Test
+    fun liveRange_getExpandPolicy() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange1 = buffer.addStyle("style1", Interval(10, 20, false, false))
+        assertThat(buffer.getExpandPolicy(liveRange1)).isEqualTo(ExpandPolicy.InsideOnly)
+
+        val liveRange2 = buffer.addStyle("style2", Interval(10, 20, true, false))
+        assertThat(buffer.getExpandPolicy(liveRange2)).isEqualTo(ExpandPolicy.AtStart)
+
+        val liveRange3 = buffer.addStyle("style3", Interval(10, 20, false, true))
+        assertThat(buffer.getExpandPolicy(liveRange3)).isEqualTo(ExpandPolicy.AtEnd)
+
+        val liveRange4 = buffer.addStyle("style4", Interval(10, 20, true, true))
+        assertThat(buffer.getExpandPolicy(liveRange4)).isEqualTo(ExpandPolicy.AtBoth)
+    }
+
+    @Test
+    fun liveRange_setExpandPolicy() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20, false, false))
+        buffer.setExpandPolicy(liveRange, ExpandPolicy.AtBoth)
+        assertThat(buffer.getExpandPolicy(liveRange)).isEqualTo(ExpandPolicy.AtBoth)
+    }
+
+    @Test
+    fun liveRange_getItem() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        assertThat(buffer.getItem<String>(liveRange)).isEqualTo("style")
+    }
+
+    @Test
+    fun liveRange_setItem() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        buffer.setItem(liveRange, "new_style")
+        assertThat(buffer.getItem<String>(liveRange)).isEqualTo("new_style")
+        assertThat(buffer.getAllStyles())
+            .containsExactly(AnnotatedString.Range("new_style", 10, 20))
+    }
+
+    @Test
+    fun liveRange_isRemoved() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        assertThat(buffer.isRemoved(liveRange)).isFalse()
+
+        buffer.removeStyle(liveRange)
+        assertThat(buffer.isRemoved(liveRange)).isTrue()
+    }
+
+    @Test
+    fun liveRange_updatesAfterReplaceText_beforeRange() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        buffer.replaceText(0, 5, 10) // insert 10, delete 5 => net +5
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(15, 25))
+    }
+
+    @Test
+    fun liveRange_updatesAfterReplaceText_insideRange() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        buffer.replaceText(12, 18, 10) // insert 10, delete 6 => net +4
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(10, 24))
+    }
+
+    @Test
+    fun liveRange_updatesAfterReplaceText_afterRange() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        buffer.replaceText(30, 40, 0)
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(10, 20))
+    }
+
+    @Test
+    fun liveRange_updatesAfterReplaceText_removedWhenFullyDeleted() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20))
+        buffer.replaceText(5, 25, 0)
+        assertThat(buffer.isRemoved(liveRange)).isTrue()
+        assertFailsWith<IllegalStateException> { buffer.getRange(liveRange) }
+    }
+
+    @Test
+    fun liveRange_updatesAfterReplaceText_expandAtStart() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20, flag1 = true, flag2 = false))
+        buffer.replaceText(10, 10, 5) // insert 5 at start
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(10, 25))
+    }
+
+    @Test
+    fun liveRange_updatesAfterReplaceText_expandAtEnd() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20, flag1 = false, flag2 = true))
+        buffer.replaceText(20, 20, 5) // insert 5 at end
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(10, 25))
+    }
+
+    @Test
+    fun liveRange_updatesAfterReplaceText_expandAtBoth() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20, flag1 = true, flag2 = true))
+        buffer.replaceText(10, 10, 5) // insert 5 at start
+        buffer.replaceText(25, 25, 5) // insert 5 at end
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(10, 30))
+    }
+
+    @Test
+    fun liveRange_updatesAfterReplaceText_expandInsideOnly() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20, flag1 = false, flag2 = false))
+        buffer.replaceText(10, 10, 5) // insert 5 at start
+        buffer.replaceText(25, 25, 5) // insert 5 at end
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(15, 25))
+    }
+
+    @Test
+    fun liveRange_updatesAfterReplaceText_withChangedExpandPolicy() {
+        val buffer = TextStyleBuffer<String>()
+        val liveRange = buffer.addStyle("style", Interval(10, 20, flag1 = false, flag2 = false))
+
+        buffer.setExpandPolicy(liveRange, ExpandPolicy.AtBoth)
+
+        buffer.replaceText(10, 10, 5) // insert 5 at start
+        buffer.replaceText(25, 25, 5) // insert 5 at end
+
+        assertThat(buffer.getRange(liveRange)).isEqualTo(TextRange(10, 30))
+    }
 }
 
 private class ReferenceTextStyleBuffer<T>(initialTextLength: Int) {
@@ -411,14 +577,22 @@ private class ReferenceTextStyleBuffer<T>(initialTextLength: Int) {
     val items = mutableListOf<T>()
     val intervals = mutableListOf<Interval>()
 
-    fun addStyle(style: T, interval: Interval) {
+    /**
+     * The [LiveRange] in the tested [TextStyleBuffer] corresponding to the item in this reference
+     * buffer.
+     */
+    val liveRanges = mutableListOf<LiveRange<T>>()
+
+    fun addStyle(style: T, interval: Interval, liveRange: LiveRange<T>) {
         items.add(style)
         intervals.add(interval)
+        liveRanges.add(liveRange)
     }
 
     fun removeAt(index: Int) {
         items.removeAt(index)
         intervals.removeAt(index)
+        liveRanges.removeAt(index)
     }
 
     fun getStyles(start: Int, end: Int): List<AnnotatedString.Range<T>> {
@@ -440,6 +614,7 @@ private class ReferenceTextStyleBuffer<T>(initialTextLength: Int) {
     fun replaceText(start: Int, end: Int, newLength: Int) {
         val newIntervals = mutableListOf<Interval>()
         val newItems = mutableListOf<T>()
+        val newLiveRanges = mutableListOf<LiveRange<T>>()
         for (index in intervals.indices) {
             val interval = intervals[index]
             val offset = end - start
@@ -480,12 +655,15 @@ private class ReferenceTextStyleBuffer<T>(initialTextLength: Int) {
                     }
                 newIntervals.add(Interval(newStart, newEnd, interval.flag1, interval.flag2))
                 newItems.add(items[index])
+                newLiveRanges.add(liveRanges[index])
             }
         }
         intervals.clear()
         intervals.addAll(newIntervals)
         items.clear()
         items.addAll(newItems)
+        liveRanges.clear()
+        liveRanges.addAll(newLiveRanges)
         textLength += newLength - (end - start)
     }
 }
