@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * direction
  *
  * @param degrees Degrees to rotate the content.
+ * @sample androidx.compose.remote.creation.compose.samples.RotateSample
  * @see graphicsLayer
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

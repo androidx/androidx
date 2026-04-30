@@ -17,11 +17,13 @@
 package androidx.compose.remote.creation.compose.modifier.samples
 
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.samples.AlphaSample
-import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
+import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.Center
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.samples.ScaleNonUniformSample
+import androidx.compose.remote.creation.compose.samples.ScaleUniformSample
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
-import androidx.compose.runtime.Composable
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -34,7 +36,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
-class AlphaSampleScreenshotTest {
+class ScaleSampleScreenshotTest {
     @get:Rule
     val composeTestRule: RemoteScreenshotTestRule =
         RemoteScreenshotTestRule(
@@ -43,15 +45,19 @@ class AlphaSampleScreenshotTest {
             matcher = MSSIMMatcher(threshold = 0.999),
         )
 
-    private val gridScreenshotUI = GridScreenshotUI()
+    @Test
+    fun scaleUniformSample() =
+        composeTestRule.runScreenshotTest {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize(), contentAlignment = Center) {
+                ScaleUniformSample()
+            }
+        }
 
     @Test
-    fun alphaSample() =
+    fun scaleNonUniformSample() =
         composeTestRule.runScreenshotTest {
-            val tests =
-                listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
-                    "AlphaSample" to @RemoteComposable @Composable { AlphaSample() }
-                )
-            gridScreenshotUI.GridContent(tests)
+            RemoteBox(modifier = RemoteModifier.fillMaxSize(), contentAlignment = Center) {
+                ScaleNonUniformSample()
+            }
         }
 }
