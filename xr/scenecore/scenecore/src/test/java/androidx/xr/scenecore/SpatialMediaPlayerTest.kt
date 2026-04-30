@@ -66,7 +66,7 @@ class SpatialMediaPlayerTest {
         val fakeMediaPlayerExtensionsWrapper = fakeSceneRuntime.mediaPlayerExtensionsWrapper
 
         assertThat(fakeMediaPlayerExtensionsWrapper.paramsWithEntity[mediaPlayer]?.second)
-            .isEqualTo((entity as BaseEntity<*>).rtEntity)
+            .isEqualTo(entity.rtEntity)
     }
 
     @Test

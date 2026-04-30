@@ -347,7 +347,7 @@ class MovableComponentTest {
         createCustomSession()
         val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
+        val rtEntity = entity.rtEntity
 
         val movableComponent = MovableComponent.createSystemMovable(session)
         assertThat(entity.addComponent(movableComponent)).isTrue()
@@ -813,7 +813,7 @@ class MovableComponentTest {
             val view = TextView(activity)
 
             val entityPose = Pose(Vector3(0f, -1f, 0f), Quaternion.Identity)
-            val entity = Entity.create(session, "test", entityPose) as BaseEntity<*>
+            val entity = Entity.create(session, "test", entityPose)
             (entity.rtScenePose as FakeScenePose).activitySpacePose = entityPose
             val panelEntity =
                 PanelEntity.create(

@@ -43,7 +43,10 @@ import java.util.function.Consumer
 // spaces.
 public class ActivitySpace
 private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegistry) :
-    BaseEntity<RtActivitySpace>(rtActivitySpace, entityRegistry) {
+    Entity(rtActivitySpace, entityRegistry) {
+
+    private val rtActivitySpace: RtActivitySpace
+        get() = rtEntity as RtActivitySpace
 
     internal companion object {
         internal fun create(
@@ -73,7 +76,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
     public val bounds: FloatSize3d
         get() {
             checkNotDisposed()
-            return rtEntity.bounds.toFloatSize3d()
+            return rtActivitySpace.bounds.toFloatSize3d()
         }
 
     /**
@@ -108,7 +111,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
                 callbackExecutor.execute { listener.accept(rtDimensions.toFloatSize3d()) }
             }
         boundsListeners.compute(listener) { _, _ ->
-            rtEntity.addOnBoundsChangedListener(rtListener)
+            rtActivitySpace.addOnBoundsChangedListener(rtListener)
             rtListener
         }
     }
@@ -125,7 +128,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
     public fun removeBoundsChangedListener(listener: Consumer<FloatSize3d>) {
         checkNotDisposed()
         boundsListeners.computeIfPresent(listener) { _, rtListener ->
-            rtEntity.removeOnBoundsChangedListener(rtListener)
+            rtActivitySpace.removeOnBoundsChangedListener(rtListener)
             null // returning null from computeIfPresent removes this entry from the Map
         }
     }
@@ -148,7 +151,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
         val addRtListener = originChangedListeners.isEmpty()
         originChangedListeners[listener] = executor
         if (addRtListener) {
-            rtEntity.setOnOriginChangedListener(rtOriginChangedListener, null)
+            rtActivitySpace.setOnOriginChangedListener(rtOriginChangedListener, null)
         }
     }
 
@@ -202,7 +205,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
         checkNotDisposed()
         originChangedListeners.remove(listener)
         if (originChangedListeners.isEmpty()) {
-            rtEntity.setOnOriginChangedListener(null, null)
+            rtActivitySpace.setOnOriginChangedListener(null, null)
         }
     }
 
@@ -224,7 +227,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
     public val recommendedContentBoxInFullSpace: BoundingBox
         get() {
             checkNotDisposed()
-            return rtEntity.recommendedContentBoxInFullSpace
+            return rtActivitySpace.recommendedContentBoxInFullSpace
         }
 
     /**
@@ -351,7 +354,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
         originChangedListeners.keys.forEach { removeOriginChangedListener(it) }
         boundsListeners.clear()
         originChangedListeners.clear()
-        rtEntity.setOnOriginChangedListener(null, null)
+        rtActivitySpace.setOnOriginChangedListener(null, null)
         super.disposeInternal()
     }
 }

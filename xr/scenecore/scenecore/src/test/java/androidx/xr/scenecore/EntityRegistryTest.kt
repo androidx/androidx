@@ -135,7 +135,7 @@ class EntityRegistryTest {
                 gltfModelEntity,
             )
 
-        (entity as BaseEntity<*>).disposeInternal()
+        entity.disposeInternal()
 
         assertThat(entityRegistry.getAllEntities().size).isAtLeast(4)
         assertThat(entityRegistry.getAllEntities()).doesNotContain(entity)
@@ -240,6 +240,6 @@ class EntityRegistryTest {
     }
 
     private fun createEntity() {
-        entity = EntityImpl.create(sceneRuntime, entityRegistry, "test")
+        entity = Entity.create(sceneRuntime, entityRegistry, "test")
     }
 }

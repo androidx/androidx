@@ -67,7 +67,7 @@ class InteractableComponentTest {
         val executor = directExecutor()
         val interactableComponent =
             InteractableComponent.create(session, executor, inputEventListener)
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
+        val rtEntity = entity.rtEntity
 
         assertThat(entity.addComponent(interactableComponent)).isTrue()
         assertThat(rtEntity?.getComponents()?.toList()[0])
@@ -82,7 +82,7 @@ class InteractableComponentTest {
         val executor = directExecutor()
         val interactableComponent =
             InteractableComponent.create(session, executor, inputEventListener)
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
+        val rtEntity = entity.rtEntity
 
         assertThat(entity.addComponent(interactableComponent)).isTrue()
 
@@ -125,7 +125,7 @@ class InteractableComponentTest {
         val inputEventListener = Consumer<InputEvent> { event -> inputEvent = event }
         val interactableComponent =
             InteractableComponent.create(session, directExecutor(), inputEventListener)
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
+        val rtEntity = entity.rtEntity
 
         assertThat(entity.addComponent(interactableComponent)).isTrue()
 

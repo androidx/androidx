@@ -53,8 +53,11 @@ import kotlinx.coroutines.launch
  */
 @SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 public class AnchorEntity
-private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
-    BaseEntity<RtAnchorEntity>(rtEntity, entityRegistry) {
+private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
+    Entity(rtAnchorEntity, entityRegistry) {
+
+    private val rtAnchorEntity: RtAnchorEntity
+        get() = rtEntity as RtAnchorEntity
 
     private val onStateChangedListeners = ConsumerListenerMap<State>()
     private val onOriginChangedListeners = RunnableListenerMap()
@@ -81,7 +84,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         private set
 
     /** The current tracking state for this AnchorEntity. */
-    public var state: State = fromRtState(rtEntity.state)
+    public var state: State = fromRtState(rtAnchorEntity.state)
         private set(value) {
             // TODO: b/440191514 - On dispose, verify any pending anchor entity ops are cancelled.
             field = value
@@ -89,7 +92,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         }
 
     init {
-        rtEntity.setOnOriginChangedListener(
+        rtAnchorEntity.setOnOriginChangedListener(
             WeakRunnable(onOriginChangedListeners) { it.fire(Unit) },
             // Use the default executor for the rtEntity runtime callback. We fan out to the client
             // executors when the event fires.
@@ -196,7 +199,7 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
                             val anchorCreateResult = plane.createAnchor(Pose.Identity)
                             if (anchorCreateResult is AnchorCreateSuccess) {
                                 val anchor = anchorCreateResult.anchor
-                                if (entity.rtEntity.setAnchor(anchor)) {
+                                if (entity.rtAnchorEntity.setAnchor(anchor)) {
                                     entity.anchor = anchor
                                     // Set the owned Anchor separately as it is being detached when
                                     // the Entity is in an Error state.
@@ -614,8 +617,8 @@ private constructor(rtEntity: RtAnchorEntity, entityRegistry: EntityRegistry) :
         onOriginChangedListeners.clear()
         onStateChangedListeners.clear()
         planeFindingJob?.cancel()
-        rtEntity.setOnOriginChangedListener(null, null)
-        rtEntity.setOnStateChangedListener(null)
+        rtAnchorEntity.setOnOriginChangedListener(null, null)
+        rtAnchorEntity.setOnStateChangedListener(null)
         super.disposeInternal()
     }
 }

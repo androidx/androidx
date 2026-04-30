@@ -57,7 +57,7 @@ class SoundEffectPoolComponentTest {
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
 
         assertThat(entity.addComponent(component)).isTrue()
-        assertThat((entity as BaseEntity<*>).rtEntity?.getComponents()?.get(0))
+        assertThat(entity.rtEntity?.getComponents()?.get(0))
             .isInstanceOf(FakeSoundEffectPoolComponent::class.java)
     }
 
@@ -70,14 +70,14 @@ class SoundEffectPoolComponentTest {
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
 
         assertThat(firstEntity.addComponent(component)).isTrue()
-        assertThat((firstEntity as BaseEntity<*>).rtEntity?.getComponents()?.get(0))
+        assertThat(firstEntity.rtEntity?.getComponents()?.get(0))
             .isInstanceOf(FakeSoundEffectPoolComponent::class.java)
 
         firstEntity.removeComponent(component)
         assertThat(firstEntity.rtEntity?.getComponents()).hasSize(0)
 
         assertThat(secondEntity.addComponent(component)).isTrue()
-        assertThat((secondEntity as BaseEntity<*>).rtEntity?.getComponents()?.get(0))
+        assertThat(secondEntity.rtEntity?.getComponents()?.get(0))
             .isInstanceOf(FakeSoundEffectPoolComponent::class.java)
     }
 
@@ -96,7 +96,7 @@ class SoundEffectPoolComponentTest {
 
         assertThat(fakeComponent.lastPlayedSoundEffect?.id).isEqualTo(soundEffect.id)
         assertThat(fakeComponent.lastPlayedParams).isEqualTo(params.rtPointSourceParams)
-        assertThat(fakeComponent.lastPlayedEntity).isEqualTo((entity as BaseEntity<*>).rtEntity)
+        assertThat(fakeComponent.lastPlayedEntity).isEqualTo(entity.rtEntity)
         assertThat(fakeComponent.lastPlayedVolume).isEqualTo(0.5f)
         assertThat(fakeComponent.lastPlayedPriority).isEqualTo(1)
         assertThat(fakeComponent.lastPlayedIsLooping).isTrue()

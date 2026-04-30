@@ -59,7 +59,7 @@ public object SpatialSoundPool {
             soundPool,
             soundID,
             params.rtPointSourceParams,
-            (entity as BaseEntity<*>).rtEntity,
+            entity.rtEntity,
             volume,
             priority,
             loop,

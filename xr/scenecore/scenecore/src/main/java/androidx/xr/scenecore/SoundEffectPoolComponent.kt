@@ -47,7 +47,7 @@ private constructor(
         if (attachedEntity != null) {
             return false
         }
-        if ((entity as BaseEntity<*>).rtEntity.addComponent(rtComponent)) {
+        if (entity.rtEntity.addComponent(rtComponent)) {
             attachedEntity = entity
             return true
         }
@@ -58,7 +58,7 @@ private constructor(
         if (entity != attachedEntity) {
             return
         }
-        (entity as BaseEntity<*>).rtEntity.removeComponent(rtComponent)
+        entity.rtEntity.removeComponent(rtComponent)
         attachedEntity = null
     }
 
@@ -68,7 +68,7 @@ private constructor(
         @IntRange(from = 0) priority: Int,
         isLooping: Boolean,
     ): Stream {
-        val rtEntity = (attachedEntity as? BaseEntity<*>)?.rtEntity
+        val rtEntity = attachedEntity?.rtEntity
         return rtComponent
             .play(
                 soundEffect.toRtSoundEffect(),

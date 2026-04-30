@@ -55,7 +55,7 @@ private constructor(
             return false
         }
         this.entity = entity
-        return (entity as BaseEntity<*>).rtEntity.addComponent(rtInteractableComponent)
+        return entity.rtEntity.addComponent(rtInteractableComponent)
     }
 
     /**
@@ -64,7 +64,7 @@ private constructor(
      * @param entity The [Entity] to detach this component from.
      */
     override fun onDetach(entity: Entity) {
-        (entity as BaseEntity<*>).rtEntity.removeComponent(rtInteractableComponent)
+        entity.rtEntity.removeComponent(rtInteractableComponent)
         this.entity = null
     }
 

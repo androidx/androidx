@@ -439,6 +439,6 @@ internal fun SpatialEnvironment.SpatialEnvironmentPreference.toRtSpatialEnvironm
     return RtSpatialEnvironmentPreference(
         imageBasedLightingAsset?.image ?: exrImage?.image,
         geometry?.model,
-        geometryEntity?.rtEntity,
+        geometryEntity?.rtGltfEntity,
     )
 }

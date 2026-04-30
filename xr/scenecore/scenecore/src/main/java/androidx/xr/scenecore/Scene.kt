@@ -137,7 +137,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
                     // spatialModeChangedListener to apply cached values to new keyEntity.
                     val wasNull = field == null
                     field = value
-                    sceneRuntime.keyEntity = (value as? BaseEntity<*>)?.rtEntity
+                    sceneRuntime.keyEntity = value?.rtEntity
                     // If we've just transitioned from a null to a non-null entity,
                     // and we have cached values, apply them to the new entity.
                     if (wasNull && value != null) {
@@ -239,7 +239,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun close() {
-        entityRegistry.getAllEntities().forEach { (it as BaseEntity<*>).disposeInternal() }
+        entityRegistry.getAllEntities().forEach { it.disposeInternal() }
         entityRegistry.clear()
         sceneRuntime.removeSpatialCapabilitiesChangedListener(rtSpatialCapabilitiesListener)
         sceneRuntime.clearSpatialVisibilityChangedListener()

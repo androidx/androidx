@@ -173,7 +173,7 @@ private constructor(
             return false
         }
         this.entity = entity
-        val attached = (entity as BaseEntity<*>).rtEntity.addComponent(rtMovableComponent)
+        val attached = entity.rtEntity.addComponent(rtMovableComponent)
         if (attached) {
             if (anchorable) {
                 planesFlow = Plane.subscribe(session)
@@ -192,7 +192,7 @@ private constructor(
 
     override fun onDetach(entity: Entity) {
         rtMovableComponent.removeMoveEventListener(rtMoveEventListener)
-        (entity as BaseEntity<*>).rtEntity.removeComponent(rtMovableComponent)
+        entity.rtEntity.removeComponent(rtMovableComponent)
         this.entity = null
     }
 
@@ -317,7 +317,7 @@ private constructor(
                         disposeParentOnReAnchor &&
                         prevParent.children.isEmpty()
                 ) {
-                    (prevParent as? BaseEntity<*>)?.disposeInternal()
+                    prevParent?.disposeInternal()
                     createdAnchorEntity = null
                 }
             }

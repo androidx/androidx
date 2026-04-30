@@ -197,15 +197,15 @@ class EntityTest {
 
     @Test
     fun allEntity_disposeAndCreateWithNullParent_callsRuntimeEntityImplSetParent() {
-        (activityPanelEntity as BaseEntity<*>).disposeInternal()
+        activityPanelEntity.disposeInternal()
 
-        (gltfModelEntity as BaseEntity<*>).disposeInternal()
+        gltfModelEntity.disposeInternal()
 
-        (entity as BaseEntity<*>).disposeInternal()
+        entity.disposeInternal()
 
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
-        (surfaceEntity as BaseEntity<*>).disposeInternal()
+        surfaceEntity.disposeInternal()
 
         activityPanelEntity =
             ActivityPanelEntity.create(session, IntSize2d(640, 480), "test", parent = null)
@@ -237,11 +237,11 @@ class EntityTest {
 
         assertThat(activityPanelEntity.rtEntity.parent).isNull()
         assertThat(gltfModelEntity.rtEntity.parent).isNull()
-        assertThat((entity as? BaseEntity<*>)?.rtEntity?.parent).isNull()
+        assertThat(entity.rtEntity.parent).isNull()
         assertThat(panelEntity.rtEntity.parent).isNull()
         assertThat(surfaceEntity.rtEntity.parent).isNull()
 
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
         panelEntity =
             PanelEntity.create(
@@ -256,15 +256,15 @@ class EntityTest {
 
     @Test
     fun allEntity_disposeAndCreateWithNullParent_getPoseInParentSpace() {
-        (activityPanelEntity as BaseEntity<*>).disposeInternal()
+        activityPanelEntity.disposeInternal()
 
-        (gltfModelEntity as BaseEntity<*>).disposeInternal()
+        gltfModelEntity.disposeInternal()
 
-        (entity as BaseEntity<*>).disposeInternal()
+        entity.disposeInternal()
 
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
-        (surfaceEntity as BaseEntity<*>).disposeInternal()
+        surfaceEntity.disposeInternal()
 
         activityPanelEntity =
             ActivityPanelEntity.create(session, IntSize2d(640, 480), "test", parent = null)
@@ -303,15 +303,15 @@ class EntityTest {
 
     @Test
     fun allEntity_disposeAndCreateWithNullParent_getPoseInActivitySpace() {
-        (activityPanelEntity as BaseEntity<*>).disposeInternal()
+        activityPanelEntity.disposeInternal()
 
-        (gltfModelEntity as BaseEntity<*>).disposeInternal()
+        gltfModelEntity.disposeInternal()
 
-        (entity as BaseEntity<*>).disposeInternal()
+        entity.disposeInternal()
 
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
-        (surfaceEntity as BaseEntity<*>).disposeInternal()
+        surfaceEntity.disposeInternal()
 
         activityPanelEntity =
             ActivityPanelEntity.create(session, IntSize2d(640, 480), "test", parent = null)
@@ -389,8 +389,6 @@ class EntityTest {
         entity.parent = gltfModelEntity
         anchorEntity.parent = entity
 
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
-
         assertThat(activityPanelEntity.parent).isEqualTo(activitySpace)
         assertThat(activityPanelEntity.rtEntity.parent).isEqualTo(activitySpace.rtEntity)
         assertThat(panelEntity.parent).isEqualTo(activityPanelEntity)
@@ -398,9 +396,9 @@ class EntityTest {
         assertThat(gltfModelEntity.parent).isEqualTo(panelEntity)
         assertThat(gltfModelEntity.rtEntity.parent).isEqualTo(panelEntity.rtEntity)
         assertThat(entity.parent).isEqualTo(gltfModelEntity)
-        assertThat(rtEntity.parent).isEqualTo(gltfModelEntity.rtEntity)
+        assertThat(entity.rtEntity.parent).isEqualTo(gltfModelEntity.rtEntity)
         assertThat(anchorEntity.parent).isEqualTo(entity)
-        assertThat(anchorEntity.rtEntity.parent).isEqualTo(rtEntity)
+        assertThat(anchorEntity.rtEntity.parent).isEqualTo(entity.rtEntity)
     }
 
     @Test
@@ -411,8 +409,6 @@ class EntityTest {
         entity.parent = null
         anchorEntity.parent = null
 
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
-
         assertThat(activityPanelEntity.parent).isNull()
         assertThat(activityPanelEntity.rtEntity.parent).isNull()
         assertThat(panelEntity.parent).isNull()
@@ -420,7 +416,7 @@ class EntityTest {
         assertThat(gltfModelEntity.parent).isNull()
         assertThat(gltfModelEntity.rtEntity.parent).isNull()
         assertThat(entity.parent).isNull()
-        assertThat(rtEntity.parent).isNull()
+        assertThat(entity.rtEntity.parent).isNull()
         assertThat(anchorEntity.parent).isNull()
         assertThat(anchorEntity.rtEntity.parent).isNull()
     }
@@ -706,13 +702,13 @@ class EntityTest {
 
     @Test
     fun allEntityDispose_callsRuntimeEntityImplDispose() {
-        (gltfModelEntity as BaseEntity<*>).disposeInternal()
+        gltfModelEntity.disposeInternal()
 
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
-        (anchorEntity as BaseEntity<*>).disposeInternal()
+        anchorEntity.disposeInternal()
 
-        (activityPanelEntity as BaseEntity<*>).disposeInternal()
+        activityPanelEntity.disposeInternal()
 
         assertThat(gltfModelEntity.isDisposed).isTrue()
         assertThat(panelEntity.isDisposed).isTrue()
@@ -959,25 +955,25 @@ class EntityTest {
 
         assertThat(panelEntity.addComponent(component)).isTrue()
 
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
         assertThat(component.onDetached).isEqualTo(1)
 
         assertThat(gltfModelEntity.addComponent(component)).isTrue()
 
-        (gltfModelEntity as BaseEntity<*>).disposeInternal()
+        gltfModelEntity.disposeInternal()
 
         assertThat(component.onDetached).isEqualTo(2)
 
         assertThat(anchorEntity.addComponent(component)).isTrue()
 
-        (anchorEntity as BaseEntity<*>).disposeInternal()
+        anchorEntity.disposeInternal()
 
         assertThat(component.onDetached).isEqualTo(3)
 
         assertThat(activityPanelEntity.addComponent(component)).isTrue()
 
-        (activityPanelEntity as BaseEntity<*>).disposeInternal()
+        activityPanelEntity.disposeInternal()
 
         assertThat(component.onDetached).isEqualTo(4)
     }
@@ -1209,19 +1205,19 @@ class EntityTest {
 
     @Test
     fun anyEntity_useAfterDisposeRaisesDisposedException() {
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
-        (surfaceEntity as BaseEntity<*>).disposeInternal()
+        surfaceEntity.disposeInternal()
 
-        (anchorEntity as BaseEntity<*>).disposeInternal()
+        anchorEntity.disposeInternal()
 
-        (entity as BaseEntity<*>).disposeInternal()
+        entity.disposeInternal()
 
-        (activityPanelEntity as BaseEntity<*>).disposeInternal()
+        activityPanelEntity.disposeInternal()
 
-        (gltfModelEntity as BaseEntity<*>).disposeInternal()
+        gltfModelEntity.disposeInternal()
 
-        (activitySpace as BaseEntity<*>).disposeInternal()
+        activitySpace.disposeInternal()
 
         assertFailsWith<Entity.DisposedException> { surfaceEntity.stereoMode }
         assertFailsWith<Entity.DisposedException> { panelEntity.sizeInPixels }
@@ -1242,33 +1238,33 @@ class EntityTest {
 
     @Test
     fun allEntity_disposeTwiceDoesNotCrash() {
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
-        (surfaceEntity as BaseEntity<*>).disposeInternal()
+        surfaceEntity.disposeInternal()
 
-        (surfaceEntity as BaseEntity<*>).disposeInternal()
+        surfaceEntity.disposeInternal()
 
-        (anchorEntity as BaseEntity<*>).disposeInternal()
+        anchorEntity.disposeInternal()
 
-        (anchorEntity as BaseEntity<*>).disposeInternal()
+        anchorEntity.disposeInternal()
 
-        (entity as BaseEntity<*>).disposeInternal()
+        entity.disposeInternal()
 
-        (entity as BaseEntity<*>).disposeInternal()
+        entity.disposeInternal()
 
-        (activityPanelEntity as BaseEntity<*>).disposeInternal()
+        activityPanelEntity.disposeInternal()
 
-        (activityPanelEntity as BaseEntity<*>).disposeInternal()
+        activityPanelEntity.disposeInternal()
 
-        (gltfModelEntity as BaseEntity<*>).disposeInternal()
+        gltfModelEntity.disposeInternal()
 
-        (gltfModelEntity as BaseEntity<*>).disposeInternal()
+        gltfModelEntity.disposeInternal()
 
-        (activitySpace as BaseEntity<*>).disposeInternal()
+        activitySpace.disposeInternal()
 
-        (activitySpace as BaseEntity<*>).disposeInternal()
+        activitySpace.disposeInternal()
     }
 
     @Test
@@ -1307,19 +1303,19 @@ class EntityTest {
 
     @Test
     fun isDisposed_trueAfterDispose() {
-        (panelEntity as BaseEntity<*>).disposeInternal()
+        panelEntity.disposeInternal()
 
-        (surfaceEntity as BaseEntity<*>).disposeInternal()
+        surfaceEntity.disposeInternal()
 
-        (anchorEntity as BaseEntity<*>).disposeInternal()
+        anchorEntity.disposeInternal()
 
-        (entity as BaseEntity<*>).disposeInternal()
+        entity.disposeInternal()
 
-        (activityPanelEntity as BaseEntity<*>).disposeInternal()
+        activityPanelEntity.disposeInternal()
 
-        (gltfModelEntity as BaseEntity<*>).disposeInternal()
+        gltfModelEntity.disposeInternal()
 
-        (activitySpace as BaseEntity<*>).disposeInternal()
+        activitySpace.disposeInternal()
 
         assertThat(panelEntity.isDisposed).isTrue()
         assertThat(surfaceEntity.isDisposed).isTrue()
@@ -1687,7 +1683,7 @@ class EntityTest {
         // We need a way to know if the RT entity was disposed.
         // Since we are using Robolectric and FakeRuntime, we can check the registry.
         var entity: Entity? = Entity.create(session, "test", parent = null)
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
+        val rtEntity = entity!!.rtEntity
         val weakRef = WeakReference(entity)
 
         // Nullify the strong reference and ensure it's not in the scenegraph
@@ -1704,7 +1700,7 @@ class EntityTest {
     fun entityIsRemovedFromRegistryWhenGc() {
         fun createEntity(): Pair<WeakReference<Entity>, RtEntity> {
             val entity = Entity.create(session, "test", parent = null)
-            return Pair(WeakReference(entity), (entity as BaseEntity<*>).rtEntity)
+            return Pair(WeakReference(entity), entity.rtEntity)
         }
 
         val (weakRef, rtEntity) = createEntity()
@@ -1741,8 +1737,8 @@ class EntityTest {
         val entity1 = Entity.create(session, "entity1")
         val entity2 = Entity.create(session, "entity2")
 
-        val rtEntity1 = (entity1 as BaseEntity<*>).rtEntity
-        val rtEntity2 = (entity2 as BaseEntity<*>).rtEntity
+        val rtEntity1 = entity1.rtEntity
+        val rtEntity2 = entity2.rtEntity
 
         assertThat(entityRegistry.getEntityForRtEntity(rtEntity1)).isNotNull()
         assertThat(entityRegistry.getEntityForRtEntity(rtEntity2)).isNotNull()
@@ -1757,7 +1753,7 @@ class EntityTest {
 
     @Test
     fun disposeInternalIsIdempotent() {
-        val entity = Entity.create(session, "test") as BaseEntity<*>
+        val entity = Entity.create(session, "test")
 
         assertThat(entity.isDisposed).isFalse()
 
@@ -1773,11 +1769,7 @@ class EntityTest {
     fun sdkEntityIsGarbageCollectedAndDisposesRtEntity() {
         val mockRtEntity = mock<RtEntity>()
 
-        // Create a subclass to access the internal constructor of BaseEntity
-        class TestEntity(rtEntity: RtEntity, registry: EntityRegistry) :
-            BaseEntity<RtEntity>(rtEntity, registry)
-
-        var sdkEntity: TestEntity? = TestEntity(mockRtEntity, entityRegistry)
+        var sdkEntity: Entity? = Entity(mockRtEntity, entityRegistry)
         val weakRef = WeakReference(sdkEntity)
 
         assertThat(entityRegistry.getEntityForRtEntity(mockRtEntity)).isEqualTo(sdkEntity)
