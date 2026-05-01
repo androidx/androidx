@@ -27,6 +27,8 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2026"
     description = "Provides testing utilities for RemoteCompose"
+    enableRobolectric()
+    addGoldenImageAssets()
 }
 
 android {
@@ -57,6 +59,7 @@ dependencies {
     testImplementation(libs.testCoreKtx)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
+    testImplementation(project(":test:screenshot:screenshot"))
 
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.testExtJunit)
@@ -65,5 +68,13 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":test:uiautomator:uiautomator"))
 }
 
+def addLocalGoldenImageAssets() {
+    def subdirectory = project.path.replace(":", "/")
+    android.sourceSets.test.assets.srcDirs += files(new File(project.rootDir, "../../golden$subdirectory"))
+}
+
+addLocalGoldenImageAssets()
