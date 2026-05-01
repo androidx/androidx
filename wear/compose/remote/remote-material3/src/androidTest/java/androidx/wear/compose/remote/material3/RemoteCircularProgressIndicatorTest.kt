@@ -19,15 +19,9 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.TestClock
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -40,6 +34,8 @@ import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressInd
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndicatorCustomColor
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndicatorDisabled
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressNoGapCustomAngle
+import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,7 +59,7 @@ class RemoteCircularProgressIndicatorTest {
     @Test
     fun indicator_enabled() {
         remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
-            Center { RemoteCircularProgressEnabled() }
+            ComponentContainer { RemoteCircularProgressEnabled() }
         }
     }
 
@@ -73,35 +69,35 @@ class RemoteCircularProgressIndicatorTest {
             creationDisplayInfo = creationDisplayInfo,
             layoutDirection = LayoutDirection.Rtl,
         ) {
-            Center { RemoteCircularProgressEnabled() }
+            ComponentContainer { RemoteCircularProgressEnabled() }
         }
     }
 
     @Test
     fun indicator_indeterminate() {
         remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
-            Center { RemoteCircularProgressIndeterminate() }
+            ComponentContainer { RemoteCircularProgressIndeterminate() }
         }
     }
 
     @Test
     fun indicator_disabled() {
         remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
-            Center { RemoteCircularProgressIndicatorDisabled() }
+            ComponentContainer { RemoteCircularProgressIndicatorDisabled() }
         }
     }
 
     @Test
     fun indicator_customColors() {
         remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
-            Center { RemoteCircularProgressIndicatorCustomColor() }
+            ComponentContainer { RemoteCircularProgressIndicatorCustomColor() }
         }
     }
 
     @Test
     fun indicator_customEndAngle_and_noGap() {
         remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
-            Center { RemoteCircularProgressNoGapCustomAngle() }
+            ComponentContainer { RemoteCircularProgressNoGapCustomAngle() }
         }
     }
 
@@ -119,16 +115,7 @@ class RemoteCircularProgressIndicatorTest {
             backgroundColor = Color.Black,
             colorOverrides = colorOverrides,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteCircularProgressEnabled() }
+            ComponentContainer { RemoteCircularProgressEnabled() }
         }
-    }
-
-    @Composable
-    @RemoteComposable
-    private fun Center(
-        modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
-        content: @Composable @RemoteComposable () -> Unit,
-    ) {
-        RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
     }
 }

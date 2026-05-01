@@ -24,6 +24,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.uiAutomator
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestImageVectors
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

@@ -19,14 +19,8 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -36,6 +30,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteButtonGroupThreeButtons
 import androidx.wear.compose.remote.material3.previews.RemoteButtonGroupTwoButtons
+import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +54,7 @@ class RemoteButtonGroupTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center { RemoteButtonGroupThreeButtons() }
+            ComponentContainer { RemoteButtonGroupThreeButtons() }
         }
     }
 
@@ -69,7 +65,7 @@ class RemoteButtonGroupTest {
             creationDisplayInfo = creationDisplayInfo,
             layoutDirection = LayoutDirection.Rtl,
         ) {
-            Center { RemoteButtonGroupThreeButtons() }
+            ComponentContainer { RemoteButtonGroupThreeButtons() }
         }
     }
 
@@ -79,7 +75,7 @@ class RemoteButtonGroupTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center { RemoteButtonGroupTwoButtons() }
+            ComponentContainer { RemoteButtonGroupTwoButtons() }
         }
     }
 
@@ -97,16 +93,7 @@ class RemoteButtonGroupTest {
             creationDisplayInfo = creationDisplayInfo,
             colorOverrides = colorOverrides,
         ) {
-            Center { RemoteButtonGroupThreeButtons() }
+            ComponentContainer { RemoteButtonGroupThreeButtons() }
         }
-    }
-
-    @Composable
-    @RemoteComposable
-    private fun Center(
-        modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
-        content: @Composable @RemoteComposable () -> Unit,
-    ) {
-        RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
     }
 }

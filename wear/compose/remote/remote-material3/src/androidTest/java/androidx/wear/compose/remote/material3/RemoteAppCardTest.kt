@@ -32,6 +32,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardDefault
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardWithAppNameTimeTitle
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardWithAppNameTitleSubtitle
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

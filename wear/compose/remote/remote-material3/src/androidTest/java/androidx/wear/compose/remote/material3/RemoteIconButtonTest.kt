@@ -20,11 +20,7 @@ import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -44,6 +40,9 @@ import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonOutlined
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonTonal
+import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestImageVectors
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,7 +65,7 @@ class RemoteIconButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteIconButtonEnabled() }
+            ComponentContainer { RemoteIconButtonEnabled() }
         }
     }
 
@@ -77,7 +76,7 @@ class RemoteIconButtonTest {
             creationDisplayInfo = creationDisplayInfo,
             layoutDirection = LayoutDirection.Rtl,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteIconButtonEnabled() }
+            ComponentContainer { RemoteIconButtonEnabled() }
         }
     }
 
@@ -87,7 +86,7 @@ class RemoteIconButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteIconButton(testAction, enabled = RemoteBoolean(false)) {
                     RemoteIcon(
                         imageVector = TestImageVectors.VolumeUp,
@@ -105,7 +104,7 @@ class RemoteIconButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteIconButtonTonal() }
+            ComponentContainer { RemoteIconButtonTonal() }
         }
     }
 
@@ -115,7 +114,7 @@ class RemoteIconButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteIconButton(
                     testAction,
                     enabled = RemoteBoolean(false),
@@ -137,7 +136,7 @@ class RemoteIconButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteIconButtonOutlined() }
+            ComponentContainer { RemoteIconButtonOutlined() }
         }
     }
 
@@ -147,7 +146,7 @@ class RemoteIconButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteIconButton(
                     testAction,
                     border = 1.rdp,
@@ -206,15 +205,9 @@ class RemoteIconButtonTest {
             creationDisplayInfo = creationDisplayInfo,
             colorOverrides = colorOverrides,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteIconButtonEnabled() }
+            ComponentContainer { RemoteIconButtonEnabled() }
         }
     }
-}
-
-@Composable
-@RemoteComposable
-private fun Center(modifier: RemoteModifier, content: @Composable @RemoteComposable () -> Unit) {
-    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
 }
 
 private val testAction = HostAction("testAction".rs, 1.rf)

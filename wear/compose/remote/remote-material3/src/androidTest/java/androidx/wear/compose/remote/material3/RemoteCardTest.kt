@@ -18,14 +18,8 @@ package androidx.wear.compose.remote.material3
 
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -36,6 +30,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteCardDefault
 import androidx.wear.compose.remote.material3.previews.RemoteCardOutline
+import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,7 +53,7 @@ class RemoteCardTest {
             profile = RcPlatformProfiles.WEAR_WIDGETS,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Container(RemoteModifier.fillMaxSize()) { RemoteCardDefault() }
+            ComponentContainer { RemoteCardDefault() }
         }
     }
 
@@ -68,7 +64,7 @@ class RemoteCardTest {
             creationDisplayInfo = creationDisplayInfo,
             layoutDirection = LayoutDirection.Rtl,
         ) {
-            Container(RemoteModifier.fillMaxSize()) { RemoteCardDefault() }
+            ComponentContainer { RemoteCardDefault() }
         }
     }
 
@@ -78,7 +74,7 @@ class RemoteCardTest {
             profile = RcPlatformProfiles.WEAR_WIDGETS,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Container(RemoteModifier.fillMaxSize()) { RemoteCardOutline() }
+            ComponentContainer { RemoteCardOutline() }
         }
     }
 
@@ -95,16 +91,7 @@ class RemoteCardTest {
             creationDisplayInfo = creationDisplayInfo,
             colorOverrides = colorOverrides,
         ) {
-            Container(RemoteModifier.fillMaxSize()) { RemoteCardDefault() }
+            ComponentContainer { RemoteCardDefault() }
         }
-    }
-
-    @Composable
-    @RemoteComposable
-    private fun Container(
-        modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
-        content: @Composable @RemoteComposable () -> Unit,
-    ) {
-        RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
     }
 }

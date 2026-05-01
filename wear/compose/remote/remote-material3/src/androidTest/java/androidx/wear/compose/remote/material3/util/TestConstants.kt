@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.remote.material3
+package androidx.wear.compose.remote.material3.util
 
 internal const val SCREENSHOT_GOLDEN_DIRECTORY = "wear/compose/remote/remote-material3"
