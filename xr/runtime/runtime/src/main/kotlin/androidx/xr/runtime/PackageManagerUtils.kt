@@ -62,6 +62,11 @@ internal object PackageManagerUtils {
         }
     }
 
+    internal fun hasXrProjectedSystemService(context: Context): Boolean =
+        context.packageManager
+            .queryIntentServices(Intent(ACTION_BIND), PackageManager.MATCH_SYSTEM_ONLY)
+            .isNotEmpty()
+
     private fun findSystemServiceForIntent(context: Context, intent: Intent): ResolveInfo {
         val resolveInfoSystemApps: List<ResolveInfo> =
             context.packageManager.queryIntentServices(intent, PackageManager.MATCH_SYSTEM_ONLY)

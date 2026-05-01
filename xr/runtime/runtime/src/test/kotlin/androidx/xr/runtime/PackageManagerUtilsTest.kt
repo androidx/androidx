@@ -85,6 +85,54 @@ class PackageManagerUtilsTest {
         }
     }
 
+    @Test
+    fun hasXrProjectedSystemService_whenServiceExists_returnsTrue() {
+        shadowOf(context.packageManager).apply {
+            addServiceIfNotPresent(PROJECTED_SERVICE_COMPONENT_NAME)
+            addIntentFilterForService(
+                PROJECTED_SERVICE_COMPONENT_NAME,
+                IntentFilter(PackageManagerUtils.ACTION_BIND),
+            )
+            installPackage(PROJECTED_PACKAGE_INFO)
+        }
+
+        assertThat(PackageManagerUtils.hasXrProjectedSystemService(context)).isTrue()
+    }
+
+    @Test
+    fun hasXrProjectedSystemService_whenServiceDoesNotExist_returnsFalse() {
+        assertThat(PackageManagerUtils.hasXrProjectedSystemService(context)).isFalse()
+    }
+
+    @Test
+    fun hasXrProjectedSystemService_whenServiceExistsButNotSystem_returnsFalse() {
+        val nonSystemPackageName = "com.non_system.service"
+        val nonSystemClassName = "com.non_system.service.ProjectedService"
+        val nonSystemComponentName = ComponentName(nonSystemPackageName, nonSystemClassName)
+        val nonSystemServiceInfo =
+            ServiceInfo().apply {
+                packageName = nonSystemPackageName
+                name = nonSystemClassName
+            }
+        val nonSystemPackageInfo =
+            PackageInfo().apply {
+                packageName = nonSystemPackageName
+                services = arrayOf(nonSystemServiceInfo)
+                applicationInfo = ApplicationInfo().apply { flags = 0 }
+            }
+
+        shadowOf(context.packageManager).apply {
+            addServiceIfNotPresent(nonSystemComponentName)
+            addIntentFilterForService(
+                nonSystemComponentName,
+                IntentFilter(PackageManagerUtils.ACTION_BIND),
+            )
+            installPackage(nonSystemPackageInfo)
+        }
+
+        assertThat(PackageManagerUtils.hasXrProjectedSystemService(context)).isFalse()
+    }
+
     companion object {
         private const val PROJECTED_SERVICE_PACKAGE_NAME = "com.system.service"
         private const val PROJECTED_SERVICE_CLASS_NAME = "com.system.service.ProjectedService"

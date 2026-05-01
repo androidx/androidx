@@ -16,8 +16,16 @@
 
 package androidx.xr.runtime
 
+import android.app.Application
+import android.content.ComponentName
+import android.content.IntentFilter
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
+import android.content.pm.ServiceInfo
 import androidx.activity.ComponentActivity
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.runtime.PackageManagerUtils.XR_PROJECTED_SYSTEM_FEATURE
 import androidx.xr.runtime.testing.XrDeviceTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
@@ -38,6 +46,7 @@ class XrDeviceTest {
 
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
+    private lateinit var context: Application
     private lateinit var testDispatcher: TestDispatcher
 
     @Before
@@ -45,6 +54,7 @@ class XrDeviceTest {
         testDispatcher = StandardTestDispatcher()
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
+        context = ApplicationProvider.getApplicationContext()
 
         val shadowApplication = shadowOf(activity.application)
 
@@ -203,9 +213,67 @@ class XrDeviceTest {
         assertThat(device.isRenderingModeSupported(RenderingMode.STEREO)).isTrue()
     }
 
+    @Test
+    fun isProjectedServiceAvailable_serviceSupported_returnsTrue() {
+        val shadowPackageManager = shadowOf(context.packageManager)
+        shadowPackageManager.setSystemFeature(XR_PROJECTED_SYSTEM_FEATURE, true)
+
+        shadowOf(context.packageManager).apply {
+            addServiceIfNotPresent(PROJECTED_SERVICE_COMPONENT_NAME)
+            addIntentFilterForService(
+                PROJECTED_SERVICE_COMPONENT_NAME,
+                IntentFilter(PackageManagerUtils.ACTION_BIND),
+            )
+            installPackage(PROJECTED_PACKAGE_INFO)
+        }
+
+        assertThat(XrDevice.isProjectedServiceAvailable(context)).isTrue()
+    }
+
+    @Test
+    fun isProjectedServiceAvailable_systemFeatureMissing_returnsFalse() {
+        shadowOf(context.packageManager).apply {
+            addServiceIfNotPresent(PROJECTED_SERVICE_COMPONENT_NAME)
+            addIntentFilterForService(
+                PROJECTED_SERVICE_COMPONENT_NAME,
+                IntentFilter(PackageManagerUtils.ACTION_BIND),
+            )
+            installPackage(PROJECTED_PACKAGE_INFO)
+        }
+
+        assertThat(XrDevice.isProjectedServiceAvailable(context)).isFalse()
+    }
+
+    @Test
+    fun isProjectedServiceAvailable_systemServiceMissing_returnsFalse() {
+        val shadowPackageManager = shadowOf(context.packageManager)
+        shadowPackageManager.setSystemFeature(XR_PROJECTED_SYSTEM_FEATURE, true)
+
+        assertThat(XrDevice.isProjectedServiceAvailable(context)).isFalse()
+    }
+
     private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher): Session {
         val result = Session.create(activity, coroutineDispatcher)
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         return (result as SessionCreateSuccess).session
+    }
+
+    companion object {
+        private const val PROJECTED_SERVICE_PACKAGE_NAME = "com.system.service"
+        private const val PROJECTED_SERVICE_CLASS_NAME = "com.system.service.ProjectedService"
+
+        private val PROJECTED_SERVICE_COMPONENT_NAME: ComponentName =
+            ComponentName(PROJECTED_SERVICE_PACKAGE_NAME, PROJECTED_SERVICE_CLASS_NAME)
+        private val PROJECTED_SERVICE_INFO =
+            ServiceInfo().apply {
+                packageName = PROJECTED_SERVICE_PACKAGE_NAME
+                name = PROJECTED_SERVICE_CLASS_NAME
+            }
+        private val PROJECTED_PACKAGE_INFO =
+            PackageInfo().apply {
+                packageName = PROJECTED_SERVICE_PACKAGE_NAME
+                services = arrayOf(PROJECTED_SERVICE_INFO)
+                applicationInfo = ApplicationInfo().apply { flags = ApplicationInfo.FLAG_SYSTEM }
+            }
     }
 }
