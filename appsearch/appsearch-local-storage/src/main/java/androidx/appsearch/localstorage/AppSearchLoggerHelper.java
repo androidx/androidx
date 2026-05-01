@@ -117,7 +117,8 @@ public final class AppSearchLoggerHelper {
                 .setNativeInitializeIcuDataStatusCode(
                         fromNativeStats.getInitializeIcuDataStatus().getCode().getNumber())
                 .setNativeNumFailedReindexedDocuments(
-                        fromNativeStats.getNumFailedReindexedDocuments());
+                        fromNativeStats.getNumFailedReindexedDocuments())
+                .setNativeSchemaProtoByteSize(fromNativeStats.getSchemaProtoByteSize());
     }
 
     /**
@@ -301,6 +302,8 @@ public final class AppSearchLoggerHelper {
                         fromProto
                                 .getSetSchemaStats()
                                 .getScorablePropertyCacheRegenerationLatencyMs())
+                .setNativeSchemaProtoByteSize(
+                        fromProto.getSetSchemaStats().getSchemaProtoByteSize())
                 .addGetVmLatencyMillis(fromProto.getGetVmLatencyMs());
     }
 
