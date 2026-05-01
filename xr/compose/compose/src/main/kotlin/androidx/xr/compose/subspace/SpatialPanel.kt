@@ -737,16 +737,17 @@ public fun SpatialActivityPanel(
 
     val pixelDimensions = IntSize2d(0, 0)
 
+    val activityPanelEntity = remember {
+        ActivityPanelEntity.create(
+            session,
+            pixelDimensions,
+            "ActivityPanel-${intent.action}",
+            parent = null,
+        )
+    }
+
     val corePanelEntity: CoreActivityPanelEntity = remember {
-        CoreActivityPanelEntity(
-                ActivityPanelEntity.create(
-                    session,
-                    pixelDimensions,
-                    "ActivityPanel-${intent.action}",
-                    parent = null,
-                )
-            )
-            .apply { enabled = false }
+        CoreActivityPanelEntity(activityPanelEntity).apply { enabled = false }
     }
 
     SideEffect { corePanelEntity.setShape(shape, density) }
@@ -783,13 +784,12 @@ public fun SpatialActivityPanel(
                                         corePanelEntity.size.run { IntSize2d(width, height) },
                                     name = entityName,
                                     pose = Pose.Identity,
-                                    parent = null,
+                                    parent = activityPanelEntity,
                                 )
                             )
                             .apply {
-                                parent = corePanelEntity
                                 poseInMeters =
-                                    Pose(translation = Vector3(0f, 0f, 3.millimeters.toM()))
+                                    Pose(translation = Vector3(0f, 0f, 10.millimeters.toM()))
                             }
                     ) {
                         it.dispose()
