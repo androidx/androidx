@@ -32,6 +32,7 @@ import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioned
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.ChipDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.EndImageAndActionsDemo
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.ProgressBarDemoScreen
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.SectionHeaderDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.SimpleListDemoScreen
 
 @RequiresCarApi(8)
@@ -68,6 +69,12 @@ class SectionedItemTemplateDemoScreen(carContext: CarContext) : Screen(carContex
                         buildRowForTemplate(
                             ProgressBarDemoScreen(carContext),
                             R.string.progress_bar_demo_title,
+                        )
+                    )
+                    .addItem(
+                        buildRowForTemplate(
+                            SectionHeaderDemoScreen(carContext),
+                            R.string.section_header_demo_title,
                         )
                     )
                     .build()
