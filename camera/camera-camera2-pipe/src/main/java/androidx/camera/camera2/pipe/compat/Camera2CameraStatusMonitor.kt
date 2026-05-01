@@ -101,7 +101,7 @@ internal class Camera2CameraStatusMonitor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             Api28Compat.registerAvailabilityCallback(
                 manager,
-                threads.lightweightExecutor,
+                threads.camera2Executor,
                 availabilityCallback,
             )
         } else {
