@@ -18,10 +18,7 @@ package androidx.compose.remote.testing
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -38,46 +35,20 @@ import org.junit.runners.model.Statement
  * developers to choose their own implementation.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteBaseContentTestRule : TestRule {
-
+public class RemoteBaseDocContentTestRule : TestRule {
     /** [ComposeContentTestRule] used by this [TestRule]. */
     public val composeTestRule: ComposeContentTestRule = createComposeRule(StandardTestDispatcher())
 
     override fun apply(base: Statement, description: Description): Statement =
         composeTestRule.apply(base, description)
 
-    public fun setContent(
-        creation: Creation,
-        player: Player,
-        size: Size,
-        onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
-        // b/500955051: remove this param
-        composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)? = null,
-        composable: @RemoteComposable @Composable () -> Unit,
-    ) {
-        composeTestRule.setContent {
-            val composable: @Composable () -> Unit = {
-                val coreDocument: CoreDocument? by
-                    creation.rememberRemoteDocument(composable = composable)
-
-                coreDocument?.let {
-                    onCoreDocumentCreated?.invoke(it)
-                    player.Play(coreDocument = it, size = size)
-                }
-            }
-            if (composableWrapper == null) {
-                composable()
-            } else {
-                composableWrapper { composable() }
-            }
-        }
-    }
-
-    public interface Creation {
-        @Composable
-        public fun rememberRemoteDocument(
-            composable: @RemoteComposable @Composable () -> Unit
-        ): MutableState<CoreDocument?>
+    /**
+     * Sets the given [CoreDocument] as a content of the current screen.
+     *
+     * @param coreDocument The [CoreDocument] to play.
+     */
+    public fun setContent(coreDocument: CoreDocument, player: Player, size: Size) {
+        composeTestRule.setContent { player.Play(coreDocument = coreDocument, size = size) }
     }
 
     public interface Player {
