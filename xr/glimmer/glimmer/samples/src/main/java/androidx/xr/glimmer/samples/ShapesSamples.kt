@@ -48,7 +48,7 @@ private fun ShapesPreview() {
 @Composable
 private fun ShapeItem(name: String, shape: Shape, modifier: Modifier = Modifier) {
     Box(
-        modifier.aspectRatio(2.5f).fillMaxWidth().surface(focusable = false, shape = shape),
+        modifier.aspectRatio(2.5f).fillMaxWidth().surface(shape = shape),
         contentAlignment = Alignment.Center,
     ) {
         Text(name)

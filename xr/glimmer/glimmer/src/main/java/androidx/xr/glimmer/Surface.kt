@@ -27,12 +27,9 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -66,70 +63,11 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.intellij.lang.annotations.Language
 
+// TODO: b/423573184 align on disabled behavior / state
 /**
  * A surface is a fundamental building block in Glimmer. A surface represents a distinct visual area
- * or 'physical' boundary for components such as buttons and cards. A surface is responsible for:
- * 1) Clipping: a surface clips its children to the shape specified by [shape]
- * 2) Border: a surface draws an inner [border] to emphasize the boundary of the component.
- * 3) Background: a surface has a background color of [color].
- * 4) Depth effect: a surface can have different [DepthEffect] shadows for different states, as
- *    specified by [depthEffect].
- * 5) Content color: a surface provides a [contentColor] for text and icons inside the surface. By
- *    default this is calculated from the provided background color.
- * 6) Interaction states: when focused, a surface displays draws a wider border with a focused
- *    highlight on top. When pressed, a surface draws a pressed overlay. This happens for
- *    interactions emitted from [interactionSource], whether this surface is [focusable] or not.
- *
- * This surface is focusable by default - set [focusable] to false for un-interactive / decorative
- * surfaces. For handling clicks, use the other [surface] overload with an `onClick` parameter.
- *
- * Simple usage:
- *
- * @sample androidx.xr.glimmer.samples.SurfaceSample
- *
- * For custom gesture handling, add the gesture modifier after this [surface], and provide a shared
- * [MutableInteractionSource] to enable this surface to handle focus / press states. You should also
- * pass `false` for [focusable] if that modifier already includes a focus target by default. For
- * example, to create a toggleable surface:
- *
- * @sample androidx.xr.glimmer.samples.ToggleableSurfaceSample
- * @param focusable whether this surface is focusable, true by default. Most surfaces should be
- *   focusable to allow navigation between surfaces in a screen. Unfocusable surfaces may be used
- *   for decorative only elements, such as surfaces used in a compound component with a separate
- *   focusable area.
- * @param shape the [Shape] used to clip this surface, and also used to draw the background and
- *   border
- * @param color the background [Color] for this surface
- * @param contentColor the [Color] for content inside this surface
- * @param depthEffect the [SurfaceDepthEffect] for this surface, representing the [DepthEffect]
- *   shadows rendered in different states.
- * @param border an optional inner border for this surface
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this surface. Note that if `null` is provided, interactions will
- *   still happen internally.
- */
-@Composable
-public fun Modifier.surface(
-    focusable: Boolean = true,
-    shape: Shape = GlimmerTheme.shapes.medium,
-    color: Color = GlimmerTheme.colors.surface,
-    contentColor: Color = calculateContentColor(color),
-    depthEffect: SurfaceDepthEffect? = null,
-    border: BorderStroke? = SurfaceDefaults.border(),
-    interactionSource: MutableInteractionSource? = null,
-): Modifier {
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    return this.surfaceDepthEffect(depthEffect, shape, interactionSource)
-        .clip(shape)
-        .contentColorProvider(contentColor)
-        .then(SurfaceNodeElement(shape, border, interactionSource))
-        .background(color = color, shape = shape)
-        .focusable(enabled = focusable, interactionSource = interactionSource)
-}
-
-/**
- * A surface is a fundamental building block in Glimmer. A surface represents a distinct visual area
- * or 'physical' boundary for components such as buttons and cards. A surface is responsible for:
+ * or 'physical' boundary for components such as buttons and cards. A [surface] implements shared
+ * visual decoration for Jetpack Compose Glimmer components:
  * 1) Clipping: a surface clips its children to the shape specified by [shape]
  * 2) Border: a surface draws an inner [border] to emphasize the boundary of the component. When
  *    focused, a surface draws a wider border with a focused highlight on top to indicate the focus
@@ -141,15 +79,25 @@ public fun Modifier.surface(
  *    default this is calculated from the provided background color.
  * 6) Interaction states: when focused, a surface displays draws a wider border with a focused
  *    highlight on top. When pressed, a surface draws a pressed overlay. This happens for
- *    interactions emitted from [interactionSource], whether this surface is [enabled] or not.
+ *    interactions emitted from [interactionSource].
  *
- * This surface is focusable and handles clicks. For non-clickable surfaces, use the other overload
- * of [surface] instead. For surfaces with custom gesture handling, refer to the sample and guidance
- * on the other overload of [surface].
+ * Use surface on its own for decorative elements that cannot be interacted with by a user:
+ *
+ * @sample androidx.xr.glimmer.samples.SurfaceSample
+ *
+ * In most cases surfaces should be interactive, to allow users to consistently move focus and
+ * navigate between components. You can use [androidx.compose.foundation.focusable] for focus-only
+ * surfaces, or [androidx.compose.foundation.clickable] and other modifiers for surfaces with
+ * actions. To ensure the surface correctly reflects the interaction states, provide the same
+ * [InteractionSource] to all modifiers.
+ *
+ * For example, to create a clickable surface:
  *
  * @sample androidx.xr.glimmer.samples.ClickableSurfaceSample
- * @param enabled whether this surface is enabled, true by default. When false, this surface will
- *   not respond to user input, and will not be focusable.
+ *
+ * Similarly, to create a focusable surface:
+ *
+ * @sample androidx.xr.glimmer.samples.FocusableSurfaceSample
  * @param shape the [Shape] used to clip this surface, and also used to draw the background and
  *   border
  * @param color the background [Color] for this surface
@@ -157,30 +105,25 @@ public fun Modifier.surface(
  * @param depthEffect the [SurfaceDepthEffect] for this surface, representing the [DepthEffect]
  *   shadows rendered in different states.
  * @param border an optional inner border for this surface
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this surface. Note that if `null` is provided, interactions will
- *   still happen internally.
- * @param onClick callback invoked when this surface is clicked
+ * @param interactionSource the [InteractionSource] that emits [Interaction]s for this surface. For
+ *   interactive surfaces, the [InteractionSource] instance provided to this surface must be shared
+ *   with the modifier responsible for emitting [Interaction]s, such as
+ *   [androidx.compose.foundation.focusable] or [androidx.compose.foundation.clickable].
  */
 @Composable
 public fun Modifier.surface(
-    enabled: Boolean = true,
     shape: Shape = GlimmerTheme.shapes.medium,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
     depthEffect: SurfaceDepthEffect? = null,
     border: BorderStroke? = SurfaceDefaults.border(),
-    interactionSource: MutableInteractionSource? = null,
-    onClick: () -> Unit,
+    interactionSource: InteractionSource? = null,
 ): Modifier {
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     return this.surfaceDepthEffect(depthEffect, shape, interactionSource)
         .clip(shape)
         .contentColorProvider(contentColor)
         .then(SurfaceNodeElement(shape, border, interactionSource))
         .background(color = color, shape = shape)
-        // TODO: b/423573184 align on disabled behavior / state
-        .clickable(enabled = enabled, interactionSource = interactionSource, onClick = onClick)
 }
 
 /**
@@ -598,7 +541,7 @@ private class SurfaceNode(
 private fun Modifier.surfaceDepthEffect(
     depthEffect: SurfaceDepthEffect?,
     shape: Shape,
-    interactionSource: InteractionSource,
+    interactionSource: InteractionSource?,
 ): Modifier {
     if (depthEffect == null) return this
     val focusedProgress = remember { Animatable(0f) }
@@ -610,17 +553,20 @@ private fun Modifier.surfaceDepthEffect(
             if (depthEffect.focusedDepthEffect != null && focusedProgress.value >= 0.5f) 1f else 0f
         }
     }
-    LaunchedEffect(interactionSource) {
-        interactionSource.interactions.collect { interaction ->
-            when (interaction) {
-                is FocusInteraction.Focus ->
-                    launch(start = CoroutineStart.UNDISPATCHED) {
-                        focusedProgress.animateTo(1f, FocusedEnterAnimationSpec)
-                    }
-                is FocusInteraction.Unfocus ->
-                    launch(start = CoroutineStart.UNDISPATCHED) {
-                        focusedProgress.animateTo(0f, FocusedExitAnimationSpec)
-                    }
+    if (interactionSource != null) {
+        LaunchedEffect(interactionSource) {
+            interactionSource.interactions.collect { interaction ->
+                when (interaction) {
+                    is FocusInteraction.Focus ->
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            focusedProgress.animateTo(1f, FocusedEnterAnimationSpec)
+                        }
+
+                    is FocusInteraction.Unfocus ->
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            focusedProgress.animateTo(0f, FocusedExitAnimationSpec)
+                        }
+                }
             }
         }
     }

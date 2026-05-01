@@ -15,7 +15,6 @@ package androidx.xr.glimmer.demos
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,7 +42,6 @@ import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.list.VerticalList
 import androidx.xr.glimmer.list.items
 import androidx.xr.glimmer.samples.VerticalListWithTitleChipSample
-import androidx.xr.glimmer.surface
 
 internal val ListDemos =
     listOf(
@@ -172,13 +170,7 @@ private fun VerticalListWithControllableNumberOfItems() {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize(),
         ) {
-            items(itemsCount) { index ->
-                Box(
-                    Modifier.fillMaxWidth().surface().padding(horizontal = 24.dp, vertical = 20.dp)
-                ) {
-                    Text("Item-$index")
-                }
-            }
+            items(itemsCount) { index -> ListItem { Text("Item-$index") } }
         }
     }
 }

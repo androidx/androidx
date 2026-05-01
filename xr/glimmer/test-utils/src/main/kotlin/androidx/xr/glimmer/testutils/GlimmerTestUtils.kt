@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage as captureToImageOriginal
@@ -51,6 +52,13 @@ fun ComposeContentTestRule.setContentWithDensity(
 fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
     assumeGlimmerMinSdk()
     return this.captureToImageOriginal()
+}
+
+/** Converts the [ImageBitmap] to an [IntArray] of pixel values in ARGB format. */
+fun ImageBitmap.toIntArray(): IntArray {
+    val bitmapArray = IntArray(width * height)
+    asAndroidBitmap().getPixels(bitmapArray, 0, width, 0, 0, width, height)
+    return bitmapArray
 }
 
 /**

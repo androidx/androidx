@@ -138,7 +138,6 @@ public fun ToggleButton(
         Row(
             modifier
                 .surface(
-                    focusable = false,
                     shape = shape,
                     color = colors.resolveBackgroundColor(checked),
                     contentColor = colors.resolveContentColor(checked),

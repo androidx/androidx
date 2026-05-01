@@ -45,7 +45,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-class SurfaceScreenshotTest() {
+class SurfaceScreenshotTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
@@ -172,7 +172,7 @@ class SurfaceScreenshotTest() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
             Box(
-                Modifier.surface(interactionSource = AlwaysPressedInteractionSource, onClick = {})
+                Modifier.surface(interactionSource = AlwaysPressedInteractionSource)
                     .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
                 Text("This is a surface")
@@ -193,7 +193,7 @@ class SurfaceScreenshotTest() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
             Box(
-                Modifier.surface(interactionSource = AlwaysPressedInteractionSource, onClick = {})
+                Modifier.surface(interactionSource = AlwaysPressedInteractionSource)
                     .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
                 Text("This is a surface")
@@ -209,10 +209,7 @@ class SurfaceScreenshotTest() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
             Box(
-                Modifier.surface(
-                        interactionSource = AlwaysFocusedAndPressedInteractionSource,
-                        onClick = {},
-                    )
+                Modifier.surface(interactionSource = AlwaysFocusedAndPressedInteractionSource)
                     .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
                 Text("This is a surface")
