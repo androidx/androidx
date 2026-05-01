@@ -85,6 +85,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
@@ -112,7 +116,20 @@ fun SimpleTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -126,7 +143,20 @@ fun SimpleTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -193,7 +223,20 @@ fun SimpleTopAppBarWithAdaptiveActions() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -210,7 +253,21 @@ fun SimpleTopAppBarWithAdaptiveActions() {
                                     TooltipDefaults.rememberTooltipPositionProvider(
                                         TooltipAnchorPosition.Above
                                     ),
-                                tooltip = { PlainTooltip { Text("Overflow") } },
+                                tooltip = {
+                                    PlainTooltip(
+                                        modifier =
+                                            Modifier.semantics {
+                                                // TODO(b/496338253): Remove this modifier once bug
+                                                // where
+                                                // tooltip text is not announced
+                                                //  by a11y screen readers is resolved.
+                                                liveRegion = LiveRegionMode.Assertive
+                                                paneTitle = "Overflow"
+                                            }
+                                    ) {
+                                        Text("Overflow")
+                                    }
+                                },
                                 state = rememberTooltipState(),
                             ) {
                                 IconButton(onClick = { it.show() }) {
@@ -278,7 +335,20 @@ fun SimpleTopAppBarWithSubtitle() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -292,7 +362,20 @@ fun SimpleTopAppBarWithSubtitle() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -345,7 +428,20 @@ fun SimpleCenterAlignedTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -359,7 +455,20 @@ fun SimpleCenterAlignedTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -416,7 +525,20 @@ fun SimpleCenterAlignedTopAppBarWithSubtitle() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -430,7 +552,20 @@ fun SimpleCenterAlignedTopAppBarWithSubtitle() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -484,7 +619,20 @@ fun PinnedTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -499,7 +647,20 @@ fun PinnedTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -514,7 +675,20 @@ fun PinnedTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to starred") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to starred"
+                                    }
+                            ) {
+                                Text("Add to starred")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -568,7 +742,20 @@ fun PinnedTopAppBarWithPreScrolledLazyColumn() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -636,7 +823,20 @@ fun PinnedTopAppBarWithReversedLazyGrid() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -691,7 +891,20 @@ fun EnterAlwaysTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -705,7 +918,20 @@ fun EnterAlwaysTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -765,7 +991,20 @@ fun EnterAlwaysTopAppBarWithReverseScrolling() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -816,7 +1055,20 @@ fun ExitUntilCollapsedMediumTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -830,7 +1082,20 @@ fun ExitUntilCollapsedMediumTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -887,7 +1152,20 @@ fun ExitUntilCollapsedCenterAlignedMediumFlexibleTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -901,7 +1179,20 @@ fun ExitUntilCollapsedCenterAlignedMediumFlexibleTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -953,7 +1244,20 @@ fun ExitUntilCollapsedLargeTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -967,7 +1271,20 @@ fun ExitUntilCollapsedLargeTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -1022,7 +1339,20 @@ fun ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -1036,7 +1366,20 @@ fun ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Add to favorites"
+                                    }
+                            ) {
+                                Text("Add to favorites")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -1109,7 +1452,20 @@ fun CustomTwoRowsTopAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Menu"
+                                    }
+                            ) {
+                                Text("Menu")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -1144,7 +1500,21 @@ fun SimpleBottomAppBar() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text("Menu") } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                // text is
+                                // not announced
+                                //  by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = "Menu"
+                            }
+                    ) {
+                        Text("Menu")
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 IconButton(onClick = { /* doSomething() */ }) {
@@ -1165,7 +1535,21 @@ fun BottomAppBarWithFAB() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text("Check") } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                // text is
+                                // not announced
+                                //  by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = "Check"
+                            }
+                    ) {
+                        Text("Check")
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 IconButton(onClick = { /* doSomething() */ }) {
@@ -1175,7 +1559,21 @@ fun BottomAppBarWithFAB() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text("Edit") } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                // text is
+                                // not announced
+                                //  by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = "Edit"
+                            }
+                    ) {
+                        Text("Edit")
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 IconButton(onClick = { /* doSomething() */ }) {
@@ -1187,7 +1585,21 @@ fun BottomAppBarWithFAB() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text("Add") } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                // text is
+                                // not announced
+                                //  by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = "Add"
+                            }
+                    ) {
+                        Text("Add")
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 FloatingActionButton(
@@ -1222,7 +1634,20 @@ fun ExitAlwaysBottomAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Check") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Check"
+                                    }
+                            ) {
+                                Text("Check")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -1234,7 +1659,20 @@ fun ExitAlwaysBottomAppBar() {
                             TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above
                             ),
-                        tooltip = { PlainTooltip { Text("Edit") } },
+                        tooltip = {
+                            PlainTooltip(
+                                modifier =
+                                    Modifier.semantics {
+                                        // TODO(b/496338253): Remove this modifier once bug where
+                                        //   tooltip text is not announced by a11y screen readers
+                                        //   is resolved.
+                                        liveRegion = LiveRegionMode.Assertive
+                                        paneTitle = "Edit"
+                                    }
+                            ) {
+                                Text("Edit")
+                            }
+                        },
                         state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -1249,7 +1687,21 @@ fun ExitAlwaysBottomAppBar() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text("Add") } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                // text is
+                                // not announced
+                                //  by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = "Add"
+                            }
+                    ) {
+                        Text("Add")
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 FloatingActionButton(
@@ -1315,7 +1767,21 @@ fun ExitAlwaysBottomAppBarSpacedAround() {
                                 TooltipDefaults.rememberTooltipPositionProvider(
                                     TooltipAnchorPosition.Above
                                 ),
-                            tooltip = { PlainTooltip { Text(button) } },
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            // where
+                                            // tooltip text is not announced
+                                            //  by a11y screen readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = button
+                                        }
+                                ) {
+                                    Text(button)
+                                }
+                            },
                             state = rememberTooltipState(),
                         ) {
                             if (index == 2) {
@@ -1385,7 +1851,21 @@ fun ExitAlwaysBottomAppBarSpacedBetween() {
                                 TooltipDefaults.rememberTooltipPositionProvider(
                                     TooltipAnchorPosition.Above
                                 ),
-                            tooltip = { PlainTooltip { Text(button) } },
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            // where
+                                            // tooltip text is not announced
+                                            //  by a11y screen readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = button
+                                        }
+                                ) {
+                                    Text(button)
+                                }
+                            },
                             state = rememberTooltipState(),
                         ) {
                             if (index == 2) {
@@ -1456,7 +1936,21 @@ fun ExitAlwaysBottomAppBarSpacedEvenly() {
                                 TooltipDefaults.rememberTooltipPositionProvider(
                                     TooltipAnchorPosition.Above
                                 ),
-                            tooltip = { PlainTooltip { Text(button) } },
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            // where
+                                            // tooltip text is not announced
+                                            //  by a11y screen readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = button
+                                        }
+                                ) {
+                                    Text(button)
+                                }
+                            },
                             state = rememberTooltipState(),
                         ) {
                             if (index == 2) {
@@ -1526,7 +2020,21 @@ fun ExitAlwaysBottomAppBarFixed() {
                                 TooltipDefaults.rememberTooltipPositionProvider(
                                     TooltipAnchorPosition.Above
                                 ),
-                            tooltip = { PlainTooltip { Text(button) } },
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            // where
+                                            // tooltip text is not announced
+                                            //  by a11y screen readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = button
+                                        }
+                                ) {
+                                    Text(button)
+                                }
+                            },
                             state = rememberTooltipState(),
                         ) {
                             if (index == 2) {
@@ -1598,7 +2106,21 @@ fun ExitAlwaysBottomAppBarFixedVibrant() {
                                 TooltipDefaults.rememberTooltipPositionProvider(
                                     TooltipAnchorPosition.Above
                                 ),
-                            tooltip = { PlainTooltip { Text(button) } },
+                            tooltip = {
+                                PlainTooltip(
+                                    modifier =
+                                        Modifier.semantics {
+                                            // TODO(b/496338253): Remove this modifier once bug
+                                            // where
+                                            // tooltip text is not announced
+                                            //  by a11y screen readers is resolved.
+                                            liveRegion = LiveRegionMode.Assertive
+                                            paneTitle = button
+                                        }
+                                ) {
+                                    Text(button)
+                                }
+                            },
                             state = rememberTooltipState(),
                         ) {
                             if (index == 2) {
@@ -1663,7 +2185,21 @@ fun BottomAppBarWithOverflow() {
                         TooltipDefaults.rememberTooltipPositionProvider(
                             TooltipAnchorPosition.Above
                         ),
-                    tooltip = { PlainTooltip { Text("Overflow") } },
+                    tooltip = {
+                        PlainTooltip(
+                            modifier =
+                                Modifier.semantics {
+                                    // TODO(b/496338253): Remove this modifier once bug where
+                                    // tooltip text
+                                    // is not announced
+                                    //  by a11y screen readers is resolved.
+                                    liveRegion = LiveRegionMode.Assertive
+                                    paneTitle = "Overflow"
+                                }
+                        ) {
+                            Text("Overflow")
+                        }
+                    },
                     state = rememberTooltipState(),
                 ) {
                     IconButton(

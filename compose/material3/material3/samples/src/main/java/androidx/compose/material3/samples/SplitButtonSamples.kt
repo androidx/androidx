@@ -54,7 +54,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
@@ -85,7 +88,19 @@ fun FilledSplitButtonSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.TrailingButton(
@@ -139,7 +154,19 @@ fun SplitButtonWithUnCheckableTrailingButtonSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.TrailingButton(onClick = { /* Do Nothing */ }) {
@@ -182,7 +209,20 @@ fun SplitButtonWithDropdownMenuSample() {
                         TooltipDefaults.rememberTooltipPositionProvider(
                             TooltipAnchorPosition.Above
                         ),
-                    tooltip = { PlainTooltip { Text(description) } },
+                    tooltip = {
+                        PlainTooltip(
+                            modifier =
+                                Modifier.semantics {
+                                    // TODO(b/496338253): Remove this modifier once bug where
+                                    //  tooltip text is not announced by a11y screen readers is
+                                    //  resolved.
+                                    liveRegion = LiveRegionMode.Assertive
+                                    paneTitle = description
+                                }
+                        ) {
+                            Text(description)
+                        }
+                    },
                     state = rememberTooltipState(),
                 ) {
                     SplitButtonDefaults.TrailingButton(
@@ -259,7 +299,19 @@ fun TonalSplitButtonSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.TonalTrailingButton(
@@ -315,7 +367,19 @@ fun ElevatedSplitButtonSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.ElevatedTrailingButton(
@@ -371,7 +435,19 @@ fun OutlinedSplitButtonSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.OutlinedTrailingButton(
@@ -419,7 +495,19 @@ fun SplitButtonWithTextSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.TrailingButton(
@@ -464,7 +552,19 @@ fun SplitButtonWithIconSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
@@ -482,7 +582,19 @@ fun SplitButtonWithIconSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.TrailingButton(
@@ -544,7 +656,19 @@ fun XSmallFilledSplitButtonSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.TrailingButton(
@@ -607,7 +731,19 @@ fun MediumFilledSplitButtonSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.TrailingButton(
@@ -670,7 +806,19 @@ fun LargeFilledSplitButtonSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.TrailingButton(
@@ -733,7 +881,19 @@ fun ExtraLargeFilledSplitButtonSample() {
             TooltipBox(
                 positionProvider =
                     TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = { PlainTooltip { Text(description) } },
+                tooltip = {
+                    PlainTooltip(
+                        modifier =
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = description
+                            }
+                    ) {
+                        Text(description)
+                    }
+                },
                 state = rememberTooltipState(),
             ) {
                 SplitButtonDefaults.TrailingButton(

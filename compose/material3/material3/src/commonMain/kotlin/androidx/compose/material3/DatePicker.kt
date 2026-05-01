@@ -2554,7 +2554,7 @@ private fun IconButtonWithTooltip(
     TooltipBox(
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-        tooltip = { PlainTooltip { Text(contentDescription) } },
+        tooltip = { PlainTooltipInternal(contentDescription) { Text(contentDescription) } },
         state = rememberTooltipState(),
     ) {
         IconButton(onClick = onClick, modifier = modifier, enabled = enabled) {

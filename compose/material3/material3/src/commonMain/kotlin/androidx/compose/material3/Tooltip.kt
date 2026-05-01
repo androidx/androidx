@@ -67,6 +67,10 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -508,7 +512,7 @@ object TooltipDefaults {
     /** The default maximum width for rich tooltips. */
     val richTooltipMaxWidth: Dp = 320.dp
 
-    /** The default caret shape used for tooltips and is [TooltipDefaults.caretSize] dimensions. */
+    /** The default caret shape used for tooltips and is [caretSize] dimensions. */
     fun caretShape() = DefaultCaretShape
 
     /**
@@ -1109,9 +1113,9 @@ interface TooltipState {
     /**
      * [Boolean] that determines if the tooltip associated with this will be persistent or not. If
      * isPersistent is true, then the tooltip will only be dismissed when the user clicks outside
-     * the bounds of the tooltip or if [TooltipState.dismiss] is called. When isPersistent is false,
-     * the tooltip will dismiss after a short duration. Ideally, this should be set to true when
-     * there is actionable content being displayed within a tooltip.
+     * the bounds of the tooltip or if [dismiss] is called. When isPersistent is false, the tooltip
+     * will dismiss after a short duration. Ideally, this should be set to true when there is
+     * actionable content being displayed within a tooltip.
      */
     val isPersistent: Boolean
 
@@ -1488,6 +1492,41 @@ private class TooltipCaretShape(
 
         return Outline.Generic(combinedPath)
     }
+}
+
+/**
+ * TODO(b/496338253): Remove this function once bug where tooltip text is not announced by a11y
+ *   screen readers is resolved.
+ */
+@Composable
+internal fun TooltipScope.PlainTooltipInternal(
+    tooltipText: String,
+    modifier: Modifier = Modifier,
+    caretShape: (Shape)? = null,
+    maxWidth: Dp = TooltipDefaults.plainTooltipMaxWidth,
+    shape: Shape = TooltipDefaults.plainTooltipContainerShape,
+    contentColor: Color = TooltipDefaults.plainTooltipContentColor,
+    containerColor: Color = TooltipDefaults.plainTooltipContainerColor,
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
+    content: @Composable () -> Unit,
+) {
+    PlainTooltip(
+        modifier =
+            Modifier.semantics {
+                    liveRegion = LiveRegionMode.Assertive
+                    paneTitle = tooltipText
+                }
+                .then(modifier),
+        caretShape = caretShape,
+        maxWidth = maxWidth,
+        shape = shape,
+        contentColor = contentColor,
+        containerColor = containerColor,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        content = content,
+    )
 }
 
 internal val SpacingBetweenTooltipAndAnchor = 4.dp
