@@ -44,6 +44,7 @@ import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
@@ -220,7 +221,15 @@ class SceneCoreEntityTest {
         composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
-                SceneCoreEntity(factory = { Entity.create(session, "TestEntity") }) {
+                SceneCoreEntity(
+                    factory = {
+                        Entity.create(
+                            session,
+                            name = "TestEntity",
+                            parent = session.scene.activitySpace,
+                        )
+                    }
+                ) {
                     SpatialPanel(SubspaceModifier.testTag("panel1").size(50.dp)) {
                         Text(text = "Panel 1")
                     }
@@ -249,7 +258,15 @@ class SceneCoreEntityTest {
         composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
-                SceneCoreEntity(factory = { Entity.create(session, "TestEntity") }) {
+                SceneCoreEntity(
+                    factory = {
+                        Entity.create(
+                            session,
+                            name = "TestEntity",
+                            parent = session.scene.activitySpace,
+                        )
+                    }
+                ) {
                     SpatialPanel(SubspaceModifier.testTag("panel1").size(50.dp)) {
                         Text(text = "Panel 1")
                     }

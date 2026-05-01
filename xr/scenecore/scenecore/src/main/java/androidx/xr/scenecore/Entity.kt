@@ -417,8 +417,7 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
          * @param name Name of the entity. This is unset by default.
          * @param pose Initial pose of the entity. The default value is [Pose.Identity].
          * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is
-         *   [Scene]'s [ActivitySpace].
+         *   scene graph and will not be visible until a parent is set. The default value is `null`.
          */
         @JvmOverloads
         @JvmStatic
@@ -426,7 +425,7 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
             session: Session,
             name: String? = null,
             pose: Pose = Pose.Identity,
-            parent: Entity? = session.scene.activitySpace,
+            parent: Entity? = null,
         ): Entity = create(session.sceneRuntime, session.scene.entityRegistry, name, pose, parent)
     }
 

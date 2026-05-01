@@ -170,7 +170,13 @@ private fun Subspace(
     val context = LocalContext.current
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val compositionContext = rememberCompositionContext()
-    val subspaceRoot = remember { Entity.create(session, "SubspaceRoot") }
+    val subspaceRoot = remember {
+        Entity.create(
+            session = session,
+            name = "SubspaceRoot",
+            parent = session.scene.activitySpace,
+        )
+    }
     val scene by remember {
         if (SceneManager.getSceneCount(context) == 0) {
             session.scene.mainPanelEntity.setEnabled(false)
@@ -257,19 +263,31 @@ public fun PlanarEmbeddedSubspace(
     // subspace properly.
     val subspaceRootContainer by remember {
         disposableValueOf(
-            CoreGroupEntity(Entity.create(session, "SubspaceRootContainer")).apply {
-                enabled = false
-                parent = coreEntity
-            }
+            CoreGroupEntity(
+                    Entity.create(
+                        session = session,
+                        name = "SubspaceRootContainer",
+                        parent = session.scene.activitySpace,
+                    )
+                )
+                .apply {
+                    enabled = false
+                    parent = coreEntity
+                }
         ) {
             it.dispose()
         }
     }
     val scene by remember {
         val subspaceRoot =
-            CoreGroupEntity(Entity.create(session, "SubspaceRoot")).apply {
-                parent = subspaceRootContainer
-            }
+            CoreGroupEntity(
+                    Entity.create(
+                        session = session,
+                        name = "SubspaceRoot",
+                        parent = session.scene.activitySpace,
+                    )
+                )
+                .apply { parent = subspaceRootContainer }
         disposableValueOf(
             SpatialComposeScene(
                 lifecycleOwner = lifecycleOwner,
@@ -466,7 +484,11 @@ public fun FollowingSubspace(
     }
 
     val subspaceRootNode = remember {
-        Entity.create(session, SubspaceConstants.FOLLOWING_SUBSPACE_ROOT_CONTAINER_NAME)
+        Entity.create(
+            session = session,
+            name = SubspaceConstants.FOLLOWING_SUBSPACE_ROOT_CONTAINER_NAME,
+            parent = session.scene.activitySpace,
+        )
     }
 
     // Implicitly subscribes this Composable to scale changes.

@@ -343,20 +343,6 @@ package androidx.xr.scenecore {
     property public String? name;
   }
 
-  public final class GroupEntity extends androidx.xr.scenecore.Entity {
-    method @Deprecated public static androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name);
-    method @Deprecated public static androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name, optional androidx.xr.runtime.math.Pose pose);
-    method @Deprecated public static androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Entity? parent);
-    field public static final androidx.xr.scenecore.GroupEntity.Companion Companion;
-  }
-
-  public static final class GroupEntity.Companion {
-    method @Deprecated public androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name);
-    method @Deprecated public androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name, optional androidx.xr.runtime.math.Pose pose);
-    method @Deprecated public androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Entity? parent);
-    method @BytecodeOnly @Deprecated public static androidx.xr.scenecore.GroupEntity! create$default(androidx.xr.scenecore.GroupEntity.Companion!, androidx.xr.runtime.Session!, String!, androidx.xr.runtime.math.Pose!, androidx.xr.scenecore.Entity!, int, Object!);
-  }
-
   public final class HitTestResult {
     ctor public HitTestResult(androidx.xr.runtime.math.Vector3 hitPosition, androidx.xr.runtime.math.Vector3? surfaceNormal, int surfaceType, float distance);
     method @InaccessibleFromKotlin @FloatRange(from=0.0) public float getDistance();
