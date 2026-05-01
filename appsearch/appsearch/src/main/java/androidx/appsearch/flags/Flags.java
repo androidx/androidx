@@ -184,36 +184,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_APP_SEARCH_MANAGE_BLOB_FILES =
             FLAG_PREFIX + "enable_app_search_manage_blob_files";
 
-    /**
-     * Enables time since last optimize to be calculated by last attempted optimize run time instead
-     * of last successful optimize run time.
-     */
-    public static final String FLAG_ENABLE_CALCULATE_TIME_SINCE_LAST_ATTEMPTED_OPTIMIZE =
-            FLAG_PREFIX + "enable_calculate_time_since_last_attempted_optimize";
-
-    /** Enables qualified id join index v3. */
-    public static final String FLAG_ENABLE_QUALIFIED_ID_JOIN_INDEX_V3 =
-            FLAG_PREFIX + "enable_qualified_id_join_index_v3";
-
-    /** Enables soft index restoration. */
-    public static final String FLAG_ENABLE_SOFT_INDEX_RESTORATION =
-            FLAG_PREFIX + "enable_soft_index_restoration";
-
-    /** Enables marker file creation for Optimize API. */
-    public static final String FLAG_ENABLE_MARKER_FILE_FOR_OPTIMIZE =
-            FLAG_PREFIX + "enable_marker_file_for_optimize";
-
-    /**
-     * Enables releasing the backup schema file instance in the schema store if the overlay schema
-     * instance exists.
-     */
-    public static final String FLAG_ENABLE_RELEASE_BACKUP_SCHEMA_FILE_IF_OVERLAY_PRESENT =
-            FLAG_PREFIX + "enable_release_backup_schema_file_if_overlay_present";
-
-    /** Enables strict byte size enforcement on a result page. */
-    public static final String FLAG_ENABLE_STRICT_PAGE_BYTE_SIZE_LIMIT =
-            FLAG_PREFIX + "enable_strict_page_byte_size_limit";
-
     /** Enables compression threshold. */
     public static final String FLAG_ENABLE_COMPRESSION_THRESHOLD =
             FLAG_PREFIX + "enable_compression_threshold";
@@ -511,42 +481,6 @@ public final class Flags {
     }
 
     /**
-     * Whether to calculate time since last optimize using last attempted optimize run time instead
-     * of last successful optimize run time.
-     */
-    public static boolean enableCalculateTimeSinceLastAttemptedOptimize() {
-        return true;
-    }
-
-    /** Whether qualified id join index v3 should be enabled. */
-    public static boolean enableQualifiedIdJoinIndexV3() {
-        return true;
-    }
-
-    /** Whether soft index restoration should be enabled. */
-    public static boolean enableSoftIndexRestoration() {
-        return true;
-    }
-
-    /** Whether marker file creation for Optimize API should be enabled. */
-    public static boolean enableMarkerFileForOptimize() {
-        return true;
-    }
-
-    /**
-     * Whether to release the backup schema file instance in the schema store if the overlay schema
-     * instance exists.
-     */
-    public static boolean enableReleaseBackupSchemaFileIfOverlayPresent() {
-        return true;
-    }
-
-    /** Whether to enforce page byte size limit in a stricter way. */
-    public static boolean enableStrictPageByteSizeLimit() {
-        return true;
-    }
-
-    /**
      * Whether to enable compression threshold.
      */
     public static boolean enableCompressionThreshold() {
@@ -669,9 +603,7 @@ public final class Flags {
     /**
      * Whether delete propagation API should be enabled.
      *
-     * <p>Note: delete propagation depends on qualified id join index v3 and soft index restoration,
-     * so {@link #enableQualifiedIdJoinIndexV3()} and {@link #enableSoftIndexRestoration()} should
-     * also be true.
+     * <p>Note: delete propagation depends on qualified id join index v3 and soft index restoration.
      */
     public static boolean enableDeletePropagationRw() {
         // TODO(b/384947619): Enable this once the feature is rolled out to Nextfood in platform.

@@ -78,8 +78,6 @@ public interface IcingOptionsConfig {
      */
     int DEFAULT_LITE_INDEX_SORT_SIZE = 8192;   // 8Kib
 
-    boolean DEFAULT_USE_NEW_QUALIFIED_ID_JOIN_INDEX = false;
-
     long DEFAULT_ORPHAN_BLOB_TIME_TO_LIVE_MS = 7 * 24 * 60 * 60 * 1000L; // 1 week.
 
     String DEFAULT_ICU_DATA_FILE_ABSOLUTE_PATH = "";
@@ -238,13 +236,6 @@ public interface IcingOptionsConfig {
     /**
      * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
      *
-     * <p>Whether to use the new qualified Id join index.
-     */
-    boolean getUseNewQualifiedIdJoinIndex();
-
-    /**
-     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
-     *
      * <p>Whether to build the metadata hits used for property existence check, which is required
      * to support the hasProperty function in advanced query.
      */
@@ -336,33 +327,14 @@ public interface IcingOptionsConfig {
                 .setIntegerIndexBucketSplitThreshold(
                         getIntegerIndexBucketSplitThreshold())
                 .setLiteIndexSortSize(getLiteIndexSortSize())
-                .setUseNewQualifiedIdJoinIndex(
-                        getUseNewQualifiedIdJoinIndex())
                 .setBuildPropertyExistenceMetadataHits(
                         getBuildPropertyExistenceMetadataHits())
                 .setOrphanBlobTimeToLiveMs(getOrphanBlobTimeToLiveMs())
                 .setEnableScorableProperties(Flags.enableScorableProperty())
                 .setIcuDataFileAbsolutePath(getIcuDataFileAbsolutePath())
                 .setManageBlobFiles(!Flags.enableAppSearchManageBlobFiles())
-                // Join index v3 and soft index restoration are prerequisites for delete
-                // propagation.
-                .setEnableDeletePropagationFrom(
-                        Flags.enableDeletePropagationRw()
-                                && Flags.enableQualifiedIdJoinIndexV3()
-                                && Flags.enableSoftIndexRestoration())
+                .setEnableDeletePropagationFrom(Flags.enableDeletePropagationRw())
                 .setExpiredDocumentPurgeThresholdMs(getExpiredDocumentPurgingThresholdMillis())
-                .setCalculateTimeSinceLastAttemptedOptimize(
-                        Flags.enableCalculateTimeSinceLastAttemptedOptimize())
-                .setEnableQualifiedIdJoinIndexV3(Flags.enableQualifiedIdJoinIndexV3())
-                .setEnableSoftIndexRestoration(Flags.enableSoftIndexRestoration())
-                .setEnableMarkerFileForOptimize(Flags.enableMarkerFileForOptimize())
-                .setReleaseBackupSchemaFileIfOverlayPresent(
-                        Flags.enableReleaseBackupSchemaFileIfOverlayPresent())
-                // This is a necessary bug fix for the VMEnabled case. VMEnabled is guarded by its
-                // own trunk-stable flag, therefore this can be included there. Otherwise, we should
-                // use this trank-stable flag.
-                .setEnableStrictPageByteSizeLimit(
-                        Flags.enableStrictPageByteSizeLimit() || isVmEnabled)
                 .setCompressionThresholdBytes(
                         (Flags.enableCompressionThreshold() || isVmEnabled)
                                 ? Math.max(0, getCompressionThresholdBytes()) : 0)
