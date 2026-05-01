@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -39,6 +40,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.Anchor
@@ -53,12 +55,12 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.TrackedDimensions
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.depth
-import androidx.xr.compose.subspace.layout.fillMaxDepth
 import androidx.xr.compose.subspace.layout.fillMaxHeight
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.fillMaxWidth
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.layout.width
@@ -833,50 +835,60 @@ class SubspaceTest {
     }
 
     @Test
-    fun planarEmbeddedSubspace_withDepthConstraint_respectsConstraint() {
+    fun planarEmbeddedSubspace_witConstraints_respectsConstraints() {
         composeTestRule.setContent {
             Subspace {
-                SpatialPanel(SubspaceModifier.depth(10.dp).testTag("panel")) {
+                SpatialPanel(SubspaceModifier.size(10.dp).testTag("panel")) {
                     PlanarEmbeddedSubspace {
-                        SpatialPanel(SubspaceModifier.depth(20.dp).testTag("innerPanel")) {}
+                        SpatialPanel(SubspaceModifier.size(20.dp).testTag("innerPanel")) {}
                     }
                 }
             }
         }
 
+        composeTestRule.onSubspaceNodeWithTag("innerPanel").assertWidthIsEqualTo(10.dp)
+        composeTestRule.onSubspaceNodeWithTag("innerPanel").assertHeightIsEqualTo(10.dp)
         composeTestRule.onSubspaceNodeWithTag("innerPanel").assertDepthIsEqualTo(10.dp)
     }
 
     @Test
-    fun planarEmbeddedSubspace_withFillMaxDepth_respectsConstraint() {
+    fun planarEmbeddedSubspace_withFillMaxSize_respectsConstraints() {
         composeTestRule.setContent {
             Subspace {
-                SpatialPanel(SubspaceModifier.depth(10.dp).testTag("panel")) {
+                SpatialPanel(SubspaceModifier.size(10.dp).testTag("panel")) {
                     PlanarEmbeddedSubspace {
-                        SpatialPanel(SubspaceModifier.fillMaxDepth().testTag("innerPanel")) {}
+                        SpatialPanel(SubspaceModifier.fillMaxSize().testTag("innerPanel")) {}
                     }
                 }
             }
         }
 
+        composeTestRule.onSubspaceNodeWithTag("innerPanel").assertWidthIsEqualTo(10.dp)
+        composeTestRule.onSubspaceNodeWithTag("innerPanel").assertHeightIsEqualTo(10.dp)
         composeTestRule.onSubspaceNodeWithTag("innerPanel").assertDepthIsEqualTo(10.dp)
     }
 
     @Test
-    fun planarEmbeddedSubspace_withUnboundedDepth_respectsDepth() {
+    fun planarEmbeddedSubspace_withUnboundedSize_respectsConstraints() {
         composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
-                    SubspaceModifier.sizeIn(maxDepth = VolumeConstraints.INFINITY.dp)
+                    SubspaceModifier.sizeIn(
+                            maxWidth = VolumeConstraints.INFINITY.dp,
+                            maxHeight = VolumeConstraints.INFINITY.dp,
+                            maxDepth = VolumeConstraints.INFINITY.dp,
+                        )
                         .testTag("panel")
                 ) {
                     PlanarEmbeddedSubspace {
-                        SpatialPanel(SubspaceModifier.depth(20.dp).testTag("innerPanel")) {}
+                        SpatialPanel(SubspaceModifier.size(20.dp).testTag("innerPanel")) {}
                     }
                 }
             }
         }
 
+        composeTestRule.onSubspaceNodeWithTag("innerPanel").assertWidthIsEqualTo(20.dp)
+        composeTestRule.onSubspaceNodeWithTag("innerPanel").assertHeightIsEqualTo(20.dp)
         composeTestRule.onSubspaceNodeWithTag("innerPanel").assertDepthIsEqualTo(20.dp)
     }
 
@@ -987,7 +999,7 @@ class SubspaceTest {
          * 3 is the bottom right corner of the parent panel, it is (200, 200) in the parent layout
          * 4 is the center of the inner panel (150, 100)
          *
-         * The expected offset is 4 relative to 2 which is +50 dp in x and +25 dp in y directions
+         * The expected offset is 4 relative to 2(Subspace origin in 3D space) which is +50 dp in x and +25 dp in y directions
          *  in 3D space.
          */
         val expectedXOffset = 50.dp
@@ -995,15 +1007,25 @@ class SubspaceTest {
         val expectedZOffset = 0.dp
 
         val actualXOffsetMeters = subspaceRootContainerEntity.getPose().translation.x
-        val actualXOffsetDp = Meter(actualXOffsetMeters).toDp()
+        val actualXOffsetDp: Dp = Meter(actualXOffsetMeters).toDp()
         val actualYOffsetMeters = subspaceRootContainerEntity.getPose().translation.y
-        val actualYOffsetDp = Meter(actualYOffsetMeters).toDp()
+        val actualYOffsetDp: Dp = Meter(actualYOffsetMeters).toDp()
         val actualZOffsetMeters = subspaceRootContainerEntity.getPose().translation.z
-        val actualZOffsetDp = Meter(actualZOffsetMeters).toDp()
+        val actualZOffsetDp: Dp = Meter(actualZOffsetMeters).toDp()
 
         assertThat(actualXOffsetDp).isEqualTo(expectedXOffset)
         assertThat(actualYOffsetDp).isEqualTo(expectedYOffset)
         assertThat(actualZOffsetDp).isEqualTo(expectedZOffset)
+
+        composeTestRule
+            .onSubspaceNodeWithTag("innerPanel")
+            .assertWidthIsEqualTo(expectedWidth = 100.dp)
+        composeTestRule
+            .onSubspaceNodeWithTag("innerPanel")
+            .assertHeightIsEqualTo(expectedHeight = 100.dp)
+        composeTestRule
+            .onSubspaceNodeWithTag("innerPanel")
+            .assertDepthIsEqualTo(expectedDepth = 100.dp)
     }
 
     @Test
@@ -1046,6 +1068,137 @@ class SubspaceTest {
             .assertEntityIsDescendantOf(
                 checkNotNull(composeTestRule.session?.scene?.mainPanelEntity)
             )
+    }
+
+    @Test
+    fun planarEmbeddedSubspace_withSubspaceModifier_worksAsExpected() {
+        val embeddedSubspaceTag = "embeddedBoxModifier"
+        val parentPanelTag = "panel"
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(SubspaceModifier.testTag(parentPanelTag)) {
+                    PlanarEmbeddedSubspace(
+                        modifier = SubspaceModifier.testTag(embeddedSubspaceTag)
+                    ) {
+                        SpatialPanel {}
+                    }
+                }
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag(embeddedSubspaceTag)
+            .assertExists()
+            .assertEntityIsDescendantOf(
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag(parentPanelTag)
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+            )
+    }
+
+    @Test
+    fun planarEmbeddedSubspace_withSizeModifier_constrainsInnerContent() {
+        val embeddedSubspaceTag = "embeddedSubspace"
+        val parentPanelTag = "panel"
+        val innerConstrainedBoxTag = "innerConstrainedBox"
+        val outerSize = 100.dp
+        val exactSize = 50.dp
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    SubspaceModifier.sizeIn(
+                            maxWidth = outerSize,
+                            maxHeight = outerSize,
+                            maxDepth = outerSize,
+                        )
+                        .testTag(parentPanelTag)
+                ) {
+                    PlanarEmbeddedSubspace(
+                        modifier = SubspaceModifier.size(exactSize).testTag(embeddedSubspaceTag)
+                    ) {
+                        SpatialBox(
+                            SubspaceModifier.fillMaxSize().testTag(innerConstrainedBoxTag)
+                        ) {}
+                    }
+                }
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag(embeddedSubspaceTag)
+            .assertWidthIsEqualTo(exactSize)
+            .assertHeightIsEqualTo(exactSize)
+            .assertDepthIsEqualTo(exactSize)
+
+        composeTestRule
+            .onSubspaceNodeWithTag(innerConstrainedBoxTag)
+            .assertWidthIsEqualTo(exactSize)
+            .assertHeightIsEqualTo(exactSize)
+            .assertDepthIsEqualTo(exactSize)
+    }
+
+    @Test
+    fun planarEmbeddedSubspace_withOffsetModifier_positionsCorrectlyRelativeToParent() {
+        val offsetX = 40.dp
+        val offsetY = 50.dp
+        val offsetZ = 60.dp
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    SubspaceModifier.size(100.dp)
+                        .offset(x = offsetX, y = offsetY, z = offsetZ)
+                        .testTag("panel")
+                ) {
+                    PlanarEmbeddedSubspace(
+                        modifier =
+                            SubspaceModifier.offset(x = offsetX, y = offsetY, z = offsetZ)
+                                .testTag("embeddedWithOffset")
+                    ) {
+                        SpatialBox(SubspaceModifier.size(50.dp).testTag("innerBox")) {}
+                    }
+                }
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag("embeddedWithOffset")
+            .assertPositionInRootIsEqualTo(offsetX, offsetY, offsetZ)
+    }
+
+    @Test
+    fun planarEmbeddedSubspace_whenModifierChanges_recomposesInnerSpatialBox() {
+        val toggleState = mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(SubspaceModifier.testTag("panel")) {
+                    PlanarEmbeddedSubspace(
+                        modifier =
+                            if (toggleState.value) {
+                                SubspaceModifier.size(50.dp).testTag("stateA")
+                            } else {
+                                SubspaceModifier.size(100.dp).testTag("stateB")
+                            }
+                    ) {
+                        SpatialBox {}
+                    }
+                }
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("stateA").assertExists().assertWidthIsEqualTo(50.dp)
+        composeTestRule.onSubspaceNodeWithTag("stateB").assertDoesNotExist()
+
+        toggleState.value = false
+
+        composeTestRule.onSubspaceNodeWithTag("stateA").assertDoesNotExist()
+        composeTestRule.onSubspaceNodeWithTag("stateB").assertExists().assertWidthIsEqualTo(100.dp)
     }
 
     // TODO(b/449821552) Improve unit testing for PlanarEmbeddedSubspace.
