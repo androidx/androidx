@@ -220,23 +220,38 @@ internal class AppSearchAppFunctionReader(
                 .setListFilterQueryLanguageEnabled(true)
                 .build()
 
-        return session
-            .search("", topLevelComponentsSearchSpec)
-            .readAll { searchResult ->
-                val packageName = searchResult.genericDocument.getPropertyString("packageName")
-                val metadata = extractAppFunctionComponentsMetadataFromSearchResult(searchResult)
+        val topLevelComponents =
+            session
+                .search("", topLevelComponentsSearchSpec)
+                .readAll { searchResult ->
+                    val packageName = searchResult.genericDocument.getPropertyString("packageName")
+                    val metadata =
+                        extractAppFunctionComponentsMetadataFromSearchResult(searchResult)
 
-                // Only return a Pair if both are non-null and metadata is valid
-                if (packageName != null && metadata != null && metadata.dataTypes.isNotEmpty()) {
-                    packageName to metadata
+                    // Only return a Pair if both are non-null and metadata is valid
+                    if (
+                        packageName != null && metadata != null && metadata.dataTypes.isNotEmpty()
+                    ) {
+                        packageName to metadata
+                    } else {
+                        null
+                    }
+                }
+                .filterNotNull()
+        return buildMap {
+            for ((packageName, metadata) in topLevelComponents) {
+                if (containsKey(packageName)) {
+                    // Starting from Android 17, an app can have multiple service, therefore,
+                    // multiple top-level documents is possible. To make sure all reference types
+                    // are correctly presented, the reader must aggregate them all.
+                    val existingMetadata = checkNotNull(get(packageName))
+                    val combinedDataTypes = (existingMetadata.dataTypes + metadata.dataTypes)
+                    put(packageName, AppFunctionComponentsMetadata(combinedDataTypes))
                 } else {
-                    null
+                    put(packageName, metadata)
                 }
             }
-            .filterNotNull()
-            // There is only a single component metadata per package, so we can safely overwrite the
-            // existing value.
-            .toMap()
+        }
     }
 
     private fun extractAppFunctionComponentsMetadataFromSearchResult(

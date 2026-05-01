@@ -3,6 +3,7 @@
     <appfunction>
         <id>com.testdata.SimpleEntryPoint#simpleFunction</id>
         <enabledByDefault>true</enabledByDefault>
+        <description>simple function.</description>
         <parameters>
             <dataTypeMetadata>
                 <id>unused</id>
@@ -12,6 +13,7 @@
             <id>unused</id>
             <isRequired>true</isRequired>
             <name>int</name>
+            <description>Int param.</description>
         </parameters>
         <parameters>
             <dataTypeMetadata>
@@ -22,6 +24,7 @@
             <id>unused</id>
             <isRequired>true</isRequired>
             <name>string</name>
+            <description>String param.</description>
         </parameters>
         <response>
             <id>unused</id>
@@ -30,6 +33,7 @@
                 <isNullable>false</isNullable>
                 <type>8</type>
             </valueType>
+            <description>Result.</description>
         </response>
         <functionId>com.testdata.SimpleEntryPoint#simpleFunction</functionId>
     </appfunction>

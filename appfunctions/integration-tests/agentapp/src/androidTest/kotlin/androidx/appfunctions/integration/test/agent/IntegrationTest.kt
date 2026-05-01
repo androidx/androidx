@@ -185,7 +185,7 @@ class IntegrationTest {
             }
 
         val aggregatedFunctionCount = 20
-        val multiServiceFunctionCount = 2
+        val multiServiceFunctionCount = 6
         if (Build.VERSION.SDK_INT >= 37) {
             assertThat(appFunctions).hasSize(aggregatedFunctionCount + multiServiceFunctionCount)
         } else {

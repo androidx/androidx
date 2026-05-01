@@ -74,6 +74,11 @@ class AppFunctionXmlGenerator(
                 ),
             packageName = packageName,
             fileName = fileName,
+            // Use service's qualified name to ensure there is no conflict with other top-level
+            // components that would override the database document when being indexed since
+            // multiservice is supported in Android 17 and there could be multiple top-level
+            // components from the same app.
+            componentId = entryPoint.serviceDeclaration.ensureQualifiedName(),
             outputLocation = outputLocation,
         )
     }
@@ -125,6 +130,7 @@ class AppFunctionXmlGenerator(
         dependencies: Dependencies,
         packageName: String,
         fileName: String,
+        componentId: String? = null,
         outputLocation: String? = null,
     ) {
         val xmlDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
@@ -157,7 +163,7 @@ class AppFunctionXmlGenerator(
         if (aggregatedDataTypes.isNotEmpty()) {
             val componentElement =
                 AppFunctionComponentsMetadata(aggregatedDataTypes)
-                    .toAppFunctionComponentsMetadataDocument()
+                    .toAppFunctionComponentsMetadataDocument(id = componentId)
                     .toXmlElement(doc = xmlDocument, COMPONENT_ITEM_TAG)
             appFunctionsElement.appendChild(componentElement)
         }

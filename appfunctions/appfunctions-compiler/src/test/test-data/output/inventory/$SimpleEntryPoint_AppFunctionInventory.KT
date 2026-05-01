@@ -45,7 +45,7 @@ public class `$SimpleEntryPoint_AppFunctionInventory` : AppFunctionInventory {
             name = "int",
             isRequired = true,
             dataType = PARAMETER_METADATA_INT_PRIMITIVE_DATA_TYPE,
-            description = "",
+            description = "Int param.",
         )
 
     private val PARAMETER_METADATA_STRING_PRIMITIVE_DATA_TYPE: AppFunctionStringTypeMetadata =
@@ -60,7 +60,7 @@ public class `$SimpleEntryPoint_AppFunctionInventory` : AppFunctionInventory {
             name = "string",
             isRequired = true,
             dataType = PARAMETER_METADATA_STRING_PRIMITIVE_DATA_TYPE,
-            description = "",
+            description = "String param.",
         )
 
     private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
@@ -77,7 +77,7 @@ public class `$SimpleEntryPoint_AppFunctionInventory` : AppFunctionInventory {
 
     private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
             valueType = PRIMITIVE_RESPONSE_VALUE_TYPE,
-            description = ""
+            description = "Result."
         )
 
     public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
