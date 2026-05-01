@@ -204,6 +204,16 @@ public class SearchTemplateTest {
                                         }).build()));
     }
 
+
+    @Test
+    public void addList_withBanner() {
+        Banner banner = new Banner.Builder().setTitle("title").build();
+        ItemList itemList = new ItemList.Builder().addItem(banner).build();
+        new SearchTemplate.Builder(mMockSearchCallback)
+                .setItemList(itemList)
+                .build();
+    }
+
     @Test
     public void equals() {
         SearchTemplate template =

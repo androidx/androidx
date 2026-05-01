@@ -17,9 +17,11 @@
 package androidx.car.app.media.model;
 
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.media.MediaPlaybackManager;
+import androidx.car.app.model.Banner;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.Template;
 
@@ -41,6 +43,9 @@ import java.util.Objects;
 @KeepFields
 public class MediaPlaybackTemplate implements Template {
     private final @Nullable Header mHeader;
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    private final @Nullable Banner mBanner;
 
     /**
      * Returns the {@link Header} to display in this template or not to display one if it is {@code
@@ -50,16 +55,28 @@ public class MediaPlaybackTemplate implements Template {
         return mHeader;
     }
 
+    /**
+     * Returns the {@link Banner} to display in this template or not to display one if it is {@code
+     * null}.
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public @Nullable Banner getBanner() {
+        return mBanner;
+    }
+
     @Override
     public @NonNull String toString() {
         return "MediaPlaybackTemplate";
     }
 
+    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     @Override
     public int hashCode() {
-        return Objects.hash(mHeader);
+        return Objects.hash(mHeader, mBanner);
     }
 
+    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -70,22 +87,29 @@ public class MediaPlaybackTemplate implements Template {
         }
         MediaPlaybackTemplate otherTemplate = (MediaPlaybackTemplate) other;
 
-        return Objects.equals(mHeader, otherTemplate.mHeader);
+        return Objects.equals(mHeader, otherTemplate.mHeader)
+                && Objects.equals(mBanner, otherTemplate.mBanner);
     }
 
     /** Constructs an empty instance, used by serialization code. */
+    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     private MediaPlaybackTemplate() {
         mHeader = null;
+        mBanner = null;
     }
 
+    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     MediaPlaybackTemplate(Builder builder) {
         mHeader = builder.mHeader;
+        mBanner = builder.mBanner;
     }
 
     /** Builder for the {@link MediaPlaybackTemplate} */
     @RequiresCarApi(8)
     public static final class Builder {
         @Nullable Header mHeader;
+        @ExperimentalCarApi
+        @Nullable Banner mBanner;
 
         /**
          * Sets the {@link Header} for this template or {code null} to not display a {@link
@@ -98,6 +122,19 @@ public class MediaPlaybackTemplate implements Template {
             return this;
         }
 
+        /**
+         * Sets the {@link Banner} for this template or {code null} to not display a {@link
+         * Banner}.
+         *
+         * <p>Defaults to {@code null}, which means banner is not displayed.
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(9)
+        public MediaPlaybackTemplate.@NonNull Builder setBanner(@Nullable Banner banner) {
+            this.mBanner = banner;
+            return this;
+        }
+
         /** Constructs the template defined by this builder. */
         public @NonNull MediaPlaybackTemplate build() {
             return new MediaPlaybackTemplate(this);
@@ -107,8 +144,11 @@ public class MediaPlaybackTemplate implements Template {
         public Builder() {};
 
         /** Creates a new {@link Builder}, populated from the input {@link MediaPlaybackTemplate} */
+        @androidx.annotation.OptIn(markerClass =
+                androidx.car.app.annotations.ExperimentalCarApi.class)
         public Builder(@NonNull MediaPlaybackTemplate template) {
             mHeader = template.getHeader();
+            mBanner = template.getBanner();
         }
     }
 }

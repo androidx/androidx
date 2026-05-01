@@ -264,8 +264,8 @@ public final class SectionedItemTemplate implements Template {
      *
      * <ul>
      *     <li>The template is not both loading and populated with sections
-     *     <li>Only {@link ChipSection}, {@link RowSection}, {@link GridSection}, or
-     *     {@link CondensedSection} are added as sections
+     *     <li>Only {@link ChipSection}, {@link RowSection}, {@link GridSection},
+     *     {@link CondensedSection}, or {@link BannerSection} are added as sections
      *     <li>If a {@link ChipSection} is added, it must be the first section and only one
      *     is allowed
      * </ul>
@@ -495,11 +495,12 @@ public final class SectionedItemTemplate implements Template {
                     hasChipSection = true;
                 } else if (!(section instanceof RowSection) && !(section instanceof GridSection)
                         && !(section instanceof CondensedSection)
-                        && !(section instanceof SpotlightSection)) {
+                        && !(section instanceof SpotlightSection)
+                        && !(section instanceof BannerSection)) {
                     throw new IllegalArgumentException(
                             "Only ChipSections, RowSections, GridSections, "
-                                    + "CondensedSections and SpotlightSections are allowed in "
-                                    + "SectionedItemTemplate.");
+                                    + "CondensedSections, SpotlightSections, and BannerSections "
+                                    + "are allowed in SectionedItemTemplate.");
                 }
             }
 
