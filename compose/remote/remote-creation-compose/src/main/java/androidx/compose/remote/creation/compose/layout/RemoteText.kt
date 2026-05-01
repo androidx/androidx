@@ -30,11 +30,11 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +53,7 @@ public fun RemoteText(
     fontSize: RemoteTextUnit? = null,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
+    fontFamily: RemoteFontFamily? = null,
     textAlign: TextAlign = TextAlign.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
@@ -105,7 +105,7 @@ public fun RemoteText(
     fontSize: RemoteTextUnit? = null,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
+    fontFamily: RemoteFontFamily? = null,
     textAlign: TextAlign? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
@@ -141,7 +141,7 @@ public fun RemoteText(
         fontSize = fontSizePx,
         fontStyle = style.fontStyle ?: FontStyle.Normal,
         fontWeight = style.fontWeight?.weight?.rf ?: 400.rf,
-        fontFamily = style.fontFamily.encode(),
+        fontFamily = style.fontFamily?.name,
         textAlign = style.textAlign ?: TextAlign.Start,
         overflow = overflow,
         maxLines = maxLines,
@@ -297,7 +297,7 @@ public fun RemoteText(
     fontSize: RemoteTextUnit = 12.rsp,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
+    fontFamily: RemoteFontFamily? = null,
     textAlign: TextAlign = TextAlign.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,

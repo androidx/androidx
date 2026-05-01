@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
+import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.wear.compose.material3.Typography
@@ -114,7 +115,7 @@ public class RemoteTypography(
     public val numeralExtraSmall: RemoteTextStyle,
 ) {
     public constructor(
-        defaultFontFamily: FontFamily = FontFamily.Default,
+        defaultFontFamily: RemoteFontFamily = RemoteFontFamily.Default,
         displayLarge: RemoteTextStyle = RemoteTypographyTokens.DisplayLarge,
         displayMedium: RemoteTextStyle = RemoteTypographyTokens.DisplayMedium,
         displaySmall: RemoteTextStyle = RemoteTypographyTokens.DisplaySmall,
@@ -225,7 +226,7 @@ public class RemoteTypography(
  * @return [this] if there is a [FontFamily] defined, otherwise copies [this] with [default] as the
  *   [FontFamily].
  */
-private fun RemoteTextStyle.withDefaultFontFamily(default: FontFamily): RemoteTextStyle {
-    return if (default == FontFamily.Default && fontFamily != null) this
+private fun RemoteTextStyle.withDefaultFontFamily(default: RemoteFontFamily): RemoteTextStyle {
+    return if (default == RemoteFontFamily.Default && fontFamily != null) this
     else copy(fontFamily = default)
 }

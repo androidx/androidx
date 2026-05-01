@@ -48,12 +48,12 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import java.text.DecimalFormat
@@ -106,7 +106,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
     ) {
         RemoteText(
             monthNames[month],
-            fontFamily = FontFamily.Serif,
+            fontFamily = RemoteFontFamily.Serif,
             fontWeight = FontWeight.Bold,
             fontSize = 32.rsp,
             modifier = RemoteModifier.padding(bottom = 24.rdp),

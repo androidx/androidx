@@ -77,7 +77,7 @@ class RemoteTextStyleTest {
         assertThat(remoteStyle.background?.constantValueOrNull).isEqualTo(Color.Blue)
         assertThat(remoteStyle.fontWeight).isEqualTo(FontWeight.Bold)
         assertThat(remoteStyle.fontStyle).isEqualTo(FontStyle.Italic)
-        assertThat(remoteStyle.fontFamily).isEqualTo(FontFamily.Serif)
+        assertThat(remoteStyle.fontFamily).isEqualTo(RemoteFontFamily.Serif)
         assertThat(remoteStyle.textAlign).isEqualTo(TextAlign.Center)
         assertThat(remoteStyle.textDecoration).isEqualTo(TextDecoration.Underline)
     }
