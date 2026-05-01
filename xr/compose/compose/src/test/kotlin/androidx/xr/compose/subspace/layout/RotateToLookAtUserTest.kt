@@ -41,6 +41,7 @@ import androidx.xr.runtime.math.Quaternion.Companion.fromRotation
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.Space
+import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -333,7 +334,11 @@ class RotateToLookAtUserTest {
 
             // Create a custom Subspace root node offset by 1 meter on the X axis.
             val customRootNode =
-                Entity.create(assertNotNull(composeTestRule.session), "customRootNode")
+                Entity.create(
+                    session = assertNotNull(composeTestRule.session),
+                    name = "customRootNode",
+                    parent = assertNotNull(composeTestRule.session).scene.activitySpace,
+                )
             customRootNode.setPose(
                 relativeTo = Space.ACTIVITY,
                 // Root is at X = 1m

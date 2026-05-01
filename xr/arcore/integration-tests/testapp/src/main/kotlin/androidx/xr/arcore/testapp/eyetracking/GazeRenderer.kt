@@ -46,11 +46,21 @@ class GazeRenderer {
 
         companion object {
             suspend fun create(session: Session, name: String, isLeft: Boolean): EyeWidget {
-                val rootEntity = Entity.create(session, "$name Root")
+                val rootEntity =
+                    Entity.create(
+                        session,
+                        name = "$name Root",
+                        parent = session.scene.activitySpace,
+                    )
 
                 val offsetPose = Pose(Vector3(0f, 0f, -0.2f), Quaternion.Identity)
-                val offsetEntity = Entity.create(session, "$name Offset", offsetPose)
-                rootEntity.addChild(offsetEntity)
+                val offsetEntity =
+                    Entity.create(
+                        session,
+                        name = "$name Offset",
+                        pose = offsetPose,
+                        parent = rootEntity,
+                    )
 
                 val assetName =
                     when (isLeft) {

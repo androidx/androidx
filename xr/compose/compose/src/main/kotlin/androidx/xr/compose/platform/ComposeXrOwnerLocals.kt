@@ -112,6 +112,7 @@ private fun Activity.createXrOwnerLocals(): ComposeXrOwnerLocals? {
         Entity.create(
             session = session,
             name = ComposeXrOwnerLocalsConstants.SUBSPACE_ROOT_CONTAINER_NAME,
+            parent = session.scene.activitySpace,
         )
 
     return ComposeXrOwnerLocals(

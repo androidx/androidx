@@ -288,9 +288,7 @@ class SceneTest {
 
     @Test
     fun clearSpatialModeChangedListener_restoresDefaultKeyEntityBehavior() {
-        val keyEntity = Entity.create(session, "Test Entity")
-        // Parent the entity to activitySpace so setPose(..., Space.ACTIVITY) doesn't throw.
-        keyEntity.parent = session.scene.activitySpace
+        val keyEntity = Entity.create(session, "Test Entity", parent = session.scene.activitySpace)
         session.scene.keyEntity = keyEntity
 
         // Set a custom listener that does nothing
@@ -325,7 +323,7 @@ class SceneTest {
 
     @Test
     fun setSpatialModeChangedListener_overridesDefaultBehavior() {
-        val keyEntity = Entity.create(session, "Test Entity")
+        val keyEntity = Entity.create(session, "Test Entity", parent = session.scene.activitySpace)
         session.scene.keyEntity = keyEntity
 
         var listenerCalled = false
@@ -421,7 +419,7 @@ class SceneTest {
 
     @Test
     fun keyEntity_setWithValidEntity_succeeds() {
-        val keyEntity = Entity.create(session, "Test Entity")
+        val keyEntity = Entity.create(session, "Test Entity", parent = session.scene.activitySpace)
         session.scene.keyEntity = keyEntity
         assertThat(session.scene.keyEntity).isEqualTo(keyEntity)
     }
@@ -451,7 +449,7 @@ class SceneTest {
 
     @Test
     fun keyEntity_setWithNull_clearsKeyEntity() {
-        val keyEntity = Entity.create(session, "Test Entity")
+        val keyEntity = Entity.create(session, "Test Entity", parent = session.scene.activitySpace)
         session.scene.keyEntity = keyEntity // Set it first
         assertThat(session.scene.keyEntity).isEqualTo(keyEntity)
 
@@ -461,7 +459,7 @@ class SceneTest {
 
     @Test
     fun keyEntity_setNewEntity_setsNewRtKeyEntity() {
-        val entity = Entity.create(session, "Entity")
+        val entity = Entity.create(session, "Entity", parent = session.scene.activitySpace)
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
         session.scene.keyEntity = entity
@@ -475,7 +473,7 @@ class SceneTest {
 
     @Test
     fun defaultSpatialModeChangedListener_withKeyEntity_updatesPoseAndScale() {
-        val keyEntity = Entity.create(session, "Test Entity")
+        val keyEntity = Entity.create(session, "Test Entity", parent = session.scene.activitySpace)
         session.scene.keyEntity = keyEntity
 
         val recommendedPose = Pose(Vector3(1f, 2f, 3f))
@@ -575,7 +573,7 @@ class SceneTest {
         // Reset keyEntity to null so that setting it next triggers immediate invocation
         session.scene.keyEntity = null
 
-        val keyEntity = Entity.create(session, "Test Entity")
+        val keyEntity = Entity.create(session, "Test Entity", parent = session.scene.activitySpace)
         session.scene.keyEntity = keyEntity
 
         shadowOf(Looper.getMainLooper()).idle()
@@ -599,7 +597,7 @@ class SceneTest {
         // Reset keyEntity to null so that setting it next triggers immediate invocation
         session.scene.keyEntity = null
 
-        val keyEntity = Entity.create(session, "Test Entity")
+        val keyEntity = Entity.create(session, "Test Entity", parent = session.scene.activitySpace)
         session.scene.keyEntity = keyEntity
         session.scene.setSpatialModeChangedListener { _ -> testSpatialModeChangeCount++ }
 

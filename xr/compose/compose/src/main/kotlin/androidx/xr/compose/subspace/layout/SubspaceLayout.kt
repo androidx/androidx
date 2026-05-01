@@ -33,6 +33,7 @@ import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasur
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.scene
 
 /**
  * [SubspaceLayout] is the main component for laying out leaf nodes with zero children.
@@ -99,7 +100,9 @@ public inline fun SubspaceLayout(
             " is a child of another SubspaceComposable."
     }
 
-    val coreEntity = rememberOpaqueEntity { Entity.create(session = this, name = coreEntityName) }
+    val coreEntity = rememberOpaqueEntity {
+        Entity.create(session = this, name = coreEntityName, parent = this.scene.activitySpace)
+    }
     val compositionLocalMap = currentComposer.currentCompositionLocalMap
     CompositionLocalProvider(LocalOpaqueEntity provides coreEntity) {
         ComposeNode<ComposeSubspaceNode, Applier<Any>>(

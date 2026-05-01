@@ -405,7 +405,8 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
         }
 
         // This will be re-used throughout the life of the Activity.
-        movieParent = Entity.create(session, "movieParent")
+        movieParent =
+            Entity.create(session, name = "movieParent", parent = session.scene.activitySpace)
 
         lifecycleScope.launch {
             alphaMaskTexture = Texture.create(session, Paths.get("textures", "alpha_mask.png"))

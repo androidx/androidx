@@ -769,7 +769,12 @@ class SubspaceTest {
         var testNode: Entity? = null
 
         composeTestRule.setContent {
-            testNode = Entity.create(LocalSession.current!!, "TestRoot")
+            testNode =
+                Entity.create(
+                    session = LocalSession.current!!,
+                    name = "TestRoot",
+                    parent = LocalSession.current!!.scene.activitySpace,
+                )
             CompositionLocalProvider(LocalSubspaceRootNode provides testNode) {
                 Subspace { SpatialBox(modifier = SubspaceModifier.testTag("Box")) {} }
             }

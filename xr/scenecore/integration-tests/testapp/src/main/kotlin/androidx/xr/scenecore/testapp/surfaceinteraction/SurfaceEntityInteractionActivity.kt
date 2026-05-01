@@ -124,7 +124,13 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         session.scene.keyEntity = session.scene.mainPanelEntity
         device = ArDevice.getInstance(session)
 
-        surfaceParent = Entity.create(session, "SurfaceParent", Pose.Identity)
+        surfaceParent =
+            Entity.create(
+                session,
+                name = "SurfaceParent",
+                pose = Pose.Identity,
+                parent = session.scene.activitySpace,
+            )
         videoInputManager = VideoInputManager()
         pointerLogManager = PointerLogManager(this, session)
 

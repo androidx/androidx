@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.Entity as RtEntity
@@ -25,6 +26,7 @@ import androidx.xr.scenecore.runtime.SceneRuntime
  * An [Entity] that contains no content, but can have an arbitrary number of children. GroupEntity
  * is useful for organizing the placement and movement of a group of child SceneCore Entities.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GroupEntity private constructor(rtEntity: RtEntity, entityRegistry: EntityRegistry) :
     Entity(rtEntity, entityRegistry) {
     public companion object {
