@@ -20,6 +20,7 @@
  * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
 
 plugins {
@@ -33,10 +34,23 @@ dependencies {
     implementation(project(":test:uiautomator:uiautomator"))
     implementation(project(":test:uiautomator:uiautomator-shell"))
     implementation(libs.testExtJunit)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
 }
 
 android {
     namespace = "androidx.testutils.macrobenchmark"
+}
+
+androidComponents {
+    def testDataPath = new File(
+            AndroidXConfig.getPrebuiltsRoot(project),
+            "androidx/traceprocessor/testdata").absolutePath
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets.addStaticSourceDirectory(testDataPath)
+    }
 }
 
 androidx {
