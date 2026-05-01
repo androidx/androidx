@@ -66,6 +66,7 @@ class MovableScalable : ComponentActivity() {
     }
 
     @Composable
+    @SubspaceComposable
     private fun MovableScalableApp() {
         Subspace { SpatialContent() }
     }
@@ -97,6 +98,7 @@ class MovableScalable : ComponentActivity() {
                 SpatialPanel(
                     SubspaceModifier.height(200.dp)
                         .width(200.dp)
+                        .scale(scaleForPanel)
                         .transformingMovable(onMove = customMovement)
                 ) {
                     Box(
