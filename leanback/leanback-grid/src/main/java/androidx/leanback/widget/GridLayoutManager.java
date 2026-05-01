@@ -2515,6 +2515,24 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         return result;
     }
 
+    private int findBestAlignedChild() {
+        int childCount = getChildCount();
+        int minimalScrollValue = Integer.MAX_VALUE;
+        int minimalScrollViewIndex = -1;
+        for (int i = 0; i < childCount; i++) {
+            getScrollPosition(mBaseGridView.getChildAt(i), null, sTwoInts);
+            int scrollValue = sTwoInts[0];
+            if (scrollValue < 0) {
+                scrollValue = -scrollValue;
+            }
+            if (scrollValue < minimalScrollValue) {
+                minimalScrollValue = scrollValue;
+                minimalScrollViewIndex = i;
+            }
+        }
+        return minimalScrollViewIndex;
+    }
+
     // scroll in main direction may add/prune views
     private int scrollDirectionPrimary(int da) {
         // We apply the cap of maxScroll/minScroll to the delta, except for two cases:
@@ -2565,19 +2583,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (isInDraggingOrMotionScroll && mFocusPosition >= 0) {
             // In dragging or using mouse wheel scroll, we keep adjusting mFocusedPosition to the
             // view that is closest to the aligned center.
-            int minimalScrollValue = Integer.MAX_VALUE;
-            int minimalScrollViewIndex = -1;
-            for (int i = 0; i < childCount; i++) {
-                getScrollPosition(mBaseGridView.getChildAt(i), null, sTwoInts);
-                int scrollValue = sTwoInts[0];
-                if (scrollValue < 0) {
-                    scrollValue = -scrollValue;
-                }
-                if (scrollValue < minimalScrollValue) {
-                    minimalScrollValue = scrollValue;
-                    minimalScrollViewIndex = i;
-                }
-            }
+            final int minimalScrollViewIndex = findBestAlignedChild();
             if (minimalScrollViewIndex != -1) {
                 View view = mBaseGridView.getChildAt(minimalScrollViewIndex);
                 mFocusPosition = getAdapterPositionByView(view);
@@ -2783,6 +2789,34 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     public void smoothScrollToPosition(@NonNull RecyclerView recyclerView, @NonNull State state,
             int position) {
         setSelection(position, 0, true, 0);
+    }
+
+    void setSelectedPositionWithoutScroll(@NonNull View view) {
+        int position = getPosition(view);
+        if (position < 0 || mFocusPosition == position) {
+            return;
+        }
+        if (!isSmoothScrolling() && !mBaseGridView.isLayoutRequested()) {
+            mFocusPosition = position;
+            mSubFocusPosition = 0;
+            mFocusPositionOffset = Integer.MIN_VALUE;
+            if (hasFocus() && !view.hasFocus()) {
+                mFlag |= PF_IN_SELECTION;
+                view.requestFocus();
+                mFlag &= ~PF_IN_SELECTION;
+            }
+            dispatchChildSelected();
+            return;
+        }
+        // fallback to regular scroll to position.
+        setSelection(position, 0);
+    }
+
+    void setSelectedPositionToAlignedChild() {
+        int index = findBestAlignedChild();
+        if (index >= 0) {
+            setSelectedPositionWithoutScroll(mBaseGridView.getChildAt(index));
+        }
     }
 
     void setSelection(int position,

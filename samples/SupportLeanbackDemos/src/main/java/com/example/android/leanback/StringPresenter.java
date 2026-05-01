@@ -15,10 +15,14 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
+import androidx.leanback.widget.BaseGridView;
 import androidx.leanback.widget.Presenter;
 
 import org.jspecify.annotations.NonNull;
@@ -36,6 +40,29 @@ public class StringPresenter extends Presenter {
         tv.setFocusableInTouchMode(true);
         tv.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.text_bg,
                 context.getTheme()));
+        tv.setClickable(true);
+        tv.setOnHoverListener((view, event) -> {
+            BaseGridView gridView = null;
+            View child = view;
+            ViewParent p = child.getParent();
+            while (p != null) {
+                if (p instanceof BaseGridView) {
+                    gridView = (BaseGridView) p;
+                    break;
+                }
+                child = (View) p;
+                p = (ViewParent) child.getParent();
+            }
+            if (gridView == null) {
+                return false;
+            }
+            if (event.getAction() == MotionEvent.ACTION_HOVER_ENTER) {
+                gridView.setSelectedPositionToUnalignedChild(child);
+            } else if (event.getAction() == MotionEvent.ACTION_HOVER_EXIT) {
+                gridView.setSelectedPositionToAlignedChild();
+            }
+            return true;
+        });
         return new ViewHolder(tv);
     }
 
