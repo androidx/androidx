@@ -605,17 +605,123 @@ class SpatialSceneRuntimeTest {
     }
 
     @Test
-    fun spatialStateChangeHandler_invokedWhenSpatialStateChangesToFSM() {
-        val spatialState = ShadowSpatialState.create()
+    fun onSpatialStateChanged_HSMToFSM_invokesHandleOriginUpdate() {
+        // Initial state is HSM (no capabilities)
+        val hsmState = ShadowSpatialState.create()
+        ShadowSpatialState.extract(hsmState)
+            .setSpatialCapabilities(ShadowSpatialCapabilities.create(*byteArrayOf()))
+        testRuntime.onSpatialStateChanged(hsmState)
+
+        val fsmState = ShadowSpatialState.create()
         val mockSpatialModeChangeListener = mock<SpatialModeChangeListener>()
         testRuntime.spatialModeChangeListener = mockSpatialModeChangeListener
-        ShadowSpatialState.extract(spatialState)
+        ShadowSpatialState.extract(fsmState)
             .setSpatialCapabilities(ShadowSpatialCapabilities.createAll())
-        ShadowSpatialState.extract(spatialState)
-            .setSceneParentTransform(Mat4f(Matrix4.Identity.data))
-        testRuntime.onSpatialStateChanged(spatialState)
+        // Use a non-identity transform to avoid early return in handleOriginUpdate
+        val nonIdentityTransform = Matrix4.fromTranslation(Vector3(1f, 2f, 3f))
+        ShadowSpatialState.extract(fsmState)
+            .setSceneParentTransform(Mat4f(nonIdentityTransform.data))
+
+        testRuntime.onSpatialStateChanged(fsmState)
 
         verify(mockSpatialModeChangeListener).onSpatialModeChanged(any(), any())
+    }
+
+    @Test
+    fun onSpatialStateChanged_FSMToFSM_invokesHandleOriginUpdateIfTransformChanges() {
+        // Initial state is FSM
+        val fsmState1 = ShadowSpatialState.create()
+        ShadowSpatialState.extract(fsmState1)
+            .setSpatialCapabilities(ShadowSpatialCapabilities.createAll())
+        testRuntime.onSpatialStateChanged(fsmState1)
+
+        val fsmState2 = ShadowSpatialState.create()
+        val mockSpatialModeChangeListener = mock<SpatialModeChangeListener>()
+        testRuntime.spatialModeChangeListener = mockSpatialModeChangeListener
+        ShadowSpatialState.extract(fsmState2)
+            .setSpatialCapabilities(ShadowSpatialCapabilities.createAll())
+        // Different transform, same capabilities - should trigger because it's in FSM
+        val nonIdentityTransform = Matrix4.fromTranslation(Vector3(1f, 2f, 3f))
+        ShadowSpatialState.extract(fsmState2)
+            .setSceneParentTransform(Mat4f(nonIdentityTransform.data))
+
+        testRuntime.onSpatialStateChanged(fsmState2)
+
+        verify(mockSpatialModeChangeListener).onSpatialModeChanged(any(), any())
+    }
+
+    @Test
+    fun onSpatialStateChanged_HSMToHSM_doesNotInvokeHandleOriginUpdate() {
+        // Initial state is HSM
+        val hsmState1 = ShadowSpatialState.create()
+        ShadowSpatialState.extract(hsmState1)
+            .setSpatialCapabilities(ShadowSpatialCapabilities.create(*byteArrayOf()))
+        testRuntime.onSpatialStateChanged(hsmState1)
+
+        val hsmState2 = ShadowSpatialState.create()
+        val mockSpatialModeChangeListener = mock<SpatialModeChangeListener>()
+        testRuntime.spatialModeChangeListener = mockSpatialModeChangeListener
+        ShadowSpatialState.extract(hsmState2)
+            .setSpatialCapabilities(ShadowSpatialCapabilities.create(*byteArrayOf()))
+        // Different transform, but in HSM - should not trigger
+        val nonIdentityTransform = Matrix4.fromTranslation(Vector3(1f, 2f, 3f))
+        ShadowSpatialState.extract(hsmState2)
+            .setSceneParentTransform(Mat4f(nonIdentityTransform.data))
+
+        testRuntime.onSpatialStateChanged(hsmState2)
+
+        verify(mockSpatialModeChangeListener, never()).onSpatialModeChanged(any(), any())
+    }
+
+    @Test
+    fun onSpatialStateChanged_HSMToHSMWithOtherCapChange_doesNotInvokeHandleOriginUpdate() {
+        // Initial state is HSM with no caps
+        val hsmState1 = ShadowSpatialState.create()
+        ShadowSpatialState.extract(hsmState1)
+            .setSpatialCapabilities(ShadowSpatialCapabilities.create(*byteArrayOf()))
+        testRuntime.onSpatialStateChanged(hsmState1)
+
+        // New state is HSM with 3D content cap (but still no UI cap)
+        val hsmState2 = ShadowSpatialState.create()
+        ShadowSpatialState.extract(hsmState2)
+            .setSpatialCapabilities(
+                ShadowSpatialCapabilities.create(SpatialCapabilities.SPATIAL_3D_CONTENTS_CAPABLE)
+            )
+        val nonIdentityTransform = Matrix4.fromTranslation(Vector3(1f, 2f, 3f))
+        ShadowSpatialState.extract(hsmState2)
+            .setSceneParentTransform(Mat4f(nonIdentityTransform.data))
+
+        val mockSpatialModeChangeListener = mock<SpatialModeChangeListener>()
+        testRuntime.spatialModeChangeListener = mockSpatialModeChangeListener
+
+        testRuntime.onSpatialStateChanged(hsmState2)
+
+        // spatialCapabilitiesChanged is true, but hasCapability(UI) is false.
+        verify(mockSpatialModeChangeListener, never()).onSpatialModeChanged(any(), any())
+    }
+
+    @Test
+    fun onSpatialStateChanged_FSMToHSM_doesNotInvokeHandleOriginUpdate() {
+        // Initial state is FSM
+        val fsmState = ShadowSpatialState.create()
+        ShadowSpatialState.extract(fsmState)
+            .setSpatialCapabilities(
+                ShadowSpatialCapabilities.create(SpatialCapabilities.SPATIAL_UI_CAPABLE)
+            )
+        testRuntime.onSpatialStateChanged(fsmState)
+
+        val hsmState = ShadowSpatialState.create()
+        val mockSpatialModeChangeListener = mock<SpatialModeChangeListener>()
+        testRuntime.spatialModeChangeListener = mockSpatialModeChangeListener
+        ShadowSpatialState.extract(hsmState)
+            .setSpatialCapabilities(ShadowSpatialCapabilities.create(*byteArrayOf()))
+        val nonIdentityTransform = Matrix4.fromTranslation(Vector3(1f, 2f, 3f))
+        ShadowSpatialState.extract(hsmState)
+            .setSceneParentTransform(Mat4f(nonIdentityTransform.data))
+
+        testRuntime.onSpatialStateChanged(hsmState)
+
+        verify(mockSpatialModeChangeListener, never()).onSpatialModeChanged(any(), any())
     }
 
     private fun sendVisibilityState(

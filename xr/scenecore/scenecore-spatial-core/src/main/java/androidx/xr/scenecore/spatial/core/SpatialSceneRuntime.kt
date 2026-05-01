@@ -506,17 +506,18 @@ private constructor(
             spatialEnvironmentImpl.firePassthroughOpacityChangedEvent()
         }
 
-        // Get the scene parent transform and update the activity space.
-        if (newSpatialState.sceneParentTransform != null) {
+        // If the activity is in FSM, get the scene parent transform and update the activity space.
+        val newSpatialCapabilities = convertSpatialCapabilities(newSpatialState.spatialCapabilities)
+        if (
+            (newSpatialCapabilities.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)) and
+                (newSpatialState.sceneParentTransform != null)
+        ) {
             activitySpace.handleOriginUpdate(getMatrix(newSpatialState.sceneParentTransform))
         }
 
         if (spatialCapabilitiesChanged) {
-            val spatialCapabilities =
-                convertSpatialCapabilities(newSpatialState.spatialCapabilities)
-
             spatialCapabilitiesChangedListeners.forEach { (listener, executor) ->
-                executor.execute { listener.accept(spatialCapabilities) }
+                executor.execute { listener.accept(newSpatialCapabilities) }
             }
         }
 
