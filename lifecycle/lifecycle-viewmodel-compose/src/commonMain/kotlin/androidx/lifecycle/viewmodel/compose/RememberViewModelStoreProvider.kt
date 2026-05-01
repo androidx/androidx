@@ -142,7 +142,10 @@ public fun rememberViewModelStoreProvider(
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(provider, lifecycle) {
+        val token = provider.acquireToken(ViewModelStoreProvider.ProviderMarkerKey)
         onDispose {
+            token.close()
+
             // We are NOT waiting for an ON_DESTROY event, instead we are executing a cleanup hook
             // that is guaranteed to run when this composable leaves the tree, and checking the
             // Parent's current state to decide *if* we should dispose.

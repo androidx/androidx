@@ -108,6 +108,10 @@ package androidx.lifecycle.viewmodel {
     method @BytecodeOnly public static androidx.lifecycle.ViewModelStoreOwner! getOrCreateOwner$default(androidx.lifecycle.viewmodel.ViewModelStoreProvider!, Object!, androidx.savedstate.SavedStateRegistryOwner!, android.os.Bundle!, androidx.lifecycle.viewmodel.CreationExtras!, androidx.lifecycle.ViewModelProvider.Factory!, int, Object!);
   }
 
+  public static final class ViewModelStoreProvider.ProviderMarkerKey {
+    field public static final androidx.lifecycle.viewmodel.ViewModelStoreProvider.ProviderMarkerKey INSTANCE;
+  }
+
   public static fun interface ViewModelStoreProvider.ReferenceToken extends java.lang.AutoCloseable {
   }
 
