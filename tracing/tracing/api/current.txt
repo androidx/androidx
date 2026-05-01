@@ -132,7 +132,7 @@ package androidx.tracing {
   }
 
   public final class Throwables {
-    method public static Void recordException(androidx.tracing.Tracer, String category, String name, Throwable throwable);
+    method public static Void recordExceptionAndThrow(androidx.tracing.Tracer, String category, String name, Throwable throwable);
   }
 
   public final class Trace {

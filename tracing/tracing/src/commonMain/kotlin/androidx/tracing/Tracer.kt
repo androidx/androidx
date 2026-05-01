@@ -265,7 +265,11 @@ public abstract class Tracer {
         try {
             return block()
         } catch (throwable: Throwable) {
-            recordException(category = category, name = "$name.exception", throwable = throwable)
+            recordExceptionAndThrow(
+                category = category,
+                name = "$name.exception",
+                throwable = throwable,
+            )
         } finally {
             closeable.close()
         }
@@ -328,7 +332,11 @@ public abstract class Tracer {
                 block()
             }
         } catch (throwable: Throwable) {
-            recordException(category = category, name = "$name.exception", throwable = throwable)
+            recordExceptionAndThrow(
+                category = category,
+                name = "$name.exception",
+                throwable = throwable,
+            )
         } finally {
             // Only have the tokenContextElement be relevant for the execution of the suspending
             // `block` and not in this finally block.
