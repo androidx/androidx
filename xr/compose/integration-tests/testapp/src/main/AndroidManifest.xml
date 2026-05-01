@@ -46,11 +46,7 @@
            android:exported="true"
            android:label="Movable"
            android:theme="@style/Theme.IntegrationTestsApp" />
-       <activity
-           android:name=".permissionsdialog.PermissionsDialog"
-           android:exported="true"
-           android:label="PermissionsDialog"
-           android:theme="@style/Theme.IntegrationTestsApp" />
+
        <activity
            android:name=".animation.Animation"
            android:exported="true"
