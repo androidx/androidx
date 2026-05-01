@@ -27,7 +27,11 @@ package androidx.tracing
  * @param name The name of the trace section.
  * @param throwable The exception thrown by a block of code.
  */
-public fun Tracer.recordException(category: String, name: String, throwable: Throwable): Nothing {
+public fun Tracer.recordExceptionAndThrow(
+    category: String,
+    name: String,
+    throwable: Throwable,
+): Nothing {
     instant(category = category, name = name, metadataBlock = { addThrowable(throwable) })
     // Rethrow the exception so the caller knows something bad happened.
     throw throwable
