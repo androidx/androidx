@@ -31,17 +31,19 @@ export class Transforms {
             continue;
           }
           const metric = wrapper.value.metric(label);
-          const charData: ChartData<number> = {
-            values: metric.runs
-          };
-          Transforms.add<number>(
-            standard,
-            className,
-            testName,
-            label,
-            source,
-            charData
-          );
+          if (metric) {
+            const charData: ChartData<number> = {
+              values: metric.runs
+            };
+            Transforms.add<number>(
+              standard,
+              className,
+              testName,
+              label,
+              source,
+              charData
+            );
+          }
         }
         // sampled
         labels = wrapper.value.sampledLabels();
@@ -51,17 +53,19 @@ export class Transforms {
             continue;
           }
           const metric = wrapper.value.sampled(label);
-          const charData: ChartData<number[]> = {
-            values: metric.runs
-          };
-          Transforms.add<number[]>(
-            sampled,
-            className,
-            testName,
-            label,
-            source,
-            charData
-          );
+          if (metric) {
+            const charData: ChartData<number[]> = {
+              values: metric.runs
+            };
+            Transforms.add<number[]>(
+              sampled,
+              className,
+              testName,
+              label,
+              source,
+              charData
+            );
+          }
         }
       }
     }

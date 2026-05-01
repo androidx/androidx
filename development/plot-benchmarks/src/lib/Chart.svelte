@@ -47,7 +47,7 @@
             const rp = context.raw as Point;
             const frequency = context.parsed.y;
             if (isSampled(label)) {
-              const fx = rp.x.toFixed(2);
+              const fx = rp.x?.toFixed(2);
               return `${label}: ${fx} F(${frequency})`;
             } else {
               // Fallback to default behavior

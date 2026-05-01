@@ -123,7 +123,8 @@ export function histogramPoints(
     }
     const n = normalize(value, min, max);
     const index = Math.ceil(n * slots);
-    histogram[index].y = histogram[index].y + 1;
+    // We initialized the histogram array, so the non-null assertion is safe.
+    histogram[index].y = histogram[index].y! + 1;
     if (maxFreq < histogram[index].y) {
       maxFreq = histogram[index].y;
     }
