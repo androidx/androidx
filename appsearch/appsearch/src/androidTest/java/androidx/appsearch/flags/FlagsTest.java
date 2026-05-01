@@ -176,44 +176,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableCalculateTimeSinceLastAttemptedOptimize() {
-        assertThat(Flags.FLAG_ENABLE_CALCULATE_TIME_SINCE_LAST_ATTEMPTED_OPTIMIZE)
-                .isEqualTo("com.android.appsearch.flags"
-                        + ".enable_calculate_time_since_last_attempted_optimize");
-    }
-
-    @Test
-    public void testFlagValue_enableQualifiedIdJoinIndexV3() {
-        assertThat(Flags.FLAG_ENABLE_QUALIFIED_ID_JOIN_INDEX_V3)
-                .isEqualTo("com.android.appsearch.flags.enable_qualified_id_join_index_v3");
-    }
-
-    @Test
-    public void testFlagValue_enableSoftIndexRestoration() {
-        assertThat(Flags.FLAG_ENABLE_SOFT_INDEX_RESTORATION)
-                .isEqualTo("com.android.appsearch.flags.enable_soft_index_restoration");
-    }
-
-    @Test
-    public void testFlagValue_enableMarkerFileForOptimize() {
-        assertThat(Flags.FLAG_ENABLE_MARKER_FILE_FOR_OPTIMIZE)
-                .isEqualTo("com.android.appsearch.flags.enable_marker_file_for_optimize");
-    }
-
-    @Test
-    public void testFlagValue_enableReleaseBackupSchemaFileIfOverlayPresent() {
-        assertThat(Flags.FLAG_ENABLE_RELEASE_BACKUP_SCHEMA_FILE_IF_OVERLAY_PRESENT)
-                .isEqualTo("com.android.appsearch.flags"
-                        + ".enable_release_backup_schema_file_if_overlay_present");
-    }
-
-    @Test
-    public void testFlagValue_enableStrictPageByteSizeLimit() {
-        assertThat(Flags.FLAG_ENABLE_STRICT_PAGE_BYTE_SIZE_LIMIT)
-                .isEqualTo("com.android.appsearch.flags.enable_strict_page_byte_size_limit");
-    }
-
-    @Test
     public void testFlagValue_enableCompressionThreshold() {
         assertThat(Flags.FLAG_ENABLE_COMPRESSION_THRESHOLD)
                 .isEqualTo("com.android.appsearch.flags.enable_compression_threshold");

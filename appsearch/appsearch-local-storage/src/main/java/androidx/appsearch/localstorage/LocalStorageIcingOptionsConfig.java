@@ -97,11 +97,6 @@ public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
     }
 
     @Override
-    public boolean getUseNewQualifiedIdJoinIndex() {
-        return DEFAULT_USE_NEW_QUALIFIED_ID_JOIN_INDEX;
-    }
-
-    @Override
     public boolean getBuildPropertyExistenceMetadataHits() {
         return true;
     }
