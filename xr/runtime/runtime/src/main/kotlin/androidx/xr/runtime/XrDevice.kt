@@ -18,6 +18,7 @@ package androidx.xr.runtime
 
 import android.content.Context
 import androidx.annotation.GuardedBy
+import androidx.annotation.RestrictTo
 import androidx.lifecycle.Lifecycle
 import androidx.xr.runtime.XrDevice.Companion.getCurrentDevice
 import androidx.xr.runtime.interfaces.DisplayBlendMode as InternalDisplayBlendMode
@@ -137,6 +138,16 @@ private constructor(
                 )
             synchronized(deviceCache) { deviceCache[context] = device }
             return device
+        }
+
+        /** Returns true if Projected service is available on this device. False otherwise. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun isProjectedServiceAvailable(context: Context): Boolean {
+            if (!PackageManagerUtils.hasXrProjectedSystemFeature(context)) {
+                return false
+            }
+
+            return PackageManagerUtils.hasXrProjectedSystemService(context)
         }
     }
 
