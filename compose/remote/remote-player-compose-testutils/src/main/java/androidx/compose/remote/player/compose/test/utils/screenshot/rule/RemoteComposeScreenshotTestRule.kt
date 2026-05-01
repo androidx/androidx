@@ -168,45 +168,6 @@ class RemoteComposeScreenshotTestRule(
         composeTestRule.verifyScreenshot(screenshotName, screenshotRule)
     }
 
-    fun runScreenshotTest(
-        screenshotName: Description = testDescription,
-        creationDisplayInfo: RemoteCreationDisplayInfo = displayInfo,
-        backgroundColor: Color? = null,
-        document: CoreDocument,
-        deviceConfigurationOverride: DeviceConfigurationOverride? = null,
-        colorOverrides: ObjectIntMap<String> = mutableObjectIntMapOf(),
-        outerContent: (@Composable (content: @Composable @RemoteComposable () -> Unit) -> Unit)? =
-            null,
-    ) {
-        composeTestRule.setContent {
-            WithOverride(deviceConfigurationOverride) {
-                val boxModifier =
-                    Modifier.width(creationDisplayInfo.widthDp)
-                        .height(creationDisplayInfo.heightDp)
-                        .then(
-                            if (backgroundColor != null) {
-                                Modifier.background(backgroundColor)
-                            } else {
-                                Modifier
-                            }
-                        )
-                        .testTag("playerRoot")
-
-                val content: @Composable @RemoteComposable () -> Unit = {
-                    RemoteDocumentPlayer(document, creationDisplayInfo, colorOverrides)
-                }
-                Box(modifier = boxModifier) {
-                    if (outerContent != null) {
-                        outerContent(content)
-                    } else {
-                        content()
-                    }
-                }
-            }
-        }
-        composeTestRule.verifyScreenshot(screenshotName, screenshotRule)
-    }
-
     fun verifyScreenshot(suffix: String? = null, screenshotName: Description = testDescription) {
         composeTestRule.verifyScreenshot(
             testName = screenshotName,

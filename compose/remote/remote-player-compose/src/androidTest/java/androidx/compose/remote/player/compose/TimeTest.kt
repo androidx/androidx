@@ -22,7 +22,8 @@ import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc.Time.TIME_IN_HR
 import androidx.compose.remote.player.compose.test.util.getCoreDocument
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteDocScreenshotTestRule
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -38,9 +39,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TimeTest {
     @get:Rule
-    val remoteComposeTestRule by lazy {
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
-    }
+    val remoteComposeTestRule =
+        RemoteDocScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Test
     fun clockOverriddenInCoreDocument_usedInTimeAttributes() {
@@ -88,6 +88,9 @@ class TimeTest {
                 mRemoteWriter.drawTextAnchored(hoursFromNowString, 0f, 200f, -1f, 0f, 0)
             }
 
-        remoteComposeTestRule.runScreenshotTest(document = document)
+        remoteComposeTestRule.runScreenshotTest(
+            coreDocument = document,
+            context = ApplicationProvider.getApplicationContext(),
+        )
     }
 }

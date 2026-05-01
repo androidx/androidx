@@ -21,16 +21,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.heightDp
-import androidx.compose.remote.creation.compose.capture.widthDp
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
-import androidx.compose.remote.player.view.RemoteComposePlayer
-import androidx.compose.remote.testing.RemoteBaseContentTestRule.Player
+import androidx.compose.remote.testing.RemoteBaseDocContentTestRule
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
@@ -39,6 +31,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.BitmapMatcher
@@ -53,23 +46,9 @@ import org.junit.runners.model.Statement
  * [AndroidXScreenshotTestRule] for screenshot testing.
  */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-class RemoteScreenshotTestRule(
-    moduleDirectory: String,
-    val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
-    val matcher: BitmapMatcher? = null,
-) : TestRule {
-
-    constructor(
-        moduleDirectory: String,
-        context: Context,
-        matcher: BitmapMatcher? = null,
-    ) : this(
-        moduleDirectory = moduleDirectory,
-        remoteCreationDisplayInfo = createCreationDisplayInfo(context),
-        matcher = matcher,
-    )
-
-    private val remoteContentTestRule: RemoteContentTestRule = RemoteContentTestRule()
+class RemoteDocScreenshotTestRule(moduleDirectory: String, val matcher: BitmapMatcher? = null) :
+    TestRule {
+    private val remoteContentTestRule = RemoteBaseDocContentTestRule()
 
     private val screenshotTestRule = AndroidXScreenshotTestRule(moduleDirectory)
 
@@ -91,46 +70,47 @@ class RemoteScreenshotTestRule(
     }
 
     fun runScreenshotTest(
-        remoteCreationDisplayInfo: RemoteCreationDisplayInfo? = null,
-        profile: Profile = RcPlatformProfiles.ANDROIDX,
-        onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
+        coreDocument: CoreDocument,
+        context: Context,
         goldenScreenshotName: GoldenScreenshotName? = null,
-        update: (RemoteComposePlayer) -> Unit = {},
         composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)? = null,
-        composable: @Composable @RemoteComposable () -> Unit,
     ) {
         runScreenshotTestInternal(
-            remoteCreationDisplayInfo = remoteCreationDisplayInfo ?: this.remoteCreationDisplayInfo,
-            profile = profile,
-            onCoreDocumentCreated = onCoreDocumentCreated,
+            coreDocument = coreDocument,
+            size =
+                Size(
+                    context.resources.displayMetrics.widthPixels.toFloat(),
+                    context.resources.displayMetrics.heightPixels.toFloat(),
+                ),
             goldenScreenshotName = getGoldenScreenshotName(goldenScreenshotName),
             composableWrapper = composableWrapper,
-            update = update,
-            composable = composable,
         )
     }
 
-    private fun runScreenshotTestInternal(
-        remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
-        profile: Profile,
-        onCoreDocumentCreated: ((CoreDocument) -> Unit)?,
+    fun runScreenshotTest(
+        coreDocument: CoreDocument,
+        size: Size,
+        goldenScreenshotName: GoldenScreenshotName? = null,
+        composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)? = null,
+    ) {
+        runScreenshotTestInternal(
+            coreDocument = coreDocument,
+            size = size,
+            goldenScreenshotName = getGoldenScreenshotName(goldenScreenshotName),
+            composableWrapper = composableWrapper,
+        )
+    }
+
+    fun runScreenshotTestInternal(
+        coreDocument: CoreDocument,
+        size: Size,
         goldenScreenshotName: GoldenScreenshotName,
-        update: (RemoteComposePlayer) -> Unit,
         composableWrapper: (@Composable (content: @Composable () -> Unit) -> Unit)?,
-        composable: @Composable @RemoteComposable () -> Unit,
     ) {
         remoteContentTestRule.setContent(
-            remoteCreationDisplayInfo = remoteCreationDisplayInfo,
-            profile = profile,
-            onCoreDocumentCreated = onCoreDocumentCreated,
-            player =
-                PlayerImpl(
-                    remoteCreationDisplayInfo = remoteCreationDisplayInfo,
-                    update = update,
-                    composableWrapper = composableWrapper,
-                ),
-            composableWrapper = composableWrapper,
-            composable = composable,
+            coreDocument = coreDocument,
+            player = PlayerImpl(composableWrapper = composableWrapper),
+            size = size,
         )
 
         val screenshot =
@@ -155,16 +135,14 @@ class RemoteScreenshotTestRule(
     }
 
     private class PlayerImpl(
-        private val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
-        private val update: (RemoteComposePlayer) -> Unit = {},
-        private val composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)?,
-    ) : Player {
+        private val composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)?
+    ) : RemoteBaseDocContentTestRule.Player {
         @Composable
         override fun Play(coreDocument: CoreDocument, size: Size) {
             Box(
                 modifier =
-                    Modifier.width(remoteCreationDisplayInfo.widthDp)
-                        .height(remoteCreationDisplayInfo.heightDp)
+                    Modifier.width(size.width.toInt().dp)
+                        .height(size.height.toInt().dp)
                         .testTag(ROOT_TEST_TAG)
             ) {
                 val composable: @Composable () -> Unit = {
@@ -172,7 +150,6 @@ class RemoteScreenshotTestRule(
                         document = coreDocument,
                         documentWidth = size.width.toInt(),
                         documentHeight = size.height.toInt(),
-                        update = update,
                     )
                 }
                 if (composableWrapper == null) {
