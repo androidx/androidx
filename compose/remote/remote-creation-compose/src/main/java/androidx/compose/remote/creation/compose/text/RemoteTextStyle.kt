@@ -23,7 +23,6 @@ import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,7 +51,7 @@ constructor(
     public val fontSize: RemoteTextUnit? = null,
     public val fontWeight: FontWeight? = null,
     public val fontStyle: FontStyle? = null,
-    public val fontFamily: FontFamily? = null,
+    public val fontFamily: RemoteFontFamily? = null,
     public val letterSpacing: RemoteTextUnit? = null,
     public val background: RemoteColor? = null,
     public val textAlign: TextAlign? = null,
@@ -92,7 +91,7 @@ constructor(
         fontSize: RemoteTextUnit? = null,
         fontWeight: FontWeight? = null,
         fontStyle: FontStyle? = null,
-        fontFamily: FontFamily? = null,
+        fontFamily: RemoteFontFamily? = null,
         letterSpacing: RemoteTextUnit? = null,
         background: RemoteColor? = null,
         textAlign: TextAlign? = null,
@@ -121,7 +120,7 @@ constructor(
         fontSize: RemoteTextUnit? = this.fontSize,
         fontWeight: FontWeight? = this.fontWeight,
         fontStyle: FontStyle? = this.fontStyle,
-        fontFamily: FontFamily? = this.fontFamily,
+        fontFamily: RemoteFontFamily? = this.fontFamily,
         letterSpacing: RemoteTextUnit? = this.letterSpacing,
         background: RemoteColor? = this.background,
         textAlign: TextAlign? = this.textAlign,
@@ -163,7 +162,7 @@ constructor(
                 fontSize = fontSize,
                 fontWeight = style.fontWeight,
                 fontStyle = style.fontStyle,
-                fontFamily = style.fontFamily,
+                fontFamily = RemoteFontFamily.fromComposeFontFamily(style.fontFamily),
                 letterSpacing = letterSpacing,
                 background = background,
                 textAlign = style.textAlign,

@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -226,7 +227,6 @@ class RemoteTextTest {
     }
 
     @Test
-    @Ignore("No flex font in CI")
     fun text_withWeight() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
@@ -238,13 +238,23 @@ class RemoteTextTest {
     }
 
     @Test
-    @Ignore("No flex font in CI")
     fun text_withWidth() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 VariantText(FontVariation.width(10f))
                 VariantText(FontVariation.width(50f))
                 VariantText(FontVariation.width(90f))
+            }
+        }
+    }
+
+    @Test
+    fun text_withGrade() {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
+            RemoteColumn(RemoteModifier.fillMaxSize()) {
+                VariantText(FontVariation.grade(0))
+                VariantText(FontVariation.grade(100))
+                VariantText(FontVariation.grade(200))
             }
         }
     }
@@ -344,6 +354,7 @@ class RemoteTextTest {
                     setting.toVariationValue(null).rf.toRemoteString(DecimalFormat("0")),
             modifier = RemoteModifier.fillMaxWidth(),
             fontSize = 32.rsp,
+            fontFamily = RemoteFontFamily.Named("RobotoFlex"),
             fontVariationSettings = Settings(setting),
         )
     }

@@ -22,11 +22,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -40,7 +41,10 @@ class RemoteTypographyTest {
 
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteComposeScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            profile = TestProfiles.androidXWithCoreText,
+        )
 
     private val creationDisplayInfo =
         RemoteCreationDisplayInfo(
@@ -55,10 +59,9 @@ class RemoteTypographyTest {
 
     @Test
     fun typography_uses_mono_font_family() {
-        val monoTypography = RemoteTypography(defaultFontFamily = FontFamily.Monospace)
+        val monoTypography = RemoteTypography(defaultFontFamily = RemoteFontFamily.Monospace)
 
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
             creationDisplayInfo = creationDisplayInfo,
             backgroundColor = Color.Black,
         ) {
@@ -88,6 +91,32 @@ class RemoteTypographyTest {
                     RemoteText(
                         "Mono labelSmall".rs,
                         style = RemoteMaterialTheme.typography.labelSmall,
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun typography_uses_custom_font_family() {
+        // Should pass roboto-flex but the player expects RobotoFlex
+        val robotoFlexTypography =
+            RemoteTypography(defaultFontFamily = RemoteFontFamily.Named("RobotoFlex"))
+
+        remoteComposeTestRule.runScreenshotTest(
+            creationDisplayInfo = creationDisplayInfo,
+            backgroundColor = Color.Black,
+        ) {
+            RemoteMaterialTheme(typography = robotoFlexTypography) {
+                RemoteColumn {
+                    RemoteText(
+                        "RobotoFlex".rs,
+                        fontVariationSettings = FontVariation.Settings(FontVariation.weight(100)),
+                    )
+                    RemoteText("RobotoFlex".rs)
+                    RemoteText(
+                        "RobotoFlex".rs,
+                        fontVariationSettings = FontVariation.Settings(FontVariation.weight(900)),
                     )
                 }
             }

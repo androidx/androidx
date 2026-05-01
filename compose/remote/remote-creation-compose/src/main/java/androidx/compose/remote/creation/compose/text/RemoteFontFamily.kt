@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.GenericFontFamily
 
@@ -26,7 +25,6 @@ import androidx.compose.ui.text.font.GenericFontFamily
  * @param name The name used by the player to resolve the font (e.g., "serif").
  * @param fontFamilyName A display name used for debugging and logging purposes.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed class RemoteFontFamily(public val name: String, private val fontFamilyName: String) {
 
     /** Represents the default system font family. */
