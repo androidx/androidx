@@ -13,30 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.runtime.testing.internal
 
-import androidx.xr.runtime.SpatialApiVersionProvider
+import androidx.kruth.assertThat
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.SpatialApiVersions
-import androidx.xr.runtime.testing.XrDeviceTestRule
+import kotlin.test.Test
+import org.junit.Before
+import org.junit.runner.RunWith
 
-/** Internal fake implementation of [SpatialApiVersionProvider]. */
-internal class FakeSpatialApiVersionProvider : SpatialApiVersionProvider {
+@RunWith(AndroidJUnit4::class)
+class FakeSpatialApiVersionProviderTest {
+    private val underTest = FakeSpatialApiVersionProvider()
 
-    init {
-        instance = this
+    @Before
+    fun setUp() {
+        FakeSpatialApiVersionProvider.xrDeviceTestRule = null
     }
 
-    companion object {
-        internal var instance: FakeSpatialApiVersionProvider? = null
-        internal var xrDeviceTestRule: XrDeviceTestRule? = null
+    @Test
+    fun spatialApiVersion_noRule_returnsLatestStableDefault() {
+        assertThat(underTest.spatialApiVersion)
+            .isEqualTo(SpatialApiVersions.LATEST_STABLE_API_LEVEL)
     }
-
-    internal fun registerProvider() {
-        xrDeviceTestRule?.spatialApiVersionProvider = this
-    }
-
-    override var spatialApiVersion: Int = SpatialApiVersions.LATEST_STABLE_API_LEVEL
-
-    override var previewSpatialApiVersion: Int = 0
 }

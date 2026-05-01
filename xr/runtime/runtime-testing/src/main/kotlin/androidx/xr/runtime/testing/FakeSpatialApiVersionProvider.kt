@@ -19,7 +19,6 @@ package androidx.xr.runtime.testing
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.SpatialApiVersionProvider
 import androidx.xr.runtime.SpatialApiVersions
-import androidx.xr.runtime.testing.internal.FakeSpatialApiVersionProvider as MigratedFakeSpatialApiVersionProvider
 
 /**
  * A fake implementation of [SpatialApiVersionProvider] for testing.
@@ -41,7 +40,6 @@ public class FakeSpatialApiVersionProvider : SpatialApiVersionProvider {
         public var testSpatialApiVersion: Int? = null
             set(value) {
                 field = value
-                MigratedFakeSpatialApiVersionProvider.testSpatialApiVersion = value
             }
 
         /**
@@ -52,22 +50,12 @@ public class FakeSpatialApiVersionProvider : SpatialApiVersionProvider {
         public var testPreviewSpatialApiVersion: Int? = null
             set(value) {
                 field = value
-                MigratedFakeSpatialApiVersionProvider.testPreviewSpatialApiVersion = value
             }
     }
 
     override val spatialApiVersion: Int
-        get() =
-            MigratedFakeSpatialApiVersionProvider.testSpatialApiVersion
-                ?: testSpatialApiVersion
-                ?: SpatialApiVersions.LATEST_STABLE_API_LEVEL
+        get() = SpatialApiVersions.LATEST_STABLE_API_LEVEL
 
     override val previewSpatialApiVersion: Int
-        get() =
-            MigratedFakeSpatialApiVersionProvider.testPreviewSpatialApiVersion
-                ?: testPreviewSpatialApiVersion
-                ?: throw IllegalStateException(
-                    "previewSpatialApiVersion is not set for testing. Provide a value via " +
-                        "FakeSpatialApiVersionProvider.testPreviewSpatialApiVersion"
-                )
+        get() = SpatialApiVersions.LATEST_STABLE_API_LEVEL
 }
