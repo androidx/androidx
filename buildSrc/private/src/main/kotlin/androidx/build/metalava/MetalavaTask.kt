@@ -245,8 +245,10 @@ internal abstract class CompatibilityMetalavaTask(workerExecutor: WorkerExecutor
                 add("--check-compatibility:api:released")
                 add(previousSignature.toString())
             }
-            // Compatibility check for multiplatform signature files, if they exist.
-            if (previousMultiplatform?.exists() == true) {
+            // Compatibility check for multiplatform signature files, if they exist. Gradle may
+            // create an empty directory because this is marked as a task input/output, but only use
+            // it if there are actually any signature files in it.
+            if (previousMultiplatform?.let { ApiLocation.containsApiFiles(it) } == true) {
                 add("--multiplatform-enabled")
                 add("--multiplatform-api-sources")
                 add(currentMultiplatform.toString())
