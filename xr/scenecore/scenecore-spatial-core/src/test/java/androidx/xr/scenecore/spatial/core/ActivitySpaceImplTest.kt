@@ -555,4 +555,20 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         assertVector3(systemSpaceEntity.worldSpaceScale, Vector3.One)
         assertVector3(systemSpaceEntity.getScale(Space.ACTIVITY), Vector3.One)
     }
+
+    @Test
+    fun handleOriginUpdate_sameTransform_doesNotNotifyAgain() {
+        val handler = TestSpatialModeChangeListener()
+        testRuntime = createTestSceneRuntime()
+        activitySpace = testRuntime.activitySpace as ActivitySpaceImpl
+        activitySpace.setSpatialModeChangeListener(handler)
+
+        val newTransform = Matrix4.fromTrs(Vector3.One, Quaternion.Identity, Vector3.One)
+
+        activitySpace.handleOriginUpdate(newTransform)
+        assertThat(handler.updateCount).isEqualTo(1)
+
+        activitySpace.handleOriginUpdate(newTransform)
+        assertThat(handler.updateCount).isEqualTo(1)
+    }
 }
