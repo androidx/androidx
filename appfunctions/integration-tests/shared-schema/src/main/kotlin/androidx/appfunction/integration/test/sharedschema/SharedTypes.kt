@@ -293,3 +293,39 @@ data class ResourceFunctionResponse(
     val stringValue: String,
     override val resources: List<AppFunctionTextResource>,
 ) : AppFunctionResourceContainer
+
+/** The MultiServiceNote. */
+@AppFunctionSerializable(isDescribedByKDoc = true)
+data class MultiServiceNote(
+    /** The multiservice note title. */
+    val title: String,
+    /** The multiservice note content. */
+    val content: List<String>,
+)
+
+/** The MultiServiceCreateNoteParams. */
+@AppFunctionSerializable(isDescribedByKDoc = true)
+data class MultiServiceCreateNoteParams(
+    /** The multiservice note title. */
+    val title: String,
+    /** The multiservice note content. */
+    val content: List<String>,
+)
+
+@AppFunctionSerializable
+data class MultiServiceProxyTypesWrapper(
+    val localDateTime: LocalDateTime,
+    val localDate: LocalDate,
+    val localTime: LocalTime,
+    val uri: Uri,
+    val instant: Instant,
+    val zoneId: ZoneId,
+)
+
+@AppFunctionSerializable
+data class MultiServiceFilesData(
+    val readOnlyUri: AppFunctionUriGrant,
+    val writeOnlyUri: AppFunctionUriGrant,
+    val readWriteUri: AppFunctionUriGrant,
+    val persistReadWriteUri: AppFunctionUriGrant,
+)
