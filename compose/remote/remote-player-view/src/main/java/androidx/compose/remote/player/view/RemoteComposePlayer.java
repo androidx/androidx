@@ -923,7 +923,8 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     @RestrictTo(LIBRARY_GROUP)
     public @Nullable PreparedDocument prepareDocument(@NonNull RemoteDocument doc) {
         if (isCompatible(doc)) {
-            return new RemotePreparedDocument(doc);
+            AndroidRemoteContext context = (AndroidRemoteContext) mInner.getRemoteContext();
+            return new RemotePreparedDocument(doc, context.getBitmapLoader());
         }
         return null;
     }

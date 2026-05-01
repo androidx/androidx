@@ -22,11 +22,10 @@ import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
 /** Implementation of BitmapLoader for Android, only supporting URL fetching. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AndroidBitmapLoader implements BitmapLoader{
+public class AndroidBitmapLoader implements BitmapLoader {
     /**
      * Load a bitmap from a URL
      *
@@ -34,8 +33,7 @@ public class AndroidBitmapLoader implements BitmapLoader{
      * @return an InputStream with data.
      */
     @Override
-    @SuppressWarnings("deprecation")
     public @NonNull InputStream loadBitmap(@NonNull String url) throws IOException {
-        return new URL(url).openStream();
+        return java.net.URI.create(url).toURL().openStream();
     }
 }

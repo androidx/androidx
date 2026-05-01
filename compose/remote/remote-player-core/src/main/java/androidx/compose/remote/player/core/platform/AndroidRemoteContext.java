@@ -88,6 +88,15 @@ public class AndroidRemoteContext extends RemoteContext {
     }
 
     /**
+     * Returns the BitmapLoader used by the RemoteContext.
+     *
+     * @return The BitmapLoader being used.
+     */
+    public @NonNull BitmapLoader getBitmapLoader() {
+        return mBitmapLoader;
+    }
+
+    /**
      * Sets the Canvas to be used by the RemoteContext for drawing operations. Typically received in
      * onDraw. If a PaintContext already exists, it will be reset and updated with the new Canvas.
      * Otherwise, a new AndroidPaintContext will be created. The width and height of the context are
@@ -436,16 +445,16 @@ public class AndroidRemoteContext extends RemoteContext {
                     }
                     break;
                 case BitmapData.ENCODING_FILE:
-                    image = BitmapFactory.decodeFile(new String(data));
+                    image = BitmapFactory.decodeFile(
+                            new String(data, java.nio.charset.StandardCharsets.UTF_8));
                     break;
                 case BitmapData.ENCODING_URL:
                     if (!Limits.ENABLE_IMAGE_URLS) {
                         throw new RuntimeException("URL image not supported [" + imageId + "]");
                     }
-                    try {
-                        image =
-                                BitmapFactory.decodeStream(
-                                        mBitmapLoader.loadBitmap(new String(data)));
+                    try (java.io.InputStream is = mBitmapLoader.loadBitmap(
+                            new String(data, java.nio.charset.StandardCharsets.UTF_8))) {
+                        image = BitmapFactory.decodeStream(is);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
