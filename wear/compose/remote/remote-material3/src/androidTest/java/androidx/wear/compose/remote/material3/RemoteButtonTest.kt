@@ -21,12 +21,8 @@ import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.painter.painterRemoteBitmap
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
@@ -39,7 +35,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -54,6 +49,8 @@ import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIcon
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIconAndSecondaryLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithSecondaryLabel
 import androidx.wear.compose.remote.material3.previews.utils.createImage
+import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -80,7 +77,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteButtonEnabled() }
+            ComponentContainer { RemoteButtonEnabled() }
         }
     }
 
@@ -92,7 +89,7 @@ class RemoteButtonTest {
             creationDisplayInfo = creationDisplayInfo,
             layoutDirection = LayoutDirection.Rtl,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteButtonWithIconAndSecondaryLabel() }
+            ComponentContainer { RemoteButtonWithIconAndSecondaryLabel() }
         }
     }
 
@@ -103,7 +100,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.buttonSizeModifier(),
@@ -133,7 +130,7 @@ class RemoteButtonTest {
                     disabledSecondaryContentColor = RemoteColor(Color.Black),
                     disabledIconColor = RemoteColor(Color.Black),
                 )
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.buttonSizeModifier(),
@@ -152,7 +149,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.buttonSizeModifier(),
@@ -171,7 +168,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.size(180.rdp, 100.rdp),
@@ -190,7 +187,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.buttonSizeModifier(),
@@ -213,7 +210,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteButtonWithBorder() }
+            ComponentContainer { RemoteButtonWithBorder() }
         }
     }
 
@@ -224,7 +221,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.size(150.rdp),
@@ -249,7 +246,7 @@ class RemoteButtonTest {
                 rememberNamedRemoteBitmap(name = "backgroundImage") {
                     createImage(200, 200).asImageBitmap()
                 }
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 val containerPainter =
                     RemoteButtonDefaults.containerPainter(painterRemoteBitmap(backgroundImage))
                 RemoteButton(
@@ -274,7 +271,7 @@ class RemoteButtonTest {
                 rememberNamedRemoteBitmap(name = "button_disabled_container_background_image") {
                     createImage(200, 200).asImageBitmap()
                 }
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 val enabled = false.rb
                 val containerPainter =
                     RemoteButtonDefaults.containerPainter(painterRemoteBitmap(backgroundImage))
@@ -297,7 +294,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteButtonWithIconAndSecondaryLabel() }
+            ComponentContainer { RemoteButtonWithIconAndSecondaryLabel() }
         }
     }
 
@@ -308,7 +305,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteButtonWithIcon() }
+            ComponentContainer { RemoteButtonWithIcon() }
         }
     }
 
@@ -319,7 +316,7 @@ class RemoteButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteButtonWithSecondaryLabel() }
+            ComponentContainer { RemoteButtonWithSecondaryLabel() }
         }
     }
 
@@ -337,7 +334,7 @@ class RemoteButtonTest {
             creationDisplayInfo = creationDisplayInfo,
             colorOverrides = colorOverrides,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteButtonEnabled() }
+            ComponentContainer { RemoteButtonEnabled() }
         }
     }
 
@@ -382,15 +379,6 @@ class RemoteButtonTest {
     // Replace all sequences of whitespace (including newlines, tabs) with a single space. Then
     // trim leading/trailing spaces from the whole string
     private fun String.normalizeWhiteSpace() = this.replace(Regex("``s+"), " ").trim()
-
-    @Composable
-    @RemoteComposable
-    private fun Center(
-        modifier: RemoteModifier,
-        content: @Composable @RemoteComposable () -> Unit,
-    ) {
-        RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
-    }
 
     private val testAction = HostAction("testAction".rs, 1.rf)
 }

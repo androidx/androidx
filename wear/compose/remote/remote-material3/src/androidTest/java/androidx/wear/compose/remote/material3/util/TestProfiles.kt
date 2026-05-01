@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.remote.material3
+package androidx.wear.compose.remote.material3.util
 
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations

@@ -20,11 +20,6 @@ import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
@@ -43,6 +38,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonOutline
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonTonal
+import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,7 +62,7 @@ class RemoteTextButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteTextButtonEnabled() }
+            ComponentContainer { RemoteTextButtonEnabled() }
         }
     }
 
@@ -76,7 +73,7 @@ class RemoteTextButtonTest {
             creationDisplayInfo = creationDisplayInfo,
             layoutDirection = LayoutDirection.Rtl,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteTextButtonEnabled() }
+            ComponentContainer { RemoteTextButtonEnabled() }
         }
     }
 
@@ -86,7 +83,7 @@ class RemoteTextButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteTextButton(testAction, enabled = false.rb) { RemoteText("ABC".rs) }
             }
         }
@@ -98,7 +95,7 @@ class RemoteTextButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteTextButtonTonal() }
+            ComponentContainer { RemoteTextButtonTonal() }
         }
     }
 
@@ -108,7 +105,7 @@ class RemoteTextButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteTextButton(testAction, enabled = false.rb, colors = FILLED_TONAL_COLOR) {
                     RemoteText("ABC".rs)
                 }
@@ -122,7 +119,7 @@ class RemoteTextButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteTextButtonOutline() }
+            ComponentContainer { RemoteTextButtonOutline() }
         }
     }
 
@@ -132,7 +129,7 @@ class RemoteTextButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteTextButton(
                     testAction,
                     border = 1.rdp,
@@ -160,7 +157,7 @@ class RemoteTextButtonTest {
             creationDisplayInfo = creationDisplayInfo,
             colorOverrides = colorOverrides,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteTextButtonEnabled() }
+            ComponentContainer { RemoteTextButtonEnabled() }
         }
     }
 
@@ -192,10 +189,4 @@ class RemoteTextButtonTest {
                             RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
                     )
     }
-}
-
-@Composable
-@RemoteComposable
-private fun Center(modifier: RemoteModifier, content: @Composable @RemoteComposable () -> Unit) {
-    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
 }

@@ -21,17 +21,12 @@ import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -43,6 +38,8 @@ import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithIc
 import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithIconAndLabel
 import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithLabel
 import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithShape
+import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,7 +64,7 @@ class RemoteCompactButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
+            ComponentContainer {
                 RemoteCompactButton(
                     onClick = testAction,
                     modifier = RemoteModifier,
@@ -85,7 +82,7 @@ class RemoteCompactButtonTest {
             creationDisplayInfo = creationDisplayInfo,
             layoutDirection = LayoutDirection.Rtl,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithIconAndLabel() }
+            ComponentContainer { RemoteCompactButtonWithIconAndLabel() }
         }
     }
 
@@ -95,7 +92,7 @@ class RemoteCompactButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithIcon() }
+            ComponentContainer { RemoteCompactButtonWithIcon() }
         }
     }
 
@@ -105,7 +102,7 @@ class RemoteCompactButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithLabel() }
+            ComponentContainer { RemoteCompactButtonWithLabel() }
         }
     }
 
@@ -115,7 +112,7 @@ class RemoteCompactButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithIconAndLabel() }
+            ComponentContainer { RemoteCompactButtonWithIconAndLabel() }
         }
     }
 
@@ -125,7 +122,7 @@ class RemoteCompactButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithShape() }
+            ComponentContainer { RemoteCompactButtonWithShape() }
         }
     }
 
@@ -143,17 +140,8 @@ class RemoteCompactButtonTest {
             creationDisplayInfo = creationDisplayInfo,
             colorOverrides = colorOverrides,
         ) {
-            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithIconAndLabel() }
+            ComponentContainer { RemoteCompactButtonWithIconAndLabel() }
         }
-    }
-
-    @Composable
-    @RemoteComposable
-    private fun Center(
-        modifier: RemoteModifier,
-        content: @Composable @RemoteComposable () -> Unit,
-    ) {
-        RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
     }
 }
 

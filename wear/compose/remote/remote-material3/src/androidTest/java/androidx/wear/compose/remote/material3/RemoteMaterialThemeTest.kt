@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.ColorScheme
+import androidx.wear.compose.remote.material3.util.TestImageVectors
 import kotlin.test.Ignore
 import org.junit.Rule
 import org.junit.Test
