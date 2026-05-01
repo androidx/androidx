@@ -131,4 +131,13 @@ object ComposeUiFlags {
     @JvmField
     // TODO(b/507533865) cleanup feature flag after 1.12
     var isExploreByTouchHoverHandled: Boolean = true
+
+    /**
+     * Enables fix where coroutine scope lambda and scope are cleared on node detachment to prevent
+     * reference leaking.
+     */
+    // TODO: b/506963276
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
 }

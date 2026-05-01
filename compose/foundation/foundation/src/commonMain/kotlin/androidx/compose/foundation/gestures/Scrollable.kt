@@ -21,6 +21,7 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.ComposeFoundationFlags.isClearNestedScrollCoroutineScopeFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.MutatePriority
@@ -377,6 +378,7 @@ internal class ScrollableNode(
     override fun onDragStarted(startedPosition: Offset) {}
 
     override fun onDragStopped(event: DragEvent.DragStopped) {
+        if (isClearNestedScrollCoroutineScopeFixEnabled && !isAttached) return
         nestedScrollDispatcher.coroutineScope.launch {
             // Indirect pointer Events should be reverted to account for the reverse we
             // do in Scrollable. Regular touchscreen events are inverted in scrollable, but
