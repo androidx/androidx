@@ -103,6 +103,9 @@ apply(plugin: "com.android.settings")
 apply(from: "buildSrc/ndk.gradle")
 
 def buildNumberProvider = providers.environmentVariable("BUILD_NUMBER").orElse("unset")
+// Noisy requests from VSCode based IDEs that we do not want to see in build scans
+def isNoisyTaskRequest = startParameter.taskNames.contains("kotlinLSPProjectDeps") || startParameter.taskNames.contains("javalsCheckProject")
+
 develocity {
     server = "https://androidx.develocity.cloud"
 
