@@ -16,6 +16,7 @@
 
 package androidx.navigationevent.testing
 
+import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.NavigationEventDispatcher
 import androidx.navigationevent.NavigationEventDispatcherOwner
 import androidx.navigationevent.NavigationEventHandler
@@ -58,4 +59,16 @@ public class TestNavigationEventDispatcherOwner(
                 onBackCompletedFallback.invoke(this)
             }
         )
+
+    /**
+     * The [DirectNavigationEventInput] instance managed by this owner.
+     *
+     * This input is automatically added to the [navigationEventDispatcher] during initialization,
+     * allowing for direct simulation of navigation events.
+     */
+    public val navigationEventInput: DirectNavigationEventInput = DirectNavigationEventInput()
+
+    init {
+        navigationEventDispatcher.addInput(navigationEventInput)
+    }
 }
