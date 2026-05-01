@@ -15,7 +15,6 @@
  */
 package androidx.compose.material3
 
-import android.hardware.input.InputManager
 import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,10 +37,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertShape
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.ExperimentalMediaQueryApi
+import androidx.compose.ui.LocalUiMediaScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiMediaScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -70,8 +73,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -417,22 +418,23 @@ class ButtonTest {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @OptIn(
+        ExperimentalMaterial3Api::class,
+        ExperimentalMaterial3ExpressiveApi::class,
+        ExperimentalComposeUiApi::class,
+        ExperimentalMediaQueryApi::class,
+    )
     @Test
     fun button_small_precisionPointerEnabled_positioning() {
-        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
-        val inputManager = FakeInputManager()
-        inputManager.addDevice(MockDevices.physicalKeyboard)
-        inputManager.addDevice(MockDevices.mouse)
+        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        val uiMediaScope =
+            MockUiMediaScope(
+                keyboardKind = UiMediaScope.KeyboardKind.Physical,
+                pointerPrecision = UiMediaScope.PointerPrecision.Fine,
+            )
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalContext provides
-                    (mock {
-                        on { getSystemService(InputManager::class.java) } doReturn
-                            inputManager.inputManager
-                    })
-            ) {
+            CompositionLocalProvider(LocalUiMediaScope provides uiMediaScope) {
                 MaterialTheme {
                     Button(
                         onClick = { /* Do something! */ },
@@ -458,22 +460,23 @@ class ButtonTest {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @OptIn(
+        ExperimentalMaterial3Api::class,
+        ExperimentalMaterial3ExpressiveApi::class,
+        ExperimentalComposeUiApi::class,
+        ExperimentalMediaQueryApi::class,
+    )
     @Test
     fun button_small_withIcon_precisionPointerEnabled_positioning() {
-        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
-        val inputManager = FakeInputManager()
-        inputManager.addDevice(MockDevices.physicalKeyboard)
-        inputManager.addDevice(MockDevices.mouse)
+        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        val uiMediaScope =
+            MockUiMediaScope(
+                keyboardKind = UiMediaScope.KeyboardKind.Physical,
+                pointerPrecision = UiMediaScope.PointerPrecision.Fine,
+            )
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalContext provides
-                    (mock {
-                        on { getSystemService(InputManager::class.java) } doReturn
-                            inputManager.inputManager
-                    })
-            ) {
+            CompositionLocalProvider(LocalUiMediaScope provides uiMediaScope) {
                 MaterialTheme {
                     Button(
                         onClick = { /* Do something! */ },
@@ -517,22 +520,23 @@ class ButtonTest {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @OptIn(
+        ExperimentalMaterial3Api::class,
+        ExperimentalMaterial3ExpressiveApi::class,
+        ExperimentalComposeUiApi::class,
+        ExperimentalMediaQueryApi::class,
+    )
     @Test
     fun button_small_withTwoIcons_precisionPointerEnabled_positioning() {
-        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
-        val inputManager = FakeInputManager()
-        inputManager.addDevice(MockDevices.physicalKeyboard)
-        inputManager.addDevice(MockDevices.mouse)
+        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        val uiMediaScope =
+            MockUiMediaScope(
+                keyboardKind = UiMediaScope.KeyboardKind.Physical,
+                pointerPrecision = UiMediaScope.PointerPrecision.Fine,
+            )
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalContext provides
-                    (mock {
-                        on { getSystemService(InputManager::class.java) } doReturn
-                            inputManager.inputManager
-                    })
-            ) {
+            CompositionLocalProvider(LocalUiMediaScope provides uiMediaScope) {
                 MaterialTheme {
                     Button(
                         onClick = { /* Do something! */ },
