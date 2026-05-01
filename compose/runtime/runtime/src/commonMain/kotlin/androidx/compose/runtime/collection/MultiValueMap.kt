@@ -142,7 +142,7 @@ internal value class MultiValueMap<K : Any, V : Any>(
                 is MutableObjectList<*> -> {
                     (it as MutableObjectList<V>).removeIf(condition)
                     if (it.isEmpty()) map.remove(key)
-                    if (it.size == 0) map[key] = it.first()
+                    if (it.size == 1) map[key] = it.first()
                 }
                 else -> if (condition(it as V)) map.remove(key)
             }
