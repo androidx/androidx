@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -42,7 +43,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -76,9 +77,9 @@ class RemoteTextFontScaleComparisonTest {
 
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(
+        RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            profile = TestProfiles.androidXWithCoreText,
+            context = ApplicationProvider.getApplicationContext(),
         )
 
     private val size1 = 12
@@ -101,13 +102,16 @@ class RemoteTextFontScaleComparisonTest {
 
     private fun runFontScaleTest(fontScale: Float) {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
-            outerContent = { modifier, remoteDocs ->
-                OuterContent(modifier, fontScale) {
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = TestProfiles.androidXWithCoreText,
+            composableWrapper = { composable ->
+                OuterContent(
+                    modifier = Modifier.fillMaxSize().background(Color.Black),
+                    fontScale = fontScale,
+                ) {
                     ComposeText()
                     Spacer(modifier = Modifier.width(4.dp).fillMaxHeight().background(Color.Red))
-                    Box(modifier = Modifier.weight(1f)) { remoteDocs() }
+                    Box(modifier = Modifier.weight(1f)) { composable() }
                 }
             },
         ) {

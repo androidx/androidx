@@ -16,15 +16,18 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.action.HostAction
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.testing.RemoteContentTestRule
+import androidx.compose.runtime.Composable
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.uiAutomator
-import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestImageVectors
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -35,9 +38,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class RemoteButtonA11yTest {
-    @get:Rule
-    val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+    @get:Rule val remoteComposeTestRule = RemoteContentTestRule()
 
     @Test
     fun button_isFocusable() {
@@ -118,5 +119,15 @@ class RemoteButtonA11yTest {
     private fun assertHasButtonRole(button: UiObject2) {
         val role = AccessibilityNodeInfoCompat.wrap(button.accessibilityNodeInfo).roleDescription
         assertThat(role).isEqualTo("Button")
+    }
+
+    private fun RemoteContentTestRule.runTest(
+        composable: @Composable @RemoteComposable () -> Unit
+    ) {
+        setContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(ApplicationProvider.getApplicationContext()),
+            composable = composable,
+        )
     }
 }

@@ -118,15 +118,23 @@ private fun Container(
 
 ### Step 4: Create the Screenshot Test
 Create the test file relative to the root of the remote-material3 project:
-`src/androidTest/java/androidx/wear/compose/remote/material3/${COMPONENT_NAME}Test.kt`
+`src/androidTest/java/androidx/wear/compose/remote/material3/$COMPONENT_NAMETest.kt`
 
 Use this boilerplate, ensuring a separate `@Test` method exists for each explicit preview variation you generated in Step 3:
 ```kotlin
 package androidx.wear.compose.remote.material3
 
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
+import androidx.compose.ui.geometry.Size
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.${COMPONENT_NAME}Default
 import androidx.wear.compose.remote.material3.previews.${COMPONENT_NAME}WithVariant
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -136,26 +144,31 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ${COMPONENT_NAME}Test {
     @get:Rule
-    val remoteComposeTestRule = RemoteComposeScreenshotTestRule(
-        moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-    )
+    val remoteComposeTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
 
-    private val creationDisplayInfo = CreationDisplayInfo(
-        500,
-        500,
-        ApplicationProvider.getApplicationContext().resources.displayMetrics.densityDpi
-    )
+    private val creationDisplayInfo =
+        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(500f, 500f))
 
     @Test
     fun ${COMPONENT_NAME}Default() {
-        remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
             ${COMPONENT_NAME}Default()
         }
     }
 
     @Test
     fun ${COMPONENT_NAME}WithVariant() {
-        remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
             ${COMPONENT_NAME}WithVariant()
         }
     }
@@ -170,12 +183,19 @@ Use this boilerplate:
 ```kotlin
 package androidx.wear.compose.remote.material3.samples
 
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.samples.${COMPONENT_NAME}Sample
+import androidx.wear.compose.remote.material3.util.ComponentContainer
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -185,23 +205,26 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ${COMPONENT_NAME}SampleTest {
     @get:Rule
-    val remoteComposeTestRule = RemoteComposeScreenshotTestRule(
-        moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-    )
+    val remoteComposeTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
 
-    private val creationDisplayInfo = CreationDisplayInfo(
-        500,
-        500,
-        ApplicationProvider.getApplicationContext().resources.displayMetrics.densityDpi
-    )
+    private val creationDisplayInfo =
+        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(500f, 500f))
 
     @Test
     fun ${COMPONENT_NAME}SampleTest() {
-        remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
-            ${COMPONENT_NAME}Sample()
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { ${COMPONENT_NAME}Sample() }
         }
     }
 }
+
 ```
 
 ### Step 6: Wrap up

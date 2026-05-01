@@ -16,14 +16,15 @@
 
 package androidx.wear.compose.remote.material3
 
-import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -43,19 +44,19 @@ import org.junit.runner.RunWith
 class RemoteAppCardTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
 
     private val creationDisplayInfo =
-        createCreationDisplayInfo(
-            ApplicationProvider.getApplicationContext<Context>(),
-            Size(500f, 500f),
-        )
+        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(500f, 500f))
 
     @Test
     fun app_card_default() {
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
+            remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteAppCardDefault()
         }
@@ -65,8 +66,14 @@ class RemoteAppCardTest {
     fun app_card_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
-            layoutDirection = LayoutDirection.Rtl,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            composableWrapper = { composable ->
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+                ) {
+                    composable()
+                }
+            },
         ) {
             RemoteAppCardWithAppNameTitleSubtitle()
         }
@@ -76,7 +83,7 @@ class RemoteAppCardTest {
     fun app_card_with_app_name_time_title() {
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
+            remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteAppCardWithAppNameTimeTitle()
         }
@@ -86,7 +93,7 @@ class RemoteAppCardTest {
     fun app_card_with_app_name_title_subtitle() {
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
+            remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteAppCardWithAppNameTitleSubtitle()
         }
@@ -102,8 +109,12 @@ class RemoteAppCardTest {
         }
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
-            colorOverrides = colorOverrides,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player ->
+                colorOverrides.forEach { name, colorInt ->
+                    player.setUserLocalColor(name, colorInt)
+                }
+            },
         ) {
             RemoteAppCardDefault()
         }

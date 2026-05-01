@@ -19,11 +19,13 @@ package androidx.wear.compose.remote.material3
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -43,7 +45,10 @@ import org.junit.runner.RunWith
 class RemoteTitleCardTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
 
     private val creationDisplayInfo =
         createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(500f, 500f))
@@ -52,7 +57,7 @@ class RemoteTitleCardTest {
     fun title_card_default() {
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
+            remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardDefault()
         }
@@ -62,8 +67,12 @@ class RemoteTitleCardTest {
     fun title_card_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
-            layoutDirection = LayoutDirection.Rtl,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            composableWrapper = { content ->
+                DeviceConfigurationOverride(DeviceConfigurationOverride.LayoutDirection(Rtl)) {
+                    content()
+                }
+            },
         ) {
             RemoteTitleCardWithTitleSubtitle()
         }
@@ -73,7 +82,7 @@ class RemoteTitleCardTest {
     fun title_card_with_title_subtitle() {
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
+            remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardWithTitleSubtitle()
         }
@@ -83,7 +92,7 @@ class RemoteTitleCardTest {
     fun title_card_with_title_time() {
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
+            remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardWithTitleTime()
         }
@@ -99,9 +108,12 @@ class RemoteTitleCardTest {
         }
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
-            colorOverrides = colorOverrides,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player ->
+                colorOverrides.forEach { name, colorInt ->
+                    player.setUserLocalColor(name, colorInt)
+                }
+            },
         ) {
             ComponentContainer { RemoteTitleCardDefault() }
         }
