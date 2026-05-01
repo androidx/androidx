@@ -638,6 +638,7 @@ includeProject(":compose:remote:integration-tests:macrobenchmark-target", [Build
 includeProject(":compose:remote:remote-core", [BuildType.MAIN])
 includeProject(":compose:remote:remote-core-testutils", [BuildType.MAIN])
 includeProject(":compose:remote:remote-creation-compose", [BuildType.MAIN])
+includeProject(":compose:remote:remote-creation-compose-samples", "compose/remote/remote-creation-compose/samples", [BuildType.MAIN])
 includeProject(":compose:remote:remote-creation-core", [BuildType.MAIN])
 includeProject(":compose:remote:remote-creation", [BuildType.MAIN])
 includeProject(":compose:remote:remote-player-core", [BuildType.MAIN])
