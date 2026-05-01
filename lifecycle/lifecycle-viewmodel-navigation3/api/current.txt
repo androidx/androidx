@@ -13,6 +13,8 @@ package androidx.lifecycle.viewmodel.navigation3 {
   }
 
   public final class ViewModelStoreNavEntryDecoratorKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecorator<T> rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.viewmodel.ViewModelStoreProvider viewModelStoreProvider);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecorator<T> rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.viewmodel.ViewModelStoreProvider, androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecorator<T> rememberViewModelStoreNavEntryDecorator(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecorator<T> rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStoreOwner?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static <T> androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecorator<T> rememberViewModelStoreNavEntryDecorator(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional kotlin.jvm.functions.Function0<java.lang.Boolean> removeViewModelStoreOnPop);

@@ -40,10 +40,10 @@ import kotlin.jvm.JvmName
 /**
  * Returns a [ViewModelStoreNavEntryDecorator] that is remembered across recompositions.
  *
- * @param [viewModelStoreOwner] The [ViewModelStoreOwner] that provides the [ViewModelStore] to
+ * @param viewModelStoreOwner The [ViewModelStoreOwner] that provides the [ViewModelStore] to
  *   NavEntries. If this owner implements [HasDefaultViewModelProviderFactory], its default factory
  *   and creation extras will be propagated to the NavEntries.
- * @param [removeViewModelStoreOnPop] This parameter is now ignored and the lambda is never invoked.
+ * @param removeViewModelStoreOnPop This parameter is now ignored and the lambda is never invoked.
  *   Previously, it was a lambda that returned a Boolean for whether the store for a [NavEntry]
  *   should be removed when the [NavEntry] is popped from the backStack.
  */
@@ -65,7 +65,20 @@ public fun <T : Any> rememberViewModelStoreNavEntryDecorator(
     removeViewModelStoreOnPop: () -> Boolean = { true },
 ): ViewModelStoreNavEntryDecorator<T> {
     val viewModelStoreProvider = rememberViewModelStoreProvider(parent = viewModelStoreOwner)
-    return remember(viewModelStoreOwner, viewModelStoreProvider) {
+    return rememberViewModelStoreNavEntryDecorator(viewModelStoreProvider)
+}
+
+/**
+ * Returns a [ViewModelStoreNavEntryDecorator] that is remembered across recompositions.
+ *
+ * @param viewModelStoreProvider The [ViewModelStoreProvider] that provides the
+ *   [ViewModelStoreOwner]s for [NavEntry]s.
+ */
+@Composable
+public fun <T : Any> rememberViewModelStoreNavEntryDecorator(
+    viewModelStoreProvider: ViewModelStoreProvider
+): ViewModelStoreNavEntryDecorator<T> {
+    return remember(viewModelStoreProvider) {
         ViewModelStoreNavEntryDecorator(viewModelStoreProvider)
     }
 }
@@ -73,7 +86,7 @@ public fun <T : Any> rememberViewModelStoreNavEntryDecorator(
 /**
  * Returns a [ViewModelStoreNavEntryDecorator] that is remembered across recompositions.
  *
- * @param [viewModelStoreOwner] The [ViewModelStoreOwner] that provides the [ViewModelStore] to
+ * @param viewModelStoreOwner The [ViewModelStoreOwner] that provides the [ViewModelStore] to
  *   NavEntries. If this owner implements [androidx.lifecycle.HasDefaultViewModelProviderFactory],
  *   its default factory and creation extras will be propagated to the NavEntries.
  */
@@ -85,9 +98,7 @@ public fun <T : Any> rememberViewModelStoreNavEntryDecorator(
         }
 ): ViewModelStoreNavEntryDecorator<T> {
     val viewModelStoreProvider = rememberViewModelStoreProvider(parent = viewModelStoreOwner)
-    return remember(viewModelStoreOwner, viewModelStoreProvider) {
-        ViewModelStoreNavEntryDecorator(viewModelStoreProvider)
-    }
+    return rememberViewModelStoreNavEntryDecorator(viewModelStoreProvider)
 }
 
 /**

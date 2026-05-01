@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+AddedMethod: androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecoratorKt#rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.viewmodel.ViewModelStoreProvider):
+    Added method androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecoratorKt.rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.viewmodel.ViewModelStoreProvider)
+AddedMethod: androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecoratorKt#rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.viewmodel.ViewModelStoreProvider, androidx.compose.runtime.Composer, int):
+    Added method androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecoratorKt.rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.viewmodel.ViewModelStoreProvider,androidx.compose.runtime.Composer,int)
