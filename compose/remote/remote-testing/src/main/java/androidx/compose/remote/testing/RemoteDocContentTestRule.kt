@@ -21,6 +21,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -67,3 +68,12 @@ public class RemoteDocContentTestRule : TestRule {
         }
     }
 }
+
+/**
+ * Captures the visual content of the root Compose node as an [ImageBitmap].
+ *
+ * @return The captured hierarchy rendering as an image.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteDocContentTestRule.captureRootToImage(): ImageBitmap =
+    remoteBaseDocContentTestRule.captureRootToImage()
