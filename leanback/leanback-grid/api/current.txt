@@ -71,6 +71,8 @@ package androidx.leanback.widget {
     method public void setSelectedPosition(int, int);
     method public void setSelectedPositionSmooth(int);
     method public void setSelectedPositionSmooth(int, androidx.leanback.widget.ViewHolderTask?);
+    method public void setSelectedPositionToAlignedChild();
+    method public void setSelectedPositionToUnalignedChild(android.view.View);
     method public final void setSmoothScrollByBehavior(androidx.leanback.widget.BaseGridView.SmoothScrollByBehavior?);
     method public final void setSmoothScrollMaxPendingMoves(int);
     method public final void setSmoothScrollSpeedFactor(float);
