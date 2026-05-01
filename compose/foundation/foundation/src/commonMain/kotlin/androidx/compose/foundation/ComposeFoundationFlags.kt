@@ -174,6 +174,15 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isDragNodeOffsetDoubleCountingFixEnabled = true
+
+    /**
+     * Enables fix where coroutine scope lambda and scope are cleared on node detachment to prevent
+     * reference leaking.
+     */
+    // TODO: b/506963276
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
