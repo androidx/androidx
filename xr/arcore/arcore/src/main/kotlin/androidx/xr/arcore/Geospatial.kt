@@ -243,7 +243,7 @@ internal constructor(
      * away from the center of the earth, and Z+ points to the south.
      *
      * The tracking state of an [Anchor] will permanently become
-     * [androidx.xr.runtime.TrackingState.STOPPED] if the [androidx.xr.runtime.GeospatialMode] is
+     * [androidx.xr.arcore.TrackingState.STOPPED] if the [androidx.xr.runtime.GeospatialMode] is
      * disabled, or if another full-space app uses Geospatial.
      *
      * Creating anchors near the north pole or south pole is not supported. If the latitude is
@@ -302,9 +302,9 @@ internal constructor(
      * ARCore will continue to retry if it is unable to establish a connection to the ARCore
      * service.
      *
-     * A Terrain anchor's tracking state will be [androidx.xr.runtime.TrackingState.PAUSED] if the
+     * A Terrain anchor's tracking state will be [androidx.xr.arcore.TrackingState.PAUSED] if the
      * Earth is not actively tracking. Its tracking state will permanently become
-     * [androidx.xr.runtime.TrackingState.STOPPED] if [androidx.xr.runtime.GeospatialMode] is
+     * [androidx.xr.arcore.TrackingState.STOPPED] if [androidx.xr.runtime.GeospatialMode] is
      * disabled, or if another full-space app uses Geospatial.
      *
      * Latitude and longitude are defined by the

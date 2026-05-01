@@ -94,7 +94,7 @@ internal constructor(
     /**
      * The representation of the current state of an AugmentedObject.
      *
-     * @property trackingState the [androidx.xr.runtime.TrackingState] of the object
+     * @property trackingState the [androidx.xr.arcore.TrackingState] of the object
      * @property category the [Category] of the augmented object
      * @property centerPose the [Pose] determined to represent the center of this object
      * @property extents the dimensions of the object, axis aligned relative to the center pose,

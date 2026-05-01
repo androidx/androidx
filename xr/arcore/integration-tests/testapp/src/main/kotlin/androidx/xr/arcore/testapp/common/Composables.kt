@@ -46,10 +46,10 @@ import androidx.xr.arcore.AugmentedObject
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.Trackable
+import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.arcore.testapp.ui.theme.PurpleGrey80
 import androidx.xr.runtime.AugmentedObjectCategory
-import androidx.xr.runtime.TrackingState
 
 @Composable
 fun BackToMainActivityButton() {

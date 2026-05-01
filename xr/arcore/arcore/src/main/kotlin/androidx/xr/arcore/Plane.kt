@@ -48,9 +48,9 @@ internal constructor(
         /**
          * Emits the planes that are currently being tracked in the [session].
          *
-         * Only [Plane]s that are [androidx.xr.runtime.TrackingState.TRACKING] will be emitted in
-         * the [Collection]. Instances of the same [Plane] will remain between subsequent emits to
-         * the [StateFlow] as long as they remain tracking.
+         * Only [Plane]s that are [androidx.xr.arcore.TrackingState.TRACKING] will be emitted in the
+         * [Collection]. Instances of the same [Plane] will remain between subsequent emits to the
+         * [StateFlow] as long as they remain tracking.
          *
          * @param session the [Session] to track planes from
          * @throws [IllegalStateException] if [Session.config] is set to

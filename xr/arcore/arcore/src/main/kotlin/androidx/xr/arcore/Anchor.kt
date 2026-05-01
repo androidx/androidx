@@ -186,7 +186,7 @@ internal constructor(
     /**
      * The representation of the current state of an [Anchor].
      *
-     * @property trackingState the current [androidx.xr.runtime.TrackingState] of the anchor
+     * @property trackingState the current [androidx.xr.arcore.TrackingState] of the anchor
      * @property pose the location of the anchor in the world coordinate space
      */
     public class State
