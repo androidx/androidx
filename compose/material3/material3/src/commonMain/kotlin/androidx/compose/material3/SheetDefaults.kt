@@ -495,7 +495,9 @@ internal fun DragHandleWithTooltip(modifier: Modifier, content: @Composable (() 
             modifier = modifier,
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text(dragHandleDescription) } },
+            tooltip = {
+                PlainTooltipInternal(dragHandleDescription) { Text(dragHandleDescription) }
+            },
             state = rememberTooltipState(),
             content = content,
         )

@@ -278,7 +278,7 @@ object TimePickerDialogDefaults {
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text(contentDescription) } },
+            tooltip = { PlainTooltipInternal(contentDescription) { Text(contentDescription) } },
             state = rememberTooltipState(),
         ) {
             IconButton(modifier = modifier, onClick = onDisplayModeChange) {
