@@ -74,7 +74,7 @@ abstract class UpdateApiTask : DefaultTask() {
             )
 
             // Update multiplatform API files.
-            if (inputApi.multiplatformApiDirectory.exists()) {
+            if (ApiLocation.containsApiFiles(inputApi.multiplatformApiDirectory)) {
                 if (!outputApi.multiplatformApiDirectory.exists()) {
                     outputApi.multiplatformApiDirectory.mkdir()
                 }

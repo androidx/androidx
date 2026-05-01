@@ -107,6 +107,11 @@ data class ApiLocation(
             return absoluteTracePath
         }
 
+        /** Whether this [directory] exists and contains signature files. */
+        internal fun containsApiFiles(directory: File): Boolean {
+            return directory.exists() && directory.listFiles().any { it.name.endsWith("txt") }
+        }
+
         /** File name extension used by API files. */
         private const val EXTENSION = ".txt"
 
