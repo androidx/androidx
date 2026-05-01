@@ -680,7 +680,9 @@ public class Configuration internal constructor(builder: Builder) {
      * initialization of WorkManager. To do this:
      * - Disable `androidx.work.WorkManagerInitializer` in your manifest
      * - Implement the [Configuration.Provider] interface on your [android.app.Application] class
-     * - Use [WorkManager.getInstance] when accessing WorkManager (NOT [WorkManager.getInstance])
+     * - Use [`WorkManager.getInstance(Context)`](https://developer.android.com/reference/androidx/work/WorkManager#getInstance(android.content.Context))
+     *   when accessing WorkManager (NOT
+     *   [`WorkManager.getInstance`](https://developer.android.com/reference/androidx/work/WorkManager#getInstance()))
      *
      * Note that on-demand initialization may delay some useful features of WorkManager such as
      * automatic rescheduling of work following a crash and recovery from the application being
