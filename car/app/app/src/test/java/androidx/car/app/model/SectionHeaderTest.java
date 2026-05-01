@@ -40,6 +40,44 @@ public final class SectionHeaderTest {
         SectionHeader header = new SectionHeader.Builder(title).build();
         assertThat(header.getTitle()).isNotNull();
         assertThat(header.getTitle().toString()).isEqualTo(title);
+        assertThat(header.getSubtitle()).isNull();
+    }
+
+    @Test
+    public void build_withSubtitle() {
+        String title = "title";
+        String subtitle = "subtitle";
+        SectionHeader header = new SectionHeader.Builder(title)
+                .setSubtitle(subtitle)
+                .build();
+        assertThat(header.getSubtitle()).isNotNull();
+        assertThat(header.getSubtitle().toString()).isEqualTo(subtitle);
+    }
+
+    @Test
+    public void build_withCarTextSubtitle() {
+        String title = "title";
+        CarText subtitle = CarText.create("subtitle");
+        SectionHeader header = new SectionHeader.Builder(title)
+                .setSubtitle(subtitle)
+                .build();
+        assertThat(header.getSubtitle()).isNotNull();
+        assertThat(header.getSubtitle()).isEqualTo(subtitle);
+    }
+
+    @Test
+    public void setSubtitle_null() {
+        SectionHeader header = new SectionHeader.Builder("title")
+                .setSubtitle("subtitle")
+                .setSubtitle((CharSequence) null)
+                .build();
+        assertThat(header.getSubtitle()).isNull();
+
+        header = new SectionHeader.Builder("title")
+                .setSubtitle(CarText.create("subtitle"))
+                .setSubtitle((CarText) null)
+                .build();
+        assertThat(header.getSubtitle()).isNull();
     }
 
     @Test
@@ -58,7 +96,18 @@ public final class SectionHeaderTest {
     }
 
     @Test
+    public void setStartIcon_defaultType() {
+        SectionHeader header = new SectionHeader.Builder("title")
+                .setStartIcon(mIcon)
+                .build();
+        assertThat(header.getStartIcon()).isEqualTo(mIcon);
+        assertThat(header.getStartIconType()).isEqualTo(SectionHeader.IMAGE_TYPE_SMALL);
+    }
+
+    @Test
     public void setStartIcon_nonCustomIcon_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new SectionHeader.Builder("title").setStartIcon(CarIcon.BACK));
         assertThrows(IllegalArgumentException.class,
                 () -> new SectionHeader.Builder("title").setStartIcon(CarIcon.BACK,
                         SectionHeader.IMAGE_TYPE_LARGE));
@@ -91,11 +140,13 @@ public final class SectionHeaderTest {
     public void equals() {
         OnClickListener listener = () -> { };
         SectionHeader header1 = new SectionHeader.Builder("title")
+                .setSubtitle("subtitle")
                 .setStartIcon(mIcon, SectionHeader.IMAGE_TYPE_SMALL)
                 .setEndIcon(mIcon)
                 .setOnClickListener(listener)
                 .build();
         SectionHeader header2 = new SectionHeader.Builder("title")
+                .setSubtitle("subtitle")
                 .setStartIcon(mIcon, SectionHeader.IMAGE_TYPE_SMALL)
                 .setEndIcon(mIcon)
                 .setOnClickListener(listener)
@@ -108,6 +159,17 @@ public final class SectionHeaderTest {
     public void notEquals_differentTitle() {
         SectionHeader header1 = new SectionHeader.Builder("title1").build();
         SectionHeader header2 = new SectionHeader.Builder("title2").build();
+        assertThat(header1).isNotEqualTo(header2);
+    }
+
+    @Test
+    public void notEquals_differentSubtitle() {
+        SectionHeader header1 = new SectionHeader.Builder("title")
+                .setSubtitle("subtitle1")
+                .build();
+        SectionHeader header2 = new SectionHeader.Builder("title")
+                .setSubtitle("subtitle2")
+                .build();
         assertThat(header1).isNotEqualTo(header2);
     }
 

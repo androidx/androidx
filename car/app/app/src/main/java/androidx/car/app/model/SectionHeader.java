@@ -71,6 +71,7 @@ public final class SectionHeader {
     public static final int IMAGE_TYPE_LARGE = 2;
 
     private final @NonNull CarText mTitle;
+    private final @Nullable CarText mSubtitle;
     private final @Nullable CarIcon mStartIcon;
     @SectionHeaderImageType
     private final int mStartIconType;
@@ -85,8 +86,19 @@ public final class SectionHeader {
     }
 
     /**
+     * Returns the subtitle of the header, or {@code null} if none is set.
+     *
+     * @see Builder#setSubtitle(CharSequence)
+     * @see Builder#setSubtitle(CarText)
+     */
+    public @Nullable CarText getSubtitle() {
+        return mSubtitle;
+    }
+
+    /**
      * Returns the start icon of the header, or {@code null} if none is set.
      *
+     * @see Builder#setStartIcon(CarIcon)
      * @see Builder#setStartIcon(CarIcon, int)
      */
     public @Nullable CarIcon getStartIcon() {
@@ -122,14 +134,15 @@ public final class SectionHeader {
 
     @Override
     public @NonNull String toString() {
-        return "SectionHeader { title: " + mTitle + ", startIcon: " + mStartIcon
-                + ", startIconType: " + mStartIconType + ", endIcon: " + mEndIcon
-                + ", hasClickListener: " + (mOnClickDelegate != null) + " }";
+        return "SectionHeader { title: " + mTitle + ", subtitle: " + mSubtitle
+                + ", startIcon: " + mStartIcon + ", startIconType: " + mStartIconType
+                + ", endIcon: " + mEndIcon + ", hasClickListener: " + (mOnClickDelegate != null)
+                + " }";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mStartIcon, mStartIconType, mEndIcon,
+        return Objects.hash(mTitle, mSubtitle, mStartIcon, mStartIconType, mEndIcon,
                 mOnClickDelegate == null);
     }
 
@@ -143,6 +156,7 @@ public final class SectionHeader {
         }
         SectionHeader otherHeader = (SectionHeader) other;
         return Objects.equals(mTitle, otherHeader.mTitle)
+                && Objects.equals(mSubtitle, otherHeader.mSubtitle)
                 && Objects.equals(mStartIcon, otherHeader.mStartIcon)
                 && mStartIconType == otherHeader.mStartIconType
                 && Objects.equals(mEndIcon, otherHeader.mEndIcon)
@@ -151,6 +165,7 @@ public final class SectionHeader {
 
     SectionHeader(Builder builder) {
         mTitle = requireNonNull(builder.mTitle);
+        mSubtitle = builder.mSubtitle;
         mStartIcon = builder.mStartIcon;
         mStartIconType = builder.mStartIconType;
         mEndIcon = builder.mEndIcon;
@@ -160,6 +175,7 @@ public final class SectionHeader {
     /** Constructs an empty instance, used by serialization code. */
     private SectionHeader() {
         mTitle = CarText.create("");
+        mSubtitle = null;
         mStartIcon = null;
         mStartIconType = IMAGE_TYPE_SMALL;
         mEndIcon = null;
@@ -171,6 +187,8 @@ public final class SectionHeader {
         @NonNull
         CarText mTitle;
         @Nullable
+        CarText mSubtitle;
+        @Nullable
         CarIcon mStartIcon;
         @SectionHeaderImageType
         int mStartIconType = IMAGE_TYPE_SMALL;
@@ -178,6 +196,62 @@ public final class SectionHeader {
         CarIcon mEndIcon;
         @Nullable
         OnClickDelegate mOnClickDelegate;
+
+        /**
+         * Sets the subtitle of the header.
+         *
+         * <p>The subtitle must be a plain string with no spans other than those supported by
+         * {@link CarTextConstraints#TEXT_WITH_COLORS}.
+         *
+         * @param subtitle the subtitle to set, or {@code null} to clear the subtitle
+         * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
+         * @see CarText
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setSubtitle(@Nullable CharSequence subtitle) {
+            if (subtitle == null) {
+                mSubtitle = null;
+                return this;
+            }
+            mSubtitle = CarText.create(subtitle);
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mSubtitle);
+            return this;
+        }
+
+        /**
+         * Sets the subtitle of the header.
+         *
+         * <p>The subtitle must be a plain string with no spans other than those supported by
+         * {@link CarTextConstraints#TEXT_WITH_COLORS}.
+         *
+         * @param subtitle the subtitle to set, or {@code null} to clear the subtitle
+         * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
+         * @see CarText
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setSubtitle(@Nullable CarText subtitle) {
+            if (subtitle != null) {
+                CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(subtitle);
+            }
+            mSubtitle = subtitle;
+            return this;
+        }
+
+        /**
+         * Sets the start icon of the header with a default size of {@link #IMAGE_TYPE_SMALL}.
+         *
+         * <p>Only custom icon types (e.g. {@link CarIcon#TYPE_CUSTOM}) are supported.
+         *
+         * @param startIcon     the {@link CarIcon} to display before the title
+         * @throws NullPointerException     if {@code startIcon} is {@code null}
+         * @throws IllegalArgumentException if {@code startIcon} is not a custom icon, or if it
+         *                                  does not meet the {@link CarIconConstraints#DEFAULT}
+         *                                  constraints
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setStartIcon(@NonNull CarIcon startIcon) {
+            return setStartIcon(startIcon, IMAGE_TYPE_SMALL);
+        }
 
         /**
          * Sets the start icon of the header and its size type.
