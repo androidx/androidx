@@ -16,8 +16,11 @@
 
 package androidx.lifecycle.viewmodel.navigation3
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
@@ -30,6 +33,7 @@ import androidx.lifecycle.defaultViewModelCreationExtras
 import androidx.lifecycle.defaultViewModelProviderFactory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -292,6 +296,99 @@ class ViewModelStoreNavEntryDecoratorTest {
                 .isEqualTo(expectedValue)
 
             assertThat(actualExtras[expectedKey]).isEqualTo(expectedValue)
+        }
+    }
+
+    @Test
+    fun testHoistedViewModelStoreProviders_isolateStateAndSurviveNavDisplaySwap() {
+        var viewModelA: MyViewModel? = null
+        var viewModelB: MyViewModel? = null
+        var isBackstackActive by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            // Multiple back stacks containing the same entry key, but requiring separate state.
+            // Hoisting separate providers ensures state isolation between back stacks, while
+            // allowing the ViewModels to persist during back stack swaps.
+            val hoistedProviderA = rememberViewModelStoreProvider(key = "A")
+            val hoistedProviderB = rememberViewModelStoreProvider(key = "B")
+
+            // Both back stacks use the exact same entry key.
+            val backStackA = remember { mutableStateListOf("SharedScreen") }
+            val backStackB = remember { mutableStateListOf("SharedScreen") }
+
+            if (isBackstackActive) {
+                NavDisplay(
+                    backStack = backStackA,
+                    entryDecorators =
+                        listOf(
+                            rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator(hoistedProviderA),
+                        ),
+                ) { key ->
+                    NavEntry(key) {
+                        viewModelA = viewModel<MyViewModel>()
+                        viewModelA.myArg = "state_a"
+                    }
+                }
+            } else {
+                NavDisplay(
+                    backStack = backStackB,
+                    entryDecorators =
+                        listOf(
+                            rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator(hoistedProviderB),
+                        ),
+                ) { key ->
+                    NavEntry(key) {
+                        viewModelB = viewModel<MyViewModel>()
+                        viewModelB.myArg = "state_b"
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            checkNotNull(viewModelA)
+
+            assertWithMessage("ViewModel A should have correct initial state")
+                .that(viewModelA.myArg)
+                .isEqualTo("state_a")
+
+            // Swap to backstack B. NavDisplay A leaves composition.
+            isBackstackActive = false
+        }
+
+        composeTestRule.runOnIdle {
+            checkNotNull(viewModelB)
+
+            assertWithMessage("ViewModel B should have correct initial state")
+                .that(viewModelB.myArg)
+                .isEqualTo("state_b")
+
+            assertWithMessage(
+                    "Separate hoisted providers must yield different ViewModel instances for the same key"
+                )
+                .that(viewModelA)
+                .isNotSameInstanceAs(viewModelB)
+
+            // Swap back to backstack A. NavDisplay B leaves composition.
+            isBackstackActive = true
+        }
+
+        composeTestRule.runOnIdle {
+            checkNotNull(viewModelA)
+
+            assertWithMessage("ViewModel A state must be preserved after backstack swap")
+                .that(viewModelA.myArg)
+                .isEqualTo("state_a")
+
+            assertWithMessage("ViewModel A must not be cleared")
+                .that(viewModelA.isCleared)
+                .isFalse()
+
+            assertWithMessage("ViewModel B must not be cleared")
+                .that(viewModelB?.isCleared)
+                .isFalse()
         }
     }
 }
