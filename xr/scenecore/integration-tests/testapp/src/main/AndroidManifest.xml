@@ -37,6 +37,7 @@
             android:exported="false" />
         <activity
             android:name=".environment.EnvironmentActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="false" />
         <activity
             android:name=".spatialuser.SpatialUserActivity"
@@ -47,15 +48,18 @@
             android:exported="true" />
         <activity
             android:name=".visibility.VisibilityActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".spatialcapabilities.SpatialCapabilitiesActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".anchorentity.AnchorEntityActivity"
             android:exported="true" />
         <activity
             android:name=".fieldofviewvisibility.FieldOfViewVisibilityActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".activitypanel.ActivityPanel"
@@ -115,6 +119,7 @@
             android:exported="true" />
         <activity
             android:name=".accessibilitytest.AccessibilityTestActivity"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
             android:name=".memoryleak.MemoryLeakActivity"
