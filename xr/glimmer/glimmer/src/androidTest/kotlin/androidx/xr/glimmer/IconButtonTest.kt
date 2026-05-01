@@ -40,13 +40,18 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.glimmer.testutils.captureToImage
+import androidx.xr.glimmer.testutils.createGlimmerRule
+import androidx.xr.glimmer.testutils.toIntArray
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -57,7 +62,8 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class IconButtonTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule(0) val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule(1) val glimmerRule = createGlimmerRule()
 
     @Test
     fun defaultSemantics() {
@@ -170,6 +176,34 @@ class IconButtonTest {
         }
 
         rule.runOnIdle { Truth.assertThat(actualColor).isEqualTo(expectedColor) }
+    }
+
+    @Test
+    fun defaultInteractionSource_isShared_betweenSurfaceAndClickable() {
+        rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
+            IconButton(onClick = {}, modifier = Modifier.testTag("icon_button")) {
+                Icon(FavoriteIcon, null)
+            }
+        }
+
+        val imageBefore = rule.onNodeWithTag("icon_button").captureToImage()
+
+        rule.onNodeWithTag("icon_button").requestFocus()
+        rule.waitForIdle()
+
+        val imageAfter = rule.onNodeWithTag("icon_button").captureToImage()
+
+        val result =
+            // Expect similarity < 0.80 due to focused border.
+            MSSIMMatcher(threshold = 0.80)
+                .compareBitmaps(
+                    imageBefore.toIntArray(),
+                    imageAfter.toIntArray(),
+                    imageBefore.width,
+                    imageBefore.height,
+                )
+
+        assertThat(result.matches).isFalse()
     }
 
     @Test

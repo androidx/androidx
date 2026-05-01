@@ -17,6 +17,7 @@
 package androidx.xr.glimmer
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -108,18 +110,23 @@ public fun Button(
             focusedDepthEffect = GlimmerTheme.depthEffectLevels.level1,
         )
 
+    val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+
     CompositionLocalProvider(LocalTextStyle provides GlimmerTheme.typography.bodySmall) {
         Row(
             modifier
                 .semantics { role = Role.Button }
                 .surface(
-                    enabled = enabled,
                     shape = shape,
                     color = color,
                     contentColor = contentColor,
                     depthEffect = depth,
                     border = border,
-                    interactionSource = interactionSource,
+                    interactionSource = internalInteractionSource,
+                )
+                .clickable(
+                    enabled = enabled,
+                    interactionSource = internalInteractionSource,
                     onClick = onClick,
                 )
                 .defaultMinSize(minHeight = minHeight)

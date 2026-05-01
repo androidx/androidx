@@ -17,6 +17,8 @@
 package androidx.xr.glimmer
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -203,27 +206,28 @@ private fun ListItemImpl(
             focusedDepthEffect = GlimmerTheme.depthEffectLevels.level4,
         )
 
+    val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+
     val surfaceModifier =
-        if (onClick != null) {
-            Modifier.surface(
-                onClick = onClick,
+        Modifier.surface(
                 shape = shape,
                 color = color,
                 contentColor = contentColor,
                 depthEffect = depthEffect,
                 border = border,
-                interactionSource = interactionSource,
+                interactionSource = internalInteractionSource,
             )
-        } else {
-            Modifier.surface(
-                shape = shape,
-                color = color,
-                contentColor = contentColor,
-                depthEffect = depthEffect,
-                border = border,
-                interactionSource = interactionSource,
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(
+                        interactionSource = internalInteractionSource,
+                        onClick = onClick,
+                    )
+                } else {
+                    Modifier.focusable(interactionSource = internalInteractionSource)
+                }
             )
-        }
+
     Row(
         modifier =
             modifier
