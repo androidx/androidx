@@ -188,6 +188,42 @@ class RememberViewModelStoreProviderTest {
     }
 
     @Test
+    fun rememberViewModelStoreProvider_withSameKey_whenOneDisposed_preservesState() {
+        lateinit var providerA: ViewModelStoreProvider
+        lateinit var providerB: ViewModelStoreProvider
+        var showA by mutableStateOf(true)
+        val sharedProviderKey = "shared_provider_key"
+        val sharedChildKey = "shared_child_key"
+
+        rule.setContent {
+            if (showA) {
+                providerA = rememberViewModelStoreProvider(key = sharedProviderKey)
+            }
+            // Sibling provider that shares the same parent and provider key
+            providerB = rememberViewModelStoreProvider(key = sharedProviderKey)
+        }
+        rule.waitForIdle()
+
+        val storeABeforeDisposal = providerA.getOrCreate(sharedChildKey)
+        val storeBBeforeDisposal = providerB.getOrCreate(sharedChildKey)
+
+        // Since they share the same parent and the same provider key, they must share the same
+        // store.
+        assertThat(storeBBeforeDisposal).isSameInstanceAs(storeABeforeDisposal)
+
+        // We remove providerA from the tree. Its 'onDispose' will run and call 'clearAllKeys()'.
+        // However, providerB is still in the composition and it holds a provider-level token.
+        // The shared state must survive as long as at least one provider is active.
+        showA = false
+        rule.waitForIdle()
+
+        val storeBAfterDisposal = providerB.getOrCreate(sharedChildKey)
+
+        // The shared store must survive because Provider B is still active.
+        assertThat(storeBAfterDisposal).isSameInstanceAs(storeABeforeDisposal)
+    }
+
+    @Test
     fun rememberViewModelStoreProvider_withUnstableParent_isRemembered() {
         var initialViewModel: TestViewModel? = null
         var count by mutableIntStateOf(0)

@@ -220,7 +220,13 @@ public constructor(
      * marked as removable and will be deferred until their count reaches zero.
      */
     public fun clearAllKeys() {
-        stateHolder.clearAllKeys()
+        val entry = stateHolder.entries[ProviderMarkerKey]
+        if (entry != null && entry.refCount > 0) {
+            // Abort clearing if there are active provider-level references.
+            // Cleanup is deferred until the last ProviderMarkerKey token is released.
+            return
+        }
+        stateHolder.onCleared()
     }
 
     /**
@@ -235,6 +241,23 @@ public constructor(
      * immediately cleared.
      */
     public fun interface ReferenceToken : AutoCloseable
+
+    /**
+     * A special marker key that can be used with [acquireToken] to manage the lifecycle of the
+     * shared state associated with a particular [parentKey].
+     *
+     * When multiple instances of [ViewModelStoreProvider] are created with the same [parentStore]
+     * and [parentKey], they share a single internal state. By calling
+     * `acquireToken(ProviderMarkerKey)` on *any* of these instances, you increment a reference
+     * count on this shared state. The shared state will not be fully cleared (and thus, no child
+     * [ViewModelStore] instances within it will be cleared) until all tokens acquired with
+     * [ProviderMarkerKey] have been released via [ReferenceToken.close].
+     *
+     * This is useful in advanced scenarios where different parts of an application might create
+     * [ViewModelStoreProvider] instances with the same key but have different lifecycle
+     * requirements.
+     */
+    public object ProviderMarkerKey
 
     /** Holds the state for a single child [store]. */
     private data class Entry(
@@ -266,7 +289,7 @@ public constructor(
             }
         }
 
-        fun clearAllKeys() {
+        public override fun onCleared() {
             // We do not force dispose; we always wait for the reference count to hit 0.
             // This prevents ViewModels from being cleared while still in use (e.g., in an
             // animating dialog window living for extra frames).
@@ -276,10 +299,6 @@ public constructor(
                     remove(entry.key)
                 }
             }
-        }
-
-        override fun onCleared() {
-            clearAllKeys()
         }
     }
 }

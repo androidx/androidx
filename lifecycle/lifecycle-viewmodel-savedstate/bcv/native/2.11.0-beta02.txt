@@ -17,6 +17,8 @@ final class androidx.lifecycle.viewmodel/ViewModelStoreProvider { // androidx.li
     final fun getOrCreateOwner(kotlin/Any?, androidx.savedstate/SavedStateRegistryOwner? = ..., androidx.savedstate/SavedState = ..., androidx.lifecycle.viewmodel/CreationExtras = ..., androidx.lifecycle/ViewModelProvider.Factory = ...): androidx.lifecycle/ViewModelStoreOwner // androidx.lifecycle.viewmodel/ViewModelStoreProvider.getOrCreateOwner|getOrCreateOwner(kotlin.Any?;androidx.savedstate.SavedStateRegistryOwner?;androidx.savedstate.SavedState;androidx.lifecycle.viewmodel.CreationExtras;androidx.lifecycle.ViewModelProvider.Factory){}[0]
 
     abstract fun interface ReferenceToken : kotlin/AutoCloseable // androidx.lifecycle.viewmodel/ViewModelStoreProvider.ReferenceToken|null[0]
+
+    final object ProviderMarkerKey // androidx.lifecycle.viewmodel/ViewModelStoreProvider.ProviderMarkerKey|null[0]
 }
 
 final class androidx.lifecycle/SavedStateHandle { // androidx.lifecycle/SavedStateHandle|null[0]
