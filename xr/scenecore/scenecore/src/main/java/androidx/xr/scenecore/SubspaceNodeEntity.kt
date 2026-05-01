@@ -31,18 +31,21 @@ import androidx.xr.scenecore.runtime.SubspaceNodeEntity as RtSubspaceNodeEntity
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SubspaceNodeEntity
-private constructor(rtEntity: RtSubspaceNodeEntity, entityRegistry: EntityRegistry) :
-    BaseEntity<RtSubspaceNodeEntity>(rtEntity, entityRegistry) {
+private constructor(rtSubspaceNodeEntity: RtSubspaceNodeEntity, entityRegistry: EntityRegistry) :
+    Entity(rtSubspaceNodeEntity, entityRegistry) {
+
+    private val rtSubspaceNodeEntity: RtSubspaceNodeEntity
+        get() = rtEntity as RtSubspaceNodeEntity
 
     /** The size of the [SubspaceNodeEntity] in meters, in unscaled local space. */
     public var size: FloatSize3d
         get() {
             checkNotDisposed()
-            return rtEntity.size.toFloatSize3d()
+            return rtSubspaceNodeEntity.size.toFloatSize3d()
         }
         set(value) {
             checkNotDisposed()
-            rtEntity.size = value.toRtDimensions()
+            rtSubspaceNodeEntity.size = value.toRtDimensions()
         }
 
     public companion object {

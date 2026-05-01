@@ -86,7 +86,7 @@ internal class EntityRegistry {
      * @param entity the [Entity] to remove from the map.
      */
     internal fun removeEntity(entity: Entity) {
-        rtEntityEntityMap.remove((entity as BaseEntity<*>).rtEntity)
+        rtEntityEntityMap.remove(entity.rtEntity)
     }
 
     /**

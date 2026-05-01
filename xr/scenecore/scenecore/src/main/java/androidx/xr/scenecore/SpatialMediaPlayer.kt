@@ -42,7 +42,7 @@ public object SpatialMediaPlayer {
         params: PointSourceParams,
         entity: Entity,
     ) {
-        (entity as BaseEntity<*>).checkNotDisposed()
+        entity.checkNotDisposed()
         session.sceneRuntime.mediaPlayerExtensionsWrapper.setPointSourceParams(
             mediaPlayer,
             params.rtPointSourceParams,

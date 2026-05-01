@@ -130,7 +130,7 @@ class ResizableComponentTest {
 
         entity.removeComponent(resizableComponent)
 
-        assertThat((entity as BaseEntity<*>).rtEntity.getComponents()).hasSize(0)
+        assertThat(entity.rtEntity.getComponents()).hasSize(0)
         // The listeners map will be reset after removing the component.
         assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(0)
     }
@@ -555,7 +555,7 @@ class ResizableComponentTest {
         // Detach and reattach the resizable component.
         entity.removeComponent(resizableComponent)
 
-        assertThat((entity as BaseEntity<*>).rtEntity.getComponents()).hasSize(0)
+        assertThat(entity.rtEntity.getComponents()).hasSize(0)
         // Runtime listeners should be cleared.
         assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(0)
 
@@ -610,7 +610,7 @@ class ResizableComponentTest {
         assertThat(entity.addComponent(resizableComponent)).isTrue()
 
         // 2. Get the underlying runtime components.
-        val rtComponents = (entity as BaseEntity<*>).rtEntity.getComponents()
+        val rtComponents = entity.rtEntity.getComponents()
         assertThat(rtComponents).isNotNull()
         assertThat(rtComponents).hasSize(1)
 

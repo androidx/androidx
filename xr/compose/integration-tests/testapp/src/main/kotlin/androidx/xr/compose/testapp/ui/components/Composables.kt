@@ -52,6 +52,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -63,6 +64,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.transformingMovable
@@ -119,13 +121,14 @@ fun TestCaseButton(text: String, onClick: () -> Unit) {
 }
 
 @Composable
+@SubspaceComposable
 fun CommonTestPanel(
     size: DpVolumeSize,
     title: String,
     showBottomBar: Boolean,
     onClickBackArrow: (() -> Unit)?,
     onClickRecreate: (() -> Unit)? = null,
-    composable: @Composable (padding: PaddingValues) -> Unit,
+    composable: @Composable @UiComposable (padding: PaddingValues) -> Unit,
 ) {
     SpatialPanel(modifier = SubspaceModifier.size(size).transformingMovable()) {
         CommonTestScaffold(title, showBottomBar, "", onClickBackArrow, onClickRecreate, composable)
@@ -140,7 +143,7 @@ fun CommonTestScaffold(
     bottomBarText: String = "",
     onClickBackArrow: (() -> Unit)? = null,
     onClickRecreate: (() -> Unit)? = null,
-    content: @Composable (padding: PaddingValues) -> Unit,
+    content: @Composable @UiComposable (padding: PaddingValues) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {

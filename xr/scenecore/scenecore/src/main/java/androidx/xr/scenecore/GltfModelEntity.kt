@@ -21,7 +21,6 @@ import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.GltfEntity as RtGltfEntity
@@ -37,12 +36,16 @@ import java.util.concurrent.TimeUnit
  * size of the model.
  */
 public class GltfModelEntity
-private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
-    BaseEntity<RtGltfEntity>(rtEntity, entityRegistry) {
+private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
+    Entity(rtGltfEntity, entityRegistry) {
+
+    internal val rtGltfEntity: RtGltfEntity
+        get() = rtEntity as RtGltfEntity
+
     private val _nodes: List<GltfModelNode> by lazy {
         // The unique identifier of a node is their index so we first get the
         // count of the nodes in the model from the native side.
-        val features = rtEntity.nodes
+        val features = rtGltfEntity.nodes
         val list = ArrayList<GltfModelNode>(features.size)
 
         for (i in features.indices) {
@@ -73,7 +76,7 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
     private val _animations: List<GltfAnimation> by lazy {
         // The unique identifier of an animation is their index so we first get the
         // count of the nodes in the model from the native side.
-        val features = rtEntity.animations
+        val features = rtGltfEntity.animations
         val list = ArrayList<GltfAnimation>(features.size)
 
         for (i in features.indices) {
@@ -82,7 +85,7 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
             val feature = features[i]
             list.add(
                 GltfAnimation(
-                    rtGltfEntity = rtEntity,
+                    rtGltfEntity = rtGltfEntity,
                     rtGltfAnimation = feature,
                     index = feature.animationIndex,
                     name = feature.animationName,
@@ -124,7 +127,7 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
      *   of the box is twice the half-extent. All values are in meters.
      */
     internal val gltfModelBoundingBox: BoundingBox
-        @MainThread get() = rtEntity.gltfModelBoundingBox
+        @MainThread get() = rtGltfEntity.gltfModelBoundingBox
 
     /**
      * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
@@ -162,22 +165,10 @@ private constructor(rtEntity: RtGltfEntity, entityRegistry: EntityRegistry) :
             parent: Entity? = entityRegistry.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): GltfModelEntity =
             GltfModelEntity(
-                    renderingRuntime.createGltfEntity(
-                        pose,
-                        model.model,
-                        if (parent != null && parent !is BaseEntity<*>) {
-                            XrLog.warn(
-                                "The provided parent is not a BaseEntity. The GltfModelEntity will " +
-                                    "be created without a parent."
-                            )
-                            null
-                        } else {
-                            parent?.rtEntity
-                        },
-                    ),
+                    renderingRuntime.createGltfEntity(pose, model.model, parent?.rtEntity),
                     entityRegistry,
                 )
-                .also { it.parent = parent as? BaseEntity<*> }
+                .also { it.parent = parent }
 
         /**
          * Public factory function for a [GltfModelEntity].

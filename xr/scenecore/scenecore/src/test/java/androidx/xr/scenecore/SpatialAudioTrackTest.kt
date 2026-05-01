@@ -71,7 +71,7 @@ class SpatialAudioTrackTest {
 
         // TODO: b/426001209 - Check params equality once additional params are implemented.
         assertThat(storedRtParams).isNotNull()
-        assertThat(storedEntity).isEqualTo((entity as BaseEntity<*>).rtEntity)
+        assertThat(storedEntity).isEqualTo(entity.rtEntity)
     }
 
     @Test
@@ -105,7 +105,7 @@ class SpatialAudioTrackTest {
 
         // TODO: b/426001209 - Check params equality once additional params are implemented.
         assertThat(storedRtParams).isNotNull()
-        assertThat(storedEntity).isEqualTo((entity as BaseEntity<*>).rtEntity)
+        assertThat(storedEntity).isEqualTo(entity.rtEntity)
     }
 
     @Test
@@ -139,8 +139,7 @@ class SpatialAudioTrackTest {
         val audioTrack = AudioTrack.Builder().build()
         val entity = Entity.create(session, "test")
 
-        val temp: BaseEntity<*> = entity as BaseEntity<*>
-        val rtEntity = temp.rtEntity
+        val rtEntity = entity.rtEntity
         val rtPointSourceParams = RtPointSourceParams()
 
         sceneRuntime.audioTrackExtensionsWrapper.setPointSourceParams(

@@ -55,7 +55,7 @@ class PositionalAudioComponentTest {
         val component = PositionalAudioComponent.create(session, params)
 
         assertThat(entity.addComponent(component)).isTrue()
-        assertThat((entity as BaseEntity<*>).rtEntity?.getComponents()[0])
+        assertThat(entity.rtEntity?.getComponents()[0])
             .isInstanceOf(FakePositionalAudioComponent::class.java)
     }
 
@@ -67,7 +67,7 @@ class PositionalAudioComponentTest {
         val component = PositionalAudioComponent.create(session, params)
 
         assertThat(firstEntity.addComponent(component)).isTrue()
-        assertThat((firstEntity as BaseEntity<*>).rtEntity?.getComponents()[0])
+        assertThat(firstEntity.rtEntity?.getComponents()[0])
             .isInstanceOf(FakePositionalAudioComponent::class.java)
 
         assertThat(secondEntity.addComponent(component)).isFalse()
@@ -81,14 +81,14 @@ class PositionalAudioComponentTest {
         val component = PositionalAudioComponent.create(session, params)
 
         assertThat(firstEntity.addComponent(component)).isTrue()
-        assertThat((firstEntity as BaseEntity<*>).rtEntity?.getComponents()[0])
+        assertThat(firstEntity.rtEntity?.getComponents()[0])
             .isInstanceOf(FakePositionalAudioComponent::class.java)
 
         firstEntity.removeComponent(component)
         assertThat(firstEntity.rtEntity?.getComponents()).hasSize(0)
 
         assertThat(secondEntity.addComponent(component)).isTrue()
-        assertThat((secondEntity as BaseEntity<*>).rtEntity?.getComponents()[0])
+        assertThat(secondEntity.rtEntity?.getComponents()[0])
             .isInstanceOf(FakePositionalAudioComponent::class.java)
     }
 

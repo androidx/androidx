@@ -56,7 +56,7 @@ class SoundFieldAudioComponentTest {
         val component = SoundFieldAudioComponent.create(session, attributes)
 
         assertThat(entity.addComponent(component)).isTrue()
-        assertThat((entity as BaseEntity<*>).rtEntity?.getComponents()?.get(0))
+        assertThat(entity.rtEntity?.getComponents()?.get(0))
             .isInstanceOf(FakeSoundFieldAudioComponent::class.java)
     }
 
@@ -68,14 +68,14 @@ class SoundFieldAudioComponentTest {
         val component = SoundFieldAudioComponent.create(session, attributes)
 
         assertThat(firstEntity.addComponent(component)).isTrue()
-        assertThat((firstEntity as BaseEntity<*>).rtEntity?.getComponents()?.get(0))
+        assertThat(firstEntity.rtEntity?.getComponents()?.get(0))
             .isInstanceOf(FakeSoundFieldAudioComponent::class.java)
 
         firstEntity.removeComponent(component)
         assertThat(firstEntity.rtEntity?.getComponents()).hasSize(0)
 
         assertThat(secondEntity.addComponent(component)).isTrue()
-        assertThat((secondEntity as BaseEntity<*>).rtEntity?.getComponents()?.get(0))
+        assertThat(secondEntity.rtEntity?.getComponents()?.get(0))
             .isInstanceOf(FakeSoundFieldAudioComponent::class.java)
     }
 

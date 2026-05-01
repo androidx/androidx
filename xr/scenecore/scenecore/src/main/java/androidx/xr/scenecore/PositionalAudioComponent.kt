@@ -43,7 +43,7 @@ internal constructor(context: Context, sceneRuntime: SceneRuntime, params: Point
         if (attachedEntity != null) {
             return false
         }
-        if ((entity as BaseEntity<*>).rtEntity.addComponent(rtComponent)) {
+        if (entity.rtEntity.addComponent(rtComponent)) {
             attachedEntity = entity
             return true
         }
@@ -54,7 +54,7 @@ internal constructor(context: Context, sceneRuntime: SceneRuntime, params: Point
         if (entity != attachedEntity) {
             return
         }
-        (entity as BaseEntity<*>).rtEntity.removeComponent(rtComponent)
+        entity.rtEntity.removeComponent(rtComponent)
         attachedEntity = null
     }
 

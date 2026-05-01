@@ -166,7 +166,7 @@ private constructor(
             return false
         }
         this.entity = entity
-        val attached = (entity as BaseEntity<*>).rtEntity.addComponent(rtResizableComponent)
+        val attached = entity.rtEntity.addComponent(rtResizableComponent)
         if (!attached) {
             this.entity = null
             return false
@@ -183,7 +183,7 @@ private constructor(
         for (entry in resizeListenerMap.values) {
             rtResizableComponent.removeResizeEventListener(entry.second)
         }
-        (entity as BaseEntity<*>).rtEntity.removeComponent(rtResizableComponent)
+        entity.rtEntity.removeComponent(rtResizableComponent)
         this.entity = null
     }
 

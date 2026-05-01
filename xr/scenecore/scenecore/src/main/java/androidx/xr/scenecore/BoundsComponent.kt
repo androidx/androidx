@@ -76,7 +76,7 @@ private constructor(
             return false
         }
         this.entity = entity
-        val attached = (entity as BaseEntity<*>).rtEntity.addComponent(rtBoundsComponent)
+        val attached = entity.rtEntity.addComponent(rtBoundsComponent)
         if (!attached) {
             this.entity = null
             return false
@@ -93,7 +93,7 @@ private constructor(
         for (entry in boundsUpdateListenerMap.values) {
             rtBoundsComponent.removeOnBoundsUpdateListener(entry.second)
         }
-        (entity as BaseEntity<*>).rtEntity.removeComponent(rtBoundsComponent)
+        entity.rtEntity.removeComponent(rtBoundsComponent)
         this.entity = null
     }
 

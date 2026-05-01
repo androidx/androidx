@@ -78,7 +78,7 @@ class PointerCaptureComponentTest {
     @Test
     fun addComponent_addsRuntimeComponent() {
         val entity = Entity.create(session, "test")
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
+        val rtEntity = entity.rtEntity
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =
@@ -104,7 +104,7 @@ class PointerCaptureComponentTest {
     @Test
     fun stateListener_propagatesCorrectlyFromRuntime() {
         val entity = Entity.create(session, "test")
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
+        val rtEntity = entity.rtEntity
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
 
@@ -137,7 +137,7 @@ class PointerCaptureComponentTest {
     @Test
     fun inputEventListener_propagatesFromRuntime() {
         val entity = Entity.create(session, "test")
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
+        val rtEntity = entity.rtEntity
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
 
@@ -180,7 +180,7 @@ class PointerCaptureComponentTest {
     @Test
     fun removeComponent_removesRuntimeComponent() {
         val entity = Entity.create(session, "test")
-        val rtEntity = (entity as BaseEntity<*>).rtEntity
+        val rtEntity = entity.rtEntity
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =

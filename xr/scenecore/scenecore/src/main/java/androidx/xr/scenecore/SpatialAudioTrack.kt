@@ -100,7 +100,7 @@ public object SpatialAudioTrack {
         session.sceneRuntime.audioTrackExtensionsWrapper.setPointSourceParams(
             track,
             params.rtPointSourceParams,
-            (entity as BaseEntity<*>).rtEntity,
+            entity.rtEntity,
         )
     }
 }
@@ -128,7 +128,7 @@ public object SpatialAudioTrackBuilder {
         session.sceneRuntime.audioTrackExtensionsWrapper.setPointSourceParams(
             builder,
             params.rtPointSourceParams,
-            (entity as BaseEntity<*>).rtEntity,
+            entity.rtEntity,
         )
     }
 

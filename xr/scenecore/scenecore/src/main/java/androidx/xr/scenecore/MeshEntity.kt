@@ -37,12 +37,15 @@ import androidx.xr.scenecore.runtime.MeshEntity as RtMeshEntity
 @ExperimentalCustomMeshApi
 public class MeshEntity
 private constructor(
-    rtEntity: RtMeshEntity,
+    rtMeshEntity: RtMeshEntity,
     entityRegistry: EntityRegistry,
     public val mesh: CustomMesh,
     private val _materials: MutableList<Material>,
     @IntRange(from = 0, to = 255) public val boneCount: Int,
-) : BaseEntity<RtMeshEntity>(rtEntity, entityRegistry) {
+) : Entity(rtMeshEntity, entityRegistry) {
+
+    private val rtMeshEntity: RtMeshEntity
+        get() = rtEntity as RtMeshEntity
 
     /** The list of materials used to render this entity's custom mesh. */
     public val materials: List<Material>
@@ -64,7 +67,7 @@ private constructor(
             "Subset index $subsetIndex is out of bounds for the number of subsets (${_materials.size})."
         }
         _materials[subsetIndex] = material
-        rtEntity.setMaterial(material.material, subsetIndex)
+        rtMeshEntity.setMaterial(material.material, subsetIndex)
     }
 
     /**
@@ -86,7 +89,7 @@ private constructor(
         check(boneCount > 0) {
             "MeshEntity must be created with a boneCount greater than 0 to set bone transforms."
         }
-        rtEntity.setBoneTransforms(transforms)
+        rtMeshEntity.setBoneTransforms(transforms)
     }
 
     public companion object {
@@ -136,16 +139,7 @@ private constructor(
             val materialResources = materials.map { it.material }
             val customMeshResource = mesh.getResource()
 
-            val rtParent =
-                if (parent != null && parent !is BaseEntity<*>) {
-                    androidx.xr.runtime.XrLog.warn(
-                        "The provided parent is not a BaseEntity. The MeshEntity will " +
-                            "be created without a parent."
-                    )
-                    null
-                } else {
-                    parent?.rtEntity
-                }
+            val rtParent = parent?.rtEntity
 
             val rtEntity =
                 renderingRuntime.createMeshEntity(
@@ -157,7 +151,7 @@ private constructor(
                 )
 
             return MeshEntity(rtEntity, entityRegistry, mesh, materials.toMutableList(), boneCount)
-                .also { it.parent = parent as? BaseEntity<*> }
+                .also { it.parent = parent }
         }
     }
 }
