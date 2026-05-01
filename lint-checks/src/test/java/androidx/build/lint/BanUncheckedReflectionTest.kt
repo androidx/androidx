@@ -56,13 +56,13 @@ class BanUncheckedReflectionTest :
 
         val expected =
             """
-            src/androidx/sample/core/app/ActivityRecreatorKt.kt:172: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+            src/androidx/sample/core/app/ActivityRecreatorKt.kt:170: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                                     performStopActivity3ParamsMethod!!.invoke(
                                     ^
-            src/androidx/sample/core/app/ActivityRecreatorKt.kt:179: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+            src/androidx/sample/core/app/ActivityRecreatorKt.kt:177: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                                     performStopActivity2ParamsMethod!!.invoke(activityThread, token, false)
                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            2 errors, 0 warnings
+            2 errors
             """
                 .trimIndent()
 
