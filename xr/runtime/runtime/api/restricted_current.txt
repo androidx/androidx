@@ -469,9 +469,7 @@ package androidx.xr.runtime {
   }
 
   public final class SpatialApiVersionHelper {
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getPreviewSpatialApiVersion();
     method @InaccessibleFromKotlin public static int getSpatialApiVersion();
-    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static int previewSpatialApiVersion;
     property public static int spatialApiVersion;
     field public static final androidx.xr.runtime.SpatialApiVersionHelper INSTANCE;
   }
