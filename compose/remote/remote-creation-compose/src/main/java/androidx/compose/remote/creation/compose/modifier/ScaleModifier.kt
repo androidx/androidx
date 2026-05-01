@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 
 /**
@@ -29,7 +28,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * @sample androidx.compose.remote.creation.compose.samples.ScaleNonUniformSample
  * @see graphicsLayer
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.scale(scaleX: RemoteFloat, scaleY: RemoteFloat): RemoteModifier =
     graphicsLayer(scaleX = scaleX, scaleY = scaleY)
 
@@ -40,6 +38,5 @@ public fun RemoteModifier.scale(scaleX: RemoteFloat, scaleY: RemoteFloat): Remot
  * @sample androidx.compose.remote.creation.compose.samples.ScaleUniformSample
  * @see graphicsLayer
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.scale(scale: RemoteFloat): RemoteModifier =
     scale(scaleX = scale, scaleY = scale)

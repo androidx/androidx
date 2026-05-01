@@ -298,6 +298,10 @@ package androidx.compose.remote.creation.compose.modifier {
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier alignByBaseline(androidx.compose.remote.creation.compose.modifier.RemoteModifier);
   }
 
+  public final class AlphaModifierKt {
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier alpha(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
+  }
+
   public final class BackgroundModifierKt {
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.painter.RemotePainter remotePainter);
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteColor color);
@@ -366,6 +370,15 @@ package androidx.compose.remote.creation.compose.modifier {
   public abstract class RenderEffect {
     ctor public RenderEffect();
     method public abstract androidx.compose.ui.graphics.RenderEffect toComposeRenderEffect();
+  }
+
+  public final class RotateModifierKt {
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier rotate(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat degrees);
+  }
+
+  public final class ScaleModifierKt {
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier scale(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat scale);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier scale(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat scaleX, androidx.compose.remote.creation.compose.state.RemoteFloat scaleY);
   }
 
   public final class SemanticsModifierKt {
