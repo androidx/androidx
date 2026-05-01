@@ -250,6 +250,7 @@ package @SuppressCompatibility androidx.car.app.dialer {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public class InCallTemplate implements androidx.car.app.model.Template {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Banner? getBanner();
     method public androidx.car.app.model.Header? getHeader();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public java.util.List<androidx.car.app.model.CarText!> getTexts();
@@ -264,6 +265,7 @@ package @SuppressCompatibility androidx.car.app.dialer {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder addText(androidx.car.app.model.CarText);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder addText(CharSequence);
     method public androidx.car.app.dialer.InCallTemplate build();
+    method @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder setBanner(androidx.car.app.model.Banner?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder setHeader(androidx.car.app.model.Header?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder setIcon(androidx.car.app.model.CarIcon?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder setLoading(boolean);
@@ -965,6 +967,7 @@ package androidx.car.app.media {
 package androidx.car.app.media.model {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public class MediaPlaybackTemplate implements androidx.car.app.model.Template {
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Banner? getBanner();
     method public androidx.car.app.model.Header? getHeader();
   }
 
@@ -972,6 +975,7 @@ package androidx.car.app.media.model {
     ctor public MediaPlaybackTemplate.Builder();
     ctor public MediaPlaybackTemplate.Builder(androidx.car.app.media.model.MediaPlaybackTemplate);
     method public androidx.car.app.media.model.MediaPlaybackTemplate build();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setBanner(androidx.car.app.model.Banner?);
     method public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setHeader(androidx.car.app.model.Header?);
   }
 
@@ -1296,6 +1300,54 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Badge.Builder setHasDot(boolean);
     method public androidx.car.app.model.Badge.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Badge.Builder setIconBackgroundColor(androidx.car.app.model.CarColor);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class Banner implements androidx.car.app.model.Item {
+    method public androidx.car.app.model.CarColor? getBackgroundColor();
+    method public java.util.List<androidx.car.app.model.Action!> getBelowActions();
+    method public androidx.car.app.model.BannerDismissDelegate? getDismissDelegate();
+    method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
+    method public androidx.car.app.model.CarProgressBar? getProgressBar();
+    method public androidx.car.app.model.CarText? getSubtitle();
+    method public androidx.car.app.model.CarText? getTitle();
+    method public boolean isDismissed();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class Banner.Builder {
+    ctor public Banner.Builder();
+    method public androidx.car.app.model.Banner.Builder addBelowAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.Banner.Builder addLeadingAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.Banner.Builder addLeadingIcon(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.Banner.Builder addLeadingImage(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.Banner.Builder addTrailingAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.Banner.Builder addTrailingIcon(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.Banner.Builder addTrailingImage(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.Banner build();
+    method public androidx.car.app.model.Banner.Builder setBackgroundColor(androidx.car.app.model.CarColor);
+    method public androidx.car.app.model.Banner.Builder setDismissCallback(androidx.car.app.model.BannerDismissCallback);
+    method public androidx.car.app.model.Banner.Builder setDismissed(boolean);
+    method public androidx.car.app.model.Banner.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
+    method public androidx.car.app.model.Banner.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
+    method public androidx.car.app.model.Banner.Builder setSubtitle(androidx.car.app.model.CarText);
+    method public androidx.car.app.model.Banner.Builder setSubtitle(CharSequence);
+    method public androidx.car.app.model.Banner.Builder setTitle(androidx.car.app.model.CarText);
+    method public androidx.car.app.model.Banner.Builder setTitle(CharSequence);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public interface BannerDismissCallback {
+    method public void onDismiss();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public interface BannerDismissDelegate {
+    method public void sendDismiss(androidx.car.app.OnDoneCallback);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class BannerSection extends androidx.car.app.model.Section<androidx.car.app.model.Banner!> {
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class BannerSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.Banner!,androidx.car.app.model.BannerSection.Builder!> {
+    ctor public BannerSection.Builder();
+    method public androidx.car.app.model.BannerSection build();
   }
 
   @androidx.car.app.annotations.CarProtocol public final class CarColor {
@@ -1810,6 +1862,7 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class PaneTemplate implements androidx.car.app.model.Template {
     method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Banner? getBanner();
     method public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.Pane getPane();
@@ -1820,6 +1873,7 @@ package androidx.car.app.model {
     ctor public PaneTemplate.Builder(androidx.car.app.model.Pane);
     method public androidx.car.app.model.PaneTemplate build();
     method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.PaneTemplate.Builder setBanner(androidx.car.app.model.Banner);
     method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.PaneTemplate.Builder setHeader(androidx.car.app.model.Header);
     method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setTitle(CharSequence);

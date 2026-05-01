@@ -257,6 +257,43 @@ public final class ActionsConstraints {
                     .setMaxCustomTitles(0)
                     .build();
 
+    /**
+     * Constraints for the trailing actions of a {@code Banner}.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 2} actions
+     *     <li>Must be {@link Action#TYPE_CUSTOM}
+     *     <li>Must not have backgrounds
+     *     <li>Must not be marked {@link Action#FLAG_PRIMARY}
+     *     <li>May have click listeners
+     * </ul>
+     */
+    public static final @NonNull ActionsConstraints ACTION_CONSTRAINTS_BANNER_TRAILING =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(2)
+                    .setMaxCustomTitles(2)
+                    .setOnClickListenerAllowed(true)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .build();
+
+    /**
+     * Constraints for the actions below the title and subtitle of a {@code Banner}.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 3} actions
+     *     <li>Up to 2 actions may have text
+     *     <li>Must be {@link Action#TYPE_CUSTOM}
+     *     <li>May have click listeners
+     * </ul>
+     */
+    public static final @NonNull ActionsConstraints ACTION_CONSTRAINTS_BANNER_BELOW =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(3)
+                    .setMaxCustomTitles(2)
+                    .setOnClickListenerAllowed(true)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .build();
+
     private final int mMaxActions;
     private final int mMaxPrimaryActions;
     private final int mMaxCustomTitles;

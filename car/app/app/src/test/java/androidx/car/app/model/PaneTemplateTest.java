@@ -356,6 +356,15 @@ public class PaneTemplateTest {
                                         .build()).build());
     }
 
+    @Test
+    public void createInstance_setBanner() {
+        Banner banner = new Banner.Builder().setTitle("Banner").build();
+        PaneTemplate template = new PaneTemplate.Builder(getPane().build())
+                .setBanner(banner)
+                .build();
+        assertThat(template.getBanner()).isEqualTo(banner);
+    }
+
     private static Pane.Builder getPane() {
         Row row1 = new Row.Builder().setTitle("Bananas").build();
         Row row2 = new Row.Builder().setTitle("Oranges").build();

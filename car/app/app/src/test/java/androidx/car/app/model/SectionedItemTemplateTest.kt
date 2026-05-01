@@ -224,6 +224,15 @@ class SectionedItemTemplateTest {
     }
 
     @Test
+    fun build_allowsBannerSection() {
+        val banner = Banner.Builder().setTitle("Primary").build()
+        val section = BannerSection.Builder().addItem(banner).build()
+        val template = SectionedItemTemplate.Builder().addSection(section).build()
+
+        assertThat(template.sections).containsExactly(section)
+    }
+
+    @Test
     fun addAction_throwsException_whenNotFabConstrained() {
         try {
             // Back action is not allowed as a FAB
