@@ -18,7 +18,6 @@
 
 package androidx.compose.material3
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import kotlin.jvm.JvmName
@@ -28,9 +27,9 @@ import kotlin.jvm.JvmName
  * present.
  *
  * Note that this will always return `false` if the
- * [ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled] flag is not enabled.
+ * [androidx.compose.ui.ComposeUiFlags.isMediaQueryIntegrationEnabled] flag is not enabled.
  *
- * @see ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled
+ * @see androidx.compose.ui.ComposeUiFlags.isMediaQueryIntegrationEnabled
  */
 fun shouldUsePrecisionPointerComponentSizing(): Boolean {
     return shouldUsePrecisionPointerComponentSizing.value
@@ -41,16 +40,6 @@ fun shouldUsePrecisionPointerComponentSizing(): Boolean {
  * have denser spacing and sizing.
  *
  * Note that this value will always be `false` if the
- * [ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled] flag is not enabled.
+ * [androidx.compose.ui.ComposeUiFlags.isMediaQueryIntegrationEnabled] flag is not enabled.
  */
 internal val shouldUsePrecisionPointerComponentSizing: MutableState<Boolean> = mutableStateOf(false)
-
-/**
- * Provides support for querying the device state for the presence of precision pointers via
- * [shouldUsePrecisionPointerComponentSizing].
- *
- * This function is re-entrant; if it is called multiple times in the same hierarchy, nothing
- * happens on subsequent invocations.
- */
-@Composable
-internal expect fun EnsurePrecisionPointerListenersRegistered(content: @Composable () -> Unit)

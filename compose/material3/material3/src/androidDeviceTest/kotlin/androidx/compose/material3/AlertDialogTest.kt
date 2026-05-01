@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.hardware.input.InputManager
 import android.os.Build
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,10 +29,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.ExperimentalMediaQueryApi
+import androidx.compose.ui.LocalUiMediaScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiMediaScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
@@ -49,11 +52,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import com.google.common.base.Joiner.on
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
@@ -62,8 +63,6 @@ import kotlinx.coroutines.withTimeout
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -498,22 +497,22 @@ class AlertDialogTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(
+        ExperimentalMaterial3Api::class,
+        ExperimentalMediaQueryApi::class,
+        ExperimentalComposeUiApi::class,
+    )
     @Test
     fun alertDialog_withIcon_precisionPointer_positioning() {
-        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
-        val inputManager = FakeInputManager()
-        inputManager.addDevice(MockDevices.physicalKeyboard)
-        inputManager.addDevice(MockDevices.mouse)
+        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        val uiMediaScope =
+            MockUiMediaScope(
+                keyboardKind = UiMediaScope.KeyboardKind.Physical,
+                pointerPrecision = UiMediaScope.PointerPrecision.Fine,
+            )
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalContext provides
-                    (mock {
-                        on { getSystemService(InputManager::class.java) } doReturn
-                            inputManager.inputManager
-                    })
-            ) {
+            CompositionLocalProvider(LocalUiMediaScope provides uiMediaScope) {
                 MaterialTheme {
                     AlertDialog(
                         onDismissRequest = {},
@@ -608,22 +607,22 @@ class AlertDialogTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(
+        ExperimentalMaterial3Api::class,
+        ExperimentalMediaQueryApi::class,
+        ExperimentalComposeUiApi::class,
+    )
     @Test
     fun alertDialog_precisionPointer_positioning() {
-        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
-        val inputManager = FakeInputManager()
-        inputManager.addDevice(MockDevices.physicalKeyboard)
-        inputManager.addDevice(MockDevices.mouse)
+        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        val uiMediaScope =
+            MockUiMediaScope(
+                keyboardKind = UiMediaScope.KeyboardKind.Physical,
+                pointerPrecision = UiMediaScope.PointerPrecision.Fine,
+            )
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalContext provides
-                    (mock {
-                        on { getSystemService(InputManager::class.java) } doReturn
-                            inputManager.inputManager
-                    })
-            ) {
+            CompositionLocalProvider(LocalUiMediaScope provides uiMediaScope) {
                 MaterialTheme {
                     AlertDialog(
                         onDismissRequest = {},

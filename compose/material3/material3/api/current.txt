@@ -912,14 +912,12 @@ package androidx.compose.material3 {
     property public boolean isAnchoredDraggableComponentsInvalidationFixEnabled;
     property public boolean isAnchoredDraggableComponentsStrictOffsetCheckEnabled;
     property public boolean isCheckboxStylingFixEnabled;
-    property public boolean isPrecisionPointerComponentSizingEnabled;
     property public boolean isSnackbarStylingFixEnabled;
     field public static final androidx.compose.material3.ComposeMaterial3Flags INSTANCE;
     field public static boolean isAnchoredDraggableComponentsAnchorRecoveryEnabled;
     field public static boolean isAnchoredDraggableComponentsInvalidationFixEnabled;
     field public static boolean isAnchoredDraggableComponentsStrictOffsetCheckEnabled;
     field public static boolean isCheckboxStylingFixEnabled;
-    field public static boolean isPrecisionPointerComponentSizingEnabled;
     field public static boolean isSnackbarStylingFixEnabled;
   }
 
