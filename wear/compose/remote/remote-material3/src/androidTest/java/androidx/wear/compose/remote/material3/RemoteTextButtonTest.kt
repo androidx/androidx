@@ -26,11 +26,13 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection as TestLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -51,17 +53,17 @@ import org.junit.runners.JUnit4
 class RemoteTextButtonTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
 
     @Test
     fun remote_text_button_enabled() {
-        remoteComposeTestRule.runScreenshotTest(
-            backgroundColor = Color.Black,
-            creationDisplayInfo = creationDisplayInfo,
-        ) {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
             ComponentContainer { RemoteTextButtonEnabled() }
         }
     }
@@ -69,9 +71,14 @@ class RemoteTextButtonTest {
     @Test
     fun remote_text_button_rtl() {
         remoteComposeTestRule.runScreenshotTest(
-            backgroundColor = Color.Black,
-            creationDisplayInfo = creationDisplayInfo,
-            layoutDirection = LayoutDirection.Rtl,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            composableWrapper = { composable ->
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.TestLayoutDirection(LayoutDirection.Rtl)
+                ) {
+                    composable()
+                }
+            },
         ) {
             ComponentContainer { RemoteTextButtonEnabled() }
         }
@@ -79,10 +86,7 @@ class RemoteTextButtonTest {
 
     @Test
     fun remote_text_button_disabled() {
-        remoteComposeTestRule.runScreenshotTest(
-            backgroundColor = Color.Black,
-            creationDisplayInfo = creationDisplayInfo,
-        ) {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
             ComponentContainer {
                 RemoteTextButton(testAction, enabled = false.rb) { RemoteText("ABC".rs) }
             }
@@ -91,20 +95,14 @@ class RemoteTextButtonTest {
 
     @Test
     fun remote_text_button_tonal_enabled() {
-        remoteComposeTestRule.runScreenshotTest(
-            backgroundColor = Color.Black,
-            creationDisplayInfo = creationDisplayInfo,
-        ) {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
             ComponentContainer { RemoteTextButtonTonal() }
         }
     }
 
     @Test
     fun remote_text_button_tonal_disabled() {
-        remoteComposeTestRule.runScreenshotTest(
-            backgroundColor = Color.Black,
-            creationDisplayInfo = creationDisplayInfo,
-        ) {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
             ComponentContainer {
                 RemoteTextButton(testAction, enabled = false.rb, colors = FILLED_TONAL_COLOR) {
                     RemoteText("ABC".rs)
@@ -115,20 +113,14 @@ class RemoteTextButtonTest {
 
     @Test
     fun remote_text_button_outline_enabled() {
-        remoteComposeTestRule.runScreenshotTest(
-            backgroundColor = Color.Black,
-            creationDisplayInfo = creationDisplayInfo,
-        ) {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
             ComponentContainer { RemoteTextButtonOutline() }
         }
     }
 
     @Test
     fun remote_text_button_outline_disabled() {
-        remoteComposeTestRule.runScreenshotTest(
-            backgroundColor = Color.Black,
-            creationDisplayInfo = creationDisplayInfo,
-        ) {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
             ComponentContainer {
                 RemoteTextButton(
                     testAction,
@@ -153,9 +145,12 @@ class RemoteTextButtonTest {
         }
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            backgroundColor = Color.Black,
-            creationDisplayInfo = creationDisplayInfo,
-            colorOverrides = colorOverrides,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player ->
+                colorOverrides.forEach { name, colorInt ->
+                    player.setUserLocalColor(name, colorInt)
+                }
+            },
         ) {
             ComponentContainer { RemoteTextButtonEnabled() }
         }

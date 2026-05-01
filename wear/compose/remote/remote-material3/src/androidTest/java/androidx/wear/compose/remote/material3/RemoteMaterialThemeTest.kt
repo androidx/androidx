@@ -16,13 +16,29 @@
 
 package androidx.wear.compose.remote.material3
 
+import androidx.collection.ObjectIntMap
 import androidx.collection.buildObjectIntMap
+import androidx.collection.mutableObjectIntMapOf
+import androidx.compose.foundation.layout.Box
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.remote.testing.RemoteBaseContentTestRule
+import androidx.compose.remote.testing.RemoteContentTestRule
+import androidx.compose.runtime.Composable
+import androidx.compose.testutils.assertContainsColor
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.ColorScheme
@@ -37,11 +53,7 @@ import org.junit.runners.JUnit4
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
 class RemoteMaterialThemeTest {
-    @get:Rule
-    val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(
-            moduleDirectory = "" // Not needed, this is not a screenshot test.
-        )
+    @get:Rule val remoteComposeTestRule = RemoteContentTestRule()
 
     @Test
     fun sets_theme_color() {
@@ -138,5 +150,45 @@ class RemoteMaterialThemeTest {
         }
 
         remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+    }
+
+    private fun RemoteContentTestRule.runTest(
+        colorOverrides: ObjectIntMap<String> = mutableObjectIntMapOf(),
+        composable: @Composable @RemoteComposable () -> Unit,
+    ) {
+        setContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(ApplicationProvider.getApplicationContext()),
+            player =
+                object : RemoteBaseContentTestRule.Player {
+                    @Composable
+                    override fun Play(coreDocument: CoreDocument, size: Size) {
+                        Box(modifier = Modifier.testTag(ROOT_TEST_TAG)) {
+                            RemoteDocumentPlayer(
+                                document = coreDocument,
+                                documentWidth = size.width.toInt(),
+                                documentHeight = size.height.toInt(),
+                                update = { player ->
+                                    colorOverrides.forEach { name, colorInt ->
+                                        player.setUserLocalColor(name, colorInt)
+                                    }
+                                },
+                            )
+                        }
+                    }
+                },
+            composable = composable,
+        )
+    }
+
+    private fun RemoteContentTestRule.assertRootNodeContainsColor(expectedColor: Color) {
+        composeTestRule
+            .onNodeWithTag(ROOT_TEST_TAG)
+            .captureToImage()
+            .assertContainsColor(expectedColor)
+    }
+
+    companion object {
+        private const val ROOT_TEST_TAG = "ROOT_TEST_TAG"
     }
 }
