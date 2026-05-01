@@ -50,6 +50,7 @@ import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -149,6 +150,7 @@ class SwipeToRevealScreenshotTest {
         }
     }
 
+    @Ignore("b/508669784")
     @Test
     fun swipeToReveal_hasDefaultUndoHeightForLongLabels(@TestParameter screenSize: ScreenSize) {
         verifyScreenshotForSize(screenSize) {

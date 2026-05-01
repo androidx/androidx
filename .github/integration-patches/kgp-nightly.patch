@@ -1,23 +1,3 @@
-diff --git a/buildSrc/private/src/main/kotlin/androidx/build/testConfiguration/TestSourceSetsHelper.kt b/buildSrc/private/src/main/kotlin/androidx/build/testConfiguration/TestSourceSetsHelper.kt
-index 9282773ba8e..df6f26fb014 100644
---- a/buildSrc/private/src/main/kotlin/androidx/build/testConfiguration/TestSourceSetsHelper.kt
-+++ b/buildSrc/private/src/main/kotlin/androidx/build/testConfiguration/TestSourceSetsHelper.kt
-@@ -33,6 +33,7 @@ internal fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCo
-                 testSourceFileCollections.add(files(sourceSet))
-             }
-             // Add kotlin-android main source set
-+            @Suppress("DEPRECATION") // .sourceSets
-             extensions
-                 .findByType(KotlinAndroidProjectExtension::class.java)
-                 ?.sourceSets
-@@ -49,6 +50,7 @@ internal fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCo
-     }
- 
-     // Add kotlin-android androidTest source set
-+    @Suppress("DEPRECATION") // .sourceSets
-     extensions
-         .findByType(KotlinAndroidProjectExtension::class.java)
-         ?.sourceSets
 diff --git a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
 index 6fece502bef..f1c96195b0b 100644
 --- a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt

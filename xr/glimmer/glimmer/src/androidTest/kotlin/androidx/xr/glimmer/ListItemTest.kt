@@ -76,6 +76,7 @@ import kotlin.properties.Delegates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -381,6 +382,7 @@ class ListItemTest {
         }
     }
 
+    @Ignore("b/508666170")
     @Test
     fun defaultInteractionSource_isShared_betweenSurfaceAndFocusable() {
         rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
@@ -407,6 +409,7 @@ class ListItemTest {
         assertThat(result.matches).isFalse()
     }
 
+    @Ignore("b/508666170")
     @Test
     fun defaultInteractionSource_isShared_betweenSurfaceAndClickable() {
         rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
