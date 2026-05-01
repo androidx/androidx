@@ -357,6 +357,7 @@ public interface IcingOptionsConfig {
                         Flags.enableSkipSetSchemaTypeEqualityCheck())
                 .setEnableEmbedQueryOptimization(Flags.enableEmbedQueryOptimization())
                 .setEnableBackgroundTaskScheduler(enableIcingBackgroundTaskScheduler())
+                .setEnableSchemaDefinitionDeduping(Flags.enableSchemaDefinitionDeduping())
                 .build();
     }
 }

@@ -77,6 +77,7 @@ public final class SetSchemaStats extends BaseStats {
     @SchemaMigrationStats.SchemaMigrationCallType
     private final int mSchemaMigrationCallType;
     private final boolean mSkippedIcingInteraction;
+    private final long mNativeSchemaProtoByteSize;
 
     SetSchemaStats(@NonNull Builder builder) {
         super(builder);
@@ -122,6 +123,7 @@ public final class SetSchemaStats extends BaseStats {
                 builder.mPreparingChangeNotificationLatencyMillis;
         mSchemaMigrationCallType = builder.mSchemaMigrationCallType;
         mSkippedIcingInteraction = builder.mSkippedIcingInteraction;
+        mNativeSchemaProtoByteSize = builder.mNativeSchemaProtoByteSize;
     }
 
     /** Returns calling package name. */
@@ -331,6 +333,11 @@ public final class SetSchemaStats extends BaseStats {
         return mSkippedIcingInteraction;
     }
 
+    /** Gets byte size of the stored schema proto written by this SetSchema call. */
+    public long getNativeSchemaProtoByteSize() {
+        return mNativeSchemaProtoByteSize;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -372,6 +379,7 @@ public final class SetSchemaStats extends BaseStats {
                         + "  preparingChangeNotificationLatencyMillis=%d,\n"
                         + "  schemaMigrationCallType=%d,\n"
                         + "  skippedIcingInteraction=%b,\n"
+                        + "  nativeSchemaProtoByteSize=%d,\n"
                         // Include BaseStats fields
                         + super.toString()
                         + "}",
@@ -410,7 +418,8 @@ public final class SetSchemaStats extends BaseStats {
                 mGetObserverLatencyMillis,
                 mPreparingChangeNotificationLatencyMillis,
                 mSchemaMigrationCallType,
-                mSkippedIcingInteraction);
+                mSkippedIcingInteraction,
+                mNativeSchemaProtoByteSize);
     }
 
     /** Builder for {@link SetSchemaStats}. */
@@ -453,6 +462,7 @@ public final class SetSchemaStats extends BaseStats {
         @SchemaMigrationStats.SchemaMigrationCallType
         int mSchemaMigrationCallType;
         boolean mSkippedIcingInteraction;
+        long mNativeSchemaProtoByteSize;
 
         /** Constructor for the {@link Builder}. */
         public Builder(@NonNull String packageName, @NonNull String database) {
@@ -721,6 +731,13 @@ public final class SetSchemaStats extends BaseStats {
         @CanIgnoreReturnValue
         public @NonNull Builder setSkippedIcingInteraction(boolean skippedIcingInteraction) {
             mSkippedIcingInteraction = skippedIcingInteraction;
+            return this;
+        }
+
+        /** Sets the byte size of the stored schema proto written by this setSchema call */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeSchemaProtoByteSize(long nativeSchemaProtoByteSize) {
+            mNativeSchemaProtoByteSize = nativeSchemaProtoByteSize;
             return this;
         }
 

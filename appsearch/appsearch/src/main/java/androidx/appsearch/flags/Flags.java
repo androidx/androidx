@@ -245,6 +245,13 @@ public final class Flags {
             FLAG_PREFIX + "enable_schema_type_id_optimization";
 
     /**
+     * Enable deduping schema types' property definitions when storing SchemaTypeConfigs in the
+     * schema store.
+     */
+    public static final String FLAG_ENABLE_SCHEMA_DEFINITION_DEDUPING =
+            FLAG_PREFIX + "enable_schema_definition_deduping";
+
+    /**
      * Controls whether a few minor improvements to Optimize and Index Merge are enabled:
      *   * Whether there is an unnecessary PersistToDisk call in Optimize
      *   * Whether there is an unnecessary PersistToDisk call in Index Merge
@@ -582,10 +589,19 @@ public final class Flags {
     }
 
     /**
+     * Whether to enable deduping schema types' property definitions when storing
+     * SchemaTypeConfigs in the schema store.
+     */
+    public static boolean enableSchemaDefinitionDeduping() {
+        // TODO(b/448166747): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
+    }
+
+    /**
      * Controls whether a few minor improvements to Optimize and Index Merge are enabled:
-     *   * Whether there is an unnecessary PersistToDisk call in Optimize
-     *   * Whether there is an unnecessary PersistToDisk call in Index Merge
-     *   * Whether DocumentStore Optimize will create unnecessary status messages.
+     * * Whether there is an unnecessary PersistToDisk call in Optimize
+     * * Whether there is an unnecessary PersistToDisk call in Index Merge
+     * * Whether DocumentStore Optimize will create unnecessary status messages.
      */
     public static boolean enableOptimizeImprovements() {
         // TODO(b/455903084): Enable this once the feature is rolled out to Nextfood in platform.

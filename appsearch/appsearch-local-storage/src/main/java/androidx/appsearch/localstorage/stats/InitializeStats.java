@@ -161,6 +161,8 @@ public final class InitializeStats extends BaseStats {
     int mNativeInitializeIcuDataStatusCode;
     /** Number of documents that failed to be reindexed during index restoration.*/
     int mNativeNumFailedReindexedDocuments;
+    /** Byte size of the stored schema proto. */
+    private final long mNativeSchemaProtoByteSize;
     private final boolean mHasReset;
     /** If we had to reset, contains the status code of the reset operation. */
     @AppSearchResult.ResultCode
@@ -295,6 +297,11 @@ public final class InitializeStats extends BaseStats {
         return mNativeNumFailedReindexedDocuments;
     }
 
+    /** Returns byte size of the stored schema proto. */
+    public long getNativeSchemaProtoByteSize() {
+        return mNativeSchemaProtoByteSize;
+    }
+
     /** Returns whether we had to reset the index, losing all data, as part of initialization. */
     public boolean hasReset() {
         return mHasReset;
@@ -336,6 +343,7 @@ public final class InitializeStats extends BaseStats {
                         + "  nativeEmbeddingIndexRestorationCause=%d,\n"
                         + "  nativeInitializeIcuDataStatusCode=%d,\n"
                         + "  nativeNumFailedReindexedDocuments=%d,\n"
+                        + "  nativeSchemaProtoByteSize=%d,\n"
                         + "  hasReset=%b,\n"
                         + "  resetStatusCode=%d,\n"
                         // Include BaseStats fields
@@ -362,6 +370,7 @@ public final class InitializeStats extends BaseStats {
                 mNativeEmbeddingIndexRestorationCause,
                 mNativeInitializeIcuDataStatusCode,
                 mNativeNumFailedReindexedDocuments,
+                mNativeSchemaProtoByteSize,
                 mHasReset,
                 mResetStatusCode);
     }
@@ -391,6 +400,7 @@ public final class InitializeStats extends BaseStats {
         mNativeEmbeddingIndexRestorationCause = builder.mNativeEmbeddingIndexRestorationCause;
         mNativeInitializeIcuDataStatusCode = builder.mNativeInitializeIcuDataStatusCode;
         mNativeNumFailedReindexedDocuments = builder.mNativeNumFailedReindexedDocuments;
+        mNativeSchemaProtoByteSize = builder.mNativeSchemaProtoByteSize;
         mHasReset = builder.mHasReset;
         mResetStatusCode = builder.mResetStatusCode;
     }
@@ -427,6 +437,7 @@ public final class InitializeStats extends BaseStats {
         int mNativeEmbeddingIndexRestorationCause;
         int mNativeInitializeIcuDataStatusCode;
         int mNativeNumFailedReindexedDocuments;
+        long mNativeSchemaProtoByteSize;
         boolean mHasReset;
         @AppSearchResult.ResultCode
         int mResetStatusCode;
@@ -605,6 +616,13 @@ public final class InitializeStats extends BaseStats {
         public @NonNull Builder setNativeNumFailedReindexedDocuments(
                 int nativeNumFailedReindexedDocuments) {
             mNativeNumFailedReindexedDocuments = nativeNumFailedReindexedDocuments;
+            return this;
+        }
+
+        /** Sets byte size of the stored schema proto. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeSchemaProtoByteSize(long nativeSchemaProtoByteSize) {
+            mNativeSchemaProtoByteSize = nativeSchemaProtoByteSize;
             return this;
         }
 

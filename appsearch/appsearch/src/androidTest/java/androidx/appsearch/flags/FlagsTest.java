@@ -257,6 +257,12 @@ public class FlagsTest {
     }
 
     @Test
+    public void testFlagValue_enableSchemaDefinitionDeduping() {
+        assertThat(Flags.FLAG_ENABLE_SCHEMA_DEFINITION_DEDUPING)
+                .isEqualTo("com.android.appsearch.flags.enable_schema_definition_deduping");
+    }
+
+    @Test
     public void testFlagValue_enableEmbedQueryOptimization() {
         assertThat(Flags.FLAG_ENABLE_EMBED_QUERY_OPTIMIZATION)
                 .isEqualTo("com.android.appsearch.flags.enable_embed_query_optimization");

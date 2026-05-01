@@ -124,6 +124,7 @@ public class AppSearchLoggerTest {
                 InitializeStatsProto.RecoveryCause.DEPENDENCIES_CHANGED_VALUE;
         StatusProto.Code initializeIcuDataStatusCode = StatusProto.Code.OK;
         int nativeNumFailedReindexedDocuments = 18;
+        long nativeSchemaProtoByteSize = 19;
         InitializeStatsProto.Builder nativeInitBuilder = InitializeStatsProto.newBuilder()
                 .setLatencyMs(nativeLatencyMillis)
                 .setDocumentStoreRecoveryCause(InitializeStatsProto.RecoveryCause.forNumber(
@@ -152,7 +153,8 @@ public class AppSearchLoggerTest {
                                 nativeEmbeddingIndexRestorationCause))
                 .setInitializeIcuDataStatus(StatusProto.newBuilder()
                         .setCode(initializeIcuDataStatusCode))
-                .setNumFailedReindexedDocuments(nativeNumFailedReindexedDocuments);
+                .setNumFailedReindexedDocuments(nativeNumFailedReindexedDocuments)
+                .setSchemaProtoByteSize(nativeSchemaProtoByteSize);
         InitializeStats.Builder initBuilder = new InitializeStats.Builder();
 
         AppSearchLoggerHelper.copyNativeStats(nativeInitBuilder.build(), initBuilder);
@@ -186,6 +188,7 @@ public class AppSearchLoggerTest {
                 .isEqualTo(initializeIcuDataStatusCode.getNumber());
         assertThat(iStats.getNativeNumFailedReindexedDocuments())
                 .isEqualTo(nativeNumFailedReindexedDocuments);
+        assertThat(iStats.getNativeSchemaProtoByteSize()).isEqualTo(nativeSchemaProtoByteSize);
     }
 
     @Test
@@ -545,6 +548,7 @@ public class AppSearchLoggerTest {
         int documentStoreOptimizedUpdateSchemaLatencyMillis = 4;
         int indexRestorationLatencyMillis = 5;
         int scorablePropertyCacheRegenerationLatencyMillis = 6;
+        long schemaProtoByteSize = 7;
 
         SetSchemaResultProto setSchemaResultProto = SetSchemaResultProto.newBuilder()
                 .addAllNewSchemaTypes(newSchemaTypeChangeList)
@@ -568,7 +572,8 @@ public class AppSearchLoggerTest {
                                 documentStoreOptimizedUpdateSchemaLatencyMillis)
                         .setIndexRestorationLatencyMs(indexRestorationLatencyMillis)
                         .setScorablePropertyCacheRegenerationLatencyMs(
-                                scorablePropertyCacheRegenerationLatencyMillis))
+                                scorablePropertyCacheRegenerationLatencyMillis)
+                        .setSchemaProtoByteSize(schemaProtoByteSize))
                 .build();
         SetSchemaStats.Builder sBuilder = new SetSchemaStats.Builder(PACKAGE_NAME, DATABASE);
 
@@ -602,6 +607,7 @@ public class AppSearchLoggerTest {
                 indexRestorationLatencyMillis);
         assertThat(sStats.getNativeScorablePropertyCacheRegenerationLatencyMillis()).isEqualTo(
                 scorablePropertyCacheRegenerationLatencyMillis);
+        assertThat(sStats.getNativeSchemaProtoByteSize()).isEqualTo(schemaProtoByteSize);
     }
 
     //
