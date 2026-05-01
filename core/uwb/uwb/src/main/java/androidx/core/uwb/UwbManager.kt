@@ -18,6 +18,7 @@ package androidx.core.uwb
 
 import android.content.Context
 import androidx.core.uwb.impl.UwbManagerImpl
+import java.lang.AutoCloseable
 import java.util.concurrent.Executor
 
 @JvmDefaultWithCompatibility
@@ -26,7 +27,7 @@ public
  * Interface for getting UWB capabilities and interacting with nearby UWB devices to perform
  * ranging.
  */
-interface UwbManager {
+interface UwbManager : AutoCloseable {
     public companion object {
 
         /** Creates a new UwbManager that is used for creating UWB client sessions. */
@@ -87,4 +88,10 @@ interface UwbManager {
 
     /** Unsubscribes from UWB availability. */
     public fun clearUwbAvailabilityCallback()
+
+    /**
+     * Closes the UwbManager. This releases any resources held by the manager, such as unbinding
+     * from the UWB backend service.
+     */
+    public override fun close()
 }
