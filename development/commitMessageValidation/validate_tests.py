@@ -49,11 +49,16 @@ class ValidateTests(unittest.TestCase):
     with self.assertRaises(SystemExit) as cm:
       validate.main()
     self.assertEqual(cm.exception.code, 1)
+    output = mock_stdout.getvalue()
     self.assertIn(
         'Error: The following words use CamelCase in the `Relnote:` '
         'tag in the commit message, but are not surrounded by '
         'backticks (`):\nInvalidCase',
-        mock_stdout.getvalue()
+        output
+    )
+    self.assertIn(
+        'Suggested replacement:\nRelnote: This has an `InvalidCase` word.',
+        output
     )
 
   @mock.patch(
@@ -74,6 +79,10 @@ class ValidateTests(unittest.TestCase):
     )
     self.assertIn('InvalidCase', output)
     self.assertIn('AnotherInvalidCase', output)
+    self.assertIn(
+        'Suggested replacement:\nRelnote: `InvalidCase` `AnotherInvalidCase`',
+        output
+    )
 
   @mock.patch(
       'sys.argv',
@@ -85,8 +94,13 @@ class ValidateTests(unittest.TestCase):
       validate.main()
     self.assertEqual(cm.exception.code, 1)
     output = mock_stdout.getvalue()
-    self.assertIn('InvalidC', output)
-    self.assertNotIn('ValidC', output)
+    error_list, suggested = output.split('Suggested replacement:')
+    self.assertIn('InvalidC', error_list)
+    self.assertNotIn('ValidC', error_list)
+    self.assertIn(
+        'Relnote: Check `ValidC` fail `InvalidC`.',
+        suggested
+    )
 
   @mock.patch(
       'sys.argv',
@@ -98,11 +112,16 @@ class ValidateTests(unittest.TestCase):
     with self.assertRaises(SystemExit) as cm:
       validate.main()
     self.assertEqual(cm.exception.code, 1)
+    output = mock_stdout.getvalue()
     self.assertIn(
         'Error: The following words use CamelCase in the `Relnote:` '
         'tag in the commit message, but are not surrounded by '
         'backticks (`):\nCamelCase',
-        mock_stdout.getvalue()
+        output
+    )
+    self.assertIn(
+        'Suggested replacement:\nRelnote: """Long relnote\nsplit multiple lines `CamelCase` entries"""',
+        output
     )
 
   @mock.patch(
@@ -121,11 +140,21 @@ class ValidateTests(unittest.TestCase):
        'Relnote: "Long relnote\nmultiple lines CamelCase entries"']
   )
   @mock.patch('sys.stdout', new_callable=io.StringIO)
-  def test_multiline_relnote_with_double_quotes_fails(self, mock_stdout):
+  def test_multiline_relnote_with_double_quotes_fails_camel_case(self, mock_stdout):
     with self.assertRaises(SystemExit) as cm:
       validate.main()
     self.assertEqual(cm.exception.code, 1)
-    self.assertIn('Error: Multi-line release notes must be surrounded by triple quotes (""").', mock_stdout.getvalue())
+    output = mock_stdout.getvalue()
+    self.assertIn(
+        'Error: The following words use CamelCase in the `Relnote:` '
+        'tag in the commit message, but are not surrounded by '
+        'backticks (`):\nCamelCase',
+        output
+    )
+    self.assertIn(
+        'Suggested replacement:\nRelnote: "Long relnote\nmultiple lines `CamelCase` entries"',
+        output
+    )
 
   @mock.patch(
       'sys.argv',
@@ -137,19 +166,17 @@ class ValidateTests(unittest.TestCase):
     with self.assertRaises(SystemExit) as cm:
       validate.main()
     self.assertEqual(cm.exception.code, 1)
-    self.assertIn('Error: Multi-line release notes must be surrounded by triple quotes (""").', mock_stdout.getvalue())
+    self.assertIn('Error: Multi-line release notes must be surrounded by quotes (") or triple quotes (""").', mock_stdout.getvalue())
 
   @mock.patch(
       'sys.argv',
       ['validate.py', '--commit',
        'Relnote: "Valid long relnote\nmultiple lines `CamelCase` entries"']
   )
-  @mock.patch('sys.stdout', new_callable=io.StringIO)
-  def test_multiline_relnote_with_double_quotes_and_backticks_fails(self, mock_stdout):
+  def test_multiline_relnote_with_double_quotes_and_backticks_passes(self):
     with self.assertRaises(SystemExit) as cm:
       validate.main()
-    self.assertEqual(cm.exception.code, 1)
-    self.assertIn('Error: Multi-line release notes must be surrounded by triple quotes (""").', mock_stdout.getvalue())
+    self.assertEqual(cm.exception.code, 0)
 
   @mock.patch(
       'sys.argv',
@@ -161,7 +188,7 @@ class ValidateTests(unittest.TestCase):
     with self.assertRaises(SystemExit) as cm:
       validate.main()
     self.assertEqual(cm.exception.code, 1)
-    self.assertIn('Error: Multi-line release notes must be surrounded by triple quotes (""").', mock_stdout.getvalue())
+    self.assertIn('Error: Multi-line release notes must be surrounded by quotes (") or triple quotes (""").', mock_stdout.getvalue())
 
   @mock.patch(
       'sys.argv',
@@ -193,7 +220,7 @@ class ValidateTests(unittest.TestCase):
     with self.assertRaises(SystemExit) as cm:
       validate.main()
     self.assertEqual(cm.exception.code, 1)
-    self.assertIn('Error: Multi-line release notes must be surrounded by triple quotes (""").', mock_stdout.getvalue())
+    self.assertIn('Error: Multi-line release notes must be surrounded by quotes (") or triple quotes (""").', mock_stdout.getvalue())
 
   @mock.patch('sys.argv', ['validate.py'])
   @mock.patch('sys.stderr', new_callable=io.StringIO)
@@ -204,6 +231,39 @@ class ValidateTests(unittest.TestCase):
     self.assertIn(
         'the following arguments are required: --commit',
         mock_stderr.getvalue()
+    )
+
+  @mock.patch(
+      'sys.argv',
+      ['validate.py', '--commit',
+       'Relnote: First InvalidCase\n\nRelnote: Second InvalidCaseTwo']
+  )
+  @mock.patch('sys.stdout', new_callable=io.StringIO)
+  def test_multiple_relnotes_replacements(self, mock_stdout):
+    with self.assertRaises(SystemExit) as cm:
+      validate.main()
+    self.assertEqual(cm.exception.code, 1)
+    output = mock_stdout.getvalue()
+    self.assertIn(
+        'Suggested replacement:\nRelnote: First `InvalidCase`\n\nRelnote: Second `InvalidCaseTwo`',
+        output
+    )
+
+
+  @mock.patch(
+      'sys.argv',
+      ['validate.py', '--commit',
+       'Relnote: First valid relnote\n\nRelnote: Second InvalidCaseTwo']
+  )
+  @mock.patch('sys.stdout', new_callable=io.StringIO)
+  def test_multiple_relnotes_one_valid_replacements(self, mock_stdout):
+    with self.assertRaises(SystemExit) as cm:
+      validate.main()
+    self.assertEqual(cm.exception.code, 1)
+    output = mock_stdout.getvalue()
+    self.assertIn(
+        'Suggested replacement:\nRelnote: First valid relnote\n\nRelnote: Second `InvalidCaseTwo`',
+        output
     )
 
 
