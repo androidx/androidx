@@ -57,9 +57,7 @@ public class AugmentedObjectCategory private constructor(private val value: Int)
 }
 
 /** Feature that allows tracking of and provides information about scene planes. */
-public class PlaneTrackingMode
-private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int) :
-    Config.ConfigMode() {
+public class PlaneTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
     public companion object {
         /** Planes will not be tracked. */
         @JvmField public val DISABLED: PlaneTrackingMode = PlaneTrackingMode(0)
@@ -83,9 +81,7 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
 }
 
 /** Feature that allows tracking of the user's hands and hand joints. */
-public class HandTrackingMode
-private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int) :
-    Config.ConfigMode() {
+public class HandTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
     public companion object {
         /** Hands will not be tracked. */
         @JvmField public val DISABLED: HandTrackingMode = HandTrackingMode(0)
@@ -104,9 +100,7 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
 }
 
 /** Feature that allows tracking of the AR device. */
-public class DeviceTrackingMode
-private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int) :
-    Config.ConfigMode() {
+public class DeviceTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
     public companion object {
         /**
          * The device pose will not be tracked. In this mode, [androidx.xr.arcore.RenderViewpoint]
@@ -170,9 +164,7 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
 }
 
 /** Feature that allows more accurate information about scene depth and meshes. */
-public class DepthEstimationMode
-private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int) :
-    Config.ConfigMode() {
+public class DepthEstimationMode private constructor(public val mode: Int) : Config.ConfigMode() {
     public companion object {
         /** No information about scene depth will be provided. */
         @JvmField public val DISABLED: DepthEstimationMode = DepthEstimationMode(0)
@@ -220,9 +212,7 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
 }
 
 /** Feature that allows anchors to be persisted through sessions. */
-public class AnchorPersistenceMode
-private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int) :
-    Config.ConfigMode() {
+public class AnchorPersistenceMode private constructor(public val mode: Int) : Config.ConfigMode() {
     public companion object {
         /** Anchors cannot be persisted. */
         @JvmField public val DISABLED: AnchorPersistenceMode = AnchorPersistenceMode(0)
@@ -247,9 +237,7 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
  * Setting this feature to [FaceTrackingMode.MESHES] requires the `CAMERA` Android permission to be
  * granted and that [CameraFacingDirection] is set to [CameraFacingDirection.Companion.USER].
  */
-public class FaceTrackingMode
-private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int) :
-    Config.ConfigMode() {
+public class FaceTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
     public companion object {
         /** Faces will not be tracked. */
         @JvmField public val DISABLED: FaceTrackingMode = FaceTrackingMode(0)
@@ -297,9 +285,7 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
  *
  * Note that setting this mode will consume additional runtime resources.
  */
-public class GeospatialMode
-private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int) :
-    Config.ConfigMode() {
+public class GeospatialMode private constructor(public val mode: Int) : Config.ConfigMode() {
     public companion object {
         /**
          * The Geospatial API is disabled. When GeospatialMode is disabled, current `Anchor` objects
