@@ -55,6 +55,23 @@ public interface Parameters {
      */
     public fun setAll(newParameters: Map<Any, Any?>)
 
+    /**
+     * Apply parameter value together with the listener.
+     *
+     * Note: The associated listener usually receives all the updates related to this parameter.
+     * However, the listener may receive a false positive onUpdateCompleted callback (where the
+     * request succeeds, but the camera actually applied an overriding value) in two scenarios:
+     * 1. If [CameraGraph.Session.startRepeating] is called immediately after this method with the
+     *    same key but a different value, the repeating request will silently override this value.
+     * 2. If [CameraGraph.Config.requiredParameters] contains the same key, the required parameter
+     *    will always override this value.
+     */
+    public fun <T : Any> apply(
+        key: CaptureRequest.Key<T>,
+        value: T?,
+        listener: ParameterUpdateListener,
+    )
+
     /** Clear all [CaptureRequest] and [Metadata] parameters stored in the class. */
     public fun clear()
 
@@ -75,4 +92,64 @@ public interface Parameters {
      * [Metadata.Key].
      */
     public fun removeAll(keys: Set<*>): Boolean
+}
+
+/**
+ * [ParameterUpdateListener] is a listener that receives updates for specific [CaptureRequest.Key]
+ * parameter changes.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface ParameterUpdateListener {
+    /** The [CaptureRequest.Key] that this listener is associated with. */
+    public val key: CaptureRequest.Key<*>
+
+    /**
+     * Invoked when the parameter update request has started being processed by the camera.
+     *
+     * @param requestMetadata the data about the camera2 request that was sent to the camera.
+     * @param frameNumber the android frame number associated with this update.
+     * @param timestamp The timestamp when the update started.
+     */
+    public fun onUpdateStarted(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        timestamp: CameraTimestamp,
+    )
+
+    /**
+     * Invoked when the parameter update request is completed.
+     *
+     * @param requestMetadata the data about the camera2 request that was sent to the camera.
+     * @param frameNumber the android frame number associated with this update.
+     * @param result the package of metadata associated with this result.
+     */
+    public fun onUpdateCompleted(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        result: FrameInfo,
+    )
+
+    /**
+     * Invoked when a [CaptureRequest] with the updated parameter update has been submitted.
+     *
+     * @param requestMetadata information about this specific request.
+     */
+    public fun onUpdateRequestSubmitted(requestMetadata: RequestMetadata)
+
+    /**
+     * Invoked when a [CaptureRequest] with the updated parameter update has been created, but
+     * before the request is submitted to the Camera.
+     *
+     * @param requestMetadata information about this specific request.
+     */
+    public fun onUpdateRequestCreated(requestMetadata: RequestMetadata)
+
+    /**
+     * Invoked when the parameter update was skipped, typically due to a request failure or because
+     * the parameter was overridden.
+     *
+     * @param failure The [RequestFailure] if the skip was due to a failure, or null if the skip was
+     *   due to parameter being overridden.
+     */
+    public fun onUpdateSkipped(failure: RequestFailure?)
 }

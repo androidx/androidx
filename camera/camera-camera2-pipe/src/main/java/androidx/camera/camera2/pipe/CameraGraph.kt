@@ -364,7 +364,9 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
         /**
          * Causes the CameraGraph to start or update the current repeating request with the provided
          * [Request] object. The [Request] object may be cached, and may be used for other
-         * interactions with the camera (such as updating 3A, or issuing 3A triggers).
+         * interactions with the camera (such as updating 3A, or issuing 3A triggers). Note that
+         * parameter values set in the request here would override the ones in [Parameters] but
+         * would be overwritten by the ones in [Config.requiredParameters].
          */
         public fun startRepeating(request: Request)
 
