@@ -70,7 +70,7 @@ public object SpatialApiVersionHelper {
      * @throws IllegalStateException if no [SpatialApiVersionProvider] service implementation is
      *   found.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     @JvmStatic
     public val previewSpatialApiVersion: Int
         get() =
