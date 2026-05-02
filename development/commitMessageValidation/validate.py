@@ -31,19 +31,21 @@ def main(args=None):
 
   if args.commit:
     relnote_pattern = re.compile(
-        r'^Relnote:\s*(?:"""(.*?)"""|"(.*?)"|\'(.*?)\'|'
+        r'^Relnote:\s*(?:"""(.*?)"""|"(.*?)"|'
         r'((?:(?!^\s*$|^[a-zA-Z0-9-]+:).|\n)*))',
         re.IGNORECASE | re.MULTILINE | re.DOTALL
     )
 
     all_case_case_words = []
+    suggested_replacements = []
     for m in relnote_pattern.finditer(args.commit):
+      full_match = m.group(0)
       match = next(g for g in m.groups() if g is not None)
 
-      if m.groups()[0] is None and '\n' in match.strip():
+      if m.groups()[0] is None and m.groups()[1] is None and '\n' in match.strip():
         print(
             'Error: Multi-line release notes must be surrounded by '
-            'triple quotes (""").'
+            'quotes (") or triple quotes (""").'
         )
         sys.exit(1)
       # Remove all words surrounded by backticks
@@ -52,14 +54,25 @@ def main(args=None):
       # followed by an uppercase letter
       pattern = r'\b[a-zA-Z0-9_]*[a-z][A-Z][a-zA-Z0-9_]*\b'
       case_case_words = re.findall(pattern, text_without_backticks)
-      all_case_case_words.extend(case_case_words)
+
+      if case_case_words:
+        all_case_case_words.extend(case_case_words)
+        parts = full_match.split('`')
+        for i in range(0, len(parts), 2):
+          for word in set(case_case_words):
+            parts[i] = re.sub(r'\b' + re.escape(word) + r'\b', f'`{word}`', parts[i])
+        suggested_replacements.append('`'.join(parts).strip())
+      else:
+        suggested_replacements.append(full_match.strip())
 
     if all_case_case_words:
       words = ', '.join(sorted(set(all_case_case_words)))
+      replacements = '\n\n'.join(suggested_replacements)
       print(
           'Error: The following words use CamelCase in the `Relnote:` '
           'tag in the commit message, but are not surrounded by '
-          f'backticks (`):\n{words}'
+          f'backticks (`):\n{words}\n\n'
+          f'Suggested replacement:\n{replacements}'
       )
       sys.exit(1)
 
