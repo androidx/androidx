@@ -53,6 +53,7 @@ public object SpatialApiVersionHelper {
      *   found.
      */
     @JvmStatic
+    @SpatialApiVersion
     public val spatialApiVersion: Int
         get() =
             providers.maxOfOrNull { it.spatialApiVersion }
