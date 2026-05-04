@@ -16,7 +16,10 @@
 
 package androidx.compose.ui.graphics
 
+import android.os.Build
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -42,6 +45,30 @@ class PaintTest {
             paint.pathEffect = null
         } catch (e: NullPointerException) {
             fail("Null path effect should not throw")
+        }
+    }
+
+    @Test
+    fun testColorLongConfiguration() {
+        val paint = Paint()
+        val red = 0.8916f
+        val green = 0.4980f
+        val blue = 0.1168f
+        val adobeColor = Color(red, green, blue, colorSpace = ColorSpaces.AdobeRgb)
+        paint.color = adobeColor
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val delta = 0.001f
+            val colorLong = paint.nativePaint.colorLong
+            assertEquals(1f, android.graphics.Color.alpha(colorLong), delta)
+            assertEquals(red, android.graphics.Color.red(colorLong), delta)
+            assertEquals(green, android.graphics.Color.green(colorLong), delta)
+            assertEquals(blue, android.graphics.Color.blue(colorLong), delta)
+            assertEquals(
+                ColorSpaces.AdobeRgb,
+                android.graphics.Color.colorSpace(colorLong).toComposeColorSpace(),
+            )
+        } else {
+            assertEquals(paint.nativePaint.color, adobeColor.toArgb())
         }
     }
 
@@ -89,5 +116,61 @@ class PaintTest {
             )
         composePaint.shader = shader
         assertSame(composePaint.shader, nativePaint.shader)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun testColorLongConfigurationBt2020Hlg() {
+        val paint = Paint()
+        val color = Color(0.1f, 0.2f, 0.3f, colorSpace = ColorSpaces.Bt2020Hlg)
+        paint.color = color
+        val colorLong = paint.nativePaint.colorLong
+        // Verify platform ID is 16 (Bt2020Hlg in platform)
+        assertEquals(16, android.graphics.Color.colorSpace(colorLong).id)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun testColorLongConfigurationBt2020Pq() {
+        val paint = Paint()
+        val color = Color(0.1f, 0.2f, 0.3f, colorSpace = ColorSpaces.Bt2020Pq)
+        paint.color = color
+        val colorLong = paint.nativePaint.colorLong
+        // Verify platform ID is 17 (Bt2020Pq in platform)
+        assertEquals(17, android.graphics.Color.colorSpace(colorLong).id)
+    }
+
+    @SdkSuppress(minSdkVersion = 36)
+    @Test
+    fun testColorLongConfigurationOkLabFallsBackToSrgb() {
+        val paint = Paint()
+        val color = Color(0.1f, 0.2f, 0.3f, colorSpace = ColorSpaces.Oklab)
+        paint.color = color
+        val colorLong = paint.nativePaint.colorLong
+        // OkLab is not supported so it fallback to sRGB
+        assertEquals(0, android.graphics.Color.colorSpace(colorLong).id)
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @Test
+    fun testColorLongConfigurationCieXyzFallsBackToSrgb() {
+        val paint = Paint()
+        val color = Color(0.5f, 0.5f, 0.5f, colorSpace = ColorSpaces.CieXyz)
+        paint.color = color
+        val colorLong = paint.nativePaint.colorLong
+        assertEquals(
+            ColorSpaces.Srgb,
+            android.graphics.Color.colorSpace(colorLong).toComposeColorSpace(),
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @Test
+    fun testColorUnspecifiedSafeFallback() {
+        val paint = Paint()
+        paint.color = Color.Unspecified
+        val colorLong = paint.nativePaint.colorLong
+        // Verify Unspecified maps to Transparent (Alpha 0)
+        assertEquals(0f, android.graphics.Color.alpha(colorLong), 0.001f)
     }
 }
