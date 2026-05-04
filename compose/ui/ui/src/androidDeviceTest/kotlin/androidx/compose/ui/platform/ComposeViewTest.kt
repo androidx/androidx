@@ -604,4 +604,58 @@ class ComposeViewTest {
 
         rule.runOnIdle { assertThat(isComposed).isTrue() }
     }
+
+    @Test
+    fun delayedResolveComposeViewContextValues() {
+        val view = View(rule.activity)
+        val composeViewContext = ComposeViewContext(view)
+        var isComposed by mutableStateOf(false)
+        var attachView by mutableStateOf(false)
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                if (attachView) {
+                    AndroidView(factory = { view })
+                    AndroidView(
+                        factory = {
+                            ComposeView(it).also { composeView ->
+                                composeView.composeViewContext = composeViewContext
+                                composeView.setContent { isComposed = true }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        attachView = true
+        rule.runOnIdle { assertThat(isComposed).isTrue() }
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun failResolveComposeViewContextValuesWhenNotAttached() {
+        val view = View(rule.activity)
+        val composeViewContext = ComposeViewContext(view)
+        var attachView by mutableStateOf(false)
+        lateinit var createdComposeView: ComposeView
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                if (attachView) {
+                    AndroidView(
+                        factory = {
+                            ComposeView(it).also { composeView ->
+                                composeView.composeViewContext = composeViewContext
+                                createdComposeView = composeView
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        attachView = true
+        rule.runOnIdle {
+            // expect an IllegalStateException because view isn't attached
+            createdComposeView.setContent {}
+        }
+    }
 }

@@ -4111,9 +4111,9 @@ package androidx.compose.ui.platform {
   }
 
   public final class ComposeViewContext {
-    ctor public ComposeViewContext(android.view.View view, optional androidx.compose.runtime.CompositionContext compositionContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
+    ctor public ComposeViewContext(android.view.View view, optional androidx.compose.runtime.CompositionContext? compositionContext, optional androidx.lifecycle.LifecycleOwner? lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner? savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
     ctor @BytecodeOnly public ComposeViewContext(android.view.View!, androidx.compose.runtime.CompositionContext!, androidx.lifecycle.LifecycleOwner!, androidx.savedstate.SavedStateRegistryOwner!, androidx.lifecycle.ViewModelStoreOwner!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public androidx.compose.ui.platform.ComposeViewContext copy(optional android.view.View view, optional androidx.compose.runtime.CompositionContext compositionContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
+    method public androidx.compose.ui.platform.ComposeViewContext copy(optional android.view.View view, optional androidx.compose.runtime.CompositionContext? compositionContext, optional androidx.lifecycle.LifecycleOwner? lifecycleOwner, optional androidx.savedstate.SavedStateRegistryOwner? savedStateRegistryOwner, optional androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
     method @BytecodeOnly public static androidx.compose.ui.platform.ComposeViewContext! copy$default(androidx.compose.ui.platform.ComposeViewContext!, android.view.View!, androidx.compose.runtime.CompositionContext!, androidx.lifecycle.LifecycleOwner!, androidx.savedstate.SavedStateRegistryOwner!, androidx.lifecycle.ViewModelStoreOwner!, int, Object!);
   }
 
