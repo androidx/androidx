@@ -53,15 +53,6 @@ public interface CameraExtensionCapabilities {
         return false
     }
 
-    /** Returns whether night mode indicator is supported or not. */
-    public fun isNightModeIndicatorSupported(): Boolean {
-        if (Build.VERSION.SDK_INT >= 36) {
-            return getAvailableCaptureResultKeys()
-                .contains(CaptureResult.EXTENSION_NIGHT_MODE_INDICATOR)
-        }
-        return false
-    }
-
     /** Returns the supported output sizes for the given format. */
     public fun getOutputSizes(format: Int): Set<Size>
 

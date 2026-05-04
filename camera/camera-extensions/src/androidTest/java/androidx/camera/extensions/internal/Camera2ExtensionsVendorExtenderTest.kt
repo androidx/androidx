@@ -178,18 +178,6 @@ class Camera2ExtensionsVendorExtenderTest(
             )
     }
 
-    @SdkSuppress(minSdkVersion = 36)
-    @Test
-    fun isNightModeIndicatorAvailable_returnCorrectValue() {
-        checkAvailabilityAndInit()
-        assertThat(camera2ExtensionsVendorExtender.isNightModeIndicatorAvailable)
-            .isEqualTo(
-                cameraExtensionsCharacteristics
-                    .getAvailableCaptureResultKeys(camera2ExtensionMode)
-                    .contains(CaptureResult.EXTENSION_NIGHT_MODE_INDICATOR)
-            )
-    }
-
     private fun checkAvailabilityAndInit() {
         assumeTrue(camera2ExtensionsVendorExtender.isExtensionAvailable(cameraInfo))
         camera2ExtensionsVendorExtender.init(cameraInfo)

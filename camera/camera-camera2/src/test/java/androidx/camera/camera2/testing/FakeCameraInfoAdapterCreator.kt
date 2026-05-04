@@ -37,6 +37,7 @@ import androidx.camera.camera2.impl.ComboRequestListener
 import androidx.camera.camera2.impl.EvCompControl
 import androidx.camera.camera2.impl.FocusMeteringControl
 import androidx.camera.camera2.impl.LowLightBoostControl
+import androidx.camera.camera2.impl.NightModeIndicatorMonitor
 import androidx.camera.camera2.impl.State3AControl
 import androidx.camera.camera2.impl.TorchControl
 import androidx.camera.camera2.impl.UseCaseThreads
@@ -154,6 +155,7 @@ object FakeCameraInfoAdapterCreator {
                     ComboRequestListener(),
                 ),
             ),
+            NightModeIndicatorMonitor(cameraProperties.metadata, ComboRequestListener()),
             CameraCallbackMap(),
             FocusMeteringControl(
                     cameraProperties,

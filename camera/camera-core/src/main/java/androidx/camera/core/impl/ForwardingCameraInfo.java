@@ -106,6 +106,16 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     }
 
     @Override
+    public boolean isNightModeIndicatorSupported() {
+        return mCameraInfoInternal.isNightModeIndicatorSupported();
+    }
+
+    @Override
+    public @NonNull LiveData<Integer> getNightModeIndicator() {
+        return mCameraInfoInternal.getNightModeIndicator();
+    }
+
+    @Override
     public @NonNull LiveData<ZoomState> getZoomState() {
         return mCameraInfoInternal.getZoomState();
     }

@@ -181,11 +181,6 @@ public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExte
         return cameraExtensionCapabilities.isCurrentExtensionModeSupported()
     }
 
-    override fun isNightModeIndicatorAvailable(): Boolean {
-        checkInitialized()
-        return cameraExtensionCapabilities.isNightModeIndicatorSupported()
-    }
-
     override fun createSessionProcessor(context: Context): SessionProcessor? {
         checkInitialized()
         return Camera2ExtensionsSessionProcessor(getAvailableCaptureRequestKeys(), mode, this)
