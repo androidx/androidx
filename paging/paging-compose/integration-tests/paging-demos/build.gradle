@@ -47,9 +47,8 @@ dependencies {
     implementation("androidx.room:room-paging:2.7.2")
 
     // Room 3.0
-    ksp(project(":room3:room3-compiler"))
-    implementation(project(":room3:room3-runtime"))
-    implementation(project(":sqlite:sqlite-bundled"))
+    ksp("androidx.room3:room3-compiler:3.0.0-alpha03")
+    implementation("androidx.room3:room3-runtime:3.0.0-alpha03")
 }
 
 androidx {
