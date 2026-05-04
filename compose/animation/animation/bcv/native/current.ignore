@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-[linuxX64]: Removed declaration androidx.compose.animation/CustomizedLookaheadAnimationVisualDebugging(androidx.compose.ui.graphics/Color, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) from androidx.compose.animation:animation
-[linuxX64]: Removed declaration androidx.compose.animation/LookaheadAnimationVisualDebugging(kotlin/Boolean, androidx.compose.ui.graphics/Color, androidx.compose.ui.graphics/Color, androidx.compose.ui.graphics/Color, kotlin/Boolean, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.animation:animation

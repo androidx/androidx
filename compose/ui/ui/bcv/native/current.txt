@@ -1138,6 +1138,87 @@ abstract interface androidx.compose.ui/MotionDurationScale : kotlin.coroutines/C
     final object Key : kotlin.coroutines/CoroutineContext.Key<androidx.compose.ui/MotionDurationScale> // androidx.compose.ui/MotionDurationScale.Key|null[0]
 }
 
+abstract interface androidx.compose.ui/UiMediaScope { // androidx.compose.ui/UiMediaScope|null[0]
+    abstract val hasCamera // androidx.compose.ui/UiMediaScope.hasCamera|{}hasCamera[0]
+        abstract fun <get-hasCamera>(): kotlin/Boolean // androidx.compose.ui/UiMediaScope.hasCamera.<get-hasCamera>|<get-hasCamera>(){}[0]
+    abstract val hasMicrophone // androidx.compose.ui/UiMediaScope.hasMicrophone|{}hasMicrophone[0]
+        abstract fun <get-hasMicrophone>(): kotlin/Boolean // androidx.compose.ui/UiMediaScope.hasMicrophone.<get-hasMicrophone>|<get-hasMicrophone>(){}[0]
+    abstract val keyboardKind // androidx.compose.ui/UiMediaScope.keyboardKind|{}keyboardKind[0]
+        abstract fun <get-keyboardKind>(): androidx.compose.ui/UiMediaScope.KeyboardKind // androidx.compose.ui/UiMediaScope.keyboardKind.<get-keyboardKind>|<get-keyboardKind>(){}[0]
+    abstract val pointerPrecision // androidx.compose.ui/UiMediaScope.pointerPrecision|{}pointerPrecision[0]
+        abstract fun <get-pointerPrecision>(): androidx.compose.ui/UiMediaScope.PointerPrecision // androidx.compose.ui/UiMediaScope.pointerPrecision.<get-pointerPrecision>|<get-pointerPrecision>(){}[0]
+    abstract val viewingDistance // androidx.compose.ui/UiMediaScope.viewingDistance|{}viewingDistance[0]
+        abstract fun <get-viewingDistance>(): androidx.compose.ui/UiMediaScope.ViewingDistance // androidx.compose.ui/UiMediaScope.viewingDistance.<get-viewingDistance>|<get-viewingDistance>(){}[0]
+    abstract val windowHeight // androidx.compose.ui/UiMediaScope.windowHeight|{}windowHeight[0]
+        abstract fun <get-windowHeight>(): androidx.compose.ui.unit/Dp // androidx.compose.ui/UiMediaScope.windowHeight.<get-windowHeight>|<get-windowHeight>(){}[0]
+    abstract val windowPosture // androidx.compose.ui/UiMediaScope.windowPosture|{}windowPosture[0]
+        abstract fun <get-windowPosture>(): androidx.compose.ui/UiMediaScope.Posture // androidx.compose.ui/UiMediaScope.windowPosture.<get-windowPosture>|<get-windowPosture>(){}[0]
+    abstract val windowWidth // androidx.compose.ui/UiMediaScope.windowWidth|{}windowWidth[0]
+        abstract fun <get-windowWidth>(): androidx.compose.ui.unit/Dp // androidx.compose.ui/UiMediaScope.windowWidth.<get-windowWidth>|<get-windowWidth>(){}[0]
+
+    final value class KeyboardKind { // androidx.compose.ui/UiMediaScope.KeyboardKind|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui/UiMediaScope.KeyboardKind.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui/UiMediaScope.KeyboardKind.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui/UiMediaScope.KeyboardKind.toString|toString(){}[0]
+
+        final object Companion { // androidx.compose.ui/UiMediaScope.KeyboardKind.Companion|null[0]
+            final val None // androidx.compose.ui/UiMediaScope.KeyboardKind.Companion.None|{}None[0]
+                final fun <get-None>(): androidx.compose.ui/UiMediaScope.KeyboardKind // androidx.compose.ui/UiMediaScope.KeyboardKind.Companion.None.<get-None>|<get-None>(){}[0]
+            final val Physical // androidx.compose.ui/UiMediaScope.KeyboardKind.Companion.Physical|{}Physical[0]
+                final fun <get-Physical>(): androidx.compose.ui/UiMediaScope.KeyboardKind // androidx.compose.ui/UiMediaScope.KeyboardKind.Companion.Physical.<get-Physical>|<get-Physical>(){}[0]
+            final val Virtual // androidx.compose.ui/UiMediaScope.KeyboardKind.Companion.Virtual|{}Virtual[0]
+                final fun <get-Virtual>(): androidx.compose.ui/UiMediaScope.KeyboardKind // androidx.compose.ui/UiMediaScope.KeyboardKind.Companion.Virtual.<get-Virtual>|<get-Virtual>(){}[0]
+        }
+    }
+
+    final value class PointerPrecision { // androidx.compose.ui/UiMediaScope.PointerPrecision|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui/UiMediaScope.PointerPrecision.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui/UiMediaScope.PointerPrecision.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui/UiMediaScope.PointerPrecision.toString|toString(){}[0]
+
+        final object Companion { // androidx.compose.ui/UiMediaScope.PointerPrecision.Companion|null[0]
+            final val Blunt // androidx.compose.ui/UiMediaScope.PointerPrecision.Companion.Blunt|{}Blunt[0]
+                final fun <get-Blunt>(): androidx.compose.ui/UiMediaScope.PointerPrecision // androidx.compose.ui/UiMediaScope.PointerPrecision.Companion.Blunt.<get-Blunt>|<get-Blunt>(){}[0]
+            final val Coarse // androidx.compose.ui/UiMediaScope.PointerPrecision.Companion.Coarse|{}Coarse[0]
+                final fun <get-Coarse>(): androidx.compose.ui/UiMediaScope.PointerPrecision // androidx.compose.ui/UiMediaScope.PointerPrecision.Companion.Coarse.<get-Coarse>|<get-Coarse>(){}[0]
+            final val Fine // androidx.compose.ui/UiMediaScope.PointerPrecision.Companion.Fine|{}Fine[0]
+                final fun <get-Fine>(): androidx.compose.ui/UiMediaScope.PointerPrecision // androidx.compose.ui/UiMediaScope.PointerPrecision.Companion.Fine.<get-Fine>|<get-Fine>(){}[0]
+            final val None // androidx.compose.ui/UiMediaScope.PointerPrecision.Companion.None|{}None[0]
+                final fun <get-None>(): androidx.compose.ui/UiMediaScope.PointerPrecision // androidx.compose.ui/UiMediaScope.PointerPrecision.Companion.None.<get-None>|<get-None>(){}[0]
+        }
+    }
+
+    final value class Posture { // androidx.compose.ui/UiMediaScope.Posture|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui/UiMediaScope.Posture.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui/UiMediaScope.Posture.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui/UiMediaScope.Posture.toString|toString(){}[0]
+
+        final object Companion { // androidx.compose.ui/UiMediaScope.Posture.Companion|null[0]
+            final val Book // androidx.compose.ui/UiMediaScope.Posture.Companion.Book|{}Book[0]
+                final fun <get-Book>(): androidx.compose.ui/UiMediaScope.Posture // androidx.compose.ui/UiMediaScope.Posture.Companion.Book.<get-Book>|<get-Book>(){}[0]
+            final val Flat // androidx.compose.ui/UiMediaScope.Posture.Companion.Flat|{}Flat[0]
+                final fun <get-Flat>(): androidx.compose.ui/UiMediaScope.Posture // androidx.compose.ui/UiMediaScope.Posture.Companion.Flat.<get-Flat>|<get-Flat>(){}[0]
+            final val Tabletop // androidx.compose.ui/UiMediaScope.Posture.Companion.Tabletop|{}Tabletop[0]
+                final fun <get-Tabletop>(): androidx.compose.ui/UiMediaScope.Posture // androidx.compose.ui/UiMediaScope.Posture.Companion.Tabletop.<get-Tabletop>|<get-Tabletop>(){}[0]
+        }
+    }
+
+    final value class ViewingDistance { // androidx.compose.ui/UiMediaScope.ViewingDistance|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui/UiMediaScope.ViewingDistance.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui/UiMediaScope.ViewingDistance.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui/UiMediaScope.ViewingDistance.toString|toString(){}[0]
+
+        final object Companion { // androidx.compose.ui/UiMediaScope.ViewingDistance.Companion|null[0]
+            final val Far // androidx.compose.ui/UiMediaScope.ViewingDistance.Companion.Far|{}Far[0]
+                final fun <get-Far>(): androidx.compose.ui/UiMediaScope.ViewingDistance // androidx.compose.ui/UiMediaScope.ViewingDistance.Companion.Far.<get-Far>|<get-Far>(){}[0]
+            final val Medium // androidx.compose.ui/UiMediaScope.ViewingDistance.Companion.Medium|{}Medium[0]
+                final fun <get-Medium>(): androidx.compose.ui/UiMediaScope.ViewingDistance // androidx.compose.ui/UiMediaScope.ViewingDistance.Companion.Medium.<get-Medium>|<get-Medium>(){}[0]
+            final val Near // androidx.compose.ui/UiMediaScope.ViewingDistance.Companion.Near|{}Near[0]
+                final fun <get-Near>(): androidx.compose.ui/UiMediaScope.ViewingDistance // androidx.compose.ui/UiMediaScope.ViewingDistance.Companion.Near.<get-Near>|<get-Near>(){}[0]
+        }
+    }
+}
+
 sealed interface androidx.compose.ui.autofill/ContentDataType { // androidx.compose.ui.autofill/ContentDataType|null[0]
     final object Companion { // androidx.compose.ui.autofill/ContentDataType.Companion|null[0]
         final val Date // androidx.compose.ui.autofill/ContentDataType.Companion.Date|{}Date[0]
@@ -3900,6 +3981,8 @@ final val androidx.compose.ui.semantics/androidx_compose_ui_semantics_SemanticsP
 final val androidx.compose.ui.spatial/androidx_compose_ui_spatial_RelativeLayoutBounds$stableprop // androidx.compose.ui.spatial/androidx_compose_ui_spatial_RelativeLayoutBounds$stableprop|#static{}androidx_compose_ui_spatial_RelativeLayoutBounds$stableprop[0]
 final val androidx.compose.ui.window/androidx_compose_ui_window_DialogProperties$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_DialogProperties$stableprop|#static{}androidx_compose_ui_window_DialogProperties$stableprop[0]
 final val androidx.compose.ui.window/androidx_compose_ui_window_PopupProperties$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_PopupProperties$stableprop|#static{}androidx_compose_ui_window_PopupProperties$stableprop[0]
+final val androidx.compose.ui/LocalUiMediaScope // androidx.compose.ui/LocalUiMediaScope|{}LocalUiMediaScope[0]
+    final fun <get-LocalUiMediaScope>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.ui/UiMediaScope> // androidx.compose.ui/LocalUiMediaScope.<get-LocalUiMediaScope>|<get-LocalUiMediaScope>(){}[0]
 final val androidx.compose.ui/androidx_compose_ui_AbsoluteAlignment$stableprop // androidx.compose.ui/androidx_compose_ui_AbsoluteAlignment$stableprop|#static{}androidx_compose_ui_AbsoluteAlignment$stableprop[0]
 final val androidx.compose.ui/androidx_compose_ui_BiasAbsoluteAlignment$stableprop // androidx.compose.ui/androidx_compose_ui_BiasAbsoluteAlignment$stableprop|#static{}androidx_compose_ui_BiasAbsoluteAlignment$stableprop[0]
 final val androidx.compose.ui/androidx_compose_ui_BiasAbsoluteAlignment_Horizontal$stableprop // androidx.compose.ui/androidx_compose_ui_BiasAbsoluteAlignment_Horizontal$stableprop|#static{}androidx_compose_ui_BiasAbsoluteAlignment_Horizontal$stableprop[0]
@@ -4223,6 +4306,7 @@ final fun <#A: kotlin/Any?> (androidx.compose.ui/Modifier).androidx.compose.ui.m
 final fun <#A: kotlin/Any?> androidx.compose.ui.modifier/modifierLocalMapOf(androidx.compose.ui.modifier/ModifierLocal<#A>): androidx.compose.ui.modifier/ModifierLocalMap // androidx.compose.ui.modifier/modifierLocalMapOf|modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<0:0>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.ui.modifier/modifierLocalMapOf(kotlin/Pair<androidx.compose.ui.modifier/ModifierLocal<#A>, #A>): androidx.compose.ui.modifier/ModifierLocalMap // androidx.compose.ui.modifier/modifierLocalMapOf|modifierLocalMapOf(kotlin.Pair<androidx.compose.ui.modifier.ModifierLocal<0:0>,0:0>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.ui.modifier/modifierLocalOf(kotlin/Function0<#A>): androidx.compose.ui.modifier/ProvidableModifierLocal<#A> // androidx.compose.ui.modifier/modifierLocalOf|modifierLocalOf(kotlin.Function0<0:0>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.compose.ui/derivedMediaQuery(kotlin/Function1<androidx.compose.ui/UiMediaScope, #A>, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime/State<#A> // androidx.compose.ui/derivedMediaQuery|derivedMediaQuery(kotlin.Function1<androidx.compose.ui.UiMediaScope,0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillManager$stableprop_getter(): kotlin/Int // androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillManager$stableprop_getter|androidx_compose_ui_autofill_AutofillManager$stableprop_getter(){}[0]
 final fun androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillNode$stableprop_getter(): kotlin/Int // androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillNode$stableprop_getter|androidx_compose_ui_autofill_AutofillNode$stableprop_getter(){}[0]
 final fun androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillTree$stableprop_getter(): kotlin/Int // androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillTree$stableprop_getter|androidx_compose_ui_autofill_AutofillTree$stableprop_getter(){}[0]
@@ -4379,6 +4463,9 @@ final inline fun (androidx.compose.ui.graphics.vector/ImageVector.Builder).andro
 final inline fun (androidx.compose.ui.graphics.vector/ImageVector.Builder).androidx.compose.ui.graphics.vector/path(kotlin/String = ..., androidx.compose.ui.graphics/Brush? = ..., kotlin/Float = ..., androidx.compose.ui.graphics/Brush? = ..., kotlin/Float = ..., kotlin/Float = ..., androidx.compose.ui.graphics/StrokeCap = ..., androidx.compose.ui.graphics/StrokeJoin = ..., kotlin/Float = ..., androidx.compose.ui.graphics/PathFillType = ..., kotlin/Function1<androidx.compose.ui.graphics.vector/PathBuilder, kotlin/Unit>): androidx.compose.ui.graphics.vector/ImageVector.Builder // androidx.compose.ui.graphics.vector/path|path@androidx.compose.ui.graphics.vector.ImageVector.Builder(kotlin.String;androidx.compose.ui.graphics.Brush?;kotlin.Float;androidx.compose.ui.graphics.Brush?;kotlin.Float;kotlin.Float;androidx.compose.ui.graphics.StrokeCap;androidx.compose.ui.graphics.StrokeJoin;kotlin.Float;androidx.compose.ui.graphics.PathFillType;kotlin.Function1<androidx.compose.ui.graphics.vector.PathBuilder,kotlin.Unit>){}[0]
 final inline fun (androidx.compose.ui.layout/ScaleFactor).androidx.compose.ui.layout/takeOrElse(kotlin/Function0<androidx.compose.ui.layout/ScaleFactor>): androidx.compose.ui.layout/ScaleFactor // androidx.compose.ui.layout/takeOrElse|takeOrElse@androidx.compose.ui.layout.ScaleFactor(kotlin.Function0<androidx.compose.ui.layout.ScaleFactor>){}[0]
 final inline fun (androidx.compose.ui/Modifier).androidx.compose.ui.platform/inspectable(noinline kotlin/Function1<androidx.compose.ui.platform/InspectorInfo, kotlin/Unit>, kotlin/Function1<androidx.compose.ui/Modifier, androidx.compose.ui/Modifier>): androidx.compose.ui/Modifier // androidx.compose.ui.platform/inspectable|inspectable@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.platform.InspectorInfo,kotlin.Unit>;kotlin.Function1<androidx.compose.ui.Modifier,androidx.compose.ui.Modifier>){}[0]
+final inline fun <#A: kotlin/Any?> (androidx.compose.runtime/CompositionLocalAccessorScope).androidx.compose.ui/mediaQuery(kotlin/Function1<androidx.compose.ui/UiMediaScope, #A>): #A // androidx.compose.ui/mediaQuery|mediaQuery@androidx.compose.runtime.CompositionLocalAccessorScope(kotlin.Function1<androidx.compose.ui.UiMediaScope,0:0>){0§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?> (androidx.compose.ui.node/CompositionLocalConsumerModifierNode).androidx.compose.ui/mediaQuery(kotlin/Function1<androidx.compose.ui/UiMediaScope, #A>): #A // androidx.compose.ui/mediaQuery|mediaQuery@androidx.compose.ui.node.CompositionLocalConsumerModifierNode(kotlin.Function1<androidx.compose.ui.UiMediaScope,0:0>){0§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?> androidx.compose.ui/mediaQuery(kotlin/Function1<androidx.compose.ui/UiMediaScope, #A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.ui/mediaQuery|mediaQuery(kotlin.Function1<androidx.compose.ui.UiMediaScope,0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
 final inline fun androidx.compose.ui.graphics.vector/PathData(kotlin/Function1<androidx.compose.ui.graphics.vector/PathBuilder, kotlin/Unit>): kotlin.collections/List<androidx.compose.ui.graphics.vector/PathNode> // androidx.compose.ui.graphics.vector/PathData|PathData(kotlin.Function1<androidx.compose.ui.graphics.vector.PathBuilder,kotlin.Unit>){}[0]
 final inline fun androidx.compose.ui.layout/Layout(androidx.compose.ui/Modifier?, androidx.compose.ui.layout/MeasurePolicy, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.ui.layout/Layout|Layout(androidx.compose.ui.Modifier?;androidx.compose.ui.layout.MeasurePolicy;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final inline fun androidx.compose.ui.layout/Layout(kotlin.collections/List<kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>>, androidx.compose.ui/Modifier?, androidx.compose.ui.layout/MultiContentMeasurePolicy, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.ui.layout/Layout|Layout(kotlin.collections.List<kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>>;androidx.compose.ui.Modifier?;androidx.compose.ui.layout.MultiContentMeasurePolicy;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
