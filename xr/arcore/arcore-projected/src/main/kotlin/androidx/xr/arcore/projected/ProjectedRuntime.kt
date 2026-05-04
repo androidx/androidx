@@ -39,15 +39,12 @@ import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.PreviewSpatialApi
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.text.get
-import kotlin.text.set
 import kotlin.time.ComparableTimeMark
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
@@ -72,6 +69,8 @@ internal constructor(
 
     // TODO(b/411154789): Remove once Session runtime invocations are forced to run sequentially.
     internal val running = AtomicBoolean(false)
+
+    internal val perceptionServiceIsBound = AtomicBoolean(false)
 
     private lateinit var serviceConnection: ServiceConnection
     private var serviceBinder: IBinder? = null
@@ -203,21 +202,21 @@ internal constructor(
             check(isBindingPermitted) {
                 "Projected perception service not found or binding was not permitted."
             }
+            perceptionServiceIsBound.set(true)
         }
     }
 
-    @Suppress("RestrictedApiAndroidX")
     private fun disconnect() {
         running.set(false)
-        try {
-            if (::serviceConnection.isInitialized) {
-                context.unbindService(serviceConnection)
-                serviceBinder?.unlinkToDeath(serviceDeathRecipient, /* flags= */ 0)
+        if (::serviceConnection.isInitialized) {
+            if (perceptionServiceIsBound.compareAndSet(true, false)) {
+                try {
+                    context.unbindService(serviceConnection)
+                    serviceBinder?.unlinkToDeath(serviceDeathRecipient, /* flags= */ 0)
+                } catch (_: NoSuchElementException) {
+                    // no-op throws by unlinkToDeath to avoid potential crashes
+                }
             }
-        } catch (e: IllegalArgumentException) {
-            XrLog.warn(e) { "Tried to unbind service that was already unbound." }
-        } catch (e: NoSuchElementException) {
-            XrLog.warn(e) { "Tried to unbind service that was already unbound." }
         }
         serviceBinder = null
     }
