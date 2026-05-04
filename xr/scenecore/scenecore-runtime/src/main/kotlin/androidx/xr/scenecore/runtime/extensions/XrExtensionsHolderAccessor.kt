@@ -19,10 +19,10 @@ package androidx.xr.scenecore.runtime.extensions
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX
 import androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion
-import androidx.xr.runtime.loadProviders
 import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor.PROVIDERS
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor.holder
+import androidx.xr.scenecore.runtime.loadProviders
 
 /**
  * Provides a centralized access point to the active OEM implementation of [XrExtensionsHolder].

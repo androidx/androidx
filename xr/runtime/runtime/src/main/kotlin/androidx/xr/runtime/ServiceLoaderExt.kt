@@ -23,7 +23,6 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.interfaces.Service
@@ -31,7 +30,6 @@ import androidx.xr.runtime.manifest.FEATURE_XR_API_OPENXR
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
 import java.util.ServiceLoader
 
-// TODO(b/440615454): Reduce visibility to internal once stub providers are added for testing.
 /**
  * Loads all well-known service providers directly. Combines the results with any additional
  * providers discovered via the default service loader implementation.
@@ -43,8 +41,10 @@ import java.util.ServiceLoader
  * @param providersClassNames the list of known service providers to load.
  * @return the list of loaded service providers.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public fun <S : Any> loadProviders(service: Class<S>, providersClassNames: List<String>): List<S> {
+internal fun <S : Any> loadProviders(
+    service: Class<S>,
+    providersClassNames: List<String>,
+): List<S> {
     val providers = mutableListOf<S>()
 
     val filteredProviderClassNames =
