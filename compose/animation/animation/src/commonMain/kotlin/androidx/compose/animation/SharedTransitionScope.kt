@@ -62,6 +62,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
@@ -84,6 +85,7 @@ import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -239,14 +241,14 @@ private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitio
                     drawOverlay(lookaheadAnimationVisualDebugConfig.overlayColor)
                 }
             }
-            sharedScope.drawInOverlay(this)
+            sharedScope.drawInOverlay(this, requireGraphicsContext())
             if (lookaheadAnimationVisualDebugConfig.isEnabled && sharedScope.isTransitionActive) {
                 with(sharedScope.lookaheadAnimationVisualDebugHelper!!) {
                     drawGlobalVisualizations()
                 }
             }
         } else {
-            sharedScope.drawInOverlay(this)
+            sharedScope.drawInOverlay(this, requireGraphicsContext())
         }
     }
 }
@@ -1024,6 +1026,9 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
     @VisibleForTesting var testBlockToRun: (() -> Unit)? = null
 
+    @VisibleForTesting
+    internal fun sharedElementForKey(key: Any): SharedElement? = sharedElements[key]
+
     override fun Modifier.skipToLookaheadSize(enabled: () -> Boolean): Modifier =
         this.then(SkipToLookaheadSizeElement(isEnabled = enabled))
 
@@ -1445,12 +1450,12 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         return sharedElements.getOrPut(key) { SharedElement(key, this) }
     }
 
-    internal fun drawInOverlay(scope: ContentDrawScope) {
+    internal fun drawInOverlay(scope: ContentDrawScope, graphicsContext: GraphicsContext) {
         renderers =
             renderers.run {
                 @Suppress("ListIterator") // stdlib sort is /only/ available with an iterator
                 val sorted = sortedWith(LayerRenderer.LayerRendererComparator)
-                sorted.fastForEach { it.drawInOverlay(drawScope = scope) }
+                sorted.fastForEach { it.drawInOverlay(drawScope = scope, graphicsContext) }
                 sorted
             }
     }
@@ -1528,7 +1533,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 internal interface LayerRenderer {
     val parentState: SharedElementEntry?
 
-    fun drawInOverlay(drawScope: DrawScope)
+    fun drawInOverlay(drawScope: DrawScope, graphicsContext: GraphicsContext)
 
     val zIndex: Float
 

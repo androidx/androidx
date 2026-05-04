@@ -80,6 +80,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -5499,6 +5500,282 @@ class SharedTransitionTest {
 
         // Assert that isTransitionActive has always been false
         assertFalse(activeRecord.any { it })
+    }
+
+    // Both entries are present simultaneously, but one is permanently disabled, so
+    // no match is found and no transition (or layer) is ever created.
+    @Test
+    fun testNoLayerWhenConfigDisabled() {
+        var scope: SharedTransitionScopeImpl? = null
+        rule.setContent {
+            SharedTransitionLayout {
+                scope = this@SharedTransitionLayout as SharedTransitionScopeImpl
+                Box(Modifier.fillMaxSize()) {
+                    // Entry 1: permanently disabled
+                    Box(
+                        Modifier.sharedElementWithCallerManagedVisibility(
+                                rememberSharedContentState(
+                                    key = "box",
+                                    config = remember { SharedContentConfig { false } },
+                                ),
+                                visible = false,
+                            )
+                            .size(200.dp)
+                    )
+                    // Entry 2: enabled and visible, but has no enabled counterpart so no
+                    // transition is triggered.
+                    Box(
+                        Modifier.sharedElementWithCallerManagedVisibility(
+                                rememberSharedContentState(key = "box"),
+                                visible = true,
+                            )
+                            .size(100.dp)
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        // One entry is disabled — no match found, no transition, no layer.
+        val entries = scope!!.sharedElementForKey("box")!!.allEntries
+        assertEquals(2, entries.size)
+        val disabledEntry = entries.first { !it.isEnabled }
+        assertNull(disabledEntry.layer)
+    }
+
+    // Only the *sharedElement* entry that renders in the overlay should get a layer.
+    // The outgoing entry is not rendered.
+    @Test
+    fun testLayerOnlyCreatedForOverlayRenderingEntry() {
+        var showMatch by mutableStateOf(false)
+        var scope: SharedTransitionScopeImpl? = null
+        rule.setContent {
+            SharedTransitionLayout {
+                scope = this@SharedTransitionLayout as SharedTransitionScopeImpl
+                val outgoing = remember {
+                    movableContentOf {
+                        Box(
+                            Modifier.sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "box"),
+                                    visible = !showMatch,
+                                )
+                                .size(200.dp)
+                        )
+                    }
+                }
+                Box(Modifier.fillMaxSize()) {
+                    if (!showMatch) {
+                        outgoing()
+                    } else {
+                        outgoing()
+                        Box(
+                            Modifier.sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = "box"),
+                                    visible = true,
+                                )
+                                .size(100.dp)
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        showMatch = true
+        rule.mainClock.autoAdvance = false
+        // Advance past the first frame so the transition is actively running.
+        repeat(5) { rule.mainClock.advanceTimeByFrame() }
+        rule.waitForIdle()
+
+        val element = scope!!.sharedElementForKey("box")!!
+        val targetEntry = element.enabledEntries.first { it.target }
+        val outgoingEntry = element.enabledEntries.first { !it.target }
+
+        // Incoming: layer must exist.
+        assertNotNull(targetEntry.layer)
+        // Outgoing: no layer needed.
+        assertNull(outgoingEntry.layer)
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        // Layer is released when the entry is detached (not eagerly when the transition ends).
+        // Flip showMatch back to remove the incoming element and verify the layer is released.
+        showMatch = false
+        rule.waitForIdle()
+        assertNull(targetEntry.layer)
+    }
+
+    /**
+     * Test that the GraphicsLayer is lazily created by the overlay if the overlay happens to draw
+     * before the child shared element by intentionally skipping child shared element drawing.
+     */
+    @Test
+    fun testLayerCreatedByOverlayInFirstFrame() {
+        var showMatch by mutableStateOf(false)
+        var scope: SharedTransitionScopeImpl? = null
+        rule.setContent {
+            SharedTransitionLayout {
+                scope = this@SharedTransitionLayout as SharedTransitionScopeImpl
+                Box(Modifier.fillMaxSize()) {
+                    Box(
+                        Modifier.sharedElementWithCallerManagedVisibility(
+                                rememberSharedContentState(key = "box"),
+                                visible = !showMatch,
+                            )
+                            .size(200.dp)
+                            .background(Color.Red)
+                    )
+                    Box(
+                        Modifier.drawWithContent {
+                                if (showMatch) {
+                                    // skip drawing content from the shared element below, this way
+                                    // we can verify that any layer created would be by the overlay
+                                } else {
+                                    drawContent()
+                                }
+                            }
+                            .sharedElementWithCallerManagedVisibility(
+                                rememberSharedContentState(key = "box"),
+                                visible = showMatch,
+                            )
+                            .size(100.dp)
+                            .background(Color.Blue)
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        showMatch = true
+        rule.mainClock.autoAdvance = false
+
+        repeat(3) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+
+        val element = scope!!.sharedElementForKey("box")!!
+        val targetEntry = element.enabledEntries.first { it.target }
+
+        // The layer should have been created by either the overlay or the node.
+        // If our fix works, it's definitely non-null now even if the order was overlay-first.
+        assertNotNull(targetEntry.layer)
+    }
+
+    // Verify that:
+    //   1) when isEnabled=false, no layer is allocated and in-layout z-order applies (red on top)
+    //   2) immediately after isEnabled=true, the layer is created and content is rendered in the
+    //      overlay (drawn after all in-layout content → blue on top despite red being later in
+    //      composition order)
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testSharedElementRenderedInOverlayAboveOtherContent() {
+        var configEnabled by mutableStateOf(false)
+        var scope: SharedTransitionScopeImpl? = null
+        var visible by mutableStateOf(false)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SharedTransitionLayout(
+                    Modifier.requiredSize(100.dp).testTag("scope").background(Color.White)
+                ) {
+                    scope = this@SharedTransitionLayout as SharedTransitionScopeImpl
+                    val config = remember { SharedContentConfig { configEnabled } }
+                    // Outgoing shared element : 100x100 blue.
+                    Box(
+                        Modifier.sharedElementWithCallerManagedVisibility(
+                                rememberSharedContentState(key = "box", config = config),
+                                visible = !visible,
+                            )
+                            .requiredSize(100.dp)
+                            .background(Color.Blue)
+                    )
+                    // Incoming shared element : 100x100 blue.
+                    Box(
+                        Modifier.sharedElementWithCallerManagedVisibility(
+                                rememberSharedContentState(key = "box", config = config),
+                                visible = visible,
+                            )
+                            .requiredSize(100.dp)
+                            .background(Color.Blue)
+                    )
+                    // Red box: 50x50, placed after the shared elements in composition order so it
+                    // normally paints on top (higher layout z-order).
+                    Box(Modifier.requiredSize(50.dp).background(Color.Red))
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        // isEnabled=false: no match found, no transition, no layer allocated.
+        val element = scope!!.sharedElementForKey("box")!!
+        element.allEntries.forEach { assertNull(it.layer) }
+        // Without overlay, in-layout z-order applies: red box (drawn last) is on top.
+        rule.onNodeWithTag("scope").captureToImage().assertPixels { (x, y) ->
+            if (x < 50 && y < 50) Color.Red else null
+        }
+
+        // Toggle isEnabled=true: match found, transition starts, target entry renders in overlay.
+        rule.mainClock.autoAdvance = false
+        configEnabled = true
+        rule.mainClock.advanceTimeByFrame()
+
+        visible = !visible
+        while (scope?.isTransitionActive != true) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        // Force a draw pass to ensure drawInOverlay is called and layer is created
+        rule.onNodeWithTag("scope").captureToImage()
+
+        // isEnabled=true, transition active: target entry has a layer and is rendered in the
+        // overlay (drawn after all in-layout content) → blue sits above the red box.
+        val targetEntry = element.enabledEntries.first { it.target }
+        assertNotNull(targetEntry.layer)
+        rule.onNodeWithTag("scope").captureToImage().assertPixels { (x, y) ->
+            if (x < 50 && y < 50) Color.Blue else null
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+    }
+
+    // When renderInOverlayDuringTransition=false, no layer should be allocated and content is
+    // drawn via direct drawContent().
+    @Test
+    fun testNoLayerWhenRenderInOverlayDuringTransitionFalse() {
+        var showTarget by mutableStateOf(false)
+        var scope: SharedTransitionScopeImpl? = null
+        rule.setContent {
+            SharedTransitionLayout {
+                scope = this@SharedTransitionLayout as SharedTransitionScopeImpl
+                AnimatedContent(showTarget) { show ->
+                    Box(
+                        Modifier.sharedElement(
+                                rememberSharedContentState(key = "box"),
+                                animatedVisibilityScope = this@AnimatedContent,
+                                renderInOverlayDuringTransition = false,
+                            )
+                            .size(if (show) 100.dp else 200.dp)
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        showTarget = true
+        rule.mainClock.autoAdvance = false
+        repeat(5) { rule.mainClock.advanceTimeByFrame() }
+        rule.waitForIdle()
+
+        // Neither entry should have a layer — both render in place via direct drawContent().
+        val entries = scope!!.sharedElementForKey("box")!!.enabledEntries
+        entries.forEach { assertNull(it.layer) }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
     }
 }
 

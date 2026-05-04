@@ -434,6 +434,136 @@ class LookaheadAnimationVisualDebugHelperTest {
     }
 
     @Test
+    fun testCurrentBorderSharedElementNotInOverlay() {
+        var transitionScope: SharedTransitionScope? = null
+        var visible by mutableStateOf(false)
+        var currentBounds: Rect? by mutableStateOf(null)
+        val testTag = "no_overlay_border_test"
+        val borderColor = Color.Red
+        val backgroundColor = Color.Gray
+        val contentColor = Color.Blue
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadAnimationVisualDebugging(
+                    true,
+                    Color.Transparent,
+                    Color.Transparent,
+                    Color.Transparent,
+                    false,
+                ) {
+                    CustomizedLookaheadAnimationVisualDebugging(borderColor) {
+                        SharedTransitionLayout(
+                            Modifier.requiredSize(50.dp)
+                                .background(backgroundColor)
+                                .testTag(testTag)
+                        ) {
+                            transitionScope = this
+                            AnimatedContent(
+                                targetState = visible,
+                                modifier = Modifier.fillMaxSize(),
+                                transitionSpec = {
+                                    (EnterTransition.None togetherWith ExitTransition.None).using(
+                                        SizeTransform(clip = false)
+                                    )
+                                },
+                            ) { isScreenA ->
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    if (!isScreenA) {
+                                        Box(
+                                            modifier =
+                                                Modifier.onGloballyPositioned {
+                                                        currentBounds = it.boundsInRoot()
+                                                    }
+                                                    .sharedElement(
+                                                        rememberSharedContentState(key = "key"),
+                                                        this@AnimatedContent,
+                                                        boundsTransform = { _, _ ->
+                                                            spring(Spring.DampingRatioNoBouncy)
+                                                        },
+                                                        renderInOverlayDuringTransition = false,
+                                                    )
+                                                    .size(30.dp)
+                                                    .background(contentColor)
+                                                    .align(Alignment.CenterEnd)
+                                        )
+                                    } else {
+                                        Box(
+                                            modifier =
+                                                Modifier.onGloballyPositioned {
+                                                        currentBounds = it.boundsInRoot()
+                                                    }
+                                                    .sharedElement(
+                                                        rememberSharedContentState(key = "key"),
+                                                        this@AnimatedContent,
+                                                        boundsTransform = { _, _ ->
+                                                            spring(Spring.DampingRatioNoBouncy)
+                                                        },
+                                                        renderInOverlayDuringTransition = false,
+                                                    )
+                                                    .size(40.dp)
+                                                    .background(contentColor)
+                                                    .align(Alignment.CenterStart)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        rule.runOnIdle { visible = true }
+
+        while (transitionScope?.isTransitionActive != true) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().run {
+            val pixelMap = toPixelMap()
+            val bounds = currentBounds!!
+
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    val leftEdge =
+                        x == bounds.left.roundToInt() &&
+                            y >= bounds.top.roundToInt() &&
+                            y <= bounds.bottom.roundToInt()
+                    val rightEdge =
+                        x == bounds.right.roundToInt() &&
+                            y >= bounds.top.roundToInt() &&
+                            y <= bounds.bottom.roundToInt()
+                    val topEdge =
+                        y == bounds.top.roundToInt() &&
+                            x >= bounds.left.roundToInt() &&
+                            x <= bounds.right.roundToInt()
+                    val bottomEdge =
+                        y == bounds.bottom.roundToInt() &&
+                            x >= bounds.left.roundToInt() &&
+                            x <= bounds.right.roundToInt()
+
+                    val onBorder = leftEdge || rightEdge || topEdge || bottomEdge
+
+                    if (onBorder) {
+                        val pixelColor = pixelMap[x, y]
+                        if (pixelColor == backgroundColor || pixelColor == contentColor) {
+                            throw AssertionError(
+                                "Expected a debug border color at ($x, $y), " +
+                                    "but found background or content color. " +
+                                    "Visual debugging is not drawing in the in-place (no-overlay) path."
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     fun testCurrentBorderAnimateBounds() {
         var visible by mutableStateOf(false)
         var currentBounds: Rect? by mutableStateOf(null)
