@@ -19,7 +19,7 @@
 package androidx.xr.scenecore.testing
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.runtime.loadProviders
+import androidx.xr.scenecore.runtime.loadProviders
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import org.junit.runner.RunWith
