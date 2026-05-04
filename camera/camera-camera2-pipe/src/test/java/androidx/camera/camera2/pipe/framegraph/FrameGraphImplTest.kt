@@ -91,8 +91,8 @@ class FrameGraphImplTest {
 
     private fun initialize(scope: TestScope) {
         frameGraph.start()
-        frameGraph.simulateCameraStarted()
         frameGraph.initializeSurfaces()
+        frameGraph.simulateCameraStarted()
         scope.advanceUntilIdle()
     }
 

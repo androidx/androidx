@@ -74,8 +74,8 @@ class FrameGraphBuffersTest {
     @Before
     fun setup() {
         simulator.start()
-        simulator.simulateCameraStarted()
         simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
         testScope.advanceUntilIdle()
     }
 

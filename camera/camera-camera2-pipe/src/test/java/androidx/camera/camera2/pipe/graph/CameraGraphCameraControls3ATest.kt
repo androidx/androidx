@@ -69,8 +69,8 @@ class CameraGraphCameraControls3ATest {
     @Before
     fun setup() {
         cameraGraph.start()
-        cameraGraph.simulateCameraStarted()
         cameraGraph.initializeSurfaces()
+        cameraGraph.simulateCameraStarted()
         testScope.advanceUntilIdle()
         val stream1 = cameraGraph.streams[streamConfig1]!!.id
         cameraGraph.useSessionIn(testScope) {

@@ -55,13 +55,15 @@ public class CameraControllerSimulator(
     override var isForeground: Boolean = true
 
     private val lock = Any()
-    private var currentSurfaceMap: Map<StreamId, Surface> = emptyMap()
     private var currentGraphRequestProcessor: GraphRequestProcessor? = null
 
     public var closed: Boolean = false
         private set
 
     public var started: Boolean = false
+        private set
+
+    public var currentSurfaceMap: Map<StreamId, Surface>? = null
         private set
 
     public var currentCaptureSequenceProcessor: FakeCaptureSequenceProcessor? = null
@@ -100,7 +102,7 @@ public class CameraControllerSimulator(
             val captureSequenceProcessor =
                 FakeCaptureSequenceProcessor(graphConfig.camera, graphConfig.defaultTemplate)
             val graphRequestProcessor = GraphRequestProcessor.from(captureSequenceProcessor)
-            captureSequenceProcessor.surfaceMap = currentSurfaceMap
+            captureSequenceProcessor.surfaceMap = checkNotNull(currentSurfaceMap)
             currentCaptureSequenceProcessor = captureSequenceProcessor
             currentGraphRequestProcessor = graphRequestProcessor
 
