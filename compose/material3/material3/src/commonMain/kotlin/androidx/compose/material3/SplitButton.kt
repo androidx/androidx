@@ -115,7 +115,6 @@ import androidx.compose.ui.util.fastSumBy
  * @param modifier the [Modifier] to be applied to this split button.
  * @param spacing The spacing between the [leadingButton] and [trailingButton]
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun SplitButtonLayout(
     leadingButton: @Composable () -> Unit,
@@ -183,7 +182,6 @@ fun SplitButtonLayout(
 }
 
 /** Contains default values used by [SplitButtonLayout] and its style variants. */
-@ExperimentalMaterial3ExpressiveApi
 object SplitButtonDefaults {
     /** Default icon size for the leading button */
     val LeadingIconSize = ButtonSmallTokens.IconSize
@@ -269,7 +267,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the extra small leading button */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraSmallLeadingButtonContentPadding =
         PaddingValues(
             start = SplitButtonXSmallTokens.LeadingButtonLeadingSpace,
@@ -277,7 +274,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the small leading button */
-    @ExperimentalMaterial3ExpressiveApi
     val SmallLeadingButtonContentPadding =
         PaddingValues(
             start = SplitButtonSmallTokens.LeadingButtonLeadingSpace,
@@ -285,7 +281,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the medium leading button */
-    @ExperimentalMaterial3ExpressiveApi
     val MediumLeadingButtonContentPadding =
         PaddingValues(
             start = SplitButtonMediumTokens.LeadingButtonLeadingSpace,
@@ -293,7 +288,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the large leading button */
-    @ExperimentalMaterial3ExpressiveApi
     val LargeLeadingButtonContentPadding =
         PaddingValues(
             start = SplitButtonLargeTokens.LeadingButtonLeadingSpace,
@@ -301,7 +295,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the extra large leading button */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraLargeLeadingButtonContentPadding =
         PaddingValues(
             start = SplitButtonXLargeTokens.LeadingButtonLeadingSpace,
@@ -309,7 +302,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the extra small trailing button */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraSmallTrailingButtonContentPadding =
         PaddingValues(
             start = SplitButtonXSmallTokens.TrailingButtonLeadingSpace,
@@ -317,7 +309,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the small trailing button */
-    @ExperimentalMaterial3ExpressiveApi
     val SmallTrailingButtonContentPadding =
         PaddingValues(
             start = SplitButtonSmallTokens.TrailingButtonLeadingSpace,
@@ -325,7 +316,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the medium trailing button */
-    @ExperimentalMaterial3ExpressiveApi
     val MediumTrailingButtonContentPadding =
         PaddingValues(
             start = SplitButtonMediumTokens.TrailingButtonLeadingSpace,
@@ -333,7 +323,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the large trailing button */
-    @ExperimentalMaterial3ExpressiveApi
     val LargeTrailingButtonContentPadding =
         PaddingValues(
             start = SplitButtonLargeTokens.TrailingButtonLeadingSpace,
@@ -341,7 +330,6 @@ object SplitButtonDefaults {
         )
 
     /** Default content padding of the extra large trailing button */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraLargeTrailingButtonContentPadding =
         PaddingValues(
             start = SplitButtonXLargeTokens.TrailingButtonLeadingSpace,
@@ -391,19 +379,15 @@ object SplitButtonDefaults {
     val SmallContainerHeight = SplitButtonSmallTokens.ContainerHeight
 
     /** The default height for an extra small button container. */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraSmallContainerHeight = SplitButtonXSmallTokens.ContainerHeight
 
     /** The default height for a medium button container. */
-    @ExperimentalMaterial3ExpressiveApi
     val MediumContainerHeight = SplitButtonMediumTokens.ContainerHeight
 
     /** The default height for a large button container. */
-    @ExperimentalMaterial3ExpressiveApi
     val LargeContainerHeight = SplitButtonLargeTokens.ContainerHeight
 
     /** The default height for an extra large button container. */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraLargeContainerHeight = SplitButtonXLargeTokens.ContainerHeight
 
     /** Default minimum width of the [TrailingButton]. */
@@ -495,7 +479,6 @@ object SplitButtonDefaults {
      * @param buttonHeight The height of the button
      */
     @Composable
-    @ExperimentalMaterial3ExpressiveApi
     fun leadingButtonShapesFor(buttonHeight: Dp): SplitButtonShapes {
         val xSmallHeight = ButtonDefaults.ExtraSmallContainerHeight
         val smallHeight = ButtonDefaults.MinHeight
@@ -537,7 +520,6 @@ object SplitButtonDefaults {
      * @param buttonHeight The height of the button
      */
     @Composable
-    @ExperimentalMaterial3ExpressiveApi
     fun trailingButtonShapesFor(buttonHeight: Dp): SplitButtonShapes {
         val xSmallHeight = ButtonDefaults.ExtraSmallContainerHeight
         val smallHeight = ButtonDefaults.MinHeight
@@ -667,7 +649,6 @@ object SplitButtonDefaults {
      *   will still happen internally.
      * @param content the content for the button.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun LeadingButton(
         onClick: () -> Unit,
@@ -749,7 +730,6 @@ object SplitButtonDefaults {
      * @param content the content to be placed in the button
      */
     @Composable
-    @ExperimentalMaterial3ExpressiveApi
     fun TrailingButton(
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
@@ -861,7 +841,6 @@ object SplitButtonDefaults {
      * @param content the content to be placed in the button
      */
     @Composable
-    @ExperimentalMaterial3ExpressiveApi
     fun TrailingButton(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -982,7 +961,6 @@ object SplitButtonDefaults {
      *   will still happen internally.
      * @param content the content for the button.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun TonalLeadingButton(
         onClick: () -> Unit,
@@ -1043,7 +1021,6 @@ object SplitButtonDefaults {
      *   will still happen internally.
      * @param content the content to be placed in the button
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun TonalTrailingButton(
         checked: Boolean,
@@ -1101,7 +1078,6 @@ object SplitButtonDefaults {
      *   will still happen internally.
      * @param content the content for the button.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun OutlinedLeadingButton(
         onClick: () -> Unit,
@@ -1162,7 +1138,6 @@ object SplitButtonDefaults {
      *   will still happen internally.
      * @param content the content to be placed in the button
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun OutlinedTrailingButton(
         checked: Boolean,
@@ -1220,7 +1195,6 @@ object SplitButtonDefaults {
      *   will still happen internally.
      * @param content the content for the button.
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun ElevatedLeadingButton(
         onClick: () -> Unit,
@@ -1281,7 +1255,6 @@ object SplitButtonDefaults {
      *   will still happen internally.
      * @param content the content to be placed in the button
      */
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun ElevatedTrailingButton(
         checked: Boolean,
@@ -1312,7 +1285,6 @@ object SplitButtonDefaults {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun shapeByInteraction(
     shapes: SplitButtonShapes,
@@ -1343,7 +1315,6 @@ private fun shapeByInteraction(
  * @property pressedShape is the pressed shape.
  * @property checkedShape is the checked shape.
  */
-@ExperimentalMaterial3ExpressiveApi
 class SplitButtonShapes(val shape: Shape, val pressedShape: Shape?, val checkedShape: Shape?) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -1369,7 +1340,6 @@ class SplitButtonShapes(val shape: Shape, val pressedShape: Shape?, val checkedS
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private val SplitButtonShapes.hasRoundedCornerShapes: Boolean
     get() {
         // Ignore null shapes and only check default shape for RoundedCorner
@@ -1378,7 +1348,6 @@ private val SplitButtonShapes.hasRoundedCornerShapes: Boolean
         return shape is RoundedCornerShape
     }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private val SplitButtonShapes.hasCornerBasedShapes: Boolean
     get() {
         // Ignore null shapes and only check default shape for RoundedCorner

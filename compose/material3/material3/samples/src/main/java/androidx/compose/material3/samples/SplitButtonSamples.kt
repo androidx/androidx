@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
@@ -35,8 +33,6 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.PlainTooltip
@@ -63,7 +59,6 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -131,7 +126,6 @@ fun FilledSplitButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -181,7 +175,6 @@ fun SplitButtonWithUnCheckableTrailingButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -274,7 +267,6 @@ fun SplitButtonWithDropdownMenuSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -342,7 +334,6 @@ fun TonalSplitButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -410,7 +401,6 @@ fun ElevatedSplitButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -478,7 +468,6 @@ fun OutlinedSplitButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -538,7 +527,6 @@ fun SplitButtonWithTextSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -625,7 +613,6 @@ fun SplitButtonWithIconSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -700,7 +687,6 @@ fun XSmallFilledSplitButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -775,7 +761,6 @@ fun MediumFilledSplitButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
@@ -850,7 +835,6 @@ fun LargeFilledSplitButtonSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 @Preview
