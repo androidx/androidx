@@ -24,6 +24,7 @@ import androidx.baselineprofile.gradle.utils.EXPECTED_PROFILE_FOLDER
 import androidx.baselineprofile.gradle.utils.Fixtures
 import androidx.baselineprofile.gradle.utils.TestAgpVersion
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_3_1
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_5_2
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_CURRENT
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
@@ -1904,7 +1905,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_3_1)
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_5_2)
     }
 
     @get:Rule
