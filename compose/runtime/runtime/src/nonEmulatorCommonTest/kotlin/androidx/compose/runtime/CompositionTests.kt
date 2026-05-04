@@ -3769,6 +3769,37 @@ class CompositionTests {
         assertEquals("1", lastInnerSeen, "Inner scope did not recompose")
     }
 
+    @Test
+    fun testInvalidateDoesNotRecomputeDefaultValues() = compositionTest {
+        lateinit var recomposeScope: RecomposeScope
+        val defaultValues = mutableSetOf<Any>()
+
+        compose {
+            ComposableWithDefaultArg { parentScope, defaultValue ->
+                recomposeScope = parentScope
+                defaultValues += defaultValue
+            }
+        }
+
+        recomposeScope.invalidate()
+        expectNoChanges()
+        assertEquals(
+            expected = 1,
+            actual = defaultValues.size,
+            message =
+                "Expected exactly one default object instance; " +
+                    "the default argument should not be recalculated",
+        )
+    }
+
+    @Composable
+    private fun ComposableWithDefaultArg(
+        defaultValue: Any = Any(),
+        block: @Composable (scope: RecomposeScope, defaultValue: Any) -> Unit,
+    ) {
+        block(currentRecomposeScope, defaultValue)
+    }
+
     enum class MyEnum {
         First,
         Second,
@@ -5089,14 +5120,14 @@ private fun <T> assertArrayEquals(message: String, expected: Array<T>, received:
     fun err(msg: String): Nothing =
         error(
             "$message: $msg, expected: [${
-        expected.getString()}], received: [${received.getString()}]"
+                expected.getString()}], received: [${received.getString()}]"
         )
     if (expected.size != received.size) err("sizes are different")
     expected.indices.forEach { index ->
         if (expected[index] != received[index])
             err(
                 "item at index $index was different (expected [${
-                expected[index]}], received: [${received[index]}]"
+                    expected[index]}], received: [${received[index]}]"
             )
     }
 }
