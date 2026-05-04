@@ -20,6 +20,7 @@ enum class TestAgpVersion(val versionString: String?) {
     TEST_AGP_VERSION_8_2_1("8.2.1"),
     TEST_AGP_VERSION_8_3_1("8.3.1"),
     TEST_AGP_VERSION_8_4_2("8.4.2"),
+    TEST_AGP_VERSION_8_5_2("8.5.2"),
     TEST_AGP_VERSION_CURRENT(null);
 
     fun isAtLeast(version: TestAgpVersion) = this in TestAgpVersion.atLeast(version)
