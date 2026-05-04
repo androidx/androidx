@@ -111,8 +111,8 @@ internal class CameraGraphSessionImplTest {
     @Test
     fun lock3AShouldFailWhenInvokedBeforeStartRepeating() = runTest {
         simulator.start()
-        simulator.simulateCameraStarted()
         simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
         advanceUntilIdle()
 
         val session = simulator.acquireSession()
@@ -130,8 +130,8 @@ internal class CameraGraphSessionImplTest {
             val request = Request(streams = listOf(stream.id))
             simulator.acquireSession().use { it.startRepeating(request) }
             simulator.start()
-            simulator.simulateCameraStarted()
             simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
             advanceUntilIdle()
             simulator.simulateNextFrame()
 
@@ -155,8 +155,8 @@ internal class CameraGraphSessionImplTest {
             val request = Request(streams = listOf(stream.id))
             simulator.acquireSession().use { it.startRepeating(request) }
             simulator.start()
-            simulator.simulateCameraStarted()
             simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
             advanceUntilIdle()
             simulator.simulateNextFrame()
 

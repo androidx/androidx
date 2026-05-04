@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
+import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.test.core.app.ApplicationProvider
@@ -79,8 +80,8 @@ class CameraGraphSimulatorTest {
     fun closingCameraGraphSimulatorShouldStopCameraGraph() =
         testScope.runTest {
             simulator.start()
-            simulator.simulateCameraStarted()
             simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
 
             simulator.close()
             advanceUntilIdle()
@@ -96,8 +97,8 @@ class CameraGraphSimulatorTest {
             val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
             simulator.acquireSession().use { it.startRepeating(request) }
             simulator.start()
-            simulator.simulateCameraStarted()
             simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
             advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
@@ -201,8 +202,8 @@ class CameraGraphSimulatorTest {
             simulator.acquireSession().use { it.submit(request = request) }
 
             simulator.start()
-            simulator.simulateCameraStarted()
             simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
             advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
@@ -225,8 +226,8 @@ class CameraGraphSimulatorTest {
 
             simulator.acquireSession().use { it.startRepeating(request = request) }
             simulator.start()
-            simulator.simulateCameraStarted()
             simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
             advanceUntilIdle()
 
             val frame1 = simulator.simulateNextFrame()
@@ -309,6 +310,7 @@ class CameraGraphSimulatorTest {
             simulator.start()
             assertThat(simulator.graphState.value).isEqualTo(GraphStateStarting)
 
+            simulator.initializeSurfaces()
             simulator.simulateCameraStarted()
             assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
 
@@ -336,6 +338,7 @@ class CameraGraphSimulatorTest {
             assertThat(graphStateError.cameraError).isEqualTo(error.cameraError)
             assertThat(graphStateError.willAttemptRetry).isEqualTo(error.willAttemptRetry)
 
+            simulator.initializeSurfaces()
             simulator.simulateCameraStarted()
             assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
 
@@ -343,5 +346,24 @@ class CameraGraphSimulatorTest {
             simulator.simulateCameraStopped()
             simulator.simulateCameraError(error)
             assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
+        }
+
+    @Test
+    fun simulatorWithImageSourceStreamCanBeStartedDirectly() =
+        testScope.runTest {
+            val streamConfig =
+                CameraStream.Config.create(
+                    Size(1280, 720),
+                    StreamFormat.YUV_420_888,
+                    imageSourceConfig = ImageSourceConfig(10),
+                )
+            val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+            val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+
+            // With all streams being ImageSource streams, initializeSurfaces shouldn't be needed.
+            simulator.simulateCameraStarted()
+            assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
+
+            simulator.close()
         }
 }

@@ -221,8 +221,8 @@ class CameraPipeSimulatorTest {
         testScope.runTest {
             val cameraGraphSimulator = cameraPipe.createCameraGraph(graphConfig)
             cameraGraphSimulator.start()
-            cameraGraphSimulator.simulateCameraStarted()
             cameraGraphSimulator.initializeSurfaces()
+            cameraGraphSimulator.simulateCameraStarted()
 
             cameraGraphSimulator.close()
             cameraPipe.cameras().disconnectAll()
