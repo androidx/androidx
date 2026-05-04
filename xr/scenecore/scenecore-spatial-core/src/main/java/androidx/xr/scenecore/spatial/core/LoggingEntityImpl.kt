@@ -17,7 +17,7 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.content.Context
-import androidx.xr.runtime.XrLog
+import android.util.Log
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.CleanupAction
@@ -36,34 +36,35 @@ import java.util.concurrent.Executor
 @Suppress("RestrictedApiAndroidX")
 internal class LoggingEntityImpl(context: Context) : BaseEntity(context), LoggingEntity {
 
-    private val loggingCleanupAction = CleanupAction { XrLog.info { "dispose" } }
+    private val loggingCleanupAction = CleanupAction { Log.i("LoggingEntity", "dispose") }
 
     init {
-        XrLog.info { "Creating LoggingEntity." }
+        Log.i("LoggingEntity", "Creating LoggingEntity.")
         registerCleanup(DirectExecutor, loggingCleanupAction)
     }
 
     override fun getPose(@SpaceValue relativeTo: Int): Pose {
         val pose = super<BaseEntity>.getPose(relativeTo)
-        XrLog.info { "Getting Logging Entity pose: $pose relativeTo: $relativeTo" }
+        Log.i("LoggingEntity", "Getting Logging Entity pose: $pose relativeTo: $relativeTo")
         return pose
     }
 
     override fun setPose(pose: Pose, @SpaceValue relativeTo: Int) {
-        XrLog.info { "Setting Logging Entity pose to: $pose relativeTo: $relativeTo" }
+        Log.i("LoggingEntity", "Setting Logging Entity pose to: $pose relativeTo: $relativeTo")
         super<BaseEntity>.setPose(pose, relativeTo)
     }
 
     override val activitySpacePose: Pose
         get() {
-            XrLog.info { "Getting Logging Entity activitySpacePose." }
+            Log.i("LoggingEntity", "Getting Logging Entity activitySpacePose.")
             return Pose()
         }
 
     override fun transformPoseTo(pose: Pose, destination: ScenePose): Pose {
-        XrLog.info {
-            "Transforming pose $pose to be relative to the destination ScenePose: $destination"
-        }
+        Log.i(
+            "LoggingEntity",
+            "Transforming pose $pose to be relative to the destination ScenePose: $destination",
+        )
         return Pose()
     }
 
@@ -76,9 +77,11 @@ internal class LoggingEntityImpl(context: Context) : BaseEntity(context), Loggin
         direction: Vector3,
         @ScenePose.HitTestFilterValue hitTestFilter: Int,
     ): HitTestResult {
-        XrLog.info {
-            "Hit testing Logging Entity with origin: $origin direction: $direction hitTestFilter: $hitTestFilter"
-        }
+        Log.i(
+            "LoggingEntity",
+            "Hit testing Logging Entity with origin: $origin direction: $direction " +
+                "hitTestFilter: $hitTestFilter",
+        )
         return HitTestResult(
             Vector3(),
             Vector3(),
@@ -88,41 +91,40 @@ internal class LoggingEntityImpl(context: Context) : BaseEntity(context), Loggin
     }
 
     override fun addChild(child: Entity) {
-        XrLog.info { "Adding child Entity: $child" }
+        Log.i("LoggingEntity", "Adding child Entity: $child")
         super.addChild(child)
     }
 
     override fun addChildren(children: List<Entity>) {
-        XrLog.info { "Adding child Entities: $children" }
+        Log.i("LoggingEntity", "Adding child Entities: $children")
         super.addChildren(children)
     }
 
     override var parent: Entity?
         get() {
-            XrLog.info { "Getting Logging Entity parent: ${super.parent}" }
+            Log.i("LoggingEntity", "Getting Logging Entity parent: ${super.parent}")
             return super.parent
         }
         set(value) {
-            if (value !is LoggingEntityImpl) {
-                XrLog.error { "Parent of a LoggingEntity must be a Logging entity" }
-                return
+            require(value is LoggingEntityImpl) {
+                "Parent of a LoggingEntity must be a Logging entity"
             }
-            XrLog.info { "Setting Logging Entity parent to: $value" }
+            Log.i("LoggingEntity", "Setting Logging Entity parent to: $value")
             super.parent = value
         }
 
     override val children: List<Entity>
         get() {
-            XrLog.info { "Getting Logging Entity children: ${super.children}" }
+            Log.i("LoggingEntity", "Getting Logging Entity children: ${super.children}")
             return super.children
         }
 
     override fun addInputEventListener(executor: Executor?, listener: InputEventListener) {
-        XrLog.info { "Add input consumer $listener executor $executor" }
+        Log.i("LoggingEntity", "Add input consumer $listener executor $executor")
     }
 
     override fun removeInputEventListener(listener: InputEventListener) {
-        XrLog.info { "Remove input consumer $listener" }
+        Log.i("LoggingEntity", "Remove input consumer $listener")
     }
 
     override fun dispose() {
