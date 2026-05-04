@@ -17,7 +17,6 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.util.fastRoundToInt
@@ -81,8 +80,6 @@ internal fun Rect.toAwtRectangleRounded(density: Density): Rectangle {
     val bottom = (this.bottom / densityValue).fastRoundToInt()
     return Rectangle(left, top, right - left, bottom - top)
 }
-
-internal fun Color.toAwtColor() = java.awt.Color(red, green, blue, alpha)
 
 /**
  * Determines whether the window has a shadow on macOS.

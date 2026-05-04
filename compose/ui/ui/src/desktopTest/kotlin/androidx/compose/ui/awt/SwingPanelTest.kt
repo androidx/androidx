@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutBoundsHolder
 import androidx.compose.ui.layout.layoutBounds
 import androidx.compose.ui.platform.LocalDensity
@@ -189,13 +188,13 @@ class SwingPanelTest {
             ) {
                 Box(Modifier.fillMaxWidth().height(2000.dp)) {
                     SwingPanel(
-                        background = Color.Red,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(400.dp),
                         factory = {
                             JPanel(BorderLayout()).also {
                                 it.add(JLabel("Swing content"))
+                                it.background = java.awt.Color.RED
                             }
                         },
                     )

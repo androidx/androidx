@@ -17,10 +17,10 @@
 package androidx.compose.ui.scene
 
 import androidx.compose.runtime.CompositionContext
-import androidx.compose.ui.awt.toAwtColor
 import androidx.compose.ui.awt.toAwtRectangle
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.awt.toAwtColor
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.SwingSkiaLayerComponent
 import androidx.compose.ui.unit.Density

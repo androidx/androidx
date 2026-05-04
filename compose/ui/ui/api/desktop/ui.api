@@ -651,7 +651,8 @@ public final class androidx/compose/ui/awt/SwingDialog_desktopKt {
 }
 
 public final class androidx/compose/ui/awt/SwingPanel_desktopKt {
-	public static final fun SwingPanel-euL9pac (JLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun SwingPanel (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun SwingPanel-iRkQZW0 (Landroidx/compose/ui/graphics/Color;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 	public static final fun getNoOpUpdate ()Lkotlin/jvm/functions/Function1;
 }
 

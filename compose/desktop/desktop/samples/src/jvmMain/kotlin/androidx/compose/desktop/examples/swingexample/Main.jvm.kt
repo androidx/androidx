@@ -57,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.awt.toAwtColor
 import androidx.compose.ui.platform.LocalLocalization
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
@@ -188,12 +189,17 @@ fun SwingComposeWindow() {
 fun actionButton(
     text: String,
     action: (() -> Unit)? = null,
-    size: IntSize = IntSize(70, 70)
+    size: IntSize = IntSize(70, 70),
+    background: Color? = null,
 ): JButton {
     val button = JButton(text)
     button.toolTipText = "Tooltip for $text button."
     button.preferredSize = Dimension(size.width, size.height)
     button.addActionListener { action?.invoke() }
+    if (background != null) {
+        button.background = background.toAwtColor()
+        button.isOpaque = true
+    }
 
     return button
 }
@@ -330,16 +336,17 @@ fun ComposeContent(background: Color = Color.White) {
                                 globalClicks.value++
                                 rememberClicks.value++
                                 rememberSaveableClicks.value++
-                            }
+                            },
+                            background = background,
                         )
-                    },
-                    background = background
+                    }
                 )
                 Spacer(modifier = Modifier.width(20.dp))
                 SwingPanel(
-                    background = background,
                     modifier = Modifier.size(200.dp, 39.dp),
-                    factory = { ComposableColoredPanel(Color.Red) }
+                    factory = {
+                        ComposableColoredPanel(Color.Red)
+                    }
                 )
             }
             Spacer(modifier = Modifier.height(50.dp))

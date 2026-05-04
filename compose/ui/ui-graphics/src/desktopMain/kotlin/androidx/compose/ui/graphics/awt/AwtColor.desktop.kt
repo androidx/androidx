@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo
+package androidx.compose.ui.graphics.awt
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.SwingPanel
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
-import javax.swing.JPanel
 
-@Composable
-internal actual fun TestInteropView(modifier: Modifier, color: Color) {
-    SwingPanel(
-        factory = { JPanel().apply { background = color.toAwtColor() } },
-        modifier = modifier
-    )
-}
-
-private fun Color.toAwtColor() = java.awt.Color(red, green, blue, alpha)
+/**
+ * Converts a Compose Color to its corresponding [java.awt.Color].
+ *
+ * Note that the actual color drawn on the screen by Compose and AWT may differ slightly due to
+ * differences in color space.
+ */
+@ExperimentalComposeUiApi
+fun Color.toAwtColor() = java.awt.Color(red, green, blue, alpha)

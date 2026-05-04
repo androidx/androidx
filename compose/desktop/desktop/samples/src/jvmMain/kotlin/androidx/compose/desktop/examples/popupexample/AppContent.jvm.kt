@@ -545,11 +545,12 @@ fun <T> RadioButton(text: String, value: T, state: MutableState<T>) {
 @Composable
 fun SwingActionButton(text: String, action: (() -> Unit)? = null) {
     SwingPanel(
-        background = Color(55, 55, 55),
         modifier = Modifier.size(200.dp, 35.dp),
         factory = {
             JButton(text).apply {
                 addActionListener { action?.invoke() }
+                background = java.awt.Color(55, 55, 55)
+                isOpaque = true
             }
         },
         update = { component ->
