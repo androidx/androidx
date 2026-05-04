@@ -21,12 +21,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.room3.Room
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.driver.AndroidSQLiteDriver
 import kotlinx.coroutines.launch
 
 internal class CatDatabaseViewModel : ViewModel() {
     private val database =
-        Room.inMemoryDatabaseBuilder<CatDatabase>().setDriver(BundledSQLiteDriver()).build()
+        Room.inMemoryDatabaseBuilder<CatDatabase>().setDriver(AndroidSQLiteDriver()).build()
 
     val pager =
         Pager(
