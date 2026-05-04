@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.media.MediaActionSound;
 import android.util.Range;
 import android.view.Surface;
@@ -580,6 +581,38 @@ public interface CameraInfo {
      */
     default @NonNull LiveData<Integer> getLowLightBoostState() {
         return new MutableLiveData<>(LowLightBoostState.OFF);
+    }
+
+    /**
+     * Returns whether the night mode indicator is supported.
+     *
+     * @return true if {@link CaptureResult#EXTENSION_NIGHT_MODE_INDICATOR} is supported,
+     * otherwise false.
+     * @see CaptureResult#EXTENSION_NIGHT_MODE_INDICATOR
+     */
+    default boolean isNightModeIndicatorSupported() {
+        return false;
+    }
+
+    /**
+     * Returns a {@link LiveData} which observes the night mode indicator changes.
+     *
+     * <p>The night mode indicator indicates whether the current environment conditions meet the
+     * criteria for Night Mode.
+     *
+     * <p>The value will be one of {@link NightModeIndicator#UNKNOWN},
+     * {@link NightModeIndicator#NOT_RECOMMENDED} or {@link NightModeIndicator#RECOMMENDED}.
+     * Meaningful values can only be reported when a camera capture session is in active state
+     * after binding {@link UseCase}s with repeating surfaces.
+     *
+     * <p>If the camera doesn't support night mode indicator, then the value will always be
+     * {@link NightModeIndicator#UNKNOWN}.
+     *
+     * @return a {@link LiveData} of {@link Integer} type to observe the night mode indicator
+     * changes.
+     */
+    default @NonNull LiveData<Integer> getNightModeIndicator() {
+        return new MutableLiveData<>(NightModeIndicator.UNKNOWN);
     }
 
     /**

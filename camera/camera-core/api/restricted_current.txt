@@ -56,6 +56,7 @@ package androidx.camera.core {
     method public default int getLensFacing();
     method public default androidx.lifecycle.LiveData<java.lang.Integer!> getLowLightBoostState();
     method @IntRange(from=0) public default int getMaxTorchStrengthLevel();
+    method public default androidx.lifecycle.LiveData<java.lang.Integer!> getNightModeIndicator();
     method public default java.util.Set<androidx.camera.core.CameraInfo!> getPhysicalCameraInfos();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
@@ -68,6 +69,7 @@ package androidx.camera.core {
     method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
     method public default boolean isLogicalMultiCameraSupported();
     method public default boolean isLowLightBoostSupported();
+    method public default boolean isNightModeIndicatorSupported();
     method public default boolean isSessionConfigSupported(androidx.camera.core.SessionConfig);
     method public default boolean isTorchStrengthSupported();
     method @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
@@ -577,6 +579,12 @@ package androidx.camera.core {
     field public static final int MIRROR_MODE_OFF = 0; // 0x0
     field public static final int MIRROR_MODE_ON = 1; // 0x1
     field public static final int MIRROR_MODE_ON_FRONT_ONLY = 2; // 0x2
+  }
+
+  public final class NightModeIndicator {
+    field public static final int NOT_RECOMMENDED = 1; // 0x1
+    field public static final int RECOMMENDED = 2; // 0x2
+    field public static final int UNKNOWN = 0; // 0x0
   }
 
   public final class Preview extends androidx.camera.core.UseCase {

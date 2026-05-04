@@ -40,6 +40,7 @@ import androidx.camera.camera2.impl.EvCompControl
 import androidx.camera.camera2.impl.FlashControl
 import androidx.camera.camera2.impl.FocusMeteringControl
 import androidx.camera.camera2.impl.LowLightBoostControl
+import androidx.camera.camera2.impl.NightModeIndicatorMonitor
 import androidx.camera.camera2.impl.State3AControl
 import androidx.camera.camera2.impl.StillCaptureRequestControl
 import androidx.camera.camera2.impl.TorchControl
@@ -89,6 +90,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
             StillCaptureRequestControl.Bindings::class,
             TorchControl.Bindings::class,
             LowLightBoostControl.Bindings::class,
+            NightModeIndicatorMonitor.Bindings::class,
             VideoUsageControl.Bindings::class,
             ZoomCompat.Bindings::class,
             ZoomControl.Bindings::class,

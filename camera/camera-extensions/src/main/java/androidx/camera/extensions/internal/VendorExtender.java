@@ -154,13 +154,6 @@ public interface VendorExtender {
     }
 
     /**
-     * Returns if reporting night mode indicator is supported or not.
-     */
-    default boolean isNightModeIndicatorAvailable() {
-        return false;
-    }
-
-    /**
      * Creates a {@link SessionProcessor} that is responsible for (1) determining the stream
      * configuration based on given output surfaces (2) Requesting OEM implementation to start
      * repeating request and performing a still image capture.

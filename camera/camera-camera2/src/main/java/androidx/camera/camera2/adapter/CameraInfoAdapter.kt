@@ -42,6 +42,7 @@ import androidx.camera.camera2.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.impl.DeviceInfoLogger
 import androidx.camera.camera2.impl.FocusMeteringControl
+import androidx.camera.camera2.impl.NightModeIndicatorMonitor
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
@@ -93,6 +94,7 @@ constructor(
     private val cameraConfig: CameraConfig,
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraControlStateAdapter: CameraControlStateAdapter,
+    private val nightModeIndicatorMonitor: NightModeIndicatorMonitor,
     private val cameraCallbackMap: CameraCallbackMap,
     private val focusMeteringControl: FocusMeteringControl,
     private val cameraQuirks: CameraQuirks,
@@ -214,6 +216,11 @@ constructor(
 
     override fun getLowLightBoostState(): LiveData<Int> =
         cameraControlStateAdapter.lowLightBoostState
+
+    override fun isNightModeIndicatorSupported(): Boolean = nightModeIndicatorMonitor.isSupported
+
+    override fun getNightModeIndicator(): LiveData<Int> =
+        nightModeIndicatorMonitor.nightModeIndicatorLiveData
 
     @SuppressLint("UnsafeOptInUsageError")
     override fun getExposureState(): ExposureState = cameraControlStateAdapter.exposureState
