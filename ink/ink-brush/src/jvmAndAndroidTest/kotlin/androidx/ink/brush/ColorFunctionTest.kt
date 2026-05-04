@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.brush.BrushPaint.ColorFunction
 import androidx.ink.brush.color.Color as ComposeColor
 import com.google.common.truth.Truth.assertThat
 import kotlin.IllegalArgumentException
@@ -24,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(JUnit4::class)
 class ColorFunctionTest {
 

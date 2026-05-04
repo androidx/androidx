@@ -22,6 +22,4 @@ import kotlin.native.runtime.NativeRuntimeApi
 @OptIn(NativeRuntimeApi::class)
 actual internal object GarbageCollectorController {
     actual fun collect() = GC.collect()
-
-    actual fun canCollectSynchronously(): Boolean = true
 }

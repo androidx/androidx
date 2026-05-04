@@ -16,9 +16,7 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 
 /**
  * Dimensions and units for measuring distance/time along the length/duration of a stroke.
@@ -26,8 +24,6 @@ import androidx.ink.brush.ExperimentalInkCustomBrushApi
  * This is used for [DampingNode]s, [IntegralNode]s, and [NoiseNode]s to specify the domain over
  * which they operate.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 public class ProgressDomain
 internal constructor(@JvmField internal val value: Int, private val name: String) {
     init {

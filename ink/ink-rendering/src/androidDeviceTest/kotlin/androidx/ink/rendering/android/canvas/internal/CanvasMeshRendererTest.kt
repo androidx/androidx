@@ -26,7 +26,6 @@ import androidx.ink.brush.BrushCoat
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TextureLayer
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.SelfOverlap
 import androidx.ink.brush.StockBrushes
@@ -54,7 +53,6 @@ import org.junit.runner.RunWith
  * TODO(b/293163827) Move this to a Robolectric test once a shadow exists for
  *   [android.graphics.MeshSpecification].
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)

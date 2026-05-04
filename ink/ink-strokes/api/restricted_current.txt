@@ -35,7 +35,7 @@ package androidx.ink.strokes {
     method public androidx.ink.geometry.BoxAccumulator populateUpdatedRegion(androidx.ink.geometry.BoxAccumulator outUpdatedRegion);
     method public void resetUpdatedRegion();
     method public void start(androidx.ink.brush.Brush brush);
-    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public void start(androidx.ink.brush.Brush brush, int noiseSeed);
+    method public void start(androidx.ink.brush.Brush brush, int noiseSeed);
     method public androidx.ink.strokes.Stroke toImmutable();
     method public void updateShape();
     method public void updateShape(optional long currentElapsedTimeMillis);
@@ -63,7 +63,7 @@ package androidx.ink.strokes {
     method public androidx.ink.strokes.MutableStrokeInputBatch add(java.util.Collection<androidx.ink.strokes.StrokeInput> inputs);
     method @BytecodeOnly public static androidx.ink.strokes.MutableStrokeInputBatch! add$default(androidx.ink.strokes.MutableStrokeInputBatch!, androidx.ink.brush.InputToolType!, float, float, long, float, float, float, float, int, Object!);
     method public void clear();
-    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public void setNoiseSeed(int seed);
+    method public void setNoiseSeed(int seed);
   }
 
   public final class Stroke {
@@ -145,7 +145,7 @@ package androidx.ink.strokes {
     method protected final void finalize();
     method public final operator androidx.ink.strokes.StrokeInput get(int index);
     method public final long getDurationMillis();
-    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public final int getNoiseSeed();
+    method public final int getNoiseSeed();
     method @InaccessibleFromKotlin public final int getSize();
     method public final float getStrokeUnitLengthCm();
     method public final androidx.ink.brush.InputToolType getToolType();

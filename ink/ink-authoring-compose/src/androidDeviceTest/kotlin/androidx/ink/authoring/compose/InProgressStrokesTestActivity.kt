@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalInkCustomBrushApi::class)
-
 package androidx.ink.authoring.compose
 
 import android.os.Bundle
@@ -40,7 +38,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.strokes.Stroke
 import java.util.concurrent.TimeUnit

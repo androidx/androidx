@@ -8,3 +8,7 @@ format is defined in the `.proto` files published
 
 Currently, this supports storage of `BrushFamily` and `StrokeInputBatch`
 objects.
+
+Cross-platform implementation supports Android and non-Android JVM (supported on
+Linux for 86_64 specifically). iOS support via Kotlin-native is work in
+progress.

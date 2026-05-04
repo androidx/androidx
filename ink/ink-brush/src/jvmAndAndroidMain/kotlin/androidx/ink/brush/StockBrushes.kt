@@ -45,7 +45,6 @@ import kotlin.jvm.JvmStatic
  * Specific stock brushes may see minor tweaks and bug-fixes when the library is upgraded, but will
  * avoid major changes in behavior.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 public object StockBrushes {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi

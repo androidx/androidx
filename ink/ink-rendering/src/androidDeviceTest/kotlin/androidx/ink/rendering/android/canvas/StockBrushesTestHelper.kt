@@ -21,7 +21,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import androidx.core.graphics.withMatrix
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockTextureBitmapStore
 import androidx.ink.geometry.BoxAccumulator
@@ -33,7 +32,6 @@ import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInputBatch
 
 /** Helper class for drawing a set of strokes for testing [StockBrushes]. */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 class StockBrushesTestHelper(private val context: Context) {
     private val resources = context.resources
     val cursiveStylusInputs = getStrokeInputBatchById(R.raw.cursive_stylus_inputbatch)

@@ -21,7 +21,6 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushFamily
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.StockBrushes
 import androidx.ink.strokes.Stroke
 import androidx.test.core.app.ApplicationProvider
@@ -33,7 +32,6 @@ import org.junit.Test
 
 /** Emulator-based screenshot test of brushes defined by [StockBrushes] */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @MediumTest
 class StockBrushesConsistencyTest() {
 

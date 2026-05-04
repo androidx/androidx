@@ -16,18 +16,13 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.behavior.EasingFunction.Predefined
 import androidx.ink.geometry.ImmutableVec
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import kotlin.IllegalArgumentException
+import kotlin.test.Test
 import kotlin.test.assertFailsWith
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
-@RunWith(JUnit4::class)
 class EasingFunctionTest {
 
     @Test

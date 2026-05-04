@@ -25,7 +25,6 @@ import androidx.annotation.FloatRange
 import androidx.collection.MutableIntObjectMap
 import androidx.core.graphics.withMatrix
 import androidx.ink.brush.BrushPaint
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.SelfOverlap
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
@@ -52,7 +51,6 @@ import java.util.WeakHashMap
  * unlikely to be cached mesh data in common, the easiest solution to thread safety is to have two
  * different instances of this object.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitmapStore { null }) :
     CanvasStrokeCoatRenderer {
 

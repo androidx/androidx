@@ -21,7 +21,6 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushFamily
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.behavior.Node
@@ -55,7 +54,6 @@ import org.junit.runners.Parameterized.Parameters
  * list below with an appropriate `clientBrushFamilyId` for the test prefix.
  */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(Parameterized::class)
 @MediumTest
 class StockBrushesTest(val brushName: String) {

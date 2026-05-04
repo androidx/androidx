@@ -16,9 +16,7 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
@@ -26,8 +24,6 @@ import androidx.ink.nativeloader.UsedByNative
  * A [ValueNode] that interpolates between two inputs based on a parameter input. The specific kind
  * of interpolation performed depends on the [Interpolation] parameter.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 public class InterpolationNode
 private constructor(
     nativePointer: Long,
@@ -147,7 +143,6 @@ private constructor(
  * Note that even though Kotlin [Node] is an abstract class with several subtypes,
  * [Node.nativePointer] all wrap the _same_ native type (a specialization of `std::variant`).
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @UsedByNative
 private object InterpolationNodeNative {
     init {

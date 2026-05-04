@@ -21,7 +21,6 @@ import android.graphics.Matrix
 import androidx.annotation.FloatRange
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushPaint
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 
@@ -29,7 +28,6 @@ import androidx.ink.strokes.Stroke
  * Renders a single [androidx.ink.brush.BrushCoat] of a [Stroke] or [InProgressStroke]. A different
  * implementation of this interface may be used for each coat.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 internal interface CanvasStrokeCoatRenderer {
 
     /**
@@ -73,10 +71,8 @@ internal interface CanvasStrokeCoatRenderer {
  * in each texture layer, but currently, we require all texture layers in the same paint to use the
  * same texture mapping mode.)
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 internal fun BrushPaint.getTextureMapping(): BrushPaint.TextureLayer.Mapping =
     textureLayers.firstOrNull()?.mapping ?: BrushPaint.TextureLayer.Mapping.TILING
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
 internal fun Brush.getPaint(coatIndex: Int, paintPreferenceIndex: Int) =
     family.coats[coatIndex].paintPreferences[paintPreferenceIndex]

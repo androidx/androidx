@@ -19,11 +19,9 @@ package androidx.ink.brush.behavior
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.ImmutableCollections.unmodifiableList
 import androidx.ink.geometry.ImmutableVec
-import androidx.ink.nativeloader.NativeLoader
-import androidx.ink.nativeloader.UsedByNative
-import java.util.Collections.unmodifiableList
+import androidx.ink.nativeloader.NativePointer
 import kotlin.jvm.JvmField
 
 /**
@@ -35,23 +33,9 @@ import kotlin.jvm.JvmField
  * one of the parameterized curve types below. Depending on the type of curve, input and output
  * values outside [0, 1] are possible.
  */
-@ExperimentalInkCustomBrushApi
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+public abstract class EasingFunction private constructor(pointerAlloc: () -> Long) {
 
-// NotCloseable: Finalize is only used to free the native peer.
-@Suppress("NotCloseable")
-public abstract class EasingFunction private constructor(internal val nativePointer: Long) {
-
-    // NOMUTANTS -- Not tested post garbage collection.
-    protected fun finalize() {
-        // Note that the instance becomes finalizable at the conclusion of the Object constructor,
-        // which
-        // in Kotlin is always before any non-default field initialization has been done by a
-        // derived
-        // class constructor.
-        if (nativePointer == 0L) return
-        EasingFunctionNative.free(nativePointer)
-    }
+    internal val nativePointer: Long by NativePointer(pointerAlloc, EasingFunctionNative::free)
 
     public companion object {
         /**
@@ -72,7 +56,7 @@ public abstract class EasingFunction private constructor(internal val nativePoin
     /** Predefined easing functions. */
     public class Predefined
     private constructor(@JvmField internal val value: Int, private val name: String) :
-        EasingFunction(EasingFunctionNative.createPredefined(value)) {
+        EasingFunction({ EasingFunctionNative.createPredefined(value) }) {
         init {
             check(value !in VALUE_TO_INSTANCE) { "Duplicate Predefined value: $value." }
             VALUE_TO_INSTANCE[value] = this
@@ -154,8 +138,8 @@ public abstract class EasingFunction private constructor(internal val nativePoin
      * not. This is somewhat different from the w3c defined cubic Bezier that allows extrapolated
      * values outside x in [0, 1] by following end-point tangents.
      */
-    public class CubicBezier internal constructor(nativePointer: Long) :
-        EasingFunction(nativePointer) {
+    public class CubicBezier internal constructor(pointerAlloc: () -> Long) :
+        EasingFunction(pointerAlloc) {
 
         /**
          * Creates a new [CubicBezier] easing function.
@@ -170,7 +154,7 @@ public abstract class EasingFunction private constructor(internal val nativePoin
             y1: Float,
             @FloatRange(from = 0.0, to = 1.0) x2: Float,
             y2: Float,
-        ) : this(EasingFunctionNative.createCubicBezier(x1, y1, x2, y2))
+        ) : this({ EasingFunctionNative.createCubicBezier(x1, y1, x2, y2) })
 
         /** The x-coordinate of the first control point. Must be in the range [0, 1]. */
         @get:FloatRange(from = 0.0, to = 1.0)
@@ -211,7 +195,7 @@ public abstract class EasingFunction private constructor(internal val nativePoin
         // Declared public to make extension functions available.
         public companion object {
             internal fun copyAndWrapNative(otherEasingFunctionNativePointer: Long): CubicBezier =
-                CubicBezier(EasingFunctionNative.createCopyOf(otherEasingFunctionNativePointer))
+                CubicBezier({ EasingFunctionNative.createCopyOf(otherEasingFunctionNativePointer) })
         }
     }
 
@@ -235,7 +219,8 @@ public abstract class EasingFunction private constructor(internal val nativePoin
      * If the input x-value is outside the interval [0, 1], the output will be extrapolated from the
      * first/last line segment.
      */
-    public class Linear internal constructor(nativePointer: Long) : EasingFunction(nativePointer) {
+    public class Linear internal constructor(pointerAlloc: () -> Long) :
+        EasingFunction(pointerAlloc) {
 
         /**
          * Creates a new [Linear] easing function.
@@ -244,7 +229,7 @@ public abstract class EasingFunction private constructor(internal val nativePoin
          */
         public constructor(
             points: List<ImmutableVec>
-        ) : this(
+        ) : this({
             EasingFunctionNative.createLinear(
                 FloatArray(points.size * 2) { index ->
                     if (index % 2 == 0) {
@@ -254,19 +239,16 @@ public abstract class EasingFunction private constructor(internal val nativePoin
                     }
                 }
             )
-        )
+        })
 
         /** The points that define the piecewise-linear function. */
         public val points: List<ImmutableVec> =
-            unmodifiableList(
-                List<ImmutableVec>(EasingFunctionNative.getLinearNumPoints(nativePointer)) { index
-                    ->
-                    ImmutableVec(
-                        EasingFunctionNative.getLinearPointX(nativePointer, index),
-                        EasingFunctionNative.getLinearPointY(nativePointer, index),
-                    )
-                }
-            )
+            unmodifiableList(EasingFunctionNative.getLinearNumPoints(nativePointer)) { index ->
+                ImmutableVec(
+                    EasingFunctionNative.getLinearPointX(nativePointer, index),
+                    EasingFunctionNative.getLinearPointY(nativePointer, index),
+                )
+            }
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is Linear) {
@@ -284,7 +266,7 @@ public abstract class EasingFunction private constructor(internal val nativePoin
         // Declared public to make extension functions available.
         public companion object {
             internal fun copyAndWrapNative(otherEasingFunctionNativePointer: Long): Linear =
-                Linear(EasingFunctionNative.createCopyOf(otherEasingFunctionNativePointer))
+                Linear({ EasingFunctionNative.createCopyOf(otherEasingFunctionNativePointer) })
         }
     }
 
@@ -299,7 +281,8 @@ public abstract class EasingFunction private constructor(internal val nativePoin
      * The behavior and naming follows the CSS steps() specification at
      * [CSS Easing Functions](https://www.w3.org/TR/css-easing-1/#step-easing-functions)
      */
-    public class Steps internal constructor(nativePointer: Long) : EasingFunction(nativePointer) {
+    public class Steps internal constructor(pointerAlloc: () -> Long) :
+        EasingFunction(pointerAlloc) {
 
         /**
          * Creates a new [Steps] easing function.
@@ -311,7 +294,7 @@ public abstract class EasingFunction private constructor(internal val nativePoin
         public constructor(
             stepCount: Int,
             stepPosition: StepPosition,
-        ) : this(EasingFunctionNative.createSteps(stepCount, stepPosition.value))
+        ) : this({ EasingFunctionNative.createSteps(stepCount, stepPosition.value) })
 
         /**
          * The number of steps. Must always be greater than 0, and must be greater than 1 if
@@ -322,7 +305,7 @@ public abstract class EasingFunction private constructor(internal val nativePoin
 
         /** The behavior of the first and last steps. */
         public val stepPosition: StepPosition
-            get() = EasingFunctionNative.getStepsPosition(nativePointer)
+            get() = StepPosition.fromInt(EasingFunctionNative.getStepsPositionInt(nativePointer))
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is Steps) {
@@ -343,7 +326,7 @@ public abstract class EasingFunction private constructor(internal val nativePoin
         // Declared public to make extension functions available.
         public companion object {
             internal fun copyAndWrapNative(otherEasingFunctionNativePointer: Long): Steps =
-                Steps(EasingFunctionNative.createCopyOf(otherEasingFunctionNativePointer))
+                Steps({ EasingFunctionNative.createCopyOf(otherEasingFunctionNativePointer) })
         }
     }
 
@@ -394,55 +377,46 @@ public abstract class EasingFunction private constructor(internal val nativePoin
     }
 }
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
-@UsedByNative
-private object EasingFunctionNative {
-    init {
-        NativeLoader.load()
-    }
+internal expect object EasingFunctionNative {
+    fun createCopyOf(otherEasingFunctionNativePointer: Long): Long
 
-    @UsedByNative external fun createCopyOf(otherEasingFunctionNativePointer: Long): Long
+    fun createPredefined(value: Int): Long
 
-    @UsedByNative external fun createPredefined(value: Int): Long
+    fun createCubicBezier(x1: Float, y1: Float, x2: Float, y2: Float): Long
 
-    @UsedByNative external fun createCubicBezier(x1: Float, y1: Float, x2: Float, y2: Float): Long
+    fun createLinear(points: FloatArray): Long
 
-    @UsedByNative external fun createLinear(points: FloatArray): Long
+    fun createSteps(stepCount: Int, stepPosition: Int): Long
 
-    @UsedByNative external fun createSteps(stepCount: Int, stepPosition: Int): Long
+    fun free(nativePointer: Long)
 
-    @UsedByNative external fun free(nativePointer: Long)
-
-    @UsedByNative external fun getParametersType(nativePointer: Long): Int
+    fun getParametersType(nativePointer: Long): Int
 
     // Predefined easing function accessors:
 
-    @UsedByNative external fun getPredefinedValueInt(nativePointer: Long): Int
+    fun getPredefinedValueInt(nativePointer: Long): Int
 
     // Cubic Bezier easing function accessors:
 
-    @UsedByNative external fun getCubicBezierX1(nativePointer: Long): Float
+    fun getCubicBezierX1(nativePointer: Long): Float
 
-    @UsedByNative external fun getCubicBezierY1(nativePointer: Long): Float
+    fun getCubicBezierY1(nativePointer: Long): Float
 
-    @UsedByNative external fun getCubicBezierX2(nativePointer: Long): Float
+    fun getCubicBezierX2(nativePointer: Long): Float
 
-    @UsedByNative external fun getCubicBezierY2(nativePointer: Long): Float
+    fun getCubicBezierY2(nativePointer: Long): Float
 
     // Linear easing function accessors:
 
-    @UsedByNative external fun getLinearNumPoints(nativePointer: Long): Int
+    fun getLinearNumPoints(nativePointer: Long): Int
 
-    @UsedByNative external fun getLinearPointX(nativePointer: Long, index: Int): Float
+    fun getLinearPointX(nativePointer: Long, index: Int): Float
 
-    @UsedByNative external fun getLinearPointY(nativePointer: Long, index: Int): Float
+    fun getLinearPointY(nativePointer: Long, index: Int): Float
 
     // Steps easing function accessors:
 
-    @UsedByNative external fun getStepsCount(nativePointer: Long): Int
+    fun getStepsCount(nativePointer: Long): Int
 
-    fun getStepsPosition(nativePointer: Long): EasingFunction.StepPosition =
-        EasingFunction.StepPosition.fromInt(getStepsPositionInt(nativePointer))
-
-    @UsedByNative private external fun getStepsPositionInt(nativePointer: Long): Int
+    fun getStepsPositionInt(nativePointer: Long): Int
 }

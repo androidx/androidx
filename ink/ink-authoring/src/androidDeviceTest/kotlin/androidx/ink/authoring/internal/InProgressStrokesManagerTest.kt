@@ -24,7 +24,6 @@ import androidx.ink.authoring.ExperimentalLatencyDataApi
 import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.authoring.latency.latencyDataEqual
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.geometry.ImmutableBox
 import androidx.ink.geometry.MutableBox
@@ -58,11 +57,7 @@ import org.junit.runner.RunWith
  * by running async requests synchronously, or by queueing those async requests for the test code to
  * run at a specific time of the test.
  */
-@OptIn(
-    ExperimentalInkCustomBrushApi::class,
-    ExperimentalLatencyDataApi::class,
-    ExperimentalCustomShapeWorkflowApi::class,
-)
+@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @UiThreadTest

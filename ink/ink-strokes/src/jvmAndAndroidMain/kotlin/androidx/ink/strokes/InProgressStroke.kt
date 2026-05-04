@@ -19,7 +19,6 @@ package androidx.ink.strokes
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.MeshFormat
@@ -88,7 +87,6 @@ public class InProgressStroke {
      * method must be called at least once after construction before making any calls to
      * [enqueueInputs] or [updateShape].
      */
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     public fun start(brush: Brush): Unit = start(brush, noiseSeed = 0)
 
     /**
@@ -99,7 +97,6 @@ public class InProgressStroke {
      * method must be called at least once after construction before making any calls to
      * [enqueueInputs] or [updateShape].
      */
-    @ExperimentalInkCustomBrushApi
     public fun start(brush: Brush, noiseSeed: Int) {
         InProgressStrokeNative.start(nativePointer, brush.nativePointer, noiseSeed)
         this.brush = brush

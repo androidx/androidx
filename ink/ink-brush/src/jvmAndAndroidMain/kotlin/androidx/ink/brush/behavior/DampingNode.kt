@@ -16,8 +16,6 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
@@ -25,8 +23,6 @@ import androidx.ink.nativeloader.UsedByNative
  * A [ValueNode] that damps changes in an input value, causing the output value to slowly follow
  * changes in the input value over a specified time or distance.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 public class DampingNode
 private constructor(
     nativePointer: Long,
@@ -92,7 +88,6 @@ private constructor(
  * Note that even though Kotlin [Node] is an abstract class with several subtypes,
  * [Node.nativePointer] all wrap the _same_ native type (a specialization of `std::variant`).
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @UsedByNative
 private object DampingNodeNative {
     init {

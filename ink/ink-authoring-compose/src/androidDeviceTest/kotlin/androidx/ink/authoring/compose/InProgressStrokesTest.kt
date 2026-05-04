@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalInkCustomBrushApi::class)
-
 package androidx.ink.authoring.compose
 
 import android.content.Context
@@ -29,7 +27,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.ink.authoring.testing.InputStreamBuilder
 import androidx.ink.authoring.testing.MultiTouchInputBuilder
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.StockBrushes.MarkerVersion
 import androidx.test.core.app.ApplicationProvider

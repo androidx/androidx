@@ -94,11 +94,6 @@ public fun awaitNativePointerCleanupAfter(
     }
 }
 
-@VisibleForTesting
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun awaitNativePointerCleanupSupported(): Boolean =
-    GarbageCollectorController.canCollectSynchronously()
-
 internal fun observingNativePointers(
     onAlloc: (Long) -> Unit,
     onCleanup: (Long) -> Unit,

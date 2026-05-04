@@ -17,7 +17,6 @@
 package androidx.ink.geometry
 
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
-import androidx.ink.nativeloader.testing.awaitNativePointerCleanupSupported
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -89,9 +88,6 @@ class MeshTest {
 
     @Test
     fun meshAndMeshFormatNativePointers_cleanedUpWhenOutOfScope() {
-        if (!awaitNativePointerCleanupSupported()) {
-            return
-        }
         awaitNativePointerCleanupAfter {
             val mesh = Mesh()
             // The MeshFormat object is only created as part of Mesh, so can only test it through

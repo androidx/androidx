@@ -19,7 +19,6 @@ package androidx.ink.storage
 import androidx.ink.brush.BrushBehavior
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushTip
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.EasingFunction
 import androidx.ink.brush.behavior.IntegralNode
@@ -43,7 +42,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@OptIn(ExperimentalInkCustomBrushApi::class, ExperimentalEncodingApi::class)
+@OptIn(ExperimentalEncodingApi::class)
 class BrushFamilyExtensionsTest {
 
     private val notGzippedBytes = byteArrayOf(0)

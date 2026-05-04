@@ -22,7 +22,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.BrushFamily
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.Version
 import java.io.ByteArrayOutputStream
@@ -62,7 +61,6 @@ public fun interface BrushFamilyDecodeCallback {
  *   that always returns `null`.
  * @receiver The [BrushFamily] object to encode.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureBitmapStore) {
     val textureIdToNativeBitmaps = mutableMapOf<String, ByteArray>()
     collectTextureBitmaps(textureBitmapStore, textureIdToNativeBitmaps)
@@ -91,7 +89,6 @@ public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureB
  * @receiver The [List] of [BrushFamily] objects to encode.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@OptIn(ExperimentalInkCustomBrushApi::class)
 public fun List<BrushFamily>.encodeMultiple(
     output: OutputStream,
     textureBitmapStore: TextureBitmapStore,
@@ -336,7 +333,6 @@ public object AndroidBrushFamilySerialization {
     ): List<BrushFamily> = decodeMultiple(input, Version.MAX_SUPPORTED, getClientTextureId)
 }
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
 private fun BrushFamily.collectTextureBitmaps(
     textureBitmapStore: TextureBitmapStore,
     textureIdToNativeBitmaps: MutableMap<String, ByteArray>,

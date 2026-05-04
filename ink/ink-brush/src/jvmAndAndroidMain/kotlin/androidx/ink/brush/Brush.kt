@@ -407,7 +407,6 @@ private constructor(
          * for those objects from C++.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @OptIn(ExperimentalInkCustomBrushApi::class)
         public fun wrapNative(unownedNativePointer: Long): Brush {
             return Brush(
                 unownedNativePointer,

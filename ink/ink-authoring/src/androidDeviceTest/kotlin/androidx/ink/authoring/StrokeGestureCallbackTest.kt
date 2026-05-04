@@ -19,7 +19,6 @@ package androidx.ink.authoring
 import android.view.MotionEvent
 import android.view.MotionEvent.PointerCoords
 import android.view.MotionEvent.PointerProperties
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -31,7 +30,6 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@OptIn(ExperimentalInkCustomBrushApi::class)
 class StrokeGestureCallbackTest() : InProgressStrokesViewTestBase() {
 
     @Test

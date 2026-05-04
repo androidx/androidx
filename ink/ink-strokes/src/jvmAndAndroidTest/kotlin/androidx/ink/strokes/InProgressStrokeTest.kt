@@ -20,7 +20,6 @@ import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushBehavior
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushTip
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.behavior.SourceNode
@@ -110,7 +109,6 @@ class InProgressStrokeTest {
         assertThat(inProgressStroke.changesWithTime()).isFalse()
     }
 
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun startStroke_withTimeSinceInputBrush_changesWithTime() {
         val inProgressStroke = InProgressStroke()
@@ -119,7 +117,6 @@ class InProgressStrokeTest {
         assertThat(inProgressStroke.changesWithTime()).isTrue()
     }
 
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun startStroke_withTimeSinceInputBrushAfterEndTime_noLongerChangesWithTime() {
         val inProgressStroke = InProgressStroke()
@@ -840,7 +837,6 @@ class InProgressStrokeTest {
 
     private fun makeBrush() = Brush(family = StockBrushes.marker(), size = 10f, epsilon = 0.1f)
 
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     private fun makeTimeSinceInputBrush(
         timeSinceInputStartMillis: Float = 0F,
         timeSinceInputEndMillis: Float = 1000F,

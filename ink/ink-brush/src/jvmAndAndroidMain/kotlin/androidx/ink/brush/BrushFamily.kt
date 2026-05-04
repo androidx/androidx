@@ -27,14 +27,10 @@ import kotlin.jvm.JvmStatic
 
 /**
  * A [BrushFamily] describes a family of brushes (e.g. “highlighter” or “pressure pen”),
- * irrespective of their size or color.
- *
- * For now, [BrushFamily] is an opaque type that can only be instantiated via [StockBrushes]. A
- * future version of this module will allow creating fully custom [BrushFamily] objects.
+ * irrespective of their size or color. It can be thought of as roughly analogous to a font family.
  *
  * [BrushFamily] objects are immutable.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class BrushFamily
 private constructor(
@@ -42,12 +38,10 @@ private constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val nativePointer: Long,
     coats: List<BrushCoat>,
     /** The [InputModel] that will be used by a [Brush] in this [BrushFamily]. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public val inputModel: InputModel,
 ) {
 
     /** The [BrushCoat]s that make up this [BrushFamily]. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public val coats: List<BrushCoat> = unmodifiableList(coats.toList())
 
     /** Client-provided identifier for this [BrushFamily]. */
@@ -55,7 +49,11 @@ private constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public val clientBrushFamilyId: String = BrushFamilyNative.getClientBrushFamilyId(nativePointer)
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    /**
+     * A multi-line, human-readable string with a description of the brush and how it works, with
+     * the intended audience being designers/developers who are editing the brush definition. This
+     * string is not generally intended to be displayed to end users.
+     */
     public val developerComment: String = BrushFamilyNative.getDeveloperComment(nativePointer)
 
     /**
@@ -77,7 +75,6 @@ private constructor(
      * By default, decoding a [BrushFamily] with a minimum required version higher than
      * [Version.MAX_SUPPORTED] will fail.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun calculateMinimumRequiredVersion(): Version =
         Version.fromInt(BrushFamilyNative.calculateMinimumRequiredVersion(nativePointer))
 
@@ -85,17 +82,35 @@ private constructor(
      * Creates a [BrushFamily] with the given [BrushCoat]s.
      *
      * @param coats The [BrushCoat]s that make up this [BrushFamily].
-     * @param clientBrushFamilyId Optional-provided identifier for this [BrushFamily].
      * @param inputModel The [InputModel] that will be used by a [Brush] in this [BrushFamily].
+     * @param developerComment A non-user-facing human-readable description of the brush family.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
     @JvmOverloads
     public constructor(
         coats: List<BrushCoat>,
-        inputModel: InputModel = DEFAULT_INPUT_MODEL,
-        clientBrushFamilyId: String = "",
+        inputModel: InputModel = InputModel.DEFAULT_INPUT_MODEL,
         developerComment: String = "",
+    ) : this(
+        coats = coats,
+        inputModel = inputModel,
+        developerComment = developerComment,
+        clientBrushFamilyId = "",
+    )
+
+    /**
+     * Creates a [BrushFamily] with the given [BrushCoat]s.
+     *
+     * @param coats The [BrushCoat]s that make up this [BrushFamily].
+     * @param inputModel The [InputModel] that will be used by a [Brush] in this [BrushFamily].
+     * @param developerComment A non-user-facing human-readable description of the brush family.
+     * @param clientBrushFamilyId Optional-provided identifier for this [BrushFamily].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public constructor(
+        coats: List<BrushCoat>,
+        inputModel: InputModel = InputModel.DEFAULT_INPUT_MODEL,
+        developerComment: String = "",
+        clientBrushFamilyId: String = "",
     ) : this(
         nativePointer =
             BrushFamilyNative.create(
@@ -108,48 +123,98 @@ private constructor(
         inputModel = inputModel,
     )
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
+    /**
+     * Creates a [BrushFamily] with a single [BrushCoat] that consists of the given [BrushTip] and
+     * [BrushPaint].
+     *
+     * @param tip The [BrushTip] to use in the single [BrushCoat] for this [BrushFamily].
+     * @param paint The [BrushPaint] to use in the single [BrushCoat] for this [BrushFamily].
+     * @param inputModel The [InputModel] that will be used by a [Brush] in this [BrushFamily].
+     * @param developerComment A non-user-facing human-readable description of the brush family.
+     */
     @JvmOverloads
     public constructor(
         tip: BrushTip = BrushTip(),
         paint: BrushPaint = BrushPaint(),
-        inputModel: InputModel = DEFAULT_INPUT_MODEL,
-        clientBrushFamilyId: String = "",
+        inputModel: InputModel = InputModel.DEFAULT_INPUT_MODEL,
         developerComment: String = "",
     ) : this(
         coats = listOf(BrushCoat(tip, paint)),
         inputModel = inputModel,
-        clientBrushFamilyId = clientBrushFamilyId,
         developerComment = developerComment,
+        clientBrushFamilyId = "",
+    )
+
+    /**
+     * Creates a [BrushFamily] with a single [BrushCoat] that consists of the given [BrushTip] and
+     * [BrushPaint].
+     *
+     * @param tip The [BrushTip] to use in the single [BrushCoat] for this [BrushFamily].
+     * @param paint The [BrushPaint] to use in the single [BrushCoat] for this [BrushFamily].
+     * @param inputModel The [InputModel] that will be used by a [Brush] in this [BrushFamily].
+     * @param developerComment A non-user-facing human-readable description of the brush family.
+     * @param clientBrushFamilyId Optional-provided identifier for this [BrushFamily].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public constructor(
+        tip: BrushTip = BrushTip(),
+        paint: BrushPaint = BrushPaint(),
+        inputModel: InputModel = InputModel.DEFAULT_INPUT_MODEL,
+        developerComment: String = "",
+        clientBrushFamilyId: String = "",
+    ) : this(
+        coats = listOf(BrushCoat(tip, paint)),
+        inputModel = inputModel,
+        developerComment = developerComment,
+        clientBrushFamilyId = clientBrushFamilyId,
     )
 
     /**
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
+     *
+     * Java callers should use [Builder] instead.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
-    @JvmSynthetic
+    @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
     public fun copy(
         coats: List<BrushCoat> = this.coats,
         inputModel: InputModel = this.inputModel,
-        clientBrushFamilyId: String = this.clientBrushFamilyId,
         developerComment: String = this.developerComment,
+    ): BrushFamily =
+        copy(
+            coats = coats,
+            inputModel = inputModel,
+            developerComment = developerComment,
+            clientBrushFamilyId = this.clientBrushFamilyId,
+        )
+
+    /**
+     * Creates a copy of `this` and allows named properties to be altered while keeping the rest
+     * unchanged.
+     *
+     * Java callers should use [Builder] instead.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
+    public fun copy(
+        coats: List<BrushCoat> = this.coats,
+        inputModel: InputModel = this.inputModel,
+        developerComment: String = this.developerComment,
+        clientBrushFamilyId: String = this.clientBrushFamilyId,
     ): BrushFamily {
         return if (
             coats == this.coats &&
                 inputModel == this.inputModel &&
-                clientBrushFamilyId == this.clientBrushFamilyId &&
-                developerComment == this.developerComment
+                developerComment == this.developerComment &&
+                clientBrushFamilyId == this.clientBrushFamilyId
         ) {
             this
         } else {
             BrushFamily(
                 coats = coats,
                 inputModel = inputModel,
-                clientBrushFamilyId = clientBrushFamilyId,
                 developerComment = developerComment,
+                clientBrushFamilyId = clientBrushFamilyId,
             )
         }
     }
@@ -157,52 +222,90 @@ private constructor(
     /**
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
+     *
+     * Java callers should use [Builder] instead.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
-    @JvmSynthetic
+    @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
     public fun copy(
         coat: BrushCoat,
         inputModel: InputModel = this.inputModel,
-        clientBrushFamilyId: String = this.clientBrushFamilyId,
         developerComment: String = this.developerComment,
-    ): BrushFamily {
-        return copy(
-            coats = listOf(coat),
+    ): BrushFamily =
+        copy(
+            coat = coat,
             inputModel = inputModel,
-            clientBrushFamilyId = clientBrushFamilyId,
             developerComment = developerComment,
+            clientBrushFamilyId = this.clientBrushFamilyId,
         )
-    }
 
     /**
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
+     *
+     * Java callers should use [Builder] instead.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
-    @JvmSynthetic
+    @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
+    public fun copy(
+        coat: BrushCoat,
+        inputModel: InputModel = this.inputModel,
+        developerComment: String = this.developerComment,
+        clientBrushFamilyId: String = this.clientBrushFamilyId,
+    ): BrushFamily =
+        copy(
+            coats = listOf(coat),
+            inputModel = inputModel,
+            developerComment = developerComment,
+            clientBrushFamilyId = clientBrushFamilyId,
+        )
+
+    /**
+     * Creates a copy of `this` and allows named properties to be altered while keeping the rest
+     * unchanged.
+     *
+     * Java callers should use [Builder] instead.
+     */
+    @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
     public fun copy(
         tip: BrushTip,
         paint: BrushPaint,
         inputModel: InputModel = this.inputModel,
-        clientBrushFamilyId: String = this.clientBrushFamilyId,
         developerComment: String = this.developerComment,
-    ): BrushFamily {
-        return copy(
+    ): BrushFamily =
+        copy(
+            tip = tip,
+            paint = paint,
+            inputModel = inputModel,
+            developerComment = developerComment,
+            clientBrushFamilyId = this.clientBrushFamilyId,
+        )
+
+    /**
+     * Creates a copy of `this` and allows named properties to be altered while keeping the rest
+     * unchanged.
+     *
+     * Java callers should use [Builder] instead.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
+    public fun copy(
+        tip: BrushTip,
+        paint: BrushPaint,
+        inputModel: InputModel = this.inputModel,
+        developerComment: String = this.developerComment,
+        clientBrushFamilyId: String = this.clientBrushFamilyId,
+    ): BrushFamily =
+        copy(
             coat = BrushCoat(tip, paint),
             inputModel = inputModel,
-            clientBrushFamilyId = clientBrushFamilyId,
             developerComment = developerComment,
+            clientBrushFamilyId = clientBrushFamilyId,
         )
-    }
 
     /**
      * Returns a [Builder] with values set equivalent to `this`. Java developers, use the returned
      * builder to build a copy of a BrushFamily.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
     public fun toBuilder(): Builder =
         Builder()
             .setCoats(coats)
@@ -217,11 +320,9 @@ private constructor(
      * values, overriding only as needed. For example: `BrushFamily family =
      * BrushFamily.builder().setCoat(presetBrushCoat).build();`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
     public class Builder {
         private var coats: List<BrushCoat> = listOf(BrushCoat(BrushTip(), BrushPaint()))
-        private var inputModel: InputModel = DEFAULT_INPUT_MODEL
+        private var inputModel: InputModel = InputModel.DEFAULT_INPUT_MODEL
         private var clientBrushFamilyId: String = ""
         private var developerComment: String = ""
 
@@ -242,6 +343,7 @@ private constructor(
         }
 
         /** Sets the client ID for this brush family. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         public fun setClientBrushFamilyId(clientBrushFamilyId: String): Builder {
             this.clientBrushFamilyId = clientBrushFamilyId
             return this
@@ -318,30 +420,7 @@ private constructor(
             )
 
         /** Returns a new [BrushFamily.Builder]. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-        @ExperimentalInkCustomBrushApi
-        @JvmStatic
-        public fun builder(): Builder = Builder()
-
-        /**
-         * A naive input model that passes raw inputs through unchanged, performing only
-         * base-minimal modeling to derive velocity and acceleration values for the modeled inputs.
-         * This can be useful as a point of comparison for other input models, or for callers who
-         * wish to do their own input modeling prior to passing inputs into Ink.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-        @ExperimentalInkCustomBrushApi
-        @JvmField
-        public val PASSTHROUGH_MODEL: InputModel = NoParametersModel.PASSTHROUGH_MODEL
-
-        /**
-         * The default [InputModel] that will be used by a [BrushFamily] when none is specified.
-         * Currently, this is the [SlidingWindowModel], with default parameters.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-        @ExperimentalInkCustomBrushApi
-        @JvmField
-        public val DEFAULT_INPUT_MODEL: InputModel = SlidingWindowModel()
+        @JvmStatic public fun builder(): Builder = Builder()
     }
 
     /**
@@ -350,8 +429,6 @@ private constructor(
      * to be noisy, and must be smoothed before being passed into a brush's behaviors and extruded
      * into a mesh in order to get a good-looking stroke.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
     @Suppress("NotCloseable") // Finalize is only used to free the native peer.
     public abstract class InputModel internal constructor(internal val nativePointer: Long) {
         // NOMUTANTS -- Not tested post garbage collection.
@@ -365,7 +442,7 @@ private constructor(
             InputModelNative.free(nativePointer)
         }
 
-        internal companion object {
+        public companion object {
             internal fun wrapNative(unownedNativePointer: Long): InputModel {
                 val type = InputModelNative.getType(unownedNativePointer)
                 when (type) {
@@ -378,81 +455,95 @@ private constructor(
                     }
                 }
             }
-        }
-    }
 
-    internal class NoParametersModel private constructor(type: Int, private val name: String) :
-        InputModel(InputModelNative.createNoParametersModel(type)) {
-        init {
-            check(type !in TYPE_TO_INSTANCE) { "Duplicate NoParametersModel type: $type" }
-            TYPE_TO_INSTANCE[type] = this
-        }
+            /**
+             * A naive input model that passes raw inputs through unchanged, performing only
+             * base-minimal modeling to derive velocity and acceleration values for the modeled
+             * inputs. This can be useful as a point of comparison for other input models, or for
+             * callers who wish to do their own input modeling prior to passing inputs into Ink.
+             */
+            @JvmField public val PASSTHROUGH_MODEL: InputModel = NoParametersModel.PASSTHROUGH_MODEL
 
-        override public fun toString(): String = name
-
-        internal companion object {
-            private val TYPE_TO_INSTANCE = MutableIntObjectMap<NoParametersModel>()
-
-            fun fromInputModelType(type: Int): NoParametersModel =
-                checkNotNull(TYPE_TO_INSTANCE[type]) { "Invalid NoParametersModel type: $type" }
-
-            val PASSTHROUGH_MODEL = NoParametersModel(3, "PassthroughModel")
-            // SlidingWindowModel, below, uses type 4.
-        }
-    }
-
-    /** An [InputModel] that averages nearby inputs together within a sliding time window. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
-    public class SlidingWindowModel internal constructor(nativePointer: Long) :
-        InputModel(nativePointer) {
-        /**
-         * The duration over which to average together nearby raw inputs. Typically this should be
-         * somewhere in the 1 ms to 100 ms range.
-         */
-        public val windowDurationMillis: Long =
-            InputModelNative.getSlidingWindowDurationMillis(nativePointer)
-
-        /**
-         * The minimum frequency at which modeled inputs should occur, or zero to disable
-         * upsampling.
-         */
-        public val upsamplingFrequencyHz: Int =
-            InputModelNative.getSlidingUpsamplingFrequencyHz(nativePointer)
-
-        /** Constructs a `SlidingWindowModel` with default parameters. */
-        public constructor() :
-            this(InputModelNative.createSlidingWindowModelWithDefaultParameters())
-
-        /** Constructs a `SlidingWindowModel` with the given parameters. */
-        public constructor(
-            windowDurationMillis: Long,
-            upsamplingFrequencyHz: Int,
-        ) : this(
-            InputModelNative.createSlidingWindowModel(windowDurationMillis, upsamplingFrequencyHz)
-        )
-
-        override public fun toString(): String =
-            "SlidingWindowModel(windowDurationMillis=${windowDurationMillis}, " +
-                "upsamplingFrequencyHz=${upsamplingFrequencyHz})"
-
-        override fun equals(other: Any?): Boolean {
-            if (other == null || other !is SlidingWindowModel) return false
-            return windowDurationMillis == other.windowDurationMillis &&
-                upsamplingFrequencyHz == other.upsamplingFrequencyHz
+            /**
+             * The default [InputModel] that will be used by a [BrushFamily] when none is specified.
+             * Currently, this is the [SlidingWindowModel], with default parameters.
+             */
+            @JvmField public val DEFAULT_INPUT_MODEL: InputModel = SlidingWindowModel()
         }
 
-        override fun hashCode(): Int {
-            var result = windowDurationMillis.hashCode()
-            result = 31 * result + upsamplingFrequencyHz.hashCode()
-            return result
+        internal class NoParametersModel private constructor(type: Int, private val name: String) :
+            InputModel(InputModelNative.createNoParametersModel(type)) {
+            init {
+                check(type !in TYPE_TO_INSTANCE) { "Duplicate NoParametersModel type: $type" }
+                TYPE_TO_INSTANCE[type] = this
+            }
+
+            override public fun toString(): String = name
+
+            internal companion object {
+                private val TYPE_TO_INSTANCE = MutableIntObjectMap<NoParametersModel>()
+
+                fun fromInputModelType(type: Int): NoParametersModel =
+                    checkNotNull(TYPE_TO_INSTANCE[type]) { "Invalid NoParametersModel type: $type" }
+
+                val PASSTHROUGH_MODEL = NoParametersModel(3, "PassthroughModel")
+                // SlidingWindowModel, below, uses type 4.
+            }
+        }
+
+        /** An [InputModel] that averages nearby inputs together within a sliding time window. */
+        public class SlidingWindowModel internal constructor(nativePointer: Long) :
+            InputModel(nativePointer) {
+            /**
+             * The duration over which to average together nearby raw inputs. Typically this should
+             * be somewhere in the 1 ms to 100 ms range.
+             */
+            public val windowDurationMillis: Long =
+                InputModelNative.getSlidingWindowDurationMillis(nativePointer)
+
+            /**
+             * The minimum frequency at which modeled inputs should occur, or zero to disable
+             * upsampling.
+             */
+            public val upsamplingFrequencyHz: Int =
+                InputModelNative.getSlidingUpsamplingFrequencyHz(nativePointer)
+
+            /** Constructs a `SlidingWindowModel` with default parameters. */
+            public constructor() :
+                this(InputModelNative.createSlidingWindowModelWithDefaultParameters())
+
+            /** Constructs a `SlidingWindowModel` with the given parameters. */
+            public constructor(
+                windowDurationMillis: Long,
+                upsamplingFrequencyHz: Int,
+            ) : this(
+                InputModelNative.createSlidingWindowModel(
+                    windowDurationMillis,
+                    upsamplingFrequencyHz,
+                )
+            )
+
+            override public fun toString(): String =
+                "SlidingWindowModel(windowDurationMillis=${windowDurationMillis}, " +
+                    "upsamplingFrequencyHz=${upsamplingFrequencyHz})"
+
+            override fun equals(other: Any?): Boolean {
+                if (other == null || other !is SlidingWindowModel) return false
+                return windowDurationMillis == other.windowDurationMillis &&
+                    upsamplingFrequencyHz == other.upsamplingFrequencyHz
+            }
+
+            override fun hashCode(): Int {
+                var result = windowDurationMillis.hashCode()
+                result = 31 * result + upsamplingFrequencyHz.hashCode()
+                return result
+            }
         }
     }
 }
 
 /** Singleton wrapper around native JNI calls. */
 @UsedByNative
-@OptIn(ExperimentalInkCustomBrushApi::class)
 private object BrushFamilyNative {
     init {
         NativeLoader.load()
@@ -495,7 +586,6 @@ private object BrushFamilyNative {
 
 /** Singleton wrapper around native JNI calls. */
 @UsedByNative
-@OptIn(ExperimentalInkCustomBrushApi::class)
 private object InputModelNative {
     init {
         NativeLoader.load()

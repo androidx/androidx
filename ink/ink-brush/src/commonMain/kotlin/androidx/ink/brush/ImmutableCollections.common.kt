@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.ink.nativeloader.testing
+package androidx.ink.brush
 
-actual internal object GarbageCollectorController {
-    actual fun collect() = System.gc()
+import androidx.annotation.RestrictTo
 
-    actual fun canCollectSynchronously(): Boolean = true
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+expect public object ImmutableCollections {
+    /**
+     * Same as the List constructor, but guarantees the returned list is immutable on JVM when
+     * accessed as a java.util.List.
+     */
+    public fun <T> unmodifiableList(size: Int, indexToValue: (Int) -> T): List<T>
 }

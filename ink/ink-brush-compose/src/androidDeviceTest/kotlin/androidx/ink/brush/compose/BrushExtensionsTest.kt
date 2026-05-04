@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.graphics.colorspace.ColorSpaces as ComposeColorSpaces
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushFamily
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -37,7 +36,6 @@ class BrushExtensionsTest {
     private val testColor = ComposeColor(0.4f, 0.6f, 0.8f, 0.2f, displayP3)
     @ColorLong private val testColorLong = testColor.value.toLong()
 
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     private val testFamily = BrushFamily(clientBrushFamilyId = "pencil")
 
     @Test
@@ -60,7 +58,6 @@ class BrushExtensionsTest {
         assertThat(newBrush.epsilon).isEqualTo(brush.epsilon)
     }
 
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun brushCopyWithComposeColor_andOtherChangedValues_createsBrushWithColor() {
         val brush = Brush.createWithColorIntArgb(testFamily, 0x4499bb66, 1f, 1f)

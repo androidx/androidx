@@ -22,7 +22,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.populateMatrix
@@ -39,7 +38,6 @@ import androidx.ink.strokes.Stroke
  *   [androidx.ink.brush.BrushCoat.paintPreferences] and [androidx.ink.brush.BrushPaint.selfOverlap]
  *   instead.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 internal class CanvasStrokeUnifiedRenderer(
     private val textureStore: TextureBitmapStore = TextureBitmapStore { null },
     forcePathRendering: Boolean,
@@ -60,7 +58,6 @@ internal class CanvasStrokeUnifiedRenderer(
         add(lazy { CanvasPathRenderer(textureStore) })
     }
 
-    @ExperimentalInkCustomBrushApi
     override fun draw(
         canvas: Canvas,
         stroke: Stroke,
@@ -71,7 +68,6 @@ internal class CanvasStrokeUnifiedRenderer(
         draw(canvas, stroke, scratchAffineTransformMatrix, textureAnimationProgress)
     }
 
-    @ExperimentalInkCustomBrushApi
     override fun draw(
         canvas: Canvas,
         stroke: Stroke,
@@ -121,7 +117,6 @@ internal class CanvasStrokeUnifiedRenderer(
         )
     }
 
-    @ExperimentalInkCustomBrushApi
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -132,7 +127,6 @@ internal class CanvasStrokeUnifiedRenderer(
         draw(canvas, inProgressStroke, scratchAffineTransformMatrix, textureAnimationProgress)
     }
 
-    @ExperimentalInkCustomBrushApi
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,

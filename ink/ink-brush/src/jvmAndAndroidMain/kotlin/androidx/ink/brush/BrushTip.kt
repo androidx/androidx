@@ -24,7 +24,6 @@ import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 import java.util.Collections.unmodifiableList
 import kotlin.jvm.JvmStatic
-import kotlin.jvm.JvmSynthetic
 
 /**
  * A [BrushTip] consists of parameters that control how stroke inputs are used to model the tip
@@ -48,8 +47,6 @@ import kotlin.jvm.JvmSynthetic
  * The default parameters produce a static circular tip shape, with diameter equal to the [Brush]
  * size and no color shift.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class BrushTip
 private constructor(
@@ -193,9 +190,10 @@ private constructor(
     /**
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
+     *
+     * Java callers should use [Builder] instead.
      */
-    @JvmSynthetic
-    @Suppress("Deprecation") // Still considers deprecated opacityMultiplier.
+    @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
     public fun copy(
         @FloatRange(from = 0.0, toInclusive = false) scaleX: Float = this.scaleX,
         @FloatRange(from = 0.0, toInclusive = false) scaleY: Float = this.scaleY,
@@ -226,7 +224,6 @@ private constructor(
      * Returns a [Builder] with values set equivalent to `this`. Java developers, use the returned
      * builder to build a copy of a BrushTip. Kotlin developers, see [copy] method.
      */
-    @Suppress("Deprecation") // Still considers deprecated opacityMultiplier.
     public fun toBuilder(): Builder =
         Builder()
             .setScaleX(scaleX)
@@ -328,7 +325,6 @@ private constructor(
             )
     }
 
-    @Suppress("Deprecation") // Still considers deprecated opacityMultiplier.
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is BrushTip) return false
         return scaleY == other.scaleY &&
@@ -342,7 +338,6 @@ private constructor(
             behaviors == other.behaviors
     }
 
-    @Suppress("Deprecation") // Still considers deprecated opacityMultiplier.
     override fun hashCode(): Int {
         var result = scaleX.hashCode()
         result = 31 * result + scaleY.hashCode()
@@ -356,7 +351,6 @@ private constructor(
         return result
     }
 
-    @Suppress("Deprecation") // Still outputs deprecated opacityMultiplier.
     override fun toString(): String =
         "BrushTip(scale=($scaleX, $scaleY), cornerRounding=$cornerRounding," +
             " slantDegrees=$slantDegrees, pinch=$pinch, rotationDegrees=$rotationDegrees," +

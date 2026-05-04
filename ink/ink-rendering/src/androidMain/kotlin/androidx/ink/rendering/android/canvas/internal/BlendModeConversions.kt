@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalInkCustomBrushApi::class)
-
 package androidx.ink.rendering.android.canvas.internal
 
 import android.graphics.BlendMode
@@ -24,7 +22,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.ink.brush.BrushPaint.TextureLayer
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 
 /**
  * Returns the Android [PorterDuff.Mode] that is equivalent to this Ink [TextureLayer.BlendMode].

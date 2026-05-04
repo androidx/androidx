@@ -19,7 +19,6 @@ package androidx.ink.authoring
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureAnimationProgressHelper
 import androidx.ink.geometry.Box
 import androidx.ink.geometry.BoxAccumulator
@@ -31,7 +30,6 @@ import kotlin.random.Random
 /**
  * An implementation of [InProgressShape] that simply wraps [androidx.ink.strokes.InProgressStroke].
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalCustomShapeWorkflowApi
 public class InkInProgressShape : InProgressShape<Brush, Stroke> {
@@ -78,7 +76,6 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
      */
     private val scratchBoxAccumulator = BoxAccumulator()
 
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     override fun start(shapeSpec: Brush, systemElapsedTimeMillis: Long) {
         prepareToRecycle()
         this.brush = shapeSpec
