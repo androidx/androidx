@@ -16,7 +16,6 @@
 
 package androidx.ink.strokes
 
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import com.google.common.truth.Truth.assertThat
 import java.lang.IllegalArgumentException
@@ -403,7 +402,6 @@ internal class StrokeInputBatchTest {
     }
 
     @Test
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     fun getNoiseSeed_returnsZeroIfUnset() {
         assertThat(builder.getNoiseSeed()).isEqualTo(0)
         assertThat(builder.toImmutable().getNoiseSeed()).isEqualTo(0)
@@ -414,7 +412,6 @@ internal class StrokeInputBatchTest {
     }
 
     @Test
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     fun getNoiseSeed_returnsValueIfSet() {
         builder.setNoiseSeed(12345)
         assertThat(builder.getNoiseSeed()).isEqualTo(12345)

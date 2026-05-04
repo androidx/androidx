@@ -25,7 +25,6 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TextureLayer
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.strokes.StrokeInput
@@ -41,7 +40,6 @@ import kotlin.test.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class BrushPaintCacheTest {

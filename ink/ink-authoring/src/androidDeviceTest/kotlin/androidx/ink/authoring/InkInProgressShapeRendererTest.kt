@@ -23,7 +23,6 @@ import android.os.Build
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -33,7 +32,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-@OptIn(ExperimentalInkCustomBrushApi::class, ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(ExperimentalCustomShapeWorkflowApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.TIRAMISU)

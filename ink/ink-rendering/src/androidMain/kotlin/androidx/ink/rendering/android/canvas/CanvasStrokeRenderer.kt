@@ -20,7 +20,6 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.nativeloader.NativeLoader
@@ -93,7 +92,6 @@ public interface CanvasStrokeRenderer {
      * blurry or aliased.
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     public fun draw(
         canvas: Canvas,
         stroke: Stroke,
@@ -115,7 +113,6 @@ public interface CanvasStrokeRenderer {
      * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
      * blurry or aliased.
      */
-    @ExperimentalInkCustomBrushApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
@@ -138,7 +135,6 @@ public interface CanvasStrokeRenderer {
      * appear blurry or aliased.
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: Matrix): Unit =
         draw(canvas, stroke, strokeToScreenTransform, 0f)
 
@@ -157,7 +153,6 @@ public interface CanvasStrokeRenderer {
      * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
      * appear blurry or aliased.
      */
-    @ExperimentalInkCustomBrushApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
@@ -176,7 +171,6 @@ public interface CanvasStrokeRenderer {
      * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
      * blurry or aliased.
      */
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -195,7 +189,6 @@ public interface CanvasStrokeRenderer {
      * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
      * blurry or aliased.
      */
-    @ExperimentalInkCustomBrushApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
@@ -214,7 +207,6 @@ public interface CanvasStrokeRenderer {
      * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
      * appear blurry or aliased.
      */
-    @OptIn(ExperimentalInkCustomBrushApi::class)
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -233,7 +225,6 @@ public interface CanvasStrokeRenderer {
      * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
      * appear blurry or aliased.
      */
-    @ExperimentalInkCustomBrushApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,

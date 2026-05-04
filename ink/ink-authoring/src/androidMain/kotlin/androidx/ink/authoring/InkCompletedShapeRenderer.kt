@@ -17,12 +17,10 @@ package androidx.ink.authoring
 
 import android.graphics.Canvas
 import android.graphics.Matrix
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureAnimationProgressHelper
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.Stroke
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @ExperimentalCustomShapeWorkflowApi
 internal class InkCompletedShapeRenderer(private val strokeRenderer: CanvasStrokeRenderer) :
     CompletedShapeRenderer<Stroke> {

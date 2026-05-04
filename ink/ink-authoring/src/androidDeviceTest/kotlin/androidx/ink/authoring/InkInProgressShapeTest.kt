@@ -18,7 +18,6 @@ package androidx.ink.authoring
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.MutableStrokeInputBatch
@@ -28,7 +27,7 @@ import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalInkCustomBrushApi::class, ExperimentalCustomShapeWorkflowApi::class)
+@OptIn(ExperimentalCustomShapeWorkflowApi::class)
 @RunWith(AndroidJUnit4::class)
 class InkInProgressShapeTest {
 

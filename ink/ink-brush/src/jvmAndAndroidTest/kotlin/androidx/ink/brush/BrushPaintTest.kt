@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.brush.BrushPaint.ColorFunction
 import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.geometry.Angle
 import androidx.ink.nativeloader.UsedByNative
@@ -25,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(JUnit4::class)
 class BrushPaintTest {
 

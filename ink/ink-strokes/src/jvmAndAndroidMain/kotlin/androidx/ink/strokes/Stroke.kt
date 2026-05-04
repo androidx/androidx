@@ -18,7 +18,7 @@ package androidx.ink.strokes
 
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.PartitionedMesh
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
@@ -34,7 +34,6 @@ import androidx.ink.nativeloader.UsedByNative
  * [androidx.ink.authoring.InProgressStrokesView] or [InProgressStroke], which will ultimately
  * return a [Stroke] when input is completed.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class Stroke
 private constructor(
@@ -158,6 +157,27 @@ private constructor(
 
     public override fun toString(): String {
         return "Stroke(brush=$brush, inputs=$inputs, shape=$shape)"
+    }
+
+    /**
+     * Erases the [eraserShape] from this stroke and returns the remaining fragments.
+     *
+     * Each resulting stroke retains the original [inputs] and [brush], but has a newly computed
+     * [shape] representing the portion remaining after erasure.
+     *
+     * @param eraserShape A [PartitionedMesh] representing the geometric region to be erased.
+     * @param strokeToEraserTransform A map from stroke coordinates to [eraserShape] coordinates.
+     * @return The set of [Stroke] fragments remaining after the erasure.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public fun partialErase(
+        eraserShape: PartitionedMesh,
+        strokeToEraserTransform: AffineTransform,
+    ): Set<Stroke> {
+        // TODO(b/504681427): Implement partial stroke erasuring functionality. Currently returns
+        // the
+        // original stroke.
+        return setOf(this)
     }
 
     public companion object {

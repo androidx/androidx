@@ -28,18 +28,13 @@ import androidx.ink.authoring.ExperimentalLatencyDataApi
 import androidx.ink.authoring.InkInProgressShape
 import androidx.ink.authoring.InkInProgressShapeRenderer
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.Stroke
 import java.util.concurrent.TimeUnit
 import org.mockito.kotlin.mock
 
 /** An [Activity] to support [CanvasInProgressStrokesRenderHelperV33]. */
-@OptIn(
-    ExperimentalLatencyDataApi::class,
-    ExperimentalInkCustomBrushApi::class,
-    ExperimentalCustomShapeWorkflowApi::class,
-)
+@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
 @SuppressLint("UseSdkSuppress") // SdkSuppress is on the test class.
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
@@ -126,24 +121,17 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
         private fun runFakeThreadOnce(fakeThread: FakeScheduledExecutor): Boolean {
             val previousThreadId = currentThreadId
             currentThreadId = fakeThread.threadId
-            var ranAny = false
-            if (fakeThread.tasks.isNotEmpty()) {
-                fakeThread.tasks.removeAt(0).run()
-                ranAny = true
-            }
+            val task = fakeThread.tasks.removeFirstOrNull()
+            task?.run()
             currentThreadId = previousThreadId
-            return ranAny
+            return task != null
         }
 
         private fun runFakeThreadToIdle(fakeThread: FakeScheduledExecutor): Boolean {
-            val previousThreadId = currentThreadId
-            currentThreadId = fakeThread.threadId
             var ranAny = false
-            while (fakeThread.tasks.isNotEmpty()) {
-                fakeThread.tasks.removeAt(0).run()
+            while (runFakeThreadOnce(fakeThread)) {
                 ranAny = true
             }
-            currentThreadId = previousThreadId
             return ranAny
         }
 

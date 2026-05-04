@@ -27,7 +27,6 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.withMatrix
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
 import androidx.ink.strokes.ImmutableStrokeInputBatch
@@ -77,7 +76,7 @@ class CanvasMeshRendererScreenshotTestActivity : Activity() {
         // Stroke with no inputs, and therefore an empty [PartitionedMesh].
         private val emptyStroke = Stroke(brush, ImmutableStrokeInputBatch.EMPTY)
 
-        private val renderer = @OptIn(ExperimentalInkCustomBrushApi::class) CanvasMeshRenderer()
+        private val renderer = CanvasMeshRenderer()
 
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)

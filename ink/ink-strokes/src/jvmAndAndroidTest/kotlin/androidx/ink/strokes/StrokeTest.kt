@@ -19,12 +19,14 @@ package androidx.ink.strokes
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushCoat
 import androidx.ink.brush.BrushFamily
+import androidx.ink.brush.BrushFamily.InputModel
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.BrushTip
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.colorspace.ColorSpaces
+import androidx.ink.geometry.AffineTransform
+import androidx.ink.geometry.PartitionedMesh
 import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
@@ -33,7 +35,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(JUnit4::class)
 class StrokeTest {
 
@@ -331,10 +332,10 @@ class StrokeTest {
     @Test
     fun copy_withChangedBrushInputModel_createsCopyWithSameInputs() {
         val originalBrush = buildTestBrush()
-        assertThat(originalBrush.family.inputModel).isEqualTo(BrushFamily.DEFAULT_INPUT_MODEL)
+        assertThat(originalBrush.family.inputModel).isEqualTo(InputModel.DEFAULT_INPUT_MODEL)
         val inputModelChangedBrush =
             originalBrush.copy(
-                family = originalBrush.family.copy(inputModel = BrushFamily.PASSTHROUGH_MODEL)
+                family = originalBrush.family.copy(inputModel = InputModel.PASSTHROUGH_MODEL)
             )
         val inputs = makeTestInputs()
         val originalStroke = Stroke(originalBrush, inputs)
@@ -350,6 +351,36 @@ class StrokeTest {
 
         // The new C++ Stroke is different from the original stroke.
         assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
+    }
+
+    @Test
+    fun partialErase_withEmptyEraserShape_returnsOriginalStroke() {
+        val stroke = buildTestStroke()
+        val emptyEraserShape = ImmutableStrokeInputBatch.EMPTY.createClosedShape()
+
+        val result = stroke.partialErase(emptyEraserShape, AffineTransform.IDENTITY)
+
+        assertThat(result).containsExactly(stroke)
+    }
+
+    @Test
+    fun partialErase_retainsBrush() {
+        val stroke = buildTestStroke()
+        val result = stroke.partialErase(buildTestShape(), AffineTransform.IDENTITY)
+
+        for (fragment in result) {
+            assertThat(fragment.brush).isEqualTo(stroke.brush)
+        }
+    }
+
+    @Test
+    fun partialErase_retainsInputs() {
+        val stroke = buildTestStroke()
+        val result = stroke.partialErase(buildTestShape(), AffineTransform.IDENTITY)
+
+        for (fragment in result) {
+            assertThat(fragment.inputs).isEqualTo(stroke.inputs)
+        }
     }
 
     @Test
@@ -394,6 +425,16 @@ class StrokeTest {
     private fun buildTestStroke(): Stroke {
         val batch = buildStrokeInputBatchFromPoints(floatArrayOf(10f, 3f, 20f, 5f)).toImmutable()
         return Stroke(buildTestBrush(), batch)
+    }
+
+    /**
+     * Creates a [PartitionedMesh] for testing as a closed shape generated from the inputs:
+     *
+     * Inputs = [{10, 3}, {20, 3}, {20, 5}]
+     */
+    private fun buildTestShape(): PartitionedMesh {
+        return buildStrokeInputBatchFromPoints(floatArrayOf(10f, 3f, 20f, 3f, 20f, 5f))
+            .createClosedShape()
     }
 
     /**

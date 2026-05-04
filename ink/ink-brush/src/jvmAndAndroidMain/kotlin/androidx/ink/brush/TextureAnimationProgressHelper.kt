@@ -31,7 +31,6 @@ import androidx.annotation.RestrictTo
  *
  * TODO: b/267164444 - Support texture layers within the same coat having different animation specs.
  */
-@ExperimentalInkCustomBrushApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 public object TextureAnimationProgressHelper {
 

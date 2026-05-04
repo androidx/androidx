@@ -16,7 +16,6 @@
 
 package androidx.ink.brush
 
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
 import kotlin.jvm.JvmField
 
@@ -26,7 +25,6 @@ import kotlin.jvm.JvmField
  * This is independent of the Jetpack version. A Jetpack version may have multiple brush version
  * increments, or none at all (supporting only previously released brush versions).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 public class Version private constructor(@JvmField public val value: Int) : Comparable<Version> {
     init {
         check(value !in VALUE_TO_INSTANCE) { "Duplicate Version value: $value." }
@@ -45,26 +43,18 @@ public class Version private constructor(@JvmField public val value: Int) : Comp
             checkNotNull(VALUE_TO_INSTANCE[value]) { "Invalid Version value: $value" }
 
         /** Included with Jetpack 1.1.0-alpha01. */
-        @JvmField
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-        public val V1_JETPACK1_1_0_ALPHA01: Version = Version(1)
+        @JvmField public val V1_JETPACK1_1_0_ALPHA01: Version = Version(1)
 
         /** Included with Jetpack 1.0.0. */
-        @JvmField
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-        public val V0_JETPACK1_0_0: Version = Version(0)
+        @JvmField public val V0_JETPACK1_0_0: Version = Version(0)
 
         /** The maximum version supported by this library. */
-        @JvmField
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-        public val MAX_SUPPORTED: Version = V1_JETPACK1_1_0_ALPHA01
+        @JvmField public val MAX_SUPPORTED: Version = V1_JETPACK1_1_0_ALPHA01
 
         /**
          * A version that is always rejected by the deserializer by default. This is used for
          * features still under development that may change or be removed entirely.
          */
-        @JvmField
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-        public val DEVELOPMENT: Version = Version(Int.MAX_VALUE)
+        @JvmField public val DEVELOPMENT: Version = Version(Int.MAX_VALUE)
     }
 }

@@ -16,16 +16,12 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 
 /**
  * The desired behavior when an input value is outside the range defined by
  * [SourceNode.sourceValueRangeStart] and [SourceNode.sourceValueRangeEnd].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 public class OutOfRange
 private constructor(@JvmField internal val value: Int, private val name: String) {
     init {

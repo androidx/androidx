@@ -59,8 +59,6 @@ import kotlin.jvm.JvmOverloads
  * before being applied: The rates of change of shape properties may be constrained to keep them
  * from changing too rapidly with respect to distance traveled from one input to the next.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 // NotCloseable: Finalize is only used to free the native peer.
 @Suppress("NotCloseable")
 public class BrushBehavior
@@ -160,7 +158,6 @@ private constructor(
 }
 
 /** Singleton wrapper for `BrushBehavior` native methods. */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @UsedByNative
 private object BrushBehaviorNative {
     init {

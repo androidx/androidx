@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.brush.BrushFamily.InputModel
 import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.behavior.BinaryOpNode
 import androidx.ink.brush.behavior.BinaryOpNode.BinaryOp
@@ -37,7 +38,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(JUnit4::class)
 class BrushFamilyTest {
     @Test
@@ -58,8 +58,8 @@ class BrushFamilyTest {
 
     @Test
     fun inputModelHashCode_isSameForIdenticalModels() {
-        assertThat(BrushFamily.DEFAULT_INPUT_MODEL.hashCode())
-            .isEqualTo(BrushFamily.DEFAULT_INPUT_MODEL.hashCode())
+        assertThat(InputModel.DEFAULT_INPUT_MODEL.hashCode())
+            .isEqualTo(InputModel.DEFAULT_INPUT_MODEL.hashCode())
     }
 
     @Test
@@ -69,7 +69,7 @@ class BrushFamilyTest {
                 customTip,
                 customPaint,
                 inputModel =
-                    BrushFamily.SlidingWindowModel(
+                    InputModel.SlidingWindowModel(
                         windowDurationMillis = 250,
                         upsamplingFrequencyHz = 1,
                     ),
@@ -85,7 +85,7 @@ class BrushFamilyTest {
                     tip = customTip,
                     paint = customPaint,
                     inputModel =
-                        BrushFamily.SlidingWindowModel(
+                        InputModel.SlidingWindowModel(
                             windowDurationMillis = 250,
                             upsamplingFrequencyHz = 1,
                         ),
@@ -105,7 +105,7 @@ class BrushFamilyTest {
         assertThat(
                 BrushFamily(
                         inputModel =
-                            BrushFamily.SlidingWindowModel(
+                            InputModel.SlidingWindowModel(
                                 windowDurationMillis = 1000,
                                 upsamplingFrequencyHz = 1,
                             )
@@ -221,9 +221,9 @@ class BrushFamilyTest {
 
     @Test
     fun inputModelToString_returnsExpectedValues() {
-        assertThat(BrushFamily.PASSTHROUGH_MODEL.toString()).isEqualTo("PassthroughModel")
+        assertThat(InputModel.PASSTHROUGH_MODEL.toString()).isEqualTo("PassthroughModel")
         assertThat(
-                BrushFamily.SlidingWindowModel(
+                InputModel.SlidingWindowModel(
                         windowDurationMillis = 47,
                         upsamplingFrequencyHz = 150,
                     )
@@ -235,53 +235,53 @@ class BrushFamilyTest {
     @Test
     fun inputModelEquals() {
         assertThat(
-                BrushFamily.SlidingWindowModel(
+                InputModel.SlidingWindowModel(
                     windowDurationMillis = 47,
                     upsamplingFrequencyHz = 150,
                 )
             )
             .isEqualTo(
-                BrushFamily.SlidingWindowModel(
+                InputModel.SlidingWindowModel(
                     windowDurationMillis = 47,
                     upsamplingFrequencyHz = 150,
                 )
             )
-        assertThat(BrushFamily.PASSTHROUGH_MODEL).isEqualTo(BrushFamily.PASSTHROUGH_MODEL)
+        assertThat(InputModel.PASSTHROUGH_MODEL).isEqualTo(InputModel.PASSTHROUGH_MODEL)
 
         assertThat(
-                BrushFamily.SlidingWindowModel(
+                InputModel.SlidingWindowModel(
                     windowDurationMillis = 47,
                     upsamplingFrequencyHz = 150,
                 )
             )
             .isNotEqualTo(
-                BrushFamily.SlidingWindowModel(
+                InputModel.SlidingWindowModel(
                     windowDurationMillis = 48,
                     upsamplingFrequencyHz = 150,
                 )
             )
         assertThat(
-                BrushFamily.SlidingWindowModel(
+                InputModel.SlidingWindowModel(
                     windowDurationMillis = 47,
                     upsamplingFrequencyHz = 150,
                 )
             )
             .isNotEqualTo(
-                BrushFamily.SlidingWindowModel(
+                InputModel.SlidingWindowModel(
                     windowDurationMillis = 47,
                     upsamplingFrequencyHz = 151,
                 )
             )
         assertThat(
-                BrushFamily.SlidingWindowModel(
+                InputModel.SlidingWindowModel(
                     windowDurationMillis = 47,
                     upsamplingFrequencyHz = 150,
                 )
             )
-            .isNotEqualTo(BrushFamily.PASSTHROUGH_MODEL)
-        assertThat(BrushFamily.PASSTHROUGH_MODEL)
+            .isNotEqualTo(InputModel.PASSTHROUGH_MODEL)
+        assertThat(InputModel.PASSTHROUGH_MODEL)
             .isNotEqualTo(
-                BrushFamily.SlidingWindowModel(
+                InputModel.SlidingWindowModel(
                     windowDurationMillis = 47,
                     upsamplingFrequencyHz = 150,
                 )
@@ -314,7 +314,7 @@ class BrushFamilyTest {
     @Test
     fun builder_createsExpectedBrushFamily() {
         val family =
-            BrushFamily.Builder()
+            BrushFamily.builder()
                 .setCoats(listOf(BrushCoat(customTip, customPaint)))
                 .setClientBrushFamilyId(customBrushFamilyId)
                 .build()

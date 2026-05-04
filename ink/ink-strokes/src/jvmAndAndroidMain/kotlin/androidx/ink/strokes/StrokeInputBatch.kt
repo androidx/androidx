@@ -17,7 +17,6 @@
 package androidx.ink.strokes
 
 import androidx.annotation.RestrictTo
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
@@ -95,7 +94,6 @@ public abstract class StrokeInputBatch internal constructor(nativePointer: Long)
      * behaviors when a full stroke is regenerated with this input batch. If no seed value has yet
      * been set for this input batch, returns the default seed of zero.
      */
-    @ExperimentalInkCustomBrushApi
     public fun getNoiseSeed(): Int = StrokeInputBatchNative.getNoiseSeed(nativePointer)
 
     /**
@@ -331,14 +329,12 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative.c
      * Sets the per-stroke seed value that should be used when regenerating a stroke from this input
      * batch.
      */
-    @ExperimentalInkCustomBrushApi
     public fun setNoiseSeed(seed: Int): Unit =
         MutableStrokeInputBatchNative.setNoiseSeed(nativePointer, seed)
 
     /** Create [ImmutableStrokeInputBatch] with the accumulated StrokeInputs. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public override fun toImmutable(): ImmutableStrokeInputBatch =
-        @OptIn(ExperimentalInkCustomBrushApi::class)
         if (isEmpty() && getNoiseSeed() == 0) {
             ImmutableStrokeInputBatch.EMPTY
         } else {

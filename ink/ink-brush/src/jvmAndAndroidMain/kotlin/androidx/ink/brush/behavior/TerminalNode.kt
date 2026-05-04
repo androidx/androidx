@@ -16,16 +16,11 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
-
 /**
  * A [TerminalNode] is a terminal node in the graph; it does not produce a value and cannot be used
  * as an input to other [Node]s, but instead applies a modification to the brush tip state. A
  * [androidx.ink.brush.BrushBehavior] consists of a list of [TerminalNode]s and the various
  * [ValueNode]s that they transitively depend on.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 public abstract class TerminalNode
 internal constructor(nativePointer: Long, inputs: List<ValueNode>) : Node(nativePointer, inputs) {}

@@ -27,7 +27,6 @@ import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TextureLayer
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.toArgb
@@ -43,7 +42,6 @@ import java.util.WeakHashMap
  *   set when using an API that expects a color to be uniformly applied by the Paint, instead of
  *   providing per-vertex-modified colors to the draw call.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 internal class BrushPaintCache(
     val textureStore: TextureBitmapStore,
     /**
@@ -383,7 +381,6 @@ internal class BrushPaintCache(
     }
 }
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
 internal fun TextureLayer.Wrap.toShaderTileMode(): Shader.TileMode =
     when (this) {
         TextureLayer.Wrap.REPEAT -> Shader.TileMode.REPEAT

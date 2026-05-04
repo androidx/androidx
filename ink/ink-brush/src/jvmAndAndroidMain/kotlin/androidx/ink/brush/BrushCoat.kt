@@ -34,8 +34,6 @@ import kotlin.jvm.JvmStatic
  * rendered, each coat of ink will be drawn entirely atop the previous coat, even if the stroke
  * crosses over itself, as though each coat were painted in its entirety one at a time.
  */
-@ExperimentalInkCustomBrushApi
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class BrushCoat
 private constructor(
@@ -99,8 +97,10 @@ private constructor(
     /**
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
+     *
+     * Java callers should use [Builder] instead.
      */
-    @JvmSynthetic
+    @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
     public fun copy(
         tip: BrushTip = this.tip,
         @Size(min = 1) paintPreferences: List<BrushPaint> = this.paintPreferences,

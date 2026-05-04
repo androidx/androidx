@@ -19,6 +19,4 @@ package androidx.ink.nativeloader.testing
 /* Controls the timing of GC for tests. */
 expect internal object GarbageCollectorController {
     fun collect()
-
-    fun canCollectSynchronously(): Boolean
 }

@@ -17,7 +17,6 @@
 package androidx.ink.nativeloader
 
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
-import androidx.ink.nativeloader.testing.awaitNativePointerCleanupSupported
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -42,9 +41,6 @@ class NativePointerTest {
 
     @Test
     fun awaitNativePointerCleanupAfter_throwsIfSamePointerAllocatedTwice() {
-        if (!awaitNativePointerCleanupSupported()) {
-            return
-        }
         // This guards against a condition where some of the other consistency checking wouldn't
         // work. Allocated pointers being unique is a constraint on the consumer of [NativePointer].
         // If we wind up needing to deal with the same address being freed and reused in the code
@@ -62,9 +58,6 @@ class NativePointerTest {
 
     @Test
     fun awaitNativePointerCleanupAfter_throwsIfPointerCleanedUpWithoutAlloc() {
-        if (!awaitNativePointerCleanupSupported()) {
-            return
-        }
         // NativePointer should enforce that this condition is not met, but we can test that
         // awaitNativePointerCleanupAfter guards against it by manipulating the observer
         // directly.
@@ -79,9 +72,6 @@ class NativePointerTest {
 
     @Test
     fun awaitNativePointerCleanupAfter_throwsIfSamePointerCleanedUpTwice() {
-        if (!awaitNativePointerCleanupSupported()) {
-            return
-        }
         // NativePointer should enforce that this condition is not met, but we can test that
         // awaitNativePointerCleanupAfter guards against it by manipulating the observer
         // directly.
@@ -113,9 +103,6 @@ class NativePointerTest {
 
     @Test
     fun nativePointer_isCleanedUpAfterGoingOutOfScope() {
-        if (!awaitNativePointerCleanupSupported()) {
-            return
-        }
         val freedPointers = mutableListOf<Long>()
         awaitNativePointerCleanupAfter {
             val unused = NativePointer({ 1L }, { freedPointers.add(it) })
@@ -125,9 +112,6 @@ class NativePointerTest {
 
     @Test
     fun nativePointer_throwsIfAllocFailed() {
-        if (!awaitNativePointerCleanupSupported()) {
-            return
-        }
         val freedPointers = mutableListOf<Long>()
         val ex =
             assertFailsWith<IllegalStateException> {
@@ -155,9 +139,6 @@ class NativePointerTest {
 
     @Test
     fun nativePointer_setsUpCleanupBeforeAllocating() {
-        if (!awaitNativePointerCleanupSupported()) {
-            return
-        }
         val pointerCleanupsObserved = mutableListOf<Long>()
         val freedPointers = mutableListOf<Long>()
         val ex =

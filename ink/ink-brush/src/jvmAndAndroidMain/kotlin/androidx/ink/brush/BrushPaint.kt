@@ -16,11 +16,14 @@
 
 package androidx.ink.brush
 
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorLong
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
 import androidx.ink.brush.color.Color as ComposeColor
+import androidx.ink.brush.color.toArgb
 import androidx.ink.geometry.AngleDegreesFloat
 import androidx.ink.geometry.MeshFormat
 import androidx.ink.nativeloader.NativeLoader
@@ -28,11 +31,9 @@ import androidx.ink.nativeloader.UsedByNative
 import java.util.Collections.unmodifiableList
 import kotlin.Suppress
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmSynthetic
 
 /**
- * Parameters that control stroke mesh rendering. Note: This contains only a subset of the
- * parameters as support is added for them.
+ * Parameters that control stroke mesh rendering.
  *
  * The core of each paint consists of one or more texture layers. The output of each layer is
  * blended together in sequence, then the combined texture is blended with the output from the brush
@@ -42,8 +43,6 @@ import kotlin.jvm.JvmSynthetic
  * - The final combined texture (source) is blended with the (possibly adjusted per-vertex) brush
  *   color (destination) according to the blend mode of the last texture layer.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class BrushPaint
 private constructor(
@@ -60,7 +59,10 @@ private constructor(
     /** The textures to apply to the stroke. */
     public val textureLayers: List<TextureLayer> = unmodifiableList(textureLayers.toList())
 
-    /** The color functions to apply to the brush color. */
+    /**
+     * Transformations to apply to the base brush color (in order) before drawing this coat of
+     * paint. When this list is empty, the base brush color will be used unchanged.
+     */
     public val colorFunctions: List<ColorFunction> = unmodifiableList(colorFunctions.toList())
 
     /**
@@ -145,33 +147,15 @@ private constructor(
          * @param clientTextureId A string identifier of an image that provides the color for a
          *   particular pixel for this layer. The coordinates within this image that will be used
          *   are determined by the other parameters.
-         * @param sizeX The X size in [TextureLayer.SizeUnit] of (one animation frame of) the image
-         *   specified by [clientTextureId].
-         * @param sizeY The Y size in [TextureLayer.SizeUnit] of (one animation frame of) the image
-         *   specified by [clientTextureId].
+         * @param sizeX The X size in [TextureLayer.SizeUnit] of the image specified by
+         *   [clientTextureId].
+         * @param sizeY The Y size in [TextureLayer.SizeUnit] of the image specified by
+         *   [clientTextureId].
          * @param offsetX An offset into the texture, specified as fractions of the texture [sizeX].
          * @param offsetY An offset into the texture, specified as fractions of the texture [sizeY].
          * @param rotationDegrees Angle in degrees specifying the rotation of the texture. The
          *   rotation is carried out about the center of the texture's first repetition along both
          *   axes.
-         * @param animationFrames The number of animation frames in this texture, or 1 for no
-         *   animation. If greater than 1, then the texture image is treated as a grid of animation
-         *   frame images, with dimensions of [animationRows] by [animationColumns] frames. The
-         *   frames will be indexed in row-major order, where row=0 and column=0 is frame index 0,
-         *   then row=0 and column=1 is frame index 1, and so on. [animationFrames] must be at most
-         *   the product of [animationRows] and [animationColumns], and there may be unused frame
-         *   cells in the final row.
-         * @param animationRows The number of frame rows in this texture. See [animationFrames] for
-         *   more detail. When constructing an animation texture image, avoid making it too large in
-         *   any one dimension by choosing values for [animationRows] and [animationColumns] that
-         *   are close to each other, but just large enough such that [animationFrames] <=
-         *   [animationRows] * [animationColumns].
-         * @param animationColumns Like [animationRows], but for columns.
-         * @param animationDurationMillis The length of time in milliseconds that it takes to loop
-         *   through all of the [animationFrames] frames in the texture. This means that each frame
-         *   will be displayed (on average) for [animationDurationMillis] / [animationFrames]
-         *   milliseconds. Defaults to 1000 milliseconds, but ignored if [animationFrames] is 1 (its
-         *   default value) because that indicates that animation is disabled.
          * @param sizeUnit The units used to specify [sizeX] and [sizeY].
          * @param origin The origin point to be used for texture space.
          * @param mapping The method by which the coordinates of the [clientTextureId] image will
@@ -190,16 +174,97 @@ private constructor(
             offsetX: Float = 0f,
             offsetY: Float = 0f,
             @AngleDegreesFloat rotationDegrees: Float = 0F,
-            @IntRange(from = 1, to = 1 shl 24) animationFrames: Int = 1,
-            @IntRange(from = 1, to = 1 shl 12) animationRows: Int = 1,
-            @IntRange(from = 1, to = 1 shl 12) animationColumns: Int = 1,
-            @IntRange(from = 1, to = 1 shl 24) animationDurationMillis: Long = 1000L,
             sizeUnit: SizeUnit = SizeUnit.STROKE_COORDINATES,
             origin: Origin = Origin.STROKE_SPACE_ORIGIN,
             mapping: Mapping = Mapping.TILING,
             wrapX: Wrap = Wrap.REPEAT,
             wrapY: Wrap = Wrap.REPEAT,
             blendMode: BlendMode = BlendMode.MODULATE,
+        ) : this(
+            TextureLayerNative.create(
+                clientTextureId = clientTextureId,
+                sizeX = sizeX,
+                sizeY = sizeY,
+                offsetX = offsetX,
+                offsetY = offsetY,
+                rotationDegrees = rotationDegrees,
+                animationFrames = 1,
+                animationRows = 1,
+                animationColumns = 1,
+                animationDurationMillis = 1000L,
+                sizeUnit = sizeUnit.value,
+                origin = origin.value,
+                mapping = mapping.value,
+                wrapX = wrapX.value,
+                wrapY = wrapY.value,
+                blendMode = blendMode.value,
+            )
+        )
+
+        /**
+         * Creates a new [TextureLayer] with the specified parameters.
+         *
+         * Java callers should use the [Builder] class instead.
+         *
+         * @param clientTextureId A string identifier of an image that provides the color for a
+         *   particular pixel for this layer. The coordinates within this image that will be used
+         *   are determined by the other parameters.
+         * @param sizeX The X size in [SizeUnit] of (one animation frame of) the image specified by
+         *   [clientTextureId].
+         * @param sizeY The Y size in [SizeUnit] of (one animation frame of) the image specified by
+         *   [clientTextureId].
+         * @param offsetX An offset into the texture, specified as fractions of the texture [sizeX].
+         * @param offsetY An offset into the texture, specified as fractions of the texture [sizeY].
+         * @param rotationDegrees Angle in degrees specifying the rotation of the texture. The
+         *   rotation is carried out about the center of the texture's first repetition along both
+         *   axes.
+         * @param sizeUnit The units used to specify [sizeX] and [sizeY].
+         * @param origin The origin point to be used for texture space.
+         * @param mapping The method by which the coordinates of the [clientTextureId] image will
+         *   apply to the stroke.
+         * @param wrapX The wrap mode along the horizontal texture axis.
+         * @param wrapY The wrap mode along the vertical texture axis.
+         * @param blendMode The method by which the texture layers up to this one (index <= i) are
+         *   combined with the subsequent texture layer (index == i+1). For the last texture layer,
+         *   this defines the method by which the texture layer is combined with the brush color
+         *   (possibly after that color gets per-vertex adjustments).
+         * @param animationFrames The number of animation frames in this texture, or 1 for no
+         *   animation. If greater than 1, then the texture image is treated as a grid of animation
+         *   frame images, with dimensions of [animationRows] by [animationColumns] frames. The
+         *   frames will be indexed in row-major order, where row=0 and column=0 is frame index 0,
+         *   then row=0 and column=1 is frame index 1, and so on. [animationFrames] must be at most
+         *   the product of [animationRows] and [animationColumns], and there may be unused frame
+         *   cells in the final row.
+         * @param animationRows The number of frame rows in this texture. See [animationFrames] for
+         *   more detail. When constructing an animation texture image, avoid making it too large in
+         *   any one dimension by choosing values for [animationRows] and [animationColumns] that
+         *   are close to each other, but just large enough such that [animationFrames] <=
+         *   [animationRows] * [animationColumns].
+         * @param animationColumns Like [animationRows], but for columns.
+         * @param animationDurationMillis The length of time in milliseconds that it takes to loop
+         *   through all of the [animationFrames] frames in the texture. This means that each frame
+         *   will be displayed (on average) for [animationDurationMillis] / [animationFrames]
+         *   milliseconds. Defaults to 1000 milliseconds, but ignored if [animationFrames] is 1 (its
+         *   default value) because that indicates that animation is disabled.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        public constructor(
+            clientTextureId: String,
+            @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false) sizeX: Float,
+            @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false) sizeY: Float,
+            offsetX: Float = 0f,
+            offsetY: Float = 0f,
+            @AngleDegreesFloat rotationDegrees: Float = 0F,
+            sizeUnit: SizeUnit = SizeUnit.STROKE_COORDINATES,
+            origin: Origin = Origin.STROKE_SPACE_ORIGIN,
+            mapping: Mapping = Mapping.TILING,
+            wrapX: Wrap = Wrap.REPEAT,
+            wrapY: Wrap = Wrap.REPEAT,
+            blendMode: BlendMode = BlendMode.MODULATE,
+            @IntRange(from = 1, to = 1 shl 24) animationFrames: Int = 1,
+            @IntRange(from = 1, to = 1 shl 12) animationRows: Int = 1,
+            @IntRange(from = 1, to = 1 shl 12) animationColumns: Int = 1,
+            @IntRange(from = 1, to = 1 shl 24) animationDurationMillis: Long = 1000L,
         ) : this(
             TextureLayerNative.create(
                 clientTextureId = clientTextureId,
@@ -248,19 +313,19 @@ private constructor(
         @AngleDegreesFloat
         public val rotationDegrees: Float = TextureLayerNative.getRotationDegrees(nativePointer)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @IntRange(from = 1, to = 1 shl 24)
         public val animationFrames: Int = TextureLayerNative.getAnimationFrames(nativePointer)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @IntRange(from = 1, to = 1 shl 12)
         public val animationRows: Int = TextureLayerNative.getAnimationRows(nativePointer)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @IntRange(from = 1, to = 1 shl 12)
         public val animationColumns: Int = TextureLayerNative.getAnimationColumns(nativePointer)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @IntRange(from = 1, to = 1 shl 24)
         public val animationDurationMillis: Long =
             TextureLayerNative.getAnimationDurationMillis(nativePointer)
@@ -301,8 +366,10 @@ private constructor(
         /**
          * Creates a copy of `this` and allows named properties to be altered while keeping the rest
          * unchanged.
+         *
+         * Java callers should use [Builder] instead.
          */
-        @JvmSynthetic
+        @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
         public fun copy(
             clientTextureId: String = this.clientTextureId,
             @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false)
@@ -312,11 +379,6 @@ private constructor(
             offsetX: Float = this.offsetX,
             offsetY: Float = this.offsetY,
             @AngleDegreesFloat rotationDegrees: Float = this.rotationDegrees,
-            @IntRange(from = 1, to = 1 shl 24) animationFrames: Int = this.animationFrames,
-            @IntRange(from = 1, to = 1 shl 12) animationRows: Int = this.animationRows,
-            @IntRange(from = 1, to = 1 shl 12) animationColumns: Int = this.animationColumns,
-            @IntRange(from = 1, to = 1 shl 24)
-            animationDurationMillis: Long = this.animationDurationMillis,
             sizeUnit: SizeUnit = this.sizeUnit,
             origin: Origin = this.origin,
             mapping: Mapping = this.mapping,
@@ -331,10 +393,6 @@ private constructor(
                     offsetX == this.offsetX &&
                     offsetY == this.offsetY &&
                     rotationDegrees == this.rotationDegrees &&
-                    animationFrames == this.animationFrames &&
-                    animationRows == this.animationRows &&
-                    animationColumns == this.animationColumns &&
-                    animationDurationMillis == this.animationDurationMillis &&
                     sizeUnit == this.sizeUnit &&
                     origin == this.origin &&
                     mapping == this.mapping &&
@@ -351,16 +409,85 @@ private constructor(
                 offsetX = offsetX,
                 offsetY = offsetY,
                 rotationDegrees = rotationDegrees,
-                animationFrames = animationFrames,
-                animationRows = animationRows,
-                animationColumns = animationColumns,
-                animationDurationMillis = animationDurationMillis,
                 sizeUnit = sizeUnit,
                 origin = origin,
                 mapping = mapping,
                 wrapX = wrapX,
                 wrapY = wrapY,
                 blendMode = blendMode,
+                animationFrames = this.animationFrames,
+                animationRows = this.animationRows,
+                animationColumns = this.animationColumns,
+                animationDurationMillis = this.animationDurationMillis,
+            )
+        }
+
+        /**
+         * Creates a copy of `this` and allows named properties to be altered while keeping the rest
+         * unchanged.
+         *
+         * Java callers should use [Builder] instead.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
+        public fun copy(
+            clientTextureId: String = this.clientTextureId,
+            @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false)
+            sizeX: Float = this.sizeX,
+            @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false)
+            sizeY: Float = this.sizeY,
+            offsetX: Float = this.offsetX,
+            offsetY: Float = this.offsetY,
+            @AngleDegreesFloat rotationDegrees: Float = this.rotationDegrees,
+            sizeUnit: SizeUnit = this.sizeUnit,
+            origin: Origin = this.origin,
+            mapping: Mapping = this.mapping,
+            wrapX: Wrap = this.wrapX,
+            wrapY: Wrap = this.wrapY,
+            blendMode: BlendMode = this.blendMode,
+            @IntRange(from = 1, to = 1 shl 24) animationFrames: Int = this.animationFrames,
+            @IntRange(from = 1, to = 1 shl 12) animationRows: Int = this.animationRows,
+            @IntRange(from = 1, to = 1 shl 12) animationColumns: Int = this.animationColumns,
+            @IntRange(from = 1, to = 1 shl 24)
+            animationDurationMillis: Long = this.animationDurationMillis,
+        ): TextureLayer {
+            if (
+                clientTextureId == this.clientTextureId &&
+                    sizeX == this.sizeX &&
+                    sizeY == this.sizeY &&
+                    offsetX == this.offsetX &&
+                    offsetY == this.offsetY &&
+                    rotationDegrees == this.rotationDegrees &&
+                    sizeUnit == this.sizeUnit &&
+                    origin == this.origin &&
+                    mapping == this.mapping &&
+                    wrapX == this.wrapX &&
+                    wrapY == this.wrapY &&
+                    blendMode == this.blendMode &&
+                    animationFrames == this.animationFrames &&
+                    animationRows == this.animationRows &&
+                    animationColumns == this.animationColumns &&
+                    animationDurationMillis == this.animationDurationMillis
+            ) {
+                return this
+            }
+            return TextureLayer(
+                clientTextureId = clientTextureId,
+                sizeX = sizeX,
+                sizeY = sizeY,
+                offsetX = offsetX,
+                offsetY = offsetY,
+                rotationDegrees = rotationDegrees,
+                sizeUnit = sizeUnit,
+                origin = origin,
+                mapping = mapping,
+                wrapX = wrapX,
+                wrapY = wrapY,
+                blendMode = blendMode,
+                animationFrames = animationFrames,
+                animationRows = animationRows,
+                animationColumns = animationColumns,
+                animationDurationMillis = animationDurationMillis,
             )
         }
 
@@ -634,21 +761,20 @@ private constructor(
                  * The texture will repeat according to a 2D affine transformation of vertex
                  * positions. Each copy of the texture will have the same size and shape, modulo
                  * reflections.
-                 *
-                 * This mode does not support texture animations, so it ignores the
-                 * `animationFrames`, `animationRows`, `animationColumns`, and `animationDuration`
-                 * fields.
                  */
+                // This mode does not support texture animations, so it ignores the
+                // `animationFrames`,
+                // `animationRows`, `animationColumns`, and `animationDuration` fields.
                 @JvmField public val TILING: Mapping = Mapping(0, "TILING")
                 /**
                  * This mode is intended for use with particle brush coats (i.e. with a brush tip
-                 * with a nonzero particle gap). A copy of the texture (or one animation frame
-                 * thereof) will be "stamped" onto each particle of the stroke, scaled or rotated
-                 * appropriately to cover the whole particle.
+                 * with a nonzero particle gap). A copy of the texture will be "stamped" onto each
+                 * particle of the stroke, scaled or rotated appropriately to cover the whole
+                 * particle.
                  *
-                 * Since the whole texture (or animation frame) is always scaled to the size of each
-                 * particle and positioned atop each one, this mode ignores the `origin`,
-                 * `sizeUnit`, `wrapX`, `wrapY`, `sizeX`, and `sizeY` fields.
+                 * Since the texture is always scaled to the size of each particle and positioned
+                 * atop each one, this mode ignores the `origin`, `sizeUnit`, `wrapX`, `wrapY`,
+                 * `sizeX`, and `sizeY` fields.
                  */
                 @JvmField public val STAMPING: Mapping = Mapping(1, "STAMPING")
             }
@@ -916,6 +1042,150 @@ private constructor(
         }
     }
 
+    /** A [ColorFunction] defines a mapping over colors. */
+    // NotCloseable: Finalize is only used to free the native peer.
+    @Suppress("NotCloseable")
+    public abstract class ColorFunction private constructor(internal val nativePointer: Long) {
+
+        /** Transforms the input color into a new color. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public abstract fun transformComposeColor(color: ComposeColor): ComposeColor
+
+        /** Transforms the input color into a new color. */
+        @ColorInt
+        public fun transformColorIntArgb(@ColorInt colorIntArgb: Int): Int =
+            transformComposeColor(ComposeColor(colorIntArgb)).toArgb()
+
+        // NOMUTANTS -- Not tested post garbage collection.
+        protected fun finalize() {
+            // Note that the instance becomes finalizable at the conclusion of the Object
+            // constructor,
+            // which
+            // in Kotlin is always before any non-default field initialization has been done by a
+            // derived
+            // class constructor.
+            if (nativePointer == 0L) return
+            ColorFunctionNative.free(nativePointer)
+        }
+
+        public companion object {
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            public fun wrapNative(unownedNativePointer: Long): ColorFunction =
+                when (ColorFunctionNative.getParametersType(unownedNativePointer)) {
+                    0 -> OpacityMultiplier(unownedNativePointer)
+                    1 -> ReplaceColor(unownedNativePointer)
+                    else -> throw IllegalArgumentException("Invalid color function type")
+                }
+        }
+
+        /** A [ColorFunction] that scales the color opacity by a specified multiplier. */
+        public class OpacityMultiplier internal constructor(nativePointer: Long) :
+            ColorFunction(nativePointer) {
+
+            /** Constructs a color function that applies the specified opacity multiplier. */
+            public constructor(
+                @FloatRange(from = 0.0) multiplier: Float
+            ) : this(ColorFunctionNative.createOpacityMultiplier(multiplier))
+
+            /** The opacity multiplier to apply. */
+            @get:FloatRange(from = 0.0)
+            public val multiplier: Float
+                get() = ColorFunctionNative.getOpacityMultiplier(nativePointer)
+
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            override fun transformComposeColor(color: ComposeColor): ComposeColor =
+                color.copy(alpha = color.alpha * multiplier)
+
+            override fun equals(other: Any?): Boolean {
+                if (other == null || other !is OpacityMultiplier) {
+                    return false
+                }
+                return multiplier == other.multiplier
+            }
+
+            override fun hashCode(): Int = multiplier.hashCode()
+
+            override fun toString(): String = "ColorFunction.OpacityMultiplier($multiplier)"
+
+            // Declared to make extension functions available.
+            public companion object
+        }
+
+        /**
+         * A [ColorFunction] that ignores the input color and replaces it with the specified color.
+         */
+        public class ReplaceColor internal constructor(nativePointer: Long) :
+            ColorFunction(nativePointer) {
+
+            @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @Suppress("HiddenTypeParameter") // Internal API.
+            public val internalColor: ComposeColor =
+                // Caching this because the native call is slow. Still doing the round-trip on
+                // construction
+                // to ensure this is exercised by tests and that deserialized color functions are
+                // consistent
+                // with newly constructed color functions.
+                ComposeColor(ColorFunctionNative.computeReplaceColorLong(nativePointer).toULong())
+
+            /** The color that will replace the input color, as a `@ColorLong`. */
+            public val colorLong: Long
+                @ColorLong get(): Long = internalColor.value.toLong()
+
+            /** The color that will replace the input color, as a `@ColorInt`. */
+            public val colorIntArgb: Int
+                @ColorInt get(): Int = internalColor.toArgb()
+
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            override fun transformComposeColor(color: ComposeColor): ComposeColor =
+                this.internalColor
+
+            override fun equals(other: Any?): Boolean {
+                if (other == null || other !is ReplaceColor) {
+                    return false
+                }
+                return internalColor.equals(other.internalColor)
+            }
+
+            override fun hashCode(): Int = internalColor.hashCode()
+
+            override fun toString(): String = "ColorFunction.ReplaceColor($internalColor)"
+
+            public companion object {
+                /**
+                 * Returns a color function that will replace its input color with the given color.
+                 */
+                @JvmStatic
+                @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+                public fun withComposeColor(color: ComposeColor): ReplaceColor =
+                    ReplaceColor(
+                        color.toColorInInkSupportedColorSpace().let { convertedColor ->
+                            ColorFunctionNative.createReplaceColor(
+                                convertedColor.red,
+                                convertedColor.green,
+                                convertedColor.blue,
+                                convertedColor.alpha,
+                                convertedColor.colorSpace.toInkColorSpaceId(),
+                            )
+                        }
+                    )
+
+                /**
+                 * Returns a color function that will replace its input color with the given color.
+                 */
+                @JvmStatic
+                public fun withColorLong(@ColorLong colorLong: Long): ReplaceColor =
+                    ReplaceColor.withComposeColor(ComposeColor(colorLong.toULong()))
+
+                /**
+                 * Returns a color function that will replace its input color with the given color.
+                 */
+                @JvmStatic
+                public fun withColorIntArgb(@ColorInt colorIntArgb: Int): ReplaceColor =
+                    ReplaceColor.withComposeColor(ComposeColor(colorIntArgb))
+            }
+        }
+    }
+
     // To be extended by extension methods.
     public companion object {
         /**
@@ -945,7 +1215,6 @@ private constructor(
 }
 
 /** Singleton wrapper around BrushPaint native JNI calls. */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @UsedByNative
 private object BrushPaintNative {
     init {
@@ -991,7 +1260,6 @@ private object BrushPaintNative {
 }
 
 /** Singleton wrapper around BrushPaint.TextureLayer native JNI calls. */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @UsedByNative
 private object TextureLayerNative {
     init {
@@ -1069,4 +1337,30 @@ private object TextureLayerNative {
     @UsedByNative private external fun getBlendModeInt(nativePointer: Long): Int
 
     @UsedByNative external fun free(nativePointer: Long)
+}
+
+@UsedByNative
+private object ColorFunctionNative {
+    init {
+        NativeLoader.load()
+    }
+
+    @UsedByNative external fun createOpacityMultiplier(multiplier: Float): Long
+
+    @UsedByNative
+    external fun createReplaceColor(
+        colorRed: Float,
+        colorGreen: Float,
+        colorBlue: Float,
+        colorAlpha: Float,
+        colorSpace: Int,
+    ): Long
+
+    @UsedByNative external fun free(nativePointer: Long)
+
+    @UsedByNative external fun getParametersType(nativePointer: Long): Int
+
+    @UsedByNative external fun getOpacityMultiplier(nativePointer: Long): Float
+
+    @UsedByNative external fun computeReplaceColorLong(nativePointer: Long): Long
 }

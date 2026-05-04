@@ -31,7 +31,6 @@ import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TextureLayer
 import androidx.ink.brush.BrushTip
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.SelfOverlap
 import androidx.ink.brush.StockBrushes
@@ -62,7 +61,6 @@ import org.junit.runner.RunWith
 
 /** Emulator-based screenshot test of [CanvasStrokeRenderer] for Stroke and InProgressStroke. */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(TestParameterInjector::class)
 @MediumTest
 class CanvasStrokeRendererTest {
@@ -101,7 +99,7 @@ class CanvasStrokeRendererTest {
         SIMPLE_STROKES_MULTICOAT(
             finishedInProgressStroke(
                 brush(
-                    brushFamily(
+                    BrushFamily(
                         listOf(
                             BrushCoat(
                                 paint =
@@ -121,7 +119,7 @@ class CanvasStrokeRendererTest {
         SIMPLE_STROKES_OPACITY_AND_HSL_SHIFT(
             finishedInProgressStroke(
                 brush(
-                    brushFamily(
+                    BrushFamily(
                         BrushTip(
                             behaviors =
                                 listOf(
@@ -172,14 +170,14 @@ class CanvasStrokeRendererTest {
          */
         PARTICLE_STROKES_SOLID(
             finishedInProgressStroke(
-                brush(brushFamily(BrushTip(particleGapDistanceScale = 2f)), TestColors.RED),
+                brush(BrushFamily(BrushTip(particleGapDistanceScale = 2f)), TestColors.RED),
                 ::inputsZigzag,
             )
         ),
         PARTICLE_STROKES_TRANSLUCENT(
             finishedInProgressStroke(
                 brush(
-                    brushFamily(BrushTip(particleGapDistanceScale = 0.75f)),
+                    BrushFamily(BrushTip(particleGapDistanceScale = 0.75f)),
                     TestColors.COBALT_BLUE.withAlpha(0.4),
                 ),
                 ::inputsTwist,
@@ -881,18 +879,11 @@ class CanvasStrokeRendererTest {
                 .toImmutable()
 
         fun brush(
-            family: BrushFamily =
-                StockBrushes.marker().copy(inputModel = BrushFamily.SlidingWindowModel()),
+            family: BrushFamily = StockBrushes.marker(),
             @ColorInt color: Int = TestColors.BLACK,
             size: Float = 15F,
             epsilon: Float = 0.1F,
         ) = Brush.createWithColorIntArgb(family, color, size, epsilon)
-
-        fun brushFamily(tip: BrushTip = BrushTip(), paint: BrushPaint = BrushPaint()) =
-            BrushFamily(tip, paint, inputModel = BrushFamily.SlidingWindowModel())
-
-        fun brushFamily(coats: List<BrushCoat>) =
-            BrushFamily(coats, inputModel = BrushFamily.SlidingWindowModel())
 
         fun texturedBrush(
             particleGapDistanceScale: Float = 0f,
@@ -923,7 +914,7 @@ class CanvasStrokeRendererTest {
                     textureRotationDegrees = textureRotationDegrees,
                     textureMapping = textureMapping,
                 )
-            return brush(brushFamily(tip = tip, paint = paint), brushColor, brushSize)
+            return brush(BrushFamily(tip = tip, paint = paint), brushColor, brushSize)
         }
 
         fun texturedBrushPaint(
@@ -1009,7 +1000,7 @@ class CanvasStrokeRendererTest {
                     blendMode = blendMode,
                 )
             val paint = BrushPaint(listOf(textureLayer))
-            val brush = brush(brushFamily(paint = paint), color, size = 30f)
+            val brush = brush(BrushFamily(paint = paint), color, size = 30f)
             return finishedInProgressStroke(brush, inputsTwist(brush.size))
         }
 
@@ -1030,7 +1021,7 @@ class CanvasStrokeRendererTest {
                     sizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
                 )
             val paint = BrushPaint(listOf(textureLayer1, textureLayer2))
-            val brush = brush(brushFamily(paint = paint), color = TestColors.WHITE, size = 40f)
+            val brush = brush(BrushFamily(paint = paint), color = TestColors.WHITE, size = 40f)
             return finishedInProgressStroke(brush, inputsZigzag(brush.size))
         }
 
@@ -1077,7 +1068,7 @@ class CanvasStrokeRendererTest {
                             )
                         ),
                 )
-            val brush = brush(family = brushFamily(tip, paint), color = 0x7733fc66)
+            val brush = brush(family = BrushFamily(tip, paint), color = 0x7733fc66)
             return finishedInProgressStroke(brush, inputsTwist(brush.size))
         }
 

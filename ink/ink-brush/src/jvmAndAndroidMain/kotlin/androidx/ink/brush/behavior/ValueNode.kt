@@ -16,14 +16,9 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
-
 /**
  * A [ValueNode] is a non-terminal node in the graph; it produces a value to be consumed as an input
  * by other [Node]s, and may itself depend on zero or more inputs.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 public abstract class ValueNode internal constructor(nativePointer: Long, inputs: List<ValueNode>) :
     Node(nativePointer, inputs)

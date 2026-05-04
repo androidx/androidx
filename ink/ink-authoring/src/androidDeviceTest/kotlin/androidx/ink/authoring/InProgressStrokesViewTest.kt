@@ -23,7 +23,6 @@ import android.view.MotionEvent.PointerProperties
 import androidx.ink.authoring.testing.InputStreamBuilder
 import androidx.ink.authoring.testing.MultiTouchInputBuilder
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
 import androidx.ink.strokes.MutableStrokeInputBatch
@@ -43,7 +42,6 @@ import org.junit.runner.RunWith
 
 /** Emulator-based test of [InProgressStrokesView]. */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {

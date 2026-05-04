@@ -78,8 +78,10 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *
      * This must be set to its desired value before the first call to [startShape] or [eagerInit].
      */
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @Deprecated("Prefer to allow the underlying implementation details to be chosen automatically.")
-    internal var useHighLatencyRenderHelper: Boolean = false
+    public var useHighLatencyRenderHelper: Boolean = false
 
     /**
      * Set a minimum delay from when the user finishes a shape until rendering is handed off to the

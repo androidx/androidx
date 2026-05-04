@@ -17,7 +17,6 @@
 package androidx.ink.brush.behavior
 
 import androidx.annotation.RestrictTo
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
@@ -26,8 +25,6 @@ import androidx.ink.nativeloader.UsedByNative
  * are immutable and their inputs must be chosen at construction time; therefore, they can only ever
  * be assembled into an acyclic graph.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public abstract class Node
 internal constructor(
@@ -74,7 +71,6 @@ internal constructor(
  * Note that even though Kotlin [Node] is an abstract class with several subtypes,
  * [Node.nativePointer] all wrap the _same_ native type (a specialization of `std::variant`).
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @UsedByNative
 private object NodeNative {
     init {

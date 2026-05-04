@@ -16,14 +16,10 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
 /** A [ValueNode] that integrates an input value over time or distance. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
 public class IntegralNode
 private constructor(
     nativePointer: Long,
@@ -113,7 +109,6 @@ private constructor(
  * Note that even though Kotlin [Node] is an abstract class with several subtypes,
  * [Node.nativePointer] all wrap the _same_ native type (a specialization of `std::variant`).
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 @UsedByNative
 private object IntegralNodeNative {
     init {
