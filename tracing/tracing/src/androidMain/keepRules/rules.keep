@@ -1,5 +1,5 @@
 # Tracing assertions are meant to be zero cost in release mode.
 -assumenosideeffects class androidx.tracing.ThreadTrack {
-    public assertThreadIdWhenNotOptimized(...);
+    public void assertThreadIdWhenNotOptimized(...);
 }
 
