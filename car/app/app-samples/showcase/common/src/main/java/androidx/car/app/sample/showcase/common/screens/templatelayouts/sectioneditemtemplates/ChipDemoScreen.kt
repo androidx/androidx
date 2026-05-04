@@ -32,6 +32,7 @@ import androidx.car.app.model.Header
 import androidx.car.app.model.Row
 import androidx.car.app.model.RowSection
 import androidx.car.app.model.SectionedItemTemplate
+import androidx.car.app.model.Shape
 import androidx.car.app.model.Template
 import androidx.car.app.sample.showcase.common.R
 import androidx.core.graphics.drawable.IconCompat
@@ -66,11 +67,13 @@ class ChipDemoScreen(carContext: CarContext) : Screen(carContext) {
         ChipStyle.Builder()
             .setBackgroundColor(CarColor.createCustom(0xFFE8F5E9.toInt(), 0xFF1B5E20.toInt()))
             .setContentColor(CarColor.createCustom(0xFF1B5E20.toInt(), 0xFFE8F5E9.toInt()))
+            .setShape(Shape.CORNER_FULL)
             .build()
     private val mCustomContentColorSelectedStyle =
         ChipStyle.Builder()
             .setBackgroundColor(CarColor.createCustom(Color.GREEN, Color.GREEN))
             .setContentColor(CarColor.createCustom(Color.BLACK, Color.BLACK))
+            .setShape(Shape.CORNER_FULL)
             .build()
 
     private val mCustomUnselectedStyle =
