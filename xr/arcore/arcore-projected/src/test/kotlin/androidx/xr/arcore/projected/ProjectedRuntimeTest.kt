@@ -250,6 +250,7 @@ class ProjectedRuntimeTest {
     fun stop_whenServiceIsRunning_stopsServiceAndUnbinds() {
         underTest.initialize()
         underTest.running.set(true)
+        underTest.perceptionServiceIsBound.set(true)
 
         underTest.destroy()
 
@@ -270,6 +271,7 @@ class ProjectedRuntimeTest {
     fun stop_calledMultipleTimes_onlyUnbindsServiceOnce() {
         underTest.initialize()
         underTest.running.set(true)
+        underTest.perceptionServiceIsBound.set(true)
 
         underTest.destroy()
         underTest.destroy()
