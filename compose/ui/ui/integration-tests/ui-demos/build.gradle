@@ -33,8 +33,8 @@ dependencies {
 
     implementation("androidx.activity:activity-compose:1.8.1")
     implementation("androidx.fragment:fragment-ktx:1.2.5")
-    implementation(project(":recyclerview:recyclerview"))
-    implementation(project(":customview:customview-poolingcontainer"))
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("androidx.customview:customview-poolingcontainer:1.1.0")
     implementation("androidx.viewpager2:viewpager2:1.0.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.1.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
