@@ -1,0 +1,27 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexBoxConfig from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexConfig from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexBoxScope from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/GridConfigurationScope from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/GridScope from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexBoxConfigScope from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexConfigScope from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/GridTrackSpec from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/GridMeasurePolicy from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexAlignContent from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexAlignItems from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexAlignSelf from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexBasis from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexDirection from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexJustifyContent from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexWrap from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/Fr from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/GridFlow from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/GridTrackSize from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexBoxScopeInstance from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/GridScopeInstance from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration (androidx.compose.foundation.layout/GridConfigurationScope).androidx.compose.foundation.layout/columns(kotlin/Array<out androidx.compose.foundation.layout/GridTrackSpec>) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration (androidx.compose.foundation.layout/GridConfigurationScope).androidx.compose.foundation.layout/rows(kotlin/Array<out androidx.compose.foundation.layout/GridTrackSpec>) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/flexMultiContentMeasurePolicy(androidx.compose.runtime/State<androidx.compose.foundation.layout/FlexBoxConfig>, androidx.compose.runtime/Composer?, kotlin/Int) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlexBox(androidx.compose.ui/Modifier?, androidx.compose.foundation.layout/FlexBoxConfig?, kotlin/Function3<androidx.compose.foundation.layout/FlexBoxScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/Grid(kotlin/Function1<androidx.compose.foundation.layout/GridConfigurationScope, kotlin/Unit>, androidx.compose.ui/Modifier?, kotlin/Function3<androidx.compose.foundation.layout/GridScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.foundation:foundation-layout
