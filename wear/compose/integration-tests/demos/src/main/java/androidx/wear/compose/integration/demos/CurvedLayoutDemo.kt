@@ -19,7 +19,6 @@ package androidx.wear.compose.integration.demos
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.DeferredTargetAnimation
-import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -178,7 +177,6 @@ fun WarpedTextDemo() {
     }
 }
 
-@OptIn(ExperimentalAnimatableApi::class)
 @Composable
 fun LookaheadDemo() {
     /**

@@ -18,7 +18,6 @@ package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.DeferredTargetAnimation
-import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
@@ -61,7 +60,6 @@ private const val debugSharedElement = true
 
 class SceneScope internal constructor(lookaheadScope: LookaheadScope) :
     LookaheadScope by lookaheadScope {
-    @OptIn(ExperimentalAnimatableApi::class)
     fun Modifier.sharedElement(): Modifier = composed {
         val offsetAnimation: DeferredTargetAnimation<IntOffset, AnimationVector2D> = remember {
             DeferredTargetAnimation(IntOffset.VectorConverter)
@@ -122,7 +120,6 @@ class SceneScope internal constructor(lookaheadScope: LookaheadScope) :
     }
 }
 
-@OptIn(ExperimentalAnimatableApi::class)
 fun Modifier.animateSizeAndSkipToFinalLayout() = composed {
     val sizeAnimation = remember { DeferredTargetAnimation(IntSize.VectorConverter) }
     var targetSize: IntSize? by remember { mutableStateOf(null) }
@@ -156,7 +153,6 @@ fun Modifier.animateSizeAndSkipToFinalLayout() = composed {
         }
 }
 
-@OptIn(ExperimentalAnimatableApi::class)
 internal fun DeferredTargetAnimation<IntOffset, AnimationVector2D>.updateTargetBasedOnCoordinates(
     lookaheadScope: LookaheadScope,
     placementScope: Placeable.PlacementScope,

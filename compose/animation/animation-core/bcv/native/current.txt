@@ -334,6 +334,17 @@ final class <#A: kotlin/Any?, #B: androidx.compose.animation.core/AnimationVecto
     final fun getVelocityVectorFromNanos(kotlin/Long): #B // androidx.compose.animation.core/DecayAnimation.getVelocityVectorFromNanos|getVelocityVectorFromNanos(kotlin.Long){}[0]
 }
 
+final class <#A: kotlin/Any?, #B: androidx.compose.animation.core/AnimationVector> androidx.compose.animation.core/DeferredTargetAnimation { // androidx.compose.animation.core/DeferredTargetAnimation|null[0]
+    constructor <init>(androidx.compose.animation.core/TwoWayConverter<#A, #B>) // androidx.compose.animation.core/DeferredTargetAnimation.<init>|<init>(androidx.compose.animation.core.TwoWayConverter<1:0,1:1>){}[0]
+
+    final val isIdle // androidx.compose.animation.core/DeferredTargetAnimation.isIdle|{}isIdle[0]
+        final fun <get-isIdle>(): kotlin/Boolean // androidx.compose.animation.core/DeferredTargetAnimation.isIdle.<get-isIdle>|<get-isIdle>(){}[0]
+    final val pendingTarget // androidx.compose.animation.core/DeferredTargetAnimation.pendingTarget|{}pendingTarget[0]
+        final fun <get-pendingTarget>(): #A? // androidx.compose.animation.core/DeferredTargetAnimation.pendingTarget.<get-pendingTarget>|<get-pendingTarget>(){}[0]
+
+    final fun updateTarget(#A, kotlinx.coroutines/CoroutineScope, androidx.compose.animation.core/FiniteAnimationSpec<#A> = ...): #A // androidx.compose.animation.core/DeferredTargetAnimation.updateTarget|updateTarget(1:0;kotlinx.coroutines.CoroutineScope;androidx.compose.animation.core.FiniteAnimationSpec<1:0>){}[0]
+}
+
 final class <#A: kotlin/Any?, #B: androidx.compose.animation.core/AnimationVector> androidx.compose.animation.core/TargetBasedAnimation : androidx.compose.animation.core/Animation<#A, #B> { // androidx.compose.animation.core/TargetBasedAnimation|null[0]
     constructor <init>(androidx.compose.animation.core/AnimationSpec<#A>, androidx.compose.animation.core/TwoWayConverter<#A, #B>, #A, #A, #B? = ...) // androidx.compose.animation.core/TargetBasedAnimation.<init>|<init>(androidx.compose.animation.core.AnimationSpec<1:0>;androidx.compose.animation.core.TwoWayConverter<1:0,1:1>;1:0;1:0;1:1?){}[0]
 
