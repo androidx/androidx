@@ -47,12 +47,23 @@ public open class FakeMetadata(private val metadata: Map<Metadata.Key<*>, Any?> 
     }
 }
 
+public interface DeviceTemplate {
+    public fun createCameraMetadata(
+        cameraId: CameraId = FakeCameraIds.default,
+        lensFacing: Int? = null,
+        characteristicsOverrides: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
+        metadataOverrides: Map<Metadata.Key<*>, Any?> = emptyMap(),
+        requestKeysOverrides: Set<CaptureRequest.Key<*>> = emptySet(),
+        resultKeysOverrides: Set<CaptureResult.Key<*>> = emptySet(),
+    ): CameraMetadata
+}
+
 /** Utility class for interacting with objects require specific [CameraCharacteristics] metadata. */
 public class FakeCameraMetadata(
     private val characteristics: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
     metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     cameraId: CameraId = FakeCameraIds.default,
-    override val keys: Set<CameraCharacteristics.Key<*>> = emptySet(),
+    keys: Set<CameraCharacteristics.Key<*>>? = null,
     override val requestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     override val resultKeys: Set<CaptureResult.Key<*>> = emptySet(),
     override val sessionKeys: Set<CaptureRequest.Key<*>> = emptySet(),
@@ -61,6 +72,8 @@ public class FakeCameraMetadata(
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     private val extensions: Map<Int, FakeCameraExtensionMetadata> = emptyMap(),
 ) : FakeMetadata(metadata), CameraMetadata {
+
+    override val keys: Set<CameraCharacteristics.Key<*>> = keys ?: characteristics.keys
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? = characteristics[key] as T?
 
@@ -91,6 +104,38 @@ public class FakeCameraMetadata(
     override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 
     override fun toString(): String = "FakeCameraMetadata(camera: ${camera.value})"
+
+    public companion object {
+        /**
+         * Creates a [CameraMetadata] instance using a [DeviceTemplate], with optional overrides for
+         * fine-grained testing.
+         */
+        public fun createFromTemplate(
+            template: DeviceTemplate,
+            cameraId: CameraId = FakeCameraIds.default,
+            lensFacing: Int? = null,
+            characteristicsOverrides: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
+            metadataOverrides: Map<Metadata.Key<*>, Any?> = emptyMap(),
+            requestKeysOverrides: Set<CaptureRequest.Key<*>> = emptySet(),
+            resultKeysOverrides: Set<CaptureResult.Key<*>> = emptySet(),
+        ): CameraMetadata {
+            val overrides =
+                if (lensFacing != null) {
+                    characteristicsOverrides +
+                        mapOf(CameraCharacteristics.LENS_FACING to lensFacing)
+                } else {
+                    characteristicsOverrides
+                }
+            return template.createCameraMetadata(
+                cameraId = cameraId,
+                lensFacing = lensFacing,
+                characteristicsOverrides = overrides,
+                metadataOverrides = metadataOverrides,
+                requestKeysOverrides = requestKeysOverrides,
+                resultKeysOverrides = resultKeysOverrides,
+            )
+        }
+    }
 }
 
 /** Utility class for interacting with objects require [CameraExtensionMetadata] */

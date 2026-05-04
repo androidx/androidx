@@ -38,16 +38,16 @@ import org.robolectric.annotation.Config
 class CameraPipeSimulatorTest {
     private val testScope = TestScope()
     private val backCameraMetadata =
-        FakeCameraMetadata(
+        FakeCameraMetadata.createFromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = FakeCameraIds.next(),
-            characteristics =
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK),
+            lensFacing = CameraCharacteristics.LENS_FACING_BACK,
         )
     private val frontCameraMetadata =
-        FakeCameraMetadata(
+        FakeCameraMetadata.createFromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = FakeCameraIds.next(),
-            characteristics =
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
+            lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
         )
 
     private val streamConfig = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)

@@ -77,6 +77,62 @@ class CameraMetadataTest {
         assertThat(metadata[CameraCharacteristics.LENS_FACING]).isNotNull()
         assertThat(metadata[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES]).isNull()
     }
+
+    @Test
+    fun verifyHighEndDeviceTemplate_simulatesAdvancedHardwareWithFlash() {
+        val metadata =
+            FakeCameraMetadata.createFromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("0"),
+            )
+
+        assertThat(metadata[CameraCharacteristics.LENS_FACING])
+            .isEqualTo(CameraCharacteristics.LENS_FACING_BACK)
+        assertThat(metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]).isTrue()
+        assertThat(metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL])
+            .isEqualTo(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
+    }
+
+    @Test
+    fun verifyEmulatorDeviceTemplate_simulatesLimitedHardwareNoFlash() {
+        val metadata =
+            FakeCameraMetadata.createFromTemplate(
+                template = EmulatorDeviceTemplate,
+                cameraId = CameraId("0"),
+            )
+
+        assertThat(metadata[CameraCharacteristics.LENS_FACING])
+            .isEqualTo(CameraCharacteristics.LENS_FACING_BACK)
+        assertThat(metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]).isFalse()
+        assertThat(metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL])
+            .isEqualTo(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
+    }
+
+    @Test
+    fun verifyCreateFromTemplateCorrectlyAppliesOverrides() {
+        val metadata =
+            FakeCameraMetadata.createFromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+            )
+
+        assertThat(metadata[CameraCharacteristics.LENS_FACING])
+            .isEqualTo(CameraCharacteristics.LENS_FACING_FRONT)
+        assertThat(metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]).isFalse()
+    }
+
+    @Test
+    fun verifyCreateFromTemplateFrontFacing_defaultsSensorOrientationTo270() {
+        val metadata =
+            FakeCameraMetadata.createFromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+            )
+
+        assertThat(metadata[CameraCharacteristics.LENS_FACING])
+            .isEqualTo(CameraCharacteristics.LENS_FACING_FRONT)
+        assertThat(metadata[CameraCharacteristics.SENSOR_ORIENTATION]).isEqualTo(270)
+    }
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
