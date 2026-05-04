@@ -23,8 +23,10 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.MotionEvent
-import android.widget.FrameLayout
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.ColorInt
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocument
 import androidx.pdf.annotation.drawer.DefaultPdfObjectDrawerFactoryImpl
@@ -37,15 +39,18 @@ import androidx.pdf.annotation.highlights.InProgressTextHighlightsListener
 import androidx.pdf.annotation.models.PdfAnnotation
 
 /**
- * A custom Android [FrameLayout] responsible for drawing a collection of annotations onto a Canvas.
+ * A custom Android [ViewGroup] responsible for drawing a collection of annotations onto a Canvas.
  * Each set of page annotations can have its own transformation matrix. It also supports annotating
  * like text highlighting.
+ *
+ * This inherits [ViewGroup] but does not support adding arbitrary children via [addView] or in a
+ * layout.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AnnotationsView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
-    FrameLayout(context, attrs, defStyleAttr) {
+    ViewGroup(context, attrs, defStyleAttr) {
 
     private val onAnnotationLocatedListeners = mutableListOf<OnAnnotationLocatedListener>()
 
@@ -62,7 +67,51 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                 layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
                 visibility = GONE
             }
-        addView(inProgressHighlightsView)
+        addViewInternal(inProgressHighlightsView)
+    }
+
+    override fun addView(child: View?) {
+        throw UnsupportedOperationException("External views cannot be added to AnnotationsView")
+    }
+
+    override fun addView(child: View?, index: Int) {
+        throw UnsupportedOperationException("External views cannot be added to AnnotationsView")
+    }
+
+    override fun addView(child: View?, params: LayoutParams?) {
+        throw UnsupportedOperationException("External views cannot be added to AnnotationsView")
+    }
+
+    override fun addView(child: View?, index: Int, params: LayoutParams?) {
+        throw UnsupportedOperationException("External views cannot be added to AnnotationsView")
+    }
+
+    @MainThread
+    private fun addViewInternal(child: View) {
+        checkMainThread()
+        if (addViewInLayout(child, -1, child.layoutParams)) {
+            // Ensure that the UI is updated after the child view has been added.
+            requestLayout()
+            invalidate()
+        }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val width = getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
+        val height = getDefaultSize(suggestedMinimumHeight, heightMeasureSpec)
+        if (inProgressHighlightsView.visibility != GONE) {
+            measureChild(inProgressHighlightsView, widthMeasureSpec, heightMeasureSpec)
+        }
+        setMeasuredDimension(width, height)
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        inProgressHighlightsView.layout(
+            paddingLeft,
+            paddingTop,
+            right - left - paddingRight,
+            bottom - top - paddingBottom,
+        )
     }
 
     /**
@@ -80,7 +129,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      *
      * Set to [AnnotationMode.Select] to enable selecting existing annotations, or
      * [AnnotationMode.Highlight] to create new text highlights. If `null`, touch interactions for
-     * annotations are disabled on [androidx.pdf.annotation.AnnotationsView] and its children.
+     * annotations are disabled on [AnnotationsView] and its children.
      *
      * This property must only be modified on the UI thread.
      */
