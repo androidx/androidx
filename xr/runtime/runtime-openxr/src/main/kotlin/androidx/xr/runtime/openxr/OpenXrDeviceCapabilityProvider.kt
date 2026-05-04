@@ -71,10 +71,16 @@ internal class OpenXrDeviceCapabilityProvider(
     }
 
     override fun isDepthEstimationModeSupported(mode: DepthEstimationMode): Boolean {
-        return if (mode == DepthEstimationMode.DISABLED) {
-            true
-        } else {
-            nativeIsDepthTrackingSupported(nativeManager)
+        return when (mode) {
+            DepthEstimationMode.DISABLED -> {
+                true
+            }
+            DepthEstimationMode.SMOOTH_AND_RAW -> {
+                false
+            }
+            else -> {
+                nativeIsDepthTrackingSupported(nativeManager)
+            }
         }
     }
 

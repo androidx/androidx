@@ -85,13 +85,14 @@ class OpenXrDeviceCapabilityProviderTest {
     }
 
     @Test
-    fun isDepthEstimationSupported_returnsTrueForAllModes() {
+    fun isDepthEstimationSupported_returnsTrueForAllModesExceptSmoothAndRaw() {
         assertThat(underTest.isDepthEstimationModeSupported(DepthEstimationMode.DISABLED)).isTrue()
         assertThat(underTest.isDepthEstimationModeSupported(DepthEstimationMode.SMOOTH_ONLY))
             .isTrue()
         assertThat(underTest.isDepthEstimationModeSupported(DepthEstimationMode.RAW_ONLY)).isTrue()
+        // OpenXR assumed to explicitly not support smooth and raw depth simultaneously
         assertThat(underTest.isDepthEstimationModeSupported(DepthEstimationMode.SMOOTH_AND_RAW))
-            .isTrue()
+            .isFalse()
     }
 
     @Test
@@ -101,7 +102,7 @@ class OpenXrDeviceCapabilityProviderTest {
     }
 
     @Test
-    fun isRenderingSupportedAny_returnsTrueForAllModes() {
+    fun isRenderingSupportedAny_onlySupportsStereo() {
         assertThat(underTest.isRenderingModeSupported(RenderingMode.MONO)).isFalse()
         assertThat(underTest.isRenderingModeSupported(RenderingMode.STEREO)).isTrue()
     }
