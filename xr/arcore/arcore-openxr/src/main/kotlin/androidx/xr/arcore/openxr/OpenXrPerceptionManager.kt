@@ -223,7 +223,11 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
             if (xrResources.trackablesMap.containsKey(plane)) continue
 
             val planeTypeInt = nativeGetPlaneType(plane, xrTime)
-            check(planeTypeInt >= 0) { "Failed to get plane type." }
+            // TODO(b/508726641) - Restore to a check that planeTypeInt is non-negative once
+            // xrGetTrackablePlaneANDROID issue is resolved.
+            if (planeTypeInt < 0) {
+                continue
+            }
 
             val trackable =
                 OpenXrPlane(plane, Plane.Type.fromOpenXrType(planeTypeInt), timeSource, xrResources)
