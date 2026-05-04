@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.DeferredTargetAnimation
-import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
@@ -131,7 +130,6 @@ fun Details(visible: Boolean, modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalAnimatableApi::class)
 @SuppressLint("UnnecessaryComposedModifier")
 fun Modifier.animatePosition(lookaheadScope: LookaheadScope): Modifier =
     with(lookaheadScope) {

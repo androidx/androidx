@@ -307,7 +307,7 @@ package androidx.compose.animation.core {
     method public static <T> androidx.compose.animation.core.DecayAnimationSpec<T> generateDecayAnimationSpec(androidx.compose.animation.core.FloatDecayAnimationSpec);
   }
 
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimatableApi public final class DeferredTargetAnimation<T, V extends androidx.compose.animation.core.AnimationVector> {
+  public final class DeferredTargetAnimation<T, V extends androidx.compose.animation.core.AnimationVector> {
     ctor public DeferredTargetAnimation(androidx.compose.animation.core.TwoWayConverter<T,V> vectorConverter);
     method @InaccessibleFromKotlin public T? getPendingTarget();
     method @InaccessibleFromKotlin public boolean isIdle();

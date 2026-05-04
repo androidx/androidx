@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.animateBounds
-import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,7 +49,6 @@ fun LookaheadSamplesDemo() {
 }
 
 @Suppress("DisallowLookaheadAnimationVisualDebug")
-@OptIn(ExperimentalAnimatableApi::class)
 @Composable
 public fun ApproachLayoutSample0() {
     var fullWidth by remember { mutableStateOf(false) }
