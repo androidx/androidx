@@ -176,3 +176,25 @@ ChromeHeadless has not captured in [0-9]+ ms, killing\.
 # b/460470375
 Failed to read desugaring graph\. Cause: FileNotFoundException, message: .*graph\.bin \(No such file or directory\)\.
 Fall back to non-incremental mode\.
+# https://youtrack.jetbrains.com/issue/KT-84271 / b/484004578
+e: Incremental compilation failed: The following FqNames can't be derived from DirtyData\.dirtyLookupSymbols: .*
+DirtyData = DirtyData\(.*
+java\.lang\.IllegalStateException: The following FqNames can't be derived from DirtyData\.dirtyLookupSymbols: .*
+at org\.jetbrains\.kotlin\.incremental\.classpathDiff\.ClasspathChangesComputer\.toProgramSymbols\(ClasspathChangesComputer\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.classpathDiff\.ClasspathChangesComputer\.computeFineGrainedKotlinClassChanges\(ClasspathChangesComputer\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.classpathDiff\.ClasspathChangesComputer\.computeKotlinClassChanges\(ClasspathChangesComputer\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.classpathDiff\.ClasspathChangesComputer\.computeClassChanges\(ClasspathChangesComputer\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.classpathDiff\.ClasspathChangesComputer\.computeChangedAndImpactedSet\(ClasspathChangesComputer\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.classpathDiff\.ClasspathChangesComputer\.computeClasspathChanges\(ClasspathChangesComputer\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.dirtyFiles\.ClasspathSnapshotBasedImpactDeterminer\.determineChangedAndImpactedSymbols\(ClasspathSnapshotBasedImpactDeterminer\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.dirtyFiles\.JvmSourcesToCompileCalculator\.calculateSourcesToCompileImpl\(JvmSourcesToCompileCalculator\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.dirtyFiles\.JvmSourcesToCompileCalculator\.calculateWithClasspathSnapshot\(JvmSourcesToCompileCalculator\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.IncrementalJvmCompilerRunner\.calculateSourcesToCompile\(IncrementalJvmCompilerRunner\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.IncrementalCompilerRunner\.tryCompileIncrementally\$lambda\$[0-9]+\$compile\(IncrementalCompilerRunner\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.incremental\.IncrementalCompilerRunner\.tryCompileIncrementally\(IncrementalCompilerRunner\.kt:[0-9]+\)
+java\.lang\.RuntimeException: Incremental compilation failed: The following FqNames can't be derived from DirtyData\.dirtyLookupSymbols: .*
+at org\.jetbrains\.kotlin\.buildtools\.internal\.KotlinLoggerMessageCollectorAdapter\.report\(KotlinLoggerMessageCollectorAdapter\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.cli\.common\.messages\.MessageCollector\.report\$default\(MessageCollector\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.daemon\.client\.BasicCompilerServicesWithResultsFacadeServerKt\.reportFromDaemon\(BasicCompilerServicesWithResultsFacadeServer\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.daemon\.client\.BasicCompilerServicesWithResultsFacadeServer\.report\(BasicCompilerServicesWithResultsFacadeServer\.kt:[0-9]+\)
+at org\.jetbrains\.kotlin\.buildtools\.internal\.jvm\.operations\.BtaCompilerServicesWithResultsFacade\.report\(JvmCompilationOperationImpl\.kt:[0-9]+\)
