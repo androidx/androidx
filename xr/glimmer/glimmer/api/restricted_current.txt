@@ -387,6 +387,13 @@ package androidx.xr.glimmer {
     field public static final androidx.xr.glimmer.TypographyDefaults INSTANCE;
   }
 
+  public final class VoiceInputIndicatorKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void ContainedVoiceInputIndicator(kotlin.jvm.functions.Function0<java.lang.Float> level, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color backgroundColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void ContainedVoiceInputIndicator-FNF3uiM(kotlin.jvm.functions.Function0<java.lang.Float!>, androidx.compose.ui.Modifier?, long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void VoiceInputIndicator(kotlin.jvm.functions.Function0<java.lang.Float> level, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color indicatorColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void VoiceInputIndicator-FNF3uiM(kotlin.jvm.functions.Function0<java.lang.Float!>, androidx.compose.ui.Modifier?, long, androidx.compose.runtime.Composer?, int, int);
+  }
+
 }
 
 package androidx.xr.glimmer.list {
