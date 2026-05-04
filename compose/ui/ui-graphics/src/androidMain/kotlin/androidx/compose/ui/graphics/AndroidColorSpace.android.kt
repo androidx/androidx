@@ -56,6 +56,24 @@ private object ColorSpaceVerificationHelperV34 {
         }
 }
 
+@RequiresApi(Build.VERSION_CODES.BAKLAVA)
+private object ColorSpaceVerificationHelperV36 {
+
+    @JvmStatic
+    fun obtainAndroidColorSpace(colorSpace: ColorSpace): android.graphics.ColorSpace? =
+        when (colorSpace) {
+            ColorSpaces.Oklab -> get(android.graphics.ColorSpace.Named.OK_LAB)
+            else -> null
+        }
+
+    @JvmStatic
+    fun obtainComposeColorSpaceFromId(id: Int): ColorSpace =
+        when (id) {
+            android.graphics.ColorSpace.Named.OK_LAB.ordinal -> ColorSpaces.Oklab
+            else -> ColorSpaces.Unspecified
+        }
+}
+
 @RequiresApi(Build.VERSION_CODES.O)
 private object ColorSpaceVerificationHelper {
 
@@ -88,6 +106,15 @@ private object ColorSpaceVerificationHelper {
                         return v34ColorSpace
                     }
                 }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                    val v36ColorSpace =
+                        ColorSpaceVerificationHelperV36.obtainAndroidColorSpace(this)
+                    if (v36ColorSpace != null) {
+                        return v36ColorSpace
+                    }
+                }
+
                 if (this is Rgb) {
                     val whitePointArray = this.whitePoint.toXyz()
                     val transferParams = this.transferParameters
@@ -172,6 +199,14 @@ private object ColorSpaceVerificationHelper {
                         ColorSpaceVerificationHelperV34.obtainComposeColorSpaceFromId(this.id)
                     if (v34ColorSpace != ColorSpaces.Unspecified) {
                         return v34ColorSpace
+                    }
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                    val v36ColorSpace =
+                        ColorSpaceVerificationHelperV36.obtainComposeColorSpaceFromId(this.id)
+                    if (v36ColorSpace != ColorSpaces.Unspecified) {
+                        return v36ColorSpace
                     }
                 }
                 if (this is android.graphics.ColorSpace.Rgb) {
