@@ -18,11 +18,13 @@ package androidx.compose.foundation.text
 
 import android.content.Context
 import android.database.ContentObserver
-import android.net.Uri
+import android.os.Build
 import android.os.Looper
 import android.provider.Settings
 import android.provider.Settings.System.TEXT_SHOW_PASSWORD
+import android.text.ShowSecretsSetting
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -35,72 +37,125 @@ import androidx.core.os.HandlerCompat
 
 private const val TAG = "BasicSecureTextField"
 
-@Composable
-internal actual fun platformAllowsRevealLastTyped(): Boolean {
-    val context = LocalContext.current
-    val resolver =
-        remember(context, contentResolverForSecureTextField) {
-            contentResolverForSecureTextField(context)
+/**
+ * Interface abstracting the access to system password visibility settings. Resolves differences
+ * between platform versions and provides independent control for touch and physical input sources
+ * where supported.
+ */
+internal interface PasswordVisibilitySetting {
+    fun shouldShowTouchInput(): Boolean
+
+    fun shouldShowPhysicalInput(): Boolean
+
+    /**
+     * Registers an observer to be notified when the system password visibility settings change.
+     *
+     * @param onChange Callback invoked when the settings change.
+     * @return A [Runnable] that, when executed, unregisters the observer.
+     */
+    fun registerObserver(onChange: () -> Unit): Runnable
+}
+
+/** Android implementation that reads settings from [Settings.System]. */
+private open class PlatformPasswordVisibilitySettingImpl(protected val context: Context) :
+    PasswordVisibilitySetting {
+    override fun shouldShowTouchInput(): Boolean = getSystemShowPasswordSetting()
+
+    override fun shouldShowPhysicalInput(): Boolean = getSystemShowPasswordSetting()
+
+    /** Fallback for SDK < 37 to read the system show password setting. */
+    private fun getSystemShowPasswordSetting(): Boolean {
+        return try {
+            Settings.System.getInt(context.contentResolver, TEXT_SHOW_PASSWORD) > 0
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to fetch show password setting, using value: true", e)
+            true
         }
-    var state by remember(resolver) { mutableStateOf(resolver.showPassword) }
-    val settingsObserver =
-        remember(resolver) {
+    }
+
+    override fun registerObserver(onChange: () -> Unit): Runnable {
+        val uri = Settings.System.getUriFor(TEXT_SHOW_PASSWORD)
+        val observer =
             object : ContentObserver(HandlerCompat.createAsync(Looper.getMainLooper())) {
                 override fun onChange(selfChange: Boolean) {
-                    state = resolver.showPassword
+                    onChange()
                 }
             }
-        }
-    DisposableEffect(resolver, settingsObserver) {
-        resolver.registerContentObserver(
-            Settings.System.getUriFor(TEXT_SHOW_PASSWORD),
-            false,
-            settingsObserver,
-        )
-        onDispose { resolver.unregisterContentObserver(settingsObserver) }
+        context.contentResolver.registerContentObserver(uri, false, observer)
+        return Runnable { context.contentResolver.unregisterContentObserver(observer) }
     }
-    return state
 }
 
-@VisibleForTesting
-internal interface ContentResolverForSecureTextField {
-    fun registerContentObserver(uri: Uri, notifyForDescendants: Boolean, observer: ContentObserver)
-
-    fun unregisterContentObserver(observer: ContentObserver)
-
-    val showPassword: Boolean
-}
-
-private val DefaultContentResolverForSecureTextField:
-    (Context) -> ContentResolverForSecureTextField =
-    { context ->
-        val contentResolver = context.contentResolver
-        object : ContentResolverForSecureTextField {
-            override fun registerContentObserver(
-                uri: Uri,
-                notifyForDescendants: Boolean,
-                observer: ContentObserver,
-            ) = contentResolver.registerContentObserver(uri, notifyForDescendants, observer)
-
-            override fun unregisterContentObserver(observer: ContentObserver) =
-                contentResolver.unregisterContentObserver(observer)
-
-            override val showPassword: Boolean
-                get() =
-                    try {
-                        Settings.System.getInt(contentResolver, TEXT_SHOW_PASSWORD) > 0
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Failed to fetch show password setting, using value: true", e)
-                        true
-                    }
-        }
+/** Android implementation that reads settings from `ShowSecretsSetting` on API 37+. */
+@RequiresApi(37)
+private class PlatformPasswordVisibilitySettingApi37(context: Context) :
+    PlatformPasswordVisibilitySettingImpl(context) {
+    override fun shouldShowTouchInput(): Boolean {
+        return ShowSecretsSetting.shouldShowTouchInput(context)
     }
 
-@VisibleForTesting
-internal var contentResolverForSecureTextField: (Context) -> ContentResolverForSecureTextField =
-    DefaultContentResolverForSecureTextField
+    override fun shouldShowPhysicalInput(): Boolean {
+        return ShowSecretsSetting.shouldShowPhysicalInput(context)
+    }
 
+    override fun registerObserver(onChange: () -> Unit): Runnable {
+        val runnable = Runnable { onChange() }
+        return ShowSecretsSetting.registerCallback(context, runnable)
+    }
+}
+
+/**
+ * Factory for creating [PasswordVisibilitySetting] instances. Visible for testing to allow mocking
+ * platform settings.
+ */
 @VisibleForTesting
-internal fun resetContentResolverForSecureTextField() {
-    contentResolverForSecureTextField = DefaultContentResolverForSecureTextField
+internal var passwordVisibilitySettingFactory: (Context) -> PasswordVisibilitySetting = { context ->
+    if (Build.VERSION.SDK_INT >= 37) {
+        PlatformPasswordVisibilitySettingApi37(context)
+    } else {
+        PlatformPasswordVisibilitySettingImpl(context)
+    }
+}
+
+/**
+ * Resets the [passwordVisibilitySettingFactory] to the default implementation. Visible for testing
+ * to clean up after tests that modify the factory.
+ */
+@VisibleForTesting
+internal fun resetPasswordVisibilitySettingFactory() {
+    passwordVisibilitySettingFactory = { context ->
+        if (Build.VERSION.SDK_INT >= 37) {
+            PlatformPasswordVisibilitySettingApi37(context)
+        } else {
+            PlatformPasswordVisibilitySettingImpl(context)
+        }
+    }
+}
+
+@Composable
+internal actual fun rememberPlatformPasswordVisibilitySettingsState(): SplitVisibilitySettings {
+    val context = LocalContext.current
+    val provider = remember(context) { passwordVisibilitySettingFactory(context) }
+    var splitSettings by
+        remember(provider) {
+            mutableStateOf(
+                SplitVisibilitySettings(
+                    touch = provider.shouldShowTouchInput(),
+                    physical = provider.shouldShowPhysicalInput(),
+                )
+            )
+        }
+
+    DisposableEffect(provider) {
+        val unregister =
+            provider.registerObserver {
+                splitSettings =
+                    SplitVisibilitySettings(
+                        touch = provider.shouldShowTouchInput(),
+                        physical = provider.shouldShowPhysicalInput(),
+                    )
+            }
+        onDispose { unregister.run() }
+    }
+    return splitSettings
 }
