@@ -46,6 +46,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
+import androidx.xr.glimmer.internal.SingleItemScrollConstraintConnection
 import kotlin.math.roundToInt
 
 /**

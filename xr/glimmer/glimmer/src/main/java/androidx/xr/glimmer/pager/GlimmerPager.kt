@@ -19,11 +19,16 @@ package androidx.xr.glimmer.pager
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.pager.HorizontalPager as FoundationHorizontalPager
 import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.xr.glimmer.internal.SingleItemScrollConstraintConnection
 
 /**
  * [GlimmerHorizontalPager] is a lazily-composed, horizontally scrollable layout that arranges its
@@ -73,15 +78,26 @@ public fun GlimmerHorizontalPager(
     key: ((page: Int) -> Any)? = null,
     pageContent: @Composable GlimmerPagerScope.(page: Int) -> Unit,
 ) {
+    val singleItemScrollConstraintConnection =
+        remember(state.foundationPagerState) {
+            SingleItemScrollConstraintConnection(state.foundationPagerState)
+        }
+
     FoundationHorizontalPager(
         state = state.foundationPagerState,
-        modifier = modifier.horizontalPagerScrim(state),
+        modifier =
+            modifier.horizontalPagerScrim(state).nestedScroll(singleItemScrollConstraintConnection),
         contentPadding = contentPadding,
         pageSize = PageSize.Fill,
         beyondViewportPageCount = beyondViewportPageCount,
         pageSpacing = pageSpacing,
         verticalAlignment = verticalAlignment,
         userScrollEnabled = userScrollEnabled,
+        flingBehavior =
+            PagerDefaults.flingBehavior(
+                state = state.foundationPagerState,
+                pagerSnapDistance = PagerSnapDistance.atMost(1),
+            ),
         reverseLayout = reverseLayout,
         key = key,
     ) { page ->

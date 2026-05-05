@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.xr.glimmer.stack
+package androidx.xr.glimmer.internal
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.pager.PagerLayoutInfo
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -40,7 +42,8 @@ internal class SingleItemScrollConstraintConnection(private val pagerState: Page
             return Offset.Zero
         }
 
-        val delta = available.y
+        val layoutInfo = pagerState.layoutInfo
+        val delta = if (layoutInfo.isVertical()) available.y else available.x
         if (delta == 0f) return Offset.Zero
 
         // Reset the anchor if we are not already scrolling.
@@ -49,7 +52,6 @@ internal class SingleItemScrollConstraintConnection(private val pagerState: Page
         // Latch the anchor item on the first scroll event of a gesture.
         val anchor = anchorItem ?: pagerState.currentPage.also { anchorItem = it }
 
-        val layoutInfo = pagerState.layoutInfo
         val itemSize = layoutInfo.pageSize + layoutInfo.pageSpacing
         if (itemSize <= 0) return Offset.Zero
 
@@ -71,7 +73,8 @@ internal class SingleItemScrollConstraintConnection(private val pagerState: Page
 
             // Consume the excess delta.
             val consumedDelta = delta - allowedPixels
-            return Offset(x = 0f, y = consumedDelta)
+            return if (layoutInfo.isVertical()) Offset(x = 0f, y = consumedDelta)
+            else Offset(x = consumedDelta, y = 0f)
         }
 
         return Offset.Zero
@@ -84,12 +87,12 @@ internal class SingleItemScrollConstraintConnection(private val pagerState: Page
         val minItem = (anchor - 1).toFloat()
         val maxItem = (anchor + 1).toFloat()
 
+        val layoutInfo = pagerState.layoutInfo
+        val velocity = if (layoutInfo.isVertical()) available.y else available.x
+
         // If the user is already at the limit (hit the wall) and tries to fling further in that
         // direction, we kill the velocity to stop the Pager from trying to snap to the next page.
-        if (
-            (currentPosition >= maxItem && available.y < 0) ||
-                (currentPosition <= minItem && available.y > 0)
-        ) {
+        if (isFlingingOutOfBounds(currentPosition, minItem, maxItem, velocity)) {
             return available // Consume all velocity.
         }
 
@@ -104,4 +107,16 @@ internal class SingleItemScrollConstraintConnection(private val pagerState: Page
 
     private fun calculateCurrentPosition(): Float =
         pagerState.currentPage + pagerState.currentPageOffsetFraction
+
+    private fun isFlingingOutOfBounds(
+        currentPosition: Float,
+        minItem: Float,
+        maxItem: Float,
+        velocity: Float,
+    ): Boolean {
+        return (currentPosition >= maxItem && velocity < 0) ||
+            (currentPosition <= minItem && velocity > 0)
+    }
+
+    private fun PagerLayoutInfo.isVertical(): Boolean = orientation == Orientation.Vertical
 }

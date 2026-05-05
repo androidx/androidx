@@ -284,6 +284,92 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
     }
 
     @Test
+    fun swipeForward_largeDistance_stopsAtNextItem() {
+        val state = GlimmerPagerState { 10 }
+        rule.setGlimmerThemeContent {
+            GlimmerParameterizedPager(config = config, state = state) { page -> Page("Page $page") }
+        }
+        assertThat(state.currentPage).isEqualTo(0)
+        val pageSize = state.layoutInfo.pageSize
+
+        rule
+            .onRoot()
+            .performIndirectSwipe(rule = rule, distance = pageSize * 3f * config.scrollSign)
+        rule.waitForIdle()
+
+        assertThat(state.currentPage).isEqualTo(1)
+        rule.onNodeWithText("Page 0").assertIsNotDisplayed()
+        rule.onNodeWithText("Page 1").assertIsDisplayed()
+    }
+
+    @Test
+    fun swipeBackward_largeDistance_stopsAtPreviousItem() {
+        val state = GlimmerPagerState(currentPage = 3) { 10 }
+        rule.setGlimmerThemeContent {
+            GlimmerParameterizedPager(config = config, state = state) { page -> Page("Page $page") }
+        }
+        assertThat(state.currentPage).isEqualTo(3)
+        val pageSize = state.layoutInfo.pageSize
+
+        rule
+            .onRoot()
+            .performIndirectSwipe(rule = rule, distance = -pageSize * 3f * config.scrollSign)
+        rule.waitForIdle()
+
+        assertThat(state.currentPage).isEqualTo(2)
+        rule.onNodeWithText("Page 3").assertIsNotDisplayed()
+        rule.onNodeWithText("Page 2").assertIsDisplayed()
+    }
+
+    @Test
+    fun flingForward_highVelocity_stopsAtNextItem() {
+        val state = GlimmerPagerState { 10 }
+        rule.setGlimmerThemeContent {
+            GlimmerParameterizedPager(config = config, state = state) { page -> Page("Page $page") }
+        }
+        assertThat(state.currentPage).isEqualTo(0)
+        val pageSize = state.layoutInfo.pageSize
+
+        // Fling forward with a fast swipe (short duration)
+        rule
+            .onRoot()
+            .performIndirectSwipe(
+                rule = rule,
+                distance = pageSize * 2f * config.scrollSign,
+                moveDuration = FlingDuration,
+            )
+        rule.waitForIdle()
+
+        assertThat(state.currentPage).isEqualTo(1)
+        rule.onNodeWithText("Page 0").assertIsNotDisplayed()
+        rule.onNodeWithText("Page 1").assertIsDisplayed()
+    }
+
+    @Test
+    fun flingBackward_highVelocity_stopsAtPreviousItem() = runTest {
+        val state = GlimmerPagerState(currentPage = 3) { 10 }
+        rule.setGlimmerThemeContent {
+            GlimmerParameterizedPager(config = config, state = state) { page -> Page("Page $page") }
+        }
+        assertThat(state.currentPage).isEqualTo(3)
+        val pageSize = state.layoutInfo.pageSize
+
+        // Fling backward with a fast swipe (short duration)
+        rule
+            .onRoot()
+            .performIndirectSwipe(
+                rule = rule,
+                distance = -pageSize * 2f * config.scrollSign,
+                moveDuration = FlingDuration,
+            )
+        rule.waitForIdle()
+
+        assertThat(state.currentPage).isEqualTo(2)
+        rule.onNodeWithText("Page 3").assertIsNotDisplayed()
+        rule.onNodeWithText("Page 2").assertIsDisplayed()
+    }
+
+    @Test
     fun interactionSource_emitsDragInteractions() {
         val state = GlimmerPagerState(0) { 10 }
         lateinit var scope: CoroutineScope
@@ -448,3 +534,6 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
         @JvmStatic @Parameterized.Parameters(name = "{0}") fun params() = AllGlimmerPagerTestParams
     }
 }
+
+/** A short swipe duration to trigger a fling. */
+private const val FlingDuration: Long = 50L
