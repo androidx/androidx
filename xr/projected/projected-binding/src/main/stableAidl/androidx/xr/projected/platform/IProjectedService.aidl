@@ -28,4 +28,5 @@ interface IProjectedService {
   boolean isDisplayCapable();
   void registerProjectedDeviceStateListener(in IProjectedDeviceStateListener listener);
   void unregisterProjectedDeviceStateListener(in IProjectedDeviceStateListener listener);
+  int[] getAudioDeviceIds();
 }

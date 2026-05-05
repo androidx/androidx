@@ -41,4 +41,5 @@ interface IProjectedService {
   boolean isDisplayCapable();
   void registerProjectedDeviceStateListener(in androidx.xr.projected.platform.IProjectedDeviceStateListener listener);
   void unregisterProjectedDeviceStateListener(in androidx.xr.projected.platform.IProjectedDeviceStateListener listener);
+  int[] getAudioDeviceIds();
 }
