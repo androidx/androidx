@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.player.compose.test.utils.screenshot.rule
+package androidx.compose.remote.testing.util
 
+import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
-/** Name for the screenshot golden file. */
-class GoldenScreenshotName(
-    private val description: Description,
-    private val suffix: String? = null,
-) {
-    fun getName(): String {
-        val testIdentifier =
-            description.className.substringAfterLast('.') +
-                "_" +
-                description.methodName +
-                if (suffix == null) "" else "_$suffix"
-        return testIdentifier.replace("[\\[$]".toRegex(), "_").replace("]", "")
+class GoldenScreenshotNameTestRule : TestWatcher() {
+
+    lateinit var testDescription: Description
+
+    override fun starting(description: Description) {
+        testDescription = description
     }
+
+    fun getName(suffix: String = "") = testDescription.getTestName(suffix)
+}
+
+/** Name for the screenshot golden file. */
+fun Description.getTestName(suffix: String = ""): String {
+    val testIdentifier =
+        this.className.substringAfterLast('.') + "_" + this.methodName + "_" + suffix
+    return testIdentifier.replace("[\\[$]".toRegex(), "_").replace("]", "")
 }
