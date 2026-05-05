@@ -455,4 +455,4 @@ private class ContinuationCountInterceptor(private val parentInterceptor: Contin
     }
 }
 
-private val InternallyLaunchedCoroutines = 4
+private val InternallyLaunchedCoroutines = 0
