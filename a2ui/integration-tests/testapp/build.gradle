@@ -14,34 +14,20 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `createProject` gradle task (./gradlew createProject)
- *
- * Please use the task when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
-import androidx.build.SoftwareType
-
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
+    id("com.android.application")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-
-    testImplementation(libs.kotlinTest)
+    implementation(project(":a2ui:a2ui-core"))
 }
 
 android {
-    namespace = "androidx.a2ui"
+    defaultConfig {
+        applicationId = "androidx.a2ui.testapp"
+        minSdk { version = release(24) }
+    }
     compileSdk { version = release(35) }
-}
-
-androidx {
-    name = "A2UI"
-    type = SoftwareType.PUBLISHED_LIBRARY
-    inceptionYear = "2026"
-    description = "The A2UI core data layer"
+    namespace = "androidx.a2ui.testapp"
 }
