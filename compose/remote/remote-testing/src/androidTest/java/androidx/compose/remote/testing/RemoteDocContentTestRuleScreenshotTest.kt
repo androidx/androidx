@@ -18,10 +18,11 @@ package androidx.compose.remote.testing
 
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.testing.util.GoldenScreenshotNameTestRule
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.onRoot
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -29,12 +30,17 @@ import androidx.test.uiautomator.uiAutomator
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+@RunWith(AndroidJUnit4::class)
 class RemoteDocContentTestRuleScreenshotTest {
     @get:Rule val remoteDocContentTestRule = RemoteDocContentTestRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+
+    @get:Rule val goldenScreenshotNameTestRule = GoldenScreenshotNameTestRule()
 
     @Test
     fun textValueChange() {
@@ -47,10 +53,10 @@ class RemoteDocContentTestRuleScreenshotTest {
 
         remoteDocContentTestRule.setContent(coreDocument = doc, size = Size(100f, 100f))
 
-        val screenshotBefore = remoteDocContentTestRule.composeTestRule.onRoot().captureToImage()
+        val screenshotBefore = remoteDocContentTestRule.captureRootToImage()
         screenshotBefore.assertAgainstGolden(
             screenshotRule,
-            "RemoteDocContentTestRuleScreenshotTest_textValueChange_before",
+            goldenScreenshotNameTestRule.getName("before"),
         )
 
         uiAutomator {
@@ -62,7 +68,7 @@ class RemoteDocContentTestRuleScreenshotTest {
         val screenshotAfter = remoteDocContentTestRule.captureRootToImage()
         screenshotAfter.assertAgainstGolden(
             screenshotRule,
-            "RemoteDocContentTestRuleScreenshotTest_textValueChange_after",
+            goldenScreenshotNameTestRule.getName("after"),
         )
     }
 }
