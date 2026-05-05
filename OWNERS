@@ -52,5 +52,8 @@ per-file *libraryversions.toml = wujulie@google.com, scottnien@google.com, trevo
 # Health Connect
 per-file *libraryversions.toml = abeltsegaye@google.com, sameerj@google.com, bhupindersd@google.com
 
+# Agents
+per-file AGENTS.md = file:/TAG_OWNERS
+
 # Copybara can self-approve CLs within synced docs.
 per-file docs/** = copybara-worker-blackhole@google.com
