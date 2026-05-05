@@ -390,7 +390,7 @@ internal class LinkComposer(
     private var shouldPauseCallback: ShouldPauseCallback? = null
 
     override val errorContext: CompositionErrorContextImpl? = CompositionErrorContextImpl(this)
-        get() = if (sourceMarkersEnabled) field else null
+        get() = if (parentContext.stackTraceEnabled) field else null
 
     override fun forceRecomposeScopes(): Boolean {
         return if (!forceRecomposeScopes) {
@@ -1036,8 +1036,6 @@ internal class LinkComposer(
 
     /** See [InternalComposer.stackTraceForValue] */
     override fun stackTraceForValue(value: Any?): ComposeStackTrace {
-        if (!sourceMarkersEnabled) return ComposeStackTrace(emptyList(), false)
-
         return ComposeStackTrace(
             slotTable
                 .findLocation { it === value || (it as? RememberObserverHolder)?.wrapped === value }
@@ -1428,7 +1426,7 @@ internal class LinkComposer(
     }
 
     private fun currentStackTrace(): ComposeStackTrace? =
-        if (sourceMarkersEnabled) {
+        if (parentContext.stackTraceEnabled) {
             ComposeStackTrace(
                 buildList {
                     addAll(builder.buildTrace())
@@ -2629,8 +2627,6 @@ internal class LinkComposer(
     }
 
     private fun stackTraceForGroup(group: Int, dataOffset: Int?): List<ComposeStackTraceFrame> {
-        if (!sourceMarkersEnabled) return emptyList()
-
         return slotTable.read { traceForGroup(group, dataOffset) }
     }
 

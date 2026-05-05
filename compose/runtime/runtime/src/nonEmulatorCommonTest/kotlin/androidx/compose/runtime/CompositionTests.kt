@@ -19,6 +19,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.composer.gapbuffer.expectError
+import androidx.compose.runtime.mock.ComposerToUse
 import androidx.compose.runtime.mock.Contact
 import androidx.compose.runtime.mock.ContactModel
 import androidx.compose.runtime.mock.Edit
@@ -2563,7 +2564,7 @@ class CompositionTests {
     }
 
     @Test
-    fun testRememberObserver_Abandon_Recompose() = wrapRunTest {
+    fun testRememberObserver_Abandon_Recompose_GapBuffer() = wrapRunTest {
         val abandonedObjects = mutableListOf<RememberObserver>()
         val observed =
             object : RememberObserver {
@@ -2580,7 +2581,47 @@ class CompositionTests {
                 }
             }
         assertFailsWith(IllegalStateException::class, message = "Throw") {
-            compositionTest {
+            compositionTest(ComposerToUse.Gap) {
+                    val rememberObject = mutableStateOf(false)
+
+                    compose {
+                        if (rememberObject.value) {
+                            @Suppress("UNUSED_EXPRESSION") remember { observed }
+                            error("Throw")
+                        }
+                    }
+
+                    assertTrue(abandonedObjects.isEmpty())
+
+                    rememberObject.value = true
+
+                    advance(ignorePendingWork = true)
+                }
+                .awaitCompletion()
+        }
+
+        assertArrayEquals(listOf(observed), abandonedObjects)
+    }
+
+    @Test
+    fun testRememberObserver_Abandon_Recompose_LinkTable() = wrapRunTest {
+        val abandonedObjects = mutableListOf<RememberObserver>()
+        val observed =
+            object : RememberObserver {
+                override fun onAbandoned() {
+                    abandonedObjects.add(this)
+                }
+
+                override fun onForgotten() {
+                    error("Unexpected call to onForgotten")
+                }
+
+                override fun onRemembered() {
+                    error("Unexpected call to onRemembered")
+                }
+            }
+        assertFailsWith(IllegalStateException::class, message = "Throw") {
+            compositionTest(ComposerToUse.Link) {
                     val rememberObject = mutableStateOf(false)
 
                     compose {
