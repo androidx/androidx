@@ -131,6 +131,14 @@ object ComposeFoundationFlags {
     var isBasicTextFieldHeightInLinesOptimizationEnabled = true
 
     /**
+     * This flag controls performance optimizations related to squashing multiple modifiers
+     * responsible for providing default measurement of the
+     * [androidx.compose.foundation.text.BasicTextField] into one.
+     */
+    // TODO: Remove this flag after 1.12 (b/507967106)
+    @field:Suppress("MutableBareField") @JvmField var isBasicTextFieldSizeOptimizationEnabled = true
+
+    /**
      * This flag controls the fix where item placement animation in
      * [androidx.compose.foundation.lazy.LazyColumn] and [androidx.compose.foundation.lazy.LazyRow]
      * is disabled when animated scroll happens.
