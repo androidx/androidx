@@ -115,7 +115,7 @@ public class ResultEventBus {
     /**
      * Sends a result into the channel associated with the given resultKey.
      *
-     * @param T the type of the key for the result.
+     * @param T the type of the result.
      * @param result the result to send.
      */
     public inline fun <reified T> sendResult(result: T) {
