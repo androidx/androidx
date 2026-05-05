@@ -845,11 +845,13 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
 
+    private var _textToolbar: TextToolbar? = null
     /**
      * Provide textToolbar to the user, for text-related operation. Use the Android version of
      * floating toolbar(post-M) and primary toolbar(pre-M).
      */
-    override val textToolbar: TextToolbar = AndroidTextToolbar(this)
+    override val textToolbar: TextToolbar
+        get() = _textToolbar ?: AndroidTextToolbar(this).also { _textToolbar = it }
 
     /**
      * When the first event for a mouse is ACTION_DOWN, an ACTION_HOVER_ENTER is never sent. This
