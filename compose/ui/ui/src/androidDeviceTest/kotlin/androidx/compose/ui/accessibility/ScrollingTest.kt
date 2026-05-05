@@ -20,6 +20,7 @@ import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.P
 import android.os.Build.VERSION_CODES.R
+import android.os.SystemClock
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE
@@ -114,6 +115,8 @@ class ScrollingTest {
             }
         }
         rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        // We must sleep in real time because we use postDelayed() to handle the updates
+        SystemClock.sleep(accessibilityEventLoopIntervalMs)
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         rule.runOnIdle { dispatchedAccessibilityEvents.clear() }
 
@@ -134,6 +137,8 @@ class ScrollingTest {
             androidComposeView.snapshotObserver.stopObserving()
         }
         rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        // We must sleep in real time because we use postDelayed() to handle the updates
+        SystemClock.sleep(accessibilityEventLoopIntervalMs)
 
         // Assert.
         rule.runOnIdle {
@@ -178,12 +183,16 @@ class ScrollingTest {
         //  setup. So we wait an extra 100ms here so that this test is not affected by that extra
         //  event.
         rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-        dispatchedAccessibilityEvents.clear()
+        // We must sleep in real time because we use postDelayed() to handle the updates
+        SystemClock.sleep(accessibilityEventLoopIntervalMs)
+        rule.runOnIdle { dispatchedAccessibilityEvents.clear() }
 
         // Act.
         try {
             androidComposeView.snapshotObserver.startObserving()
             rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+            // We must sleep in real time because we use postDelayed() to handle the updates
+            SystemClock.sleep(accessibilityEventLoopIntervalMs)
             rule.runOnIdle {
                 Snapshot.notifyObjectsInitialized()
                 scrollValue = 2f
@@ -193,6 +202,8 @@ class ScrollingTest {
             androidComposeView.snapshotObserver.stopObserving()
         }
         rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        // We must sleep in real time because we use postDelayed() to handle the updates
+        SystemClock.sleep(accessibilityEventLoopIntervalMs)
 
         // Assert.
         rule.runOnIdle {
@@ -559,6 +570,8 @@ class ScrollingTest {
         // Advance the clock past the first accessibility event loop, and clear the initial
         // events as we are want the assertions to check the events that were generated later.
         runOnIdle { mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs) }
+        // We must sleep in real time because we use postDelayed() to handle the updates
+        SystemClock.sleep(accessibilityEventLoopIntervalMs)
         runOnIdle { dispatchedAccessibilityEvents.clear() }
     }
 
