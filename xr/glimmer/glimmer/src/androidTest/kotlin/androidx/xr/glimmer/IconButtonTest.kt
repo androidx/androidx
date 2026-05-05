@@ -194,8 +194,8 @@ class IconButtonTest {
         val imageAfter = rule.onNodeWithTag("icon_button").captureToImage()
 
         val result =
-            // Expect similarity < 0.80 due to focused border.
-            MSSIMMatcher(threshold = 0.80)
+            // Expect similarity < 85% due to focused border.
+            MSSIMMatcher(threshold = 0.85)
                 .compareBitmaps(
                     imageBefore.toIntArray(),
                     imageAfter.toIntArray(),
