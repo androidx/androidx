@@ -244,6 +244,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Demonstração de ações e imagem final"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Demonstração do chip"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demonstração da barra de progresso"</string>
+    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstração do modelo de painel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstração do modelo de lista de locais"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Procurar locais"</string>
