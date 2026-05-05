@@ -30,10 +30,12 @@ import androidx.car.app.model.Template
 import androidx.car.app.sample.showcase.common.R
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.AlphaJumpDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.ChipDemoScreen
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.CondensedItemDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.EndImageAndActionsDemo
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.ProgressBarDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.SectionHeaderDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.SimpleListDemoScreen
+import androidx.car.app.versioning.CarAppApiLevels
 
 @RequiresCarApi(8)
 @OptIn(ExperimentalCarApi::class)
@@ -56,6 +58,16 @@ class SectionedItemTemplateDemoScreen(carContext: CarContext) : Screen(carContex
                             R.string.sectioned_item_alpha_jump_demo_title,
                         )
                     )
+                    .apply {
+                        if (carContext.getCarAppApiLevel() >= CarAppApiLevels.LEVEL_9) {
+                            addItem(
+                                buildRowForTemplate(
+                                    CondensedItemDemoScreen(carContext),
+                                    R.string.condensed_item_demo_title,
+                                )
+                            )
+                        }
+                    }
                     .addItem(
                         buildRowForTemplate(
                             EndImageAndActionsDemo(carContext),
