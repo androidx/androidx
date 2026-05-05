@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
@@ -49,6 +51,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -70,6 +73,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
@@ -1349,7 +1353,7 @@ class SliderTest {
     }
 
     @Test
-    fun rangeSlider_initialValueOutsideOfRange_doesNotCrash() {
+    fun rangeslider_initialValueOutsideOfRange_doesNotCrash() {
         rule.setMaterialContent(lightColorScheme()) {
             RangeSlider(
                 modifier = Modifier.testTag(tag),
@@ -1357,6 +1361,260 @@ class SliderTest {
                 onValueChange = {},
                 valueRange = 0f..1f,
             )
+        }
+    }
+
+    @Test
+    fun slider_thumbPosition_staysSameWhenFocused() {
+        var thumbPositionX = 0f
+        var trackWidth = 0f
+        val interactionSource = MutableInteractionSource()
+        val state = SliderState(0f)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Column {
+                Box(Modifier.testTag("other").requiredSize(10.dp).focusable())
+                Box(Modifier.requiredWidth(200.dp)) {
+                    Slider(
+                        state = state,
+                        interactionSource = interactionSource,
+                        modifier = Modifier.testTag(tag),
+                        track = { sliderState ->
+                            SliderDefaults.Track(
+                                sliderState = sliderState,
+                                modifier =
+                                    Modifier.onGloballyPositioned {
+                                        trackWidth = it.size.width.toFloat()
+                                    },
+                            )
+                        },
+                        thumb = { sliderState ->
+                            SliderDefaults.Thumb(
+                                interactionSource = interactionSource,
+                                modifier =
+                                    Modifier.onGloballyPositioned {
+                                        thumbPositionX = it.positionInParent().x
+                                    },
+                            )
+                        },
+                    )
+                }
+            }
+        }
+
+        listOf(0f, 0.3f, 0.5f, 1f).forEach { value ->
+            rule.runOnIdle { state.value = value }
+            rule.onNodeWithTag("other").requestFocus()
+            rule.waitForIdle()
+
+            val initialThumbPositionX = thumbPositionX
+            val initialTrackWidth = trackWidth
+
+            // Focus the slider
+            rule.onNodeWithTag(tag).requestFocus()
+            rule.waitForIdle()
+
+            Truth.assertWithMessage("Thumb position X for value $value")
+                .that(thumbPositionX)
+                .isEqualTo(initialThumbPositionX)
+            Truth.assertWithMessage("Track width for value $value")
+                .that(trackWidth)
+                .isEqualTo(initialTrackWidth)
+        }
+    }
+
+    @Test
+    fun slider_thumbPosition_staysSameWhenFocused_insetRing() {
+        var thumbPositionX = 0f
+        var trackWidth = 0f
+        val interactionSource = MutableInteractionSource()
+        val state = SliderState(0f)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                Column {
+                    Box(Modifier.testTag("other").requiredSize(10.dp).focusable())
+                    Box(Modifier.requiredWidth(200.dp)) {
+                        Slider(
+                            state = state,
+                            interactionSource = interactionSource,
+                            modifier = Modifier.testTag(tag),
+                            track = { sliderState ->
+                                SliderDefaults.Track(
+                                    sliderState = sliderState,
+                                    modifier =
+                                        Modifier.onGloballyPositioned {
+                                            trackWidth = it.size.width.toFloat()
+                                        },
+                                )
+                            },
+                            thumb = { sliderState ->
+                                SliderDefaults.Thumb(
+                                    interactionSource = interactionSource,
+                                    modifier =
+                                        Modifier.onGloballyPositioned {
+                                            thumbPositionX = it.positionInParent().x
+                                        },
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
+        listOf(0f, 0.3f, 0.5f, 1f).forEach { value ->
+            rule.runOnIdle { state.value = value }
+            rule.onNodeWithTag("other").requestFocus()
+            rule.waitForIdle()
+
+            val initialThumbPositionX = thumbPositionX
+            val initialTrackWidth = trackWidth
+
+            // Focus the slider
+            rule.onNodeWithTag(tag).requestFocus()
+            rule.waitForIdle()
+
+            Truth.assertWithMessage("Thumb position X for value $value")
+                .that(thumbPositionX)
+                .isEqualTo(initialThumbPositionX)
+            Truth.assertWithMessage("Track width for value $value")
+                .that(trackWidth)
+                .isEqualTo(initialTrackWidth)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun verticalSlider_thumbPosition_staysSameWhenFocused_insetRing() {
+        var thumbPositionY = 0f
+        var trackHeight = 0f
+        val interactionSource = MutableInteractionSource()
+        val state = SliderState(0f)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                Column {
+                    Box(Modifier.testTag("other").requiredSize(10.dp).focusable())
+                    Box(Modifier.requiredHeight(200.dp)) {
+                        VerticalSlider(
+                            state = state,
+                            interactionSource = interactionSource,
+                            modifier = Modifier.testTag(tag),
+                            track = { sliderState ->
+                                SliderDefaults.Track(
+                                    sliderState = sliderState,
+                                    modifier =
+                                        Modifier.onGloballyPositioned {
+                                            trackHeight = it.size.height.toFloat()
+                                        },
+                                )
+                            },
+                            thumb = { sliderState ->
+                                SliderDefaults.Thumb(
+                                    interactionSource = interactionSource,
+                                    modifier =
+                                        Modifier.onGloballyPositioned {
+                                            thumbPositionY = it.positionInParent().y
+                                        },
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
+        listOf(0f, 0.3f, 0.5f, 1f).forEach { value ->
+            rule.runOnIdle { state.value = value }
+            rule.onNodeWithTag("other").requestFocus()
+            rule.waitForIdle()
+
+            val initialThumbPositionY = thumbPositionY
+            val initialTrackHeight = trackHeight
+
+            // Focus the slider
+            rule.onNodeWithTag(tag).requestFocus()
+            rule.waitForIdle()
+
+            Truth.assertWithMessage("Thumb position Y for value $value")
+                .that(thumbPositionY)
+                .isEqualTo(initialThumbPositionY)
+            Truth.assertWithMessage("Track height for value $value")
+                .that(trackHeight)
+                .isEqualTo(initialTrackHeight)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun verticalSlider_reversed_thumbPosition_staysSameWhenFocused_insetRing() {
+        var thumbPositionY = 0f
+        var trackHeight = 0f
+        val interactionSource = MutableInteractionSource()
+        val state = SliderState(0f)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            ) {
+                Column {
+                    Box(Modifier.testTag("other").requiredSize(10.dp).focusable())
+                    Box(Modifier.requiredHeight(200.dp)) {
+                        VerticalSlider(
+                            state = state,
+                            interactionSource = interactionSource,
+                            modifier = Modifier.testTag(tag),
+                            reverseDirection = true,
+                            track = { sliderState ->
+                                SliderDefaults.Track(
+                                    sliderState = sliderState,
+                                    modifier =
+                                        Modifier.onGloballyPositioned {
+                                            trackHeight = it.size.height.toFloat()
+                                        },
+                                )
+                            },
+                            thumb = { sliderState ->
+                                SliderDefaults.Thumb(
+                                    interactionSource = interactionSource,
+                                    modifier =
+                                        Modifier.onGloballyPositioned {
+                                            thumbPositionY = it.positionInParent().y
+                                        },
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
+        listOf(0f, 0.3f, 0.5f, 1f).forEach { value ->
+            rule.runOnIdle { state.value = value }
+            rule.onNodeWithTag("other").requestFocus()
+            rule.waitForIdle()
+
+            val initialThumbPositionY = thumbPositionY
+            val initialTrackHeight = trackHeight
+
+            // Focus the slider
+            rule.onNodeWithTag(tag).requestFocus()
+            rule.waitForIdle()
+
+            Truth.assertWithMessage("Thumb position Y for value $value")
+                .that(thumbPositionY)
+                .isEqualTo(initialThumbPositionY)
+            Truth.assertWithMessage("Track height for value $value")
+                .that(trackHeight)
+                .isEqualTo(initialTrackHeight)
         }
     }
 }
