@@ -66,6 +66,10 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
     private var filePicker: ActivityResultLauncher<String> =
         registerForActivityResult(GetContent()) { uri: Uri? ->
             uri?.let {
+                if (pdfViewerFragment.documentUri != uri) {
+                    // Reset the thumbnails if a new uri is loaded.
+                    (pdfViewerFragment as? PdfViewerFragmentExtended)?.resetThumbnails()
+                }
                 pdfViewerFragment.documentUri = uri
                 currentFileName = getFileName(it)
             }
