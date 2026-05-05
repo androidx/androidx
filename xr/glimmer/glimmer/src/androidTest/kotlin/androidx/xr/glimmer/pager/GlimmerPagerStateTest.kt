@@ -136,7 +136,7 @@ class GlimmerPagerStateTest(private val config: GlimmerPagerParamConfig) :
     }
 
     @Test
-    fun dispatchRawDelta_consumesDeltaAndUpdatesOffset() = runTest {
+    fun dispatchPositiveRawDelta_consumesDeltaAndUpdatesOffset() = runTest {
         val state = GlimmerPagerState(currentPage = 5) { 10 }
 
         rule.setContent {
@@ -156,14 +156,43 @@ class GlimmerPagerStateTest(private val config: GlimmerPagerParamConfig) :
 
         var consumed = 0f
         rule.runOnIdle {
-            // Scroll a bit forward
-            val delta = 10f * config.scrollSign
+            val delta = 10f
             consumed = state.dispatchRawDelta(delta)
         }
         rule.waitForIdle()
 
-        assertThat(consumed.absoluteValue).isGreaterThan(0f)
-        assertThat(state.currentPageOffsetFraction).isNotEqualTo(0f)
+        assertThat(consumed).isGreaterThan(0f)
+        assertThat(state.currentPageOffsetFraction).isGreaterThan(0f)
+    }
+
+    @Test
+    fun dispatchNegativeRawDelta_consumesDeltaAndUpdatesOffset() = runTest {
+        val state = GlimmerPagerState(currentPage = 5) { 10 }
+
+        rule.setContent {
+            GlimmerParameterizedPager(
+                config = config,
+                modifier = Modifier.size(200.dp),
+                state = state,
+            ) { page ->
+                Page("Page $page")
+            }
+        }
+
+        rule.onNodeWithTag("Page 5").assertIsDisplayed()
+
+        val pageWidth = state.layoutInfo.pageSize
+        assertThat(pageWidth).isGreaterThan(0)
+
+        var consumed = 0f
+        rule.runOnIdle {
+            val delta = -10f
+            consumed = state.dispatchRawDelta(delta)
+        }
+        rule.waitForIdle()
+
+        assertThat(consumed).isLessThan(0f)
+        assertThat(state.currentPageOffsetFraction).isLessThan(0f)
     }
 
     @Test
@@ -269,9 +298,9 @@ class GlimmerPagerStateTest(private val config: GlimmerPagerParamConfig) :
 
         rule.mainClock.autoAdvance = false
 
-        // Drag exactly 25% of the page width in forward direction
+        // Drag exactly 25% of the page width
         val fraction = 0.25f
-        val delta = pageWidth.toFloat() * fraction * config.scrollSign
+        val delta = pageWidth.toFloat() * fraction
 
         rule.runOnIdle { state.dispatchRawDelta(delta) }
 
@@ -300,7 +329,7 @@ class GlimmerPagerStateTest(private val config: GlimmerPagerParamConfig) :
         assertThat(pageWidth).isGreaterThan(0)
 
         // Simulate a tiny scroll forward and release
-        val delta = pageWidth.toFloat() * 0.1f * config.scrollSign
+        val delta = pageWidth.toFloat() * 0.1f
 
         rule.mainClock.autoAdvance = false
 

@@ -75,7 +75,7 @@ public fun GlimmerHorizontalPager(
 ) {
     FoundationHorizontalPager(
         state = state.foundationPagerState,
-        modifier = modifier,
+        modifier = modifier.horizontalPagerScrim(state),
         contentPadding = contentPadding,
         pageSize = PageSize.Fill,
         beyondViewportPageCount = beyondViewportPageCount,

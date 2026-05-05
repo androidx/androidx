@@ -17,6 +17,7 @@
 package androidx.xr.glimmer.pager
 
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -30,6 +31,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -39,15 +43,21 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.size
 import androidx.test.filters.SdkSuppress
 import androidx.xr.glimmer.Text
+import androidx.xr.glimmer.performIndirectMove
+import androidx.xr.glimmer.performIndirectPress
+import androidx.xr.glimmer.performIndirectRelease
 import androidx.xr.glimmer.performIndirectSwipe
 import androidx.xr.glimmer.setGlimmerThemeContent
+import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -301,6 +311,126 @@ class GlimmerHorizontalPagerTest(private val config: GlimmerPagerParamConfig) :
             assertThat(interactions).hasSize(2)
             assertThat(interactions[0]).isInstanceOf(DragInteraction.Start::class.java)
             assertThat(interactions[1]).isInstanceOf(DragInteraction.Stop::class.java)
+        }
+    }
+
+    @Test
+    fun edgeScrim_indirectPointerDrag_showsAndHidesScrim() {
+        val state = GlimmerPagerState { 10 }
+        rule.setGlimmerThemeContent {
+            GlimmerParameterizedPager(
+                config = config,
+                state = state,
+                modifier = Modifier.background(Color.Red),
+            ) {
+                Box(Modifier.focusable().fillMaxSize().background(Color.Green))
+            }
+        }
+        val x = 0
+        val y = 0
+
+        rule.waitForIdle()
+
+        rule.onRoot().captureToImage().run {
+            val pixels = toPixelMap()
+            assertWithMessage("Pixel at ($x, $y) should have the page's color before drag")
+                .that(pixels[x, y])
+                .isEqualTo(Color.Green)
+        }
+
+        val pressMotionEvent = rule.onRoot().performIndirectPress(rule)
+
+        val moveDistance = state.layoutInfo.pageSize * 0.5f * config.scrollSign
+        val moveMotionEvent =
+            rule
+                .onRoot()
+                .performIndirectMove(
+                    rule = rule,
+                    distancePx = moveDistance,
+                    previousMotionEvent = pressMotionEvent,
+                )
+
+        rule.onRoot().captureToImage().run {
+            val pixels = toPixelMap()
+            val scrimEdgePixelColor = pixels[x, y]
+
+            assertWithMessage("Pixel should have the scrim's color during drag")
+                .that(scrimEdgePixelColor.red)
+                .isGreaterThan(0.9f)
+            assertWithMessage("Pixel should have the scrim's color during drag")
+                .that(scrimEdgePixelColor.green)
+                .isLessThan(0.1f)
+            assertWithMessage("Pixel at ($x, $y) should have the scrim's color on drag")
+                .that(scrimEdgePixelColor.blue)
+                .isZero()
+        }
+
+        rule.onRoot().performIndirectRelease(rule = rule, moveMotionEvent)
+
+        rule.waitForIdle()
+
+        rule.onRoot().captureToImage().run {
+            val pixels = toPixelMap()
+            assertWithMessage("Pixel at ($x, $y) should have the page's color after release")
+                .that(pixels[x, y])
+                .isEqualTo(Color.Green)
+        }
+    }
+
+    @Test
+    fun edgeScrim_touchDrag_showsAndHidesScrim() {
+        val state = GlimmerPagerState { 10 }
+        rule.setGlimmerThemeContent {
+            GlimmerParameterizedPager(
+                config = config,
+                state = state,
+                modifier = Modifier.background(Color.Red),
+            ) {
+                Box(Modifier.focusable().fillMaxSize().background(Color.Green))
+            }
+        }
+        val x = 0
+        val y = 0
+
+        rule.onRoot().captureToImage().run {
+            val pixels = toPixelMap()
+            assertWithMessage("Pixel at ($x, $y) should have the page's color before drag")
+                .that(pixels[x, y])
+                .isEqualTo(Color.Green)
+        }
+
+        val moveDistance = state.layoutInfo.pageSize * 0.5f * config.scrollSign
+
+        rule.onRoot().performTouchInput {
+            down(Offset(x = 0f, y = centerY))
+            moveTo(Offset(x = -moveDistance, y = centerY))
+        }
+
+        rule.waitForIdle()
+
+        rule.onRoot().captureToImage().run {
+            val pixels = toPixelMap()
+            val scrimTopPixelColor = pixels[x, y]
+            assertWithMessage("Pixel at ($x, $y) should have the scrim's color on drag")
+                .that(scrimTopPixelColor.red)
+                .isGreaterThan(0.9f)
+            assertWithMessage("Pixel at ($x, $y) should have the scrim's color on drag")
+                .that(scrimTopPixelColor.green)
+                .isLessThan(0.1f)
+            assertWithMessage("Pixel at ($x, $y) should have the scrim's color on drag")
+                .that(scrimTopPixelColor.blue)
+                .isZero()
+        }
+
+        rule.onRoot().performTouchInput { up() }
+
+        rule.waitForIdle()
+
+        rule.onRoot().captureToImage().run {
+            val pixels = toPixelMap()
+            assertWithMessage("Pixel at ($x, $y) should have the page's color after release")
+                .that(pixels[x, y])
+                .isEqualTo(Color.Green)
         }
     }
 
