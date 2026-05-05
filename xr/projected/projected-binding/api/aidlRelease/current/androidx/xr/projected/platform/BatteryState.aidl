@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,15 +33,7 @@
 
 package androidx.xr.projected.platform;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
-interface IProjectedService {
-  void registerProjectedInputEventListener(in androidx.xr.projected.platform.IProjectedInputEventListener listener);
-  void unregisterProjectedInputEventListener(in androidx.xr.projected.platform.IProjectedInputEventListener listener);
-  void addWindowFlags(in int flags);
-  void clearWindowFlags(in int flags);
-  boolean isDisplayCapable();
-  void registerProjectedDeviceStateListener(in androidx.xr.projected.platform.IProjectedDeviceStateListener listener);
-  void unregisterProjectedDeviceStateListener(in androidx.xr.projected.platform.IProjectedDeviceStateListener listener);
-  int[] getAudioDeviceIds();
-  void registerBatteryStateListener(in androidx.xr.projected.platform.IBatteryStateListener listener);
-  void unregisterBatteryStateListener(in androidx.xr.projected.platform.IBatteryStateListener listener);
+parcelable BatteryState {
+  boolean isCharging;
+  int batteryLevel;
 }

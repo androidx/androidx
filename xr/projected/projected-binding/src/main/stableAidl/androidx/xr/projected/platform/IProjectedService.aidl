@@ -16,6 +16,7 @@
 
 package androidx.xr.projected.platform;
 
+import androidx.xr.projected.platform.IBatteryStateListener;
 import androidx.xr.projected.platform.IProjectedDeviceStateListener;
 import androidx.xr.projected.platform.IProjectedInputEventListener;
 
@@ -29,4 +30,6 @@ interface IProjectedService {
   void registerProjectedDeviceStateListener(in IProjectedDeviceStateListener listener);
   void unregisterProjectedDeviceStateListener(in IProjectedDeviceStateListener listener);
   int[] getAudioDeviceIds();
+  void registerBatteryStateListener(in IBatteryStateListener listener);
+  void unregisterBatteryStateListener(in IBatteryStateListener listener);
 }
