@@ -30,8 +30,11 @@ import android.content.pm.PackageInfo
 import android.content.pm.ServiceInfo
 import android.hardware.display.VirtualDisplay
 import android.hardware.display.VirtualDisplayConfig
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.util.SparseIntArray
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -64,6 +67,11 @@ import org.mockito.kotlin.whenever
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowVirtualDeviceManager
+import org.robolectric.util.ReflectionHelpers
+import org.robolectric.util.reflector.Accessor
+import org.robolectric.util.reflector.ForType
+import org.robolectric.util.reflector.Reflector.reflector
+import org.robolectric.util.reflector.Static
 
 /**
  * Test rule for the Projected clients.
@@ -153,6 +161,19 @@ public class ProjectedTestRule : TestRule {
         }
 
     /**
+     * This property can be used to control the Projected audio devices, as returned by
+     * [androidx.xr.projected.ProjectedDeviceController.audioDevices]. By default, the list of audio
+     * devices includes a single input and a single output audio device.
+     */
+    public var audioDevices: List<AudioDeviceInfo> =
+        listOf(INPUT_PROJECTED_AUDIO_DEVICE_INFO, OUTPUT_PROJECTED_AUDIO_DEVICE_INFO)
+        set(value) {
+            whenever(mockProjectedService.audioDeviceIds)
+                .thenReturn(value.map { it.id }.toIntArray())
+            field = value
+        }
+
+    /**
      * Returns the currently set Projected layout param flags, reflecting the state after calls to
      * [androidx.xr.projected.ProjectedDisplayController.addLayoutParamsFlags] and
      * [androidx.xr.projected.ProjectedDisplayController.removeLayoutParamsFlags].
@@ -216,6 +237,7 @@ public class ProjectedTestRule : TestRule {
     private val context: Application = ApplicationProvider.getApplicationContext()
     private val virtualDeviceManager =
         context.getSystemService(Context.VIRTUAL_DEVICE_SERVICE) as VirtualDeviceManager
+    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val mockProjectedService: IProjectedService =
         mock<IProjectedService> {
             on { addWindowFlags(any()) } doAnswer
@@ -245,6 +267,12 @@ public class ProjectedTestRule : TestRule {
                 shouldThrowIllegalStateExceptionWhenCreatingControllers = false
                 isDeviceConnected = true
                 capabilities = setOf(Capability.CAPABILITY_VISUAL_UI)
+                audioDevices =
+                    listOf(INPUT_PROJECTED_AUDIO_DEVICE_INFO, OUTPUT_PROJECTED_AUDIO_DEVICE_INFO)
+                shadowOf(audioManager).apply {
+                    setInputDevices(listOf(INPUT_PROJECTED_AUDIO_DEVICE_INFO))
+                    setOutputDevices(listOf(OUTPUT_PROJECTED_AUDIO_DEVICE_INFO))
+                }
                 base?.evaluate()
             }
         }
@@ -424,7 +452,11 @@ public class ProjectedTestRule : TestRule {
         }
     }
 
-    private companion object {
+    internal companion object {
+        internal val INPUT_PROJECTED_AUDIO_DEVICE_INFO: AudioDeviceInfo =
+            AudioDeviceInfoBuilder().setId(17).build()
+        internal val OUTPUT_PROJECTED_AUDIO_DEVICE_INFO: AudioDeviceInfo =
+            AudioDeviceInfoBuilder().setId(18).build()
         private const val PROJECTED_DEVICE_NAME = "ProjectionDevice"
         private const val PROJECTED_DISPLAY_NAME = "ProjectionDisplay"
         private const val ASSOCIATION_ID = 1
@@ -467,5 +499,49 @@ public class ProjectedTestRule : TestRule {
                 services = arrayOf(ENGAGEMENT_MODE_SERVICE_INFO)
                 applicationInfo = ApplicationInfo().apply { flags = ApplicationInfo.FLAG_SYSTEM }
             }
+    }
+
+    private class AudioDeviceInfoBuilder {
+
+        private var id = 0
+
+        fun setId(id: Int): AudioDeviceInfoBuilder {
+            this.id = id
+            return this
+        }
+
+        fun build(): AudioDeviceInfo {
+            val port: Any = Shadow.newInstanceOf("android.media.AudioDevicePort")
+            ReflectionHelpers.setField(
+                port,
+                "mType",
+                externalToInternalType(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP),
+            ) // Assuming type and externalToInternalType are accessible
+            ReflectionHelpers.setField(port, "mAddress", "")
+
+            val handle: Any = Shadow.newInstanceOf("android.media.AudioHandle")
+            ReflectionHelpers.setField(handle, "mId", id)
+            ReflectionHelpers.setField(port, "mHandle", handle)
+
+            return ReflectionHelpers.callConstructor(
+                AudioDeviceInfo::class.java,
+                ReflectionHelpers.ClassParameter.from(port::class.java, port),
+            )
+        }
+
+        /** Accessor interface for [AudioDeviceInfo]'s internals. */
+        @ForType(AudioDeviceInfo::class)
+        private interface AudioDeviceInfoReflector {
+
+            @get:Static
+            @get:Accessor("EXT_TO_INT_DEVICE_MAPPING")
+            val extToIntDeviceMapping: SparseIntArray
+        }
+
+        private fun externalToInternalType(externalType: Int): Int {
+            return reflector(AudioDeviceInfoReflector::class.java)
+                .extToIntDeviceMapping
+                .get(externalType)
+        }
     }
 }
