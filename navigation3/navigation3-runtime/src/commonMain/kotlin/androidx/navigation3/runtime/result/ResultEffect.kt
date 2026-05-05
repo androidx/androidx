@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 
 /**
- * An Effect to provide a result even between different screens
+ * An Effect to provide a result event between different screens
  *
  * The trailing lambda provides the result from a flow of results.
  *
@@ -38,7 +38,7 @@ public inline fun <reified T> ResultEffect(
 }
 
 /**
- * An Effect to provide a result even between different screens
+ * An Effect to provide a result event between different screens
  *
  * The trailing lambda provides the result from a flow of results.
  *
