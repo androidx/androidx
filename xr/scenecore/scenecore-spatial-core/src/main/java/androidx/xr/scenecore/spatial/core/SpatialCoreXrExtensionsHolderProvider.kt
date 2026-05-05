@@ -19,7 +19,6 @@ package androidx.xr.scenecore.spatial.core
 import android.annotation.SuppressLint
 import android.extensions.xr.XrExtensions
 import androidx.xr.runtime.SpatialApiVersionHelper
-import androidx.xr.runtime.XrLog
 import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderProvider
 import com.android.extensions.xr.XrExtensions as XrExtensionsLegacy
@@ -68,6 +67,10 @@ internal class SpatialCoreXrExtensionsHolderProvider : XrExtensionsHolderProvide
         val HOLDER_LEGACY: XrExtensionsHolder<*> =
             XrExtensionsHolder(INSTANCE_LEGACY, XrExtensionsLegacy::class.java)
 
+        // Holds a reference to an exception that was safely caught during init, for the purposes
+        // of inspecting during a debug session.
+        var initializeException: Exception? = null
+
         init {
             // Try to call the @TestApi method XrExtensions.setCurrentExtensions to register
             // the current extensions instance. If this fails for various reasons (e.g. the
@@ -85,11 +88,7 @@ internal class SpatialCoreXrExtensionsHolderProvider : XrExtensionsHolderProvide
                     is NoSuchMethodException,
                     is InvocationTargetException,
                     is IllegalAccessException,
-                    is SecurityException ->
-                        XrLog.debug(
-                            "XrExtensionsHolderProvider: XrExtensions.setCurrentExtensions method" +
-                                "could not be called: $e"
-                        )
+                    is SecurityException -> initializeException = e
 
                     else -> throw e
                 }
