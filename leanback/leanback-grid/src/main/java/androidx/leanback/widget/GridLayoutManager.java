@@ -2331,8 +2331,13 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (state.willRunPredictiveAnimations()) {
             updatePositionToRowMapInPostLayout();
         }
-        // check if we need align to mFocusPosition, this is usually true unless in smoothScrolling
-        final boolean scrollToFocus = !isSmoothScrolling();
+        // check if we need align to mFocusPosition, this is usually true unless in smoothScrolling;
+        // or in dragging and settling we are dealing it in a different way that we update
+        // mFocusPosition during scrolling; or when in touch mode idle and strategy is not "snap".
+        final boolean scrollToFocus = !isSmoothScrolling()
+                && (mFlag & PF_IN_DRAGGING_AND_SETTLING) == 0
+                && (!mBaseGridView.isInTouchMode()
+                    || mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP);
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
             mFocusPosition = mFocusPosition + mFocusPositionOffset;
             mSubFocusPosition = 0;
@@ -2379,6 +2384,10 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         }
+        // deltaPrimary and deltaSecondary holds the remaining scroll distance in ViewFlinger.
+        // In scrolling to a determined position, in case view size changed during layout pass,
+        // focusToViewInLayout() with deltaPrimary compensates the distance so that when scroll
+        // stops, it landed exactly aligned location for mFocusPosition.
         // multiple rounds: scrollToView of first round may drag first/last child into
         // "visible window" and we update scrollMin/scrollMax then run second scrollToView
         // we must do this for fastRelayout() for the append item case
