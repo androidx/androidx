@@ -64,6 +64,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
 class DialogWindowV2Test {
@@ -647,7 +648,7 @@ class DialogWindowV2Test {
 
         showDialog = true
         awaitIdle()
-        delay(1000)
+        delay(1.seconds)
 
         var nonBlackPixelDetected: java.awt.Color? = null
         val testLocation = dialog.bounds.let {
@@ -667,7 +668,7 @@ class DialogWindowV2Test {
 
         dialog.dispose()
         awaitIdle()
-        delay(1000)
+        delay(1.seconds)
 
         stopThread.getAndSet(true)
         t.join()

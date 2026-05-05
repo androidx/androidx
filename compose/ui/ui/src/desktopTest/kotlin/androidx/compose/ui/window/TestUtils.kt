@@ -40,6 +40,7 @@ import java.awt.Robot
 import java.awt.Window
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 
@@ -68,7 +69,7 @@ internal fun runApplicationTest(
     assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
 
     runBlocking(MainUIDispatcher) {
-        withTimeout(timeoutMillis) {
+        withTimeout(timeoutMillis.milliseconds) {
             val exceptionHandler = TestExceptionHandler()
             withExceptionHandler(exceptionHandler) {
                 val scope = WindowTestScope(
@@ -187,7 +188,7 @@ internal class WindowTestScope(
 
     suspend fun awaitIdle() {
         if (delayMillis >= 0) {
-            delay(delayMillis)
+            delay(delayMillis.milliseconds)
         }
 
         robot.awaitEDT()
@@ -195,7 +196,7 @@ internal class WindowTestScope(
         Snapshot.sendApplyNotifications()
 
         if (animationsDelayMillis >= 0) {
-            delay(animationsDelayMillis)
+            delay(animationsDelayMillis.milliseconds)
         } else {
             for (recomposerInfo in Recomposer.runningRecomposers.value - initialRecomposers) {
                 recomposerInfo.state.takeWhile { it > Recomposer.State.Idle }.collect()

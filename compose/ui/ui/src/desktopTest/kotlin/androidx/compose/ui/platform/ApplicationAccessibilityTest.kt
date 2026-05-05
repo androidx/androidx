@@ -59,6 +59,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
@@ -421,7 +423,7 @@ class ApplicationAccessibilityTest {
             // If we do awaitIdle here, we'll sometimes fail the assertSceneAccessibleIsTextField
             // check because the AccessibleFocusHelper.focusedAccessible is reset to null
             // after 100ms, and awaitIdle sometimes takes longer.
-            withTimeoutOrNull(1000) {
+            withTimeoutOrNull(1.seconds) {
                 while ((window.isFocused != focused) || (textFieldHasFocus != focused)) {
                     receivedFocus.receive()
                 }
@@ -480,7 +482,7 @@ class ApplicationAccessibilityTest {
             waitForTextFieldFocusedState(focused = false)
             assertFalse(window.isFocused)
             assertFalse(textFieldHasFocus)
-            delay(100)  // Helps test to be more reliable
+            delay(100.milliseconds)  // Helps test to be more reliable
             window.toFront()
             waitForTextFieldFocusedState(focused = true)
             assertSceneAccessibleIsTextField()

@@ -126,6 +126,7 @@ import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth
 import kotlin.random.Random
 import kotlin.test.Ignore
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -648,9 +649,9 @@ fun AppWindow() {
 private suspend fun performGC() {
     repeat(10) {
         System.gc()
-        delay(100)
+        delay(100.milliseconds)
     }
-    delay(5000)
+    delay(5.seconds)
 }
 
 private val availableMemory get() = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
@@ -664,7 +665,7 @@ class ComplexApplicationTest {
             awaitApplication {
                 AppWindow()
                 LaunchedEffect(Unit) {
-                    delay(1000)
+                    delay(1.seconds)
                     exitApplication()
                 }
             }
@@ -677,7 +678,7 @@ class ComplexApplicationTest {
             awaitApplication {
                 AppWindow()
                 LaunchedEffect(Unit) {
-                    delay(1000)
+                    delay(1.seconds)
                     exitApplication()
                 }
             }

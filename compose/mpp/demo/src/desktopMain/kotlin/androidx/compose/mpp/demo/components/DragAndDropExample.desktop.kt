@@ -52,6 +52,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.StringSelection
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -141,7 +142,7 @@ actual fun DragAndDropExample() {
                             it.transferDataFlavors.first().humanPresentableName
                     }
                     coroutineScope.launch {
-                        delay(2000)
+                        delay(2.seconds)
                         targetText = "Drop Here"
                     }
                     return result

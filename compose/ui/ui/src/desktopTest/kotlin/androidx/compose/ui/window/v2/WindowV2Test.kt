@@ -447,7 +447,7 @@ class WindowV2Test {
                 Window(onCloseRequest = ::exitApplication) {
                     LaunchedEffect(Unit) {
                         try {
-                            delay(1000000)
+                            delay(1000.seconds)
                         } finally {
                             isWindowEffectEnded = true
                         }
@@ -457,7 +457,7 @@ class WindowV2Test {
 
             LaunchedEffect(Unit) {
                 try {
-                    delay(1000000)
+                    delay(1000.seconds)
                 } finally {
                     isApplicationEffectEnded = true
                 }

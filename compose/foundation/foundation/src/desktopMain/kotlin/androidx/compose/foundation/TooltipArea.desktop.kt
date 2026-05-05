@@ -45,6 +45,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
 import androidx.compose.ui.window.rememberComponentRectPositionProvider
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -115,7 +116,7 @@ fun TooltipArea(
             return
         }
         showTooltipJob = scope.launch {
-            delay(delayMillis.toLong())
+            delay(delayMillis.milliseconds)
             isVisible = true
         }
     }

@@ -95,6 +95,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -679,7 +680,7 @@ class ComposeSceneTest {
                             for (i in 1..50) {
                                 value = i
                                 Snapshot.sendApplyNotifications()
-                                delay(1)
+                                delay(1.milliseconds)
                             }
                         } catch (e: Throwable) {
                             exceptionThrown = e
@@ -749,14 +750,14 @@ class ComposeSceneTest {
 
         // Try to cause changes while sendApplyNotifications is being called, to get
         // SnapshotStateObserver.sendNotifications to call drainChanges.
-        for (i in 1..500) {
+        repeat(500) {
             repeat(100) {
                 value++
                 if (timedOut.get()) {
                     fail("Reached timeout; was probably stuck in a deadlock")
                 }
             }
-            delay(1)
+            delay(1.milliseconds)
         }
     }
 

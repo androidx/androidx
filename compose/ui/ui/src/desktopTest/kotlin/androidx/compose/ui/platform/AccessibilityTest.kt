@@ -80,6 +80,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
@@ -573,7 +574,7 @@ class AccessibilityTest {
             if (withDelay) {
                 // Test after waiting out RESET_FOCUS_ACCESSIBLE_DELAY to validate the scenario
                 // when ComposeSceneAccessibility.accessibleParentOverride is not active
-                delay(AccessibleFocusHelper.RESET_FOCUS_ACCESSIBLE_DELAY + 100L)
+                delay(AccessibleFocusHelper.RESET_FOCUS_ACCESSIBLE_DELAY + 100.milliseconds)
                 waitForIdle()
             }
             assertTrue(

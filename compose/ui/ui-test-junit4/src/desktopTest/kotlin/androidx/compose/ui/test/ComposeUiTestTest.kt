@@ -28,9 +28,9 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -172,7 +172,7 @@ class ComposeUiTestTest {
         val error = assertFailsWith<AssertionError> {
             runComposeUiTest(testTimeout = timeout) {
                 // switch a dispatcher to not skip the delay
-                withContext(Dispatchers.Default) { delay(1000) }
+                withContext(Dispatchers.Default) { delay(1.seconds) }
             }
         }
         // Here our assert relies on the implementation details of kotlinx.coroutines.test library,

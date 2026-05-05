@@ -67,6 +67,7 @@ import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import javax.imageio.ImageIO
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -100,9 +101,9 @@ fun suspendBackgroundApplication() = GlobalScope.launch {
     awaitApplication {
         LaunchedEffect(Unit) {
             println("1")
-            delay(1000)
+            delay(1.seconds)
             println("2")
-            delay(1000)
+            delay(1.seconds)
             println("3")
         }
     }
@@ -115,7 +116,7 @@ fun splashScreen() = GlobalScope.launchApplication {
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        delay(2000)
+        delay(2.seconds)
         isLoading = false
     }
 
@@ -135,7 +136,7 @@ fun autoClose() = GlobalScope.launchApplication {
     var isOpen by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        delay(2000)
+        delay(2.seconds)
         isOpen = false
     }
 
@@ -178,7 +179,7 @@ fun closeToTray() = GlobalScope.launchApplication {
         LaunchedEffect(Unit) {
             while (true) {
                 counter++
-                delay(1000)
+                delay(1.seconds)
             }
         }
         Text(counter.toString())
@@ -227,7 +228,7 @@ fun customWindow() = GlobalScope.launchApplication {
     LaunchedEffect(Unit) {
         while (true) {
             titleNum++
-            delay(1000)
+            delay(1.seconds)
         }
     }
 
@@ -288,7 +289,7 @@ fun hideDialog() = GlobalScope.launchApplication {
             LaunchedEffect(Unit) {
                 while (true) {
                     counter++
-                    delay(1000)
+                    delay(1.seconds)
                 }
             }
             Text(counter.toString())
@@ -331,11 +332,11 @@ fun setIcon() = GlobalScope.launchApplication {
     var icon: Painter? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
-        delay(1000)
+        delay(1.seconds)
         icon = loadIcon()
-        delay(1000)
+        delay(1.seconds)
         icon = null
-        delay(1000)
+        delay(1.seconds)
         icon = loadIcon()
     }
 

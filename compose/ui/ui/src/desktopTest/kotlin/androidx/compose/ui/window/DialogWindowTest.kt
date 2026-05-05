@@ -69,6 +69,7 @@ import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
 class DialogWindowTest {
@@ -748,7 +749,7 @@ class DialogWindowTest {
 
         showDialog = true
         awaitIdle()
-        delay(1000)
+        delay(1.seconds)
 
         var nonBlackPixelDetected: java.awt.Color? = null
         val testLocation = dialog.bounds.let {
@@ -768,7 +769,7 @@ class DialogWindowTest {
 
         dialog.dispose()
         awaitIdle()
-        delay(1000)
+        delay(1.seconds)
 
         stopThread.getAndSet(true)
         t.join()

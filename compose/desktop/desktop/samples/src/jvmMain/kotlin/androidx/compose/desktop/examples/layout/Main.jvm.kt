@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberDialogState
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
 fun main() = application {
@@ -65,7 +66,7 @@ fun IterateViews(periodMs: Long, vararg views: @Composable () -> Unit) {
     if (currentIndex < views.size) {
         views[currentIndex]()
         LaunchedEffect(currentIndex) {
-            delay(periodMs)
+            delay(periodMs.milliseconds)
             currentIndex++
         }
     } else {

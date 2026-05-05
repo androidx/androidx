@@ -84,6 +84,7 @@ import junit.framework.TestCase.assertTrue
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.skiko.ExperimentalSkikoApi
@@ -263,15 +264,15 @@ class ComposePanelTest {
                 frame.pack()
 
                 frame.isVisible = true
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(1, initialStateCounter)
 
                 frame.contentPane.remove(composePanel)
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(1, initialStateCounter)
 
                 frame.contentPane.add(composePanel)
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(1, initialStateCounter)
             } finally {
                 frame.dispose()
@@ -306,15 +307,15 @@ class ComposePanelTest {
                 frame.pack()
 
                 frame.isVisible = true
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(1, initialStateCounter)
 
                 frame.contentPane.remove(composePanel)
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(1, initialStateCounter)
 
                 frame.contentPane.add(composePanel)
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(2, initialStateCounter)
             } finally {
                 frame.dispose()
@@ -343,19 +344,19 @@ class ComposePanelTest {
                 val density = frame.contentPane.density.density
                 frame.contentPane.add(composePanel)
                 frame.isVisible = true
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(Size(100f * density, 100f * density), size)
 
                 frame.contentPane.remove(composePanel)
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(Size(100f * density, 100f * density), size)
 
                 frame.contentPane.add(composePanel)
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(Size(100f * density, 100f * density), size)
 
                 frame.size = Dimension(200, 100)
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(Size(200f * density, 100f * density), size)
             } finally {
                 frame.dispose()
@@ -382,7 +383,7 @@ class ComposePanelTest {
                 frame.pack()
 
                 frame.isVisible = true
-                delay(1000)
+                delay(1.seconds)
                 assertTrue(content.size.height > 2)
                 assertTrue(content.size.width > 2)
             } finally {
@@ -416,7 +417,7 @@ class ComposePanelTest {
                 frame.pack()
 
                 frame.isVisible = true
-                delay(1000)
+                delay(1.seconds)
                 assertTrue(content.size.width > 2)
                 assertEquals(500, content.size.height)
             } finally {
@@ -451,7 +452,7 @@ class ComposePanelTest {
                 frame.pack()
 
                 frame.isVisible = true
-                delay(1000)
+                delay(1.seconds)
                 assertEquals(200, content.size.width)
                 assertEquals(300, content.size.height)
             } finally {

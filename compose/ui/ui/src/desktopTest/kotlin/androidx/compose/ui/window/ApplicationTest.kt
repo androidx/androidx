@@ -47,6 +47,7 @@ import java.awt.Toolkit
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import org.junit.Assume.assumeFalse
@@ -242,7 +243,7 @@ class ApplicationTest {
 
         window.state = Frame.ICONIFIED
         awaitIdle()
-        delay(2000)  // Wait out the macOS iconify animation
+        delay(2.seconds)  // Wait out the macOS iconify animation
         assertEquals(Frame.ICONIFIED, window.state, "Window is not iconified")
         assertFalse(positionOnScreen.isSpecified, "Position on screen is specified when window is iconified")
     }

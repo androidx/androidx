@@ -12,6 +12,7 @@ import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 import org.jetbrains.skiko.initializeCAccessible
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * A helper class for requesting accessibility focus on a given accessible.
@@ -85,7 +86,7 @@ internal class AccessibleFocusHelper(
     }
 
     companion object {
-        const val RESET_FOCUS_ACCESSIBLE_DELAY = 100L
+        val RESET_FOCUS_ACCESSIBLE_DELAY = 100.milliseconds
     }
 }
 

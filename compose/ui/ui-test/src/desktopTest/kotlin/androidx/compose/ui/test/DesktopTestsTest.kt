@@ -34,6 +34,7 @@ import java.nio.file.Files
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -150,7 +151,7 @@ class DesktopTestsTest {
             text = "first"
             isIdle = false
             val job = CoroutineScope(Dispatchers.Default).launch {
-                delay(1000)
+                delay(1.seconds)
                 text = "second"
                 isIdle = true
             }

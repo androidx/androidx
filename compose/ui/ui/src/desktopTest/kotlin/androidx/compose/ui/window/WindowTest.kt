@@ -451,7 +451,7 @@ class WindowTest {
             }
 
             while (Recomposer.runningRecomposers.value != oldRecomposers) {
-                delay(100)
+                delay(100.milliseconds)
             }
 
             assertThat(leakDetector.hasAnyGarbageCollected()).isTrue()
@@ -578,7 +578,7 @@ class WindowTest {
                 Window(onCloseRequest = ::exitApplication) {
                     LaunchedEffect(Unit) {
                         try {
-                            delay(1000000)
+                            delay(1000.seconds)
                         } finally {
                             isWindowEffectEnded = true
                         }
@@ -588,7 +588,7 @@ class WindowTest {
 
             LaunchedEffect(Unit) {
                 try {
-                    delay(1000000)
+                    delay(1000.seconds)
                 } finally {
                     isApplicationEffectEnded = true
                 }
