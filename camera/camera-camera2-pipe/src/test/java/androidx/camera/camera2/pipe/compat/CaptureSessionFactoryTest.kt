@@ -22,6 +22,8 @@ import android.os.Build
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraBackend
+import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraGraph
@@ -41,12 +43,14 @@ import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.CameraPipeModule
+import androidx.camera.camera2.pipe.config.DefaultCameraBackend
 import androidx.camera.camera2.pipe.config.SharedCameraGraphModules
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
-import androidx.camera.camera2.pipe.testing.FakeCameraController
+import androidx.camera.camera2.pipe.testing.CameraControllerSimulator
+import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
@@ -190,6 +194,12 @@ class FakeCameraPipeModule(
     @Provides @Singleton fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
 
     @Provides @Singleton fun provideFakeCameraPipeFlags(config: CameraPipe.Config) = config.flags
+
+    @Provides
+    @Singleton
+    @DefaultCameraBackend
+    fun provideCameraPipeCameraBackend(): CameraBackend =
+        FakeCameraBackend(mapOf(fakeCamera.metadata.camera to fakeCamera.metadata))
 }
 
 @Module(includes = [SharedCameraGraphModules::class])
@@ -207,9 +217,12 @@ class FakeCameraGraphModule {
 
     @Provides
     @CameraGraphScope
-    fun provideFakeCameraController(): CameraController {
+    fun provideFakeCameraController(
+        cameraContext: CameraContext,
+        cameraGraphConfig: CameraGraph.Config,
+    ): CameraController {
         val graphId = CameraGraphId.nextId()
-        return FakeCameraController(graphId)
+        return CameraControllerSimulator(cameraContext, graphId, cameraGraphConfig, mock())
     }
 }
 
