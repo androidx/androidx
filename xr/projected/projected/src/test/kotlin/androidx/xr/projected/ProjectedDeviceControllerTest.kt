@@ -75,4 +75,27 @@ class ProjectedDeviceControllerTest {
 
             assertThat(projectedDeviceController.capabilities).doesNotContain(CAPABILITY_VISUAL_UI)
         }
+
+    @Test
+    fun audioDevices_twoDevicesSetByDefault_returnsTwoAudioDevices() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            runBlocking {
+                projectedDeviceController =
+                    ProjectedDeviceController.create(projectedDeviceActivity)
+            }
+
+            assertThat(projectedDeviceController.audioDevices).hasSize(2)
+        }
+
+    @Test
+    fun audioDevices_emptyProjectedAudioDevices_returnsEmptyList() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            projectedTestRule.audioDevices = listOf()
+            runBlocking {
+                projectedDeviceController =
+                    ProjectedDeviceController.create(projectedDeviceActivity)
+            }
+
+            assertThat(projectedDeviceController.audioDevices).isEmpty()
+        }
 }
