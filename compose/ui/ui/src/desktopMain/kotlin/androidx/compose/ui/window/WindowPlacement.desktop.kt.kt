@@ -21,21 +21,21 @@ package androidx.compose.ui.window
  */
 enum class WindowPlacement {
     /**
-     * Window don't occupy the all available space and can be moved and resized by the user.
+     * Window doesn't occupy the all available space and can be moved and resized by the user.
      */
     Floating,
 
     /**
      * The window is maximized and occupies all available space on the screen excluding
      * the space that is occupied by the screen insets (taskbar/dock and top-level application menu
-     * on macOs).
+     * on macOS).
      */
     Maximized,
 
     /**
      * The window is in fullscreen mode and occupies all available space of the screen,
      * including the space that is occupied by the screen insets (taskbar/dock and top-level
-     * application menu on macOs).
+     * application menu on macOS).
      */
     Fullscreen
 }

@@ -57,7 +57,7 @@ internal fun Window.setSizeSafely(size: DpSize, placement: WindowPlacement) {
 
 /**
  * Sets the position of the window, given its placement.
- * If the window is already visible, then change the position only if it's floating, in order to
+ * If the window is already visible, then change the position only if it's floating to
  * avoid resetting the maximized / fullscreen state.
  * If the window is not visible yet, we _do_ set its size so that it will have an "un-maximized"
  * position to go to when the user un-maximizes the window.
@@ -126,24 +126,29 @@ internal fun Window.setPositionImpl(
     platformDefaultPosition: () -> Point
 ) = when (position) {
     WindowPosition.PlatformDefault -> location = platformDefaultPosition()
-    is WindowPosition.Aligned -> align(position.alignment)
+    is WindowPosition.Aligned -> alignToScreen(position.alignment)
     is WindowPosition.Absolute -> setLocation(
         position.x.value.roundToInt(),
         position.y.value.roundToInt()
     )
 }
 
-internal fun Window.align(alignment: Alignment) {
+internal fun Window.alignToScreen(alignment: Alignment) {
+    location = locationAlignedToScreen(
+        windowSize = IntSize(width, height),
+        alignment = alignment
+    )
+}
+
+internal fun Window.locationAlignedToScreen(windowSize: IntSize, alignment: Alignment): Point {
     val screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfiguration)
     val screenBounds = graphicsConfiguration.bounds
-    val size = IntSize(size.width, size.height)
     val screenSize = IntSize(
         screenBounds.width - screenInsets.left - screenInsets.right,
         screenBounds.height - screenInsets.top - screenInsets.bottom
     )
-    val location = alignment.align(size, screenSize, LayoutDirection.Ltr)
-
-    setLocation(
+    val location = alignment.align(windowSize, screenSize, LayoutDirection.Ltr)
+    return Point(
         screenBounds.x + screenInsets.left + location.x,
         screenBounds.y + screenInsets.top + location.y
     )

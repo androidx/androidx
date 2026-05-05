@@ -392,6 +392,7 @@ final const val androidx.compose.ui.unit/MaxDimensionsAndFocusMask // androidx.c
     final fun <get-MaxDimensionsAndFocusMask>(): kotlin/Long // androidx.compose.ui.unit/MaxDimensionsAndFocusMask.<get-MaxDimensionsAndFocusMask>|<get-MaxDimensionsAndFocusMask>(){}[0]
 
 final val androidx.compose.ui.unit/androidx_compose_ui_unit_ComposeUiUnitFlags$stableprop // androidx.compose.ui.unit/androidx_compose_ui_unit_ComposeUiUnitFlags$stableprop|#static{}androidx_compose_ui_unit_ComposeUiUnitFlags$stableprop[0]
+final val androidx.compose.ui.unit/androidx_compose_ui_unit_DpInsets$stableprop // androidx.compose.ui.unit/androidx_compose_ui_unit_DpInsets$stableprop|#static{}androidx_compose_ui_unit_DpInsets$stableprop[0]
 final val androidx.compose.ui.unit/androidx_compose_ui_unit_DpRect$stableprop // androidx.compose.ui.unit/androidx_compose_ui_unit_DpRect$stableprop|#static{}androidx_compose_ui_unit_DpRect$stableprop[0]
 final val androidx.compose.ui.unit/androidx_compose_ui_unit_IntRect$stableprop // androidx.compose.ui.unit/androidx_compose_ui_unit_IntRect$stableprop|#static{}androidx_compose_ui_unit_IntRect$stableprop[0]
 final val androidx.compose.ui.unit/center // androidx.compose.ui.unit/center|@androidx.compose.ui.unit.DpSize{}center[0]
@@ -467,6 +468,7 @@ final fun androidx.compose.ui.unit/IntRect(androidx.compose.ui.unit/IntOffset, k
 final fun androidx.compose.ui.unit/TextUnit(kotlin/Float, androidx.compose.ui.unit/TextUnitType): androidx.compose.ui.unit/TextUnit // androidx.compose.ui.unit/TextUnit|TextUnit(kotlin.Float;androidx.compose.ui.unit.TextUnitType){}[0]
 final fun androidx.compose.ui.unit/Velocity(kotlin/Float, kotlin/Float): androidx.compose.ui.unit/Velocity // androidx.compose.ui.unit/Velocity|Velocity(kotlin.Float;kotlin.Float){}[0]
 final fun androidx.compose.ui.unit/androidx_compose_ui_unit_ComposeUiUnitFlags$stableprop_getter(): kotlin/Int // androidx.compose.ui.unit/androidx_compose_ui_unit_ComposeUiUnitFlags$stableprop_getter|androidx_compose_ui_unit_ComposeUiUnitFlags$stableprop_getter(){}[0]
+final fun androidx.compose.ui.unit/androidx_compose_ui_unit_DpInsets$stableprop_getter(): kotlin/Int // androidx.compose.ui.unit/androidx_compose_ui_unit_DpInsets$stableprop_getter|androidx_compose_ui_unit_DpInsets$stableprop_getter(){}[0]
 final fun androidx.compose.ui.unit/androidx_compose_ui_unit_DpRect$stableprop_getter(): kotlin/Int // androidx.compose.ui.unit/androidx_compose_ui_unit_DpRect$stableprop_getter|androidx_compose_ui_unit_DpRect$stableprop_getter(){}[0]
 final fun androidx.compose.ui.unit/androidx_compose_ui_unit_IntRect$stableprop_getter(): kotlin/Int // androidx.compose.ui.unit/androidx_compose_ui_unit_IntRect$stableprop_getter|androidx_compose_ui_unit_IntRect$stableprop_getter(){}[0]
 final fun androidx.compose.ui.unit/checkArithmetic(androidx.compose.ui.unit/TextUnit) // androidx.compose.ui.unit/checkArithmetic|checkArithmetic(androidx.compose.ui.unit.TextUnit){}[0]

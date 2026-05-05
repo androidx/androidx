@@ -35,6 +35,7 @@ import kotlinx.coroutines.withTimeout
 import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Assume.assumeFalse
 import androidx.compose.ui.window.launchApplication as realLaunchApplication
+import androidx.compose.ui.window.v2.Window
 import java.awt.Robot
 import java.awt.Window
 import java.awt.event.WindowAdapter
@@ -151,6 +152,21 @@ internal class WindowTestScope(
            this@WindowTestScope.window = window
            content()
        }
+    }
+
+    fun launchTestWindowV2Application(
+        state: androidx.compose.ui.window.v2.WindowState = androidx.compose.ui.window.v2.WindowState(),
+        decoration: WindowDecoration = WindowDecoration.SystemDefault,
+        content: @Composable FrameWindowScope.() -> Unit
+    ) = launchTestApplication {
+        Window(
+            onCloseRequest = ::exitApplication,
+            state = state,
+            decoration = decoration
+        ) {
+            this@WindowTestScope.window = window
+            content()
+        }
     }
 
     // Overload `launchApplication` to prohibit calling it from tests

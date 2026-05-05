@@ -21,6 +21,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.unit.Dp
@@ -35,7 +36,7 @@ import java.awt.GraphicsConfiguration
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
-import java.util.Locale
+import java.util.*
 import javax.swing.JFrame
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -195,6 +196,13 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     fun saveState(): SavedState? {
         return composePanel.saveState()
     }
+
+    /**
+     * Returns an object through which the composable content of the window can be queried for its
+     * size preferences, such as its intrinsic size.
+     */
+    @ExperimentalComposeUiApi
+    val measurableContent: MeasurableRootContent by composePanel::measurableContent
 
     override fun dispose() {
         super.dispose()

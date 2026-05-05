@@ -21,6 +21,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
@@ -312,6 +313,14 @@ class ComposeDialog : JDialog {
     fun saveState(): SavedState? {
         return composePanel.saveState()
     }
+
+    /**
+     * Returns an object through which the composable content of the window can be queried for its
+     * size preferences, such as its intrinsic size.
+     */
+    @ExperimentalComposeUiApi
+    val measurableContent: MeasurableRootContent
+        get() = composePanel.measurableContent
 
     override fun dispose() {
         super.dispose()

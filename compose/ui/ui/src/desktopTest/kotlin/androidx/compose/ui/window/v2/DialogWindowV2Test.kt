@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window
+package androidx.compose.ui.window.v2
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
@@ -25,15 +25,12 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeDialog
-import androidx.compose.ui.awt.LocalAwtWindow
-import androidx.compose.ui.awt.SwingDialog
+import androidx.compose.ui.awt.v2.SwingDialog
 import androidx.compose.ui.background
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -45,8 +42,6 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.sendKeyEvent
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.toInt
@@ -55,99 +50,23 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntSize
+import androidx.compose.ui.window.DialogWindowScope
+import androidx.compose.ui.window.runApplicationTest
+import androidx.compose.ui.window.toSize
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dialog
-import java.awt.Dimension
 import java.awt.Point
 import java.awt.Robot
 import java.awt.Window
 import java.awt.event.KeyEvent
-import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlinx.coroutines.delay
 
-class DialogWindowTest {
-    @Test
-    fun `open and close custom dialog`() = runApplicationTest {
-        var window: ComposeDialog? = null
-
-        launchTestApplication {
-            var isOpen by remember { mutableStateOf(true) }
-
-            fun createWindow() = ComposeDialog().apply {
-                size = Dimension(300, 200)
-                isResizable = true
-                isUndecorated = true
-                addWindowListener(object : WindowAdapter() {
-                    override fun windowClosing(e: WindowEvent) {
-                        isOpen = false
-                    }
-                })
-            }
-
-            if (isOpen) {
-                SwingDialog(
-                    create = ::createWindow,
-                    dispose = ComposeDialog::dispose
-                ) {
-                    window = this.window
-                    Box(Modifier.size(32.dp).background(Color.Red))
-                }
-            }
-        }
-
-        awaitIdle()
-        assertThat(window?.isShowing).isTrue()
-
-        window?.dispatchEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSING))
-    }
-
-    @Test
-    fun `update custom dialog`() = runApplicationTest {
-        var window: ComposeDialog? = null
-
-        var isOpen by mutableStateOf(true)
-        var title by mutableStateOf("Title1")
-
-        launchTestApplication {
-            fun createWindow() = ComposeDialog().apply {
-                size = Dimension(300, 200)
-
-                addWindowListener(object : WindowAdapter() {
-                    override fun windowClosing(e: WindowEvent) {
-                        isOpen = false
-                    }
-                })
-            }
-
-            if (isOpen) {
-                SwingDialog(
-                    create = ::createWindow,
-                    dispose = ComposeDialog::dispose,
-                    update = { it.title = title }
-                ) {
-                    window = this.window
-                    Box(Modifier.size(32.dp).background(Color.Red))
-                }
-            }
-        }
-
-        awaitIdle()
-        assertThat(window?.isShowing).isTrue()
-        assertThat(window?.title).isEqualTo(title)
-
-        title = "Title2"
-        awaitIdle()
-        assertThat(window?.title).isEqualTo(title)
-
-        isOpen = false
-    }
-
+class DialogWindowV2Test {
     @Test
     fun `open and close dialog`() = runApplicationTest {
         var window: ComposeDialog? = null
@@ -278,8 +197,8 @@ class DialogWindowTest {
             if (isOpen) {
                 DialogWindow(
                     onCloseRequest = {},
-                    state = rememberDialogState(
-                        size = DpSize(600.dp, 600.dp),
+                    state = rememberDialogStateWithBounds(
+                        initialSize = DpSize(600.dp, 600.dp),
                     )
                 ) {
                     window1 = this.window
@@ -288,8 +207,8 @@ class DialogWindowTest {
                     if (isNestedOpen) {
                         DialogWindow(
                             onCloseRequest = {},
-                            state = rememberDialogState(
-                                size = DpSize(300.dp, 300.dp),
+                            state = rememberDialogStateWithBounds(
+                                initialSize = DpSize(300.dp, 300.dp),
                             )
                         ) {
                             window2 = this.window
@@ -334,8 +253,8 @@ class DialogWindowTest {
                 CompositionLocalProvider(localTestValue provides testValue) {
                     DialogWindow(
                         onCloseRequest = {},
-                        state = rememberDialogState(
-                            size = DpSize(600.dp, 600.dp),
+                        state = rememberDialogStateWithBounds(
+                            initialSize = DpSize(600.dp, 600.dp),
                         )
                     ) {
                         actualValue1 = localTestValue.current
@@ -343,8 +262,8 @@ class DialogWindowTest {
 
                         DialogWindow(
                             onCloseRequest = {},
-                            state = rememberDialogState(
-                                size = DpSize(300.dp, 300.dp),
+                            state = rememberDialogStateWithBounds(
+                                initialSize = DpSize(300.dp, 300.dp),
                             )
                         ) {
                             actualValue2 = localTestValue.current
@@ -585,17 +504,21 @@ class DialogWindowTest {
     fun `should draw before dialog is visible`() {
         val windowSize = DpSize(400.dp, 300.dp)
         testDrawingBeforeDialogIsVisible(
-            dialogState = DialogState(size = windowSize),
+            dialogState = DialogStateWithBounds(initialSize = windowSize),
             canvasSizeModifier = Modifier.fillMaxSize(),
             expectedCanvasSize = { windowSize - window.insets.toSize() }
         )
     }
 
     @Test(timeout = 30000)
-    fun `should draw before dialog with unspecified size is visible`() {
+    fun `should draw before dialog with unconstrained size is visible`() {
         val canvasSize = DpSize(400.dp, 300.dp)
         testDrawingBeforeDialogIsVisible(
-            dialogState = DialogState(size = DpSize.Unspecified),
+            dialogState = DialogState(
+                initialBoundsProvider = WindowBoundsProvider(
+                    sizeProvider = WindowSizeProvider.Unconstrained
+                )
+            ),
             canvasSizeModifier = Modifier.size(canvasSize),
             expectedCanvasSize = { canvasSize }
         )
@@ -680,30 +603,6 @@ class DialogWindowTest {
         dialog?.dispatchEvent(WindowEvent(dialog, WindowEvent.WINDOW_CLOSING))
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun `can save Unspecified dialog size`() = runComposeUiTest {
-        val expectedState = DialogState(size = DpSize.Unspecified)
-        lateinit var restoredState: DialogState
-        var index by mutableIntStateOf(0)
-        setContent {
-            val saveableStateHolder = rememberSaveableStateHolder()
-            saveableStateHolder.SaveableStateProvider(index) {
-                val state = rememberDialogState(size = DpSize.Unspecified)
-                if (index == 0) {
-                    restoredState = state
-                }
-            }
-        }
-
-        index = 1
-        waitForIdle()
-        index = 0
-        waitForIdle()
-
-        assertDialogStateEquals(expectedState, restoredState)
-    }
-
     @Test
     fun `swing dialog init called before it is displayable`() = runApplicationTest {
         var isDisplayableInInit: Boolean? = null
@@ -726,15 +625,15 @@ class DialogWindowTest {
         lateinit var dialog: Dialog
         var showDialog by mutableStateOf(false)
         val windowSize = DpSize(800.dp, 800.dp)
-        launchTestWindowApplication(
-            state = WindowState(size = windowSize),
+        launchTestWindowV2Application(
+            state = WindowStateWithBounds(initialSize = windowSize),
         ) {
             window = this.window
             Box(Modifier.fillMaxSize().background(Color.Black))
             if (showDialog) {
                 DialogWindow(
                     onCloseRequest = {},
-                    state = rememberDialogState(size = windowSize)
+                    state = rememberDialogStateWithBounds(initialSize = windowSize)
                 ) {
                     dialog = this.window
                     Box(Modifier.fillMaxSize().background(Color.Black))
@@ -789,21 +688,4 @@ class DialogWindowTest {
             content()
         }
     }
-
-    @Test
-    fun dialogWindowComposableProvidesLocalAwtWindow() = runApplicationTest {
-        var localWindow: Window? = null
-        launchTestApplication {
-            DialogWindow(onCloseRequest = ::exitApplication) {
-                localWindow = LocalAwtWindow.current
-            }
-        }
-        awaitIdle()
-        assertNotNull(localWindow)
-    }
-}
-
-private fun assertDialogStateEquals(expected: DialogState, actual: DialogState) {
-    assertEquals(expected.size, actual.size, "size differs")
-    assertEquals(expected.position, actual.position, "position differs")
 }

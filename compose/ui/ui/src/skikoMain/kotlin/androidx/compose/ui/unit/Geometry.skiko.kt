@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
+import kotlin.math.roundToInt
 
 /**
  * Convert a [Offset] to a [DpOffset].
@@ -81,9 +82,64 @@ internal inline fun DpSize.toSize(density: Density): Size = with(density) {
 }
 
 /**
+ * Coerces this [DpSize] to at most the specified [size], on each axis.
+ */
+@Stable
+internal inline fun DpSize.coerceAtMost(size: DpSize): DpSize =
+    DpSize(
+        width = width.coerceAtMost(size.width),
+        height = height.coerceAtMost(size.height)
+    )
+
+/**
  * Converts a [IntSize] to a [Rect].
  */
 @Stable
 internal inline fun IntSize.toRect(): Rect =
     Rect(0f, 0f, width.toFloat(), height.toFloat())
 
+@Stable
+internal fun DpSize.roundToIntSize() = IntSize(
+    width = width.value.roundToInt(),
+    height = height.value.roundToInt()
+)
+
+@Stable
+internal val DpRect.topLeft: DpOffset get() = DpOffset(left, top)
+
+@Stable
+internal operator fun DpRect.plus(offset: DpOffset): DpRect =
+    DpRect(left + offset.x, top + offset.y, right + offset.x, bottom + offset.y)
+
+@Stable
+internal val Dp.isReal
+    get() = isSpecified && isFinite
+
+@Stable
+internal fun Dp.requireReal(propertyName: String) =
+    require(isReal) { "$propertyName must be specified and finite"}
+
+@Stable
+internal fun DpRect.requireReal(): DpRect {
+    left.requireReal("left")
+    top.requireReal("top")
+    right.requireReal("right")
+    bottom.requireReal("bottom")
+    return this
+}
+
+@Stable
+internal fun DpSize.requireReal(): DpSize {
+    require(isSpecified) { "size must be specified" }
+    width.requireReal("width")
+    height.requireReal("height")
+    return this
+}
+
+@Stable
+internal fun DpOffset.requireReal(): DpOffset {
+    require(isSpecified) { "offset must be specified" }
+    x.requireReal("x")
+    y.requireReal("y")
+    return this
+}

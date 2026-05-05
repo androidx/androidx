@@ -22,6 +22,7 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.LayerType
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.scene.ComposeContainer
 import androidx.savedstate.SavedState
 import java.awt.Component
@@ -115,6 +116,9 @@ internal class ComposeWindowPanel(
         }
         isFocusCycleRoot = true
     }
+
+    val measurableContent: MeasurableRootContent
+        get() = composeContainer.measurableContent
 
     override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
         super.setBounds(x, y, width, height)

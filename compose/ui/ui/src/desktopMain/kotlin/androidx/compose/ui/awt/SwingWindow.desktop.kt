@@ -135,11 +135,14 @@ fun SwingWindow(
 
             // If displaying for the first time, make sure we draw the first frame before making
             // the window visible to avoid showing the window background
-            // It's the responsibility of setSizeSafely to
+            // It's the responsibility of update(it) to:
             // - Make the window displayable
             // - Size the window and the ComposeLayer correctly, so that we can draw it here
             if (!wasDisplayable && it.isDisplayable) {
                 Snapshot.withoutReadObservation {
+                    if (!it.isValid) {
+                        it.validate()
+                    }
                     it.renderImmediately()
                 }
             }

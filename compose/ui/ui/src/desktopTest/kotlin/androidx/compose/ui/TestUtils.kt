@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -277,6 +278,8 @@ suspend fun Robot.awaitEDT() {
 }
 
 fun Dimension.toDpSize() = DpSize(width.dp, height.dp)
+
+fun Point.toDpOffset() = DpOffset(x.dp, y.dp)
 
 fun Point.toWindowPosition() = WindowPosition(x.dp, y.dp)
 

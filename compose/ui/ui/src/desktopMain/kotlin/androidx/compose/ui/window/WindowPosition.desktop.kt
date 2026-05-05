@@ -29,6 +29,7 @@ fun WindowPosition(x: Dp, y: Dp) = WindowPosition.Absolute(x, y)
 /**
  * Constructs an [WindowPosition.Aligned] from [alignment] value.
  */
+@Suppress("DEPRECATION")
 fun WindowPosition(alignment: Alignment) = WindowPosition.Aligned(alignment)
 
 /**

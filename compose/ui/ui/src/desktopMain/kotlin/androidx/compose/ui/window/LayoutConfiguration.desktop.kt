@@ -78,6 +78,6 @@ internal fun layoutDirectionFor(component: Component): LayoutDirection {
         orientation.layoutDirection
     } else {
         // To preserve backwards compatibility we fall back to the locale
-        return component.locale.layoutDirection
+        component.locale.layoutDirection
     }
 }

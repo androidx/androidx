@@ -16,8 +16,9 @@
 
 package androidx.compose.ui.window
 
+import java.awt.Dimension
 import java.awt.GraphicsConfiguration
-import java.awt.GraphicsEnvironment
+import java.awt.GraphicsDevice
 import java.awt.Point
 import java.awt.Toolkit
 import java.awt.Window
@@ -25,23 +26,24 @@ import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
 
 /**
- * Track position of all opened windows and provide an appropriate location for new created windows.
+ * Track the position of all opened windows and provide an appropriate location for newly created
+ * windows.
  *
  * Needed to place windows in cascade, and on the same screen.
  *
  * Singleton because we have only the single platform.
- * We basically override the standard behaviour of the window manager.
+ * We basically override the standard behavior of the window manager.
  */
 internal object WindowLocationTracker {
     private val cascadeOffset = Point(48, 48)
 
-    private var lastFocusedWindows = mutableSetOf<Window>()
+    private var windowsOrderedByLastFocused = mutableSetOf<Window>()
 
     private val focusListener = object : WindowFocusListener {
         override fun windowGainedFocus(e: WindowEvent) {
             // put window on the top of the set
-            lastFocusedWindows.remove(e.window)
-            lastFocusedWindows.add(e.window)
+            windowsOrderedByLastFocused.remove(e.window)
+            windowsOrderedByLastFocused.add(e.window)
         }
 
         override fun windowLostFocus(e: WindowEvent) = Unit
@@ -53,32 +55,39 @@ internal object WindowLocationTracker {
 
     fun onWindowDisposed(window: Window) {
         window.removeWindowFocusListener(focusListener)
-        lastFocusedWindows.remove(window)
+        windowsOrderedByLastFocused.remove(window)
     }
 
     val lastActiveGraphicsConfiguration: GraphicsConfiguration? get() =
-        lastFocusedWindows.lastOrNull()?.graphicsConfiguration
+        windowsOrderedByLastFocused.lastOrNull()?.graphicsConfiguration
 
     fun getCascadeLocationFor(window: Window): Point {
-        val lastWindow = lastFocusedWindows.lastOrNull()
-        val graphicsConfiguration = lastWindow?.graphicsConfiguration ?:
-            GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice?.defaultConfiguration
+        return getCascadeLocationFor(
+            graphicsDevice = window.graphicsConfiguration.device,
+            windowSize = window.size
+        )
+    }
 
-        return if (graphicsConfiguration != null) {
-            val screenBounds = graphicsConfiguration.bounds
-            val screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfiguration)
-            val screenLeftTop = screenBounds.leftTop + Point(screenInsets.left, screenInsets.top)
-            val screenRightBottom = screenBounds.rightBottom - Point(screenInsets.right, screenInsets.bottom)
-
-            val lastLocation = lastWindow?.location ?: screenLeftTop
-            var location = lastLocation + cascadeOffset
-            val rightBottom = location + window.size.rightBottom
-            if (rightBottom.x > screenRightBottom.x || rightBottom.y > screenRightBottom.y) {
-                location = screenLeftTop + cascadeOffset
-            }
-            location
-        } else {
-            cascadeOffset
+    fun getCascadeLocationFor(
+        graphicsDevice: GraphicsDevice,
+        windowSize: Dimension
+    ): Point {
+        val lastFocusedWindow = windowsOrderedByLastFocused.lastOrNull {
+            it.graphicsConfiguration.device == graphicsDevice
         }
+
+        val graphicsConfiguration = graphicsDevice.defaultConfiguration
+        val screenBounds = graphicsConfiguration.bounds
+        val screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfiguration)
+        val screenLeftTop = screenBounds.leftTop + Point(screenInsets.left, screenInsets.top)
+        val screenRightBottom = screenBounds.rightBottom - Point(screenInsets.right, screenInsets.bottom)
+
+        val lastLocation = lastFocusedWindow?.location ?: screenLeftTop
+        var location = lastLocation + cascadeOffset
+        val rightBottom = location + windowSize.rightBottom
+        if (rightBottom.x > screenRightBottom.x || rightBottom.y > screenRightBottom.y) {
+            location = screenLeftTop + cascadeOffset
+        }
+        return location
     }
 }

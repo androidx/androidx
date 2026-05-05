@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window.window
+package androidx.compose.ui.window
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -49,12 +49,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.WindowPosition
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.WindowTestScope
-import androidx.compose.ui.window.density
-import androidx.compose.ui.window.runApplicationTest
-import androidx.compose.ui.window.waitForFocusGain
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import org.junit.experimental.theories.DataPoint

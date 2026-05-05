@@ -16,14 +16,14 @@
 
 package androidx.compose.ui.layout
 
-import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.Constraints
 
 /**
  * The interface through which composable content can be queried for its size preferences, such as
  * its intrinsic size.
  */
-@InternalComposeUiApi
+@ExperimentalComposeUiApi
 interface MeasurableRootContent : IntrinsicMeasurable {
     /**
      * Measures the content with the given constraints and calls [block] on the resulting

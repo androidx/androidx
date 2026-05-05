@@ -25,6 +25,7 @@ import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.platform.DefaultArchitectureComponentsOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -216,6 +217,9 @@ internal class ComposeContainer(
         mediator.dispose()
         layers.fastForEach(DesktopComposeSceneLayer::close)
     }
+
+    val measurableContent: MeasurableRootContent
+        get() = mediator.measurableSceneContent
 
     override fun windowGainedFocus(event: WindowEvent) = onWindowFocusChanged()
     override fun windowLostFocus(event: WindowEvent) = onWindowFocusChanged()

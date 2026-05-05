@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window.window
+package androidx.compose.ui.window
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -29,8 +29,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.readFirstPixel
 import androidx.compose.ui.testImage
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.event.WindowEvent
 import org.junit.Test

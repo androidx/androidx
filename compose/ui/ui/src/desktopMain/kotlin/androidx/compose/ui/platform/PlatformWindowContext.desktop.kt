@@ -20,12 +20,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.roundToIntSize
-import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.asDpOffset
@@ -37,7 +33,6 @@ import java.awt.Container
 import java.awt.Frame
 import java.awt.Point
 import javax.swing.SwingUtilities
-import kotlin.math.roundToInt
 
 /**
  * Tracking a state of window.
