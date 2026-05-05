@@ -139,5 +139,5 @@ object ComposeUiFlags {
     // TODO: b/506963276
     @field:Suppress("MutableBareField")
     @JvmField
-    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
+    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = false
 }

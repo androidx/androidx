@@ -44,7 +44,6 @@ import androidx.xr.glimmer.samples.VerticalStackSample
 import androidx.xr.glimmer.setGlimmerThemeContent
 import androidx.xr.glimmer.testutils.captureToImage
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,7 +63,6 @@ class VerticalStackScreenshotTest {
         assertRootAgainstGolden("verticalStack_fixedSizeItems_initialState")
     }
 
-    @Ignore("b/508667994")
     @Test
     fun verticalStack_fixedSizeItems_scrollHalfWay() {
         rule.setGlimmerThemeContent { VerticalStackSample() }
@@ -95,7 +93,6 @@ class VerticalStackScreenshotTest {
         assertRootAgainstGolden("verticalStack_varyingSizeItems_initialState")
     }
 
-    @Ignore("b/508667994")
     @Test
     fun verticalStack_varyingSizeItems_scrollHalfWay() {
         rule.setGlimmerThemeContent { VerticalStackWithVaryingSizeItems() }
