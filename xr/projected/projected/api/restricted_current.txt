@@ -25,9 +25,12 @@ package androidx.xr.projected {
     field public static final androidx.xr.projected.ProjectedContext INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedDeviceController {
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedDeviceController implements java.lang.AutoCloseable {
+    method public void close();
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDeviceController>);
+    method @InaccessibleFromKotlin public java.util.List<android.media.AudioDeviceInfo> getAudioDevices();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.projected.ProjectedDeviceController.Capability> getCapabilities();
+    property public java.util.List<android.media.AudioDeviceInfo> audioDevices;
     property public java.util.Set<androidx.xr.projected.ProjectedDeviceController.Capability> capabilities;
     field public static final androidx.xr.projected.ProjectedDeviceController.Companion Companion;
   }
