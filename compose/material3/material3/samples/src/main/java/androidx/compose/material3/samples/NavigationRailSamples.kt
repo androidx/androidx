@@ -390,7 +390,6 @@ fun WideNavigationRailExpandedSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun WideNavigationRailArrangementsSample() {

@@ -946,74 +946,6 @@ fun WideNavigationRailItem(
     )
 
 /**
- * Material Design wide navigation rail item.
- *
- * It's recommend for navigation items to always have a text label. A [WideNavigationRailItem]
- * always displays labels (if they exist) when selected and unselected.
- *
- * The [WideNavigationRailItem] supports two different icon positions, top and start, which is
- * controlled by the [iconPosition] param:
- * - If the icon position is [NavigationItemIconPosition.Top] the icon will be displayed above the
- *   label. This configuration should be used with collapsed wide navigation rails.
- * - If the icon position is [NavigationItemIconPosition.Start] the icon will be displayed to the
- *   start of the label. This configuration should be used with expanded wide navigation rails.
- *
- * However, if an animated item is desired, the [iconPosition] can be controlled via the expanded
- * value of the associated [WideNavigationRail] or [ModalWideNavigationRail]. By default, it'll use
- * the [railExpanded] to follow the configuration described above.
- *
- * @param selected whether this item is selected
- * @param onClick called when this item is clicked
- * @param icon icon for this item, typically an [Icon]
- * @param label text label for this item
- * @param modifier the [Modifier] to be applied to this item
- * @param enabled controls the enabled state of this item. When `false`, this component will not
- *   respond to user input, and it will appear visually disabled and disabled to accessibility
- *   services.
- * @param railExpanded whether the associated [WideNavigationRail] is expanded or collapsed
- * @param iconPosition the [NavigationItemIconPosition] for the icon
- * @param colors [NavigationItemColors] that will be used to resolve the colors used for this item
- *   in different states. See [WideNavigationRailItemDefaults.colors]
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this item. You can use this to change the item's appearance or
- *   preview the item in different states. Note that if `null` is provided, interactions will still
- *   happen internally.
- */
-@Deprecated(
-    message =
-        "Deprecated in favor of function with indicatorPadding required railExpanded parameters",
-    level = DeprecationLevel.HIDDEN,
-)
-@ExperimentalMaterial3ExpressiveApi
-@Composable
-fun WideNavigationRailItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    icon: @Composable () -> Unit,
-    label: @Composable (() -> Unit)?,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    railExpanded: Boolean = false,
-    iconPosition: NavigationItemIconPosition =
-        WideNavigationRailItemDefaults.iconPositionFor(railExpanded),
-    colors: NavigationItemColors = WideNavigationRailItemDefaults.colors(),
-    interactionSource: MutableInteractionSource? = null,
-) =
-    WideNavigationRailItem(
-        selected,
-        onClick,
-        icon,
-        label,
-        railExpanded,
-        modifier,
-        enabled,
-        iconPosition,
-        colors,
-        interactionSource,
-        WideNavigationRailItemDefaults.indicatorPadding(railExpanded = railExpanded),
-    )
-
-/**
  * Represents the colors of the various elements of a wide navigation rail.
  *
  * @param containerColor the color used for the background of a non-modal wide navigation rail. Use
@@ -1039,23 +971,6 @@ constructor(
     val modalContentColor: Color,
 ) {
 
-    @Deprecated(
-        message = "Deprecated in favor of constructor with modalContentColor parameter",
-        replaceWith =
-            ReplaceWith(
-                "WideNavigationRailColors(containerColor, contentColor, modalContainerColor, " +
-                    "modalScrimColor, modalContentColor)"
-            ),
-        level = DeprecationLevel.WARNING,
-    )
-    @ExperimentalMaterial3ExpressiveApi
-    constructor(
-        containerColor: Color,
-        contentColor: Color,
-        modalContainerColor: Color,
-        modalScrimColor: Color,
-    ) : this(containerColor, contentColor, modalContainerColor, modalScrimColor, contentColor)
-
     /**
      * Returns a copy of this NavigationRailColors, optionally overriding some of the values. This
      * uses the Color.Unspecified to mean “use the value from the source”.
@@ -1073,29 +988,6 @@ constructor(
             modalContainerColor = modalContainerColor.takeOrElse { this.modalContainerColor },
             modalScrimColor = modalScrimColor.takeOrElse { this.modalScrimColor },
             modalContentColor = modalContentColor.takeOrElse { this.modalContentColor },
-        )
-
-    /**
-     * Returns a copy of this NavigationRailColors, optionally overriding some of the values. This
-     * uses the Color.Unspecified to mean “use the value from the source”.
-     */
-    @Deprecated(
-        message = "Deprecated in favor of function with modalContentColor parameter",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @ExperimentalMaterial3ExpressiveApi
-    fun copy(
-        containerColor: Color = this.containerColor,
-        contentColor: Color = this.contentColor,
-        modalContainerColor: Color = this.modalContainerColor,
-        modalScrimColor: Color = this.modalScrimColor,
-    ) =
-        copy(
-            containerColor = containerColor.takeOrElse { this.containerColor },
-            contentColor = contentColor.takeOrElse { this.contentColor },
-            modalContainerColor = modalContainerColor.takeOrElse { this.modalContainerColor },
-            modalScrimColor = modalScrimColor.takeOrElse { this.modalScrimColor },
-            modalContentColor = contentColor.takeOrElse { this.contentColor },
         )
 
     override fun equals(other: Any?): Boolean {
@@ -1197,58 +1089,6 @@ object WideNavigationRailDefaults {
             end = 0.dp,
             bottom = WNRVerticalPadding,
         )
-
-    /**
-     * Creates a [WideNavigationRailColors] with the provided colors according to the Material
-     * specification.
-     *
-     * @param containerColor the color used for the background of a non-modal wide navigation rail.
-     * @param contentColor the preferred color for content inside a wide navigation rail. Defaults
-     *   to either the matching content color for [containerColor], or to the current
-     *   [LocalContentColor] if [containerColor] is not a color from the theme
-     * @param modalContainerColor the color used for the background of a modal wide navigation rail.
-     * @param modalScrimColor the color used for the scrim overlay for background content of a modal
-     *   wide navigation rail
-     */
-    @Deprecated(
-        message = "Deprecated in favor of function with modalContentColor parameter",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @ExperimentalMaterial3ExpressiveApi
-    @Composable
-    fun colors(
-        containerColor: Color = WideNavigationRailDefaults.containerColor,
-        contentColor: Color = contentColorFor(containerColor),
-        modalContainerColor: Color = NavigationRailExpandedTokens.ModalContainerColor.value,
-        modalScrimColor: Color = ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity),
-    ): WideNavigationRailColors =
-        MaterialTheme.colorScheme.defaultWideWideNavigationRailColors.copy(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            modalContainerColor = modalContainerColor,
-            modalScrimColor = modalScrimColor,
-            modalContentColor = contentColorFor(modalContainerColor),
-        )
-
-    /** Default container shape of a wide navigation rail. */
-    @Deprecated(
-        message = "Deprecated in favor of shape.",
-        replaceWith = ReplaceWith("WideNavigationRailDefaults.shape"),
-        level = DeprecationLevel.WARNING,
-    )
-    @ExperimentalMaterial3ExpressiveApi
-    val containerShape: Shape
-        @Composable get() = NavigationRailCollapsedTokens.ContainerShape.value
-
-    @Deprecated(
-        message = "Deprecated in favor of modalExpandedShape.",
-        replaceWith = ReplaceWith("WideNavigationRailDefaults.modalExpandedShape"),
-        level = DeprecationLevel.WARNING,
-    )
-    @ExperimentalMaterial3ExpressiveApi
-    /** Default container shape of a modal wide navigation rail. */
-    val modalContainerShape: Shape
-        @Composable get() = NavigationRailExpandedTokens.ModalContainerShape.value
 
     private val containerColor: Color
         @Composable get() = NavigationRailCollapsedTokens.ContainerColor.value
@@ -1379,28 +1219,6 @@ object WideNavigationRailItemDefaults {
                     )
                     .also { defaultWideNavigationRailItemColorsCached = it }
         }
-}
-
-/** Default values for [ModalWideNavigationRail]. */
-@Deprecated(
-    message = "Deprecated in favor of default values in WideNavigationRailDefaults",
-    replaceWith = ReplaceWith("WideNavigationRailDefaults"),
-    level = DeprecationLevel.WARNING,
-)
-@Immutable
-@ExperimentalMaterial3ExpressiveApi
-object ModalWideNavigationRailDefaults {
-    /** Properties used to customize the window behavior of a [ModalWideNavigationRail]. */
-    @Deprecated(
-        message =
-            "Deprecated in favor of function with " +
-                "WideNavigationRailDefaults.ModalExpandedProperties",
-        replaceWith = ReplaceWith("WideNavigationRailDefaults.ModalExpandedProperties"),
-        level = DeprecationLevel.WARNING,
-    )
-    @ExperimentalMaterial3ExpressiveApi
-    val Properties: ModalWideNavigationRailProperties =
-        createDefaultModalWideNavigationRailProperties()
 }
 
 internal expect fun createDefaultModalWideNavigationRailProperties():
