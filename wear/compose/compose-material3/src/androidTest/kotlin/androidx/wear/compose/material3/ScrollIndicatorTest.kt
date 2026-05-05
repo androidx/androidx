@@ -60,7 +60,6 @@ import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -201,7 +200,6 @@ class ScrollIndicatorTest {
         )
     }
 
-    @Ignore("b/508631324")
     @Test
     fun scalingLazyColumnStateAdapter_overscroll() {
         val itemsCount = 6
@@ -303,7 +301,6 @@ class ScrollIndicatorTest {
         )
     }
 
-    @Ignore("b/508631324")
     @Test
     fun lazyColumnStateAdapter_overscroll() {
         val itemsCount = 6
@@ -397,7 +394,6 @@ class ScrollIndicatorTest {
         )
     }
 
-    @Ignore("b/508631324")
     @Test
     fun transformingLazyColumnStateAdapter_overscroll() {
         val itemsCount = 6
@@ -499,7 +495,6 @@ class ScrollIndicatorTest {
         )
     }
 
-    @Ignore("b/508631324")
     @Test
     fun columnStateAdapter_overscroll() {
         val itemsCount = 10

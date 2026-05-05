@@ -190,7 +190,7 @@ object ComposeFoundationFlags {
     // TODO: b/506963276
     @field:Suppress("MutableBareField")
     @JvmField
-    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
+    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = false
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
