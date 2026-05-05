@@ -27,7 +27,7 @@ import android.os.IBinder
 import android.os.Looper
 import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
-import androidx.xr.runtime.XrLog
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -40,6 +40,7 @@ public open class ProjectedSceneCoreServiceClient {
 
     private var mActiveConnection: ServiceConnection? = null
     private var mBoundContext: Context? = null
+    private val mServiceIsBound = AtomicBoolean(false)
 
     /**
      * Binds to the Projected SceneCore service and suspends until the connection is established.
@@ -127,6 +128,7 @@ public open class ProjectedSceneCoreServiceClient {
                 if (didBind) {
                     mActiveConnection = connection
                     mBoundContext = context
+                    mServiceIsBound.set(true)
                 } else {
                     continuation.resumeWithException(
                         IllegalStateException("bindService returned false")
@@ -145,11 +147,14 @@ public open class ProjectedSceneCoreServiceClient {
         val context = mBoundContext
 
         if (connection != null && context != null) {
-            try {
-                context.unbindService(connection)
-            } catch (e: IllegalArgumentException) {
-                // Service likely not registered or already unbound
-                XrLog.warn { "Error unbinding service: ${e.message}" }
+            if (mServiceIsBound.compareAndSet(true, false)) {
+                try {
+                    context.unbindService(connection)
+                } catch (_: IllegalStateException) {
+                    // The atomic mServiceIsBound flag should prevent multiple concurrent calls to
+                    // unbindService, however some Android framework issues could still lead here.
+                    // Catching this exception prevents a crash.
+                }
             }
         }
 
