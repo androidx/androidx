@@ -116,6 +116,12 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
         activePdfDocument = null
     }
 
+    fun resetThumbnails() {
+        if (::thumbnailAdapter.isInitialized) {
+            thumbnailAdapter.clearThumbnails()
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         lastClickedLinkUri?.let { outState.putString(LAST_CLICKED_LINK_URI, it) }
