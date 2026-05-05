@@ -48,11 +48,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.xr.compose.material3.DefaultNavigationBarOrbiterProperties
 import androidx.xr.compose.material3.DefaultNavigationRailOrbiterProperties
+import androidx.xr.compose.material3.DefaultWideNavigationRailOrbiterProperties
 import androidx.xr.compose.material3.EnableXrComponentOverrides
 import androidx.xr.compose.material3.ExperimentalMaterial3XrApi
 import androidx.xr.compose.material3.LocalNavigationBarOrbiterProperties
 import androidx.xr.compose.material3.LocalNavigationRailOrbiterProperties
 import androidx.xr.compose.material3.LocalShortNavigationBarOrbiterProperties
+import androidx.xr.compose.material3.LocalWideNavigationRailOrbiterProperties
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,6 +87,11 @@ private fun Content() {
             ),
         LocalShortNavigationBarOrbiterProperties provides
             DefaultNavigationBarOrbiterProperties.copy(
+                offset = orbiterOffset,
+                offsetType = orbiterOffsetType,
+            ),
+        LocalWideNavigationRailOrbiterProperties provides
+            DefaultWideNavigationRailOrbiterProperties.copy(
                 offset = orbiterOffset,
                 offsetType = orbiterOffsetType,
             ),
