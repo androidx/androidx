@@ -1553,6 +1553,12 @@ object ButtonDefaults {
     /**
      * Recommended [PaddingValues] for a provided button height.
      *
+     * The returned content padding is based on the ButtonDefaults.<Size>ContainerHeight (or
+     * ButtonDefaults.MinHeight for a small button) height values and is not directly interpolated
+     * from the provided buttonHeight (e.g. any buttonHeight equal or bigger than
+     * ButtonDefaults.MinHeight and smaller than ButtonDefaults.MediumContainerHeight will return
+     * the same small content padding).
+     *
      * @param buttonHeight The height of the button
      * @param hasStartIcon Whether the button has a leading icon
      * @param hasEndIcon Whether the button has a trailing icon
