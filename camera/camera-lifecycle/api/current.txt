@@ -10,7 +10,7 @@ package androidx.camera.lifecycle {
     method public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner lifecycleOwner, androidx.camera.core.CameraSelector cameraSelector, androidx.camera.core.UseCaseGroup useCaseGroup);
     method public androidx.camera.core.ConcurrentCamera bindToLifecycle(java.util.List<androidx.camera.core.ConcurrentCamera.SingleCameraConfig?> singleCameraConfigs);
     method public static suspend Object? createInstance(android.content.Context context, optional androidx.camera.core.CameraXConfig? cameraXConfig, kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.LifecycleCameraProvider>);
-    method public static suspend Object? createInstance(android.content.Context context, optional kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.LifecycleCameraProvider>);
+    method public static suspend Object? createInstance(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.LifecycleCameraProvider>);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.LifecycleCameraProvider> createInstanceAsync(android.content.Context context);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.LifecycleCameraProvider> createInstanceAsync(android.content.Context context, optional androidx.camera.core.CameraXConfig? cameraXConfig);
     method public boolean isBound(androidx.camera.core.SessionConfig sessionConfig);
@@ -23,7 +23,7 @@ package androidx.camera.lifecycle {
 
   @SuppressCompatibility @androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration public static final class LifecycleCameraProvider.Companion {
     method public suspend Object? createInstance(android.content.Context context, optional androidx.camera.core.CameraXConfig? cameraXConfig, kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.LifecycleCameraProvider>);
-    method public suspend Object? createInstance(android.content.Context context, optional kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.LifecycleCameraProvider>);
+    method public suspend Object? createInstance(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.LifecycleCameraProvider>);
     method @BytecodeOnly public static Object! createInstance$default(androidx.camera.lifecycle.LifecycleCameraProvider.Companion!, android.content.Context!, androidx.camera.core.CameraXConfig!, kotlin.coroutines.Continuation!, int, Object!);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.LifecycleCameraProvider> createInstanceAsync(android.content.Context context);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.LifecycleCameraProvider> createInstanceAsync(android.content.Context context, optional androidx.camera.core.CameraXConfig? cameraXConfig);
