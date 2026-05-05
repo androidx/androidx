@@ -15,6 +15,12 @@
  */
 package androidx.compose.remote.creation;
 
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_BOTTOM;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_HEIGHT;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_LEFT;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_RIGHT;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_TOP;
+import static androidx.compose.remote.core.operations.BitmapTextMeasure.MEASURE_WIDTH;
 import static androidx.compose.remote.core.operations.ColorAttribute.COLOR_ALPHA;
 import static androidx.compose.remote.core.operations.ColorAttribute.COLOR_BLUE;
 import static androidx.compose.remote.core.operations.ColorAttribute.COLOR_BRIGHTNESS;
@@ -39,6 +45,7 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.ConditionalOperations;
 import androidx.compose.remote.core.operations.DebugMessage;
 import androidx.compose.remote.core.operations.DrawTextAnchored;
+import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
@@ -1554,4 +1561,39 @@ public class Rc {
         public static final short IF_PROFILE_EXCLUDES = SKIP_IF_PROFILE_EXCLUDES;
     }
 
+    public static final class TextTransform {
+        /** converts to all lower case */
+        public static final int TEXT_TO_LOWERCASE =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_TO_LOWERCASE;
+
+        /** converts to all upper case */
+        public static final int TEXT_TO_UPPERCASE =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_TO_UPPERCASE;
+
+        /** trim white spaces from the ends */
+        public static final int TEXT_TRIM =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_TRIM;
+
+        /** converts to first letter of each word to upper case */
+        public static final int TEXT_CAPITALIZE =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_CAPITALIZE;
+
+        /** Makes the first character uppercase */
+        public static final int TEXT_UPPERCASE_FIRST_CHAR =
+                androidx.compose.remote.core.operations.TextTransform.TEXT_UPPERCASE_FIRST_CHAR;
+    }
+
+    public static final class DrawOnBitmap {
+        public static final int CLEAR_BITMAP = 0;
+        public static final int DO_NOT_CLEAR = DrawToBitmap.MODE_NO_INITIALIZE;
+    }
+
+    public static final class BitmapTextMeasure{
+        public static final int WIDTH = MEASURE_WIDTH;
+        public static final int HEIGHT = MEASURE_HEIGHT;
+        public static final int LEFT = MEASURE_LEFT;
+        public static final int RIGHT = MEASURE_RIGHT;
+        public static final int TOP = MEASURE_TOP;
+        public static final int BOTTOM = MEASURE_BOTTOM;
+    }
 }

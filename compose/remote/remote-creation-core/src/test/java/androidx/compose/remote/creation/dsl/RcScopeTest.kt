@@ -102,15 +102,14 @@ class RcScopeTest {
                 path.moveTo(20f, 20f)
                 path.close()
 
-                drawPath(path)
+                drawPath(path.getPath())
 
                 // Test the new lambda overload
-                val path2 =
-                    remotePath(0f, 0f) {
-                        lineTo(100f, 100f)
-                        quadTo(150f, 50f, 200f, 100f)
-                    }
-                drawPath(path2)
+                val path2 = remotePath(0f, 0f)
+                path2.lineTo(100f, 100f)
+                path2.quadTo(150f, 50f, 200f, 100f)
+
+                drawPath(path2.getPath())
             }
         }
     }

@@ -32,72 +32,10 @@ import kotlin.jvm.JvmInline
 @JvmInline
 public value class RcImage(public val id: Int)
 
-/** Scope for building a path. */
+/** Type-safe reference for remote color variables or expressions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RcDslMarker
-public interface RcPathScope {
-    /** Moves the path to the specified position. */
-    public fun moveTo(x: Float, y: Float)
-
-    /** Adds a line to the specified position. */
-    public fun lineTo(x: Float, y: Float)
-
-    /** Adds a quadratic bezier curve. */
-    public fun quadTo(x1: Float, y1: Float, x2: Float, y2: Float)
-}
-
-/** Path types for polar and other generated paths. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcPathType(public val value: Int) {
-    Spline(Rc.PathExpression.SPLINE_PATH),
-    Loop(Rc.PathExpression.LOOP_PATH),
-    Monotonic(Rc.PathExpression.MONOTONIC_PATH),
-    Linear(Rc.PathExpression.LINEAR_PATH),
-    Polar(Rc.PathExpression.POLAR_PATH),
-}
-
-/** Type-safe reference for remote path data. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RcPath(public val id: Int) : RcPathScope {
-    internal var writer: RemoteComposeWriter? = null
-
-    internal constructor(id: Int, writer: RemoteComposeWriter?) : this(id) {
-        this.writer = writer
-    }
-
-    /** Moves the path to the specified position. */
-    override fun moveTo(x: Float, y: Float) {
-        writer?.pathAppendMoveTo(id, x, y)
-    }
-
-    /** Adds a line to the specified position. */
-    override fun lineTo(x: Float, y: Float) {
-        writer?.pathAppendLineTo(id, x, y)
-    }
-
-    /** Adds a quadratic bezier curve. */
-    override fun quadTo(x1: Float, y1: Float, x2: Float, y2: Float) {
-        writer?.pathAppendQuadTo(id, x1, y1, x2, y2)
-    }
-
-    /** Closes the path. */
-    public fun close() {
-        writer?.pathAppendClose(id)
-    }
-
-    /** todo Sets the fill type for this path. */
-    //    public fun setFillType(fillType: RcPathFillType) {
-    //        writer?.pathSetFillType(id, fillType.value)
-    //    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is RcPath) return false
-        return id == other.id
-    }
-
-    override fun hashCode(): Int = id
-}
+@JvmInline
+public value class RcColorValue(public val id: Int)
 
 /** Type-safe reference for remote color variables or expressions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -108,6 +46,11 @@ public value class RcColor(public val id: Int)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcTextList(public val id: Float)
+
+/** Type-safe reference for remote custom shaders. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcShader(public val id: Int)
 
 /**
  * Type-safe reference for remote float variables or expressions. This often encapsulates a
@@ -395,6 +338,11 @@ public value class RcInteger(public val id: Long)
 @JvmInline
 public value class RcTextStyle(public val id: Int)
 
+/** Type-safe reference for remote bitmap fonts. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcBitmapFont(public val id: Int)
+
 /** Type-safe dimension in Density-independent Pixels (dp). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
@@ -506,13 +454,6 @@ public fun RcPaint.setStyle(v: RcPaintStyle): RcPaint {
     return setStyle(v.value)
 }
 
-/** Path fill types for complex paths. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcPathFillType(public val value: Int) {
-    Winding(0),
-    EvenOdd(1),
-}
-
 /** Common font weight values. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RcFontWeight {
@@ -535,4 +476,32 @@ public object RcFontWeight {
     public const val Bold: Float = W700
     public const val ExtraBold: Float = W800
     public const val Black: Float = W900
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class RcTextTransformOp(internal val value: Int) {
+    /** Converts the text to uppercase. */
+    UPPERCASE(Rc.TextTransform.TEXT_TO_UPPERCASE),
+    /** Converts the text to lowercase. */
+    LOWERCASE(Rc.TextTransform.TEXT_TO_LOWERCASE),
+    /** Capitalizes the first letter of each word. */
+    UPPERCASE_FIRST_CAR(Rc.TextTransform.TEXT_UPPERCASE_FIRST_CHAR),
+    /** Trims whitespace from the start and end of the text. */
+    TRIM(Rc.TextTransform.TEXT_TRIM),
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class DrawOnBitmapMode(internal val value: Int) {
+    CLEAR(Rc.DrawOnBitmap.CLEAR_BITMAP),
+    NO_CLEAR(Rc.DrawOnBitmap.DO_NOT_CLEAR),
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class BitmapTextMeasure(internal val value: Int) {
+    BOTTOM(Rc.BitmapTextMeasure.BOTTOM),
+    HEIGHT(Rc.BitmapTextMeasure.HEIGHT),
+    TOP(Rc.BitmapTextMeasure.TOP),
+    LEFT(Rc.BitmapTextMeasure.LEFT),
+    RIGHT(Rc.BitmapTextMeasure.RIGHT),
+    WIDTH(Rc.BitmapTextMeasure.WIDTH),
 }

@@ -20,8 +20,10 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter.HTag
 import androidx.compose.remote.creation.dsl.Modifier
+import androidx.compose.remote.creation.dsl.RcColorValue
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
+import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.RcTextAlign
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
 import androidx.compose.remote.creation.dsl.background
@@ -30,12 +32,14 @@ import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.onClick
 import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rsp
+import androidx.compose.remote.creation.dsl.setStrokeCap
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import kotlin.math.PI
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
@@ -91,6 +95,163 @@ fun dslDemo(): ByteArray {
                 drawLine(0.rf, 0.rf, w, h)
                 drawLine(0.rf, h, w, 0.rf)
                 drawCircle(w / 2f, h / 2f, (w / 4f))
+            }
+        }
+    }
+}
+
+@Suppress("RestrictedApiAndroidX")
+@Composable
+@Preview
+fun RcDslTheme1Preview() {
+    RemoteDocPreview(RemoteDocument(dslTheme1()))
+}
+
+@Suppress("RestrictedApiAndroidX")
+@Composable
+@Preview
+fun RcDslTheme2Preview() {
+    RemoteDocPreview(RemoteDocument(dslTheme2()))
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun dslTheme1(): ByteArray {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+        val color1 =
+            remoteThemedColor(
+                light = "color.system_neutral1_10",
+                lightDefault = 0xFF00FF00.toInt(),
+                dark = "color.system_neutral1_800",
+                darkDefault = 0xFFFF0000.toInt(),
+            )
+        val backgroundColor =
+            remoteThemedColor(
+                light = "color.system_neutral1_900",
+                lightDefault = 0xFFFFCCAA.toInt(),
+                dark = "color.system_neutral1_0",
+                darkDefault = 0xFF553322.toInt(),
+            )
+
+        Column(
+            modifier = Modifier.background(backgroundColor).fillMaxSize(),
+            horizontal = RcHorizontalPositioning.Center,
+        ) {
+            Box(modifier = Modifier.background(color1).size(200f, 200f).padding(0f, 0f, 0f, 12f))
+            Text("hello", color = color1, fontSize = 100.rsp)
+        }
+    }
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun dslTheme2(): ByteArray {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+        val color1 =
+            remoteThemedColor(
+                light = "color.system_neutral1_10",
+                lightDefault = 0xFF00FF00.toInt(),
+                dark = "color.system_neutral1_800",
+                darkDefault = 0xFFFF0000.toInt(),
+            )
+        val backgroundColor =
+            remoteThemedColor(
+                light = "color.system_neutral1_900",
+                lightDefault = 0xFFFFCCAA.toInt(),
+                dark = "color.system_neutral1_0",
+                darkDefault = 0xFF553322.toInt(),
+            )
+
+        Column(
+            modifier = Modifier.background(backgroundColor).fillMaxSize(),
+            horizontal = RcHorizontalPositioning.Center,
+        ) {
+            Box(modifier = Modifier.background(color1).size(200f, 200f).padding(0f, 0f, 0f, 12f))
+            Text("hello", color = color1, fontSize = 100.rsp)
+        }
+    }
+}
+
+@Suppress("RestrictedApiAndroidX")
+@Composable
+@Preview
+fun RcDslSimpleDemoPreview() {
+    RemoteDocPreview(RemoteDocument(dslSimpleDemo()))
+}
+
+@Suppress("RestrictedApiAndroidX")
+@Composable
+@Preview
+fun RcDslSimpleClockPreview() {
+    RemoteDocPreview(RemoteDocument(dslSimpleClock()))
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun dslSimpleDemo(): ByteArray {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX)) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val w = componentWidth()
+                val h = componentHeight()
+                val cx = w / 2f
+                val cy = h / 2f
+                val rad = min(cx, cy)
+
+                applyPaint { setColor(RcColorValue(0xFF000000.toInt())) }
+                drawRoundRect(0.rf, 0.rf, w, h, rad, rad)
+
+                applyPaint {
+                    setColor(RcColorValue(0xFFFFFFFF.toInt()))
+                    setStrokeWidth(8f.rf + 3f)
+                }
+
+                val angle = seconds() * (2 * PI.toFloat() / 60f)
+
+                drawLine(cx, cy, cx + rad * sin(angle), cy - rad * cos(angle))
+            }
+        }
+    }
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun dslSimpleClock(): ByteArray {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX)) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val w = componentWidth()
+                val h = componentHeight()
+                val cx = w / 2f
+                val cy = h / 2f
+                val rad = min(cx, cy)
+
+                applyPaint {
+                    setColor(RcColorValue(0xFF0000FF.toInt())) // Blue
+                }
+                drawRoundRect(0.rf, 0.rf, w, h, rad / 4f, rad / 4f)
+
+                applyPaint {
+                    setColor(RcColorValue(0xFF888888.toInt())) // Gray
+                    setStrokeWidth(32f)
+                    setStrokeCap(RcStrokeCap.Round)
+                }
+
+                save {
+                    rotate(minutes() * 6f, cx, cy)
+                    drawLine(cx, cy, cx, cy - rad * 0.8f)
+                }
+                save {
+                    rotate(hour() * 30f, cx, cy)
+                    drawLine(cx, cy, cx, cy - rad / 2f)
+                }
+
+                applyPaint {
+                    setColor(RcColorValue(0xFFFFFFFF.toInt())) // White
+                    setStrokeWidth(4f)
+                }
+                drawLine(
+                    cx,
+                    cy,
+                    w / 2f + rad * sin(seconds() * (2 * PI.toFloat() / 60f)),
+                    h / 2f - rad * cos(seconds() * (2 * PI.toFloat() / 60f)),
+                )
             }
         }
     }

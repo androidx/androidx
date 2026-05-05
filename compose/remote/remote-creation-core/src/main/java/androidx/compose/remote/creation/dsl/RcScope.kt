@@ -20,11 +20,10 @@ package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
-import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.RemoteComposeWriterInterface
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 /** Root scope for building RemoteCompose documents. */
@@ -39,6 +38,21 @@ public interface RcScope {
         modifier: Modifier = Modifier,
         horizontal: RcHorizontalPositioning = RcHorizontalPositioning.Start,
         vertical: RcVerticalPositioning = RcVerticalPositioning.Top,
+        content: RcScope.() -> Unit = {},
+    )
+
+    /** Adds a [FitBox] layout to the document. */
+    public fun FitBox(
+        modifier: Modifier = Modifier,
+        horizontal: RcHorizontalPositioning = RcHorizontalPositioning.Start,
+        vertical: RcVerticalPositioning = RcVerticalPositioning.Top,
+        content: RcScope.() -> Unit = {},
+    )
+
+    /** Adds a [StateLayout] layout to the document. */
+    public fun StateLayout(
+        stateIndex: RcInteger,
+        modifier: Modifier = Modifier,
         content: RcScope.() -> Unit = {},
     )
 
@@ -161,8 +175,10 @@ public interface RcScope {
     /** Registers a color resource and returns its reference. */
     public fun remoteColor(color: Int): RcColor
 
+    public fun remoteColorValue(color: Int): RcColorValue
+
     /** Registers a color resource from a Long and returns its reference. */
-    public fun remoteColor(color: Long): RcColor = remoteColor(color.toInt())
+    public fun remoteColorValue(color: Long): RcColorValue = remoteColorValue(color.toInt())
 
     /** Registers a named color resource and returns its reference. */
     public fun remoteNamedColor(name: String, color: Int): RcColor
@@ -190,6 +206,12 @@ public interface RcScope {
         dark: String,
         darkDefault: Int,
     ): RcColor
+
+    /** Creates a color resource from an HSV expression. */
+    public fun remoteColorExpression(alpha: Int, hue: RcFloat, sat: Float, value: Float): RcColor
+
+    /** Creates a color resource from an HSV expression. */
+    public fun remoteColorExpression(alpha: Int, hue: Float, sat: Float, value: Float): RcColor
 
     /** Creates a text resource from a float value with formatting. */
     public fun createTextFromFloat(value: Float, whole: Int, decimal: Int, flags: Int): RcText
@@ -220,6 +242,9 @@ public interface RcScope {
 
     /** Returns an [RcFloat] representing the current seconds. */
     @Suppress("FunctionName") public fun seconds(): RcFloat
+
+    /** Returns an [RcFloat] representing continuous seconds. */
+    public fun continuousSeconds(): RcFloat
 
     /** Returns an [RcFloat] representing the maximum of [a] and [b]. */
     public fun max(a: RcFloat, b: RcFloat): RcFloat
@@ -275,6 +300,25 @@ public interface RcScope {
     public fun arrayAvg(a: RcFloat): RcFloat
 
     public operator fun RcFloat.get(index: RcFloat): RcFloat
+
+    /**
+     * Adds a XY path expression and returns its reference.
+     *
+     * @param expressionX the expression for the radius
+     * @param expressionY the expression for the radius
+     * @param start the start angle
+     * @param end the end angle
+     * @param count the number of points
+     * @param type the path type (see [Rc.PathExpression])
+     */
+    public fun remoteXYPath(
+        expressionX: RcFloat,
+        expressionY: RcFloat,
+        start: Float,
+        end: Float,
+        count: Int,
+        type: RcPathType = RcPathType.Spline,
+    ): RcPath
 
     /**
      * Adds a polar path expression and returns its reference.
@@ -361,6 +405,24 @@ public interface RcScope {
         fontWeight: Float? = null,
         textAlign: RcTextAlign? = null,
     ): RcTextStyle = remoteTextStyle(fontSize, color.toInt(), fontWeight, textAlign)
+
+    /** Saves the current canvas state. */
+    public fun save()
+
+    /** Restores the previous canvas state. */
+    public fun restore()
+
+    /** Preconcat the current matrix with the specified scale. */
+    public fun scale(scaleX: Float, scaleY: Float)
+
+    /** Preconcat the current matrix with the specified scale. */
+    public fun scale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float)
+
+    /** Preconcat the current matrix with the specified scale. */
+    public fun scale(scaleX: RcFloat, scaleY: RcFloat)
+
+    /** Preconcat the current matrix with the specified scale. */
+    public fun scale(scaleX: RcFloat, scaleY: RcFloat, centerX: RcFloat, centerY: RcFloat)
 
     /** Draws a rectangle. */
     public fun drawRect(left: Float, top: Float, right: Float, bottom: Float)
@@ -529,8 +591,226 @@ public interface RcScope {
     /** Draws a bitmap at the specified position using remote floats. */
     public fun drawBitmap(image: RcImage, left: RcFloat, top: RcFloat)
 
+    /** Draws a scaled bitmap within source and destination rectangles. */
+    public fun drawScaledBitmap(
+        image: RcImage,
+        srcLeft: Float,
+        srcTop: Float,
+        srcRight: Float,
+        srcBottom: Float,
+        dstLeft: Float,
+        dstTop: Float,
+        dstRight: Float,
+        dstBottom: Float,
+        scaleType: RcContentScale = RcContentScale.None,
+        scaleFactor: Float = 1f,
+        contentDescription: String? = null,
+    )
+
+    /** Draws a scaled bitmap within source and destination rectangles using remote floats. */
+    public fun drawScaledBitmap(
+        image: RcImage,
+        srcLeft: RcFloat,
+        srcTop: RcFloat,
+        srcRight: RcFloat,
+        srcBottom: RcFloat,
+        dstLeft: RcFloat,
+        dstTop: RcFloat,
+        dstRight: RcFloat,
+        dstBottom: RcFloat,
+        scaleType: RcContentScale = RcContentScale.None,
+        scaleFactor: RcFloat = 1f.rf,
+        contentDescription: String? = null,
+    )
+
+    /** Registers a new bitmap resource with the given dimensions. */
+    public fun createBitmap(width: Int, height: Int): RcImage
+
+    /** Redirects subsequent drawing operations to the specified bitmap resource. */
+    public fun drawOnBitmap(
+        image: RcImage,
+        mode: DrawOnBitmapMode = DrawOnBitmapMode.CLEAR,
+        color: RcColorValue,
+        block: RcScope.() -> Unit,
+    )
+
+    /**
+     * Registers and compiles a custom shader from a string definition, with optional uniform
+     * builder.
+     */
+    public fun createShader(
+        shaderString: String,
+        block: (androidx.compose.remote.creation.RemoteComposeShader.() -> Unit)? = null,
+    ): RcShader
+
     /** Adds a spacer component. */
     public fun Spacer(modifier: Modifier)
+
+    /** debug */
+    public fun debug(msg: String, value: RcFloat)
+
+    /** Combines two paths using the specified operation. */
+    public fun RcPath.combine(path2: RcPath, op: RcPathCombineOp): RcPath
+
+    /** Performs a haptic feedback. */
+    public fun performHaptic(feedbackConstant: Int)
+
+    /** Tells the system to wake up in a given number of seconds. */
+    public fun wakeIn(seconds: Float)
+
+    /** Returns the color attribute. */
+    public fun getColorAttribute(baseColor: RcColor, type: Short): RcFloat
+
+    /** Returns a substring of the text. */
+    public fun RcText.substring(start: RcFloat, len: RcFloat): RcText
+
+    /** Returns a substring of the text. */
+    public fun RcText.substring(start: Float, len: Float): RcText
+
+    /** Measure bitmap font text dimensions. */
+    public fun RcText.measure(
+        bmFontId: RcBitmapFont,
+        measureWidth: Int,
+        glyphSpacing: Float,
+    ): RcFloat
+
+    /** Measure bitmap font text dimensions. */
+    public fun RcBitmapFont.measure(
+        text: RcText,
+        type: BitmapTextMeasure,
+        glyphSpacing: Float,
+    ): RcFloat
+
+    /** Registers a bitmap font and returns its reference. */
+    public fun createBitmapFont(glyphs: Array<BitmapFontData.Glyph>): RcBitmapFont
+
+    /** Registers a bitmap font with kerning table and returns its reference. */
+    public fun createBitmapFont(
+        glyphs: Array<BitmapFontData.Glyph>,
+        kerningTable: Map<String, Short>,
+    ): RcBitmapFont
+
+    /** Draws a text run using a bitmap font. */
+    public fun drawText(
+        text: RcText,
+        font: RcBitmapFont,
+        start: Int,
+        end: Int,
+        x: Float,
+        y: Float,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text run using a bitmap font. */
+    public fun drawText(
+        text: RcText,
+        font: RcBitmapFont,
+        start: Int,
+        end: Int,
+        x: RcFloat,
+        y: RcFloat,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text run along a path using a bitmap font. */
+    public fun drawTextOnPath(
+        text: RcText,
+        font: RcBitmapFont,
+        path: RcPath,
+        start: Int,
+        end: Int,
+        yAdj: Float,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text run along a path using a bitmap font. */
+    public fun drawTextOnPath(
+        text: RcText,
+        font: RcBitmapFont,
+        path: RcPath,
+        start: Int,
+        end: Int,
+        yAdj: RcFloat,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text anchored using a bitmap font. */
+    public fun drawTextAnchored(
+        text: RcText,
+        font: RcBitmapFont,
+        start: Float,
+        end: Float,
+        x: Float,
+        y: Float,
+        panX: Float,
+        panY: Float,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text anchored using a bitmap font. */
+    public fun drawTextAnchored(
+        text: RcText,
+        font: RcBitmapFont,
+        start: RcFloat,
+        end: RcFloat,
+        x: RcFloat,
+        y: RcFloat,
+        panX: RcFloat,
+        panY: RcFloat,
+        glyphSpacing: Float,
+    )
+
+    /** Interpolates between two paths. */
+    public fun RcPath.tween(path2: RcPath, tween: Float): RcPath
+
+    /** Interpolates between two paths using a remote float. */
+    public fun RcPath.tween(path2: RcPath, tween: RcFloat): RcPath
+
+    /** Sets the name of a color variable. */
+    public fun RcColor.setName(name: String)
+
+    /** Sets the name of a text variable. */
+    public fun RcText.setName(name: String)
+
+    /** Sets the name of a float variable. */
+    public fun setFloatName(value: RcFloat, name: String)
+
+    public fun RcFloat.setName(name: String)
+
+    /** Transforms the text. */
+    public fun RcText.transform(start: RcFloat, len: RcFloat, operation: RcTextTransformOp): RcText
+
+    /** Transforms the text. */
+    public fun RcText.transform(start: Float, len: Float, operation: RcTextTransformOp): RcText
+
+    /** Measure the text and return a measure as a float. */
+    public fun textMeasure(text: RcText, mode: Int): RcFloat
+
+    /** Returns the length of the text. */
+    public fun textLength(text: RcText): RcFloat
+
+    /** Creates a time attribute. */
+    public fun timeAttribute(variable: RcInteger, type: Short, vararg args: Int): RcFloat
+
+    /** Pre-concat the current matrix with the specified skew. */
+    public fun skew(skewX: Float, skewY: Float)
+
+    /** Sets the Matrix relative to the path. */
+    public fun matrixFromPath(path: RcPath, fraction: Float, vOffset: Float, flags: Int)
+
+    /** Sets the Matrix relative to the path using remote floats. */
+    public fun matrixFromPath(path: RcPath, fraction: RcFloat, vOffset: RcFloat, flags: Int)
+
+    /** Adds a conditional block based on the comparison of two values. */
+    public fun conditionalOperations(
+        type: Byte,
+        a: RcFloat,
+        b: RcFloat,
+        content: RcScope.() -> Unit,
+    )
+
+    /** Loops from start to end with a specified step. */
+    public fun rcLoop(start: RcFloat, step: Float, end: RcFloat, block: RcScope.(RcFloat) -> Unit)
 
     /**
      * Converts this [Float] to an [RcText] using the specified formatting.
@@ -546,6 +826,78 @@ public interface RcScope {
 
     /** Extension property to convert a [Float] to a [RcFloat] within this scope. */
     public val Float.rf: RcFloat
+
+    /** Add a particle system definition */
+    public fun createParticles(
+        variables: FloatArray,
+        initialExpressions: Array<RcFloat>,
+        particleCount: Int,
+    ): RcFloat
+
+    /** Add a particle loop */
+    public fun particlesLoop(
+        id: RcFloat,
+        restart: RcFloat?,
+        expressions: Array<RcFloat>,
+        block: RcScope.() -> Unit,
+    )
+
+    /** Add a particle - particle comparison */
+    public fun particlesComparison(
+        id: RcFloat,
+        flags: Short,
+        min: RcFloat,
+        max: RcFloat,
+        condition: RcFloat?,
+        then1: Array<RcFloat>?,
+        then2: Array<RcFloat>?,
+        block: RcScope.() -> Unit,
+    )
+
+    /** Add a particle test */
+    public fun particlesComparison(
+        id: RcFloat,
+        flags: Short,
+        min: RcFloat,
+        max: RcFloat,
+        condition: RcFloat?,
+        then: Array<RcFloat>?,
+        block: RcScope.() -> Unit,
+    )
+
+    /** Add an impulse container */
+    public fun impulse(duration: RcFloat, start: RcFloat, block: RcImpulseScope.() -> Unit)
+
+    /** Conditionally skip a segment */
+    public fun skip(type: Short, value: Int, block: RcScope.() -> Unit)
+
+    /** Conditionally skip a segment, returning an offset token. */
+    public fun beginSkip(type: Short, value: Int): Int
+
+    /** Concludes the skipped segment using the offset token. */
+    public fun endSkip(offset: Int)
+
+    /** Returns an [RcFloat] representing the animation delta time. */
+    public fun deltaTime(): RcFloat
+
+    public fun RcDynamicPath.lineTo(x: Float, y: Float)
+
+    public fun RcDynamicPath.moveTo(x: Float, y: Float)
+
+    public fun RcDynamicPath.quadTo(x1: Float, y1: Float, x2: Float, y2: Float)
+
+    public fun RcDynamicPath.getPath(): RcPath
+
+    public fun RcDynamicPath.close()
+
+    public fun RcDynamicPath.reset()
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RcDslMarker
+public interface RcImpulseScope : RcScope {
+    /** Add an impulse process container */
+    public fun process(block: RcScope.() -> Unit)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -593,12 +945,6 @@ public interface RcCanvasScope : RcScope {
     /** The current [RcPaint] object. */
     public val paint: RcPaint
 
-    /** Saves the current canvas state. */
-    public fun save()
-
-    /** Restores the previous canvas state. */
-    public fun restore()
-
     /** Executes a block within a save/restore pair. */
     public fun save(block: RcCanvasScope.() -> Unit)
 
@@ -609,22 +955,10 @@ public interface RcCanvasScope : RcScope {
     public fun clipRect(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat)
 
     /** Creates a new path starting at the specified position. */
-    public fun remotePath(x: Float, y: Float): RcPath
+    public fun remotePath(x: Float, y: Float): RcDynamicPath
 
     /** Creates a new path starting at the specified position and populates it. */
-    public fun remotePath(x: Float, y: Float, block: RcPathScope.() -> Unit): RcPath
-
-    /** Preconcat the current matrix with the specified scale. */
-    public fun scale(scaleX: Float, scaleY: Float)
-
-    /** Preconcat the current matrix with the specified scale. */
-    public fun scale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float)
-
-    /** Preconcat the current matrix with the specified scale. */
-    public fun scale(scaleX: RcFloat, scaleY: RcFloat)
-
-    /** Preconcat the current matrix with the specified scale. */
-    public fun scale(scaleX: RcFloat, scaleY: RcFloat, centerX: RcFloat, centerY: RcFloat)
+    //    public fun remotePath(x: Float, y: Float, block: RcPathScope.() -> Unit): RcDynamicPath
 
     /** Preconcat the current matrix with the specified rotation in degrees. */
     public fun rotate(angle: Float)
@@ -645,867 +979,22 @@ public interface RcCanvasScope : RcScope {
         end: RcFloat,
         block: RcCanvasScope.(RcFloat) -> Unit,
     )
-}
 
-/** Private implementation of [RcScope]. */
-internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcScope {
-
-    override fun Box(
-        modifier: Modifier,
-        horizontal: RcHorizontalPositioning,
-        vertical: RcVerticalPositioning,
-        content: RcScope.() -> Unit,
-    ) {
-        writer.startBox(modifier.toRecordingModifier(), horizontal.value, vertical.value)
-        RcScopeImpl(writer).content()
-        writer.endBox()
-    }
-
-    override fun Column(
-        modifier: Modifier,
-        horizontal: RcHorizontalPositioning,
-        vertical: RcColumnVerticalPositioning,
-        content: RcColumnScope.() -> Unit,
-    ) {
-        writer.startColumn(modifier.toRecordingModifier(), horizontal.value, vertical.value)
-        RcColumnScopeImpl(writer).content()
-        writer.endColumn()
-    }
-
-    override fun Row(
-        modifier: Modifier,
-        horizontal: RcRowHorizontalPositioning,
-        vertical: RcVerticalPositioning,
-        content: RcRowScope.() -> Unit,
-    ) {
-        writer.startRow(modifier.toRecordingModifier(), horizontal.value, vertical.value)
-        RcRowScopeImpl(writer).content()
-        writer.endRow()
-    }
-
-    override fun Flow(
-        modifier: Modifier,
-        horizontal: RcHorizontalPositioning,
-        vertical: RcVerticalPositioning,
-        maxItemsInEachRow: Int,
-        maxLines: Int,
-        content: RcFlowScope.() -> Unit,
-    ) {
-        writer.startFlow(
-            modifier.toRecordingModifier(),
-            horizontal.value,
-            vertical.value,
-            maxItemsInEachRow,
-            maxLines,
-        )
-        RcFlowScopeImpl(writer).content()
-        writer.endFlow()
-    }
-
-    override fun CollapsibleColumn(
-        modifier: Modifier,
-        horizontal: RcHorizontalPositioning,
-        vertical: RcVerticalPositioning,
-        content: RcCollapsibleColumnScope.() -> Unit,
-    ) {
-        writer.startCollapsibleColumn(
-            modifier.toRecordingModifier(),
-            horizontal.value,
-            vertical.value,
-        )
-        RcCollapsibleColumnScopeImpl(writer).content()
-        writer.endCollapsibleColumn()
-    }
-
-    override fun CollapsibleRow(
-        modifier: Modifier,
-        horizontal: RcHorizontalPositioning,
-        vertical: RcVerticalPositioning,
-        content: RcCollapsibleRowScope.() -> Unit,
-    ) {
-        writer.startCollapsibleRow(modifier.toRecordingModifier(), horizontal.value, vertical.value)
-        RcCollapsibleRowScopeImpl(writer).content()
-        writer.endCollapsibleRow()
-    }
-
-    override fun Spacer(modifier: Modifier) {
-        writer.startBox(modifier.toRecordingModifier(), 0, 0)
-        writer.endBox()
-    }
-
-    override fun Text(
-        text: String,
-        modifier: Modifier,
-        color: Any,
-        fontSize: RcSp,
-        fontWeight: Float,
-        textAlign: RcTextAlign,
-        overflow: RcTextOverflow,
-    ) {
-        val textId = writer.addText(text)
-        Text(RcText(textId), modifier, color, fontSize, fontWeight, textAlign, overflow)
-    }
-
-    override fun Text(
-        text: RcText,
-        modifier: Modifier,
-        color: Any,
-        fontSize: RcSp,
-        fontWeight: Float,
-        textAlign: RcTextAlign,
-        overflow: RcTextOverflow,
-    ) {
-        if (color is RcColor) {
-            writer.textComponent(
-                modifier.toRecordingModifier(),
-                text.id,
-                -1, // textStyleId
-                0, // color
-                color.id,
-                fontSize.value,
-                -1f, // minFontSize
-                -1f, // maxFontSize
-                0, // fontStyle
-                fontWeight,
-                null, // fontFamily
-                textAlign.value,
-                overflow.value,
-                Int.MAX_VALUE, // maxLines
-                0f, // letterSpacing
-                0f, // lineHeightAdd
-                1f, // lineHeightMultiplier
-                0, // lineBreakStrategy
-                0, // hyphenationFrequency
-                0, // justificationMode
-                false, // underline
-                false, // strikethrough
-                null, // fontAxis
-                null, // fontAxisValues
-                false, // autosize
-                0, // flags
-            ) {}
-        } else {
-            val colorInt =
-                when (color) {
-                    is Int -> color
-                    is Long -> color.toInt()
-                    else -> 0xFF000000.toInt()
-                }
-            writer.textComponent(
-                modifier.toRecordingModifier(),
-                text.id,
-                colorInt,
-                fontSize.value,
-                0,
-                fontWeight,
-                null,
-                textAlign.value,
-                overflow.value,
-                1,
-            ) {}
-        }
-    }
-
-    override fun Image(
-        image: RcImage,
-        modifier: Modifier,
-        contentDescription: String?,
-        contentScale: RcContentScale,
-        alpha: Float,
-    ) {
-        writer.image(modifier.toRecordingModifier(), image.id, contentScale.value, alpha)
-    }
-
-    override fun Canvas(modifier: Modifier, content: RcCanvasScope.() -> Unit) {
-        writer.startCanvas(modifier.toRecordingModifier())
-        RcCanvasScopeImpl(writer).content()
-        writer.endCanvas()
-    }
-
-    override fun applyPaint(block: RcPaint.() -> Unit) {
-        writer.rcPaint.block()
-        writer.rcPaint.commit()
-    }
-
-    override fun Global(block: RcScope.() -> Unit) {
-        writer.beginGlobal()
-        this.block()
-        writer.endGlobal()
-    }
-
-    override fun beginGlobal() {
-        writer.beginGlobal()
-    }
-
-    override fun endGlobal() {
-        writer.endGlobal()
-    }
-
-    override fun remoteText(text: String): RcText = RcText(writer.addText(text))
-
-    override fun remoteNamedText(name: String, text: String): RcText =
-        RcText(writer.addNamedString(name, text))
-
-    override fun remoteArrayOf(vararg strings: String): RcTextList =
-        RcTextList(writer.addStringList(*strings))
-
-    override fun textLookup(dataSetId: RcTextList, index: RcFloat): RcText {
-        val arrayId: Float = dataSetId.id
-        val indexVal: Float = index.withWriter(writer).toFloat()
-        return RcText(writer.textLookup(arrayId, indexVal))
-    }
-
-    override fun textLookup(dataSetId: RcTextList, indexId: RcInteger): RcText =
-        RcText(writer.textLookup(dataSetId.id, indexId.id.toInt()))
-
-    override fun textMerge(text1: RcText, text2: RcText): RcText =
-        RcText(writer.textMerge(text1.id, text2.id))
-
-    override fun remoteColor(color: Int): RcColor = RcColor(writer.addColor(color))
-
-    override fun remoteNamedColor(name: String, color: Int): RcColor =
-        RcColor(writer.addNamedColor(name, color))
-
-    override fun remoteThemedColor(light: Int, dark: Int): RcColor =
-        RcColor(writer.addThemedColor(light.toShort(), dark.toShort()).toInt())
-
-    override fun remoteThemedColor(
-        light: String,
-        lightDefault: Int,
-        dark: String,
-        darkDefault: Int,
-    ): RcColor = RcColor(writer.addThemedColor(light, lightDefault, dark, darkDefault).toInt())
-
-    override fun remoteThemedColor(light: RcColor, dark: RcColor): RcColor =
-        RcColor(writer.addThemedColor(light.id.toShort(), dark.id.toShort()).toInt())
-
-    override fun createTextFromFloat(value: Float, whole: Int, decimal: Int, flags: Int): RcText =
-        RcText(writer.createTextFromFloat(value, whole, decimal, flags))
-
-    override fun createTextFromFloat(value: RcFloat, whole: Int, decimal: Int, flags: Int): RcText =
-        value.withWriter(writer).format(whole, decimal, flags)
-
-    override fun remoteFloatArray(array: FloatArray): RcFloat =
-        RcFloat(writer, writer.addFloatArray(array))
-
-    override fun animationTime(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.ANIMATION_TIME))
-
-    override fun touchTime(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Touch.TOUCH_EVENT_TIME))
-
-    override fun dayOfWeek(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.WEEK_DAY))
-
-    override fun dayOfMonth(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.DAY_OF_MONTH))
-
-    override fun hour(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.TIME_IN_HR))
-
-    override fun minutes(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.TIME_IN_MIN))
-
-    override fun seconds(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.TIME_IN_SEC))
-
-    override fun max(a: RcFloat, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.MAX))
-
-    override fun max(a: Float, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.MAX))
-
-    override fun max(a: RcFloat, b: Float): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.MAX))
-
-    override fun min(a: RcFloat, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.MIN))
-
-    override fun min(a: Float, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.MIN))
-
-    override fun min(a: RcFloat, b: Float): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.MIN))
-
-    override fun sign(v: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*v.toArray(), Rc.FloatExpression.SIGN))
-
-    override fun sin(v: RcFloat): RcFloat = v.sin()
-
-    override fun cos(v: RcFloat): RcFloat = v.cos()
-
-    override fun abs(v: RcFloat): RcFloat = v.abs()
-
-    override fun arrayMax(array: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*array.toArray(), Rc.FloatExpression.A_MAX))
-
-    override fun arrayMin(array: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*array.toArray(), Rc.FloatExpression.A_MIN))
-
-    override fun arraySpline(array: RcFloat, position: RcFloat): RcFloat =
-        RcFloat(
-            writer,
-            floatArrayOf(*array.toArray(), *position.toArray(), Rc.FloatExpression.A_SPLINE),
-        )
-
-    override fun arraySpline(array: RcFloat, position: Float): RcFloat =
-        RcFloat(writer, floatArrayOf(*array.toArray(), position, Rc.FloatExpression.A_SPLINE))
-
-    override fun arrayLength(a: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_LEN))
-
-    override fun arraySum(a: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_SUM))
-
-    override fun arraySum(a: RcFloat, index: RcFloat): RcFloat =
-        RcFloat(
-            writer,
-            floatArrayOf(*a.toArray(), *index.toArray(), Rc.FloatExpression.A_SUM_UNTIL),
-        )
-
-    override fun arraySumXY(a: RcFloat, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.A_SUM_XY))
-
-    override fun arraySumSqr(a: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_SUM_SQR))
-
-    override fun arrayAvg(a: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_AVG))
-
-    override fun RcFloat.get(index: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*this.toArray(), *index.toArray(), Rc.FloatExpression.A_DEREF))
-
-    override fun remotePolarPath(
-        expression: RcFloat,
-        start: Float,
-        end: Float,
-        count: Int,
-        centerX: RcFloat,
-        centerY: RcFloat,
-        type: RcPathType,
-    ): RcPath =
-        RcPath(
-            writer.addPolarPathExpression(
-                expression.withWriter(writer).toArray(),
-                start,
-                end,
-                count.toFloat(),
-                centerX.withWriter(writer).toFloat(),
-                centerY.withWriter(writer).toFloat(),
-                type.value,
-            ),
-            writer,
-        )
-
-    override fun rFun(block: (RcFloat) -> RcFloat): RcFloat {
-        val arg = RcFloat(writer, floatArrayOf(Rc.FloatExpression.VAR1))
-        return block(arg)
-    }
-
-    override fun componentWidth(): RcFloat = RcFloat(writer, writer.addComponentWidthValue())
-
-    override fun componentHeight(): RcFloat = RcFloat(writer, writer.addComponentHeightValue())
-
-    override fun remoteBitmap(image: Any): RcImage = RcImage(writer.addBitmap(image))
-
-    override fun remoteNamedBitmap(name: String, image: Any): RcImage =
-        RcImage(writer.addNamedBitmap(name, image))
-
-    override fun remoteBitmapUrl(url: String): RcImage = RcImage(writer.addBitmapUrl(url))
-
-    override fun remoteNamedBitmapUrl(name: String, url: String): RcImage =
-        RcImage(writer.addNamedBitmapUrl(name, url))
-
-    override fun remoteFloat(value: Float): RcFloat =
-        RcFloat(writer, writer.addFloatConstant(value))
-
-    override fun remoteNamedFloat(name: String, value: Float): RcFloat =
-        RcFloat(writer, writer.addNamedFloat(name, value))
-
-    override fun remoteInteger(value: Int): RcInteger = RcInteger(writer.addInteger(value))
-
-    override fun remoteNamedInteger(name: String, value: Int): RcInteger =
-        RcInteger(writer.addNamedInt(name, value))
-
-    override fun remoteLong(value: Long): RcInteger = RcInteger(writer.addLong(value).toLong())
-
-    override fun remoteBoolean(value: Boolean): RcInteger =
-        RcInteger(writer.addBoolean(value).toLong())
-
-    override fun remotePathData(path: RcPlatformServices.RcPathArrayCreator): RcPath =
-        RcPath(writer.addPathData(path), writer)
-
-    //  override fun remotePathString(path: String): RcPath = RcPath(writer.addPathString(path),
-    // writer)
-
-    override fun remoteTextStyle(
-        fontSize: RcSp?,
-        color: Int?,
-        fontWeight: Float?,
-        textAlign: RcTextAlign?,
-    ): RcTextStyle =
-        RcTextStyle(
-            writer.addTextStyle(
-                color,
-                null,
-                fontSize?.value,
-                null,
-                null,
-                null,
-                fontWeight,
-                null,
-                textAlign?.value,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                0,
-            )
-        )
-
-    override fun drawRect(left: Float, top: Float, right: Float, bottom: Float) {
-        writer.drawRect(left, top, right, bottom)
-    }
-
-    override fun drawRect(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat) {
-        writer.drawRect(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawCircle(centerX: Float, centerY: Float, radius: Float) {
-        writer.drawCircle(centerX, centerY, radius)
-    }
-
-    override fun drawCircle(centerX: RcFloat, centerY: RcFloat, radius: RcFloat) {
-        writer.drawCircle(
-            centerX.withWriter(writer).toFloat(),
-            centerY.withWriter(writer).toFloat(),
-            radius.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) {
-        writer.drawLine(x1, y1, x2, y2)
-    }
-
-    override fun drawLine(x1: RcFloat, y1: RcFloat, x2: RcFloat, y2: RcFloat) {
-        writer.drawLine(
-            x1.withWriter(writer).toFloat(),
-            y1.withWriter(writer).toFloat(),
-            x2.withWriter(writer).toFloat(),
-            y2.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawArc(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        startAngle: Float,
-        sweepAngle: Float,
-    ) {
-        writer.drawArc(left, top, right, bottom, startAngle, sweepAngle)
-    }
-
-    override fun drawArc(
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-        startAngle: RcFloat,
-        sweepAngle: RcFloat,
-    ) {
-        writer.drawArc(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-            startAngle.withWriter(writer).toFloat(),
-            sweepAngle.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawSector(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        startAngle: Float,
-        sweepAngle: Float,
-    ) {
-        writer.drawSector(left, top, right, bottom, startAngle, sweepAngle)
-    }
-
-    override fun drawSector(
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-        startAngle: RcFloat,
-        sweepAngle: RcFloat,
-    ) {
-        writer.drawSector(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-            startAngle.withWriter(writer).toFloat(),
-            sweepAngle.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawOval(left: Float, top: Float, right: Float, bottom: Float) {
-        writer.drawOval(left, top, right, bottom)
-    }
-
-    override fun drawOval(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat) {
-        writer.drawOval(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawRoundRect(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        radiusX: Float,
-        radiusY: Float,
-    ) {
-        writer.drawRoundRect(left, top, right, bottom, radiusX, radiusY)
-    }
-
-    override fun drawRoundRect(
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-        radiusX: RcFloat,
-        radiusY: RcFloat,
-    ) {
-        writer.drawRoundRect(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-            radiusX.withWriter(writer).toFloat(),
-            radiusY.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawPath(path: RcPath) {
-        writer.drawPath(path.id)
-    }
-
-    override fun drawTweenPath(
-        path1: RcPath,
-        path2: RcPath,
-        tween: Float,
-        start: Float,
-        stop: Float,
-    ) {
-        writer.drawTweenPath(path1.id, path2.id, tween, start, stop)
-    }
-
-    override fun drawTweenPath(
-        path1: RcPath,
-        path2: RcPath,
-        tween: RcFloat,
-        start: RcFloat,
-        stop: RcFloat,
-    ) {
-        writer.drawTweenPath(
-            path1.id,
-            path2.id,
-            tween.withWriter(writer).toFloat(),
-            start.withWriter(writer).toFloat(),
-            stop.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawTextAnchored(
-        text: RcText,
-        x: Float,
-        y: Float,
-        panX: Float,
-        panY: Float,
-        flags: Int,
-    ) {
-        writer.drawTextAnchored(text.id, x, y, panX, panY, flags)
-    }
-
-    override fun drawTextAnchored(
-        text: RcText,
-        x: RcFloat,
-        y: RcFloat,
-        panX: RcFloat,
-        panY: RcFloat,
-        flags: Int,
-    ) {
-        writer.drawTextAnchored(
-            text.id,
-            x.withWriter(writer).toFloat(),
-            y.withWriter(writer).toFloat(),
-            panX.withWriter(writer).toFloat(),
-            panY.withWriter(writer).toFloat(),
-            flags,
-        )
-    }
-
-    override fun drawTextOnPath(text: RcText, path: RcPath, hOffset: Float, vOffset: Float) {
-        writer.drawTextOnPath(text.id, path.id, hOffset, vOffset)
-    }
-
-    override fun drawTextOnPath(text: RcText, path: RcPath, hOffset: RcFloat, vOffset: RcFloat) {
-        writer.drawTextOnPath(
-            text.id,
-            path.id,
-            hOffset.withWriter(writer).toFloat(),
-            vOffset.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawTextOnCircle(
-        text: RcText,
-        centerX: Float,
-        centerY: Float,
-        radius: Float,
-        startAngle: Float,
-        warpRadiusOffset: Float,
-        alignment: DrawTextOnCircle.Alignment,
-        placement: DrawTextOnCircle.Placement,
-    ) {
-        writer.drawTextOnCircle(
-            text.id,
-            centerX,
-            centerY,
-            radius,
-            startAngle,
-            warpRadiusOffset,
-            alignment,
-            placement,
-        )
-    }
-
-    override fun drawTextOnCircle(
-        text: RcText,
-        centerX: RcFloat,
-        centerY: RcFloat,
-        radius: RcFloat,
-        startAngle: RcFloat,
-        warpRadiusOffset: RcFloat,
-        alignment: DrawTextOnCircle.Alignment,
-        placement: DrawTextOnCircle.Placement,
-    ) {
-        writer.drawTextOnCircle(
-            text.id,
-            centerX.withWriter(writer).toFloat(),
-            centerY.withWriter(writer).toFloat(),
-            radius.withWriter(writer).toFloat(),
-            startAngle.withWriter(writer).toFloat(),
-            warpRadiusOffset.withWriter(writer).toFloat(),
-            alignment,
-            placement,
-        )
-    }
-
-    override fun drawBitmap(image: RcImage, left: Float, top: Float, right: Float, bottom: Float) {
-        writer.drawBitmap(image.id, left, top, right, bottom, null)
-    }
-
-    override fun drawBitmap(image: RcImage, left: Float, top: Float) {
-        writer.drawBitmap(image.id, left, top, null)
-    }
-
-    override fun drawBitmap(
-        image: RcImage,
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-    ) {
-        writer.drawBitmap(
-            image.id,
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-            null,
-        )
-    }
-
-    override fun drawBitmap(image: RcImage, left: RcFloat, top: RcFloat) {
-        writer.drawBitmap(
-            image.id,
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            null,
-        )
-    }
-
-    override fun Float.format(whole: Int, decimal: Int, flags: Int): RcText {
-        return RcText(writer.createTextFromFloat(this, whole, decimal, flags))
-    }
-
-    override val Int.rf: RcFloat
-        get() = RcFloat(writer, this.toFloat())
-
-    override val Float.rf: RcFloat
-        get() = RcFloat(writer, this)
-}
-
-private class RcColumnScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writer), RcColumnScope {
-    override fun Modifier.weight(weight: Float): Modifier =
-        then(WeightModifier(weight, vertical = true))
-}
-
-private class RcRowScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writer), RcRowScope {
-    override fun Modifier.weight(weight: Float): Modifier =
-        then(WeightModifier(weight, vertical = false))
-}
-
-private class RcFlowScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writer), RcFlowScope {
-    override fun Modifier.weight(weight: Float): Modifier =
-        then(WeightModifier(weight, vertical = false))
-}
-
-private class RcCollapsibleColumnScopeImpl(writer: RemoteComposeWriter) :
-    RcScopeImpl(writer), RcCollapsibleColumnScope {
-    override fun Modifier.weight(weight: Float): Modifier =
-        then(WeightModifier(weight, vertical = true))
-}
-
-private class RcCollapsibleRowScopeImpl(writer: RemoteComposeWriter) :
-    RcScopeImpl(writer), RcCollapsibleRowScope {
-    override fun Modifier.weight(weight: Float): Modifier =
-        then(WeightModifier(weight, vertical = false))
-}
-
-private class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writer), RcCanvasScope {
-    override val width: RcFloat
-        get() = RcFloat(writer, writer.addComponentWidthValue())
-
-    override val height: RcFloat
-        get() = RcFloat(writer, writer.addComponentHeightValue())
-
-    override val paint: RcPaint
-        get() = writer.rcPaint
-
-    override fun save() {
-        writer.save()
-    }
-
-    override fun restore() {
-        writer.restore()
-    }
-
-    override fun save(block: RcCanvasScope.() -> Unit) {
-        writer.save()
-        this.block()
-        writer.restore()
-    }
-
-    override fun clipRect(left: Float, top: Float, right: Float, bottom: Float) {
-        writer.clipRect(left, top, right, bottom)
-    }
-
-    override fun clipRect(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat) {
-        writer.clipRect(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun remotePath(x: Float, y: Float): RcPath = RcPath(writer.pathCreate(x, y), writer)
-
-    override fun remotePath(x: Float, y: Float, block: RcPathScope.() -> Unit): RcPath {
-        val path = remotePath(x, y)
-        path.block()
-        path.close()
-        return path
-    }
-
-    override fun scale(scaleX: Float, scaleY: Float) {
-        writer.scale(scaleX, scaleY)
-    }
-
-    override fun scale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float) {
-        writer.scale(scaleX, scaleY, centerX, centerY)
-    }
-
-    override fun scale(scaleX: RcFloat, scaleY: RcFloat) {
-        writer.scale(scaleX.withWriter(writer).toFloat(), scaleY.withWriter(writer).toFloat())
-    }
-
-    override fun scale(scaleX: RcFloat, scaleY: RcFloat, centerX: RcFloat, centerY: RcFloat) {
-        writer.scale(
-            scaleX.withWriter(writer).toFloat(),
-            scaleY.withWriter(writer).toFloat(),
-            centerX.withWriter(writer).toFloat(),
-            centerY.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun rotate(angle: Float) {
-        writer.rotate(angle)
-    }
-
-    override fun rotate(angle: RcFloat) {
-        writer.rotate(angle.withWriter(writer).toFloat())
-    }
-
-    override fun rotate(angle: Float, centerX: Float, centerY: Float) {
-        writer.rotate(angle, centerX, centerY)
-    }
-
-    override fun rotate(angle: RcFloat, centerX: RcFloat, centerY: RcFloat) {
-        writer.rotate(
-            angle.withWriter(writer).toFloat(),
-            centerX.withWriter(writer).toFloat(),
-            centerY.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun loop(
-        start: RcFloat,
-        step: Float,
-        end: RcFloat,
-        block: RcCanvasScope.(RcFloat) -> Unit,
-    ) {
-        val indexId = writer.textCreateId("index")
-        val from: Float = start.withWriter(writer).toFloat()
-        val until: Float = end.withWriter(writer).toFloat()
-        writer.loop(
-            indexId,
-            from,
-            step,
-            until,
-            object : RemoteComposeWriterInterface {
-                override fun run() {
-                    val v =
-                        androidx.compose.remote.creation.RFloat(
-                            writer,
-                            floatArrayOf(
-                                androidx.compose.remote.core.operations.Utils.asNan(indexId)
-                            ),
-                        )
-                    this@RcCanvasScopeImpl.block(RcFloat(writer, v.array))
-                }
-            },
-        )
-    }
+    /** Clips the current canvas to the specified path. */
+    public fun clipPath(path: RcPath)
+
+    /** Add touch handling on canvas. */
+    public fun addTouch(
+        defValue: Float,
+        min: Float,
+        max: Float,
+        touchMode: Int,
+        velocityId: Float,
+        touchEffects: Int,
+        touchSpec: FloatArray?,
+        easingSpec: FloatArray?,
+        vararg exp: Float,
+    ): RcFloat
 }
 
 /** Internal helper to convert the new [Modifier] chain to the legacy [RecordingModifier]. */
