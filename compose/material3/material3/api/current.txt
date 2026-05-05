@@ -4794,7 +4794,8 @@ package androidx.compose.material3 {
 
   public sealed nonexhaustive interface TooltipScope {
     method @BytecodeOnly @Deprecated public androidx.compose.ui.Modifier! drawCaret(androidx.compose.ui.Modifier!, kotlin.jvm.functions.Function2!);
-    method public androidx.compose.ui.layout.LayoutCoordinates? obtainAnchorBounds(androidx.compose.ui.layout.MeasureScope);
+    method @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.compose.ui.layout.LayoutCoordinates? obtainAnchorBounds();
+    method @BytecodeOnly @Deprecated public androidx.compose.ui.layout.LayoutCoordinates! obtainAnchorBounds(androidx.compose.ui.layout.MeasureScope!);
     method public androidx.compose.ui.window.PopupPositionProvider obtainPositionProvider();
   }
 
