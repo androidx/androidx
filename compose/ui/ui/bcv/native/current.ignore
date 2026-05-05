@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.ui/UiMediaScope from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/LocalUiMediaScope from androidx.compose.ui:ui
 [linuxX64]: Removed declaration androidx.compose.ui/derivedMediaQuery(kotlin/Function1<androidx.compose.ui/UiMediaScope, kotlin/Boolean>, androidx.compose.runtime/Composer?, kotlin/Int) from androidx.compose.ui:ui
 [linuxX64]: Removed declaration androidx.compose.ui/mediaQuery(kotlin/Function1<androidx.compose.ui/UiMediaScope, kotlin/Boolean>, androidx.compose.runtime/Composer?, kotlin/Int) from androidx.compose.ui:ui
 [linuxX64]: Removed declaration (androidx.compose.runtime/CompositionLocalAccessorScope).androidx.compose.ui/mediaQuery(kotlin/Function1<androidx.compose.ui/UiMediaScope, kotlin/Boolean>) from androidx.compose.ui:ui
