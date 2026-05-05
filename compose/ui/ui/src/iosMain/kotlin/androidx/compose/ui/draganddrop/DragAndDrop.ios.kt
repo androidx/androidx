@@ -19,7 +19,7 @@ package androidx.compose.ui.draganddrop
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.uikit.density
-import androidx.compose.ui.unit.asDpOffset
+import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.toOffset
 import platform.UIKit.UIDragItem
 import platform.UIKit.UIDropSessionProtocol
@@ -62,5 +62,5 @@ internal actual val DragAndDropEvent.positionInRoot: Offset
     get() =
         session
             .locationInView(view)
-            .asDpOffset()
+            .toDpOffset()
             .toOffset(view.density)

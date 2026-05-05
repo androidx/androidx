@@ -28,16 +28,16 @@ import java.awt.Point
 import java.awt.Rectangle
 import kotlin.math.roundToInt
 
-internal val Dimension.rightBottom get() = Point(width, height)
+internal val Dimension.bottomRight get() = Point(width, height)
 internal operator fun Point.plus(other: Point) = Point(x + other.x, y + other.y)
 internal operator fun Point.minus(other: Point) = Point(x - other.x, y - other.y)
 
-internal val Rectangle.leftTop get() = Point(x, y)
-internal val Rectangle.rightBottom get() = Point(x + width, y + height)
+internal val Rectangle.topLeft get() = Point(x, y)
+internal val Rectangle.bottomRight get() = Point(x + width, y + height)
 
-internal fun Dimension.asDpSize() = DpSize(width.dp, height.dp)
-internal fun Point.asDpOffset() = DpOffset(x.dp, y.dp)
-internal fun Rectangle.asDpRect() = DpRect(
+internal fun Dimension.toDpSize() = DpSize(width.dp, height.dp)
+internal fun Point.toDpOffset() = DpOffset(x.dp, y.dp)
+internal fun Rectangle.toDpRect() = DpRect(
     left = x.dp,
     top = y.dp,
     right = (x + width).dp,

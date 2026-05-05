@@ -18,7 +18,7 @@ package androidx.compose.ui.test.utils
 
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
-import androidx.compose.ui.unit.asDpRect
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.min
@@ -47,7 +47,7 @@ internal fun DpRect.intersect(other: DpRect): DpRect {
 }
 
 @OptIn(ExperimentalForeignApi::class)
-internal fun UIView.dpRectInWindow() = convertRect(bounds, toView = null).asDpRect()
+internal fun UIView.dpRectInWindow() = convertRect(bounds, toView = null).toDpRect()
 internal fun<T> List<T>.forEachWithPrevious(block: (T, T) -> Unit) {
     var previous: T? = null
     for (current in this) {

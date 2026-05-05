@@ -30,7 +30,7 @@ import androidx.compose.ui.test.utils.DpRectZero
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.asDpSize
+import androidx.compose.ui.unit.toDpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.toDpRect
@@ -101,7 +101,7 @@ class UIKitInteropSizingBasicTest {
             }
 
             assertEquals(DpSize(100.dp, 200.dp), rect.size)
-            assertEquals(DpSize(100.dp, 200.dp), view.frame.useContents { size.asDpSize() })
+            assertEquals(DpSize(100.dp, 200.dp), view.frame.useContents { size.toDpSize() })
         }
 
     @Test
@@ -170,7 +170,7 @@ class UIKitInteropSizingBasicTest {
 
         assertEquals(composeRect, uiKitRect)
         assertEquals(DpRect(origin = DpOffset(0.dp, 0.dp), size = screenSize), uiKitRect)
-        assertEquals(composeRect.size, uiKitView.frame.useContents { size.asDpSize() })
+        assertEquals(composeRect.size, uiKitView.frame.useContents { size.toDpSize() })
     }
 
     @Test
@@ -189,7 +189,7 @@ class UIKitInteropSizingBasicTest {
         }
 
         assertEquals(DpSize(width = 100.dp, height = 200.dp), rect.size)
-        assertEquals(DpSize(width = 100.dp, height = 200.dp), view.frame.useContents { size.asDpSize() })
+        assertEquals(DpSize(width = 100.dp, height = 200.dp), view.frame.useContents { size.toDpSize() })
     }
 
     @Test
@@ -218,7 +218,7 @@ class UIKitInteropSizingBasicTest {
             }
 
             assertEquals(DpSize(100.dp, screenSize.height), rect.size)
-            assertEquals(DpSize(100.dp, screenSize.height), view.frame.useContents { size.asDpSize() })
+            assertEquals(DpSize(100.dp, screenSize.height), view.frame.useContents { size.toDpSize() })
         }
 
     @Test
@@ -246,7 +246,7 @@ class UIKitInteropSizingBasicTest {
         }
 
         assertEquals(DpSize(screenSize.width, 100.dp), rect.size)
-        assertEquals(DpSize(screenSize.width, 100.dp), view.frame.useContents { size.asDpSize() })
+        assertEquals(DpSize(screenSize.width, 100.dp), view.frame.useContents { size.toDpSize() })
     }
 
     @Test
@@ -274,6 +274,6 @@ class UIKitInteropSizingBasicTest {
         }
 
         assertEquals(screenSize, rect.size)
-        assertEquals(screenSize, view.frame.useContents { size.asDpSize() })
+        assertEquals(screenSize, view.frame.useContents { size.toDpSize() })
     }
 }

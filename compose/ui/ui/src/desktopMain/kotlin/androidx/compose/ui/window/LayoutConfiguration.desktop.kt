@@ -43,7 +43,7 @@ internal val GlobalDensity get() = GraphicsEnvironment.getLocalGraphicsEnvironme
 internal val Component.density: Density get() = graphicsConfiguration.density
 
 internal val Component.sizeInPx: Size
-    get() = size.asDpSize().toSize(density)
+    get() = size.toDpSize().toSize(density)
 
 private val GraphicsConfiguration.density: Density get() = Density(
     defaultTransform.scaleX.toFloat(),

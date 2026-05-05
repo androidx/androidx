@@ -33,7 +33,6 @@ import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.isLinux
 import androidx.compose.ui.isMacOs
-import androidx.compose.ui.toDpOffset
 import androidx.compose.ui.toDpSize
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
@@ -47,7 +46,7 @@ import androidx.compose.ui.unit.width
 import androidx.compose.ui.window.WindowDecoration
 import androidx.compose.ui.window.runApplicationTest
 import androidx.compose.ui.window.toDpInsets
-import androidx.compose.ui.window.asDpOffset
+import androidx.compose.ui.window.toDpOffset
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
 import java.awt.Point
@@ -170,7 +169,7 @@ class DialogWindowV2StateTest {
         val position = Point(242, 242)
         val state = DialogStateWithBounds(
             initialSize = size.toDpSize(),
-            initialPosition = position.asDpOffset()
+            initialPosition = position.toDpOffset()
         )
 
         lateinit var dialog: ComposeDialog
@@ -197,7 +196,7 @@ class DialogWindowV2StateTest {
 
         val state = DialogStateWithBounds(
             initialSize = size.toDpSize(),
-            initialPosition = position.asDpOffset()
+            initialPosition = position.toDpOffset()
         )
         lateinit var dialog: ComposeDialog
 
@@ -214,7 +213,7 @@ class DialogWindowV2StateTest {
         awaitIdle()
 
         val newPosition = Point(242, 242)
-        state.requestPosition(newPosition.asDpOffset())
+        state.requestPosition(newPosition.toDpOffset())
         awaitIdle()
         assertCoordinatesApproximatelyEqual(newPosition, dialog.location)
     }
@@ -226,7 +225,7 @@ class DialogWindowV2StateTest {
 
         val state = DialogStateWithBounds(
             initialSize = size.toDpSize(),
-            initialPosition = position.asDpOffset()
+            initialPosition = position.toDpOffset()
         )
         lateinit var dialog: ComposeDialog
 
@@ -349,7 +348,7 @@ class DialogWindowV2StateTest {
         awaitIdle()
 
         val position = Point(242, 242)
-        state.requestPosition(position.asDpOffset())
+        state.requestPosition(position.toDpOffset())
         awaitIdle()
         assertThat(dialog1?.location).isEqualTo(position)
 

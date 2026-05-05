@@ -18,8 +18,8 @@ package androidx.compose.ui.test.utils
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import androidx.compose.ui.unit.asCGSize
-import androidx.compose.ui.unit.asDpRect
+import androidx.compose.ui.unit.toCGSize
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.size
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
@@ -36,7 +36,7 @@ import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class)
 internal fun UIView.captureToImage(): ImageBitmap {
-    val size = frame.asDpRect().size.asCGSize()
+    val size = frame.toDpRect().size.toCGSize()
     UIGraphicsBeginImageContextWithOptions(size, true, UIScreen.mainScreen().scale)
 
     drawViewHierarchyInRect(bounds, true)

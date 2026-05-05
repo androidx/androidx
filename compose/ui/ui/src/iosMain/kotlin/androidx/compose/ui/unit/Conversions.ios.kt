@@ -27,21 +27,21 @@ import platform.CoreGraphics.CGSize
 import platform.CoreGraphics.CGSizeMake
 import platform.UIKit.UIEdgeInsets
 
-internal fun CGPoint.asDpOffset(): DpOffset = DpOffset(x.dp, y.dp)
-internal fun CValue<CGPoint>.asDpOffset(): DpOffset = useContents { asDpOffset() }
+internal fun CGPoint.toDpOffset(): DpOffset = DpOffset(x.dp, y.dp)
+internal fun CValue<CGPoint>.toDpOffset(): DpOffset = useContents { toDpOffset() }
 
-internal fun DpOffset.asCGPoint() = CGPointMake(x.value.toDouble(), y.value.toDouble())
+internal fun DpOffset.toCGPoint() = CGPointMake(x.value.toDouble(), y.value.toDouble())
 
-internal fun CGSize.asDpSize(): DpSize = DpSize(width.dp, height.dp)
-internal fun DpSize.asCGSize() = CGSizeMake(width.value.toDouble(), height.value.toDouble())
+internal fun CGSize.toDpSize(): DpSize = DpSize(width.dp, height.dp)
+internal fun DpSize.toCGSize() = CGSizeMake(width.value.toDouble(), height.value.toDouble())
 
-internal fun CGRect.asDpRect(): DpRect = DpRect(origin.asDpOffset(), size.asDpSize())
-internal fun CValue<CGRect>.asDpRect() = useContents { asDpRect() }
+internal fun CGRect.toDpRect(): DpRect = DpRect(origin.toDpOffset(), size.toDpSize())
+internal fun CValue<CGRect>.toDpRect() = useContents { toDpRect() }
 internal fun CValue<CGRect>.dpSize() = useContents {
     DpSize(size.width.dp, size.height.dp)
 }
 
-internal fun DpRect.asCGRect() = CGRectMake(
+internal fun DpRect.toCGRect() = CGRectMake(
     left.value.toDouble(),
     top.value.toDouble(),
     width.value.toDouble(),

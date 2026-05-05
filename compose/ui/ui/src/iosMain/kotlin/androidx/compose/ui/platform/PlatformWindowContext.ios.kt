@@ -20,13 +20,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.asCGPoint
-import androidx.compose.ui.unit.asDpOffset
-import androidx.compose.ui.unit.asDpRect
+import androidx.compose.ui.unit.toCGPoint
+import androidx.compose.ui.unit.toDpOffset
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.unit.size
-import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.SceneActiveStateListener
@@ -72,7 +71,7 @@ internal class PlatformWindowContext {
                 withProgress { progress ->
                     val windowContainer = window
                     if (windowContainer != null) {
-                        val currentSize = windowContainer.bounds.asDpRect().size
+                        val currentSize = windowContainer.bounds.toDpRect().size
                         val currentSizeInPx = currentSize.toSize(windowContainer.density).roundToIntSize()
                         _windowInfo.containerSize = lerp(
                             initialSize.toSize(),
@@ -96,7 +95,7 @@ internal class PlatformWindowContext {
         if (isAnimating) return
 
         val windowContainer = window ?: return
-        val size = windowContainer.bounds.asDpRect().size
+        val size = windowContainer.bounds.toDpRect().size
         val sizeInPx = size.toSize(windowContainer.density).roundToIntSize()
         _windowInfo.containerSize = sizeInPx
         _windowInfo.containerDpSize = size
@@ -125,7 +124,7 @@ internal class PlatformWindowContext {
             container.window ?: return convertLocalToWindowPosition(container, localPosition)
         val density = container.density
         val positionInNativeWindow = container.convertPoint(
-            point = localPosition.toDpOffset(density).asCGPoint(),
+            point = localPosition.toDpOffset(density).toCGPoint(),
             toView = nativeWindow,
         )
         val positionOnScreen = nativeWindow.convertPoint(
@@ -133,7 +132,7 @@ internal class PlatformWindowContext {
             toWindow = null
         )
         return positionOnScreen.useContents {
-            asDpOffset().toOffset(density)
+            toDpOffset().toOffset(density)
         }
     }
 
@@ -142,7 +141,7 @@ internal class PlatformWindowContext {
             container.window ?: return convertWindowToLocalPosition(container, positionOnScreen)
         val density = container.density
         val positionInNativeWindow = nativeWindow.convertPoint(
-            point = positionOnScreen.toDpOffset(density).asCGPoint(),
+            point = positionOnScreen.toDpOffset(density).toCGPoint(),
             fromWindow = null
         )
         val localPosition = container.convertPoint(
@@ -150,7 +149,7 @@ internal class PlatformWindowContext {
             fromView = nativeWindow,
         )
         return localPosition.useContents {
-            asDpOffset().toOffset(density)
+            toDpOffset().toOffset(density)
         }
     }
 
@@ -158,10 +157,10 @@ internal class PlatformWindowContext {
         return if (fromView != toView) {
             val density = fromView.density
             fromView.convertPoint(
-                point = point.toDpOffset(density).asCGPoint(),
+                point = point.toDpOffset(density).toCGPoint(),
                 toView = toView,
             ).useContents {
-                asDpOffset().toOffset(density)
+                toDpOffset().toOffset(density)
             }
         } else {
             point

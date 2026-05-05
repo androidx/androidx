@@ -71,7 +71,7 @@ import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.viewinterop.SwingInteropContainer
 import androidx.compose.ui.window.WindowExceptionHandler
-import androidx.compose.ui.window.asDpOffset
+import androidx.compose.ui.window.toDpOffset
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.sizeInPx
 import java.awt.Component
@@ -475,7 +475,7 @@ internal class ComposeSceneMediator(
         get() {
             val pointInContainer = SwingUtilities.convertPoint(component, point, container)
             val offset = sceneBoundsInPx?.topLeft ?: Offset.Zero
-            return pointInContainer.asDpOffset().toOffset(contentComponent.density) - offset
+            return pointInContainer.toDpOffset().toOffset(contentComponent.density) - offset
         }
 
     private fun onMouseEvent(event: MouseEvent): Unit = catchExceptions {

@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.asDpOffset
+import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toDpRect
@@ -1137,7 +1137,7 @@ internal class ScrollTest {
         waitForIdle()
 
         assertTrue(
-            scrollView.contentOffset.asDpOffset().x > 0.dp,
+            scrollView.contentOffset.toDpOffset().x > 0.dp,
             "UIScrollView should scroll horizontally on swipe"
         )
         assertFalse(buttonClicked, "Button should NOT be clicked when swiping over it")
@@ -1173,7 +1173,7 @@ private fun VerticalUIKitScrollInsideVerticalScroll(
                 )
                 scrollView.backgroundColor = UIColor.lightGrayColor
                 uiKitScrollViewRectInWindow({ scrollView.dpRectInWindow() })
-                uiKitContentOffset({ scrollView.contentOffset.asDpOffset() })
+                uiKitContentOffset({ scrollView.contentOffset.toDpOffset() })
                 scrollView
             },
             update = { scrollView ->
@@ -1230,7 +1230,7 @@ private fun VerticalScrollWithHorizontalUIKitScroll(
                 scrollView.setContentSize(CGSizeMake(uiKitScrollViewContentWidth, uiKitScrollViewHeight.value.toDouble()))
                 scrollView.backgroundColor = UIColor.lightGrayColor
                 uiKitScrollViewRectInWindow({ scrollView.dpRectInWindow() })
-                uiKitContentOffset({ scrollView.contentOffset.asDpOffset() })
+                uiKitContentOffset({ scrollView.contentOffset.toDpOffset() })
                 scrollView
             },
             modifier = Modifier

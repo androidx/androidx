@@ -279,8 +279,6 @@ suspend fun Robot.awaitEDT() {
 
 fun Dimension.toDpSize() = DpSize(width.dp, height.dp)
 
-fun Point.toDpOffset() = DpOffset(x.dp, y.dp)
-
 fun Point.toWindowPosition() = WindowPosition(x.dp, y.dp)
 
 fun Size.toInt() = IntSize(width.toInt(), height.toInt())

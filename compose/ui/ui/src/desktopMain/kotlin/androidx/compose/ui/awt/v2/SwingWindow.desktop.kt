@@ -46,7 +46,7 @@ import androidx.compose.ui.window.UndecoratedWindowDecoration
 import androidx.compose.ui.window.WindowDecoration
 import androidx.compose.ui.window.WindowLocationTracker
 import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.asDpRect
+import androidx.compose.ui.window.toDpRect
 import androidx.compose.ui.window.resizerThickness
 import androidx.compose.ui.window.roundToDimensionOrNull
 import androidx.compose.ui.window.v2.WindowBoundsProvider
@@ -189,7 +189,7 @@ fun SwingWindow(
                 wnd,
                 object : ComponentAdapter() {
                     fun applyBoundsChanges() {
-                        currentState._bounds = wnd.bounds.asDpRect()
+                        currentState._bounds = wnd.bounds.toDpRect()
                         if (currentState._screenId != wnd.graphicsConfiguration.device.iDstring) {
                             currentState._screenId = wnd.graphicsConfiguration.device.iDstring
                         }

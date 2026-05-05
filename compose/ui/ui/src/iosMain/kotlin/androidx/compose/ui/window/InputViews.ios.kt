@@ -24,7 +24,7 @@ import androidx.compose.ui.uikit.utils.CMPHoverGestureRecognizer
 import androidx.compose.ui.uikit.utils.CMPPanGestureRecognizer
 import androidx.compose.ui.uikit.utils.CMPScrollView
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.asDpOffset
+import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.viewinterop.InteropWrappingView
 import androidx.compose.ui.viewinterop.UIKitInteropInteractionMode
 import kotlin.getValue
@@ -434,7 +434,7 @@ private class ScrollGestureRecognizer(
     @OptIn(BetaInteropApi::class)
     @ObjCAction
     fun onPan(gestureRecognizer: UIPanGestureRecognizer) {
-        val position = gestureRecognizer.locationInView(view).asDpOffset()
+        val position = gestureRecognizer.locationInView(view).toDpOffset()
 
         when (gestureRecognizer.state) {
             UIGestureRecognizerStateBegan -> {
@@ -675,7 +675,7 @@ internal class OverlayInputView(
     @OptIn(BetaInteropApi::class)
     @ObjCAction
     fun onHover(gestureRecognizer: CMPHoverGestureRecognizer) {
-        val position = gestureRecognizer.locationInView(this).asDpOffset()
+        val position = gestureRecognizer.locationInView(this).toDpOffset()
         val lastEvent = hoverGestureRecognizer.lastReceivedEvent
         when (gestureRecognizer.state) {
             UIGestureRecognizerStateBegan ->

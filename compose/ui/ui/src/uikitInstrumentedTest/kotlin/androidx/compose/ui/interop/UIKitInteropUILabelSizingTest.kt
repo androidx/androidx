@@ -35,13 +35,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.test.utils.DpRectZero
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.asDpRect
-import androidx.compose.ui.unit.asDpSize
+import androidx.compose.ui.unit.toDpRect
+import androidx.compose.ui.unit.toDpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.size
-import androidx.compose.ui.unit.toDpRect
-import androidx.compose.ui.unit.toDpSize
 import androidx.compose.ui.unit.width
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
@@ -71,7 +69,7 @@ class UIKitInteropUILabelSizingTest {
                     UILabel().apply {
                         numberOfLines = 1
                         text = SHORT_TEXT
-                        uiLabelRect = { frame.useContents { asDpRect() } }
+                        uiLabelRect = { frame.useContents { toDpRect() } }
                     }
                 },
                 modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
@@ -94,7 +92,7 @@ class UIKitInteropUILabelSizingTest {
                     UILabel().apply {
                         numberOfLines = 0
                         text = SHORT_TEXT
-                        uiLabelRect = { frame.useContents { asDpRect() } }
+                        uiLabelRect = { frame.useContents { toDpRect() } }
                     }
                 },
                 modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
@@ -117,7 +115,7 @@ class UIKitInteropUILabelSizingTest {
                     UILabel().apply {
                         numberOfLines = 1
                         text = LONG_TEXT
-                        uiLabelRect = { frame.useContents { asDpRect() } }
+                        uiLabelRect = { frame.useContents { toDpRect() } }
                     }
                 },
                 modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
@@ -140,7 +138,7 @@ class UIKitInteropUILabelSizingTest {
                     UILabel().apply {
                         numberOfLines = 0
                         text = LONG_TEXT
-                        uiLabelRect = { frame.useContents { asDpRect() } }
+                        uiLabelRect = { frame.useContents { toDpRect() } }
                     }
                 },
                 modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
@@ -494,7 +492,7 @@ class UIKitInteropUILabelSizingTest {
             }
         }
 
-        assertEquals(composeRect, uiKitView.frame.useContents { asDpRect() })
+        assertEquals(composeRect, uiKitView.frame.useContents { toDpRect() })
     }
 
     @Test
@@ -702,7 +700,7 @@ class UIKitInteropUILabelSizingTest {
             }
 
             assertEquals(DpSize(fixedWidth, fixedHeight), composeInteropSize)
-            assertEquals(DpSize(fixedWidth, fixedHeight), label.frame.useContents { size.asDpSize() })
+            assertEquals(DpSize(fixedWidth, fixedHeight), label.frame.useContents { size.toDpSize() })
         }
 
     @Test

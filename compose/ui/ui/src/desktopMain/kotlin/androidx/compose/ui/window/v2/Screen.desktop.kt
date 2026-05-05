@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.DpInsets
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.minus
 import androidx.compose.ui.window.toDpInsets
-import androidx.compose.ui.window.asDpRect
+import androidx.compose.ui.window.toDpRect
 import java.awt.GraphicsDevice
 import java.awt.Toolkit
 
@@ -56,7 +56,7 @@ class Screen internal constructor(
      * to the left or above the primary screen.
      */
     val bounds: DpRect
-        get() = configuration.bounds.asDpRect()
+        get() = configuration.bounds.toDpRect()
 
     /**
      * The insets of the screen.

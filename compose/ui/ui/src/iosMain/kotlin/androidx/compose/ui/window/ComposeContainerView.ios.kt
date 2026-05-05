@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.unit.asDpSize
+import androidx.compose.ui.unit.toDpSize
 import kotlin.math.max
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.useContents
@@ -192,8 +192,8 @@ internal class ComposeContainerView(
     private fun updateLayout() {
         val metalView = metalView ?: return
         if (isAnimating) {
-            val oldSize = metalView.view.frame.useContents { size.asDpSize() }
-            val newSize = bounds.useContents { size.asDpSize() }
+            val oldSize = metalView.view.frame.useContents { size.toDpSize() }
+            val newSize = bounds.useContents { size.toDpSize() }
             val targetRect = CGRectMake(
                 0.0,
                 0.0,

@@ -40,8 +40,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.asDpOffset
-import androidx.compose.ui.unit.asDpRect
+import androidx.compose.ui.unit.toDpOffset
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.size
@@ -68,12 +68,6 @@ import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDelegateProtocol
 import platform.UIKit.UIColor
 import platform.UIKit.UIDevice
-import platform.UIKit.UIDeviceOrientation
-import platform.UIKit.UIDeviceOrientation.UIDeviceOrientationLandscapeLeft
-import platform.UIKit.UIDeviceOrientation.UIDeviceOrientationLandscapeRight
-import platform.UIKit.UIDeviceOrientation.UIDeviceOrientationPortrait
-import platform.UIKit.UIDeviceOrientation.UIDeviceOrientationPortraitUpsideDown
-import platform.UIKit.UIDeviceOrientation.UIDeviceOrientationUnknown
 import platform.UIKit.UIGraphicsBeginImageContextWithOptions
 import platform.UIKit.UIGraphicsEndImageContext
 import platform.UIKit.UIGraphicsGetCurrentContext
@@ -239,7 +233,7 @@ internal class UIKitInstrumentedTest(
     val appDelegate = MockAppDelegate()
     val keyboardHeight: Dp get() =
         KeyboardVisibilityListener.keyboardFrame.useContents { size.height.dp }
-    val screenBounds: DpRect get() = screen.bounds().asDpRect()
+    val screenBounds: DpRect get() = screen.bounds().toDpRect()
     val screenSize: DpSize get() = screenBounds.size
     val safeDrawingRect: DpRect get() = screenBounds.let { rect ->
         viewController.view.safeAreaInsets.useContents {
@@ -439,7 +433,7 @@ internal class UIKitInstrumentedTest(
      * @return The same UITouch instance after completing the drag gesture.
      */
     private fun UITouch.dragTo(location: DpOffset, duration: Duration = 0.5.seconds): UITouch {
-        val startLocation = locationInView(null).asDpOffset()
+        val startLocation = locationInView(null).toDpOffset()
 
         val startTime = TimeSource.Monotonic.markNow()
         while (TimeSource.Monotonic.markNow() <= startTime + duration) {
@@ -462,7 +456,7 @@ internal class UIKitInstrumentedTest(
      * @return The same UITouch instance after completing the drag gesture.
      */
     fun UITouch.dragBy(offset: DpOffset, duration: Duration = 0.5.seconds): UITouch {
-        return dragTo(locationInView(null).asDpOffset() + offset, duration)
+        return dragTo(locationInView(null).toDpOffset() + offset, duration)
     }
 
     /**

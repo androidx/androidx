@@ -26,7 +26,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.asCGRect
+import androidx.compose.ui.unit.toCGRect
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toRect
@@ -117,11 +117,11 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
             val groupFrame = clippedRect
                 .toRect()
                 .toDpRect(density)
-                .asCGRect()
+                .toCGRect()
             val groupAccessibilityFrame = unclippedRect
                 .toRect()
                 .toDpRect(density)
-                .asCGRect()
+                .toCGRect()
 
             container.scheduleUpdate {
                 UIView.performWithoutAnimation {
@@ -148,7 +148,7 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
                 val userComponentCGRect = userComponentRect
                     .toRect()
                     .toDpRect(density)
-                    .asCGRect()
+                    .toCGRect()
 
                 container.scheduleUpdate {
                     UIView.performWithoutAnimation {

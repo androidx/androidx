@@ -33,8 +33,8 @@ import androidx.compose.ui.uikit.utils.CMPDragInteractionProxy
 import androidx.compose.ui.uikit.utils.CMPDropInteractionProxy
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.asCGRect
-import androidx.compose.ui.unit.asDpOffset
+import androidx.compose.ui.unit.toCGRect
+import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.OverlayInputView
@@ -91,7 +91,7 @@ private class DragSessionContext(
         val decorationCgRect = decorationSize
             .toRect()
             .toDpRect(density)
-            .asCGRect()
+            .toCGRect()
 
         val decorationView = UIImageView(frame = decorationCgRect)
 
@@ -215,7 +215,7 @@ internal class UIKitDragAndDropManager(
             val density = Density(density = view.window?.screen?.scale?.toFloat() ?: 1f)
             val offset = session
                 .locationInView(view)
-                .useContents { asDpOffset() }
+                .useContents { toDpOffset() }
                 .toOffset(density)
 
             with(rootNode) {

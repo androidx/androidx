@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.window.asDpOffset
+import androidx.compose.ui.window.toDpOffset
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirectionFor
 import java.awt.Image
@@ -88,7 +88,7 @@ internal class AwtDragAndDropManager(
     private val density: Density
         get() = rootContainer.density
 
-    private fun Point.toOffset() = asDpOffset().toOffset(density)
+    private fun Point.toOffset() = toDpOffset().toOffset(density)
 
     override val isRequestDragAndDropTransferRequired: Boolean
         get() = true

@@ -52,9 +52,8 @@ import androidx.compose.ui.uikit.density
 import androidx.compose.ui.uikit.toNanoSeconds
 import androidx.compose.ui.uikit.utils.CMPAccessibilityElement
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.asCGRect
-import androidx.compose.ui.unit.asDpOffset
-import androidx.compose.ui.unit.asDpRect
+import androidx.compose.ui.unit.toCGRect
+import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastForEach
@@ -408,7 +407,7 @@ private sealed interface AccessibilityNode {
 
         override suspend fun scrollBy(delta: CValue<CGPoint>) {
             val deltaInPx = with(semanticsNode.layoutNode.density) {
-                delta.asDpOffset().let {
+                delta.toDpOffset().let {
                     Offset(it.x.toPx(), it.y.toPx())
                 }
             }
@@ -486,7 +485,7 @@ private class AccessibilityRoot(
 
         val hitSemanticsEntities = HitTestResult()
         val pointerPosition = with(mediator.view.density) {
-            val point = point.asDpOffset()
+            val point = point.toDpOffset()
             Offset(point.x.toPx(), point.y.toPx())
         }
 
@@ -1135,7 +1134,7 @@ internal class AccessibilityMediator(
             rect = UIEdgeInsetsInsetRect(view.bounds, view.safeAreaInsets),
             toView = null
         )
-        return rectInWindow.asDpRect().toRect(view.density)
+        return rectInWindow.toDpRect().toRect(view.density)
     }
 
     private var displayLinkListener: DisplayLinkListener? = null
@@ -1165,7 +1164,7 @@ internal class AccessibilityMediator(
                     element.node.semanticsNode.unclippedBoundsInWindow
 
                 else ->
-                    element.accessibilityFrame.asDpRect()
+                    element.accessibilityFrame.toDpRect()
                         .toRect(scrollableContainer.node.semanticsNode.layoutNode.density)
             }
             scrollJob = CoroutineScope(coroutineContext + listener.frameClock).launch {
@@ -1324,7 +1323,7 @@ internal class AccessibilityMediator(
         private set
 
     private fun convertToAppWindowCGRect(rect: Rect): CValue<CGRect> {
-        return view.convertRect(rect.toDpRect(view.density).asCGRect(), toView = null)
+        return view.convertRect(rect.toDpRect(view.density).toCGRect(), toView = null)
     }
 
     fun notifyScrollCompleted(
@@ -1447,7 +1446,7 @@ internal class AccessibilityMediator(
 
         resultFrame = resultFrame.translate(dx, dy)
 
-        element.focusFrame = resultFrame.toDpRect(node.semanticsNode.layoutNode.density).asCGRect()
+        element.focusFrame = resultFrame.toDpRect(node.semanticsNode.layoutNode.density).toCGRect()
 
         return element
     }

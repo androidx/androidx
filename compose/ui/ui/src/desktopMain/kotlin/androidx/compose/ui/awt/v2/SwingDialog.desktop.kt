@@ -40,7 +40,7 @@ import androidx.compose.ui.util.windowListenerRef
 import androidx.compose.ui.window.DialogWindowScope
 import androidx.compose.ui.window.UndecoratedWindowDecoration
 import androidx.compose.ui.window.WindowDecoration
-import androidx.compose.ui.window.asDpRect
+import androidx.compose.ui.window.toDpRect
 import androidx.compose.ui.window.resizerThickness
 import androidx.compose.ui.window.roundToDimensionOrNull
 import androidx.compose.ui.window.v2.DialogState
@@ -196,7 +196,7 @@ fun SwingDialog(
                 dlg,
                 object : ComponentAdapter() {
                     fun applyBoundsChanges() {
-                        currentState._bounds = dlg.bounds.asDpRect()
+                        currentState._bounds = dlg.bounds.toDpRect()
                         if (currentState._screenId != dlg.graphicsConfiguration.device.iDstring) {
                             currentState._screenId = dlg.graphicsConfiguration.device.iDstring
                         }

@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.accessibility.CMPAccessibilityTraitTextView
 import androidx.compose.ui.test.utils.DpRectZero
 import androidx.compose.ui.test.utils.intersect
 import androidx.compose.ui.unit.DpRect
-import androidx.compose.ui.unit.asDpRect
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
@@ -141,7 +141,7 @@ internal fun UIKitInstrumentedTest.getAccessibilityTree(): AccessibilityTestNode
             identifier = (element as? UIAccessibilityElement)?.accessibilityIdentifier,
             label = element.accessibilityLabel,
             value = element.accessibilityValue,
-            frame = element.accessibilityFrame.asDpRect(),
+            frame = element.accessibilityFrame.toDpRect(),
             children = children,
             traits = allAccessibilityTraits.keys.filter {
                 element.accessibilityTraits and it != 0.toULong()

@@ -79,13 +79,13 @@ internal object WindowLocationTracker {
         val graphicsConfiguration = graphicsDevice.defaultConfiguration
         val screenBounds = graphicsConfiguration.bounds
         val screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfiguration)
-        val screenLeftTop = screenBounds.leftTop + Point(screenInsets.left, screenInsets.top)
-        val screenRightBottom = screenBounds.rightBottom - Point(screenInsets.right, screenInsets.bottom)
+        val screenLeftTop = screenBounds.topLeft + Point(screenInsets.left, screenInsets.top)
+        val screenBottomRight = screenBounds.bottomRight - Point(screenInsets.right, screenInsets.bottom)
 
         val lastLocation = lastFocusedWindow?.location ?: screenLeftTop
         var location = lastLocation + cascadeOffset
-        val rightBottom = location + windowSize.rightBottom
-        if (rightBottom.x > screenRightBottom.x || rightBottom.y > screenRightBottom.y) {
+        val bottomRight = location + windowSize.bottomRight
+        if (bottomRight.x > screenBottomRight.x || bottomRight.y > screenBottomRight.y) {
             location = screenLeftTop + cascadeOffset
         }
         return location

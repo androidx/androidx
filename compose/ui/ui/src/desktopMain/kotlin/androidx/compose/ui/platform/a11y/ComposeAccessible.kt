@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastRoundToInt
-import androidx.compose.ui.window.asDpOffset
+import androidx.compose.ui.window.toDpOffset
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.Dimension
@@ -232,7 +232,7 @@ internal class ComposeAccessible(
         }
 
         private fun Point.toComposeOffset() =
-            asDpOffset().toOffset(density)
+            toDpOffset().toOffset(density)
 
         private fun Dp.toAwtPx() =
             if (value.isInfinite()) Constraints.Infinity else value.fastRoundToInt()

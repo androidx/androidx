@@ -33,7 +33,7 @@ import androidx.compose.ui.uikit.utils.CMPTextInputView
 import androidx.compose.ui.uikit.utils.CMPGestureRecognizer
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
-import androidx.compose.ui.unit.asCGRect
+import androidx.compose.ui.unit.toCGRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropInteractionMode
 import kotlinx.cinterop.COpaquePointer
@@ -491,7 +491,7 @@ internal class NativeTextInputView(
     override fun firstRectForRange(range: UITextRange): CValue<CGRect> {
         val fallback = CGRectZero.readValue()
         val textRange = range.toTextRange() ?: return fallback
-        return input?.firstSelectionRectForRange(textRange)?.asCGRect()
+        return input?.firstSelectionRectForRange(textRange)?.toCGRect()
             ?: fallback
     }
 
@@ -499,7 +499,7 @@ internal class NativeTextInputView(
         val fallbackRect = CGRectMake(x = 1.0, y = 1.0, width = 0.0, height = 1.0)
         val position = (position as? TextInputPosition)?.position ?: return fallbackRect
         val caretDpRect = input?.caretDpRectForPosition(position)
-        return caretDpRect?.asCGRect() ?: fallbackRect
+        return caretDpRect?.toCGRect() ?: fallbackRect
     }
 
     override fun selectionRectsForRange(range: UITextRange): List<*> {
@@ -742,8 +742,8 @@ internal class NativeTextInputScrollView(): UIScrollView(frame = CGRectZero.read
      * - `dpInsets` is in Compose `Dp` and can be passed to UIKit as POINTS directly.
      */
     fun setFrame(dpNewFrame: DpRect, dpTextBounds: DpRect, dpInsets: DpInsets) {
-        val newFrame = dpNewFrame.asCGRect()
-        val textBounds = dpTextBounds.asCGRect()
+        val newFrame = dpNewFrame.toCGRect()
+        val textBounds = dpTextBounds.toCGRect()
 
         val textViewFrame = CGRectMake(
             x = 0.0,

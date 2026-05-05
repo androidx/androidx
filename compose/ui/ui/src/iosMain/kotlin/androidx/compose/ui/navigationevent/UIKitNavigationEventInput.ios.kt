@@ -21,8 +21,8 @@ import androidx.compose.ui.uikit.EndEdgePanGestureBehavior
 import androidx.compose.ui.uikit.utils.CMPScreenEdgePanGestureRecognizer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.asDpOffset
-import androidx.compose.ui.unit.asDpRect
+import androidx.compose.ui.unit.toDpOffset
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.width
 import androidx.navigationevent.NavigationEvent
@@ -194,7 +194,7 @@ internal class UIKitNavigationEventInput(
                     if (recognizer.numberOfTouches == 0uL || recognizer.numberOfTouches == NSUIntegerMax) {
                         return
                     }
-                    val touch = recognizer.locationOfTouch(0u, view).asDpOffset()
+                    val touch = recognizer.locationOfTouch(0u, view).toDpOffset()
                     val eventOffset =
                         touch.toOffset(density) - getTopLeftOffsetInWindow().toOffset()
                     dispatchOnEventStarted(
@@ -217,11 +217,11 @@ internal class UIKitNavigationEventInput(
                     if (recognizer.numberOfTouches == 0uL || recognizer.numberOfTouches == NSUIntegerMax) {
                         return
                     }
-                    val touch = recognizer.locationOfTouch(0u, view).asDpOffset()
+                    val touch = recognizer.locationOfTouch(0u, view).toDpOffset()
                     val eventOffset =
                         touch.toOffset(density) - getTopLeftOffsetInWindow().toOffset()
                     val leftEdge = recognizer.edges == UIRectEdgeLeft
-                    val bounds = view.bounds.asDpRect()
+                    val bounds = view.bounds.toDpRect()
                     val progress = if (leftEdge) {
                         touch.x / bounds.width
                     } else {
