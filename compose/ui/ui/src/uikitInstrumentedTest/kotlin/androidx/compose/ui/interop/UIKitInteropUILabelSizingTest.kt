@@ -69,7 +69,7 @@ class UIKitInteropUILabelSizingTest {
                     UILabel().apply {
                         numberOfLines = 1
                         text = SHORT_TEXT
-                        uiLabelRect = { frame.useContents { toDpRect() } }
+                        uiLabelRect = { frame.toDpRect() }
                     }
                 },
                 modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
@@ -92,7 +92,7 @@ class UIKitInteropUILabelSizingTest {
                     UILabel().apply {
                         numberOfLines = 0
                         text = SHORT_TEXT
-                        uiLabelRect = { frame.useContents { toDpRect() } }
+                        uiLabelRect = { frame.toDpRect() }
                     }
                 },
                 modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
@@ -115,7 +115,7 @@ class UIKitInteropUILabelSizingTest {
                     UILabel().apply {
                         numberOfLines = 1
                         text = LONG_TEXT
-                        uiLabelRect = { frame.useContents { toDpRect() } }
+                        uiLabelRect = { frame.toDpRect() }
                     }
                 },
                 modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
@@ -138,7 +138,7 @@ class UIKitInteropUILabelSizingTest {
                     UILabel().apply {
                         numberOfLines = 0
                         text = LONG_TEXT
-                        uiLabelRect = { frame.useContents { toDpRect() } }
+                        uiLabelRect = { frame.toDpRect() }
                     }
                 },
                 modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
@@ -492,7 +492,7 @@ class UIKitInteropUILabelSizingTest {
             }
         }
 
-        assertEquals(composeRect, uiKitView.frame.useContents { toDpRect() })
+        assertEquals(composeRect, uiKitView.frame.toDpRect())
     }
 
     @Test
