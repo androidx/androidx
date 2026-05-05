@@ -51,12 +51,8 @@
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"Dispensar"</string>
     <string name="wear_m3c_open_on_phone" msgid="3200727397161392122">"Confira seu smartphone"</string>
     <string name="wear_m3c_open_on_phone_icon_content_description" msgid="5953380527505012363">"Ícone \"Confira seu smartphone\""</string>
-    <!-- no translation found for wear_m3c_capital_on_state_description (2318453447890695352) -->
-    <skip />
-    <!-- no translation found for wear_m3c_capital_off_state_description (7254055052192966171) -->
-    <skip />
-    <!-- no translation found for wear_m3c_checked_state_description (2263865163063929072) -->
-    <skip />
-    <!-- no translation found for wear_m3c_not_checked_state_description (1264979459616838816) -->
-    <skip />
+    <string name="wear_m3c_capital_on_state_description" msgid="2318453447890695352">"ATIVADO"</string>
+    <string name="wear_m3c_capital_off_state_description" msgid="7254055052192966171">"DESATIVADO"</string>
+    <string name="wear_m3c_checked_state_description" msgid="2263865163063929072">"marcado"</string>
+    <string name="wear_m3c_not_checked_state_description" msgid="1264979459616838816">"não marcado"</string>
 </resources>
