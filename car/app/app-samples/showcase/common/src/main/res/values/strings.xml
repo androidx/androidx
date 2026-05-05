@@ -295,6 +295,7 @@
 
     <!-- SectionedItemTemplateDemo -->
     <string name="sectioned_item_template_demo_title">Sectioned Item Template Demo</string>
+    <string name="condensed_item_demo_title">Condensed Item Demo</string>
 
   <!-- SectionedItemAlphaJumpDemo -->
   <string name="sectioned_item_alpha_jump_demo_title">Sectioned Item AlphaJump enabled Demo</string>
