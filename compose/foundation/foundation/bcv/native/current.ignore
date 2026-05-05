@@ -1,4 +1,27 @@
 // Baseline format: 1.0
-[linuxX64]: Removed declaration androidx.compose.foundation.gestures/ExperimentalTapGestureDetectorBehaviorApi from androidx.compose.foundation:foundation
-[linuxX64]: Removed declaration androidx.compose.foundation/androidx_compose_foundation_AbstractClickableNode_IndirectPointerClickDetector$stableprop from androidx.compose.foundation:foundation
-[linuxX64]: Removed declaration androidx.compose.foundation/androidx_compose_foundation_AbstractClickableNode_IndirectPointerClickDetector$stableprop_getter() from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation.style/Style from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation.style/StyleScope from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation.style/MutableStyleState from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation.style/StyleStateKey from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation.style/StyleState from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/Style).androidx.compose.foundation.style/then(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/apply(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/checked(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/disabled(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/fillHeight() from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/fillSize() from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/fillWidth() from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/focused(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/hovered(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/pressed(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/selected(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/triStateToggleIndeterminate(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/triStateToggleOff(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/triStateToggleOn(androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).androidx.compose.foundation.style/styleable(androidx.compose.foundation.style/StyleState?, androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).androidx.compose.foundation.style/styleable(androidx.compose.foundation.style/StyleState?) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).androidx.compose.foundation.style/styleable(androidx.compose.foundation.style/StyleState?, kotlin/Array<out androidx.compose.foundation.style/Style>) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation.style/Style(androidx.compose.foundation.style/Style, androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation.style/Style(androidx.compose.foundation.style/Style, androidx.compose.foundation.style/Style, androidx.compose.foundation.style/Style) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation.style/Style(kotlin/Array<out androidx.compose.foundation.style/Style>) from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation.style/rememberUpdatedStyleState(androidx.compose.foundation.interaction/InteractionSource?, kotlin/Function3<androidx.compose.foundation.style/MutableStyleState, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.foundation:foundation
