@@ -39,6 +39,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -61,11 +62,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onLayoutRectChanged
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -79,6 +80,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.PopupPositionProvider
 import kotlin.jvm.JvmInline
 import kotlinx.coroutines.CancellableContinuation
@@ -275,6 +277,17 @@ sealed interface TooltipScope {
      * Used to obtain the [LayoutCoordinates] of the anchor content. This can be used to help draw
      * the caret pointing to the anchor content.
      */
+    @FrequentlyChangingValue fun obtainAnchorBounds(): LayoutCoordinates?
+
+    /**
+     * Used to obtain the [LayoutCoordinates] of the anchor content. This can be used to help draw
+     * the caret pointing to the anchor content.
+     */
+    @Deprecated(
+        "Maintained for binary compatibility. Use the version without the MeasureScope receiver.",
+        ReplaceWith("obtainAnchorBounds()"),
+        level = DeprecationLevel.HIDDEN,
+    )
     fun MeasureScope.obtainAnchorBounds(): LayoutCoordinates?
 
     /**
@@ -294,7 +307,15 @@ internal class TooltipScopeImpl(
         draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
     ): Modifier = this.drawWithCache { draw(getAnchorBounds()) }
 
-    override fun MeasureScope.obtainAnchorBounds(): LayoutCoordinates? = getAnchorBounds()
+    override fun obtainAnchorBounds(): LayoutCoordinates? = getAnchorBounds()
+
+    @Deprecated(
+        "Maintained for binary compatibility. Use the version without the MeasureScope receiver.",
+        ReplaceWith("obtainAnchorBounds()"),
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Suppress("DEPRECATION")
+    override fun MeasureScope.obtainAnchorBounds(): LayoutCoordinates? = obtainAnchorBounds()
 
     override fun obtainPositionProvider(): PopupPositionProvider = positionProvider
 }
@@ -333,14 +354,15 @@ fun TooltipScope.PlainTooltip(
     if (caretShape != null) {
         val transformationMatrix = remember { mutableStateOf(Matrix()) }
         val density = LocalDensity.current
+        val layoutDirection = LocalLayoutDirection.current
         val windowContainerSize = LocalWindowInfo.current.containerSize
         tooltipModifier =
             Modifier.layoutCaret(
                     transformationMatrix,
-                    density,
                     windowContainerSize,
                     { obtainAnchorBounds() },
                     obtainPositionProvider(),
+                    layoutDirection,
                 )
                 .then(modifier)
         tooltipShape =
@@ -416,14 +438,15 @@ fun TooltipScope.RichTooltip(
     if (caretShape != null) {
         val transformationMatrix = remember { mutableStateOf(Matrix()) }
         val density = LocalDensity.current
+        val layoutDirection = LocalLayoutDirection.current
         val windowContainerSize = LocalWindowInfo.current.containerSize
         tooltipModifier =
             Modifier.layoutCaret(
                     transformationMatrix,
-                    density,
                     windowContainerSize,
                     { obtainAnchorBounds() },
                     obtainPositionProvider(),
+                    layoutDirection,
                 )
                 .then(modifier)
         tooltipShape =
@@ -1175,35 +1198,27 @@ internal fun caretX(tooltipWidth: Float, screenWidthPx: Int, anchorBounds: Rect)
 @OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.layoutCaret(
     transformationMatrix: MutableState<Matrix>,
-    density: Density,
     windowContainerSize: IntSize,
-    getAnchorLayoutCoordinates: MeasureScope.() -> LayoutCoordinates?,
+    getAnchorLayoutCoordinates: () -> LayoutCoordinates?,
     positionProvider: PopupPositionProvider,
+    layoutDirection: LayoutDirection,
 ): Modifier =
-    this.layout { measurables, constraints ->
-        val placeable = measurables.measure(constraints)
-        val width = placeable.width
-        val height = placeable.height
-        val windowContainerWidthInPx = windowContainerSize.width
-        val windowContainerHeightInPx = windowContainerSize.height
-        val tooltipWidth = width.toFloat()
-        val tooltipHeight = height.toFloat()
-        val anchorLayoutCoordinates = getAnchorLayoutCoordinates()
+    this.onLayoutRectChanged(throttleMillis = 64) { bounds ->
+        val anchorCoordinates = getAnchorLayoutCoordinates()
+        if (anchorCoordinates != null && anchorCoordinates.isAttached) {
+            val tooltipScreenPos = bounds.boundsInScreen
+            val anchorScreenPos = anchorCoordinates.positionOnScreen()
+            val tooltipWidth = bounds.width.toFloat()
+            val tooltipHeight = bounds.height.toFloat()
+            val anchorSize = anchorCoordinates.size
+            val anchorBounds = Rect(anchorScreenPos, anchorSize.toSize())
 
-        if (anchorLayoutCoordinates != null) {
-            val screenWidthPx: Int
-            val tooltipAnchorSpacing: Int
-            with(density) {
-                screenWidthPx = windowContainerWidthInPx
-                tooltipAnchorSpacing = SpacingBetweenTooltipAndAnchor.roundToPx()
-            }
-            val anchorBounds = anchorLayoutCoordinates.boundsInWindow()
-            val anchorTop = anchorBounds.top
-            val anchorBottom = anchorBounds.bottom
-            val anchorRight = anchorBounds.right
-            val anchorLeft = anchorBounds.left
-            val tooltipWidth: Float = tooltipWidth
-            val tooltipHeight: Float = tooltipHeight
+            val windowContainerWidthInPx = windowContainerSize.width
+            val screenWidthPx = windowContainerWidthInPx
+
+            val isBelow = tooltipScreenPos.top > anchorScreenPos.y
+            val isToTheRight = tooltipScreenPos.left > anchorScreenPos.x
+
             val caretY =
                 if (positionProvider is TooltipPositionProviderImpl) {
                     when (positionProvider.type) {
@@ -1213,108 +1228,40 @@ private fun Modifier.layoutCaret(
                         TooltipAnchorPosition.End -> {
                             tooltipHeight / 2
                         }
-                        TooltipAnchorPosition.Above -> {
-                            if (anchorTop - tooltipHeight - tooltipAnchorSpacing < 0) {
-                                0f
-                            } else {
-                                tooltipHeight
-                            }
-                        }
-                        TooltipAnchorPosition.Below -> {
-                            if (
-                                anchorBottom + tooltipHeight + tooltipAnchorSpacing >
-                                    windowContainerHeightInPx
-                            ) {
-                                tooltipHeight
-                            } else {
-                                0f
-                            }
-                        }
                         else -> {
-                            if (anchorTop - tooltipHeight - tooltipAnchorSpacing < 0) {
-                                0f
-                            } else {
-                                tooltipHeight
-                            }
+                            if (isBelow) 0f else tooltipHeight
                         }
                     }
                 } else {
-                    // If a custom position provider is given
-                    // we treat it like AbovePositionProvider.
-                    if (anchorTop - tooltipHeight - tooltipAnchorSpacing < 0) {
-                        0f
-                    } else {
-                        tooltipHeight
-                    }
+                    if (isBelow) 0f else tooltipHeight
                 }
 
             val position =
                 if (positionProvider is TooltipPositionProviderImpl) {
                     when (positionProvider.type) {
                         TooltipAnchorPosition.Left -> {
-                            val caretX =
-                                if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
-                                    // We are placing the tooltip to the right of the anchor
-                                    0f
-                                } else {
-                                    tooltipWidth
-                                }
+                            val caretX = if (isToTheRight) 0f else tooltipWidth
                             Offset(x = caretX, y = caretY)
                         }
                         TooltipAnchorPosition.Right -> {
-                            val caretX =
-                                if (
-                                    anchorRight + tooltipAnchorSpacing + tooltipWidth >
-                                        windowContainerWidthInPx
-                                ) {
-                                    // We are placing the tooltip to the left of the anchor
-                                    tooltipWidth
-                                } else {
-                                    0f
-                                }
+                            val caretX = if (!isToTheRight) tooltipWidth else 0f
                             Offset(x = caretX, y = caretY)
                         }
                         TooltipAnchorPosition.Start -> {
                             val caretX =
                                 if (layoutDirection == LayoutDirection.Ltr) {
-                                    if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
-                                        // We are placing the tooltip to the right of the anchor
-                                        0f
-                                    } else {
-                                        tooltipWidth
-                                    }
+                                    if (isToTheRight) 0f else tooltipWidth
                                 } else {
-                                    if (
-                                        anchorRight + tooltipAnchorSpacing + tooltipWidth >
-                                            windowContainerWidthInPx
-                                    ) {
-                                        // We are placing the tooltip to the left of the anchor
-                                        tooltipWidth
-                                    } else {
-                                        0f
-                                    }
+                                    if (!isToTheRight) tooltipWidth else 0f
                                 }
                             Offset(x = caretX, y = caretY)
                         }
                         TooltipAnchorPosition.End -> {
                             val caretX =
                                 if (layoutDirection == LayoutDirection.Ltr) {
-                                    if (
-                                        anchorRight + tooltipAnchorSpacing + tooltipWidth >
-                                            windowContainerWidthInPx
-                                    ) {
-                                        // We are placing the tooltip to the left of the anchor
-                                        tooltipWidth
-                                    } else {
-                                        0f
-                                    }
+                                    if (!isToTheRight) tooltipWidth else 0f
                                 } else {
-                                    if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
-                                        // We are placing the tooltip to the right of the anchor
-                                        0f
-                                    } else {
-                                        tooltipWidth
-                                    }
+                                    if (isToTheRight) 0f else tooltipWidth
                                 }
                             Offset(x = caretX, y = caretY)
                         }
@@ -1329,29 +1276,20 @@ private fun Modifier.layoutCaret(
                     Offset(x = caretX(tooltipWidth, screenWidthPx, anchorBounds), y = caretY)
                 }
 
-            // Translate matrix to position
             val matrix = Matrix()
             matrix.translate(x = position.x, y = position.y)
 
-            // We rotate matrix depending on positioning of the tooltip
             if (positionProvider is TooltipPositionProviderImpl) {
                 when (positionProvider.type) {
                     TooltipAnchorPosition.Left -> {
-                        // Need to rotate it about the z axis by 90 degrees
-                        if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
-                            // Tooltip is being placed to the right of the anchor
+                        if (isToTheRight) {
                             matrix.rotateZ(90f)
                         } else {
                             matrix.rotateZ(-90f)
                         }
                     }
                     TooltipAnchorPosition.Right -> {
-                        // Need to rotate it about the z axis by 90 degrees
-                        if (
-                            anchorRight + tooltipAnchorSpacing + tooltipWidth >
-                                windowContainerWidthInPx
-                        ) {
-                            // Tooltip is being placed to the left of the anchor
+                        if (!isToTheRight) {
                             matrix.rotateZ(-90f)
                         } else {
                             matrix.rotateZ(90f)
@@ -1359,20 +1297,13 @@ private fun Modifier.layoutCaret(
                     }
                     TooltipAnchorPosition.Start -> {
                         if (layoutDirection == LayoutDirection.Ltr) {
-                            // Need to rotate it about the z axis by 90 degrees
-                            if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
-                                // Tooltip is being placed to the right of the anchor
+                            if (isToTheRight) {
                                 matrix.rotateZ(90f)
                             } else {
                                 matrix.rotateZ(-90f)
                             }
                         } else {
-                            // Need to rotate it about the z axis by 90 degrees
-                            if (
-                                anchorRight + tooltipAnchorSpacing + tooltipWidth >
-                                    windowContainerWidthInPx
-                            ) {
-                                // Tooltip is being placed to the left of the anchor
+                            if (!isToTheRight) {
                                 matrix.rotateZ(-90f)
                             } else {
                                 matrix.rotateZ(90f)
@@ -1381,20 +1312,13 @@ private fun Modifier.layoutCaret(
                     }
                     TooltipAnchorPosition.End -> {
                         if (layoutDirection == LayoutDirection.Ltr) {
-                            // Need to rotate it about the z axis by 90 degrees
-                            if (
-                                anchorRight + tooltipAnchorSpacing + tooltipWidth >
-                                    windowContainerWidthInPx
-                            ) {
-                                // Tooltip is being placed to the left of the anchor
+                            if (!isToTheRight) {
                                 matrix.rotateZ(-90f)
                             } else {
                                 matrix.rotateZ(90f)
                             }
                         } else {
-                            // Need to rotate it about the z axis by 90 degrees
-                            if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
-                                // Tooltip is being placed to the right of the anchor
+                            if (isToTheRight) {
                                 matrix.rotateZ(90f)
                             } else {
                                 matrix.rotateZ(-90f)
@@ -1402,23 +1326,18 @@ private fun Modifier.layoutCaret(
                         }
                     }
                     else -> {
-                        if (caretY == 0f) {
-                            // caret needs to be placed above tooltip
-                            // Need to rotate it about the x axis by 180 degrees
+                        if (isBelow) {
                             matrix.rotateX(180f)
                         }
                     }
                 }
             } else {
-                if (caretY == 0f) {
-                    // caret needs to be placed above tooltip
-                    // Need to rotate it about the x axis by 180 degrees
+                if (isBelow) {
                     matrix.rotateX(180f)
                 }
             }
             transformationMatrix.value = matrix
         }
-        layout(width, height) { placeable.place(0, 0) }
     }
 
 /**
