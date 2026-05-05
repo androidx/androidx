@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.a2ui
+package androidx.a2ui.testapp
 
-import kotlin.test.Test
+import android.app.Application
 
-class PlaceholderTest {
-    @Test
-    fun placeholderTest() {
-        // TODO: delete this placeholder test after adding actual tests
-    }
-}
+class TestAppApplication : Application()

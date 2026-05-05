@@ -25,28 +25,23 @@ import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("AndroidXComposePlugin")
     id("com.android.library")
 }
 
 dependencies {
-    api(project(":a2ui:a2ui-core"))
+    api(libs.kotlinStdlib)
 
-    api("androidx.compose.runtime:runtime:1.10.0")
-
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testExtJunit)
+    testImplementation(libs.kotlinTest)
 }
 
 android {
-    namespace = "androidx.a2ui.compose"
+    namespace = "androidx.a2ui.core"
     compileSdk { version = release(35) }
 }
 
 androidx {
-    name = "A2UI Compose"
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    name = "A2UI Core"
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
-    description = "The Compose renderer for A2UI"
+    description = "The A2UI core data layer"
 }

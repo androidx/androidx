@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.a2ui
+package androidx.a2ui.testapp
 
-/**
- * Placeholder class for the A2UI library.
- *
- * TODO: Remove this once actual classes are added.
- */
-internal class Placeholder
+import android.app.Activity
+import android.os.Bundle
+
+class MainActivity : Activity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+}
