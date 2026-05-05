@@ -244,6 +244,7 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"প্ৰতিচ্ছবি আৰু কাৰ্যৰ ডেম’ সমাপ্ত কৰক"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"চিপৰ ডেম’"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"অগ্ৰগতিৰ দণ্ডৰ ডেম’"</string>
+    <string name="section_header_demo_title" msgid="4880150421750399922">"শাখাৰ হে’ডাৰৰ ডেম’"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"পে’নৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ঠাইৰ সূচীৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ঠাইসমূহ ব্ৰাউজ কৰক"</string>

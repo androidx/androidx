@@ -246,6 +246,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"تصویر اور کارروائیوں کا ڈیمو ختم کریں"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"چِپ ڈیمو"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"پیش رفت بار کا ڈیمو"</string>
+    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"پین کی تمثیل کا ڈیمو"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"مقام کی فہرست کی تمثیل کا ڈیمو"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"مقامات براؤز کریں"</string>
