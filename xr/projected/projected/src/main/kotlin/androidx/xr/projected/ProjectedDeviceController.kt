@@ -17,20 +17,30 @@
 package androidx.xr.projected
 
 import android.content.Context
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.xr.projected.ProjectedDeviceController.Companion.create
 import androidx.xr.projected.binding.ProjectedServiceConnection
 import androidx.xr.projected.binding.ProjectedServiceConnection.ProjectedIntentAction.Companion.ACTION_BIND
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import androidx.xr.projected.platform.IProjectedService
 
 /**
  * Controller for the Projected device.
  *
- * Use [create] to create an instance of this class.
+ * Use [create] to create an instance of this class. Call [close] when finished with this instance
+ * to release resources.
  */
 @ExperimentalProjectedApi
-public class ProjectedDeviceController private constructor(capabilitiesParam: Set<Capability>) {
+public class ProjectedDeviceController
+private constructor(
+    private val context: Context,
+    private val connection: ProjectedServiceConnection,
+    private val projectedService: IProjectedService,
+    capabilitiesParam: Set<Capability>,
+) : AutoCloseable {
 
     /**
      * Represents an intrinsic piece of functionality of a Projected device, i.e., what it is
@@ -65,10 +75,39 @@ public class ProjectedDeviceController private constructor(capabilitiesParam: Se
      */
     public val capabilities: Set<Capability> = capabilitiesParam
 
+    /** Returns the list of [AudioDeviceInfo] objects associated with the projected device. */
+    public val audioDevices: List<AudioDeviceInfo>
+        get() = getAudioDevicesInternal()
+
+    /**
+     * Releases resources, unregistering any active listeners. This instance should not be used
+     * after calling close.
+     */
+    override fun close() {
+        connection.disconnect()
+    }
+
+    private fun getAudioDevicesInternal(): List<AudioDeviceInfo> {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        val allAudioDevices: Array<AudioDeviceInfo> =
+            audioManager.getDevices(
+                AudioManager.GET_DEVICES_OUTPUTS or AudioManager.GET_DEVICES_INPUTS
+            )
+
+        val projectedAudioDeviceIds = projectedService.audioDeviceIds
+
+        return allAudioDevices
+            .filter { deviceInfo -> deviceInfo.id in projectedAudioDeviceIds }
+            .toList()
+    }
+
     public companion object {
         /**
          * Connects to the service providing features for Projected devices and returns the
-         * [ProjectedDisplayController] when the connection is established.
+         * [ProjectedDeviceController] when the connection is established. The caller is responsible
+         * for calling [close] on the returned instance when it's no longer needed to release all
+         * internal resources.
          *
          * @param context The context to use for binding to the service.
          * @throws IllegalStateException if the projected service is not found or binding is not
@@ -80,11 +119,20 @@ public class ProjectedDeviceController private constructor(capabilitiesParam: Se
             val serviceConnection = ProjectedServiceConnection(context, ACTION_BIND)
             val projectedService = serviceConnection.connect()
             val capabilities =
-                if (projectedService.isDisplayCapable()) setOf(Capability.CAPABILITY_VISUAL_UI)
-                else setOf()
-            serviceConnection.disconnect()
+                try {
+                    if (projectedService.isDisplayCapable()) setOf(Capability.CAPABILITY_VISUAL_UI)
+                    else setOf()
+                } catch (e: Exception) {
+                    serviceConnection.disconnect()
+                    throw e
+                }
 
-            return ProjectedDeviceController(capabilities)
+            return ProjectedDeviceController(
+                context,
+                serviceConnection,
+                projectedService,
+                capabilities,
+            )
         }
     }
 }
