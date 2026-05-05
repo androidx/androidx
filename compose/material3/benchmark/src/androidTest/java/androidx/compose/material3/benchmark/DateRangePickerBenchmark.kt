@@ -52,7 +52,7 @@ class DateRangePickerBenchmark {
 
     @Test
     fun dateRangeInput_firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(dateRangeInputTestCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(dateRangeInputTestCaseFactory)
     }
 
     @Ignore

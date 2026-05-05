@@ -153,6 +153,7 @@ package androidx.compose.foundation {
     property public boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     property public boolean isBasicTextFieldHeightInLinesOptimizationEnabled;
     property public boolean isBasicTextFieldMinSizeOptimizationEnabled;
+    property public boolean isBasicTextFieldSizeOptimizationEnabled;
     property public boolean isCacheWindowForPagerEnabled;
     property public boolean isClearNestedScrollCoroutineScopeFixEnabled;
     property public boolean isConcurrentTextFieldSelectionFixEnabled;
@@ -167,6 +168,7 @@ package androidx.compose.foundation {
     field public static boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     field public static boolean isBasicTextFieldHeightInLinesOptimizationEnabled;
     field public static boolean isBasicTextFieldMinSizeOptimizationEnabled;
+    field public static boolean isBasicTextFieldSizeOptimizationEnabled;
     field public static boolean isCacheWindowForPagerEnabled;
     field public static boolean isClearNestedScrollCoroutineScopeFixEnabled;
     field public static boolean isConcurrentTextFieldSelectionFixEnabled;

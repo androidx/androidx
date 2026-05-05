@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
@@ -48,7 +49,7 @@ class DatePickerBenchmark {
 
     @Test
     fun dateInput_firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(dateInputTestCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(dateInputTestCaseFactory)
     }
 
     @Ignore

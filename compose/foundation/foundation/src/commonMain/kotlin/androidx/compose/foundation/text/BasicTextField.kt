@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ComposeFoundationFlags.isBasicTextFieldSizeOptimizationEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
@@ -478,9 +479,17 @@ internal fun BasicTextField(
                     maxLines = 1
                 }
 
-                Box(
-                    propagateMinConstraints = true,
-                    modifier =
+                @OptIn(ExperimentalFoundationApi::class)
+                val textFieldSize =
+                    if (isBasicTextFieldSizeOptimizationEnabled) {
+                        Modifier.textFieldSize(
+                            textStyle = textStyle,
+                            singleLineHeightProvider = textLayoutState,
+                            minLines = minLines,
+                            maxLines = maxLines,
+                            softWrap = !singleLine,
+                        )
+                    } else {
                         Modifier.heightForSingleLineField(textLayoutState)
                             .heightInLines(
                                 textStyle = textStyle,
@@ -489,6 +498,11 @@ internal fun BasicTextField(
                                 softWrap = !singleLine,
                             )
                             .textFieldMinSize(textStyle)
+                    }
+                Box(
+                    propagateMinConstraints = true,
+                    modifier =
+                        textFieldSize
                             .clipToBounds()
                             .then(
                                 TextFieldCoreModifier(
@@ -549,6 +563,7 @@ private fun Modifier.heightForSingleLineField(textLayoutState: TextLayoutState) 
                         maxHeight = if (height == 0.dp) Constraints.Infinity else heightPx,
                     )
                 )
+
             val placeable = measurable.measure(wrappedConstraints)
             layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
         }
