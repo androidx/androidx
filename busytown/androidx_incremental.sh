@@ -76,9 +76,6 @@ else
     echo build failed
     EXIT_VALUE=1
     fi
-
-    # Parse performance profile reports (generated with the --profile option) and re-export the metrics in an easily machine-readable format for tracking
-    impl/parse_profile_data.sh
 fi
 
 record_build_metrics "$start_time"

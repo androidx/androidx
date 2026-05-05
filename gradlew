@@ -251,8 +251,7 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
        -Pandroidx.enableAffectedModuleDetection\
        -Pandroidx.printTimestamps\
        --no-watch-fs\
-       -Pandroidx.highMemory\
-       --profile"
+       -Pandroidx.highMemory"
     fi
   fi
   if [ "$compact" == "--strict" ]; then
@@ -298,11 +297,6 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
     done
   fi
 done
-
-# workaround for https://github.com/gradle/gradle/issues/18386
-if [[ " ${@} " =~ " --profile " ]]; then
-  mkdir -p reports
-fi
 
 # automatically raise memory if machine memory is more than 32GB
 HIGH_MEM_THRESHOLD_KB=$(( 64 * 1024 * 1024 ))  # 64 GB in KB
