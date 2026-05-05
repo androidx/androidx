@@ -98,6 +98,118 @@ public fun <T> updateTransition(targetState: T, label: String? = null): Transiti
     return transition
 }
 
+/**
+ * A [TransitionState] that supports a deferred phase before the automatic transition begins.
+ *
+ * This state is designed for scenarios where a transition should be held in an intermediate,
+ * manually-controlled state (e.g., during a predictive back gesture) before proceeding to its final
+ * target.
+ *
+ * While in the deferred phase (initiated by [defer]), the transition holds the new target as a
+ * [pendingTargetState]. The actual [targetState] remains unchanged, keeping the transition in its
+ * current visual state. Once [animateTo] is called, the [pendingTargetState] is cleared and the
+ * transition proceeds to the new [targetState], triggering its automatic animations.
+ *
+ * @param initialState The initial state of the transition.
+ */
+@ExperimentalDeferredTransitionApi
+public class DeferredTransitionState<S>(initialState: S) : TransitionState<S>() {
+    override var currentState: S by mutableStateOf(initialState)
+
+    override var targetState: S by mutableStateOf(initialState)
+
+    /**
+     * The target state that the transition will eventually animate to once the deferred phase ends.
+     *
+     * This value is set when [defer] is called and cleared when [animateTo] is called, at which
+     * point [targetState] will be updated to the new state.
+     */
+    public var pendingTargetState: S? by mutableStateOf(null)
+        internal set
+
+    /**
+     * Updates the [pendingTargetState] and initiates the deferred phase.
+     *
+     * During this phase, the transition's [targetState] remains unchanged, keeping the transition
+     * in its current visual state. However, the new target is exposed via [pendingTargetState],
+     * signaling to transition-aware components that a state change is pending. They can then use
+     * this information to perform early setup or apply custom logic for the pending state before
+     * the automatic transition is eventually started via [animateTo].
+     *
+     * If [defer] is called while an animation is already in progress (i.e., [currentState] !=
+     * [targetState]), the animation will continue toward its current [targetState] while
+     * [pendingTargetState] is set. This allows components to respond to the pending state early,
+     * potentially concurrently with the ongoing animation.
+     *
+     * @param targetState The state the transition should eventually animate to.
+     */
+    public fun defer(targetState: S) {
+        if (this.targetState == targetState) {
+            pendingTargetState = null
+        } else {
+            pendingTargetState = targetState
+        }
+    }
+
+    /**
+     * Clears the [pendingTargetState] and updates the [targetState] to the provided [targetState],
+     * ending the deferred phase and starting the automatic transition animation.
+     *
+     * Note: The [targetState] provided here does not need to match the previous
+     * [pendingTargetState]. If a different state is provided, the transition will animate directly
+     * to this new state, bypassing the previously deferred target.
+     *
+     * @param targetState The final target state for the transition.
+     */
+    public fun animateTo(targetState: S) {
+        pendingTargetState = null
+        this.targetState = targetState
+    }
+
+    override fun transitionConfigured(transition: Transition<S>) {}
+
+    override fun transitionRemoved() {}
+}
+
+/**
+ * A [Transition] that supports a deferred phase, created via [rememberTransition].
+ *
+ * [DeferredTransition] extends the standard [Transition] to allow manual manipulation of
+ * transformation properties before the automatic transition begins. This is particularly useful for
+ * coordinating multi-stage animations like predictive back gestures.
+ */
+@Stable
+@ExperimentalDeferredTransitionApi
+public class DeferredTransition<S>
+internal constructor(transitionState: DeferredTransitionState<S>, label: String? = null) :
+    Transition<S>(transitionState, null, label)
+
+/**
+ * Creates and remembers a [DeferredTransition] for a given [DeferredTransitionState].
+ *
+ * A [DeferredTransition] allows for a two-stage state update:
+ * 1. **Deferred Phase:** Initiated by [DeferredTransitionState.defer]. The transition's
+ *    `targetState` remains unchanged, while the new target is exposed via `pendingTargetState`.
+ *    This allows higher-level components to implement custom behavior (e.g., manual gesture
+ *    tracking) while the automatic transition is "held".
+ * 2. **Automatic Phase:** Initiated by [DeferredTransitionState.animateTo]. The
+ *    `pendingTargetState` is cleared and `targetState` is updated, starting the automatic
+ *    transition animations.
+ *
+ * @param transitionState The [DeferredTransitionState] that manages the current and target states.
+ * @param label An optional label for the transition to be displayed in Android Studio's Animation
+ *   Preview.
+ * @return A [DeferredTransition] that will update whenever [transitionState] changes.
+ */
+@ExperimentalDeferredTransitionApi
+@Composable
+public fun <T> rememberTransition(
+    transitionState: DeferredTransitionState<T>,
+    label: String? = null,
+): DeferredTransition<T> {
+    return rememberTransition(transitionState as TransitionState<T>, label) as DeferredTransition<T>
+}
+
 internal const val AnimationDebugDurationScale = 1
 
 /**
@@ -816,7 +928,14 @@ public fun <T> rememberTransition(
             // recomposition on some state changes even though the lambda will not be invoked again.
             // Tracked at b/392921611. Until this is fixed, we need to explicitly disable state
             // observation in remember.
-            Snapshot.withoutReadObservation { Transition(transitionState = transitionState, label) }
+            Snapshot.withoutReadObservation {
+                @OptIn(ExperimentalDeferredTransitionApi::class)
+                if (transitionState is DeferredTransitionState) {
+                    DeferredTransition(transitionState, label)
+                } else {
+                    Transition(transitionState, label)
+                }
+            }
         }
     if (transitionState is SeekableTransitionState) {
         val coroutineScope = rememberCoroutineScope()
@@ -842,6 +961,10 @@ public fun <T> rememberTransition(
         }
     } else {
         transition.animateTo(transitionState.targetState)
+        @OptIn(ExperimentalDeferredTransitionApi::class)
+        if (transitionState is DeferredTransitionState) {
+            transition.updatePendingTarget(transitionState.pendingTargetState)
+        }
     }
     DisposableEffect(transition) {
         onDispose {
@@ -905,7 +1028,7 @@ public fun <T> updateTransition(
  */
 // TODO: Support creating Transition outside of composition and support imperative use of Transition
 @Stable
-public class Transition<S>
+public open class Transition<S>
 internal constructor(
     private val transitionState: TransitionState<S>,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val parentTransition: Transition<*>?,
@@ -942,6 +1065,19 @@ internal constructor(
      */
     public var targetState: S by mutableStateOf(currentState)
         internal set
+
+    /**
+     * Pending target state of the transition. This is the state that the transition is waiting to
+     * animate to. It is non-null only when a deferred update is in progress.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var pendingTargetState: S? by mutableStateOf(null)
+        private set
+
+    @PublishedApi
+    internal fun updatePendingTarget(value: S?) {
+        pendingTargetState = value
+    }
 
     /**
      * [segment] contains the initial state and the target state of the currently on-going
@@ -1097,10 +1233,12 @@ internal constructor(
     }
 
     // onTransitionStart and onTransitionEnd are symmetric. Both are called from onFrame
-    @OptIn(InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
     internal fun onTransitionEnd() {
         startTimeNanos = AnimationConstants.UnspecifiedTime
-        if (transitionState is MutableTransitionState) {
+        if (
+            transitionState is MutableTransitionState || transitionState is DeferredTransitionState
+        ) {
             transitionState.currentState = targetState
         }
         playTimeNanos = 0
@@ -1123,7 +1261,7 @@ internal constructor(
      * the [Transition] will not resume normal animation runs.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @OptIn(InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
     @JvmName("seek")
     public fun setPlaytimeAfterInitialAndTargetStateEstablished(
         initialState: S,
@@ -1135,7 +1273,11 @@ internal constructor(
         transitionState.isRunning = false
         if (!isSeeking || this.currentState != initialState || this.targetState != targetState) {
             // Reset all child animations
-            if (currentState != initialState && transitionState is MutableTransitionState) {
+            if (
+                currentState != initialState &&
+                    (transitionState is MutableTransitionState ||
+                        transitionState is DeferredTransitionState)
+            ) {
                 transitionState.currentState = initialState
             }
             this.targetState = targetState
@@ -1556,16 +1698,33 @@ internal constructor(
 
         // This gets called *during* composition
         @OptIn(InternalAnimationApi::class)
-        internal fun updateTargetValue(targetValue: T, animationSpec: FiniteAnimationSpec<T>) {
+        internal fun updateTargetValue(
+            targetValue: T,
+            animationSpec: FiniteAnimationSpec<T>,
+            forcedInitialValue: T? = null,
+            forcedInitialVelocity: V? = null,
+        ) {
             if (useOnlyInitialValue && targetValue == initialValueAnimation?.targetValue) {
                 return // we're already animating to the target value through the initial value
             }
-            if (this.targetValue == targetValue && resetSnapValue == NoReset) {
+            if (
+                this.targetValue == targetValue &&
+                    resetSnapValue == NoReset &&
+                    (forcedInitialValue == null || forcedInitialValue == animation.initialValue)
+            ) {
                 return // nothing to change. Just continue the existing animation.
             }
             this.targetValue = targetValue
             this.animationSpec = animationSpec
-            val initialValue = if (resetSnapValue == ResetAnimationSnap) targetValue else value
+            val initialValue =
+                forcedInitialValue
+                    ?: if (resetSnapValue == ResetAnimationSnap) targetValue else value
+            if (forcedInitialValue != null) {
+                value = initialValue
+                if (forcedInitialVelocity != null) {
+                    velocityVector = forcedInitialVelocity
+                }
+            }
             updateAnimation(initialValue, isInterrupted = !isFinished)
             isFinished = resetSnapValue == ResetAnimationSnap
             // This is needed because the target change could happen during a transition
@@ -1650,7 +1809,11 @@ internal constructor(
             var transitionSpec: Segment<S>.() -> FiniteAnimationSpec<T>,
             var targetValueByState: (state: S) -> T,
         ) : State<T> {
-            fun updateAnimationStates(segment: Segment<S>) {
+            fun updateAnimationStates(
+                segment: Segment<S>,
+                forcedInitialValue: T? = null,
+                forcedInitialVelocity: V? = null,
+            ) {
                 val targetValue = targetValueByState(segment.targetState)
                 if (isSeeking) {
                     val initialValue = targetValueByState(segment.initialState)
@@ -1661,7 +1824,12 @@ internal constructor(
                         segment.transitionSpec(),
                     )
                 } else {
-                    animation.updateTargetValue(targetValue, segment.transitionSpec())
+                    animation.updateTargetValue(
+                        targetValue,
+                        segment.transitionSpec(),
+                        forcedInitialValue,
+                        forcedInitialVelocity,
+                    )
                 }
             }
 
@@ -1681,6 +1849,21 @@ internal constructor(
          */
         public fun animate(
             transitionSpec: Segment<S>.() -> FiniteAnimationSpec<T>,
+            targetValueByState: (state: S) -> T,
+        ): State<T> = animate(transitionSpec, null, null, targetValueByState)
+
+        /**
+         * [DeferredAnimation] allows the animation setup to be deferred until a later time after
+         * composition. [animate] can be used to set up a [DeferredAnimation]. Like other Transition
+         * animations such as [Transition.animateFloat], [DeferredAnimation] also expects
+         * [transitionSpec] and [targetValueByState] for the mapping from target state to animation
+         * spec and target value, respectively.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun animate(
+            transitionSpec: Segment<S>.() -> FiniteAnimationSpec<T>,
+            forcedInitialValue: T? = null,
+            forcedInitialVelocity: V? = null,
             targetValueByState: (state: S) -> T,
         ): State<T> {
             val animData: DeferredAnimationData<T, V> =
@@ -1706,7 +1889,7 @@ internal constructor(
                 this.targetValueByState = targetValueByState
                 this.transitionSpec = transitionSpec
 
-                updateAnimationStates(segment)
+                updateAnimationStates(segment, forcedInitialValue, forcedInitialVelocity)
             }
         }
 
@@ -1789,7 +1972,12 @@ public inline fun <S, T> Transition<S>.createChildTransition(
     val initialParentState = remember(this) { this.currentState }
     val initialState = transformToChildState(if (isSeeking) currentState else initialParentState)
     val targetState = transformToChildState(this.targetState)
-    return createChildTransitionInternal(initialState, targetState, label)
+    val childTransition = createChildTransitionInternal(initialState, targetState, label)
+    if (!isSeeking) {
+        val pendingTargetState = pendingTargetState?.let { transformToChildState(it) }
+        childTransition.updatePendingTarget(pendingTargetState)
+    }
+    return childTransition
 }
 
 @PublishedApi

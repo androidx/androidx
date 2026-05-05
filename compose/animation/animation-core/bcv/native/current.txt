@@ -14,6 +14,10 @@ open annotation class androidx.compose.animation.core/ExperimentalAnimationSpecA
     constructor <init>() // androidx.compose.animation.core/ExperimentalAnimationSpecApi.<init>|<init>(){}[0]
 }
 
+open annotation class androidx.compose.animation.core/ExperimentalDeferredTransitionApi : kotlin/Annotation { // androidx.compose.animation.core/ExperimentalDeferredTransitionApi|null[0]
+    constructor <init>() // androidx.compose.animation.core/ExperimentalDeferredTransitionApi.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.compose.animation.core/ExperimentalTransitionApi : kotlin/Annotation { // androidx.compose.animation.core/ExperimentalTransitionApi|null[0]
     constructor <init>() // androidx.compose.animation.core/ExperimentalTransitionApi.<init>|<init>(){}[0]
 }
@@ -364,6 +368,22 @@ final class <#A: kotlin/Any?, #B: androidx.compose.animation.core/AnimationVecto
     final fun toString(): kotlin/String // androidx.compose.animation.core/TargetBasedAnimation.toString|toString(){}[0]
 }
 
+final class <#A: kotlin/Any?> androidx.compose.animation.core/DeferredTransition : androidx.compose.animation.core/Transition<#A> // androidx.compose.animation.core/DeferredTransition|null[0]
+
+final class <#A: kotlin/Any?> androidx.compose.animation.core/DeferredTransitionState : androidx.compose.animation.core/TransitionState<#A> { // androidx.compose.animation.core/DeferredTransitionState|null[0]
+    constructor <init>(#A) // androidx.compose.animation.core/DeferredTransitionState.<init>|<init>(1:0){}[0]
+
+    final var currentState // androidx.compose.animation.core/DeferredTransitionState.currentState|{}currentState[0]
+        final fun <get-currentState>(): #A // androidx.compose.animation.core/DeferredTransitionState.currentState.<get-currentState>|<get-currentState>(){}[0]
+    final var pendingTargetState // androidx.compose.animation.core/DeferredTransitionState.pendingTargetState|{}pendingTargetState[0]
+        final fun <get-pendingTargetState>(): #A? // androidx.compose.animation.core/DeferredTransitionState.pendingTargetState.<get-pendingTargetState>|<get-pendingTargetState>(){}[0]
+    final var targetState // androidx.compose.animation.core/DeferredTransitionState.targetState|{}targetState[0]
+        final fun <get-targetState>(): #A // androidx.compose.animation.core/DeferredTransitionState.targetState.<get-targetState>|<get-targetState>(){}[0]
+
+    final fun animateTo(#A) // androidx.compose.animation.core/DeferredTransitionState.animateTo|animateTo(1:0){}[0]
+    final fun defer(#A) // androidx.compose.animation.core/DeferredTransitionState.defer|defer(1:0){}[0]
+}
+
 final class <#A: kotlin/Any?> androidx.compose.animation.core/InfiniteRepeatableSpec : androidx.compose.animation.core/AnimationSpec<#A> { // androidx.compose.animation.core/InfiniteRepeatableSpec|null[0]
     constructor <init>(androidx.compose.animation.core/DurationBasedAnimationSpec<#A>, androidx.compose.animation.core/RepeatMode = ...) // androidx.compose.animation.core/InfiniteRepeatableSpec.<init>|<init>(androidx.compose.animation.core.DurationBasedAnimationSpec<1:0>;androidx.compose.animation.core.RepeatMode){}[0]
     constructor <init>(androidx.compose.animation.core/DurationBasedAnimationSpec<#A>, androidx.compose.animation.core/RepeatMode = ..., androidx.compose.animation.core/StartOffset = ...) // androidx.compose.animation.core/InfiniteRepeatableSpec.<init>|<init>(androidx.compose.animation.core.DurationBasedAnimationSpec<1:0>;androidx.compose.animation.core.RepeatMode;androidx.compose.animation.core.StartOffset){}[0]
@@ -487,73 +507,6 @@ final class <#A: kotlin/Any?> androidx.compose.animation.core/SpringSpec : andro
     final fun <#A1: androidx.compose.animation.core/AnimationVector> vectorize(androidx.compose.animation.core/TwoWayConverter<#A, #A1>): androidx.compose.animation.core/VectorizedSpringSpec<#A1> // androidx.compose.animation.core/SpringSpec.vectorize|vectorize(androidx.compose.animation.core.TwoWayConverter<1:0,0:0>){0§<androidx.compose.animation.core.AnimationVector>}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.animation.core/SpringSpec.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.animation.core/SpringSpec.hashCode|hashCode(){}[0]
-}
-
-final class <#A: kotlin/Any?> androidx.compose.animation.core/Transition { // androidx.compose.animation.core/Transition|null[0]
-    constructor <init>(androidx.compose.animation.core/MutableTransitionState<#A>, kotlin/String? = ...) // androidx.compose.animation.core/Transition.<init>|<init>(androidx.compose.animation.core.MutableTransitionState<1:0>;kotlin.String?){}[0]
-    constructor <init>(androidx.compose.animation.core/TransitionState<#A>, kotlin/String? = ...) // androidx.compose.animation.core/Transition.<init>|<init>(androidx.compose.animation.core.TransitionState<1:0>;kotlin.String?){}[0]
-
-    final val animations // androidx.compose.animation.core/Transition.animations|{}animations[0]
-        final fun <get-animations>(): kotlin.collections/List<androidx.compose.animation.core/Transition.TransitionAnimationState<*, *, #A>> // androidx.compose.animation.core/Transition.animations.<get-animations>|<get-animations>(){}[0]
-    final val currentState // androidx.compose.animation.core/Transition.currentState|{}currentState[0]
-        final fun <get-currentState>(): #A // androidx.compose.animation.core/Transition.currentState.<get-currentState>|<get-currentState>(){}[0]
-    final val isRunning // androidx.compose.animation.core/Transition.isRunning|{}isRunning[0]
-        final fun <get-isRunning>(): kotlin/Boolean // androidx.compose.animation.core/Transition.isRunning.<get-isRunning>|<get-isRunning>(){}[0]
-    final val label // androidx.compose.animation.core/Transition.label|{}label[0]
-        final fun <get-label>(): kotlin/String? // androidx.compose.animation.core/Transition.label.<get-label>|<get-label>(){}[0]
-    final val parentTransition // androidx.compose.animation.core/Transition.parentTransition|{}parentTransition[0]
-        final fun <get-parentTransition>(): androidx.compose.animation.core/Transition<*>? // androidx.compose.animation.core/Transition.parentTransition.<get-parentTransition>|<get-parentTransition>(){}[0]
-    final val totalDurationNanos // androidx.compose.animation.core/Transition.totalDurationNanos|{}totalDurationNanos[0]
-        final fun <get-totalDurationNanos>(): kotlin/Long // androidx.compose.animation.core/Transition.totalDurationNanos.<get-totalDurationNanos>|<get-totalDurationNanos>(){}[0]
-    final val transitions // androidx.compose.animation.core/Transition.transitions|{}transitions[0]
-        final fun <get-transitions>(): kotlin.collections/List<androidx.compose.animation.core/Transition<*>> // androidx.compose.animation.core/Transition.transitions.<get-transitions>|<get-transitions>(){}[0]
-
-    final var isSeeking // androidx.compose.animation.core/Transition.isSeeking|{}isSeeking[0]
-        final fun <get-isSeeking>(): kotlin/Boolean // androidx.compose.animation.core/Transition.isSeeking.<get-isSeeking>|<get-isSeeking>(){}[0]
-    final var playTimeNanos // androidx.compose.animation.core/Transition.playTimeNanos|{}playTimeNanos[0]
-        final fun <get-playTimeNanos>(): kotlin/Long // androidx.compose.animation.core/Transition.playTimeNanos.<get-playTimeNanos>|<get-playTimeNanos>(){}[0]
-        final fun <set-playTimeNanos>(kotlin/Long) // androidx.compose.animation.core/Transition.playTimeNanos.<set-playTimeNanos>|<set-playTimeNanos>(kotlin.Long){}[0]
-    final var segment // androidx.compose.animation.core/Transition.segment|{}segment[0]
-        final fun <get-segment>(): androidx.compose.animation.core/Transition.Segment<#A> // androidx.compose.animation.core/Transition.segment.<get-segment>|<get-segment>(){}[0]
-    final var targetState // androidx.compose.animation.core/Transition.targetState|{}targetState[0]
-        final fun <get-targetState>(): #A // androidx.compose.animation.core/Transition.targetState.<get-targetState>|<get-targetState>(){}[0]
-
-    final fun setPlaytimeAfterInitialAndTargetStateEstablished(#A, #A, kotlin/Long) // androidx.compose.animation.core/Transition.setPlaytimeAfterInitialAndTargetStateEstablished|setPlaytimeAfterInitialAndTargetStateEstablished(1:0;1:0;kotlin.Long){}[0]
-    final fun toString(): kotlin/String // androidx.compose.animation.core/Transition.toString|toString(){}[0]
-
-    abstract interface <#A1: kotlin/Any?> Segment { // androidx.compose.animation.core/Transition.Segment|null[0]
-        abstract val initialState // androidx.compose.animation.core/Transition.Segment.initialState|{}initialState[0]
-            abstract fun <get-initialState>(): #A1 // androidx.compose.animation.core/Transition.Segment.initialState.<get-initialState>|<get-initialState>(){}[0]
-        abstract val targetState // androidx.compose.animation.core/Transition.Segment.targetState|{}targetState[0]
-            abstract fun <get-targetState>(): #A1 // androidx.compose.animation.core/Transition.Segment.targetState.<get-targetState>|<get-targetState>(){}[0]
-
-        open fun (#A1).isTransitioningTo(#A1): kotlin/Boolean // androidx.compose.animation.core/Transition.Segment.isTransitioningTo|isTransitioningTo@1:0(1:0){}[0]
-    }
-
-    final inner class <#A1: kotlin/Any?, #B1: androidx.compose.animation.core/AnimationVector> DeferredAnimation { // androidx.compose.animation.core/Transition.DeferredAnimation|null[0]
-        final val label // androidx.compose.animation.core/Transition.DeferredAnimation.label|{}label[0]
-            final fun <get-label>(): kotlin/String // androidx.compose.animation.core/Transition.DeferredAnimation.label.<get-label>|<get-label>(){}[0]
-        final val typeConverter // androidx.compose.animation.core/Transition.DeferredAnimation.typeConverter|{}typeConverter[0]
-            final fun <get-typeConverter>(): androidx.compose.animation.core/TwoWayConverter<#A1, #B1> // androidx.compose.animation.core/Transition.DeferredAnimation.typeConverter.<get-typeConverter>|<get-typeConverter>(){}[0]
-
-        final fun animate(kotlin/Function1<androidx.compose.animation.core/Transition.Segment<#A>, androidx.compose.animation.core/FiniteAnimationSpec<#A1>>, kotlin/Function1<#A, #A1>): androidx.compose.runtime/State<#A1> // androidx.compose.animation.core/Transition.DeferredAnimation.animate|animate(kotlin.Function1<androidx.compose.animation.core.Transition.Segment<2:0>,androidx.compose.animation.core.FiniteAnimationSpec<1:0>>;kotlin.Function1<2:0,1:0>){}[0]
-    }
-
-    final inner class <#A1: kotlin/Any?, #B1: androidx.compose.animation.core/AnimationVector> TransitionAnimationState : androidx.compose.runtime/State<#A1> { // androidx.compose.animation.core/Transition.TransitionAnimationState|null[0]
-        final val label // androidx.compose.animation.core/Transition.TransitionAnimationState.label|{}label[0]
-            final fun <get-label>(): kotlin/String // androidx.compose.animation.core/Transition.TransitionAnimationState.label.<get-label>|<get-label>(){}[0]
-        final val typeConverter // androidx.compose.animation.core/Transition.TransitionAnimationState.typeConverter|{}typeConverter[0]
-            final fun <get-typeConverter>(): androidx.compose.animation.core/TwoWayConverter<#A1, #B1> // androidx.compose.animation.core/Transition.TransitionAnimationState.typeConverter.<get-typeConverter>|<get-typeConverter>(){}[0]
-
-        final var animation // androidx.compose.animation.core/Transition.TransitionAnimationState.animation|{}animation[0]
-            final fun <get-animation>(): androidx.compose.animation.core/TargetBasedAnimation<#A1, #B1> // androidx.compose.animation.core/Transition.TransitionAnimationState.animation.<get-animation>|<get-animation>(){}[0]
-        final var animationSpec // androidx.compose.animation.core/Transition.TransitionAnimationState.animationSpec|{}animationSpec[0]
-            final fun <get-animationSpec>(): androidx.compose.animation.core/FiniteAnimationSpec<#A1> // androidx.compose.animation.core/Transition.TransitionAnimationState.animationSpec.<get-animationSpec>|<get-animationSpec>(){}[0]
-        final var value // androidx.compose.animation.core/Transition.TransitionAnimationState.value|{}value[0]
-            final fun <get-value>(): #A1 // androidx.compose.animation.core/Transition.TransitionAnimationState.value.<get-value>|<get-value>(){}[0]
-
-        final fun toString(): kotlin/String // androidx.compose.animation.core/Transition.TransitionAnimationState.toString|toString(){}[0]
-    }
 }
 
 final class <#A: kotlin/Any?> androidx.compose.animation.core/TweenSpec : androidx.compose.animation.core/DurationBasedAnimationSpec<#A> { // androidx.compose.animation.core/TweenSpec|null[0]
@@ -743,6 +696,77 @@ final value class androidx.compose.animation.core/StartOffsetType { // androidx.
     }
 }
 
+open class <#A: kotlin/Any?> androidx.compose.animation.core/Transition { // androidx.compose.animation.core/Transition|null[0]
+    constructor <init>(androidx.compose.animation.core/MutableTransitionState<#A>, kotlin/String? = ...) // androidx.compose.animation.core/Transition.<init>|<init>(androidx.compose.animation.core.MutableTransitionState<1:0>;kotlin.String?){}[0]
+    constructor <init>(androidx.compose.animation.core/TransitionState<#A>, kotlin/String? = ...) // androidx.compose.animation.core/Transition.<init>|<init>(androidx.compose.animation.core.TransitionState<1:0>;kotlin.String?){}[0]
+
+    final val animations // androidx.compose.animation.core/Transition.animations|{}animations[0]
+        final fun <get-animations>(): kotlin.collections/List<androidx.compose.animation.core/Transition.TransitionAnimationState<*, *, #A>> // androidx.compose.animation.core/Transition.animations.<get-animations>|<get-animations>(){}[0]
+    final val currentState // androidx.compose.animation.core/Transition.currentState|{}currentState[0]
+        final fun <get-currentState>(): #A // androidx.compose.animation.core/Transition.currentState.<get-currentState>|<get-currentState>(){}[0]
+    final val isRunning // androidx.compose.animation.core/Transition.isRunning|{}isRunning[0]
+        final fun <get-isRunning>(): kotlin/Boolean // androidx.compose.animation.core/Transition.isRunning.<get-isRunning>|<get-isRunning>(){}[0]
+    final val label // androidx.compose.animation.core/Transition.label|{}label[0]
+        final fun <get-label>(): kotlin/String? // androidx.compose.animation.core/Transition.label.<get-label>|<get-label>(){}[0]
+    final val parentTransition // androidx.compose.animation.core/Transition.parentTransition|{}parentTransition[0]
+        final fun <get-parentTransition>(): androidx.compose.animation.core/Transition<*>? // androidx.compose.animation.core/Transition.parentTransition.<get-parentTransition>|<get-parentTransition>(){}[0]
+    final val totalDurationNanos // androidx.compose.animation.core/Transition.totalDurationNanos|{}totalDurationNanos[0]
+        final fun <get-totalDurationNanos>(): kotlin/Long // androidx.compose.animation.core/Transition.totalDurationNanos.<get-totalDurationNanos>|<get-totalDurationNanos>(){}[0]
+    final val transitions // androidx.compose.animation.core/Transition.transitions|{}transitions[0]
+        final fun <get-transitions>(): kotlin.collections/List<androidx.compose.animation.core/Transition<*>> // androidx.compose.animation.core/Transition.transitions.<get-transitions>|<get-transitions>(){}[0]
+
+    final var isSeeking // androidx.compose.animation.core/Transition.isSeeking|{}isSeeking[0]
+        final fun <get-isSeeking>(): kotlin/Boolean // androidx.compose.animation.core/Transition.isSeeking.<get-isSeeking>|<get-isSeeking>(){}[0]
+    final var pendingTargetState // androidx.compose.animation.core/Transition.pendingTargetState|{}pendingTargetState[0]
+        final fun <get-pendingTargetState>(): #A? // androidx.compose.animation.core/Transition.pendingTargetState.<get-pendingTargetState>|<get-pendingTargetState>(){}[0]
+    final var playTimeNanos // androidx.compose.animation.core/Transition.playTimeNanos|{}playTimeNanos[0]
+        final fun <get-playTimeNanos>(): kotlin/Long // androidx.compose.animation.core/Transition.playTimeNanos.<get-playTimeNanos>|<get-playTimeNanos>(){}[0]
+        final fun <set-playTimeNanos>(kotlin/Long) // androidx.compose.animation.core/Transition.playTimeNanos.<set-playTimeNanos>|<set-playTimeNanos>(kotlin.Long){}[0]
+    final var segment // androidx.compose.animation.core/Transition.segment|{}segment[0]
+        final fun <get-segment>(): androidx.compose.animation.core/Transition.Segment<#A> // androidx.compose.animation.core/Transition.segment.<get-segment>|<get-segment>(){}[0]
+    final var targetState // androidx.compose.animation.core/Transition.targetState|{}targetState[0]
+        final fun <get-targetState>(): #A // androidx.compose.animation.core/Transition.targetState.<get-targetState>|<get-targetState>(){}[0]
+
+    final fun setPlaytimeAfterInitialAndTargetStateEstablished(#A, #A, kotlin/Long) // androidx.compose.animation.core/Transition.setPlaytimeAfterInitialAndTargetStateEstablished|setPlaytimeAfterInitialAndTargetStateEstablished(1:0;1:0;kotlin.Long){}[0]
+    final fun updatePendingTarget(#A?) // androidx.compose.animation.core/Transition.updatePendingTarget|updatePendingTarget(1:0?){}[0]
+    open fun toString(): kotlin/String // androidx.compose.animation.core/Transition.toString|toString(){}[0]
+
+    abstract interface <#A1: kotlin/Any?> Segment { // androidx.compose.animation.core/Transition.Segment|null[0]
+        abstract val initialState // androidx.compose.animation.core/Transition.Segment.initialState|{}initialState[0]
+            abstract fun <get-initialState>(): #A1 // androidx.compose.animation.core/Transition.Segment.initialState.<get-initialState>|<get-initialState>(){}[0]
+        abstract val targetState // androidx.compose.animation.core/Transition.Segment.targetState|{}targetState[0]
+            abstract fun <get-targetState>(): #A1 // androidx.compose.animation.core/Transition.Segment.targetState.<get-targetState>|<get-targetState>(){}[0]
+
+        open fun (#A1).isTransitioningTo(#A1): kotlin/Boolean // androidx.compose.animation.core/Transition.Segment.isTransitioningTo|isTransitioningTo@1:0(1:0){}[0]
+    }
+
+    final inner class <#A1: kotlin/Any?, #B1: androidx.compose.animation.core/AnimationVector> DeferredAnimation { // androidx.compose.animation.core/Transition.DeferredAnimation|null[0]
+        final val label // androidx.compose.animation.core/Transition.DeferredAnimation.label|{}label[0]
+            final fun <get-label>(): kotlin/String // androidx.compose.animation.core/Transition.DeferredAnimation.label.<get-label>|<get-label>(){}[0]
+        final val typeConverter // androidx.compose.animation.core/Transition.DeferredAnimation.typeConverter|{}typeConverter[0]
+            final fun <get-typeConverter>(): androidx.compose.animation.core/TwoWayConverter<#A1, #B1> // androidx.compose.animation.core/Transition.DeferredAnimation.typeConverter.<get-typeConverter>|<get-typeConverter>(){}[0]
+
+        final fun animate(kotlin/Function1<androidx.compose.animation.core/Transition.Segment<#A>, androidx.compose.animation.core/FiniteAnimationSpec<#A1>>, #A1? = ..., #B1? = ..., kotlin/Function1<#A, #A1>): androidx.compose.runtime/State<#A1> // androidx.compose.animation.core/Transition.DeferredAnimation.animate|animate(kotlin.Function1<androidx.compose.animation.core.Transition.Segment<2:0>,androidx.compose.animation.core.FiniteAnimationSpec<1:0>>;1:0?;1:1?;kotlin.Function1<2:0,1:0>){}[0]
+        final fun animate(kotlin/Function1<androidx.compose.animation.core/Transition.Segment<#A>, androidx.compose.animation.core/FiniteAnimationSpec<#A1>>, kotlin/Function1<#A, #A1>): androidx.compose.runtime/State<#A1> // androidx.compose.animation.core/Transition.DeferredAnimation.animate|animate(kotlin.Function1<androidx.compose.animation.core.Transition.Segment<2:0>,androidx.compose.animation.core.FiniteAnimationSpec<1:0>>;kotlin.Function1<2:0,1:0>){}[0]
+    }
+
+    final inner class <#A1: kotlin/Any?, #B1: androidx.compose.animation.core/AnimationVector> TransitionAnimationState : androidx.compose.runtime/State<#A1> { // androidx.compose.animation.core/Transition.TransitionAnimationState|null[0]
+        final val label // androidx.compose.animation.core/Transition.TransitionAnimationState.label|{}label[0]
+            final fun <get-label>(): kotlin/String // androidx.compose.animation.core/Transition.TransitionAnimationState.label.<get-label>|<get-label>(){}[0]
+        final val typeConverter // androidx.compose.animation.core/Transition.TransitionAnimationState.typeConverter|{}typeConverter[0]
+            final fun <get-typeConverter>(): androidx.compose.animation.core/TwoWayConverter<#A1, #B1> // androidx.compose.animation.core/Transition.TransitionAnimationState.typeConverter.<get-typeConverter>|<get-typeConverter>(){}[0]
+
+        final var animation // androidx.compose.animation.core/Transition.TransitionAnimationState.animation|{}animation[0]
+            final fun <get-animation>(): androidx.compose.animation.core/TargetBasedAnimation<#A1, #B1> // androidx.compose.animation.core/Transition.TransitionAnimationState.animation.<get-animation>|<get-animation>(){}[0]
+        final var animationSpec // androidx.compose.animation.core/Transition.TransitionAnimationState.animationSpec|{}animationSpec[0]
+            final fun <get-animationSpec>(): androidx.compose.animation.core/FiniteAnimationSpec<#A1> // androidx.compose.animation.core/Transition.TransitionAnimationState.animationSpec.<get-animationSpec>|<get-animationSpec>(){}[0]
+        final var value // androidx.compose.animation.core/Transition.TransitionAnimationState.value|{}value[0]
+            final fun <get-value>(): #A1 // androidx.compose.animation.core/Transition.TransitionAnimationState.value.<get-value>|<get-value>(){}[0]
+
+        final fun toString(): kotlin/String // androidx.compose.animation.core/Transition.TransitionAnimationState.toString|toString(){}[0]
+    }
+}
+
 sealed class <#A: kotlin/Any?, #B: androidx.compose.animation.core/KeyframeBaseEntity<#A>> androidx.compose.animation.core/KeyframesSpecBaseConfig { // androidx.compose.animation.core/KeyframesSpecBaseConfig|null[0]
     final var delayMillis // androidx.compose.animation.core/KeyframesSpecBaseConfig.delayMillis|{}delayMillis[0]
         final fun <get-delayMillis>(): kotlin/Int // androidx.compose.animation.core/KeyframesSpecBaseConfig.delayMillis.<get-delayMillis>|<get-delayMillis>(){}[0]
@@ -922,6 +946,8 @@ final val androidx.compose.animation.core/androidx_compose_animation_core_ArcSpl
 final val androidx.compose.animation.core/androidx_compose_animation_core_CubicBezierEasing$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_CubicBezierEasing$stableprop|#static{}androidx_compose_animation_core_CubicBezierEasing$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_DecayAnimation$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_DecayAnimation$stableprop|#static{}androidx_compose_animation_core_DecayAnimation$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_DeferredTargetAnimation$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_DeferredTargetAnimation$stableprop|#static{}androidx_compose_animation_core_DeferredTargetAnimation$stableprop[0]
+final val androidx.compose.animation.core/androidx_compose_animation_core_DeferredTransition$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_DeferredTransition$stableprop|#static{}androidx_compose_animation_core_DeferredTransition$stableprop[0]
+final val androidx.compose.animation.core/androidx_compose_animation_core_DeferredTransitionState$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_DeferredTransitionState$stableprop|#static{}androidx_compose_animation_core_DeferredTransitionState$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_FloatExponentialDecaySpec$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_FloatExponentialDecaySpec$stableprop|#static{}androidx_compose_animation_core_FloatExponentialDecaySpec$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_FloatSpringSpec$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_FloatSpringSpec$stableprop|#static{}androidx_compose_animation_core_FloatSpringSpec$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_FloatTweenSpec$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_FloatTweenSpec$stableprop|#static{}androidx_compose_animation_core_FloatTweenSpec$stableprop[0]
@@ -981,6 +1007,7 @@ final fun <#A: kotlin/Any?> androidx.compose.animation.core/infiniteRepeatable(a
 final fun <#A: kotlin/Any?> androidx.compose.animation.core/keyframes(kotlin/Function1<androidx.compose.animation.core/KeyframesSpec.KeyframesSpecConfig<#A>, kotlin/Unit>): androidx.compose.animation.core/KeyframesSpec<#A> // androidx.compose.animation.core/keyframes|keyframes(kotlin.Function1<androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.animation.core/keyframesWithSpline(kotlin/Float, kotlin/Function1<androidx.compose.animation.core/KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<#A>, kotlin/Unit>): androidx.compose.animation.core/KeyframesWithSplineSpec<#A> // androidx.compose.animation.core/keyframesWithSpline|keyframesWithSpline(kotlin.Float;kotlin.Function1<androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.animation.core/keyframesWithSpline(kotlin/Function1<androidx.compose.animation.core/KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<#A>, kotlin/Unit>): androidx.compose.animation.core/KeyframesWithSplineSpec<#A> // androidx.compose.animation.core/keyframesWithSpline|keyframesWithSpline(kotlin.Function1<androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.compose.animation.core/rememberTransition(androidx.compose.animation.core/DeferredTransitionState<#A>, kotlin/String?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.animation.core/DeferredTransition<#A> // androidx.compose.animation.core/rememberTransition|rememberTransition(androidx.compose.animation.core.DeferredTransitionState<0:0>;kotlin.String?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.animation.core/rememberTransition(androidx.compose.animation.core/TransitionState<#A>, kotlin/String?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.animation.core/Transition<#A> // androidx.compose.animation.core/rememberTransition|rememberTransition(androidx.compose.animation.core.TransitionState<0:0>;kotlin.String?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.animation.core/repeatable(kotlin/Int, androidx.compose.animation.core/DurationBasedAnimationSpec<#A>, androidx.compose.animation.core/RepeatMode = ...): androidx.compose.animation.core/RepeatableSpec<#A> // androidx.compose.animation.core/repeatable|repeatable(kotlin.Int;androidx.compose.animation.core.DurationBasedAnimationSpec<0:0>;androidx.compose.animation.core.RepeatMode){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.animation.core/repeatable(kotlin/Int, androidx.compose.animation.core/DurationBasedAnimationSpec<#A>, androidx.compose.animation.core/RepeatMode = ..., androidx.compose.animation.core/StartOffset = ...): androidx.compose.animation.core/RepeatableSpec<#A> // androidx.compose.animation.core/repeatable|repeatable(kotlin.Int;androidx.compose.animation.core.DurationBasedAnimationSpec<0:0>;androidx.compose.animation.core.RepeatMode;androidx.compose.animation.core.StartOffset){0§<kotlin.Any?>}[0]
@@ -1011,6 +1038,8 @@ final fun androidx.compose.animation.core/androidx_compose_animation_core_ArcSpl
 final fun androidx.compose.animation.core/androidx_compose_animation_core_CubicBezierEasing$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_CubicBezierEasing$stableprop_getter|androidx_compose_animation_core_CubicBezierEasing$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_DecayAnimation$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_DecayAnimation$stableprop_getter|androidx_compose_animation_core_DecayAnimation$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_DeferredTargetAnimation$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_DeferredTargetAnimation$stableprop_getter|androidx_compose_animation_core_DeferredTargetAnimation$stableprop_getter(){}[0]
+final fun androidx.compose.animation.core/androidx_compose_animation_core_DeferredTransition$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_DeferredTransition$stableprop_getter|androidx_compose_animation_core_DeferredTransition$stableprop_getter(){}[0]
+final fun androidx.compose.animation.core/androidx_compose_animation_core_DeferredTransitionState$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_DeferredTransitionState$stableprop_getter|androidx_compose_animation_core_DeferredTransitionState$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_FloatExponentialDecaySpec$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_FloatExponentialDecaySpec$stableprop_getter|androidx_compose_animation_core_FloatExponentialDecaySpec$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_FloatSpringSpec$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_FloatSpringSpec$stableprop_getter|androidx_compose_animation_core_FloatSpringSpec$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_FloatTweenSpec$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_FloatTweenSpec$stableprop_getter|androidx_compose_animation_core_FloatTweenSpec$stableprop_getter(){}[0]
