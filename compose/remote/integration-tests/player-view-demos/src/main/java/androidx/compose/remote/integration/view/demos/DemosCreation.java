@@ -25,8 +25,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
+import androidx.compose.remote.integration.view.demos.dsl.DslDemoGraphsKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslClockKt;
+import androidx.compose.remote.integration.view.demos.dsl.RcDslCountdownKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.RcDslEnumsDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslTickerKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.DemoMemorySkipKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.MemoryKt;
@@ -154,21 +157,42 @@ public abstract class DemosCreation {
         Bitmap bitmap = simpleBitmap(100);
 
         return new ArrayList<>(Arrays.asList(
-                get("0/0/00dslClock", RcDslClockKt::dslClock),
-                get("0/0/00dslDemo", RcDslDemoKt::dslDemo),
-                get("0/0/00dslTickerPreview", RcDslTickerKt::dslTicker),
-                getp("0/0/0DemotSystemVarKt", DemotSystemVarKt::sysVar),
-                getp("0/0/skip", DemoMemorySkipKt::skip1),
-                getp("8/0/DemoTheme", DemoThemeKt::theme1),
-                getpc("0/0/0Shade1", SimpleShaderKt::createShaderDoc1),
-                getpc("0/0/0Shade2", () -> SimpleShaderKt.createShaderDoc2(bitmap)),
-                getpc("0/0/0Shade3", () -> SimpleShader2Kt.createShaderDoc3(bitmap)),
-                getpc("0/0/0Shade4", () -> SimpleShader2Kt.createShaderDoc4(bitmap)),
-                getp("0/0/colorCheck1", ColorCheckKt::colorCheck1),
-                getp("0/0/colorCheck2", ColorCheckKt::colorCheck2),
-                getp("0/0/colorCheck3", ColorCheckKt::colorCheck3),
-                getp("0/0/colorCheck4", ColorCheckKt::colorCheck4),
-                getp("0/0/colorTable", ColorCheckKt::colorTable),
+
+
+                get("0/0/00dslDemoGraphs2", DslDemoGraphsKt::dslDemoGraphs2),
+                get("0/1/00dslDemoGraphs", DslDemoGraphsKt::dslDemoGraphs),
+                get("0/2/00dslCountdown1", RcDslCountdownKt::dslCountdown),
+                getpc("0/3/00dslCountdown2", CountdownKt::countDown),
+
+                get("0/4/00dslTheme1", RcDslDemoKt::dslTheme1),
+                get("0/5/00dslTheme2", RcDslDemoKt::dslTheme2),
+                get("0/6/dslSimpleClock", RcDslDemoKt::dslSimpleClock),
+
+                get("0/7/dslSimpleDemo", RcDslDemoKt::dslSimpleDemo),
+
+                //get("0/0/00dslCalenda", RcDslCalendarDemoKt::dslCalendarDayAgenda),
+                //get("0/0/00dslDemoGraphs2", DslDemoGraphsKt::dslDemoGraphs2),
+               // get("0/0/00dslDemoGraphs", DslDemoGraphsKt::dslDemoGraphs),
+              // get("0/0/00dslLinearRegression", DslLinearRegressionKt::dslLinearRegression),
+                get("1/1/00enumsDemo", RcDslEnumsDemoKt::enumsDemo),
+                get("1/1/01dslClock", RcDslClockKt::dslClock),
+                get("1/1/02dslDemo", RcDslDemoKt::dslDemo),
+                get("1/1/03dslTickerPreview", RcDslTickerKt::dslTicker),
+
+                get("1/1/dslTheme1", RcDslDemoKt::dslTheme1),
+                get("1/1/dslTheme2", RcDslDemoKt::dslTheme2),
+                getp("1/1/04DemotSystemVarKt", DemotSystemVarKt::sysVar),
+                getp("1/1/skip", DemoMemorySkipKt::skip1),
+                getp("8/1/DemoTheme", DemoThemeKt::theme1),
+                getpc("1/1/0Shade1", SimpleShaderKt::createShaderDoc1),
+                getpc("1/1/0Shade2", () -> SimpleShaderKt.createShaderDoc2(bitmap)),
+                getpc("1/1/0Shade3", () -> SimpleShader2Kt.createShaderDoc3(bitmap)),
+                getpc("1/1/0Shade4", () -> SimpleShader2Kt.createShaderDoc4(bitmap)),
+                getp("1/1/colorCheck1", ColorCheckKt::colorCheck1),
+                getp("1/1/colorCheck2", ColorCheckKt::colorCheck2),
+                getp("1/1/colorCheck3", ColorCheckKt::colorCheck3),
+                getp("1/1/colorCheck4", ColorCheckKt::colorCheck4),
+                getp("1/1/colorTable", ColorCheckKt::colorTable),
 //                getp("0/0/FooDemo", FooDemoKt::FooDemo),
 //                getp("8/0/DemoPaging1", DemoPagingKt::paging1),
                 getp("8/particles/ball", DemoParticlesKt::ball),

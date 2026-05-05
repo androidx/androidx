@@ -244,7 +244,7 @@ private fun RcScope.StockGraph() {
         save {
             val cut = 5f
             clipRect(margin + cut, margin + cut, xEnd - cut, lineBottom - cut)
-            drawPath(path)
+            drawPath(path.getPath())
 
             paint
                 .setShader(0)
@@ -252,7 +252,7 @@ private fun RcScope.StockGraph() {
                 .setStyle(RcPaintStyle.Stroke)
                 .setStrokeWidth(6f)
                 .commit()
-            drawPath(path)
+            drawPath(path.getPath())
         }
     }
 }

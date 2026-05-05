@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.paint.PaintPathEffects;
 import androidx.compose.remote.creation.dsl.RcColor;
+import androidx.compose.remote.creation.dsl.RcColorValue;
 import androidx.compose.remote.creation.dsl.RcFloat;
 
 import org.jspecify.annotations.NonNull;
@@ -77,6 +78,17 @@ public class RcPaint {
      */
     public @NonNull RcPaint setColorId(int colorId) {
         mPaint.setColorId(colorId);
+        return this;
+    }
+
+    /**
+     * Set the Color based on RcColor
+     *
+     * @param color the id of the color
+     * @return the painter object
+     */
+    public @NonNull RcPaint setColor(@NonNull RcColorValue color) {
+        mPaint.setColor(color.getId());
         return this;
     }
 

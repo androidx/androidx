@@ -506,9 +506,9 @@ public class RemoteComposeWriter {
      * @param glyphSpacing Horizontal spacing adjustment between glyphs in pixels
      * @return float id of the property
      */
-    public float bitmapTextMeasure(int textId, int bmFontId, int measureWidth, float glyphSpacing) {
+    public float bitmapTextMeasure(int textId, int bmFontId, int type, float glyphSpacing) {
         int id = mState.createNextAvailableId();
-        mBuffer.bitmapTextMeasure(id, textId, bmFontId, measureWidth, glyphSpacing);
+        mBuffer.bitmapTextMeasure(id, textId, bmFontId, type, glyphSpacing);
         return Utils.asNan(id);
     }
 

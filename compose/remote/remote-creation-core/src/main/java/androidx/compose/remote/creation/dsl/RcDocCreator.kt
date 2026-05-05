@@ -21,13 +21,11 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriter.HTag
 
-/** Top-level builder for creating a serialized RemoteCompose document. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun createRcBuffer(
+private fun createRcBufferInternal(
     profile: RcProfile,
     vararg tags: HTag,
     experimental: Boolean = false,
-    content: RcScope.() -> Unit,
+    contentExecution: (RemoteComposeWriter, RcScope) -> Unit,
 ): ByteArray {
     val isExperimental = experimental || profile.experimental
     val finalProfile =
@@ -74,9 +72,34 @@ public fun createRcBuffer(
 
     val writer = RemoteComposeWriter(finalProfile, *finalTags)
     val scope = RcScopeImpl(writer)
-    writer.root { scope.content() }
+
+    contentExecution(writer, scope)
 
     val buffer = writer.buffer()
     val size = writer.bufferSize()
     return buffer.copyOfRange(0, size)
 }
+
+/** Top-level builder for creating a serialized RemoteCompose document. It will also create root */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun createRcBuffer(
+    profile: RcProfile,
+    vararg tags: HTag,
+    experimental: Boolean = false,
+    content: RcScope.() -> Unit,
+): ByteArray =
+    createRcBufferInternal(profile, *tags, experimental = experimental) { writer, scope ->
+        writer.root { scope.content() }
+    }
+
+/** Top-level builder for creating a serialized RemoteCompose document. without creating root */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun createRawRcBuffer(
+    profile: RcProfile,
+    vararg tags: HTag,
+    experimental: Boolean = false,
+    content: RcScope.() -> Unit,
+): ByteArray =
+    createRcBufferInternal(profile, *tags, experimental = experimental) { _, scope ->
+        scope.content()
+    }

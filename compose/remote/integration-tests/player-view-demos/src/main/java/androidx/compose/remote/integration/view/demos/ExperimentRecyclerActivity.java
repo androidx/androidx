@@ -297,7 +297,7 @@ public class ExperimentRecyclerActivity extends Activity {
         p = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT);
         p.weight = 1;
         saveAll.setLayoutParams(p);
-        saveAll.setText("SaveAll");
+        saveAll.setText("Save\nAll");
         saveAll.setOnClickListener(this::saveAll);
         row.addView(saveAll);
         createNotificationChannel();
@@ -427,8 +427,14 @@ public class ExperimentRecyclerActivity extends Activity {
         int left = Objects.requireNonNull(mLinearLayoutManager.findViewByPosition(off)).getLeft();
         if (left < -sScrWidth / 2) off++;
         View view = mLinearLayoutManager.findViewByPosition(off);
-        System.out.println(view);
-
+        {
+            System.out.println(view);
+            MyViewHolder holder = (MyViewHolder) mRecyclerView.findViewHolderForAdapterPosition(
+                    off);
+            if (holder != null) {
+                Log.v("DEBUG", holder.mUi.mPlayer.getDocument().getDocument().toNestedString());
+            }
+        }
         RCDoc doc = mDocList.get(off);
 //        MyViewHolder holder = (MyViewHolder) mRecyclerView.findViewHolderForAdapterPosition(off);
 
@@ -575,9 +581,6 @@ public class ExperimentRecyclerActivity extends Activity {
         int off = mLinearLayoutManager.findFirstVisibleItemPosition();
         int left = Objects.requireNonNull(mLinearLayoutManager.findViewByPosition(off)).getLeft();
         if (left < -sScrWidth / 2) off++;
-        View view = mLinearLayoutManager.findViewByPosition(off);
-        System.out.println(view);
-
         return mDocList.get(off);
     }
 
