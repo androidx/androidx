@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(InternalAnimationApi::class)
+@file:OptIn(InternalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
 
 package androidx.compose.animation
 
@@ -25,6 +25,9 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Start
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Up
 import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.DeferredTransition
+import androidx.compose.animation.core.DeferredTransitionState
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.Spring
@@ -32,6 +35,7 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.createDeferredAnimation
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -393,6 +397,18 @@ public sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S
     public val contentAlignment: Alignment
 }
 
+internal class PendingAnimatedContentTransitionScope<S>(
+    delegate: AnimatedContentTransitionScope<S>,
+    val overrideInitialState: S,
+    val overrideTargetState: S,
+) : AnimatedContentTransitionScope<S> by delegate {
+    override val initialState: S
+        get() = overrideInitialState
+
+    override val targetState: S
+        get() = overrideTargetState
+}
+
 internal class AnimatedContentTransitionScopeImpl<S>
 internal constructor(
     internal val transition: Transition<S>,
@@ -591,6 +607,7 @@ internal constructor(
         // isTarget is read during measure. It is necessary to make this a MutableState
         // such that when the target changes, measure is triggered
         var isTarget by mutableStateOf(isTarget)
+        var isPendingTarget by mutableStateOf(false)
 
         override fun Density.modifyParentData(parentData: Any?): Any {
             return this@ChildData
@@ -703,6 +720,47 @@ internal constructor(
 private val UnspecifiedSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
 
 /**
+ * An object that allows manual manipulation of both entering and exiting content during the
+ * deferred phase (initiated by [DeferredTransitionState.defer]) of an [AnimatedContent] transition.
+ *
+ * @param initialVeilMatchParentSize Whether the initial content's veil should match the parent
+ *   size.
+ * @param targetVeilMatchParentSize Whether the target content's veil should match the parent size.
+ * @param block A configuration block to set up the transformations for initial and target content.
+ */
+@ExperimentalDeferredTransitionApi
+public class MutableContentTransform(
+    initialVeilMatchParentSize: Boolean = false,
+    targetVeilMatchParentSize: Boolean = false,
+    block: MutableContentTransform.() -> Unit = {},
+) {
+    internal val targetTransform: MutableTransform = MutableTransform(targetVeilMatchParentSize)
+    internal val initialTransform: MutableTransform = MutableTransform(initialVeilMatchParentSize)
+
+    init {
+        block()
+    }
+
+    /**
+     * Define the manual transformation to apply to the exiting content during the deferred phase.
+     *
+     * @param block A lambda that applies transformations to the provided [TransformScope].
+     */
+    public fun initialContentTransform(block: TransformScope.(fullSize: IntSize) -> Unit) {
+        initialTransform(block)
+    }
+
+    /**
+     * Define the manual transformation to apply to the entering content during the deferred phase.
+     *
+     * @param block A lambda that applies transformations to the provided [TransformScope].
+     */
+    public fun targetContentTransform(block: TransformScope.(fullSize: IntSize) -> Unit) {
+        targetTransform(block)
+    }
+}
+
+/**
  * Receiver scope for content lambda for AnimatedContent. In this scope,
  * [transition][AnimatedVisibilityScope.transition] can be used to observe the state of the
  * transition, or to add more enter/exit transition for the content.
@@ -755,11 +813,20 @@ internal constructor(animatedVisibilityScope: AnimatedVisibilityScope) :
  * [AnimatedContentScope.animateEnterExit] and [AnimatedContentScope.transition]. These custom
  * enter/exit animations will be triggered as the content enters/leaves the container.
  *
+ * @param modifier is applied to the Layout created by [AnimatedContent], which houses all the
+ *   animating contents.
+ * @param transitionSpec specifies the enter/exit animations, as well as size animation (if
+ *   applicable). By default, a [fadeIn] and [scaleIn] will be used for the entering content, and
+ *   [fadeOut] for the exiting content. The [ContentTransform] returned by [transitionSpec] can be
+ *   created using [togetherWith] with [EnterTransition] and [ExitTransition].
+ * @param contentAlignment specifies the alignment of the animated content. By default, it'll be
+ *   aligned to the top start of the container.
+ * @param contentKey A key to identify the content.
+ * @param content The composable function to render the content for a given state.
  * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
  * @see ContentTransform
  * @see AnimatedContentScope
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun <S> Transition<S>.AnimatedContent(
     modifier: Modifier = Modifier,
@@ -772,6 +839,118 @@ public fun <S> Transition<S>.AnimatedContent(
     contentKey: (targetState: S) -> Any? = { it },
     content: @Composable() AnimatedContentScope.(targetState: S) -> Unit,
 ) {
+    AnimatedContentImpl(
+        modifier = modifier,
+        transitionSpec = transitionSpec,
+        contentAlignment = contentAlignment,
+        contentKey = contentKey,
+        mutableTransformSpec = { null },
+        content = content,
+    )
+}
+
+/**
+ * [AnimatedContent] is a container that automatically animates its content when
+ * [Transition.targetState] changes. Its [content] for different target states is defined in a
+ * mapping between a target state and a composable function.
+ *
+ * **IMPORTANT**: The targetState parameter for the [content] lambda should *always* be taken into
+ * account in deciding what composable function to return as the content for that state. This is
+ * critical to ensure a successful lookup of all the incoming and outgoing content during content
+ * transform.
+ *
+ * When [Transition.targetState] changes, content for both new and previous targetState will be
+ * looked up through the [content] lambda. They will go through a [ContentTransform] so that the new
+ * target content can be animated in while the initial content animates out. Meanwhile the container
+ * will animate its size as needed to accommodate the new content, unless [SizeTransform] is set to
+ * `null`. Once the [ContentTransform] is finished, the outgoing content will be disposed.
+ *
+ * If [Transition.targetState] is expected to mutate frequently and not all mutations should be
+ * treated as target state change, consider defining a mapping between [Transition.targetState] and
+ * a key in [contentKey]. As a result, transitions will be triggered when the resulting key changes.
+ * In other words, there will be no animation when switching between [Transition.targetState]s that
+ * share the same key. By default, the key will be the same as the targetState object.
+ *
+ * @param modifier is applied to the Layout created by [AnimatedContent], which houses all the
+ *   animating contents.
+ * @param transitionSpec specifies the enter/exit animations, as well as size animation (if
+ *   applicable). By default, a [fadeIn] and [scaleIn] will be used for the entering content, and
+ *   [fadeOut] for the exiting content. The [ContentTransform] returned by [transitionSpec] can be
+ *   created using [togetherWith] with [EnterTransition] and [ExitTransition].
+ * @param contentAlignment specifies the alignment of the animated content. By default, it'll be
+ *   aligned to the top start of the container.
+ * @param contentKey A key to identify the content.
+ * @param mutableTransformSpec A specification to control an optional manual transformation during
+ *   the deferred phase (e.g., for predictive back gestures) before the main transition begins. This
+ *   is only active if the [Transition] was created using [rememberTransition] with
+ *   [DeferredTransitionState]. By default, this returns `null`, meaning no manual transformations
+ *   are applied.
+ *
+ *   **Lifecycle:** The deferred phase starts when [DeferredTransitionState.defer] is called. It
+ *   ends and the automatic transition begins when [DeferredTransitionState.animateTo] is called.
+ *
+ *   **Transformations:** During this phase, you can manually manipulate the entering and exiting
+ *   content's transformations (via [MutableContentTransform]). These transformations are applied
+ *   **on top of** the transition's initial state. For example, if the enter transition starts at an
+ *   alpha of 0.5, applying a manual alpha of 0.5 will result in a combined alpha of 0.25.
+ *
+ * **Handoff:** Once the transition starts, the manually applied transformations are seamlessly
+ * handed off to the configured [transitionSpec]. For exiting content, a "sustain unless specified"
+ * policy is applied: if an exit transition (e.g. `fadeOut`) is specified, the hand-off will animate
+ * towards the target value of that transition. However, if no exit transition is specified for a
+ * given property (e.g. `slideOut` is missing), that property will sustain its last manual value
+ * until the entire transition completes.
+ *
+ * *Note:* While in the deferred phase, entering content remains in the [EnterExitState.PreEnter]
+ * state, and exiting content remains in the [EnterExitState.Visible] state.
+ *
+ * @param content The composable function to render the content for a given state.
+ * @sample androidx.compose.animation.samples.DeferredAnimatedContentSample
+ * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
+ * @see ContentTransform
+ * @see AnimatedContentScope
+ */
+@ExperimentalDeferredTransitionApi
+@Composable
+public fun <S> DeferredTransition<S>.DeferredAnimatedContent(
+    modifier: Modifier = Modifier,
+    transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
+    },
+    contentAlignment: Alignment = Alignment.TopStart,
+    contentKey: (targetState: S) -> Any? = { it },
+    mutableTransformSpec: AnimatedContentTransitionScope<S>.() -> MutableContentTransform? = {
+        null
+    },
+    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit,
+) {
+    AnimatedContentImpl(
+        modifier = modifier,
+        transitionSpec = transitionSpec,
+        contentAlignment = contentAlignment,
+        contentKey = contentKey,
+        mutableTransformSpec = mutableTransformSpec,
+        content = content,
+    )
+}
+
+@Composable
+internal fun <S> Transition<S>.AnimatedContentImpl(
+    modifier: Modifier = Modifier,
+    transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
+    },
+    contentAlignment: Alignment = Alignment.TopStart,
+    contentKey: (targetState: S) -> Any? = { it },
+    mutableTransformSpec: AnimatedContentTransitionScope<S>.() -> MutableContentTransform? = {
+        null
+    },
+    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit,
+) {
     val layoutDirection = LocalLayoutDirection.current
     val rootScope =
         remember(this) {
@@ -779,7 +958,8 @@ public fun <S> Transition<S>.AnimatedContent(
         }
     // TODO: remove screen as soon as they are animated out
     val currentlyVisible = remember(this) { mutableStateListOf(currentState) }
-    val contentMap = remember(this) { mutableScatterMapOf<S, @Composable() () -> Unit>() }
+    val contentMap =
+        remember(this, pendingTargetState) { mutableScatterMapOf<S, @Composable() () -> Unit>() }
     // This is needed for tooling because it could change currentState directly,
     // as opposed to changing target only. When that happens we need to clear all the
     // visible content and only display the content for the new current state and target state.
@@ -787,7 +967,7 @@ public fun <S> Transition<S>.AnimatedContent(
         currentlyVisible.clear()
         currentlyVisible.add(currentState)
     }
-    if (currentState == targetState) {
+    if (currentState == targetState && pendingTargetState == null) {
         if (currentlyVisible.size != 1 || currentlyVisible[0] != currentState) {
             currentlyVisible.clear()
             currentlyVisible.add(currentState)
@@ -799,24 +979,65 @@ public fun <S> Transition<S>.AnimatedContent(
         rootScope.contentAlignment = contentAlignment
         rootScope.layoutDirection = layoutDirection
     }
+
+    pendingTargetState?.let { pendingTargetState ->
+        if (pendingTargetState != currentState) {
+            // Replace the target with the same key if any
+            val id =
+                currentlyVisible.indexOfFirst { contentKey(it) == contentKey(pendingTargetState) }
+            if (id == -1) {
+                currentlyVisible.add(pendingTargetState)
+            } else if (currentlyVisible[id] != pendingTargetState) {
+                currentlyVisible[id] = pendingTargetState
+            }
+        }
+    }
+
     // Currently visible list always keeps the targetState at the end of the list, unless it's
     // already in the list in the case of interruption. This makes the composable associated with
     // the targetState get placed last, so the target composable will be displayed on top of
     // content associated with other states, unless zIndex is specified.
-    if (currentState != targetState && !currentlyVisible.contains(targetState)) {
-        // Replace the target with the same key if any
+    if (currentState != targetState) {
         val id = currentlyVisible.indexOfFirst { contentKey(it) == contentKey(targetState) }
         if (id == -1) {
             currentlyVisible.add(targetState)
-        } else {
-            currentlyVisible[id] = targetState
+        } else if (currentlyVisible[id] != targetState || id != currentlyVisible.size - 1) {
+            currentlyVisible.removeAt(id)
+            currentlyVisible.add(targetState)
         }
     }
-    if (!contentMap.containsKey(targetState) || !contentMap.containsKey(currentState)) {
+
+    val localPendingTargetState = pendingTargetState
+    val pendingScope =
+        remember(localPendingTargetState) {
+            localPendingTargetState?.let {
+                PendingAnimatedContentTransitionScope(
+                    delegate = rootScope,
+                    overrideInitialState = this@AnimatedContentImpl.targetState,
+                    overrideTargetState = it,
+                )
+            }
+        }
+    val mutableContentTransformData =
+        remember(pendingScope, mutableTransformSpec) {
+            if (pendingScope != null) pendingScope.mutableTransformSpec() else null
+        }
+    if (
+        targetState !in contentMap ||
+            currentState !in contentMap ||
+            (localPendingTargetState != null && localPendingTargetState !in contentMap)
+    ) {
         contentMap.clear()
         currentlyVisible.fastForEach { stateForContent ->
             contentMap[stateForContent] = {
-                val specOnEnter = remember { transitionSpec(rootScope) }
+                val specOnEnter =
+                    remember(stateForContent == pendingTargetState) {
+                        if (stateForContent == pendingTargetState && pendingScope != null) {
+                            pendingScope.transitionSpec()
+                        } else {
+                            rootScope.transitionSpec()
+                        }
+                    }
                 // NOTE: enter and exit for this AnimatedVisibility will be using different spec,
                 // naturally.
                 val exit =
@@ -833,7 +1054,7 @@ public fun <S> Transition<S>.AnimatedContent(
                 // TODO: Will need a custom impl of this to: 1) get the signal for when
                 // the animation is finished, 2) get the target size properly
                 AnimatedEnterExitImpl(
-                    this,
+                    this@AnimatedContentImpl,
                     { it == stateForContent },
                     enter = specOnEnter.targetContentEnter,
                     exit = exit,
@@ -844,12 +1065,28 @@ public fun <S> Transition<S>.AnimatedContent(
                                     placeable.place(0, 0, zIndex = specOnEnter.targetContentZIndex)
                                 }
                             }
-                            .then(childData.apply { isTarget = stateForContent == targetState }),
+                            .then(
+                                childData.apply {
+                                    isTarget = stateForContent == targetState
+                                    isPendingTarget =
+                                        stateForContent == pendingTargetState &&
+                                            stateForContent != targetState &&
+                                            stateForContent != currentState
+                                }
+                            ),
                     shouldDisposeBlock = { currentState, targetState ->
                         currentState == EnterExitState.PostExit &&
                             targetState == EnterExitState.PostExit &&
                             !exit.data.hold
                     },
+                    mutableTransformData =
+                        mutableContentTransformData?.let { transform ->
+                            when (stateForContent) {
+                                pendingTargetState -> transform.targetTransform
+                                targetState -> transform.initialTransform
+                                else -> null
+                            }
+                        },
                 ) {
                     // TODO: Should Transition.AnimatedVisibility have an end listener?
                     DisposableEffect(this) {
@@ -865,7 +1102,8 @@ public fun <S> Transition<S>.AnimatedContent(
             }
         }
     }
-    val contentTransform = remember(rootScope, segment) { transitionSpec(rootScope) }
+    val contentTransform =
+        remember(rootScope, segment, pendingTargetState) { transitionSpec(rootScope) }
     val sizeModifier = rootScope.createSizeAnimationModifier(contentTransform)
     Layout(
         modifier = modifier.then(sizeModifier),
@@ -903,17 +1141,25 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
                 placeables[index] = measurable.measure(constraints)
             }
         }
-        val maxWidth: Int =
+        val (maxWidth, maxHeight) =
             if (isLookingAhead) {
-                targetSize.width
+                targetSize.width to targetSize.height
             } else {
-                placeables.maxByOrNull { it?.width ?: 0 }?.width ?: 0
-            }
-        val maxHeight =
-            if (isLookingAhead) {
-                targetSize.height
-            } else {
-                placeables.maxByOrNull { it?.height ?: 0 }?.height ?: 0
+                var maxW = 0
+                var maxH = 0
+
+                // Single loop for both width and height
+                for (i in placeables.indices) {
+                    val placeable = placeables[i] ?: continue // Skip nulls immediately
+
+                    val data =
+                        measurables[i].parentData as? AnimatedContentTransitionScopeImpl.ChildData
+                    if (data?.isPendingTarget != true) {
+                        if (placeable.width > maxW) maxW = placeable.width
+                        if (placeable.height > maxH) maxH = placeable.height
+                    }
+                }
+                maxW to maxH
             }
         if (!isLookingAhead) {
             // update currently measured size only during approach

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalAnimationApi::class)
+@file:OptIn(ExperimentalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
 
 package androidx.compose.animation
 
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
@@ -930,13 +931,21 @@ internal fun Transition<EnterExitState>.createModifier(
     exit: ExitTransition,
     trackActiveEnterExit: Boolean = true,
     isEnabled: () -> Boolean = { true },
+    sharedMutableTransformState: SharedMutableTransformState? = null,
     label: String,
 ): Modifier {
     val activeEnter = if (trackActiveEnterExit) trackActiveEnter(enter = enter) else enter
     val activeExit = if (trackActiveEnterExit) trackActiveExit(exit = exit) else exit
+    val activeMutableState = trackActiveMutableState(sharedMutableTransformState)
 
-    val shouldAnimateVeil = activeEnter.data.veil != null || activeExit.data.veil != null
-    val shouldAnimateSlide = activeEnter.data.slide != null || activeExit.data.slide != null
+    val shouldAnimateVeil =
+        activeEnter.data.veil != null ||
+            activeExit.data.veil != null ||
+            activeMutableState.veilRequiresAnimation
+    val shouldAnimateSlide =
+        activeEnter.data.slide != null ||
+            activeExit.data.slide != null ||
+            activeMutableState.slideRequiresAnimation
     val shouldAnimateSizeChange =
         activeEnter.data.changeSize != null || activeExit.data.changeSize != null
 
@@ -976,14 +985,19 @@ internal fun Transition<EnterExitState>.createModifier(
                     Color.VectorConverter(colorSpace),
                     remember { "$label veil" },
                 )
-            VeilModifierElement(this, veilAnimation, activeEnter, activeExit)
+            VeilModifierElement(this, veilAnimation, activeEnter, activeExit, activeMutableState)
         } else {
             Modifier
         }
     val shouldVeilMatchParentSize =
-        activeEnter.data.veil?.matchParentSize ?: activeExit.data.veil?.matchParentSize ?: false
+        activeEnter.data.veil?.matchParentSize
+            ?: activeExit.data.veil?.matchParentSize
+            ?: activeMutableState.mutableData?.veilMatchParentSize
+            ?: false
 
-    val graphicsLayerBlock = createGraphicsLayerBlock(activeEnter, activeExit, label)
+    val graphicsLayerBlock =
+        createGraphicsLayerBlock(activeEnter, activeExit, activeMutableState, label)
+
     return (if (shouldVeilMatchParentSize) veilModifierElement else Modifier)
         .then(Modifier.graphicsLayer { clip = !disableClip && isEnabled() })
         .then(
@@ -994,11 +1008,47 @@ internal fun Transition<EnterExitState>.createModifier(
                 slideAnimation,
                 activeEnter,
                 activeExit,
+                activeMutableState,
                 isEnabled,
                 graphicsLayerBlock,
             )
         )
         .then(if (!shouldVeilMatchParentSize) veilModifierElement else Modifier)
+}
+
+/**
+ * Invokes [effect] whenever the transition settles (i.e., reaches its target state) or when it is
+ * interrupted by a new target state without deferred phase (i.e. via `animateTo()`, not by
+ * `defer()`).
+ */
+@Composable
+internal fun <S> Transition<S>.DeferredTransitionCleanupEffect(effect: () -> Unit) {
+    val isMutating = pendingTargetState != null
+
+    if (currentState == targetState && !isMutating) {
+        effect()
+    }
+
+    val wasMutating = remember { booleanArrayOf(isMutating) }
+    val lastTarget = remember { arrayOfNulls<Any?>(1) }
+    if (lastTarget[0] != targetState) {
+        if (!isMutating && !wasMutating[0]) {
+            effect()
+        }
+        lastTarget[0] = targetState
+    }
+    wasMutating[0] = isMutating
+}
+
+@Composable
+internal fun Transition<EnterExitState>.trackActiveMutableState(
+    sharedMutableTransformState: SharedMutableTransformState?
+): SharedMutableTransformState {
+    val shared = sharedMutableTransformState ?: remember(this) { SharedMutableTransformState() }
+    val isMutating = pendingTargetState != null
+    shared.isMutating = isMutating
+    DeferredTransitionCleanupEffect { shared.clear() }
+    return shared
 }
 
 @Composable
@@ -1015,7 +1065,7 @@ internal fun Transition<EnterExitState>.trackActiveEnter(enter: EnterTransition)
         } else {
             activeEnter = EnterTransition.None
         }
-    } else if (targetState == EnterExitState.Visible) {
+    } else if (targetState != EnterExitState.PostExit) {
         activeEnter += enter
     }
     return activeEnter
@@ -1049,11 +1099,18 @@ internal fun interface GraphicsLayerBlockForEnterExit {
 private fun Transition<EnterExitState>.createGraphicsLayerBlock(
     enter: EnterTransition,
     exit: ExitTransition,
+    mutableTransformState: SharedMutableTransformState,
     label: String,
 ): GraphicsLayerBlockForEnterExit {
 
-    val shouldAnimateAlpha = enter.data.fade != null || exit.data.fade != null
-    val shouldAnimateScale = enter.data.scale != null || exit.data.scale != null
+    val shouldAnimateAlpha =
+        enter.data.fade != null ||
+            exit.data.fade != null ||
+            mutableTransformState.alphaRequiresAnimation
+    val shouldAnimateScale =
+        enter.data.scale != null ||
+            exit.data.scale != null ||
+            mutableTransformState.scaleRequiresAnimation
 
     // Fade - it's important to put fade in the end. Otherwise fade will clip slide.
     // We'll animate if at any point during the transition fadeIn/fadeOut becomes non-null. This
@@ -1093,12 +1150,15 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                             exit.data.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
                         else -> DefaultAlphaAndScaleSpring
                     }
-                }
+                },
+                forcedInitialValue = mutableTransformState.alphaHandoffValue,
+                // TODO: pass forcedInitialVelocity here
             ) {
                 when (it) {
                     EnterExitState.Visible -> 1f
                     EnterExitState.PreEnter -> enter.data.fade?.alpha ?: 1f
-                    EnterExitState.PostExit -> exit.data.fade?.alpha ?: 1f
+                    EnterExitState.PostExit ->
+                        exit.data.fade?.alpha ?: mutableTransformState.lastAlpha
                 }
             }
 
@@ -1112,12 +1172,15 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                             exit.data.scale?.animationSpec ?: DefaultAlphaAndScaleSpring
                         else -> DefaultAlphaAndScaleSpring
                     }
-                }
+                },
+                forcedInitialValue = mutableTransformState.scaleHandoffValue,
+                // TODO: pass forcedInitialVelocity here
             ) {
                 when (it) {
                     EnterExitState.Visible -> 1f
                     EnterExitState.PreEnter -> enter.data.scale?.scale ?: 1f
-                    EnterExitState.PostExit -> exit.data.scale?.scale ?: 1f
+                    EnterExitState.PostExit ->
+                        exit.data.scale?.scale ?: mutableTransformState.lastScale
                 }
             }
         val transformOriginWhenVisible =
@@ -1129,21 +1192,31 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
         // Animate transform origin if there's any change. If scale is only defined for enter or
         // exit, use the same transform origin for both.
         val transformOrigin =
-            transformOriginAnimation?.animate({ spring() }) {
+            transformOriginAnimation?.animate(
+                transitionSpec = { spring() },
+                forcedInitialValue = mutableTransformState.transformOriginHandoffValue,
+                // TODO: pass forcedInitialVelocity here
+            ) {
                 when (it) {
                     EnterExitState.Visible -> transformOriginWhenVisible
                     EnterExitState.PreEnter ->
                         enter.data.scale?.transformOrigin ?: exit.data.scale?.transformOrigin
                     EnterExitState.PostExit ->
-                        exit.data.scale?.transformOrigin ?: enter.data.scale?.transformOrigin
+                        exit.data.scale?.transformOrigin
+                            ?: mutableTransformState.lastTransformOrigin
                 } ?: TransformOrigin.Center
             }
 
         val block: GraphicsLayerScope.() -> Unit = {
-            this.alpha = alpha?.value ?: 1f
-            this.scaleX = scale?.value ?: 1f
-            this.scaleY = scale?.value ?: 1f
-            this.transformOrigin = transformOrigin?.value ?: TransformOrigin.Center
+            this.alpha = mutableTransformState.combinedAlpha(transitionValue = alpha?.value ?: 1f)
+            val combinedScale =
+                mutableTransformState.combinedScale(transitionValue = scale?.value ?: 1f)
+            this.scaleX = combinedScale
+            this.scaleY = combinedScale
+            this.transformOrigin =
+                mutableTransformState.combinedTransformOrigin(
+                    transitionValue = transformOrigin?.value ?: TransformOrigin.Center
+                )
         }
         block
     }
@@ -1173,6 +1246,7 @@ private class EnterExitTransitionModifierNode(
     var slideAnimation: Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>?,
     var enter: EnterTransition,
     var exit: ExitTransition,
+    var mutableTransformState: SharedMutableTransformState,
     var isEnabled: () -> Boolean,
     var graphicsLayerBlock: GraphicsLayerBlockForEnterExit,
 ) : LayoutModifierNodeWithPassThroughIntrinsics() {
@@ -1278,13 +1352,31 @@ private class EnterExitTransitionModifierNode(
                 offsetAnimation
                     ?.animate({ DefaultOffsetAnimationSpec }) { targetOffsetByState(it, target) }
                     ?.value ?: IntOffset.Zero
-            val slideOffset =
-                slideAnimation?.animate(slideSpec) { slideTargetValueByState(it, target) }?.value
-                    ?: IntOffset.Zero
-            val offset =
-                (currentAlignment?.align(target, currentSize, LayoutDirection.Ltr)
-                    ?: IntOffset.Zero) + slideOffset
+
+            val animSlideOffsetState =
+                slideAnimation?.animate(
+                    transitionSpec = slideSpec,
+                    forcedInitialValue = mutableTransformState.slideHandoffValue,
+                    // TODO: pass forcedInitialVelocity here
+                ) {
+                    if (it == EnterExitState.PostExit && exit.data.slide == null) {
+                        mutableTransformState.lastSlide
+                    } else {
+                        slideTargetValueByState(it, target)
+                    }
+                }
+
             return layout(currentSize.width, currentSize.height) {
+                val combinedSlideOffset =
+                    mutableTransformState.combinedSlide(
+                        transitionValue = animSlideOffsetState?.value ?: IntOffset.Zero,
+                        fullSize = measuredSize,
+                    )
+
+                val offset =
+                    (currentAlignment?.align(target, currentSize, LayoutDirection.Ltr)
+                        ?: IntOffset.Zero) + combinedSlideOffset
+
                 placeable.placeWithLayer(
                     offset.x + offsetDelta.x,
                     offset.y + offsetDelta.y,
@@ -1332,6 +1424,7 @@ private class EnterExitTransitionElement(
     var slideAnimation: Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>?,
     var enter: EnterTransition,
     var exit: ExitTransition,
+    var mutableTransformState: SharedMutableTransformState,
     var isEnabled: () -> Boolean,
     var graphicsLayerBlock: GraphicsLayerBlockForEnterExit,
 ) : ModifierNodeElement<EnterExitTransitionModifierNode>() {
@@ -1343,6 +1436,7 @@ private class EnterExitTransitionElement(
             slideAnimation,
             enter,
             exit,
+            mutableTransformState,
             isEnabled,
             graphicsLayerBlock,
         )
@@ -1354,6 +1448,7 @@ private class EnterExitTransitionElement(
         node.slideAnimation = slideAnimation
         node.enter = enter
         node.exit = exit
+        node.mutableTransformState = mutableTransformState
         node.isEnabled = isEnabled
         node.graphicsLayerBlock = graphicsLayerBlock
     }
@@ -1366,13 +1461,16 @@ private class EnterExitTransitionElement(
         properties["slideAnimation"] = slideAnimation
         properties["enter"] = enter
         properties["exit"] = exit
+        properties["mutableTransformState"] = mutableTransformState
         properties["graphicsLayerBlock"] = graphicsLayerBlock
     }
 
     override fun hashCode(): Int {
         return ((((((transition.hashCode() * 31 + sizeAnimation.hashCode()) * 31 +
             offsetAnimation.hashCode()) * 31 + slideAnimation.hashCode()) * 31 + enter.hashCode()) *
-            31 + exit.hashCode()) * 31 + isEnabled.hashCode()) * 31 + graphicsLayerBlock.hashCode()
+            31 + exit.hashCode()) * 31 + isEnabled.hashCode()) * 31 +
+            graphicsLayerBlock.hashCode() * 31 +
+            mutableTransformState.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1383,6 +1481,7 @@ private class EnterExitTransitionElement(
             other.slideAnimation == slideAnimation &&
             other.enter == enter &&
             other.exit == exit &&
+            other.mutableTransformState == mutableTransformState &&
             other.isEnabled === isEnabled &&
             other.graphicsLayerBlock == graphicsLayerBlock
     }
@@ -1393,15 +1492,17 @@ private data class VeilModifierElement(
     val veilAnimation: Transition<EnterExitState>.DeferredAnimation<Color, AnimationVector4D>,
     val enter: EnterTransition,
     val exit: ExitTransition,
+    val mutableTransformState: SharedMutableTransformState,
 ) : ModifierNodeElement<VeilModifierNode>() {
     override fun create(): VeilModifierNode =
-        VeilModifierNode(transition, veilAnimation, enter, exit)
+        VeilModifierNode(transition, veilAnimation, enter, exit, mutableTransformState)
 
     override fun update(node: VeilModifierNode) {
         node.transition = transition
         node.veilAnimation = veilAnimation
         node.enter = enter
         node.exit = exit
+        node.mutableTransformState = mutableTransformState
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -1410,6 +1511,7 @@ private data class VeilModifierElement(
         properties["veilAnimation"] = veilAnimation
         properties["enter"] = enter
         properties["exit"] = exit
+        properties["mutableTransformState"] = mutableTransformState
     }
 }
 
@@ -1418,6 +1520,7 @@ private class VeilModifierNode(
     var veilAnimation: Transition<EnterExitState>.DeferredAnimation<Color, AnimationVector4D>,
     var enter: EnterTransition,
     var exit: ExitTransition,
+    var mutableTransformState: SharedMutableTransformState,
 ) : Modifier.Node(), DrawModifierNode {
 
     override fun ContentDrawScope.draw() {
@@ -1433,7 +1536,9 @@ private class VeilModifierNode(
                             exit.data.veil?.animationSpec ?: DefaultColorAnimationSpec
                         else -> DefaultColorAnimationSpec
                     }
-                }
+                },
+                forcedInitialValue = mutableTransformState.veilHandoffValue,
+                // TODO: pass forcedInitialVelocity here
             ) {
                 when (it) {
                     EnterExitState.Visible ->
@@ -1441,10 +1546,15 @@ private class VeilModifierNode(
                             ?: exit.data.veil?.initialColor
                             ?: Color.Transparent
                     EnterExitState.PreEnter -> enter.data.veil?.initialColor ?: Color.Transparent
-                    EnterExitState.PostExit -> exit.data.veil?.targetColor ?: Color.Transparent
+                    EnterExitState.PostExit ->
+                        exit.data.veil?.targetColor ?: mutableTransformState.lastVeil
                 }
             }
-        if (veilColor.value.alpha != 0f) {
+
+        val combinedVeilColor =
+            mutableTransformState.combinedVeil(transitionValue = veilColor.value)
+
+        if (combinedVeilColor.alpha != 0f) {
             val veil = enter.data.veil ?: exit.data.veil
             if (veil?.matchParentSize == true) {
                 val layoutCoordinates = requireLayoutCoordinates()
@@ -1454,9 +1564,9 @@ private class VeilModifierNode(
                     } ?: Size.Zero
                 val offsetInParent = layoutCoordinates.positionInParent()
 
-                drawRect(color = veilColor.value, size = parentSize, topLeft = -offsetInParent)
+                drawRect(color = combinedVeilColor, size = parentSize, topLeft = -offsetInParent)
             } else {
-                drawRect(veilColor.value)
+                drawRect(combinedVeilColor)
             }
         }
     }

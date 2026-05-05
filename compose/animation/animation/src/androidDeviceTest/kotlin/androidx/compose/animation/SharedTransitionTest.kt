@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
+@file:OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalDeferredTransitionApi::class,
+)
 
 package androidx.compose.animation
 
@@ -22,6 +26,7 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.SharedTransitionScope.PlaceholderSize.Companion.AnimatedSize
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Transition
