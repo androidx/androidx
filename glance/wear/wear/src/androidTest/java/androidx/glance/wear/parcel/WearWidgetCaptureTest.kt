@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.action.pendingIntentAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -72,6 +73,7 @@ class WearWidgetCaptureTest {
             PendingIntent.getActivity(context, 5678, Intent(), PendingIntent.FLAG_IMMUTABLE)
 
         @Composable
+        @RemoteComposable
         fun TestLayout() {
             RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
                 RemoteBox(modifier = RemoteModifier.size(100.rdp))
@@ -87,18 +89,13 @@ class WearWidgetCaptureTest {
         }
 
         @Composable
-        internal fun CaptureWidgetContentData(content: @Composable () -> Unit) {
+        internal fun CaptureWidgetContentData(content: @Composable @RemoteComposable () -> Unit) {
             val creationDisplayInfo = CreationDisplayInfo(400, 400, (2f * 160).toInt())
             val context = LocalContext.current
 
             val data = remember { mutableStateOf<WearWidgetRawContent?>(null) }
             LaunchedEffect(Unit) {
-                data.value =
-                    WearWidgetCapture.capture(
-                        context,
-                        creationDisplayInfo,
-                        @Composable { content() },
-                    )
+                data.value = WearWidgetCapture.capture(context, creationDisplayInfo, content)
             }
 
             Column {
