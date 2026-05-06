@@ -45,4 +45,8 @@ internal open class FakeMeshEntity(
             feature?.setReformAffordanceEnabled(this, enabled, executor, systemMovable)
         }
     }
+
+    override fun setColliderEnabled(enabled: Boolean) {
+        feature?.setColliderEnabled(enabled)
+    }
 }

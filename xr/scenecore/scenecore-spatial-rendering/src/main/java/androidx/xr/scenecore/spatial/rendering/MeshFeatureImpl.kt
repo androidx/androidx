@@ -75,4 +75,8 @@ internal class MeshFeatureImpl(
             subspace?.subspaceNode?.stopListeningForInput()
         }
     }
+
+    override fun setColliderEnabled(enabled: Boolean) {
+        impressApi.setCustomMeshNodeColliderEnabled(impressNode, enabled)
+    }
 }

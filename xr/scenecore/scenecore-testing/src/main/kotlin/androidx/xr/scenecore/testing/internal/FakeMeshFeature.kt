@@ -45,4 +45,8 @@ internal open class FakeMeshFeature(
     ) {
         // Test stub.
     }
+
+    override fun setColliderEnabled(enabled: Boolean) {
+        // Test stub.
+    }
 }

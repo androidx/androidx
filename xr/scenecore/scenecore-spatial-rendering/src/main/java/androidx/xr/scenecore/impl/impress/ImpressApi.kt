@@ -1388,6 +1388,14 @@ public interface ImpressApi {
     )
 
     /**
+     * Dynamically enables or disables the collider for the CustomMeshEntity.
+     *
+     * @param impressNode The Impress node which hosts the CustomMeshEntity to be updated.
+     * @param enableCollider True to enable the collider, false to disable it.
+     */
+    public fun setCustomMeshNodeColliderEnabled(impressNode: ImpressNode, enableCollider: Boolean)
+
+    /**
      * Sets the transforms for the bones in the skinned mesh.
      *
      * @param impressNode The impress node to update.

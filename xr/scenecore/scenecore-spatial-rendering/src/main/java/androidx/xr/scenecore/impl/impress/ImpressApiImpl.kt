@@ -1742,6 +1742,17 @@ public class ImpressApiImpl : ImpressApi {
         )
     }
 
+    override fun setCustomMeshNodeColliderEnabled(
+        impressNode: ImpressNode,
+        enableCollider: Boolean,
+    ) {
+        nSetCustomMeshNodeColliderEnabled(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            enableCollider,
+        )
+    }
+
     override fun setBoneTransforms(impressNode: ImpressNode, transforms: List<Matrix4>) {
         val floatArray = FloatArray(transforms.size * 16)
         var i = 0
@@ -2539,6 +2550,12 @@ public class ImpressApiImpl : ImpressApi {
         nodeId: Int,
         submeshIndex: Int,
         materialHandle: Long,
+    )
+
+    private external fun nSetCustomMeshNodeColliderEnabled(
+        view: Long,
+        nodeId: Int,
+        enableCollider: Boolean,
     )
 
     private external fun nUpdateCustomMeshNodeBoneTransforms(

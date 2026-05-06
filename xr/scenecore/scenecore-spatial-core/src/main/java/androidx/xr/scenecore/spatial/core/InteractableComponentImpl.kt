@@ -19,6 +19,7 @@ import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.InteractableComponent
+import androidx.xr.scenecore.runtime.MeshEntity
 import java.util.concurrent.Executor
 
 internal class InteractableComponentImpl(val executor: Executor, val consumer: InputEventListener) :
@@ -33,6 +34,7 @@ internal class InteractableComponentImpl(val executor: Executor, val consumer: I
         when (entity) {
             is GltfEntity -> entity.setColliderEnabled(true)
             is SurfaceEntityImpl -> entity.setColliderEnabled(true)
+            is MeshEntity -> entity.setColliderEnabled(true)
         }
         // InputEvent type translation happens here.
         entity.addInputEventListener(executor, consumer)
@@ -43,6 +45,7 @@ internal class InteractableComponentImpl(val executor: Executor, val consumer: I
         when (entity) {
             is GltfEntity -> entity.setColliderEnabled(false)
             is SurfaceEntityImpl -> entity.setColliderEnabled(false)
+            is MeshEntity -> entity.setColliderEnabled(false)
         }
         entity.removeInputEventListener(consumer)
         this.entity = null
