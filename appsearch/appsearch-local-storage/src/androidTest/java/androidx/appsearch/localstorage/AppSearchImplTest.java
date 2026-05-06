@@ -1300,6 +1300,7 @@ public class AppSearchImplTest {
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_CLIENT_SIDE_PAGINATION)
     public void testQueryWithPageSizeLimit() throws Exception {
         IcingSearchEngineOptions icingOptions =
                 IcingSearchEngineOptions.newBuilder(mUnlimitedConfig.toIcingSearchEngineOptions(
