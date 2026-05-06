@@ -28,7 +28,7 @@ import androidx.room3.util.TableInfo.Companion.read as tableInfoRead
 import androidx.room3.util.ViewInfo.Companion.read as viewInfoRead
 
 @Generated(value = ["androidx.room3.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "UNUSED_EXPRESSION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
 internal class MyDatabase_Impl : MyDatabase() {
   private val _myDao: Lazy<MyDao> = lazy {
     MyDao_Impl(this)
