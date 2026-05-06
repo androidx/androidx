@@ -116,7 +116,7 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterial3Api
 fun BottomSheet(
     modifier: Modifier = Modifier,
-    state: SheetState = rememberModalBottomSheetState(),
+    state: SheetState = rememberBottomSheetState(initialValue = Hidden),
     onDismissRequest: () -> Unit = {},
     maxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     gesturesEnabled: Boolean = true,
@@ -188,7 +188,7 @@ fun BottomSheet(
 internal fun BottomSheetImpl(
     predictiveBackProgress: Float,
     modifier: Modifier = Modifier,
-    state: SheetState = rememberModalBottomSheetState(),
+    state: SheetState = rememberBottomSheetState(initialValue = Hidden),
     onDismissRequest: () -> Unit = {},
     maxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     gesturesEnabled: Boolean = true,

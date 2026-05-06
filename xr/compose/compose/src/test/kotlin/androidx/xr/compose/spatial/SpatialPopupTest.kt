@@ -987,6 +987,7 @@ class SpatialPopupTest {
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
+    @Suppress("Deprecation")
     @Test
     fun spatialPopup_withModalBottomSheet_interactsCorrectly() {
         var popupTextString = "N/A"

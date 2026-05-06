@@ -46,7 +46,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
@@ -263,7 +262,7 @@ class BottomSheetTest {
 
         rule.setContent {
             val density = LocalDensity.current
-            state = rememberSheetState(initialValue = SheetValue.PartiallyExpanded)
+            state = rememberBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
             BottomSheet(
                 onDismissRequest = {},
                 state = state,
@@ -295,7 +294,7 @@ class BottomSheetTest {
 
         rule.setContent {
             val density = LocalDensity.current
-            state = rememberSheetState(initialValue = SheetValue.Expanded)
+            state = rememberBottomSheetState(initialValue = SheetValue.Expanded)
             BottomSheet(
                 onDismissRequest = {},
                 state = state,
@@ -320,7 +319,7 @@ class BottomSheetTest {
         lateinit var density: Density
 
         rule.setContent {
-            state = rememberSheetState(initialValue = SheetValue.PartiallyExpanded)
+            state = rememberBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
             scope = rememberCoroutineScope()
             density = LocalDensity.current
             insets = remember(state) { SheetWindowInsets(state) }
@@ -387,7 +386,7 @@ class BottomSheetTest {
 
         rule.setContent {
             MaterialTheme(motionScheme = customMotionScheme) {
-                sheetState = rememberModalBottomSheetState()
+                sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
 
                 BottomSheet(
                     state = sheetState,
@@ -411,7 +410,8 @@ class BottomSheetTest {
             val density = LocalDensity.current
             sheetState =
                 SheetState(
-                    skipPartiallyExpanded = false,
+                    enabledValues =
+                        setOf(SheetValue.Expanded, SheetValue.PartiallyExpanded, SheetValue.Hidden),
                     initialValue = SheetValue.PartiallyExpanded,
                     positionalThreshold = {
                         with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
@@ -437,11 +437,5 @@ class BottomSheetTest {
 
         // Verify the sheet successfully dismisses
         rule.runOnIdle { assertThat(sheetState.isVisible).isFalse() }
-    }
-
-    private fun ComposeTestRule.rootHeightPx(): Float {
-        val node = onNodeWithTag(sheetTag, useUnmergedTree = true).onParent()
-        val bounds = node.getUnclippedBoundsInRoot()
-        return with(density) { bounds.bottom.toPx() - bounds.top.toPx() }
     }
 }
