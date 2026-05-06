@@ -29,12 +29,6 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.ExperimentalMediaQueryApi
-import androidx.compose.ui.LocalUiMediaScope
-import androidx.compose.ui.UiMediaScope.KeyboardKind
-import androidx.compose.ui.UiMediaScope.PointerPrecision
 
 /**
  * Material Theming refers to the customization of your Material Design app to better reflect your
@@ -94,7 +88,6 @@ fun MaterialTheme(
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
  * @param typography A set of text styles to be used as this hierarchy's typography system
  */
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMediaQueryApi::class)
 @Composable
 fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
@@ -117,13 +110,9 @@ fun MaterialTheme(
         LocalIndication provides rippleIndication,
         LocalTextSelectionColors provides selectionColors,
     ) {
-        if (ComposeUiFlags.isMediaQueryIntegrationEnabled) {
-            val uiMediaScope = LocalUiMediaScope.current
-            shouldUsePrecisionPointerComponentSizing.value =
-                uiMediaScope.pointerPrecision == PointerPrecision.Fine &&
-                    uiMediaScope.keyboardKind == KeyboardKind.Physical
+        EnsurePrecisionPointerListenersRegistered {
+            ProvideTextStyle(value = typography.bodyLarge, content = content)
         }
-        ProvideTextStyle(value = typography.bodyLarge, content = content)
     }
 }
 

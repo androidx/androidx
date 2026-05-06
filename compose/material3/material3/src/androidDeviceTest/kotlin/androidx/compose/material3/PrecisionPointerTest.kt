@@ -16,22 +16,15 @@
 
 package androidx.compose.material3
 
+import android.content.Context
+import android.hardware.input.InputManager
 import android.os.Build
+import android.view.InputDevice
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.ExperimentalMediaQueryApi
-import androidx.compose.ui.LocalUiMediaScope
-import androidx.compose.ui.UiMediaScope
-import androidx.compose.ui.UiMediaScope.KeyboardKind
-import androidx.compose.ui.UiMediaScope.PointerPrecision
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -41,12 +34,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalMediaQueryApi::class,
-)
+@OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
@@ -60,133 +54,199 @@ class PrecisionPointerTest {
 
     @Test
     fun precisionPointerUiDisabled_withPhysicalKeyboardAndMouse_noDenseUi() {
-        ComposeUiFlags.isMediaQueryIntegrationEnabled = false
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = false
 
-        val uiMediaScope = MockUiMediaScope()
+        val inputManager = FakeInputManager()
 
-        rule.setContent(uiMediaScope)
-        uiMediaScope.updateKeyboardKind(KeyboardKind.Physical)
-        uiMediaScope.updatePointerPrecision(PointerPrecision.Fine)
+        rule.setContent(inputManager.inputManager)
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
         rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
     }
 
     @Test
     fun precisionPointerUiEnabled_noDevicesConnected_noDenseUi() {
-        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
 
-        val uiMediaScope = MockUiMediaScope()
+        val inputManager = FakeInputManager()
 
-        rule.setContent(uiMediaScope)
+        rule.setContent(inputManager.inputManager)
 
         rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
     }
 
     @Test
     fun precisionPointerUiEnabled_withPhysicalKeyboardAndMouse_usesDenseUi() {
-        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
 
-        val uiMediaScope = MockUiMediaScope()
+        val inputManager = FakeInputManager()
 
-        rule.setContent(uiMediaScope)
-        uiMediaScope.updateKeyboardKind(KeyboardKind.Physical)
-        uiMediaScope.updatePointerPrecision(PointerPrecision.Fine)
+        rule.setContent(inputManager.inputManager)
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
         rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isTrue() }
     }
 
     @Test
     fun precisionPointerUiEnabled_withMouse_physicalKeyboardAddedLater_updatesToUseDenseUi() {
-        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
 
-        val uiMediaScope = MockUiMediaScope()
+        val inputManager = FakeInputManager()
 
-        rule.setContent(uiMediaScope)
+        rule.setContent(inputManager.inputManager)
 
         // Add just mouse, not enough to trigger dense UI
-        uiMediaScope.updatePointerPrecision(PointerPrecision.Fine)
+        inputManager.addDevice(MockDevices.mouse)
         rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
 
         // Add keyboard as well, now we have kb+mouse, so we can trigger dense UI
-        uiMediaScope.updateKeyboardKind(KeyboardKind.Physical)
+        inputManager.addDevice(MockDevices.physicalKeyboard)
         rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isTrue() }
     }
 
     @Test
     fun precisionPointerUiEnabled_updateDeviceToMouse_updatesToUseDenseUi() {
-        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
 
-        val uiMediaScope = MockUiMediaScope()
+        val inputManager = FakeInputManager()
 
-        rule.setContent(uiMediaScope)
+        rule.setContent(inputManager.inputManager)
 
-        uiMediaScope.updateKeyboardKind(KeyboardKind.Physical)
-        uiMediaScope.updatePointerPrecision(PointerPrecision.Coarse)
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.touchpadNonMouse)
         rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
 
-        uiMediaScope.updatePointerPrecision(PointerPrecision.Fine)
+        inputManager.updateDevice(
+            MockDevices.touchpadNonMouse.copy(
+                sources = InputDevice.SOURCE_TOUCHPAD or InputDevice.SOURCE_MOUSE
+            )
+        )
         rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isTrue() }
     }
 
     @Test
     fun precisionPointerUiEnabled_removePhysicalKeyboard_updatesToRemoveDenseUi() {
-        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
 
-        val uiMediaScope = MockUiMediaScope()
+        val inputManager = FakeInputManager()
 
-        rule.setContent(uiMediaScope)
+        rule.setContent(inputManager.inputManager)
 
-        uiMediaScope.updateKeyboardKind(KeyboardKind.Physical)
-        uiMediaScope.updatePointerPrecision(PointerPrecision.Fine)
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
         rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isTrue() }
 
-        uiMediaScope.updateKeyboardKind(KeyboardKind.None)
+        inputManager.removeDevice(MockDevices.physicalKeyboard)
         rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
     }
 }
 
-@OptIn(ExperimentalMediaQueryApi::class)
-private fun ComposeContentTestRule.setContent(uiMediaScope: MockUiMediaScope) {
-    setContent {
-        CompositionLocalProvider(LocalUiMediaScope provides uiMediaScope) { MaterialTheme {} }
+private fun ComposeContentTestRule.setContent(inputManager: InputManager) {
+    val fakeContext: Context = mock {
+        on { getSystemService(InputManager::class.java) } doReturn inputManager
+    }
+
+    setContent { CompositionLocalProvider(LocalContext provides fakeContext) { MaterialTheme {} } }
+}
+
+object MockDevices {
+    private var nextId = 1000
+
+    /** A full physical keyboard. */
+    val physicalKeyboard =
+        keyboard(isVirtual = false, keyboardType = InputDevice.KEYBOARD_TYPE_ALPHABETIC)
+
+    /** A physical 0-9 numpad. */
+    val physicalNumpad =
+        keyboard(isVirtual = false, keyboardType = InputDevice.KEYBOARD_TYPE_NON_ALPHABETIC)
+
+    /** A virtual keyboard. */
+    val virtualKeyboard =
+        keyboard(isVirtual = true, keyboardType = InputDevice.KEYBOARD_TYPE_ALPHABETIC)
+
+    /** A virtual 0-9 numpad. */
+    val virtualNumpad =
+        keyboard(isVirtual = true, keyboardType = InputDevice.KEYBOARD_TYPE_NON_ALPHABETIC)
+
+    /** A physical mouse. */
+    val mouse = device(isVirtual = false, sources = InputDevice.SOURCE_MOUSE)
+
+    /** An external drawing tablet. */
+    val drawingTablet =
+        device(isVirtual = false, sources = InputDevice.SOURCE_MOUSE or InputDevice.SOURCE_STYLUS)
+
+    /** A touchpad that moves the mouse cursor. */
+    val touchpadMouse =
+        device(isVirtual = false, sources = InputDevice.SOURCE_MOUSE or InputDevice.SOURCE_TOUCHPAD)
+
+    /** A touchpad that does not move the mouse cursor. */
+    val touchpadNonMouse = device(isVirtual = false, sources = InputDevice.SOURCE_TOUCHPAD)
+
+    private fun keyboard(isVirtual: Boolean, keyboardType: Int): InputDevice = mock {
+        on { this.id } doReturn nextId++
+        on { this.isVirtual } doReturn isVirtual
+        on { this.sources } doReturn InputDevice.SOURCE_KEYBOARD
+        on { this.keyboardType } doReturn keyboardType
+    }
+
+    private fun device(isVirtual: Boolean, sources: Int): InputDevice = mock {
+        on { this.id } doReturn nextId++
+        on { this.isVirtual } doReturn isVirtual
+        on { this.sources } doReturn sources
     }
 }
 
-@OptIn(ExperimentalMediaQueryApi::class)
-internal class MockUiMediaScope : UiMediaScope {
-    override var windowWidth: Dp by mutableStateOf(0.dp)
-    override var windowHeight: Dp by mutableStateOf(0.dp)
-    override var windowPosture: UiMediaScope.Posture by mutableStateOf(UiMediaScope.Posture.Flat)
-    override var pointerPrecision: PointerPrecision by mutableStateOf(PointerPrecision.None)
-    override var keyboardKind: KeyboardKind by mutableStateOf(KeyboardKind.None)
-    override var hasMicrophone: Boolean by mutableStateOf(false)
-    override var hasCamera: Boolean by mutableStateOf(false)
-    override var viewingDistance: UiMediaScope.ViewingDistance by
-        mutableStateOf(UiMediaScope.ViewingDistance.Near)
+private fun InputDevice.copy(
+    id: Int = this.id,
+    isVirtual: Boolean = this.isVirtual,
+    sources: Int = this.sources,
+    keyboardType: Int = this.keyboardType,
+): InputDevice = mock {
+    on { this.id } doReturn id
+    on { this.isVirtual } doReturn isVirtual
+    on { this.sources } doReturn sources
+    on { this.keyboardType } doReturn keyboardType
+}
 
-    constructor(
-        windowWidth: Dp = 0.dp,
-        windowHeight: Dp = 0.dp,
-        windowPosture: UiMediaScope.Posture = UiMediaScope.Posture.Flat,
-        pointerPrecision: PointerPrecision = PointerPrecision.None,
-        keyboardKind: KeyboardKind = KeyboardKind.None,
-        hasMicrophone: Boolean = false,
-        hasCamera: Boolean = false,
-        viewingDistance: UiMediaScope.ViewingDistance = UiMediaScope.ViewingDistance.Near,
-    ) {
-        this.windowWidth = windowWidth
-        this.windowHeight = windowHeight
-        this.windowPosture = windowPosture
-        this.pointerPrecision = pointerPrecision
-        this.keyboardKind = keyboardKind
-        this.hasMicrophone = hasMicrophone
-        this.hasCamera = hasCamera
-        this.viewingDistance = viewingDistance
+class FakeInputManager {
+    val inputManager: InputManager = mock {
+        on { registerInputDeviceListener(any(), anyOrNull()) } doAnswer
+            { invocation ->
+                val listener = invocation.getArgument<InputManager.InputDeviceListener>(0)
+                listeners += listener
+            }
+        on { unregisterInputDeviceListener(any()) } doAnswer
+            { invocation ->
+                val listener = invocation.getArgument<InputManager.InputDeviceListener>(0)
+                listeners -= listener
+            }
+        on { getInputDevice(any()) } doAnswer
+            { invocation ->
+                val id = invocation.getArgument<Int>(0)
+                devices[id]
+            }
+        on { inputDeviceIds } doAnswer { devices.keys.toIntArray() }
     }
 
-    fun updatePointerPrecision(pointerPrecision: PointerPrecision) {
-        this.pointerPrecision = pointerPrecision
+    private val listeners = mutableListOf<InputManager.InputDeviceListener>()
+
+    private val devices = mutableMapOf<Int, InputDevice>()
+
+    fun addDevice(inputDevice: InputDevice) {
+        devices[inputDevice.id] = inputDevice
+        listeners.forEach { it.onInputDeviceAdded(inputDevice.id) }
     }
 
-    fun updateKeyboardKind(keyboardKind: KeyboardKind) {
-        this.keyboardKind = keyboardKind
+    fun removeDevice(inputDevice: InputDevice) {
+        devices.remove(inputDevice.id)
+        listeners.forEach { it.onInputDeviceRemoved(inputDevice.id) }
+    }
+
+    fun updateDevice(inputDevice: InputDevice) {
+        check(inputDevice.id in devices) {
+            "updateDevice(id=${inputDevice.id}) called but this ID doesn't exist. Current IDs: ${devices.keys}"
+        }
+        devices[inputDevice.id] = inputDevice
+        listeners.forEach { it.onInputDeviceChanged(inputDevice.id) }
     }
 }

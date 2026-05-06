@@ -54,6 +54,14 @@ object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField") @JvmField var isSnackbarStylingFixEnabled: Boolean = false
 
     /**
+     * When this flag is true and a precision pointer is present, components are resized accordingly
+     */
+    // TODO: b/485970768
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isPrecisionPointerComponentSizingEnabled: Boolean = false
+
+    /**
      * This flag affects Material3 components that use
      * [androidx.compose.foundation.gestures.anchoredDraggable]. Those are: [BottomSheetScaffold],
      * [ModalBottomSheet], [SwipeToDismissBox] and [WideNavigationRail].
