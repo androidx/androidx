@@ -54,23 +54,18 @@ public class RemoteBaseContentTestRule : TestRule {
         player: Player,
         size: Size,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
-        // b/500955051: remove this param
-        composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)? = null,
+        composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = { it() },
         composable: @RemoteComposable @Composable () -> Unit,
     ) {
         composeTestRule.setContent {
-            val composable: @Composable () -> Unit = {
-                val coreDocument: CoreDocument? by
-                    creation.rememberRemoteDocument(composable = composable)
+            val coreDocument: CoreDocument? by
+                creation.rememberRemoteDocument(composable = composable)
+            coreDocument?.let {
+                onCoreDocumentCreated?.invoke(it)
 
-                coreDocument?.let {
-                    onCoreDocumentCreated?.invoke(it)
+                val composable: @Composable () -> Unit = {
                     player.Play(coreDocument = it, size = size)
                 }
-            }
-            if (composableWrapper == null) {
-                composable()
-            } else {
                 composableWrapper { composable() }
             }
         }

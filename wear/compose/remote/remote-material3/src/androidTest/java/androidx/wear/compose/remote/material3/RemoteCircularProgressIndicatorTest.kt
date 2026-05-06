@@ -122,8 +122,8 @@ class RemoteCircularProgressIndicatorTest {
             put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
         }
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
             remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
             composableWrapper = { composable ->
                 Box(modifier = Modifier.background(Color.Black)) { composable() }
             },

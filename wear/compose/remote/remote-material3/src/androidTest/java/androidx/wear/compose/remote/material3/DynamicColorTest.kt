@@ -96,13 +96,13 @@ class DynamicColorTest {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = RcPlatformProfiles.WEAR_WIDGETS,
+            composableWrapper = { composable ->
+                Box(modifier = Modifier.background(Color.Black)) { composable() }
+            },
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->
                     player.setUserLocalColor(name, colorInt)
                 }
-            },
-            composableWrapper = { composable ->
-                Box(modifier = Modifier.background(Color.Black)) { composable() }
             },
         ) {
             val gridUI = GridScreenshotUI(itemsPerRow = 4, ContainerSize = 50.rdp)

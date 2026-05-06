@@ -66,8 +66,8 @@ class RemoteTitleCardTest {
     @Test
     fun title_card_rtl() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
             remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
             composableWrapper = { content ->
                 DeviceConfigurationOverride(DeviceConfigurationOverride.LayoutDirection(Rtl)) {
                     content()
