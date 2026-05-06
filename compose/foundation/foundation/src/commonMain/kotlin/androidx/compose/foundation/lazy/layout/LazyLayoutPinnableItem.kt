@@ -143,18 +143,24 @@ private class LazyLayoutPinnableItem(
         return this
     }
 
+    private fun unpin() {
+        pinnedItemList.release(this)
+        parentHandle?.release()
+        parentHandle = null
+    }
+
     override fun release() {
         if (isDisposed) return // already during item disposal.
         checkPrecondition(pinsCount > 0) { "Release should only be called once" }
         pinsCount--
         if (pinsCount == 0) {
-            pinnedItemList.release(this)
-            parentHandle?.release()
-            parentHandle = null
+            unpin()
         }
     }
 
     fun onDisposed() {
         isDisposed = true
+        pinsCount = 0
+        unpin()
     }
 }
